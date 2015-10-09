@@ -129,12 +129,12 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo,Device>
             deviceInfo.deviceConfiguration.deviceType.id = device.getDeviceType().getId();
             deviceInfo.deviceConfiguration.deviceType.link = Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class).path("{id}")).rel(LinkInfo.REF_PARENT).title("Device type").build(device.getDeviceType().getId());
         });
-        map.put("communicationTasks", (deviceInfo, device, uriInfo) -> {
+        map.put("communicationTaskExecutions", (deviceInfo, device, uriInfo) -> {
             UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().
                     path(ComTaskExecutionResource.class).
                     path(ComTaskExecutionResource.class, "getComTaskExecution").
                     resolveTemplate("mrid", device.getmRID());
-            deviceInfo.communicationsTasks = device.getComTaskExecutions().stream()
+            deviceInfo.communicationsTaskExecutions = device.getComTaskExecutions().stream()
                     .map(cte->{
                         LinkInfo linkInfo = new LinkInfo();
                         linkInfo.id = cte.getId();

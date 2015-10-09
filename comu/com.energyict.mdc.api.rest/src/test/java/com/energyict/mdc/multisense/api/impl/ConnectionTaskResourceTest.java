@@ -50,13 +50,13 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         DeviceConfiguration deviceConfig = mockDeviceConfiguration(34L, "default configuration", elec1);
         Device deviceXas = mockDevice("XAS", "5544657642", deviceConfig);
 
-        Response response = target("devices/XAS/connectionmethods").request().get();
+        Response response = target("devices/XAS/connectiontasks").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     @Test
     public void testConnectionTaskInfoFields() throws Exception {
-        Response response = target("devices/XAS/connectionmethods").request().accept(MediaType.APPLICATION_JSON).method("PROPFIND", Response.class);
+        Response response = target("devices/XAS/connectiontasks").request().accept(MediaType.APPLICATION_JSON).method("PROPFIND", Response.class);
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
         assertThat(jsonModel.<JSONArray>get("$")).containsOnly("allowSimultaneousConnections", "comPortPool", "comWindow",
                 "connectionStrategy", "connectionType", "id", "direction", "isDefault", "link", "connectionMethod", "nextExecutionSpecs", "properties",
@@ -75,12 +75,12 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         ScheduledConnectionTask connectionTask = mockScheduledConnectionTask(41L, "connTask", deviceXas, comPortPool, partial);
         when(connectionTaskService.findConnectionTask(41L)).thenReturn(Optional.of(connectionTask));
 
-        Response response = target("devices/XAS/connectionmethods/41").request().get();
+        Response response = target("devices/XAS/connectiontasks/41").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("$.id")).isEqualTo(41);
         assertThat(jsonModel.<Integer>get("$.connectionMethod.id")).isEqualTo(1681);
-        assertThat(jsonModel.<String>get("$.connectionMethod.link.href")).isEqualTo("http://localhost:9998/devicetypes/101/deviceconfigurations/1101/connectionmethods/1681");
+        assertThat(jsonModel.<String>get("$.connectionMethod.link.href")).isEqualTo("http://localhost:9998/devicetypes/101/deviceconfigurations/1101/partialconnectiontasks/1681");
         assertThat(jsonModel.<String>get("$.connectionMethod.link.params.rel")).isEqualTo("up");
         assertThat(jsonModel.<String>get("$.direction")).isEqualTo("Outbound");
         assertThat(jsonModel.<String>get("$.status")).isEqualTo("Active");
@@ -90,7 +90,7 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(jsonModel.<Integer>get("$.rescheduleRetryDelay.count")).isEqualTo(60);
         assertThat(jsonModel.<String>get("$.rescheduleRetryDelay.timeUnit")).isEqualTo("minutes");
         assertThat(jsonModel.<String>get("$.link.params.rel")).isEqualTo(LinkInfo.REF_SELF);
-        assertThat(jsonModel.<String>get("$.link.href")).isEqualTo("http://localhost:9998/devices/XAS/connectionmethods/41");
+        assertThat(jsonModel.<String>get("$.link.href")).isEqualTo("http://localhost:9998/devices/XAS/connectiontasks/41");
         assertThat(jsonModel.<Integer>get("$.comWindow.start")).isEqualTo(7200000);
         assertThat(jsonModel.<Integer>get("$.comWindow.end")).isEqualTo(14400000);
         assertThat(jsonModel.<String>get("$.comPortPool.link.href")).isEqualTo("http://localhost:9998/comportpools/65");
@@ -137,9 +137,9 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         when(builder.setConnectionTaskLifecycleStatus(connectionTaskLifecycleStatusArgumentCaptor.capture())).thenReturn(builder);
         when(builder.add()).thenReturn(inboundConnectionTask);
 
-        Response response = target("devices/XAS/connectionmethods").request().post(Entity.json(info));
+        Response response = target("devices/XAS/connectiontasks").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-        assertThat(response.getLocation().toString()).isEqualTo("http://localhost:9998/devices/XAS/connectionmethods/12345");
+        assertThat(response.getLocation().toString()).isEqualTo("http://localhost:9998/devices/XAS/connectiontasks/12345");
         assertThat(comPortPoolArgumentCaptor.getValue()).isEqualTo(inboundComPortPool);
         assertThat(connectionTaskLifecycleStatusArgumentCaptor.getValue()).isEqualTo(info.status);
         verify(connectionTaskService).setDefaultConnectionTask(inboundConnectionTask);
@@ -172,7 +172,7 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         ArgumentCaptor<InboundComPortPool> comPortPoolArgumentCaptor = ArgumentCaptor.forClass(InboundComPortPool.class);
         doNothing().when(existing).setComPortPool(comPortPoolArgumentCaptor.capture());
 
-        Response response = target("devices/XAS/connectionmethods/12345").request().put(Entity.json(info));
+        Response response = target("devices/XAS/connectiontasks/12345").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(comPortPoolArgumentCaptor.getValue()).isEqualTo(inboundComPortPool);
         verify(existing).deactivate();
@@ -207,7 +207,7 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         ArgumentCaptor<InboundComPortPool> comPortPoolArgumentCaptor = ArgumentCaptor.forClass(InboundComPortPool.class);
         doNothing().when(existing).setComPortPool(comPortPoolArgumentCaptor.capture());
 
-        Response response = target("devices/XAS/connectionmethods/12345").request().put(Entity.json(info));
+        Response response = target("devices/XAS/connectiontasks/12345").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         assertThat(comPortPoolArgumentCaptor.getValue()).isEqualTo(inboundComPortPool);
         verify(existing).activate();
@@ -260,9 +260,9 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         when(builder.add()).thenReturn(scheduledConnectionTask);
 
         // ACTUAL CALL
-        Response response = target("devices/XAS/connectionmethods").request().post(Entity.json(info));
+        Response response = target("devices/XAS/connectiontasks").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
-        assertThat(response.getLocation().toString()).isEqualTo("http://localhost:9998/devices/XAS/connectionmethods/6789");
+        assertThat(response.getLocation().toString()).isEqualTo("http://localhost:9998/devices/XAS/connectiontasks/6789");
         assertThat(comPortPoolArgumentCaptor.getValue()).isEqualTo(outboundComPortPool);
         assertThat(connectionTaskLifecycleStatusArgumentCaptor.getValue()).isEqualTo(info.status);
         assertThat(stringArgumentCaptor.getValue()).isEqualTo("decimal.property");
@@ -304,7 +304,7 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         when(deviceXas.getConnectionTasks()).thenReturn(Collections.singletonList(existing));
         when(connectionTaskService.findConnectionTask(123456789)).thenReturn(Optional.of(existing));
         // ACTUAL CALL
-        Response response = target("devices/XAS/connectionmethods/123456789").request().put(Entity.json(info));
+        Response response = target("devices/XAS/connectiontasks/123456789").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(existing).setConnectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS);
         verify(existing).setSimultaneousConnectionsAllowed(true);

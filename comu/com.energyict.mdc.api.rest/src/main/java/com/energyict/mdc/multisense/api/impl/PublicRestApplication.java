@@ -14,6 +14,7 @@ import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -26,6 +27,7 @@ import com.energyict.mdc.multisense.api.impl.utils.RestExceptionMapper;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -65,6 +67,7 @@ public class PublicRestApplication extends Application implements TranslationKey
     private volatile ConnectionTaskService connectionTaskService;
     private volatile EngineConfigurationService engineConfigurationService;
     private volatile TaskService taskService;
+    private volatile SchedulingService schedulingService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile Clock clock;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
@@ -78,6 +81,7 @@ public class PublicRestApplication extends Application implements TranslationKey
                 AuthenticationDeviceAccessLevelResource.class,
                 ComPortPoolResource.class,
                 ComTaskResource.class,
+                ComTaskEnablementResource.class,
                 ComTaskExecutionResource.class,
                 ConfigurationSecurityPropertySetResource.class,
                 ConnectionTaskResource.class,
@@ -89,6 +93,7 @@ public class PublicRestApplication extends Application implements TranslationKey
                 DeviceTypeResource.class,
                 EncryptionDeviceAccessLevelResource.class,
                 PartialConnectionTaskResource.class,
+                ProtocolDialectConfigurationPropertiesResource.class,
                 ProtocolTaskResource.class,
 
                 RestExceptionMapper.class,
@@ -155,6 +160,11 @@ public class PublicRestApplication extends Application implements TranslationKey
         this.engineConfigurationService = engineConfigurationService;
     }
 
+    @Reference
+    public void setSchedulingService(SchedulingService schedulingService) {
+        this.schedulingService = schedulingService;
+    }
+
     @Override
     public String getComponentName() {
         return COMPONENT_NAME;
@@ -219,6 +229,7 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(deviceMessageSpecificationService).to(DeviceMessageSpecificationService.class);
             bind(clock).to(Clock.class);
             bind(protocolPluggableService).to(ProtocolPluggableService.class);
+            bind(schedulingService).to(SchedulingService.class);
 
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class).in(Singleton.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
@@ -240,6 +251,8 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(EncryptionDeviceAccessLevelInfoFactory.class).to(EncryptionDeviceAccessLevelInfoFactory.class).in(Singleton.class);
             bind(ConfigurationSecurityPropertySetFactory.class).to(ConfigurationSecurityPropertySetFactory.class).in(Singleton.class);
             bind(ComTaskExecutionInfoFactory.class).to(ComTaskExecutionInfoFactory.class).in(Singleton.class);
+            bind(ComTaskEnablementInfoFactory.class).to(ComTaskEnablementInfoFactory.class).in(Singleton.class);
+            bind(ProtocolDialectConfigurationPropertiesInfoFactory.class).to(ProtocolDialectConfigurationPropertiesInfoFactory.class).in(Singleton.class);
         }
     }
 

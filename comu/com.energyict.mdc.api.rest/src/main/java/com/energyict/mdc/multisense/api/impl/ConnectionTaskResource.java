@@ -39,7 +39,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * Created by bvn on 7/13/15.
  */
-@Path("devices/{mrid}/connectionmethods")
+@Path("devices/{mrid}/connectiontasks")
 public class ConnectionTaskResource {
 
     private final ConnectionTaskInfoFactory connectionTaskInfoFactory;
@@ -58,7 +58,7 @@ public class ConnectionTaskResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed({Privileges.PUBLIC_REST_API})
-    public PagedInfoList<ConnectionTaskInfo> getConnectionMethods(@PathParam("mrid") String mrid,
+    public PagedInfoList<ConnectionTaskInfo> getConnectionTasks(@PathParam("mrid") String mrid,
                                               @Context UriInfo uriInfo,
                                               @BeanParam FieldSelection fieldSelection,
                                               @BeanParam JsonQueryParameters queryParameters) {
@@ -93,7 +93,7 @@ public class ConnectionTaskResource {
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed({Privileges.PUBLIC_REST_API})
-    public Response createConnectionTaskResource(@PathParam("mrid") String mrid, ConnectionTaskInfo connectionTaskInfo, @Context UriInfo uriInfo) {
+    public Response createConnectionTask(@PathParam("mrid") String mrid, ConnectionTaskInfo connectionTaskInfo, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         if (connectionTaskInfo.connectionMethod == null || connectionTaskInfo.connectionMethod.id == null) {
             throw exceptionFactory.newException(MessageSeeds.MISSING_PARTIAL_CONNECTION_METHOD);
@@ -120,7 +120,7 @@ public class ConnectionTaskResource {
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{connectionTaskId}")
     @RolesAllowed({Privileges.PUBLIC_REST_API})
-    public ConnectionTaskInfo updateConnectionTaskResource(@PathParam("mrid") String mrid, @PathParam("connectionTaskId") long connectionTaskId,
+    public ConnectionTaskInfo updateConnectionTask(@PathParam("mrid") String mrid, @PathParam("connectionTaskId") long connectionTaskId,
                                                            ConnectionTaskInfo connectionTaskInfo, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         ConnectionTask<? extends ComPortPool, ? extends PartialConnectionTask> connectionTask = findConnectionTaskOrThrowException(device, connectionTaskId);

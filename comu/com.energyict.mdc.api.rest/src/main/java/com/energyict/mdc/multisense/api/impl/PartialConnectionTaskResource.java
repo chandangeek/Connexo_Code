@@ -30,7 +30,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * Created by bvn on 7/15/15.
  */
-@Path("/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigId}/connectionmethods")
+@Path("/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigId}/partialconnectiontasks")
 public class PartialConnectionTaskResource {
 
     private final DeviceConfigurationService deviceConfigurationService;

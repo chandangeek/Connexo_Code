@@ -80,7 +80,7 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(model.<List<String>>get("$")).containsOnly("actions", "batch", "connectionMethods", "deviceConfiguration",
                 "deviceProtocolPluggeableClassId", "gatewayType", "id", "isDirectlyAddressable", "isGateway", "lifecycleState",
                 "link", "mRID", "name", "physicalGateway", "serialNumber",
-                "slaveDevices", "version", "yearOfCertification", "communicationTasks");
+                "slaveDevices", "version", "yearOfCertification", "communicationTaskExecutions");
     }
 
     @Test
@@ -95,7 +95,7 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(model.<List>get("$.connectionMethods")).hasSize(2);
         assertThat(model.<Integer>get("$.connectionMethods[0].id")).isEqualTo(13);
         assertThat(model.<String>get("$.connectionMethods[0].link.params.rel")).isEqualTo("related");
-        assertThat(model.<String>get("$.connectionMethods[0].link.href")).isEqualTo("http://localhost:9998/devices/XAS/connectionmethods/13");
+        assertThat(model.<String>get("$.connectionMethods[0].link.href")).isEqualTo("http://localhost:9998/devices/XAS/connectiontasks/13");
     }
 
     @Test

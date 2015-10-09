@@ -1,7 +1,6 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.impl.DeviceConfigurationImpl;
 import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
 import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
 
@@ -62,6 +61,20 @@ public class DeviceConfigurationInfoFactory extends SelectableFieldFactory<Devic
                         LinkInfo linkInfo = new LinkInfo();
                         linkInfo.id = pct.getId();
                         linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).build(pct.getId());
+                        return linkInfo;
+                    }).collect(toList());
+        });
+        map.put("comTaskEnablements", (deviceConfigurationInfo, deviceConfiguration, uriInfo) -> {
+            UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
+                    .path(ComTaskEnablementResource.class)
+                    .path(ComTaskEnablementResource.class, "getComTaskEnablement")
+                    .resolveTemplate("deviceTypeId", deviceConfiguration.getDeviceType().getId())
+                    .resolveTemplate("deviceConfigId", deviceConfiguration.getId());
+            deviceConfigurationInfo.comTaskEnablements =
+                    deviceConfiguration.getComTaskEnablements().stream().map(enablement -> {
+                        LinkInfo linkInfo = new LinkInfo();
+                        linkInfo.id = enablement.getId();
+                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).build(enablement.getId());
                         return linkInfo;
                     }).collect(toList());
         });

@@ -11,5 +11,6 @@ public class DeviceConfigurationInfo extends LinkInfo {
     public LinkInfo deviceType;
     public List<LinkInfo> connectionMethods;
     public List<LinkInfo> securityPropertySets;
+    public List<LinkInfo> comTaskEnablements;
 
 }

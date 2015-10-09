@@ -26,6 +26,7 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.interval.PartialTime;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -56,6 +57,7 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
@@ -109,6 +111,8 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     Clock clock;
     @Mock
     ProtocolPluggableService protocolPluggableService;
+    @Mock
+    SchedulingService schedulingService;
 
     @Override
     protected Application getApplication() {
@@ -128,6 +132,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         application.setTaskService(taskService);
         application.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         application.setProtocolPluggableService(protocolPluggableService);
+        application.setSchedulingService(schedulingService);
         return application;
     }
 
@@ -253,6 +258,13 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(possibleValues.getDefault()).thenReturn(defaultValue);
         when(propertySpec.getPossibleValues()).thenReturn(possibleValues);
         return propertySpec;
+    }
+
+    ScheduledConnectionTask mockScheduledConnectionTask(long id, String name) {
+        ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
+        when(connectionTask.getId()).thenReturn(id);
+        when(connectionTask.getName()).thenReturn(name);
+        return connectionTask;
     }
 
     ScheduledConnectionTask mockScheduledConnectionTask(long id, String name, Device deviceXas, OutboundComPortPool comPortPool, PartialScheduledConnectionTask partial) {
@@ -427,6 +439,14 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         PropertySpec propertySpec = mockBigDecimalPropertySpec();
         when(mock.getSecurityProperties()).thenReturn(Collections.singletonList(propertySpec));
         return mock;
+    }
+
+    ComTaskEnablement mockComTaskEnablement(ComTask comTask, DeviceConfiguration deviceConfiguration) {
+        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
+        when(comTaskEnablement.getComTask()).thenReturn(comTask);
+        when(comTaskEnablement.getPriority()).thenReturn(-19);
+        when(comTaskEnablement.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        return comTaskEnablement;
     }
 
     <T> Finder<T> mockFinder(List<T> list) {

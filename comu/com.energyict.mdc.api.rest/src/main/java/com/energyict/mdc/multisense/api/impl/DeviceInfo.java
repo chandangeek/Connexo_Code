@@ -26,6 +26,6 @@ public class DeviceInfo extends LinkInfo {
     public List<LinkInfo> slaveDevices;
     public List<LinkInfo> actions;
     public String lifecycleState;
-    public List<LinkInfo> communicationsTasks;
+    public List<LinkInfo> communicationsTaskExecutions;
 }
 

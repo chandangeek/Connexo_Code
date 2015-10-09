@@ -35,7 +35,7 @@ public class PartialConnectionTaskResourceTest extends MultisensePublicApiJersey
 
     @Test
     public void testPartialConnectionTaskFields() throws Exception {
-        Response response = target("/devicetypes/112/deviceconfigurations/113/connectionmethods").request().accept(MediaType.APPLICATION_JSON).method("PROPFIND", Response.class);
+        Response response = target("/devicetypes/112/deviceconfigurations/113/partialconnectiontasks").request().accept(MediaType.APPLICATION_JSON).method("PROPFIND", Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<JSONArray>get("$")).containsOnly("id", "name", "link", "direction", "comWindow", "rescheduleRetryDelay", "nextExecutionSpecs",
@@ -44,32 +44,32 @@ public class PartialConnectionTaskResourceTest extends MultisensePublicApiJersey
 
     @Test
     public void testGetPartialConnectionTasks() throws Exception {
-        Response response = target("/devicetypes/112/deviceconfigurations/113/connectionmethods").queryParam("start", 0).queryParam("limit", 5).request().get();
+        Response response = target("/devicetypes/112/deviceconfigurations/113/partialconnectiontasks").queryParam("start", 0).queryParam("limit", 5).request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<List>get("$.link")).hasSize(1);
         assertThat(jsonModel.<String>get("$.link[0].params.rel")).isEqualTo("current");
-        assertThat(jsonModel.<String>get("$.link[0].href")).isEqualTo("http://localhost:9998/devicetypes/112/deviceconfigurations/113/connectionmethods?start=0&limit=5");
+        assertThat(jsonModel.<String>get("$.link[0].href")).isEqualTo("http://localhost:9998/devicetypes/112/deviceconfigurations/113/partialconnectiontasks?start=0&limit=5");
         assertThat(jsonModel.<List>get("$.data")).hasSize(3);
         assertThat(jsonModel.<Integer>get("$.data[0].id")).isEqualTo(114);
         assertThat(jsonModel.<String>get("$.data[0].name")).isEqualTo("partial conn task 114");
         assertThat(jsonModel.<String>get("$.data[0].link.params.rel")).isEqualTo("self");
-        assertThat(jsonModel.<String>get("$.data[0].link.href")).isEqualTo("http://localhost:9998/devicetypes/112/deviceconfigurations/113/connectionmethods/114");
+        assertThat(jsonModel.<String>get("$.data[0].link.href")).isEqualTo("http://localhost:9998/devicetypes/112/deviceconfigurations/113/partialconnectiontasks/114");
         assertThat(jsonModel.<Integer>get("$.data[2].id")).isEqualTo(134);
         assertThat(jsonModel.<String>get("$.data[2].name")).isEqualTo("partial conn task 134");
         assertThat(jsonModel.<String>get("$.data[2].link.params.rel")).isEqualTo("self");
-        assertThat(jsonModel.<String>get("$.data[2].link.href")).isEqualTo("http://localhost:9998/devicetypes/112/deviceconfigurations/113/connectionmethods/134");
+        assertThat(jsonModel.<String>get("$.data[2].link.href")).isEqualTo("http://localhost:9998/devicetypes/112/deviceconfigurations/113/partialconnectiontasks/134");
     }
 
     @Test
     public void testGetPartialInboundConnectionTask() throws Exception {
-        Response response = target("/devicetypes/112/deviceconfigurations/113/connectionmethods/124").request().get();
+        Response response = target("/devicetypes/112/deviceconfigurations/113/partialconnectiontasks/124").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("$.id")).isEqualTo(124);
         assertThat(jsonModel.<String>get("$.name")).isEqualTo("partial conn task 124");
         assertThat(jsonModel.<String>get("$.link.params.rel")).isEqualTo("self");
-        assertThat(jsonModel.<String>get("$.link.href")).isEqualTo("http://localhost:9998/devicetypes/112/deviceconfigurations/113/connectionmethods/124");
+        assertThat(jsonModel.<String>get("$.link.href")).isEqualTo("http://localhost:9998/devicetypes/112/deviceconfigurations/113/partialconnectiontasks/124");
         assertThat(jsonModel.<String>get("$.direction")).isEqualTo("Inbound");
         assertThat(jsonModel.<String>get("$.connectionType")).isEqualTo("inbound pluggeable class");
         assertThat(jsonModel.<Integer>get("$.comPortPool.id")).isEqualTo(65);
@@ -86,13 +86,13 @@ public class PartialConnectionTaskResourceTest extends MultisensePublicApiJersey
 
     @Test
     public void testGetPartialOutboundConnectionTask() throws Exception {
-        Response response = target("/devicetypes/112/deviceconfigurations/113/connectionmethods/134").request().get();
+        Response response = target("/devicetypes/112/deviceconfigurations/113/partialconnectiontasks/134").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("$.id")).isEqualTo(134);
         assertThat(jsonModel.<String>get("$.name")).isEqualTo("partial conn task 134");
         assertThat(jsonModel.<String>get("$.link.params.rel")).isEqualTo("self");
-        assertThat(jsonModel.<String>get("$.link.href")).isEqualTo("http://localhost:9998/devicetypes/112/deviceconfigurations/113/connectionmethods/134");
+        assertThat(jsonModel.<String>get("$.link.href")).isEqualTo("http://localhost:9998/devicetypes/112/deviceconfigurations/113/partialconnectiontasks/134");
         assertThat(jsonModel.<String>get("$.direction")).isEqualTo("Outbound");
         assertThat(jsonModel.<String>get("$.connectionType")).isEqualTo("outbound pluggeable class");
         assertThat(jsonModel.<Integer>get("$.comPortPool.id")).isEqualTo(165);
@@ -113,7 +113,7 @@ public class PartialConnectionTaskResourceTest extends MultisensePublicApiJersey
 
     @Test
     public void testGetPartialConnectionTaskWithFieldSelection() throws Exception {
-        Response response = target("/devicetypes/112/deviceconfigurations/113/connectionmethods/124").queryParam("fields", "name").request().get();
+        Response response = target("/devicetypes/112/deviceconfigurations/113/partialconnectiontasks/124").queryParam("fields", "name").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("$.id")).isNull();
