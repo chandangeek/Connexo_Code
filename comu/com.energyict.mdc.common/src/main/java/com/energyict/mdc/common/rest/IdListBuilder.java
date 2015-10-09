@@ -1,6 +1,6 @@
 package com.energyict.mdc.common.rest;
 
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;

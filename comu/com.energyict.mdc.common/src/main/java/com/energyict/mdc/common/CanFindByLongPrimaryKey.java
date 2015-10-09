@@ -1,5 +1,6 @@
 package com.energyict.mdc.common;
 
+import com.elster.jupiter.util.HasId;
 import java.util.Optional;
 
 /**

@@ -1,7 +1,7 @@
 package com.energyict.mdc.common.rest;
 
 import com.elster.jupiter.util.HasName;
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 
 /**
  * Created by bvn on 8/12/14.

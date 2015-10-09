@@ -14,6 +14,9 @@ public enum FactoryIds {
     LOADPROFILE(Constants.LOADPROFILE_FACTORYID),
     LOOKUP(Constants.LOOKUP_FACTORY_ID),
     DEVICE_TYPE(Constants.DEVICE_TYPE_FACTORY_ID),
+    DEVICE_CONFIGURATION(Constants.DEVICE_CONFIGURATION_FACTORY_ID),
+    FINITE_STATE(Constants.FINITE_STATE_FACTORY_ID),
+    DEVICE_GROUP(Constants.DEVICE_GROUP_FACTORY_ID),
     REGISTER(Constants.REGISTER_FACTORY_ID),
     RELATION_TYPE(Constants.RELATION_TYPE_FACTORY_ID),
     TIMEZONE_IN_USE(Constants.TIMEZONE_IN_USE_FACTORYID),
@@ -51,6 +54,7 @@ public enum FactoryIds {
         public static final int RELATION_TYPE_FACTORY_ID = 26;
         public static final int LOOKUP_FACTORY_ID = 111;
         public static final int DEVICE_TYPE_FACTORY_ID = 122;
+        public static final int DEVICE_CONFIGURATION_FACTORY_ID = 202;
         public static final int REGISTER_FACTORY_ID = 140;
         public static final int LOADPROFILE_TYPE_FACTORYID = 182;
         public static final int LOADPROFILE_FACTORYID = 185;
@@ -60,5 +64,7 @@ public enum FactoryIds {
         public static final int SECURITY_SET_FACTORYID = 5012;
         public static final int LOGBOOK_FACTORYID = 206;
         public static final int FIRMWARE_FACTORYID = 10000;
+        public static final int FINITE_STATE_FACTORY_ID = 10001;
+        public static final int DEVICE_GROUP_FACTORY_ID = 10002;
     }
 }
