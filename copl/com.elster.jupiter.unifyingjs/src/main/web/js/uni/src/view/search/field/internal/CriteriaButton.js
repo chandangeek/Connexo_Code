@@ -11,6 +11,16 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
         return this.value
     },
 
+    populateValue: function(value) {
+        throw 'this function should be overriden';
+    },
+
+    setValue: function(value) {
+        this.value = value;
+        this.updateButtonText();
+        this.fireEvent('change', this, value);
+    },
+
     getFilter: function() {
         var me = this;
         return new Ext.util.Filter({
@@ -18,12 +28,6 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
             value: me.getValue(),
             id: me.dataIndex
         });
-    },
-
-    onChange: function(elm, value) {
-        this.value = value;
-        this.updateButtonText();
-        this.fireEvent('change', this, value);
     },
 
     reset: function() {

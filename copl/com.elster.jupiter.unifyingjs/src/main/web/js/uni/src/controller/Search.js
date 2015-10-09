@@ -183,6 +183,29 @@ Ext.define('Uni.controller.Search', {
         Ext.apply(options.params, params);
     },
 
+    restoreState: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            propertiesStore = Ext.getStore('Uni.store.search.Properties');
+
+        if (router.queryParams[me.filterObjectParam]) {
+            Ext.suspendLayouts();
+            var filter = JSON.parse(router.queryParams[me.filterObjectParam]);
+            filter.map(function(item) {
+                var property = propertiesStore.findRecord('name', item.property);
+                if (property && property.get('visibility') === 'removable') {
+                    me.addProperty(property, me.getRemovablePropertiesContainer(), true);
+                }
+                var filter = me.filters.getByKey(item.property);
+                if (filter) {
+                    filter.populateValue(item.value);
+                }
+            });
+
+            Ext.resumeLayouts(true);
+        }
+    },
+
     onSearchPropertiesLoad: function (records, operation, success) {
         var me = this,
             criteriaStore = Ext.getStore('Uni.store.search.Removables');
@@ -199,11 +222,11 @@ Ext.define('Uni.controller.Search', {
 
         Ext.suspendLayouts();
 
+        me.getCriteriaSelector().bindStore(criteriaStore);
+
         me.initStickyCriteria();
         me.initRemovableCriteria();
-
-        me.getCriteriaSelector().bindStore(criteriaStore);
-        Uni.util.Filters.loadHistoryState(me.filters, true);
+        me.restoreState();
 
         Ext.resumeLayouts(true);
     },
@@ -243,9 +266,12 @@ Ext.define('Uni.controller.Search', {
 
         if (searchDomain !== null && Ext.isDefined(searchDomain)) {
             me.searchDomain = searchDomain;
-            Uni.util.History.suspendEventsForNextCall();
-            Uni.util.History.setParsePath(false); //todo: this is probably a bug un unifying, so this line shouldn't be here
-            router.getRoute().forward(null, {searchDomain: searchDomain.get('displayValue')});
+
+            if (router.queryParams.searchDomain !== searchDomain.get('displayValue')) {
+                Uni.util.History.suspendEventsForNextCall();
+                Uni.util.History.setParsePath(false); //todo: this is probably a bug un unifying, so this line shouldn't be here
+                router.getRoute().forward(null, {searchDomain: searchDomain.get('displayValue')});
+            }
 
             searchProperties.removeAll();
             searchProperties.getProxy().url = searchDomain.get('glossaryHref');
@@ -260,9 +286,9 @@ Ext.define('Uni.controller.Search', {
                                 me.updateResultModelAndColumnsFromFields(records);
 
                                 searchResults.removeAll(true);
-                                searchResults.clearFilter(true);
                                 searchResults.getProxy().url = searchDomain.get('selfHref');
-                                searchResults.load();
+
+                                me.applyFilters();
                             }
                         },
                         scope: me
@@ -359,11 +385,17 @@ Ext.define('Uni.controller.Search', {
 
     addProperty: function (property, container, removable) {
         var me = this,
+            criteriaSelector = me.getCriteriaSelector(),
             filter = me.createWidgetForProperty(property, removable);
 
         if (Ext.isDefined(filter)) {
             me.filters.add(filter);
             container.add(filter);
+
+            if (removable) {
+                container.setVisible(container.items.length);
+                criteriaSelector.setChecked(property, true, true);
+            }
         }
     },
 

@@ -64,9 +64,14 @@ Ext.define('Uni.view.search.field.Selection', {
         maxHeight: 600
     },
 
+    populateValue: function(value) {
+        this.setValue(value);
+        this.setText(this.emptyText + '&nbsp;(' + value.length + ')');
+    },
+
     onSelectionChange: function () {
         var me = this;
-        me.onChange(me, me.selection.getRange().map(function(item){
+        me.setValue(me.selection.getRange().map(function(item){
             return item.get(me.valueField)
         }));
         me.down('#filter-selected').setDisabled(!me.selection.length);
@@ -236,8 +241,14 @@ Ext.define('Uni.view.search.field.Selection', {
                     this.select(_.intersection(this.getStore().getRange(), selection.getRange()), true, true);
                     this.updateHeaderState();
                 },
-                onStoreLoad: function () {
+                onStoreLoad: function (store) {
                     this.superclass.onStoreLoad.apply(this);
+                    _.map(me.value, function(id) {
+                        var record = store.getById(id);
+                        if (record) {
+                            selection.add(record);
+                        }
+                    });
                     this.select(selection.getRange(), true, true);
                     this.updateHeaderState();
                 },
