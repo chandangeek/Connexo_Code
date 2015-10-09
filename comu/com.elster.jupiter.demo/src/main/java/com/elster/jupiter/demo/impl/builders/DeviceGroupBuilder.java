@@ -46,6 +46,7 @@ public class DeviceGroupBuilder extends NamedBuilder<EndDeviceGroup, DeviceGroup
         Log.write(this);
         EndDeviceGroup endDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup(getCondition())
                 .setName(getName())
+                .setMRID("MDC:" + getName())
                 .setQueryProviderName("com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider")
                 .create();
         System.out.println("applying postbuilders on endDeviceGroup :" + endDeviceGroup.getName());
