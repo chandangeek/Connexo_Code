@@ -337,7 +337,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 injector.getInstance(UserService.class),
                                 injector.getInstance(DeviceMessageSpecificationService.class),
                                 injector.getInstance(MeteringGroupsService.class),
-                                mock(QueryService.class));
+                                mock(QueryService.class), transactionService);
                 this.dataModel = this.deviceDataModelService.dataModel();
                 ctx.commit();
             }

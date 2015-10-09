@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -115,6 +116,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private volatile SecurityPropertyService securityPropertyService;
     private volatile QueryService queryService;
     private volatile MeteringGroupsService meteringGroupsService;
+    private volatile TransactionService transactionService;
 
     private ServerConnectionTaskService connectionTaskService;
     private ServerCommunicationTaskService communicationTaskService;
@@ -141,7 +143,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                                       MeteringService meteringService, ValidationService validationService, EstimationService estimationService,
                                       SchedulingService schedulingService, MessageService messageService,
                                       SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
-                                      QueryService queryService) {
+                                      QueryService queryService, TransactionService transactionService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -164,6 +166,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         this.setMeteringGroupsService(meteringGroupsService);
         this.setQueryService(queryService);
+        this.setTransactionService(transactionService);
         this.activate(bundleContext);
         if (!this.dataModel.isInstalled()) {
             this.install(true);
@@ -325,6 +328,16 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.securityPropertyService = securityPropertyService;
     }
 
+    @Reference
+    public void setTransactionService(TransactionService transactionService){
+        this.transactionService = transactionService;
+    }
+
+    @Override
+    public TransactionService getTransactionService() {
+        return transactionService;
+    }
+
     @Override
     public ServerConnectionTaskService connectionTaskService() {
         return this.connectionTaskService;
@@ -412,6 +425,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 bind(DataCollectionKpiService.class).toInstance(dataCollectionKpiService);
                 bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                 bind(BatchService.class).toInstance(batchService);
+                bind(TransactionService.class).toInstance(transactionService);
             }
         };
     }

@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.configchange;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -55,6 +56,20 @@ public class DeviceConfigChangeRequestImpl implements DeviceConfigChangeRequest 
     public DeviceConfigChangeRequestImpl init(DeviceConfiguration destinationDeviceConfiguration) {
         this.destinationDeviceConfiguration.set(destinationDeviceConfiguration);
         return this;
+    }
+
+
+    @Override
+    public long getId() {
+        return id;
+    }
+
+    public void save() {
+        if (getId() > 0) {
+            Save.UPDATE.save(dataModel, this);
+        } else {
+            Save.CREATE.save(dataModel, this);
+        }
     }
 
 

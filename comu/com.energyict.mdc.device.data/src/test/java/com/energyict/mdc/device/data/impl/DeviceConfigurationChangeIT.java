@@ -1,11 +1,11 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.events.LocalEvent;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.ObisCode;
@@ -19,10 +19,7 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
 import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
 import com.energyict.mdc.device.data.impl.tasks.OutboundIpConnectionTypeImpl;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -35,10 +32,7 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
 import org.assertj.core.api.Condition;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -47,7 +41,9 @@ import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -90,12 +86,47 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     }
 
     @Before
-    public void setup() {
-        final List<DeviceConfiguration> configurations = this.deviceType.getConfigurations();
-        configurations.stream().forEach(deviceConfiguration -> {
-            deviceConfiguration.deactivate();
-            this.deviceType.removeConfiguration(deviceConfiguration);
-        });
+    public void initializeMocks() {
+        try (TransactionContext context = getTransactionService().getContext()) {
+            super.initializeMocks();
+            final List<DeviceConfiguration> configurations = deviceType.getConfigurations();
+            configurations.stream().forEach(deviceConfiguration -> {
+                deviceConfiguration.deactivate();
+                this.deviceType.removeConfiguration(deviceConfiguration);
+            });
+            context.commit();
+        }
+    }
+
+    @After
+    public void cleanup() {
+        try (TransactionContext context = getTransactionService().getContext()) {
+            inMemoryPersistence.getDeviceConfigurationService().findAllDeviceTypes().stream()
+                    .forEach(dt -> {
+                        dt.getConfigurations().forEach(dc -> {
+                            inMemoryPersistence.getDeviceService().findDevicesByDeviceConfiguration(dc).stream()
+                                    .forEach(device -> {
+                                                // remove communications stuff
+                                                device.getComTaskExecutions().forEach(device::removeComTaskExecution);
+                                                device.getConnectionTasks().forEach(device::removeConnectionTask);
+                                                device.delete();
+                                            }
+                                            );
+//                            final List<PartialConnectionTask> partialConnectionTasks = dc.getPartialConnectionTasks();
+//                            for (int i = 0; i < partialConnectionTasks.size(); i++) {
+//                                dc.remove(partialConnectionTasks.get(i));
+//                            }
+                            dc.getSecurityPropertySets().forEach(dc::removeSecurityPropertySet);
+                            dc.getComTaskEnablements().forEach(comTaskEnablement -> dc.disableComTask(comTaskEnablement.getComTask()));
+                            dc.deactivate();
+                            dt.removeConfiguration(dc);
+                        });
+                        dt.delete();
+                    });
+            inMemoryPersistence.getMasterDataService().findAllLoadProfileTypes().forEach(LoadProfileType::delete);
+            inMemoryPersistence.getMasterDataService().findAllLogBookTypes().stream().forEach(LogBookType::delete);
+            context.commit();
+        }
     }
 
     private static <T extends ConnectionType> ConnectionTypePluggableClass registerConnectionTypePluggableClass(Class<T> connectionTypeClass) {
@@ -142,31 +173,39 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     }
 
     @Test
-    @Transactional
     public void simpleConfigChangeNoConflictsNoDataSourceTest() {
-        DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
-        firstDeviceConfiguration.activate();
-        DeviceConfiguration secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
-        secondDeviceConfiguration.activate();
+        DeviceConfiguration secondDeviceConfiguration;
+        Device device;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
+            firstDeviceConfiguration.activate();
+            secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
+            secondDeviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
-        device.save();
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.save();
+            context.commit();
+        }
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), CONFIG_VERSION);
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
     }
 
     @Test(expected = DeviceConfigurationChangeException.class)
-    @Transactional
     public void changeConfigToSameConfigTest() {
-        DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
-        firstDeviceConfiguration.activate();
+        DeviceConfiguration firstDeviceConfiguration;
+        Device device;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
+            firstDeviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
-        device.save();
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.save();
+            context.commit();
+        }
         try {
-            Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, firstDeviceConfiguration.getId(), CONFIG_VERSION);
+            Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, firstDeviceConfiguration.getId(), firstDeviceConfiguration.getVersion());
         } catch (DeviceConfigurationChangeException e) {
             if (!e.getMessageSeed().equals(MessageSeeds.CANNOT_CHANGE_DEVICE_CONFIG_TO_SAME_CONFIG)) {
                 fail("Should have gotten an exception indicating that you can not change the config to the same config");
@@ -176,65 +215,78 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     }
 
     @Test(expected = DeviceConfigurationChangeException.class)
-    @Transactional
     public void changeConfigToConfigOfOtherDeviceTypeTest() {
-        DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
-        firstDeviceConfiguration.activate();
-        final DeviceType otherDeviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("OtherDeviceType", deviceProtocolPluggableClass);
-        otherDeviceType.save();
-        final DeviceConfiguration configOfOtherDeviceType = otherDeviceType.newConfiguration("ConfigOfOtherDeviceType").add();
-        configOfOtherDeviceType.activate();
+        Device device;
+        final DeviceConfiguration configOfOtherDeviceType;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
+            firstDeviceConfiguration.activate();
+            final DeviceType otherDeviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("OtherDeviceType", deviceProtocolPluggableClass);
+            otherDeviceType.save();
+            configOfOtherDeviceType = otherDeviceType.newConfiguration("ConfigOfOtherDeviceType").add();
+            configOfOtherDeviceType.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
-        device.save();
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.save();
+            context.commit();
+        }
         try {
-            Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, configOfOtherDeviceType.getId(), CONFIG_VERSION);
+            Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, configOfOtherDeviceType.getId(), configOfOtherDeviceType.getVersion());
         } catch (DeviceConfigurationChangeException e) {
             if (!e.getMessageSeed().equals(MessageSeeds.CANNOT_CHANGE_DEVICE_CONFIG_TO_OTHER_DEVICE_TYPE)) {
-                fail("Should have gotten an exception indicating that you can not change the config to the config of another devicetype");
+                e.printStackTrace();
+                fail("Should have gotten an exception indicating that you can not change the config to the config of another devicetype.");
             }
             throw e;
         }
     }
 
     @Test
-    @Transactional
     public void configChangeCreatesNewMeterActivationTest() {
         Instant initialClock = freezeClock(2012, 2, 9, 1, 11, 0, 0);
-        DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
-        firstDeviceConfiguration.activate();
-        DeviceConfiguration secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
-        secondDeviceConfiguration.activate();
+        Device device;
+        DeviceConfiguration secondDeviceConfiguration;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
+            firstDeviceConfiguration.activate();
+            secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
+            secondDeviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
-        device.save();
-        device.activate(initialClock);
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.save();
+            device.activate(initialClock);
+            context.commit();
+        }
 
         Instant instant = freezeClock(2015, 9, 18, 11, 30, 0, 0);
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), CONFIG_VERSION);
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
         assertThat(modifiedDevice.getCurrentMeterActivation().get().getStart()).isEqualTo(instant);
         assertThat(modifiedDevice.getMeterActivationsMostRecentFirst()).hasSize(2);
     }
 
     @Test
-    @Transactional
     public void changeConfigWithSingleSameRegisterSpecTest() {
-        RegisterType registerType = getRegisterTypeForReadingType(readingTypeMRID1);
-        enhanceDeviceTypeWithRegisterTypes(this.deviceType, registerType);
-        DeviceType.DeviceConfigurationBuilder firstConfigBuilder = deviceType.newConfiguration("FirstDeviceConfiguration");
-        enhanceConfigBuilderWithRegisterTypes(firstConfigBuilder, registerType);
-        DeviceConfiguration firstDeviceConfiguration = firstConfigBuilder.add();
-        firstDeviceConfiguration.activate();
-        DeviceType.DeviceConfigurationBuilder secondDeviceConfigBuilder = deviceType.newConfiguration("SecondDeviceConfiguration");
-        enhanceConfigBuilderWithRegisterTypes(secondDeviceConfigBuilder, registerType);
-        DeviceConfiguration secondDeviceConfiguration = secondDeviceConfigBuilder.add();
-        secondDeviceConfiguration.activate();
+        Device device;
+        DeviceConfiguration secondDeviceConfiguration;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            RegisterType registerType = getRegisterTypeForReadingType(readingTypeMRID1);
+            enhanceDeviceTypeWithRegisterTypes(this.deviceType, registerType);
+            DeviceType.DeviceConfigurationBuilder firstConfigBuilder = deviceType.newConfiguration("FirstDeviceConfiguration");
+            enhanceConfigBuilderWithRegisterTypes(firstConfigBuilder, registerType);
+            DeviceConfiguration firstDeviceConfiguration = firstConfigBuilder.add();
+            firstDeviceConfiguration.activate();
+            DeviceType.DeviceConfigurationBuilder secondDeviceConfigBuilder = deviceType.newConfiguration("SecondDeviceConfiguration");
+            enhanceConfigBuilderWithRegisterTypes(secondDeviceConfigBuilder, registerType);
+            secondDeviceConfiguration = secondDeviceConfigBuilder.add();
+            secondDeviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
-        device.save();
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.save();
+            context.commit();
+        }
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), CONFIG_VERSION);
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
         assertThat(modifiedDevice.getRegisters()).hasSize(1);
@@ -243,24 +295,28 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     }
 
     @Test
-    @Transactional
     public void changeConfigWithSingleOtherRegisterSpecTest() {
-        RegisterType registerType1 = getRegisterTypeForReadingType(readingTypeMRID1);
-        RegisterType registerType2 = getRegisterTypeForReadingType(readingTypeMRID2);
-        enhanceDeviceTypeWithRegisterTypes(this.deviceType, registerType1, registerType2);
-        DeviceType.DeviceConfigurationBuilder firstConfigBuilder = deviceType.newConfiguration("FirstDeviceConfiguration");
-        enhanceConfigBuilderWithRegisterTypes(firstConfigBuilder, registerType1);
-        DeviceConfiguration firstDeviceConfiguration = firstConfigBuilder.add();
-        firstDeviceConfiguration.activate();
-        DeviceType.DeviceConfigurationBuilder secondDeviceConfigBuilder = deviceType.newConfiguration("SecondDeviceConfiguration");
-        enhanceConfigBuilderWithRegisterTypes(secondDeviceConfigBuilder, registerType2);
-        DeviceConfiguration secondDeviceConfiguration = secondDeviceConfigBuilder.add();
-        secondDeviceConfiguration.activate();
+        Device device;
+        DeviceConfiguration secondDeviceConfiguration;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            RegisterType registerType1 = getRegisterTypeForReadingType(readingTypeMRID1);
+            RegisterType registerType2 = getRegisterTypeForReadingType(readingTypeMRID2);
+            enhanceDeviceTypeWithRegisterTypes(this.deviceType, registerType1, registerType2);
+            DeviceType.DeviceConfigurationBuilder firstConfigBuilder = deviceType.newConfiguration("FirstDeviceConfiguration");
+            enhanceConfigBuilderWithRegisterTypes(firstConfigBuilder, registerType1);
+            DeviceConfiguration firstDeviceConfiguration = firstConfigBuilder.add();
+            firstDeviceConfiguration.activate();
+            DeviceType.DeviceConfigurationBuilder secondDeviceConfigBuilder = deviceType.newConfiguration("SecondDeviceConfiguration");
+            enhanceConfigBuilderWithRegisterTypes(secondDeviceConfigBuilder, registerType2);
+            secondDeviceConfiguration = secondDeviceConfigBuilder.add();
+            secondDeviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
-        device.save();
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.save();
+            context.commit();
+        }
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), CONFIG_VERSION);
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         // registerType1 will NOT exist anymore on the device
 
@@ -271,24 +327,28 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     }
 
     @Test
-    @Transactional
     public void changeConfigWithSingleRegisterSpecToTwoRegisterSpecsTest() {
-        RegisterType registerType1 = getRegisterTypeForReadingType(readingTypeMRID1);
-        RegisterType registerType2 = getRegisterTypeForReadingType(readingTypeMRID2);
-        enhanceDeviceTypeWithRegisterTypes(this.deviceType, registerType1, registerType2);
-        DeviceType.DeviceConfigurationBuilder firstConfigBuilder = deviceType.newConfiguration("FirstDeviceConfiguration");
-        enhanceConfigBuilderWithRegisterTypes(firstConfigBuilder, registerType1);
-        DeviceConfiguration firstDeviceConfiguration = firstConfigBuilder.add();
-        firstDeviceConfiguration.activate();
-        DeviceType.DeviceConfigurationBuilder secondDeviceConfigBuilder = deviceType.newConfiguration("SecondDeviceConfiguration");
-        enhanceConfigBuilderWithRegisterTypes(secondDeviceConfigBuilder, registerType1, registerType2);
-        DeviceConfiguration secondDeviceConfiguration = secondDeviceConfigBuilder.add();
-        secondDeviceConfiguration.activate();
+        Device device;
+        DeviceConfiguration secondDeviceConfiguration;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            RegisterType registerType1 = getRegisterTypeForReadingType(readingTypeMRID1);
+            RegisterType registerType2 = getRegisterTypeForReadingType(readingTypeMRID2);
+            enhanceDeviceTypeWithRegisterTypes(this.deviceType, registerType1, registerType2);
+            DeviceType.DeviceConfigurationBuilder firstConfigBuilder = deviceType.newConfiguration("FirstDeviceConfiguration");
+            enhanceConfigBuilderWithRegisterTypes(firstConfigBuilder, registerType1);
+            DeviceConfiguration firstDeviceConfiguration = firstConfigBuilder.add();
+            firstDeviceConfiguration.activate();
+            DeviceType.DeviceConfigurationBuilder secondDeviceConfigBuilder = deviceType.newConfiguration("SecondDeviceConfiguration");
+            enhanceConfigBuilderWithRegisterTypes(secondDeviceConfigBuilder, registerType1, registerType2);
+            secondDeviceConfiguration = secondDeviceConfigBuilder.add();
+            secondDeviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
-        device.save();
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.save();
+            context.commit();
+        }
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), CONFIG_VERSION);
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
         assertThat(modifiedDevice.getRegisters()).hasSize(2);
@@ -309,24 +369,28 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     }
 
     @Test
-    @Transactional
     public void changeConfigWithTwoRegisterSpecsToOneRegisterSpecTest() {
-        RegisterType registerType1 = getRegisterTypeForReadingType(readingTypeMRID1);
-        RegisterType registerType2 = getRegisterTypeForReadingType(readingTypeMRID2);
-        enhanceDeviceTypeWithRegisterTypes(this.deviceType, registerType1, registerType2);
-        DeviceType.DeviceConfigurationBuilder firstConfigBuilder = deviceType.newConfiguration("FirstDeviceConfiguration");
-        enhanceConfigBuilderWithRegisterTypes(firstConfigBuilder, registerType1, registerType2);
-        DeviceConfiguration firstDeviceConfiguration = firstConfigBuilder.add();
-        firstDeviceConfiguration.activate();
-        DeviceType.DeviceConfigurationBuilder secondDeviceConfigBuilder = deviceType.newConfiguration("SecondDeviceConfiguration");
-        enhanceConfigBuilderWithRegisterTypes(secondDeviceConfigBuilder, registerType1);
-        DeviceConfiguration secondDeviceConfiguration = secondDeviceConfigBuilder.add();
-        secondDeviceConfiguration.activate();
+        DeviceConfiguration secondDeviceConfiguration;
+        Device device;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            RegisterType registerType1 = getRegisterTypeForReadingType(readingTypeMRID1);
+            RegisterType registerType2 = getRegisterTypeForReadingType(readingTypeMRID2);
+            enhanceDeviceTypeWithRegisterTypes(this.deviceType, registerType1, registerType2);
+            DeviceType.DeviceConfigurationBuilder firstConfigBuilder = deviceType.newConfiguration("FirstDeviceConfiguration");
+            enhanceConfigBuilderWithRegisterTypes(firstConfigBuilder, registerType1, registerType2);
+            DeviceConfiguration firstDeviceConfiguration = firstConfigBuilder.add();
+            firstDeviceConfiguration.activate();
+            DeviceType.DeviceConfigurationBuilder secondDeviceConfigBuilder = deviceType.newConfiguration("SecondDeviceConfiguration");
+            enhanceConfigBuilderWithRegisterTypes(secondDeviceConfigBuilder, registerType1);
+            secondDeviceConfiguration = secondDeviceConfigBuilder.add();
+            secondDeviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
-        device.save();
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.save();
+            context.commit();
+        }
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), CONFIG_VERSION);
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
         assertThat(modifiedDevice.getRegisters()).hasSize(1);
@@ -340,27 +404,31 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     }
 
     @Test
-    @Transactional
     public void changeConfigWithSingleOtherLoadProfileSpecTest() {
-        RegisterType registerType1 = getRegisterTypeForReadingType(readingTypeMRID1);
-        RegisterType registerType2 = getRegisterTypeForReadingType(readingTypeMRID2);
-        LoadProfileType loadProfileType1 = createLoadProfileType("MyLoadProfile", ObisCode.fromString("1.0.99.1.0.255"), registerType1, registerType2);
-        LoadProfileType loadProfileType2 = createLoadProfileType("MySecondLoadProfile", ObisCode.fromString("1.0.99.1.0.255"), registerType1);
+        Device device;
+        DeviceConfiguration secondDeviceConfiguration;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            RegisterType registerType1 = getRegisterTypeForReadingType(readingTypeMRID1);
+            RegisterType registerType2 = getRegisterTypeForReadingType(readingTypeMRID2);
+            LoadProfileType loadProfileType1 = createLoadProfileType("MyLoadProfile", ObisCode.fromString("1.0.99.1.0.255"), registerType1, registerType2);
+            LoadProfileType loadProfileType2 = createLoadProfileType("MySecondLoadProfile", ObisCode.fromString("1.0.99.1.0.255"), registerType1);
 
-        enhanceDeviceTypeWithLoadProfileTypes(this.deviceType, loadProfileType1, loadProfileType2);
-        DeviceType.DeviceConfigurationBuilder firstConfigBuilder = deviceType.newConfiguration("FirstDeviceConfiguration");
-        enhanceConfigBuilderWithLoadProfileTypes(firstConfigBuilder, loadProfileType1);
-        DeviceConfiguration firstDeviceConfiguration = firstConfigBuilder.add();
-        firstDeviceConfiguration.activate();
-        DeviceType.DeviceConfigurationBuilder secondDeviceConfigBuilder = deviceType.newConfiguration("SecondDeviceConfiguration");
-        enhanceConfigBuilderWithLoadProfileTypes(secondDeviceConfigBuilder, loadProfileType2);
-        DeviceConfiguration secondDeviceConfiguration = secondDeviceConfigBuilder.add();
-        secondDeviceConfiguration.activate();
+            enhanceDeviceTypeWithLoadProfileTypes(this.deviceType, loadProfileType1, loadProfileType2);
+            DeviceType.DeviceConfigurationBuilder firstConfigBuilder = deviceType.newConfiguration("FirstDeviceConfiguration");
+            enhanceConfigBuilderWithLoadProfileTypes(firstConfigBuilder, loadProfileType1);
+            DeviceConfiguration firstDeviceConfiguration = firstConfigBuilder.add();
+            firstDeviceConfiguration.activate();
+            DeviceType.DeviceConfigurationBuilder secondDeviceConfigBuilder = deviceType.newConfiguration("SecondDeviceConfiguration");
+            enhanceConfigBuilderWithLoadProfileTypes(secondDeviceConfigBuilder, loadProfileType2);
+            secondDeviceConfiguration = secondDeviceConfigBuilder.add();
+            secondDeviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
-        device.save();
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.save();
+            context.commit();
+        }
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), CONFIG_VERSION);
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
         assertThat(modifiedDevice.getLoadProfiles()).hasSize(1);
@@ -375,26 +443,30 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     }
 
     @Test
-    @Transactional
     public void changeConfigWithSingleSameLoadProfileSpecTest() {
-        RegisterType registerType1 = getRegisterTypeForReadingType(readingTypeMRID1);
-        RegisterType registerType2 = getRegisterTypeForReadingType(readingTypeMRID2);
-        LoadProfileType loadProfileType = createLoadProfileType("MyLoadProfile", ObisCode.fromString("1.0.99.1.0.255"), registerType1, registerType2);
+        Device device;
+        DeviceConfiguration secondDeviceConfiguration;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            RegisterType registerType1 = getRegisterTypeForReadingType(readingTypeMRID1);
+            RegisterType registerType2 = getRegisterTypeForReadingType(readingTypeMRID2);
+            LoadProfileType loadProfileType = createLoadProfileType("MyLoadProfile", ObisCode.fromString("1.0.99.1.0.255"), registerType1, registerType2);
 
-        enhanceDeviceTypeWithLoadProfileTypes(this.deviceType, loadProfileType);
-        DeviceType.DeviceConfigurationBuilder firstConfigBuilder = deviceType.newConfiguration("FirstDeviceConfiguration");
-        enhanceConfigBuilderWithLoadProfileTypes(firstConfigBuilder, loadProfileType);
-        DeviceConfiguration firstDeviceConfiguration = firstConfigBuilder.add();
-        firstDeviceConfiguration.activate();
-        DeviceType.DeviceConfigurationBuilder secondDeviceConfigBuilder = deviceType.newConfiguration("SecondDeviceConfiguration");
-        enhanceConfigBuilderWithLoadProfileTypes(secondDeviceConfigBuilder, loadProfileType);
-        DeviceConfiguration secondDeviceConfiguration = secondDeviceConfigBuilder.add();
-        secondDeviceConfiguration.activate();
+            enhanceDeviceTypeWithLoadProfileTypes(this.deviceType, loadProfileType);
+            DeviceType.DeviceConfigurationBuilder firstConfigBuilder = deviceType.newConfiguration("FirstDeviceConfiguration");
+            enhanceConfigBuilderWithLoadProfileTypes(firstConfigBuilder, loadProfileType);
+            DeviceConfiguration firstDeviceConfiguration = firstConfigBuilder.add();
+            firstDeviceConfiguration.activate();
+            DeviceType.DeviceConfigurationBuilder secondDeviceConfigBuilder = deviceType.newConfiguration("SecondDeviceConfiguration");
+            enhanceConfigBuilderWithLoadProfileTypes(secondDeviceConfigBuilder, loadProfileType);
+            secondDeviceConfiguration = secondDeviceConfigBuilder.add();
+            secondDeviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
-        device.save();
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.save();
+            context.commit();
+        }
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), CONFIG_VERSION);
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
         assertThat(modifiedDevice.getLoadProfiles()).hasSize(1);
@@ -415,25 +487,29 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     }
 
     @Test
-    @Transactional
     public void changeConfigWithSingleOtherLogBookSpecTest() {
-        final LogBookType logBookType1 = createLogBookType("MyFirstLogBookType", ObisCode.fromString("0.0.99.98.0.255"));
-        final LogBookType logBookType2 = createLogBookType("MySecondLogBookType", ObisCode.fromString("1.0.99.98.0.255"));
 
-        enhanceDeviceTypeWithLogBookTypes(this.deviceType, logBookType1, logBookType2);
-        DeviceType.DeviceConfigurationBuilder firstConfigBuilder = deviceType.newConfiguration("FirstDeviceConfiguration");
-        enhanceConfigBuilderWithLogBookTypes(firstConfigBuilder, logBookType1);
-        DeviceConfiguration firstDeviceConfiguration = firstConfigBuilder.add();
-        firstDeviceConfiguration.activate();
-        DeviceType.DeviceConfigurationBuilder secondDeviceConfigBuilder = deviceType.newConfiguration("SecondDeviceConfiguration");
-        enhanceConfigBuilderWithLogBookTypes(secondDeviceConfigBuilder, logBookType2);
-        DeviceConfiguration secondDeviceConfiguration = secondDeviceConfigBuilder.add();
-        secondDeviceConfiguration.activate();
+        Device device;
+        DeviceConfiguration secondDeviceConfiguration;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            final LogBookType logBookType1 = createLogBookType("MyFirstLogBookType", ObisCode.fromString("0.0.99.98.0.255"));
+            final LogBookType logBookType2 = createLogBookType("MySecondLogBookType", ObisCode.fromString("1.0.99.98.0.255"));
+            enhanceDeviceTypeWithLogBookTypes(this.deviceType, logBookType1, logBookType2);
+            DeviceType.DeviceConfigurationBuilder firstConfigBuilder = deviceType.newConfiguration("FirstDeviceConfiguration");
+            enhanceConfigBuilderWithLogBookTypes(firstConfigBuilder, logBookType1);
+            DeviceConfiguration firstDeviceConfiguration = firstConfigBuilder.add();
+            firstDeviceConfiguration.activate();
+            DeviceType.DeviceConfigurationBuilder secondDeviceConfigBuilder = deviceType.newConfiguration("SecondDeviceConfiguration");
+            enhanceConfigBuilderWithLogBookTypes(secondDeviceConfigBuilder, logBookType2);
+            secondDeviceConfiguration = secondDeviceConfigBuilder.add();
+            secondDeviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
-        device.save();
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.save();
+            context.commit();
+        }
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), CONFIG_VERSION);
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
         assertThat(modifiedDevice.getLogBooks()).hasSize(1);
@@ -441,24 +517,28 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     }
 
     @Test
-    @Transactional
     public void changeConfigWithSingleSameLogBookSpecTest() {
-        final LogBookType logBookType1 = createLogBookType("MyFirstLogBookType", ObisCode.fromString("0.0.99.98.0.255"));
+        Device device;
+        DeviceConfiguration secondDeviceConfiguration;
 
-        enhanceDeviceTypeWithLogBookTypes(this.deviceType, logBookType1);
-        DeviceType.DeviceConfigurationBuilder firstConfigBuilder = deviceType.newConfiguration("FirstDeviceConfiguration");
-        enhanceConfigBuilderWithLogBookTypes(firstConfigBuilder, logBookType1);
-        DeviceConfiguration firstDeviceConfiguration = firstConfigBuilder.add();
-        firstDeviceConfiguration.activate();
-        DeviceType.DeviceConfigurationBuilder secondDeviceConfigBuilder = deviceType.newConfiguration("SecondDeviceConfiguration");
-        enhanceConfigBuilderWithLogBookTypes(secondDeviceConfigBuilder, logBookType1);
-        DeviceConfiguration secondDeviceConfiguration = secondDeviceConfigBuilder.add();
-        secondDeviceConfiguration.activate();
+        try (TransactionContext context = getTransactionService().getContext()) {
+            final LogBookType logBookType1 = createLogBookType("MyFirstLogBookType", ObisCode.fromString("0.0.99.98.0.255"));
+            enhanceDeviceTypeWithLogBookTypes(this.deviceType, logBookType1);
+            DeviceType.DeviceConfigurationBuilder firstConfigBuilder = deviceType.newConfiguration("FirstDeviceConfiguration");
+            enhanceConfigBuilderWithLogBookTypes(firstConfigBuilder, logBookType1);
+            DeviceConfiguration firstDeviceConfiguration = firstConfigBuilder.add();
+            firstDeviceConfiguration.activate();
+            DeviceType.DeviceConfigurationBuilder secondDeviceConfigBuilder = deviceType.newConfiguration("SecondDeviceConfiguration");
+            enhanceConfigBuilderWithLogBookTypes(secondDeviceConfigBuilder, logBookType1);
+            secondDeviceConfiguration = secondDeviceConfigBuilder.add();
+            secondDeviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
-        device.save();
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.save();
+            context.commit();
+        }
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), CONFIG_VERSION);
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
         assertThat(modifiedDevice.getLogBooks()).hasSize(1);
@@ -466,124 +546,152 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     }
 
     @Test(expected = CannotChangeDeviceConfigStillUnresolvedConflicts.class)
-    @Transactional
     public void changeConfigWhileThereAreStillConflictingMappingsTest() {
-        final OutboundComPortPool outboundIpPool = createOutboundIpComPortPool("OutboundIpPool");
-        final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").isDirectlyAddressable(true).add();
-        final PartialScheduledConnectionTaskImpl myFirstConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, "MyDefaultConnectionTaskName", outboundIpPool);
-        firstDeviceConfiguration.activate();
-        final DeviceConfiguration secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").isDirectlyAddressable(true).add();
-        final PartialScheduledConnectionTaskImpl mySecondConnectionTask = createPartialConnectionTask(secondDeviceConfiguration, "MySecondConnectionTask", outboundIpPool);
-        secondDeviceConfiguration.activate();
+        Device device;
+        final DeviceConfiguration secondDeviceConfiguration;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            final OutboundComPortPool outboundIpPool = createOutboundIpComPortPool("OutboundIpPool");
+            final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").isDirectlyAddressable(true).add();
+            final PartialScheduledConnectionTaskImpl myFirstConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, "MyDefaultConnectionTaskName", outboundIpPool);
+            firstDeviceConfiguration.activate();
+            secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").isDirectlyAddressable(true).add();
+            final PartialScheduledConnectionTaskImpl mySecondConnectionTask = createPartialConnectionTask(secondDeviceConfiguration, "MySecondConnectionTask", outboundIpPool);
+            secondDeviceConfiguration.activate();
 
-        updateConflictsFor(mySecondConnectionTask, connectionTaskCreatedTopic);
+            updateConflictsFor(mySecondConnectionTask, connectionTaskCreatedTopic);
 
-        assertThat(deviceType.getDeviceConfigConflictMappings()).hasSize(2);
+            assertThat(deviceType.getDeviceConfigConflictMappings()).hasSize(2);
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
-        device.save();
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), CONFIG_VERSION);
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.save();
+            context.commit();
+        }
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
     }
 
     @Test
-    @Transactional
     public void changeConfigWithNoConflictConnectionMethods() {
         final String connectionTaskName = "MyDefaultConnectionTaskName";
+        final PartialScheduledConnectionTaskImpl mySecondConnectionTask;
+        Device device;
+        final DeviceConfiguration secondDeviceConfiguration;
 
-        final OutboundComPortPool outboundIpPool = createOutboundIpComPortPool("OutboundIpPool");
-        final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").isDirectlyAddressable(true).add();
-        final PartialScheduledConnectionTaskImpl myFirstConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, connectionTaskName, outboundIpPool);
-        firstDeviceConfiguration.activate();
-        final DeviceConfiguration secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").isDirectlyAddressable(true).add();
-        final PartialScheduledConnectionTaskImpl mySecondConnectionTask = createPartialConnectionTask(secondDeviceConfiguration, connectionTaskName, outboundIpPool);
-        secondDeviceConfiguration.activate();
+        try (TransactionContext context = getTransactionService().getContext()) {
+            final OutboundComPortPool outboundIpPool = createOutboundIpComPortPool("OutboundIpPool");
+            final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").isDirectlyAddressable(true).add();
+            final PartialScheduledConnectionTaskImpl myFirstConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, connectionTaskName, outboundIpPool);
+            firstDeviceConfiguration.activate();
+            secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").isDirectlyAddressable(true).add();
+            mySecondConnectionTask = createPartialConnectionTask(secondDeviceConfiguration, connectionTaskName, outboundIpPool);
+            secondDeviceConfiguration.activate();
 
-        updateConflictsFor(mySecondConnectionTask, connectionTaskCreatedTopic);
-        assertThat(deviceType.getDeviceConfigConflictMappings()).isEmpty();
+            updateConflictsFor(mySecondConnectionTask, connectionTaskCreatedTopic);
+            assertThat(deviceType.getDeviceConfigConflictMappings()).isEmpty();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
-        device.save();
-        final ScheduledConnectionTask originalScheduledConnectionTask = device.getScheduledConnectionTaskBuilder(myFirstConnectionTask).setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE).add();
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), CONFIG_VERSION);
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.save();
+            final ScheduledConnectionTask originalScheduledConnectionTask = device.getScheduledConnectionTaskBuilder(myFirstConnectionTask).setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE).add();
+
+
+            context.commit();
+        }
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
         assertThat(modifiedDevice.getConnectionTasks().get(0).getPartialConnectionTask().getId()).isEqualTo(mySecondConnectionTask.getId());
     }
 
     @Test
-    @Transactional
     public void changeConfigWithConflictAndResolvedRemoveActionTest() {
-        final OutboundComPortPool outboundIpPool = createOutboundIpComPortPool("OutboundIpPool");
-        final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").isDirectlyAddressable(true).add();
-        final PartialScheduledConnectionTaskImpl myFirstConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, "MyDefaultConnectionTaskName", outboundIpPool);
-        firstDeviceConfiguration.activate();
-        final DeviceConfiguration secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").isDirectlyAddressable(true).add();
-        final PartialScheduledConnectionTaskImpl mySecondConnectionTask = createPartialConnectionTask(secondDeviceConfiguration, "MySecondConnectionTask", outboundIpPool);
-        secondDeviceConfiguration.activate();
+        Device device;
+        final DeviceConfiguration secondDeviceConfiguration;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            final OutboundComPortPool outboundIpPool = createOutboundIpComPortPool("OutboundIpPool");
+            final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").isDirectlyAddressable(true).add();
+            final PartialScheduledConnectionTaskImpl myFirstConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, "MyDefaultConnectionTaskName", outboundIpPool);
+            firstDeviceConfiguration.activate();
+            secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").isDirectlyAddressable(true).add();
+            final PartialScheduledConnectionTaskImpl mySecondConnectionTask = createPartialConnectionTask(secondDeviceConfiguration, "MySecondConnectionTask", outboundIpPool);
+            secondDeviceConfiguration.activate();
 
-        updateConflictsFor(mySecondConnectionTask, connectionTaskCreatedTopic);
-        final DeviceConfigConflictMapping deviceConfigConflictMapping = getDeviceConfigConflictMapping(firstDeviceConfiguration, secondDeviceConfiguration);
-        deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).markSolutionAsRemove();
+            updateConflictsFor(mySecondConnectionTask, connectionTaskCreatedTopic);
+            final DeviceConfigConflictMapping deviceConfigConflictMapping = getDeviceConfigConflictMapping(firstDeviceConfiguration, secondDeviceConfiguration);
+            deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).markSolutionAsRemove();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
-        device.save();
-        final ScheduledConnectionTask originalScheduledConnectionTask = device.getScheduledConnectionTaskBuilder(myFirstConnectionTask).setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE).add();
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), CONFIG_VERSION);
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.save();
+            final ScheduledConnectionTask originalScheduledConnectionTask = device.getScheduledConnectionTaskBuilder(myFirstConnectionTask).setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE).add();
+
+            context.commit();
+        }
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
         assertThat(modifiedDevice.getConnectionTasks()).isEmpty();
     }
 
     @Test
-    @Transactional
     public void changeConfigWithConflictAndResolvedMapActionTest() {
-        final OutboundComPortPool outboundIpPool = createOutboundIpComPortPool("OutboundIpPool");
-        final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").isDirectlyAddressable(true).add();
-        final PartialScheduledConnectionTaskImpl myFirstConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, "MyDefaultConnectionTaskName", outboundIpPool);
-        firstDeviceConfiguration.activate();
-        final DeviceConfiguration secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").isDirectlyAddressable(true).add();
-        final PartialScheduledConnectionTaskImpl mySecondConnectionTask = createPartialConnectionTask(secondDeviceConfiguration, "MySecondConnectionTask", outboundIpPool);
-        secondDeviceConfiguration.activate();
+        Device device;
+        final PartialScheduledConnectionTaskImpl mySecondConnectionTask;
+        final DeviceConfiguration secondDeviceConfiguration;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            final OutboundComPortPool outboundIpPool = createOutboundIpComPortPool("OutboundIpPool");
+            final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").isDirectlyAddressable(true).add();
+            final PartialScheduledConnectionTaskImpl myFirstConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, "MyDefaultConnectionTaskName", outboundIpPool);
+            firstDeviceConfiguration.activate();
+            secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").isDirectlyAddressable(true).add();
+            mySecondConnectionTask = createPartialConnectionTask(secondDeviceConfiguration, "MySecondConnectionTask", outboundIpPool);
+            secondDeviceConfiguration.activate();
 
-        updateConflictsFor(mySecondConnectionTask, connectionTaskCreatedTopic);
-        final DeviceConfigConflictMapping deviceConfigConflictMapping = getDeviceConfigConflictMapping(firstDeviceConfiguration, secondDeviceConfiguration);
-        deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).markSolutionAsMap(mySecondConnectionTask);
+            updateConflictsFor(mySecondConnectionTask, connectionTaskCreatedTopic);
+            final DeviceConfigConflictMapping deviceConfigConflictMapping = getDeviceConfigConflictMapping(firstDeviceConfiguration, secondDeviceConfiguration);
+            deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).markSolutionAsMap(mySecondConnectionTask);
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
-        device.save();
-        final ScheduledConnectionTask originalScheduledConnectionTask = device.getScheduledConnectionTaskBuilder(myFirstConnectionTask).setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE).add();
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), CONFIG_VERSION);
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.save();
+            final ScheduledConnectionTask originalScheduledConnectionTask = device.getScheduledConnectionTaskBuilder(myFirstConnectionTask).setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE).add();
+
+            context.commit();
+        }
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
         assertThat(modifiedDevice.getConnectionTasks().get(0).getPartialConnectionTask().getId()).isEqualTo(mySecondConnectionTask.getId());
     }
 
     @Test
-    @Transactional
     public void changeConfigWithConflictAndResolvedMapWithPropertiesTest() {
-        final OutboundComPortPool outboundIpPool = createOutboundIpComPortPool("OutboundIpPool");
-        final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").isDirectlyAddressable(true).add();
-        final PartialScheduledConnectionTaskImpl myFirstConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, "MyDefaultConnectionTaskName", outboundIpPool);
-        firstDeviceConfiguration.activate();
-        final DeviceConfiguration secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").isDirectlyAddressable(true).add();
-        final PartialScheduledConnectionTaskImpl mySecondConnectionTask = createPartialConnectionTask(secondDeviceConfiguration, "MySecondConnectionTask", outboundIpPool);
-        secondDeviceConfiguration.activate();
-
-        updateConflictsFor(mySecondConnectionTask, connectionTaskCreatedTopic);
-        final DeviceConfigConflictMapping deviceConfigConflictMapping = getDeviceConfigConflictMapping(firstDeviceConfiguration, secondDeviceConfiguration);
-        deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).markSolutionAsMap(mySecondConnectionTask);
-
-        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
-        device.save();
+        Device device;
+        final PartialScheduledConnectionTaskImpl mySecondConnectionTask;
+        final DeviceConfiguration secondDeviceConfiguration;
         final String ipAddressValue = "10.0.66.99";
         final BigDecimal portNumberValue = new BigDecimal(1235L);
         final String ipAddressPropertyName = "ipAddress";
         final String portNumberPropertyName = "port";
-        final ScheduledConnectionTask originalScheduledConnectionTask = device.getScheduledConnectionTaskBuilder(myFirstConnectionTask)
-                .setProperty(ipAddressPropertyName, ipAddressValue)
-                .setProperty(portNumberPropertyName, portNumberValue)
-                .add();
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), CONFIG_VERSION);
+
+        try (TransactionContext context = getTransactionService().getContext()) {
+            final OutboundComPortPool outboundIpPool = createOutboundIpComPortPool("OutboundIpPool");
+            final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").isDirectlyAddressable(true).add();
+            final PartialScheduledConnectionTaskImpl myFirstConnectionTask = createPartialConnectionTask(firstDeviceConfiguration, "MyDefaultConnectionTaskName", outboundIpPool);
+            firstDeviceConfiguration.activate();
+            secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").isDirectlyAddressable(true).add();
+            mySecondConnectionTask = createPartialConnectionTask(secondDeviceConfiguration, "MySecondConnectionTask", outboundIpPool);
+            secondDeviceConfiguration.activate();
+
+            updateConflictsFor(mySecondConnectionTask, connectionTaskCreatedTopic);
+            final DeviceConfigConflictMapping deviceConfigConflictMapping = getDeviceConfigConflictMapping(firstDeviceConfiguration, secondDeviceConfiguration);
+            deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).markSolutionAsMap(mySecondConnectionTask);
+            deviceType.save();
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.save();
+            final ScheduledConnectionTask originalScheduledConnectionTask = device.getScheduledConnectionTaskBuilder(myFirstConnectionTask)
+                    .setProperty(ipAddressPropertyName, ipAddressValue)
+                    .setProperty(portNumberPropertyName, portNumberValue)
+                    .add();
+            context.commit();
+        }
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
         assertThat(modifiedDevice.getConnectionTasks().get(0).getPartialConnectionTask().getId()).isEqualTo(mySecondConnectionTask.getId());
@@ -593,44 +701,55 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
 
 
     @Test(expected = CannotChangeDeviceConfigStillUnresolvedConflicts.class)
-    @Transactional
     public void changeConfigWhileThereAreStillSecuritySetConflictingMappingsTest() {
-        final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
-        final SecurityPropertySet firstSecurityPropertySet = firstDeviceConfiguration.createSecurityPropertySet("NoSecurity").encryptionLevel(0).authenticationLevel(0).build();
-        firstDeviceConfiguration.activate();
-        final DeviceConfiguration secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
-        final SecurityPropertySet secondSecurityPropertySet = secondDeviceConfiguration.createSecurityPropertySet("None").encryptionLevel(0).authenticationLevel(0).build();
-        secondDeviceConfiguration.activate();
+        Device device;
+        final DeviceConfiguration secondDeviceConfiguration;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
+            final SecurityPropertySet firstSecurityPropertySet = firstDeviceConfiguration.createSecurityPropertySet("NoSecurity").encryptionLevel(0).authenticationLevel(0).build();
+            firstDeviceConfiguration.activate();
+            secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
+            final SecurityPropertySet secondSecurityPropertySet = secondDeviceConfiguration.createSecurityPropertySet("None").encryptionLevel(0).authenticationLevel(0).build();
+            secondDeviceConfiguration.activate();
 
-        updateConflictsFor(secondSecurityPropertySet, securitySetCreatedTopic);
+            updateConflictsFor(secondSecurityPropertySet, securitySetCreatedTopic);
 
-        assertThat(deviceType.getDeviceConfigConflictMappings()).hasSize(2);
+            assertThat(deviceType.getDeviceConfigConflictMappings()).hasSize(2);
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
-        device.save();
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), CONFIG_VERSION);
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.save();
+            context.commit();
+        }
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
     }
 
     @Test
-    @Transactional
     public void changeConfigWithNoConflictingSecurityPropertySetsAndValidProperties() {
-        final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
-        final String securityPropertySetName = "NoSecurity";
-        final SecurityPropertySet firstSecurityPropertySet = createSecurityPropertySet(firstDeviceConfiguration, securityPropertySetName);
-        firstDeviceConfiguration.activate();
-        final DeviceConfiguration secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
-        final SecurityPropertySet secondSecurityPropertySet = createSecurityPropertySet(secondDeviceConfiguration, securityPropertySetName);
-        secondDeviceConfiguration.activate();
+        final SecurityPropertySet firstSecurityPropertySet;
+        final SecurityPropertySet secondSecurityPropertySet;
+        Device device;
+        final DeviceConfiguration secondDeviceConfiguration;
 
-        updateConflictsFor(secondSecurityPropertySet, securitySetCreatedTopic);
-        assertThat(deviceType.getDeviceConfigConflictMappings()).isEmpty();
+        try (TransactionContext context = getTransactionService().getContext()) {
+            final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
+            final String securityPropertySetName = "NoSecurity";
+            firstSecurityPropertySet = createSecurityPropertySet(firstDeviceConfiguration, securityPropertySetName);
+            firstDeviceConfiguration.activate();
+            secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
+            secondSecurityPropertySet = createSecurityPropertySet(secondDeviceConfiguration, securityPropertySetName);
+            secondDeviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
-        device.save();
-        TypedProperties securityProperties = TypedProperties.empty();
-        securityProperties.setProperty("Password", "12345678");
-        device.setSecurityProperties(firstSecurityPropertySet, securityProperties);
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), CONFIG_VERSION);
+            updateConflictsFor(secondSecurityPropertySet, securitySetCreatedTopic);
+            assertThat(deviceType.getDeviceConfigConflictMappings()).isEmpty();
+
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.save();
+            TypedProperties securityProperties = TypedProperties.empty();
+            securityProperties.setProperty("Password", "12345678");
+            device.setSecurityProperties(firstSecurityPropertySet, securityProperties);
+            context.commit();
+        }
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
         assertThat(modifiedDevice.getSecurityProperties(secondSecurityPropertySet).get(0).getName()).isEqualTo("Password");
@@ -638,27 +757,33 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     }
 
     @Test
-    @Transactional
     public void changeConfigWithConflictingSecurityPropertySetsAndMapSolutionTest() {
-        final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
-        final String firstSecurityPropertySetName = "NoSecurity";
-        final String secondSecurityPropertySetName = "AnotherSecurityPropertySetName";
-        final SecurityPropertySet firstSecurityPropertySet = createSecurityPropertySet(firstDeviceConfiguration, firstSecurityPropertySetName);
-        firstDeviceConfiguration.activate();
-        final DeviceConfiguration secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
-        final SecurityPropertySet secondSecurityPropertySet = createSecurityPropertySet(secondDeviceConfiguration, secondSecurityPropertySetName);
-        secondDeviceConfiguration.activate();
+        Device device;
+        final DeviceConfiguration secondDeviceConfiguration;
+        final SecurityPropertySet secondSecurityPropertySet;
+        final SecurityPropertySet firstSecurityPropertySet;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
+            final String firstSecurityPropertySetName = "NoSecurity";
+            final String secondSecurityPropertySetName = "AnotherSecurityPropertySetName";
+            firstSecurityPropertySet = createSecurityPropertySet(firstDeviceConfiguration, firstSecurityPropertySetName);
+            firstDeviceConfiguration.activate();
+            secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
+            secondSecurityPropertySet = createSecurityPropertySet(secondDeviceConfiguration, secondSecurityPropertySetName);
+            secondDeviceConfiguration.activate();
 
-        updateConflictsFor(secondSecurityPropertySet, securitySetCreatedTopic);
-        final DeviceConfigConflictMapping deviceConfigConflictMapping = getDeviceConfigConflictMapping(firstDeviceConfiguration, secondDeviceConfiguration);
-        deviceConfigConflictMapping.getConflictingSecuritySetSolutions().get(0).markSolutionAsMap(secondSecurityPropertySet);
+            updateConflictsFor(secondSecurityPropertySet, securitySetCreatedTopic);
+            final DeviceConfigConflictMapping deviceConfigConflictMapping = getDeviceConfigConflictMapping(firstDeviceConfiguration, secondDeviceConfiguration);
+            deviceConfigConflictMapping.getConflictingSecuritySetSolutions().get(0).markSolutionAsMap(secondSecurityPropertySet);
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
-        device.save();
-        TypedProperties securityProperties = TypedProperties.empty();
-        securityProperties.setProperty("Password", "12345678");
-        device.setSecurityProperties(firstSecurityPropertySet, securityProperties);
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), CONFIG_VERSION);
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.save();
+            TypedProperties securityProperties = TypedProperties.empty();
+            securityProperties.setProperty("Password", "12345678");
+            device.setSecurityProperties(firstSecurityPropertySet, securityProperties);
+            context.commit();
+        }
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
         assertThat(modifiedDevice.getSecurityProperties(secondSecurityPropertySet).get(0).getName()).isEqualTo("Password");
@@ -666,27 +791,33 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     }
 
     @Test
-    @Transactional
     public void changeConfigWithConflictingSecurityPropertySetsAndRemoveSolutionTest() {
-        final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
-        final String firstSecurityPropertySetName = "NoSecurity";
-        final String secondSecurityPropertySetName = "AnotherSecurityPropertySetName";
-        final SecurityPropertySet firstSecurityPropertySet = createSecurityPropertySet(firstDeviceConfiguration, firstSecurityPropertySetName);
-        firstDeviceConfiguration.activate();
-        final DeviceConfiguration secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
-        final SecurityPropertySet secondSecurityPropertySet = createSecurityPropertySet(secondDeviceConfiguration, secondSecurityPropertySetName);
-        secondDeviceConfiguration.activate();
+        Device device;
+        final SecurityPropertySet secondSecurityPropertySet;
+        final DeviceConfiguration secondDeviceConfiguration;
+        final SecurityPropertySet firstSecurityPropertySet;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
+            final String firstSecurityPropertySetName = "NoSecurity";
+            final String secondSecurityPropertySetName = "AnotherSecurityPropertySetName";
+            firstSecurityPropertySet = createSecurityPropertySet(firstDeviceConfiguration, firstSecurityPropertySetName);
+            firstDeviceConfiguration.activate();
+            secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
+            secondSecurityPropertySet = createSecurityPropertySet(secondDeviceConfiguration, secondSecurityPropertySetName);
+            secondDeviceConfiguration.activate();
 
-        updateConflictsFor(secondSecurityPropertySet, securitySetCreatedTopic);
-        final DeviceConfigConflictMapping deviceConfigConflictMapping = getDeviceConfigConflictMapping(firstDeviceConfiguration, secondDeviceConfiguration);
-        deviceConfigConflictMapping.getConflictingSecuritySetSolutions().get(0).markSolutionAsRemove();
+            updateConflictsFor(secondSecurityPropertySet, securitySetCreatedTopic);
+            final DeviceConfigConflictMapping deviceConfigConflictMapping = getDeviceConfigConflictMapping(firstDeviceConfiguration, secondDeviceConfiguration);
+            deviceConfigConflictMapping.getConflictingSecuritySetSolutions().get(0).markSolutionAsRemove();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
-        device.save();
-        TypedProperties securityProperties = TypedProperties.empty();
-        securityProperties.setProperty("Password", "12345678");
-        device.setSecurityProperties(firstSecurityPropertySet, securityProperties);
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), CONFIG_VERSION);
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.save();
+            TypedProperties securityProperties = TypedProperties.empty();
+            securityProperties.setProperty("Password", "12345678");
+            device.setSecurityProperties(firstSecurityPropertySet, securityProperties);
+            context.commit();
+        }
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
         assertThat(modifiedDevice.getSecurityProperties(secondSecurityPropertySet)).isEmpty();
@@ -694,84 +825,96 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     }
 
     @Test
-    @Transactional
     public void changeConfigRemovesNonExistingManuallyScheduledComTaskExecutions() {
-        final ComTask comTaskForTesting = inMemoryPersistence.getTaskService().newComTask("ComTaskForTesting");
-        comTaskForTesting.createClockTask(ClockTaskType.FORCECLOCK).add();
-        comTaskForTesting.save();
-        final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
-        final String securityPropertySetName = "NoSecurity";
-        final SecurityPropertySet firstSecurityPropertySet = createSecurityPropertySet(firstDeviceConfiguration, securityPropertySetName);
-        final ComTaskEnablement comTaskEnablement1 = createComTaskEnablement(comTaskForTesting, firstDeviceConfiguration, firstSecurityPropertySet);
-        firstDeviceConfiguration.activate();
-        final DeviceConfiguration secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
-        final SecurityPropertySet secondSecurityPropertySet = createSecurityPropertySet(secondDeviceConfiguration, securityPropertySetName);
-        secondDeviceConfiguration.activate();
+        Device device;
+        final DeviceConfiguration secondDeviceConfiguration;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            final ComTask comTaskForTesting = inMemoryPersistence.getTaskService().newComTask("ComTaskForTesting");
+            comTaskForTesting.createClockTask(ClockTaskType.FORCECLOCK).add();
+            comTaskForTesting.save();
+            final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
+            final String securityPropertySetName = "NoSecurity";
+            final SecurityPropertySet firstSecurityPropertySet = createSecurityPropertySet(firstDeviceConfiguration, securityPropertySetName);
+            final ComTaskEnablement comTaskEnablement1 = createComTaskEnablement(comTaskForTesting, firstDeviceConfiguration, firstSecurityPropertySet);
+            firstDeviceConfiguration.activate();
+            secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
+            final SecurityPropertySet secondSecurityPropertySet = createSecurityPropertySet(secondDeviceConfiguration, securityPropertySetName);
+            secondDeviceConfiguration.activate();
 
-        updateConflictsFor(secondSecurityPropertySet, securitySetCreatedTopic);
-        assertThat(deviceType.getDeviceConfigConflictMappings()).isEmpty();
+            updateConflictsFor(secondSecurityPropertySet, securitySetCreatedTopic);
+            assertThat(deviceType.getDeviceConfigConflictMappings()).isEmpty();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
-        final ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = device.newAdHocComTaskExecution(comTaskEnablement1).add();
-        device.save();
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            final ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = device.newAdHocComTaskExecution(comTaskEnablement1).add();
+            device.save();
+            context.commit();
+        }
 
         assertThat(device.getComTaskExecutions()).hasSize(1);
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), CONFIG_VERSION);
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
         assertThat(device.getComTaskExecutions()).isEmpty();
     }
 
     @Test
-    @Transactional
     public void changeConfigRemovesNonExistingComScheduleScheduledComTaskExecutionsTest() {
-        final ComTask clockComTask = inMemoryPersistence.getTaskService().newComTask("ClockComTask");
-        clockComTask.createClockTask(ClockTaskType.FORCECLOCK).add();
-        clockComTask.save();
-        final ComSchedule mySchedule = inMemoryPersistence.getSchedulingService().newComSchedule("MySchedule", new TemporalExpression(TimeDuration.days(1)), Instant.now()).build();
-        mySchedule.addComTask(clockComTask);
-        mySchedule.save();
+        Device device;
+        final DeviceConfiguration secondDeviceConfiguration;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            final ComTask clockComTask = inMemoryPersistence.getTaskService().newComTask("ClockComTask");
+            clockComTask.createClockTask(ClockTaskType.FORCECLOCK).add();
+            clockComTask.save();
+            final ComSchedule mySchedule = inMemoryPersistence.getSchedulingService().newComSchedule("MySchedule", new TemporalExpression(TimeDuration.days(1)), Instant.now()).build();
+            mySchedule.addComTask(clockComTask);
+            mySchedule.save();
 
-        final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
-        final String securityPropertySetName = "NoSecurity";
-        final SecurityPropertySet firstSecurityPropertySet = createSecurityPropertySet(firstDeviceConfiguration, securityPropertySetName);
-        final ComTaskEnablement comTaskEnablement1 = createComTaskEnablement(clockComTask, firstDeviceConfiguration, firstSecurityPropertySet);
-        firstDeviceConfiguration.activate();
-        final DeviceConfiguration secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
-        final SecurityPropertySet secondSecurityPropertySet = createSecurityPropertySet(secondDeviceConfiguration, securityPropertySetName);
-        secondDeviceConfiguration.activate();
+            final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
+            final String securityPropertySetName = "NoSecurity";
+            final SecurityPropertySet firstSecurityPropertySet = createSecurityPropertySet(firstDeviceConfiguration, securityPropertySetName);
+            final ComTaskEnablement comTaskEnablement1 = createComTaskEnablement(clockComTask, firstDeviceConfiguration, firstSecurityPropertySet);
+            firstDeviceConfiguration.activate();
+            secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
+            final SecurityPropertySet secondSecurityPropertySet = createSecurityPropertySet(secondDeviceConfiguration, securityPropertySetName);
+            secondDeviceConfiguration.activate();
 
-        updateConflictsFor(secondSecurityPropertySet, securitySetCreatedTopic);
-        assertThat(deviceType.getDeviceConfigConflictMappings()).isEmpty();
+            updateConflictsFor(secondSecurityPropertySet, securitySetCreatedTopic);
+            assertThat(deviceType.getDeviceConfigConflictMappings()).isEmpty();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
-        device.save();
-        final ScheduledComTaskExecution scheduledComTaskExecution = device.newScheduledComTaskExecution(mySchedule).add();
-        device.save();
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.save();
+            final ScheduledComTaskExecution scheduledComTaskExecution = device.newScheduledComTaskExecution(mySchedule).add();
+            device.save();
+            context.commit();
+        }
 
         assertThat(device.getComTaskExecutions()).hasSize(1);
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), CONFIG_VERSION);
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
         assertThat(device.getComTaskExecutions()).isEmpty();
     }
 
     @Test
-    @Transactional
     public void changeConfigWithConfiguredDialectPropertyTest() {
-        DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
-        firstDeviceConfiguration.activate();
-        DeviceConfiguration secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
-        secondDeviceConfiguration.activate();
-
-        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
         final String myPropertyValue = "MyPropertyValue";
-        device.setProtocolDialectProperty(ProtocolDialectPropertiesImplIT.DIALECT_1_NAME, ProtocolDialectPropertiesImplIT.REQUIRED_PROPERTY_NAME_D1, myPropertyValue);
-        device.save();
+        Device device;
+        DeviceConfiguration secondDeviceConfiguration;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
+            firstDeviceConfiguration.activate();
+            secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
+            secondDeviceConfiguration.activate();
 
-        final ProtocolDialectProperties protocolDialectProperties = device.getProtocolDialectProperties(ProtocolDialectPropertiesImplIT.DIALECT_1_NAME).get();
-        assertThat(protocolDialectProperties.getTypedProperties().getProperty(ProtocolDialectPropertiesImplIT.REQUIRED_PROPERTY_NAME_D1)).isEqualTo(myPropertyValue);
-        assertThat(protocolDialectProperties.getProtocolDialectConfigurationProperties().getDeviceConfiguration().getId()).isEqualTo(firstDeviceConfiguration.getId());
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.setProtocolDialectProperty(ProtocolDialectPropertiesImplIT.DIALECT_1_NAME, ProtocolDialectPropertiesImplIT.REQUIRED_PROPERTY_NAME_D1, myPropertyValue);
+            device.save();
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), CONFIG_VERSION);
+            final ProtocolDialectProperties protocolDialectProperties = device.getProtocolDialectProperties(ProtocolDialectPropertiesImplIT.DIALECT_1_NAME).get();
+            assertThat(protocolDialectProperties.getTypedProperties().getProperty(ProtocolDialectPropertiesImplIT.REQUIRED_PROPERTY_NAME_D1)).isEqualTo(myPropertyValue);
+            assertThat(protocolDialectProperties.getProtocolDialectConfigurationProperties().getDeviceConfiguration().getId()).isEqualTo(firstDeviceConfiguration.getId());
+            context.commit();
+        }
+
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
         final ProtocolDialectProperties protocolDialectProperties1 = modifiedDevice.getProtocolDialectProperties(ProtocolDialectPropertiesImplIT.DIALECT_1_NAME).get();
@@ -780,66 +923,78 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     }
 
     @Test
-    @Transactional
     public void generalPropertiesWithConfigurationChangeTest() {
         final String configValue = "myConfigValueForTheOptionalProperty";
         final String propertyName = TestProtocol.MYOPTIONALPROPERTY;
-        DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
-        firstDeviceConfiguration.activate();
-        firstDeviceConfiguration.getDeviceProtocolProperties().setProperty(propertyName, configValue);
-        firstDeviceConfiguration.save();
+        Device device;
+        DeviceConfiguration secondDeviceConfiguration;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
+            firstDeviceConfiguration.activate();
+            firstDeviceConfiguration.getDeviceProtocolProperties().setProperty(propertyName, configValue);
+            firstDeviceConfiguration.save();
 
-        DeviceConfiguration secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
-        secondDeviceConfiguration.activate();
+            secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
+            secondDeviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
-        device.save();
-        assertThat(device.getDeviceProtocolProperties().getProperty(propertyName)).isEqualTo(configValue);
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.save();
+            assertThat(device.getDeviceProtocolProperties().getProperty(propertyName)).isEqualTo(configValue);
+            context.commit();
+        }
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), CONFIG_VERSION);
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
         assertThat(modifiedDevice.getDeviceProtocolProperties().getProperty(propertyName)).isNull();
     }
 
     @Test
-    @Transactional
     public void generalPropertyOnDeviceWithConfigChangeTest() {
+        Device device;
+        DeviceConfiguration secondDeviceConfiguration;
         final String deviceValue = "MyDeviceValueForTheOptionalProperty";
         final String propertyName = TestProtocol.MYOPTIONALPROPERTY;
-        DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
-        firstDeviceConfiguration.activate();
+        try (TransactionContext context = getTransactionService().getContext()) {
+            DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
+            firstDeviceConfiguration.activate();
 
-        DeviceConfiguration secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
-        secondDeviceConfiguration.activate();
+            secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
+            secondDeviceConfiguration.activate();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
-        device.setProtocolProperty(propertyName, deviceValue);
-        device.save();
-        assertThat(device.getDeviceProtocolProperties().getProperty(propertyName)).isEqualTo(deviceValue);
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.setProtocolProperty(propertyName, deviceValue);
+            device.save();
+            assertThat(device.getDeviceProtocolProperties().getProperty(propertyName)).isEqualTo(deviceValue);
+            context.commit();
+        }
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), CONFIG_VERSION);
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
         assertThat(modifiedDevice.getDeviceProtocolProperties().getProperty(propertyName)).isEqualTo(deviceValue);
     }
 
     @Test
-    @Transactional
     public void generalPropertyOnDeviceAndOnConfigRemoveOnDeviceAfterConfigChangeTest() {
+        Device device;
+        DeviceConfiguration secondDeviceConfiguration;
         final String deviceValue = "MyDeviceValueForTheOptionalProperty";
         final String configValue = "myConfigValueForTheOptionalProperty";
         final String propertyName = TestProtocol.MYOPTIONALPROPERTY;
-        DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
-        firstDeviceConfiguration.activate();
+        try (TransactionContext context = getTransactionService().getContext()) {
+            DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
+            firstDeviceConfiguration.activate();
 
-        DeviceConfiguration secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
-        secondDeviceConfiguration.activate();
-        secondDeviceConfiguration.getDeviceProtocolProperties().setProperty(propertyName, configValue);
-        secondDeviceConfiguration.save();
+            secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
+            secondDeviceConfiguration.activate();
+            secondDeviceConfiguration.getDeviceProtocolProperties().setProperty(propertyName, configValue);
+            secondDeviceConfiguration.save();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
-        device.setProtocolProperty(propertyName, deviceValue);
-        device.save();
-        assertThat(device.getDeviceProtocolProperties().getProperty(propertyName)).isEqualTo(deviceValue);
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.setProtocolProperty(propertyName, deviceValue);
+            device.save();
+            assertThat(device.getDeviceProtocolProperties().getProperty(propertyName)).isEqualTo(deviceValue);
+            context.commit();
+        }
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), CONFIG_VERSION);
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
         assertThat(modifiedDevice.getDeviceProtocolProperties().getProperty(propertyName)).isEqualTo(deviceValue);
 
         modifiedDevice.removeProtocolProperty(propertyName);
@@ -850,21 +1005,25 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     }
 
     @Test
-    @Transactional
     public void configChangeToConfigWithNoMessagesAllowedTest() {
-        DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
-        firstDeviceConfiguration.activate();
+        Device device;
+        DeviceConfiguration secondDeviceConfiguration;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
+            firstDeviceConfiguration.activate();
 
-        DeviceConfiguration secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
-        secondDeviceConfiguration.activate();
-        secondDeviceConfiguration.getDeviceMessageEnablements().stream().forEach(deviceMessageEnablement -> secondDeviceConfiguration.removeDeviceMessageEnablement(deviceMessageEnablement.getDeviceMessageId()));
-        secondDeviceConfiguration.save();
+            secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
+            secondDeviceConfiguration.activate();
+            secondDeviceConfiguration.getDeviceMessageEnablements().stream().forEach(deviceMessageEnablement -> secondDeviceConfiguration.removeDeviceMessageEnablement(deviceMessageEnablement.getDeviceMessageId()));
+            secondDeviceConfiguration.save();
 
-        Device device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
-        device.save();
-        device.newDeviceMessage(DeviceMessageId.CONTACTOR_CLOSE).setReleaseDate(Instant.now()).add(); // should not fail!
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.save();
+            device.newDeviceMessage(DeviceMessageId.CONTACTOR_CLOSE).setReleaseDate(Instant.now()).add(); // should not fail!
+            context.commit();
+        }
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), CONFIG_VERSION);
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         boolean ok = false; // keeping track of a boolean because we need to validate that the message was called due to the below method
         try {

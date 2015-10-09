@@ -22,4 +22,8 @@ public class DeviceConfigurationChangeException extends LocalizedException {
     public static DeviceConfigurationChangeException cannotChangeToConfigOfOtherDeviceType(Thesaurus thesaurus) {
         return new DeviceConfigurationChangeException(thesaurus, MessageSeeds.CANNOT_CHANGE_DEVICE_CONFIG_TO_OTHER_DEVICE_TYPE);
     }
+
+    public static DeviceConfigurationChangeException noDestinationConfigFoundForVersion(Thesaurus thesaurus, long destinationDeviceConfig, long destinationDeviceConfigVersion){
+        return new DeviceConfigurationChangeException(thesaurus, MessageSeeds.NO_DESTINATION_DEVICE_CONFIG_FOUND_FOR_VERSION, destinationDeviceConfig,  destinationDeviceConfigVersion);
+    }
 }

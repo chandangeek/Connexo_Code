@@ -15,12 +15,11 @@ import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
-import com.energyict.mdc.device.data.ComTaskExecutionFields;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceFields;
-import com.energyict.mdc.device.data.DeviceProtocolProperty;
-import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeExecutor;
+import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest;
+import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequestImpl;
 import com.energyict.mdc.device.data.impl.finders.DeviceFinder;
 import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
 import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
@@ -236,7 +235,24 @@ public class DeviceServiceImpl implements ServerDeviceService {
 
     @Override
     public Device changeDeviceConfigurationForSingleDevice(Device device, long destinationDeviceConfigId, long destinationDeviceConfigVersion) {
-        return DeviceConfigChangeExecutor.getInstance().execute((DeviceImpl) device, deviceDataModelService.deviceConfigurationService().findDeviceConfiguration(destinationDeviceConfigId).get());
+        final DeviceConfigChangeRequestImpl configChangeRequest = deviceDataModelService.getTransactionService().execute(() -> {
+
+            final DeviceConfiguration deviceConfiguration = deviceDataModelService.deviceConfigurationService()
+                    .findAndLockDeviceConfigurationByIdAndVersion(destinationDeviceConfigId, destinationDeviceConfigVersion)
+                    .orElseThrow(() -> DeviceConfigurationChangeException.noDestinationConfigFoundForVersion(thesaurus, destinationDeviceConfigId, destinationDeviceConfigVersion));
+
+            final DeviceConfigChangeRequestImpl deviceConfigChangeRequest = deviceDataModelService.dataModel().getInstance(DeviceConfigChangeRequestImpl.class).init(deviceConfiguration);
+            deviceConfigChangeRequest.save();
+
+            return deviceConfigChangeRequest;
+        });
+
+        return deviceDataModelService.getTransactionService().execute(() -> {
+            final Device modifiedDevice = DeviceConfigChangeExecutor.getInstance().execute((DeviceImpl) device, deviceDataModelService.deviceConfigurationService().findDeviceConfiguration(destinationDeviceConfigId).get());
+            configChangeRequest.remove();
+            return modifiedDevice;
+        });
+
     }
 
     @Override

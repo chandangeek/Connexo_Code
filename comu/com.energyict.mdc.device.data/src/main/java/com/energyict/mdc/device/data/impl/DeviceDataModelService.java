@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
@@ -44,6 +45,8 @@ public interface DeviceDataModelService {
     public ProtocolPluggableService protocolPluggableService();
 
     public DeviceConfigurationService deviceConfigurationService();
+
+    TransactionService getTransactionService();
 
     public ServerConnectionTaskService connectionTaskService();
 
