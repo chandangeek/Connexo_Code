@@ -66,7 +66,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     itemId: 'overflow-value-field',
                     required: true,
                     allowBlank: false,
-                    fieldLabel: 'Overflow value',
+                    fieldLabel: Uni.I18n.translate('loadprofileconfigurationdetail.LoadProfileConfigurationDetailForm.overFlowValue', 'MDC' ,'Overflow value'),
                     name: 'overflowValue',
                     msgTarget: 'under',
                     maxLength: 80,

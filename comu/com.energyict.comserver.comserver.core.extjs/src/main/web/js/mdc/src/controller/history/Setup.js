@@ -62,13 +62,6 @@ Ext.define('Mdc.controller.history.Setup', {
                         }
                     }
                 },
-                customattributesets: {
-                    title: Uni.I18n.translate('general.customAttributeSets', 'MDC', 'Custom attribute sets'),
-                    route: 'customattributesets',
-                    privileges: Mdc.privileges.MasterData.view,
-                    controller: 'Mdc.customattributesets.controller.AttributeSets',
-                    action: 'showCustomAttributeSets'
-                },
                 devicetypes: {
                     title: Uni.I18n.translate('general.deviceTypes','MDC','Device types'),
                     route: 'devicetypes',

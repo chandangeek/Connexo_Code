@@ -68,7 +68,6 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.RegisterMappings',
         'Mdc.controller.setup.RegisterTypes',
         'Mdc.controller.setup.RuleDeviceConfigurations',
-        //'Mdc.controller.setup.SearchItems',
         'Mdc.controller.setup.SearchItemsBulkAction',
         'Mdc.controller.setup.SecuritySettings',
         'Mdc.controller.setup.SetupOverview',
@@ -97,8 +96,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.DeviceAttributes',
         'Mdc.usagepointmanagement.controller.UsagePoint',
         'Mdc.controller.setup.DeviceConflictingMapping',
-        'Mdc.customattributesets.controller.AttributeSets',
-        'Mdc.devicetypecustomattributes.controller.AttributeSets'
+        'Mdc.devicetypecustomattributes.controller.AttributeSets',
+        'Mdc.controller.Search'
     ],
 
     stores: [
@@ -202,13 +201,6 @@ Ext.define('Mdc.controller.Main', {
                             itemId: 'lnk-load-profile-types',
                             privileges: Mdc.privileges.MasterData.view,
                             route: 'loadprofiletypes'
-                        },
-                        {
-                            text: Uni.I18n.translate('general.customAttributeSets', 'MDC', 'Custom attribute sets'),
-                            href: '#/administration/customattributesets',
-                            itemId: 'lnk-custom-attribute-sets',
-                            privileges: Mdc.privileges.MasterData.view,
-                            route: 'customattributesets'
                         }
                     ]
                 });

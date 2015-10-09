@@ -128,7 +128,7 @@ Ext.define('Mdc.view.setup.devicechannels.GraphView', {
                     html += ' - ' + Highcharts.dateFormat('%H:%M', point.intervalEnd) + '<br>';
                     html += '<table style="margin-top: 10px"><tbody>';
                     bgColor = point.tooltipColor;
-                    html += '<tr><td><b>' + point.series.name + ':</b></td><td>' + mainValue + (point.edited ? editedIconSpan : '') + iconSpan.replace('{icon}', deltaIcon) + '</td></tr>';
+                    html += '<tr><td><b>' + Uni.I18n.translate('general.value', 'MDC', 'Value') + ':</b></td><td>' + mainValue + (point.edited ? editedIconSpan : '') + iconSpan.replace('{icon}', deltaIcon) + '</td></tr>';
                     html += '<tr><td><b>' + Uni.I18n.translate('general.bulkValue', 'MDC', 'Bulk value') + ':' + '</b></td><td>' + bulkValue + (point.bulkEdited ? editedIconSpan : '') + iconSpan.replace('{icon}', bulkIcon) + '</td></tr>';
 
                     html += '</tbody></table>';

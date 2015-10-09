@@ -28,7 +28,7 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step4', {
 
     showChangeDeviceConfigConfirmation: function (title, text, solveLink, additionalText, type) {
         var bodyText, widget,
-            solve = solveLink ? '<br>' + solveLink + ' ' + Ext.String.htmlEncode(Uni.I18n.translate('searchItems.bulk.solveLinkPostfix', 'MDC', 'before you retry.')) : '';
+            solve = solveLink ? Uni.I18n.translate('searchItems.bulk.SolveTheConflictsBeforeYouRetry', 'MDC', '<br><a href="{0}">Solve the conflicts</a> before you retry.', solveLink) : '';
         bodyText = Ext.String.htmlEncode(text) + '<br>' + solve;
         if (additionalText) bodyText += '<br>' + additionalText;
         type = type ? type : 'confirmation';

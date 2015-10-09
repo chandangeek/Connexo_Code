@@ -18,13 +18,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.GeneralPreview', {
                 xtype: 'deviceRegisterConfigurationActionMenu'
             }
         }
-    ],
-
-    initComponent: function () {
-        var me = this;
-
-        me.callParent(arguments);
-    }
+    ]
 });
 
 
