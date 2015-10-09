@@ -9,6 +9,7 @@ Ext.define('Dxp.view.tasks.EventTypeWindow', {
     layout: 'fit',
     floating: true,
     comboBoxValueForAll: -1,
+    defaultFocus: 'des-eventtype-input-field',
     requires: [
         'Uni.util.FormErrorMessage',
         'Dxp.model.EndDeviceEventTypePart'
@@ -60,7 +61,8 @@ Ext.define('Dxp.view.tasks.EventTypeWindow', {
                                         ui: 'blank',
                                         shadow: false,
                                         margin: '15 0 0 10',
-                                        width: 16
+                                        width: 16,
+                                        tabIndex: -1
                                     }
                                 ]
                             },
@@ -236,19 +238,20 @@ Ext.define('Dxp.view.tasks.EventTypeWindow', {
         deviceSubDomainCombo.on("change", me.updateEventTypeField, me);
         deviceEventOrActionCombo.on("change", me.updateEventTypeField, me);
         deviceEventOrActionCombo.setValue(me.comboBoxValueForAll);
-        fieldToFocus.focus(false, 200); // doesn't seem to work for some reason...
     },
 
     onChange: function(field, newValue, oldValue) {
         var me = this,
             radioEventTypeParts = me.down('#des-eventtypeparts-input-radio'),
-            partsSelected = radioEventTypeParts.getValue();
+            partsSelected = radioEventTypeParts.getValue(),
+            fieldToFocus = partsSelected ? me.down('#des-device-type-combo') : me.down('#des-eventtype-input-field');
 
         me.down('#specifyEventForm').setDisabled(partsSelected);
         me.down('#des-device-type-combo').setDisabled(!partsSelected);
         me.down('#des-device-domain-combo').setDisabled(!partsSelected);
         me.down('#des-device-subdomain-combo').setDisabled(!partsSelected);
         me.down('#des-device-eventoraction-combo').setDisabled(!partsSelected);
+        fieldToFocus.focus(false, 200);
         me.down('#form-errors').hide();
     },
 
