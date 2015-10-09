@@ -1542,7 +1542,7 @@ Ext.define('Dxp.controller.Tasks', {
         }
         form.down('#dxp-data-selector-container').doComponentLayout();
 
-        if ((form.isValid()) && (!emptyReadingTypes) && (!emptyDestinations) && (!noFormatterChosen) && (!noDataSelectorChosen)) {
+        if ((form.isValid()) && (!emptyReadingTypes) && (!emptyEventTypes) && (!emptyDestinations) && (!noFormatterChosen) && (!noDataSelectorChosen)) {
             var record = me.taskModel || Ext.create('Dxp.model.DataExportTask'),
                 readingTypesStore = page.down('#readingTypesGridPanel').getStore(),
                 eventTypesStore = page.down('#eventTypesGridPanel').getStore(),
