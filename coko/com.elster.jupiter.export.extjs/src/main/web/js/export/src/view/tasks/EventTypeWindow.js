@@ -268,12 +268,13 @@ Ext.define('Dxp.view.tasks.EventTypeWindow', {
         );
     },
 
-    isFormValid: function() {
-        return this.isEventTypeFieldValid();
+    isFormValid: function(store) {
+        return this.isEventTypeFieldValid(store);
     },
 
-    isEventTypeFieldValid: function() {
-        var radioGroup = this.down('#eventTypeInputMethod'),
+    isEventTypeFieldValid: function(store) {
+        var me = this,
+            radioGroup = this.down('#eventTypeInputMethod'),
             fieldId = radioGroup.getValue().rb === '0' ? '#des-eventtype-input-field' : '#des-eventtype-assembled-field',
             field = this.down(fieldId);
 
@@ -297,6 +298,10 @@ Ext.define('Dxp.view.tasks.EventTypeWindow', {
             this.isFieldValid(fieldId,
                 this.isPartValueValid(4, field.getValue()),
                 Uni.I18n.translate('export.eventType.invalid.partx', 'DES', 'Event type is invalid (part {0})', 4)
+            ) &&
+            this.isFieldValid(fieldId,
+                store.findExact('eventFilterCode', me.getEventType()) === -1,
+                Uni.I18n.translate('export.eventType.alreadyAssigned', 'DES', 'Event type is already assigned to data export task')
             );
     },
 

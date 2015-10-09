@@ -500,7 +500,7 @@ Ext.define('Dxp.controller.Tasks', {
     },
 
     addEventTypeToTask: function(button){
-        if (!this.getEventTypeWindow().isFormValid()) {
+        if (!this.getEventTypeWindow().isFormValid(this.getEventTypesGrid().getStore())) {
             return;
         }
 
