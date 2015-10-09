@@ -1,7 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -32,6 +31,7 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -385,7 +385,8 @@ public class ConnectionResource {
     }
 
     /**
-     * Gets the ConnectionTypePluggableClass from either filter or list of connections
+     * Gets the ConnectionTypePluggableClass from either filter or list of connections.
+     *
      * @param filterQueryParam Describes the filter accepted by the method
      * @param connectionsQueryParam Describes a list of (long) ids
      * @return unique ConnectionTypePluggableClass, or exception if not unique
@@ -407,7 +408,8 @@ public class ConnectionResource {
     }
 
     /**
-     * Gets the ConnectionTypePluggableClass from either filter or list of connections
+     * Gets the ConnectionTypePluggableClass from either filter or list of connections.
+     *
      * @param filterMessage Describes the filter accepted by the method
      * @param connections Describes a list of (long) ids
      * @return unique ConnectionTypePluggableClass, or exception if not unique

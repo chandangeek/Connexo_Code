@@ -1,6 +1,5 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.rest.FieldResource;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.dashboard.rest.DashboardApplication;
@@ -18,6 +17,7 @@ import com.energyict.mdc.tasks.TaskService;
 
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
 import javax.annotation.security.RolesAllowed;
@@ -90,7 +90,7 @@ public class DashboardFieldResource extends FieldResource {
     }
 
     private List<String> comSessionSuccessIndicatorClientSideValues() {
-        return Stream.of(ComSession.SuccessIndicator.values()).map(Enum::name).collect(Collectors.toList());
+        return Stream.of(ComSessionSuccessIndicatorTranslationKeys.values()).map(ComSessionSuccessIndicatorTranslationKeys::getKey).collect(Collectors.toList());
     }
 
     @GET
@@ -170,4 +170,5 @@ public class DashboardFieldResource extends FieldResource {
         map.put(name, list.stream().sorted(byNameComparator).map(IdWithNameInfo::new).collect(toList()));
         return map;
     }
+
 }
