@@ -67,7 +67,8 @@ public class SimpleConditionOperation extends ConditionOperation {
     }
 
     /**
-     * Translate the LIKE string value into our supported wildcard regex. This method inverses Where.toOracleSql()
+     * Translate the LIKE string value into our supported wildcard regex.
+     * This method inverses Where.toOracleSql()
      */
     private String fromOracleSql(String value) {
         // escape sql our wildcards
@@ -85,6 +86,5 @@ public class SimpleConditionOperation extends ConditionOperation {
 
         return value;
     }
-
 
 }
