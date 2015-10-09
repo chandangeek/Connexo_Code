@@ -2,8 +2,8 @@ package com.elster.jupiter.demo.impl;
 
 import com.elster.jupiter.demo.impl.builders.Builder;
 import com.elster.jupiter.demo.impl.builders.NamedBuilder;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
-import com.energyict.mdc.common.HasId;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
