@@ -67,11 +67,7 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.Period;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -91,8 +87,6 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     private volatile Thesaurus thesaurus;
     private volatile MessageService messageService;
     private volatile JsonService jsonService;
-    @SuppressWarnings("unused")
-    private volatile FiniteStateMachineService finiteStateMachineService;
 
     private volatile boolean createAllReadingTypes;
     private volatile String[] requiredReadingTypes;
@@ -104,7 +98,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Inject
     public MeteringServiceImpl(
             Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService, NlsService nlsService, MessageService messageService, JsonService jsonService,
-            @Named("createReadingTypes") boolean createAllReadingTypes, @Named("requiredReadingTypes") String requiredReadingTypes, FiniteStateMachineService finiteStateMachineService) {
+            @Named("createReadingTypes") boolean createAllReadingTypes, @Named("requiredReadingTypes") String requiredReadingTypes) {
         this.clock = clock;
         this.createAllReadingTypes = createAllReadingTypes;
         this.requiredReadingTypes = requiredReadingTypes.split(";");
@@ -117,7 +111,6 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         setNlsService(nlsService);
         setMessageService(messageService);
         setJsonService(jsonService);
-        setFiniteStateMachineService(finiteStateMachineService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -316,11 +309,6 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         this.userService = userService;
     }
 
-    @Reference
-    public void setFiniteStateMachineService(FiniteStateMachineService finiteStateMachineService) {
-        this.finiteStateMachineService = finiteStateMachineService;
-    }
-
     public EventService getEventService() {
         return eventService;
     }
@@ -445,6 +433,11 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Override
     public DataModel getDataModel() {
         return dataModel;
+    }
+
+    @Override
+    public Thesaurus getThesaurus() {
+        return thesaurus;
     }
 
     AmrSystemImpl createAmrSystem(int id, String name) {
