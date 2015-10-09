@@ -529,6 +529,7 @@ Ext.define('Uni.controller.Search', {
                 xtype: me.criteriaMap[type],
                 text: displayValue,
                 dataIndex: property.get('name'),
+                itemId: 'criteria-' + property.get('name'),
                 property: property,
                 listeners: {
                     'change': {

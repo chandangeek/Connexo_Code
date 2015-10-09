@@ -39,6 +39,7 @@ Ext.define('Uni.view.search.Overview', {
                 items: [
                     {
                         xtype: 'panel',
+                        itemId: 'search-main-container',
                         ui: 'filter',
                         layout: {
                             type: 'vbox',
@@ -139,6 +140,7 @@ Ext.define('Uni.view.search.Overview', {
                             {
                                 // Sorting. (Not in scope at this moment of writing, removing breaks the column layout so just disabling the xtypes.)
                                 xtype: 'toolbar',
+                                itemId: 'search-sorting',
                                 margin: 0,
                                 defaults: {
                                     disabled: true
