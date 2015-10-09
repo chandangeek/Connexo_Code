@@ -1,6 +1,6 @@
 package com.energyict.mdc.multisense.api.impl.utils;
 
-import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 

@@ -1,7 +1,7 @@
 package com.energyict.mdc.multisense.api.impl.utils;
 
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
