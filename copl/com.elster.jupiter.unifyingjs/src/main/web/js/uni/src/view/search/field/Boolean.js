@@ -22,7 +22,7 @@ Ext.define('Uni.view.search.field.Boolean', {
             minWidth: 70,
             listeners: {
                 click: function (menu, item) {
-                    me.onChange(me, item.inputValue);
+                    me.setValue(item.inputValue);
                 }
             }
         };

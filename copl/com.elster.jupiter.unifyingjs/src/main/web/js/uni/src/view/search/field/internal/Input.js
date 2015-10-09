@@ -14,6 +14,10 @@ Ext.define('Uni.view.search.field.internal.Input', {
         this.fireEvent('change', this, value);
     },
 
+    setValue: function (value) {
+        this.down('#filter-input').setValue(value);
+    },
+
     reset: function() {
         this.down('#filter-input').reset();
         this.fireEvent('reset');

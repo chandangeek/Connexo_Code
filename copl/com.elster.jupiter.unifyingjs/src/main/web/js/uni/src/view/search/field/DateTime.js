@@ -25,7 +25,7 @@ Ext.define('Uni.view.search.field.DateTime', {
         if (clearBtn) {
             clearBtn.setDisabled(!!Ext.isEmpty(value));
         }
-        this.onChange(this, value);
+        this.setValue(this, value);
     },
 
     reset: function () {

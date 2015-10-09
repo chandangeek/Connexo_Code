@@ -27,7 +27,7 @@ Ext.define('Uni.view.search.field.Numeric', {
         if (clearBtn) {
             clearBtn.setDisabled(!!Ext.isEmpty(value));
         }
-        this.onChange(this, value);
+        this.setValue(value);
     },
 
     cleanup: function(menu) {

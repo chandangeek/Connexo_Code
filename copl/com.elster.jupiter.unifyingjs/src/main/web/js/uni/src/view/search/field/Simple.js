@@ -10,11 +10,9 @@ Ext.define('Uni.view.search.field.Simple', {
         this.callParent(arguments);
     },
 
-    //updateButtonText: function () {
-    //    Ext.isEmpty(this.value)
-    //        ? this.setText(this.emptyText)
-    //        : this.setText(this.emptyText + ': ' + this.value);
-    //},
+    populateValue: function(value) {
+        this.down('#filter-input').setValue(value);
+    },
 
     initComponent: function () {
         var me = this;
@@ -38,7 +36,9 @@ Ext.define('Uni.view.search.field.Simple', {
                     emptyText: me.emptyText,
                     listeners: {
                         change: {
-                            fn: me.onChange,
+                            fn: function(elm, val) {
+                                this.setValue(val);
+                            },
                             scope: me
                         }
                     }

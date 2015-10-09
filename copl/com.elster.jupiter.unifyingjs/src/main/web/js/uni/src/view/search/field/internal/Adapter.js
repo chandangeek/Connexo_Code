@@ -59,6 +59,10 @@ Ext.define('Uni.view.search.field.internal.Adapter', {
         return this.widget.getValue();
     },
 
+    populateValue: function(value) {
+        this.widget.populateValue(value);
+    },
+
     setValue: function (value) {
         this.widget.setValue(value);
     },
