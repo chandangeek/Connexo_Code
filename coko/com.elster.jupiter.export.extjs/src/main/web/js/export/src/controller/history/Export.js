@@ -49,7 +49,7 @@ Ext.define('Dxp.controller.history.Export', {
                             action: 'showTaskDetailsView',
                             callback: function (route) {
                                 this.getApplication().on('dataexporttaskload', function (record) {
-                                    route.setTitle(record.get('name'));
+                                    route.setTitle(Ext.String.htmlEncode(record.get('name')));
                                     return true;
                                 }, {single: true});
                                 return this;

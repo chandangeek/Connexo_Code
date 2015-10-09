@@ -985,7 +985,7 @@ Ext.define('Dxp.controller.Tasks', {
             }
         }
 
-        preview.setTitle(record.get('name'));
+        preview.setTitle(Ext.String.htmlEncode(record.get('name')));
         previewForm.loadRecord(record);
         preview.down('dxp-tasks-action-menu').record = record;
 
