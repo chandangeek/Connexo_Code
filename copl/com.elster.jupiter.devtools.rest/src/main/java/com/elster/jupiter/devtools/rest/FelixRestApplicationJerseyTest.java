@@ -1,5 +1,6 @@
 package com.elster.jupiter.devtools.rest;
 
+import aQute.lib.strings.Strings;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -9,10 +10,10 @@ import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
+import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.google.common.reflect.ClassPath;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.client.ClientProperties;
@@ -21,22 +22,23 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.HEAD;
-import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Application;
 import java.io.IOException;
-import java.lang.reflect.Method;
+import java.util.List;
+import java.util.stream.Stream;
 
-import org.junit.*;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-
+import static java.util.stream.Collectors.toList;
+import static junit.framework.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
@@ -163,37 +165,17 @@ public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
     }
 
     @Test
-    public void checkRestMethodsHaveProducesAnnotation() throws IOException {
-        ClassPath classPath = ClassPath.from(this.getClass().getClassLoader());
-        String packageName = this.getClass().getPackage().getName();
-        if (packageName.endsWith(".impl")) {
-            packageName = packageName.substring(0, packageName.lastIndexOf(".impl"));
-        }
-        StringBuilder builder = new StringBuilder();
-        for (ClassPath.ClassInfo classInfo : classPath.getTopLevelClassesRecursive(packageName)) {
-            Class<?> loadedClass = classInfo.load();
-            for (Method method : loadedClass.getMethods()) {
-                if (isRestMethod(method)) {
-                    if (!method.isAnnotationPresent(Produces.class)) {
-                        builder.append("REST method \'").append(method.getName()).append("\' of class \'").append(classInfo.getName()).append("\' does not have the @Produce annotation");
-                        builder.append("\n");
-                    }
-                }
-            }
-        }
-        if (builder.length() > 0) {
-            Assert.fail(builder.toString());
+    public void checkRestMethodsHaveProducesAnnotation() {
+        List<String> errors = getApplication()
+                .getClasses().stream() // also contains non-resources, but that doesn't matter
+                .flatMap(clazz -> Stream.of(clazz.getMethods()))
+                .filter(method -> method.isAnnotationPresent(GET.class) || method.isAnnotationPresent(POST.class) || method.isAnnotationPresent(PUT.class) || method.isAnnotationPresent(DELETE.class) || method.isAnnotationPresent(PROPFIND.class))
+                .filter(method -> !method.isAnnotationPresent(Produces.class))
+                .map(method -> method.getDeclaringClass().getSimpleName() + ":" + method.getName())
+                .collect(toList());
+
+        if (!errors.isEmpty()) {
+            fail("@Produces is missing on " + Strings.join(", ", errors));
         }
     }
-
-    private boolean isRestMethod(Method method) {
-        return method.isAnnotationPresent(GET.class) ||
-                method.isAnnotationPresent(PUT.class) ||
-                method.isAnnotationPresent(POST.class) ||
-                method.isAnnotationPresent(DELETE.class) ||
-                method.isAnnotationPresent(HEAD.class) ||
-                method.isAnnotationPresent(OPTIONS.class);
-    }
-
-
 }
