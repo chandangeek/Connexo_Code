@@ -106,7 +106,6 @@ Ext.define('Isu.view.issues.ActionMenu', {
             switch (record.get('name')) {
                 case 'Assign issue':
                     privileges = Isu.privileges.Issue.canDoAction() && Isu.privileges.Issue.assign;
-                    debugger;
                     break;
                 case 'Close issue':
                     privileges = Isu.privileges.Issue.canDoAction() && Isu.privileges.Issue.close;
