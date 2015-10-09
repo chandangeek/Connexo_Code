@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -27,7 +26,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
-import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -101,8 +100,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
                 DeviceMessagesResource.class,
                 DeviceMessagePrivilegesResource.class,
                 ProtocolPropertiesResource.class,
-                DeviceConfigurationEstimationRuleSetResource.class,
-                RestValidationExceptionMapper.class
+                DeviceConfigurationEstimationRuleSetResource.class
         );
     }
 
