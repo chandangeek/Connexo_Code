@@ -72,19 +72,19 @@ public class DataExportTaskHistoryInfo {
                     this.exportPeriodTo = interval.upperEndpoint().toEpochMilli();
                 });
         setStatusOnDate(dataExportOccurrence, thesaurus);
-        ExportTask version = history.getVersionAt(dataExportOccurrence.getTriggerTime())
+        ExportTask version = history.getVersionAt(dataExportOccurrence.getStartDate().get())
                 .orElseGet(() -> history.getVersionAt(dataExportOccurrence.getTask().getCreateTime())
                         .orElseGet(dataExportOccurrence::getTask));
         task = new DataExportTaskInfo();
         task.populate(version, thesaurus, timeService, propertyUtils);
         if (version != null) {
             populateForReadingTypeDataExportTask(version, dataExportOccurrence, thesaurus);
-            version.getDestinations(dataExportOccurrence.getTriggerTime()).stream()
+            version.getDestinations(dataExportOccurrence.getStartDate().get()).stream()
                     .sorted((d1, d2) -> d1.getCreateTime().compareTo(d2.getCreateTime()))
                     .forEach(destination -> task.destinations.add(typeOf(destination).toInfo(destination)));
             task.dataProcessor.properties = propertyUtils.convertPropertySpecsToPropertyInfos(version.getDataProcessorPropertySpecs(), version.getProperties());
         }
-        Optional<ScheduleExpression> foundSchedule = version.getScheduleExpression(dataExportOccurrence.getTriggerTime());
+        Optional<ScheduleExpression> foundSchedule = version.getScheduleExpression(dataExportOccurrence.getStartDate().get());
         if (!foundSchedule.isPresent() || Never.NEVER.equals(foundSchedule.get())) {
             task.schedule = null;
         } else if (foundSchedule.isPresent()) {
@@ -103,10 +103,10 @@ public class DataExportTaskHistoryInfo {
     }
 
     private void populateForReadingTypeDataExportTask(ExportTask version, DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus) {
-        version.getReadingTypeDataSelector(dataExportOccurrence.getTriggerTime()).ifPresent(readingTypeDataSelector -> {
+        version.getReadingTypeDataSelector(dataExportOccurrence.getStartDate().get()).ifPresent(readingTypeDataSelector -> {
             task.standardDataSelector = new StandardDataSelectorInfo();
             task.standardDataSelector.populateFrom(readingTypeDataSelector, thesaurus);
-            for (ReadingType readingType : readingTypeDataSelector.getReadingTypes(dataExportOccurrence.getTriggerTime())) {
+            for (ReadingType readingType : readingTypeDataSelector.getReadingTypes(dataExportOccurrence.getStartDate().get())) {
                 task.standardDataSelector.readingTypes.add(new ReadingTypeInfo(readingType));
             }
         });
