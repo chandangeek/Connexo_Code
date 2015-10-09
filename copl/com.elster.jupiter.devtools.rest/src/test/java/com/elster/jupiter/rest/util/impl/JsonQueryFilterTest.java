@@ -1,16 +1,18 @@
 package com.elster.jupiter.rest.util.impl;
 
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
-import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
-import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
+import com.elster.jupiter.nls.Thesaurus;
 import com.google.common.collect.ImmutableSet;
 import com.jayway.jsonpath.JsonModel;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
 
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Response;
 import java.net.URLEncoder;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -37,11 +39,20 @@ public class JsonQueryFilterTest extends FelixRestApplicationJerseyTest {
     protected Application getApplication() {
         return new Application() {
             @Override
+            public Set<Object> getSingletons() {
+                Set<Object> singletons = new HashSet<>(super.getSingletons());
+                singletons.add(new AbstractBinder() {
+                    @Override
+                    protected void configure() {
+                        bind(thesaurus).to(Thesaurus.class);
+                    }
+                });
+                return singletons;
+            }
+
+            @Override
             public Set<Class<?>> getClasses() {
-                return ImmutableSet.of(
-                        JsonQueryFilterResource.class,
-                        ConstraintViolationExceptionMapper.class,
-                        LocalizedExceptionMapper.class);
+                return ImmutableSet.of(JsonQueryFilterResource.class);
             }
         };
     }
@@ -93,11 +104,13 @@ public class JsonQueryFilterTest extends FelixRestApplicationJerseyTest {
         assertThat(response.size()).isEqualTo(2);
         assertThat(response.get(1)).isEqualTo("two");
     }
+
     @Test
     public void testListStringNullInput() {
         List<String> response = target("/filters/list/string").queryParam(FILTER_PARAM, getFilterFromValue(null)).request().get(List.class);
         assertThat(response.size()).isEqualTo(0);
     }
+
     @Test
     public void testListStringLongListAsInput() {
         List<String> response = target("/filters/list/string").queryParam(FILTER_PARAM, getFilterFromValue(Collections.singletonList(4L))).request().get(List.class);
@@ -378,6 +391,7 @@ public class JsonQueryFilterTest extends FelixRestApplicationJerseyTest {
         List<Boolean> response = target("/filters/list/boolean").queryParam(FILTER_PARAM, getFilterFromValue(null)).request().get(List.class);
         assertThat(response.size()).isEqualTo(0);
     }
+
     @Test
     public void testListBooleanLongValueInArrayInput() {
         List<Boolean> response =  target("/filters/list/boolean").queryParam(FILTER_PARAM, getFilterFromValue(Collections.singletonList(20L))).request().get(List.class);

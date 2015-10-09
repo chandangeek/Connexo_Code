@@ -7,6 +7,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
@@ -143,7 +144,12 @@ public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
         resourceConfig.register(LocalizedExceptionMapper.class);
         resourceConfig.register(ConstraintViolationExceptionMapper.class);
         resourceConfig.register(JsonMappingExceptionMapper.class);
-
+        resourceConfig.register(new AbstractBinder() {
+            @Override
+            protected void configure() {
+                bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
+            }
+        });
         application.getSingletons().stream().filter(s -> s instanceof AbstractBinder).forEach(resourceConfig::register);
         return resourceConfig;
     }
