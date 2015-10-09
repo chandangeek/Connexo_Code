@@ -2,6 +2,7 @@ package com.elster.jupiter.issue.impl.actions;
 
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.impl.module.TranslationKeys;
+import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -62,4 +63,8 @@ public class CommentIssueAction extends AbstractIssueAction {
         return getThesaurus().getFormat(TranslationKeys.ACTION_COMMENT_ISSUE).format();
     }
 
+    @Override
+    public boolean isApplicableForUser(User user) {
+        return user.getPrivileges().stream().filter(p -> Privileges.COMMENT_ISSUE.equals(p.getName())).findAny().isPresent();
+    }
 }

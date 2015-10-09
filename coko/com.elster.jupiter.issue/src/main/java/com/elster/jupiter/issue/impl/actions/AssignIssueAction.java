@@ -2,6 +2,7 @@ package com.elster.jupiter.issue.impl.actions;
 
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.impl.module.TranslationKeys;
+import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.AbstractIssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
 import com.elster.jupiter.issue.share.IssueActionResult.DefaultActionResult;
@@ -92,6 +93,11 @@ public class AssignIssueAction extends AbstractIssueAction {
     @Override
     public String getDisplayName() {
         return getThesaurus().getFormat(TranslationKeys.ACTION_ASSIGN_ISSUE).format();
+    }
+
+    @Override
+    public boolean isApplicableForUser(User user) {
+        return super.isApplicableForUser(user) && user.getPrivileges().stream().filter(p -> Privileges.ASSIGN_ISSUE.equals(p.getName())).findAny().isPresent();
     }
 
     class PossibleAssignees implements CanFindByStringKey<Assignee> {
