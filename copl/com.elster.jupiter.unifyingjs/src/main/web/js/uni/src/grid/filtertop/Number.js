@@ -9,7 +9,7 @@ Ext.define('Uni.grid.filtertop.Number', {
         'Uni.grid.filtertop.Base'
     ],
 
-    emptyText: Uni.I18n.translate('grid.filter.text.label', 'UNI', 'Number'),
+    emptyText: Uni.I18n.translate('grid.filter.number.label', 'UNI', 'Number'),
 
     initComponent: function () {
         var me = this;
