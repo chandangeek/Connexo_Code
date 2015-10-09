@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
@@ -17,6 +16,7 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 

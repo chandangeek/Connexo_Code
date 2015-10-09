@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceLabelInfo;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -9,6 +8,7 @@ import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.favorites.LabelCategory;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.users.User;

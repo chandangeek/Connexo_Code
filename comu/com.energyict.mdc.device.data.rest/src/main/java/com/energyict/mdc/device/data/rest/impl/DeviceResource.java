@@ -1,21 +1,11 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.GatewayType;
-import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.rest.DeviceInfoFactory;
@@ -26,12 +16,19 @@ import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.conditions.Condition;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -185,7 +182,7 @@ public class DeviceResource {
             newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mRID, info.mRID);
         }
         newDevice.setSerialNumber(info.serialNumber);
-        newDevice.setYearOfCertification(Integer.valueOf(info.yearOfCertification));
+        newDevice.setYearOfCertification(info.yearOfCertification);
         newDevice.save();
 
         //TODO: Device Date should go on the device wharehouse (future development) - or to go on Batch - creation date

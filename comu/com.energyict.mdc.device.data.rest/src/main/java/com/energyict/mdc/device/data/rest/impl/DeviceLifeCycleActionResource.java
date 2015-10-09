@@ -1,16 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.InvalidValueException;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.RestValidationBuilder;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.elster.jupiter.util.streams.DecoratedStream;
-import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
@@ -25,6 +14,18 @@ import com.energyict.mdc.device.lifecycle.MultipleMicroCheckViolationsException;
 import com.energyict.mdc.device.lifecycle.RequiredMicroActionPropertiesException;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.RestValidationBuilder;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.util.streams.DecoratedStream;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
