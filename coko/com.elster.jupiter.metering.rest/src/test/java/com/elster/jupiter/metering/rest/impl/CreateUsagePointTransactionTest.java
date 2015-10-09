@@ -10,12 +10,6 @@ import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.rest.UsagePointInfo;
-
-import java.time.Clock;
-import java.util.Optional;
-
-import org.junit.*;
-import org.junit.runner.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -77,20 +71,7 @@ public class CreateUsagePointTransactionTest {
     @Test
     public void test() {
         when(serviceCategory.getKind()).thenReturn(ServiceKind.ELECTRICITY);
-
         when(serviceCategory.newUsagePoint(MR_ID)).thenReturn(usagePointBuilder);
-        when(usagePointBuilder.withAliasName(Matchers.anyString())).thenReturn(usagePointBuilder);
-        when(usagePointBuilder.withDescription(Matchers.anyString())).thenReturn(usagePointBuilder);
-        when(usagePointBuilder.withIsSdp(Matchers.anyBoolean())).thenReturn(usagePointBuilder);
-        when(usagePointBuilder.withIsVirtual(Matchers.anyBoolean())).thenReturn(usagePointBuilder);
-        when(usagePointBuilder.withMRID(Matchers.anyString())).thenReturn(usagePointBuilder);
-        when(usagePointBuilder.withName(Matchers.anyString())).thenReturn(usagePointBuilder);
-        when(usagePointBuilder.withOutageRegion(Matchers.anyString())).thenReturn(usagePointBuilder);
-        when(usagePointBuilder.withReadCycle(Matchers.anyString())).thenReturn(usagePointBuilder);
-        when(usagePointBuilder.withReadRoute(Matchers.anyString())).thenReturn(usagePointBuilder);
-        when(usagePointBuilder.withServicePriority(Matchers.anyString())).thenReturn(usagePointBuilder);
-        when(usagePointBuilder.create()).thenReturn(usagePoint);
-
         when(usagePoint.newElectricityDetailBuilder(Matchers.any())).thenReturn(edBuilder);
         when(edBuilder.withAmiBillingReady(Matchers.any())).thenReturn(edBuilder);
         when(edBuilder.withCheckBilling(Matchers.anyBoolean())).thenReturn(edBuilder);
