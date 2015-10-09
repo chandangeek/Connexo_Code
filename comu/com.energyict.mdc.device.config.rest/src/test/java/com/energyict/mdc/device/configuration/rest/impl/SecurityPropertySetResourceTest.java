@@ -17,7 +17,6 @@ import com.elster.jupiter.users.Group;
 import com.jayway.jsonpath.JsonModel;
 
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -67,9 +66,9 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(deviceConfigurationService.findDeviceType(123L)).thenReturn(Optional.of(deviceType));
         SecurityPropertySetInfo securityPropertySetInfo = new SecurityPropertySetInfo();
         securityPropertySetInfo.name = "addSecurityPropertySetAddDefaultPrivileges";
-        securityPropertySetInfo.authenticationLevel = SecurityLevelInfo.from(DeviceProtocolAuthenticationAccessLevels.ONE, this.thesaurus);
+        securityPropertySetInfo.authenticationLevel = SecurityLevelInfo.from(DeviceProtocolAuthenticationAccessLevels.ONE);
         securityPropertySetInfo.authenticationLevelId = DeviceProtocolAuthenticationAccessLevels.ONE.getId();
-        securityPropertySetInfo.encryptionLevel = SecurityLevelInfo.from(DeviceProtocolEncryptionAccessLevels.ONE, this.thesaurus);
+        securityPropertySetInfo.encryptionLevel = SecurityLevelInfo.from(DeviceProtocolEncryptionAccessLevels.ONE);
         securityPropertySetInfo.encryptionLevelId = DeviceProtocolEncryptionAccessLevels.ONE.getId();
 
         // Business method
@@ -178,11 +177,11 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         when(mock.getName()).thenReturn(name);
         AuthenticationDeviceAccessLevel authenticationAccessLevel = mock(AuthenticationDeviceAccessLevel.class);
         when(authenticationAccessLevel.getId()).thenReturn(authenticationAccessLevelId);
-        when(authenticationAccessLevel.getTranslationKey()).thenReturn(authenticationAccessLevelName);
+        when(authenticationAccessLevel.getTranslation()).thenReturn(authenticationAccessLevelName);
         when(mock.getAuthenticationDeviceAccessLevel()).thenReturn(authenticationAccessLevel);
         EncryptionDeviceAccessLevel encryptionAccessLevel = mock(EncryptionDeviceAccessLevel.class);
         when(encryptionAccessLevel.getId()).thenReturn(encryptionAccessLevelId);
-        when(encryptionAccessLevel.getTranslationKey()).thenReturn(encryptionAccessLevelName);
+        when(encryptionAccessLevel.getTranslation()).thenReturn(encryptionAccessLevelName);
         when(mock.getEncryptionDeviceAccessLevel()).thenReturn(encryptionAccessLevel);
         when(mock.getUserActions()).thenReturn(userAction);
         return mock;
@@ -203,7 +202,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         };
 
         @Override
-        public String getTranslationKey() {
+        public String getTranslation() {
             return "DeviceProtocolAuthenticationAccessLevels" + this.name();
         }
 
@@ -229,7 +228,7 @@ public class SecurityPropertySetResourceTest extends DeviceConfigurationApplicat
         };
 
         @Override
-        public String getTranslationKey() {
+        public String getTranslation() {
             return "DeviceProtocolEncryptionAccessLevels" + this.name();
         }
 
