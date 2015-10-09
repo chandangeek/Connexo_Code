@@ -13,7 +13,12 @@ public class ReadingType {
         if (!(split[0].equals("0"))) {
             throw new IllegalArgumentException("Only reading types with macro period 0 are supported");
         }
-        measuringPeriod = TimeAttribute.get(Integer.parseInt(split[2])).getMinutes();
+        int measuringPeriod = Integer.parseInt(split[2]);
+        if (measuringPeriod==100 || measuringPeriod==101) {
+            int argument = Integer.parseInt(split[9]);
+            int denominator = Integer.parseInt(split[10]);
+        }
+        this.measuringPeriod = TimeAttribute.get(measuringPeriod).getMinutes();
     }
 
     public int getMeasuringPeriod() {
