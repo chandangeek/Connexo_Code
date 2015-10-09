@@ -258,9 +258,21 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
     },
 
     goBack: function () {
-        // todo: restore search state
-        var router = this.getController('Uni.controller.history.Router');
-        router.getRoute('search').forward();
+        var me = this,
+            grid = me.getDevicesGrid(),
+            search = me.getController('Mdc.controller.Search'),
+            router = me.getController('Uni.controller.history.Router'),
+            queryParams;
+
+        if (grid && search.searchDomain) {
+            var store = grid.getStore();
+            queryParams = {
+                searchDomain: search.searchDomain.get('displayValue'),
+                filter: store.getProxy().encodeFilters(store.filters.getRange())
+            };
+        }
+
+        router.getRoute('search').forward(null, queryParams);
     },
 
     showStatusMsg: function (msg) {
