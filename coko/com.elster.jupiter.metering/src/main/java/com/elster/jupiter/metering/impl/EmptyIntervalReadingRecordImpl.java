@@ -18,16 +18,19 @@ public class EmptyIntervalReadingRecordImpl extends IntervalReadingRecordImpl {
 	
 	private Instant timeStamp;
     private ReadingType readingType;
+    private ProfileStatus profileStatus;
 
     EmptyIntervalReadingRecordImpl(ReadingType readingType, Instant timeStamp) {
 		super(null,null);
 		this.timeStamp=timeStamp;
 		this.readingType=readingType;
+		this.profileStatus = new ProfileStatus(256);
+		
 	}
 
 	@Override
 	public ProfileStatus getProfileStatus() {
-		return null;//new ProfileStatus(getEntry().getLong(1));
+		return profileStatus;
 	}
 
 	@Override
