@@ -60,6 +60,7 @@ Ext.define('Bpm.controller.Task', {
                 success: function (operation) {
                     queryString.param = undefined;
                     queryString.user = Ext.JSON.decode(operation.responseText).data[0].name;
+                    queryString.status = ['OPEN'];
                     queryString.sort = Ext.JSON.encode(sort);
                     window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
                 }
@@ -90,7 +91,7 @@ Ext.define('Bpm.controller.Task', {
             view = Ext.widget('bpm-tasks', {
                 router: router
             });
-
+            me.getApplication().fireEvent('onBeforeLoad', view);
             me.getApplication().fireEvent('changecontentevent', view);
             filterSortController.updateSortingToolbar();
         }

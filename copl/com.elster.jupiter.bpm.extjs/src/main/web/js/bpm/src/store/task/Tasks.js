@@ -21,6 +21,27 @@ Ext.define('Bpm.store.task.Tasks', {
             if (queryString.sort) {
                 params.sort = queryString.sort;
             }
+
+            var result = [];
+            for (var dataIndex in queryString) {
+                if (dataIndex === 'sort'){
+                    continue;
+                }
+                var value = queryString[dataIndex];
+
+                if (queryString.hasOwnProperty(dataIndex) && Ext.isDefined(value) && !Ext.isEmpty(value)) {
+                    if(!Ext.isArray(value)){
+                        value = [value];
+                    }
+                    var filter = {
+                        property: dataIndex,
+                        value: value
+                    };
+
+                    result.push(filter);
+                }
+            }
+            params.filter = Ext.encode(result);
             Ext.apply(options.params, params);
         }
     }

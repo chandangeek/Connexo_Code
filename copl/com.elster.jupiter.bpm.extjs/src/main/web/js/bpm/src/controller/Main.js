@@ -32,7 +32,7 @@ Ext.define('Bpm.controller.Main', {
             dataCollection = null,
             historian = me.getController('Bpm.controller.history.BpmManagement'); // Forces route registration.
 
-        if (Bpm.privileges.BpmManagement.canView()) {
+        if (Bpm.privileges.BpmManagement.all()) {
             Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.workspace', 'IDC', 'Workspace'),
                 glyph: 'workspace',
@@ -41,7 +41,7 @@ Ext.define('Bpm.controller.Main', {
             }));
         }
 
-        if (Bpm.privileges.BpmManagement.canView()) {
+        if (Bpm.privileges.BpmManagement.all()) {
             dataCollection = Ext.create('Uni.model.PortalItem', {
                 title: Uni.I18n.translate('general.taskManagement', 'BPM', 'Task management'),
                 portal: 'workspace',

@@ -46,4 +46,4 @@ Ext.define('Bpm.view.task.TasksTopFilter', {
         ]
         me.callParent(arguments);
     }
-});
+    });

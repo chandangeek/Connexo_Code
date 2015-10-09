@@ -37,22 +37,23 @@ Ext.define('Bpm.view.task.OpenTask', {
                             borderColor: 'lightgray',
                             borderStyle: 'solid'
                         },
-                        height: 400,
+                        height: 320,
                         layout: {
                             type: 'vbox',
                             align: 'stretch'
                         },
                         items: [
+
                             {
                                 xtype: 'container',
                                 itemId: 'formContent',
-                                height: 390
+                                height: 300
                             }
                         ]
                     },
                     {
                         xtype: 'container',
-                        margin: '0 0 0 0',
+                        margin: '10 0 0 0',
                         layout: 'hbox',
                         items: [
                             {
@@ -60,42 +61,48 @@ Ext.define('Bpm.view.task.OpenTask', {
                                 xtype: 'button',
                                 hidden: true,
                                 ui: 'action',
-                                itemId: 'btn-claim'
+                                itemId: 'btn-claim',
+                                action: 'claim'
                             },
                             {
                                 text: Uni.I18n.translate('task.action.save', 'BPM', 'Save'),
                                 xtype: 'button',
                                 hidden: true,
                                 ui: 'action',
-                                itemId: 'btn-save'
+                                itemId: 'btn-save',
+                                action: 'save'
                             },
                             {
                                 text: Uni.I18n.translate('task.action.release', 'BPM', 'Release'),
                                 xtype: 'button',
                                 hidden: true,
                                 ui: 'action',
-                                itemId: 'btn-release'
+                                itemId: 'btn-release',
+                                action: 'release'
                             },
                             {
                                 text: Uni.I18n.translate('task.action', 'BPM', 'Start'),
                                 xtype: 'button',
                                 hidden: true,
                                 ui: 'action',
-                                itemId: 'btn-start'
+                                itemId: 'btn-start',
+                                action: 'start'
                             },
                             {
                                 text: Uni.I18n.translate('task.action.complete', 'BPM', 'Complete'),
                                 xtype: 'button',
                                 hidden: true,
                                 ui: 'action',
-                                itemId: 'btn-complete'
+                                itemId: 'btn-complete',
+                                action: 'complete'
                             },
                             {
                                 text: Uni.I18n.translate('task.action.taskactions', 'BPM', 'Task actions'),
                                 xtype: 'button',
                                 hidden: true,
                                 ui: 'action',
-                                itemId: 'btn-taskactions'
+                                itemId: 'btn-taskactions',
+                                action: 'taskaction'
                             },
                             {
                                 xtype: 'button',

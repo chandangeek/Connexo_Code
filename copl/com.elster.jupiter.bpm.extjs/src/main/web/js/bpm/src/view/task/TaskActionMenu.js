@@ -8,7 +8,8 @@ Ext.define('Bpm.view.task.TaskActionMenu', {
         {
             itemId: 'menu-open-task',
             text: Uni.I18n.translate('bpm.menu.openTask', 'BPM', 'Open task'),
-            action: 'openTask'
+            action: 'openTask',
+            privileges: Bpm.privileges.BpmManagement.execute
         }
     ]
 });

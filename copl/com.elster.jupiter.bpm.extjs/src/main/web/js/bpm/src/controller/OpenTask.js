@@ -38,6 +38,21 @@ Ext.define('Bpm.controller.OpenTask', {
     ],
     init: function () {
         this.control({
+            'bpm-task-open-task #btn-claim':{
+                click: this.chooseAction
+            },
+            'bpm-task-open-task #btn-release':{
+                click: this.chooseAction
+            },
+            'bpm-task-open-task #btn-start':{
+                click: this.chooseAction
+            },
+            'bpm-task-open-task #btn-save':{
+                click: this.chooseAction
+            },
+            'bpm-task-open-task #btn-complete':{
+                click: this.chooseAction
+            }
         });
     },
 
@@ -142,6 +157,7 @@ Ext.define('Bpm.controller.OpenTask', {
     },
 
     resizeReportPanel: function(component) {
+        return;
         if (!component)
             return;
 
@@ -164,6 +180,15 @@ Ext.define('Bpm.controller.OpenTask', {
         me.getBtnSave().setVisible(status == "InProgress");
         me.getBtnComplete().setVisible(status == "InProgress");
         me.getBtnTaskActions().setVisible(false);
+    },
+
+    chooseAction: function (menu, item) {
+        
+        var me = this,
+            action = item.action;
+
+
     }
+
 
 });
