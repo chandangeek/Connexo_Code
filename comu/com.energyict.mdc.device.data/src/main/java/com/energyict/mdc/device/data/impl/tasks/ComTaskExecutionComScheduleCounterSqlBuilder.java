@@ -1,12 +1,14 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.orm.QueryExecutor;
-import java.time.Clock;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+
+import com.elster.jupiter.orm.QueryExecutor;
+
+import java.time.Clock;
 
 /**
  * Builds the SQL query thats counts {@link com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution}s
@@ -35,7 +37,7 @@ public class ComTaskExecutionComScheduleCounterSqlBuilder extends AbstractComTas
     private void appendSelectClause() {
         this.append("select '");
         this.append(this.taskStatus.getPublicStatus().name());
-        this.append("', ctincs.comschedule, count(*)");
+        this.append("', ctincs.comschedule, count(distinct cte.id)");
     }
 
     private void appendFromClause() {
