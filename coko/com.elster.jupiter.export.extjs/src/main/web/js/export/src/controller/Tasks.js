@@ -659,19 +659,19 @@ Ext.define('Dxp.controller.Tasks', {
 
     updateDestinationAttributes: function () {
         var me = this,
-            page = me.getAddDestinationPage();
-        var method = page.down('#destination-methods-combo').getValue();
+            page = me.getAddDestinationPage(),
+            method = page.down('#destination-methods-combo').getValue();
         me.showAllDestinationAttributes(false);
         if (method === 'FILE') {
             me.showFileDestinationAttributes(true);
+            page.down('#destination-file-name').focus(false, 200);
         } else if (method === 'EMAIL') {
             me.showMailDestinationAttributes(true);
-        } else if (method === 'FTP') {
+            page.down('#destination-recipients').focus(false, 200);
+        } else if (method === 'FTP' || method === 'FTPS') {
             me.showFtpDestinationAttributes(true);
-        } else if (method === 'FTPS') {
-            me.showFtpDestinationAttributes(true);
+            page.down('#hostname').focus(false, 200);
         }
-
     },
 
     showAddExportTask: function () {

@@ -57,11 +57,15 @@ Ext.define('Dxp.view.tasks.Add', {
                         itemId: 'task-name',
                         width: 500,
                         required: true,
-                        //maskRe: /[^:\\/*?"<>|]/,
                         fieldLabel: Uni.I18n.translate('general.name', 'DES', 'Name'),
                         allowBlank: false,
                         enforceMaxLength: true,
-                        maxLength: 80
+                        maxLength: 80,
+                        listeners: {
+                            afterrender: function(field) {
+                                field.focus(false, 200);
+                            }
+                        }
                     },
 
                     {
