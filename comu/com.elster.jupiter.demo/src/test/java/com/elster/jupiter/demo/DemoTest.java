@@ -470,7 +470,7 @@ public class DemoTest {
     }
 
     private void checkCreatedG3SlaveDevice(String mridDevice) {
-        String SERIAL_NUMBER = "Demo board AS3000".equals(mridDevice) ? "05206854" : "35075302";
+        String SERIAL_NUMBER = "Demo board AS3000".equals(mridDevice) ? "E0023000520685414" : "123457S";
         String MAC_ADDRESS = "Demo board AS3000".equals(mridDevice) ? "02237EFFFEFD835B" : "02237EFFFEFD82F4";
         String SECURITY_SET_NAME = "High level MD5 authentication - No encryption";
 
