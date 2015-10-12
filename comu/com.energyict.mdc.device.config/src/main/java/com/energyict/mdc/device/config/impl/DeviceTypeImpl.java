@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -10,12 +11,29 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.TemporalReference;
 import com.elster.jupiter.orm.associations.Temporals;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
+import com.energyict.mdc.device.config.ConflictingSecuritySetSolution;
+import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceLifeCycleChangeEvent;
+import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
+import com.energyict.mdc.device.config.DeviceMessageUserAction;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.DeviceUsageType;
+import com.energyict.mdc.device.config.GatewayType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.NumericalRegisterSpec;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.TextualRegisterSpec;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.LogBookTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.exceptions.RegisterTypeAlreadyInDeviceTypeException;
-import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingEngine;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingImpl;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.masterdata.ChannelType;
@@ -46,7 +64,8 @@ import java.util.stream.Collectors;
 public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements ServerDeviceType {
 
     enum Fields {
-        CONFLICTINGMAPPING("deviceConfigConflictMappings"),;
+        CONFLICTINGMAPPING("deviceConfigConflictMappings"),
+        CUSTOMPROPERTYSETUSAGE("deviceTypeCustomPropertySetUsages");
 
         private final String javaFieldName;
 
@@ -75,6 +94,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     private List<DeviceTypeRegisterTypeUsage> registerTypeUsages = new ArrayList<>();
     @Valid
     private List<DeviceConfigConflictMappingImpl> deviceConfigConflictMappings = new ArrayList<>();
+    @Valid
+    private List<DeviceTypeCustomPropertySetUsageImpl> deviceTypeCustomPropertySetUsages = new ArrayList<>();
     private long deviceProtocolPluggableClassId;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
@@ -226,6 +247,32 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         DeviceConfigConflictMappingImpl deviceConfigConflictMapping = getDataModel().getInstance(DeviceConfigConflictMappingImpl.class).initialize(this, origin, destination);
         this.deviceConfigConflictMappings.add(deviceConfigConflictMapping);
         return deviceConfigConflictMapping;
+    }
+
+    @Override
+    public List<RegisteredCustomPropertySet> getDeviceTypeCustomPropertySetUsage() {
+        return deviceTypeCustomPropertySetUsages
+                .stream()
+                .map(DeviceTypeCustomPropertySetUsageImpl::getRegisteredCustomPropertySet)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void addDeviceTypeCustomPropertySetUsage(RegisteredCustomPropertySet registeredCustomPropertySet) {
+        DeviceTypeCustomPropertySetUsageImpl deviceTypeCustomPropertySetUsage = getDataModel().getInstance(DeviceTypeCustomPropertySetUsageImpl.class).initialize(this, registeredCustomPropertySet);
+        this.deviceTypeCustomPropertySetUsages.add(deviceTypeCustomPropertySetUsage);
+    }
+
+    @SuppressWarnings("SuspiciousMethodCalls")
+    @Override
+    public void removeDeviceTypeCustomPropertySetUsage(RegisteredCustomPropertySet registeredCustomPropertySet) {
+        Optional<DeviceTypeCustomPropertySetUsageImpl> deviceTypeCustomPropertySetUsage = this.deviceTypeCustomPropertySetUsages.stream()
+                .filter(f -> f.getDeviceType().getId() == this.getId())
+                .filter(f -> f.getRegisteredCustomPropertySet().getId() == registeredCustomPropertySet.getId())
+                .findAny();
+        if (deviceTypeCustomPropertySetUsage.isPresent()) {
+            deviceTypeCustomPropertySetUsages.remove(deviceTypeCustomPropertySetUsage.get());
+        }
     }
 
     @SuppressWarnings("SuspiciousMethodCalls")
@@ -400,7 +447,21 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
                 throw new LoadProfileTypeAlreadyInDeviceTypeException(this, loadProfileType, this.getThesaurus(), MessageSeeds.DUPLICATE_LOAD_PROFILE_TYPE_IN_DEVICE_TYPE);
             }
         }
-        this.loadProfileTypeUsages.add(new DeviceTypeLoadProfileTypeUsage(this, loadProfileType));
+        DeviceTypeLoadProfileTypeUsage loadProfileTypeOnDeviceTypeUsage = getDataModel().getInstance(DeviceTypeLoadProfileTypeUsage.class).initialize(this, loadProfileType);
+        Save.UPDATE.validate(getDataModel(), loadProfileTypeOnDeviceTypeUsage);
+        this.loadProfileTypeUsages.add(loadProfileTypeOnDeviceTypeUsage);
+    }
+
+    @Override
+    public void addLoadProfileTypeCustomPropertySet(LoadProfileType loadProfileType, RegisteredCustomPropertySet registeredCustomPropertySet) {
+        DeviceTypeLoadProfileTypeUsage deviceTypeLoadProfileTypeUsage = this.loadProfileTypeUsages.stream().filter(f -> f.sameLoadProfileType(loadProfileType)).findAny().get();
+        deviceTypeLoadProfileTypeUsage.setCustomPropertySet(registeredCustomPropertySet);
+    }
+
+    @Override
+    public Optional<RegisteredCustomPropertySet> getLoadProfileTypeCustomPropertySet(LoadProfileType loadProfileType) {
+        DeviceTypeLoadProfileTypeUsage deviceTypeLoadProfileTypeUsage = this.loadProfileTypeUsages.stream().filter(f -> f.sameLoadProfileType(loadProfileType)).findAny().get();
+        return deviceTypeLoadProfileTypeUsage.getRegisteredCustomPropertySet();
     }
 
     @Override
@@ -467,7 +528,19 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
                 throw new RegisterTypeAlreadyInDeviceTypeException(this, registerType, this.getThesaurus(), MessageSeeds.DUPLICATE_REGISTER_TYPE_IN_DEVICE_TYPE);
             }
         }
-        this.registerTypeUsages.add(new DeviceTypeRegisterTypeUsage(this, registerType));
+        DeviceTypeRegisterTypeUsage registerTypeOnDeviceTypeUsage = getDataModel().getInstance(DeviceTypeRegisterTypeUsage.class).initialize(this, registerType);
+        Save.UPDATE.validate(getDataModel(), registerTypeOnDeviceTypeUsage);
+        this.registerTypeUsages.add(registerTypeOnDeviceTypeUsage);
+    }
+
+    public void addRegisterTypeCustomPropertySet(RegisterType registerType, RegisteredCustomPropertySet registeredCustomPropertySet) {
+        DeviceTypeRegisterTypeUsage registerTypeOnDeviceTypeUsage = this.registerTypeUsages.stream().filter(f -> f.sameRegisterType(registerType)).findAny().get();
+        registerTypeOnDeviceTypeUsage.setCustomPropertySet(registeredCustomPropertySet);
+    }
+
+    public Optional<RegisteredCustomPropertySet> getRegisterTypeTypeCustomPropertySet(RegisterType registerType) {
+        DeviceTypeRegisterTypeUsage registerTypeOnDeviceTypeUsage = this.registerTypeUsages.stream().filter(f -> f.sameRegisterType(registerType)).findAny().get();
+        return registerTypeOnDeviceTypeUsage.getRegisteredCustomPropertySet();
     }
 
     @Override
@@ -830,5 +903,4 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
             this.nestedBuilders.forEach(DeviceTypeImpl.NestedBuilder::add);
         }
     }
-
 }

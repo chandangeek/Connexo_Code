@@ -1,8 +1,9 @@
 package com.energyict.mdc.device.config;
 
 import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -40,7 +41,7 @@ public interface DeviceType extends HasId, HasName {
      */
     public String getName();
 
-    public void setName (String newName);
+    public void setName(String newName);
 
     public long getVersion();
 
@@ -110,27 +111,41 @@ public interface DeviceType extends HasId, HasName {
 
     public List<LogBookType> getLogBookTypes();
 
-    public void addLogBookType (LogBookType logBookType);
+    public void addLogBookType(LogBookType logBookType);
 
-    public void removeLogBookType (LogBookType logBookType);
+    public void removeLogBookType(LogBookType logBookType);
 
     public List<RegisterType> getRegisterTypes();
 
     public void addRegisterType(RegisterType registerType);
 
+    public void addRegisterTypeCustomPropertySet(RegisterType registerType, RegisteredCustomPropertySet registeredCustomPropertySet);
+
+    public Optional<RegisteredCustomPropertySet> getRegisterTypeTypeCustomPropertySet(RegisterType registerType);
+
     public void removeRegisterType(RegisterType registerType);
 
     public List<LoadProfileType> getLoadProfileTypes();
 
-    public void addLoadProfileType (LoadProfileType loadProfileType);
+    public void addLoadProfileType(LoadProfileType loadProfileType);
 
-    public void removeLoadProfileType (LoadProfileType loadProfileType);
+    public void addLoadProfileTypeCustomPropertySet(LoadProfileType loadProfileType, RegisteredCustomPropertySet registeredCustomPropertySet);
+
+    public Optional<RegisteredCustomPropertySet> getLoadProfileTypeCustomPropertySet(LoadProfileType loadProfileType);
+
+    public void removeLoadProfileType(LoadProfileType loadProfileType);
 
     public DeviceUsageType getDeviceUsageType();
 
     public void setDeviceUsageType(DeviceUsageType deviceUsageType);
 
     public List<DeviceConfiguration> getConfigurations();
+
+    public List<RegisteredCustomPropertySet> getDeviceTypeCustomPropertySetUsage();
+
+    public void addDeviceTypeCustomPropertySetUsage(RegisteredCustomPropertySet registeredCustomPropertySet);
+
+    public void removeDeviceTypeCustomPropertySetUsage(RegisteredCustomPropertySet registeredCustomPropertySet);
 
     /**
      * Returns a DeviceConfigurationBuilder that allows the caller
@@ -140,13 +155,13 @@ public interface DeviceType extends HasId, HasName {
      * @param name The name for the new DeviceConfiguration
      * @return The DeviceConfigurationBuilder
      */
-    public DeviceConfigurationBuilder newConfiguration (String name);
+    public DeviceConfigurationBuilder newConfiguration(String name);
 
     public void removeConfiguration(DeviceConfiguration deviceConfigurationToDelete);
 
-    public void save ();
+    public void save();
 
-    public void delete ();
+    public void delete();
 
     public boolean canActAsGateway();
 
@@ -162,7 +177,7 @@ public interface DeviceType extends HasId, HasName {
          * Note that there is no need to call the add method as that
          * will be done by the {@link DeviceConfigurationBuilder#add()} method.
          *
-         * @param channelType The ChannelType
+         * @param channelType     The ChannelType
          * @param loadProfileSpec The LoadProfileSpec
          * @return The builder
          * @see DeviceConfiguration#createChannelSpec(com.energyict.mdc.masterdata.ChannelType, LoadProfileSpec)
@@ -177,7 +192,7 @@ public interface DeviceType extends HasId, HasName {
          * Note that there is no need to call the add method as that
          * will be done by the {@link DeviceConfigurationBuilder#add()} method.
          *
-         * @param channelType The ChannelType
+         * @param channelType            The ChannelType
          * @param loadProfileSpecBuilder The LoadProfileSpecBuilder
          * @return The builder
          * @see DeviceConfiguration#createChannelSpec(com.energyict.mdc.masterdata.ChannelType, LoadProfileSpec)
@@ -244,12 +259,14 @@ public interface DeviceType extends HasId, HasName {
          *
          * @return The DeviceConfiguration
          */
-        public DeviceConfiguration add ();
+        public DeviceConfiguration add();
 
         DeviceConfigurationBuilder description(String description);
+
         DeviceConfigurationBuilder canActAsGateway(boolean canActAsGateway);
+
         DeviceConfigurationBuilder isDirectlyAddressable(boolean canBeDirectlyAddressed);
+
         DeviceConfigurationBuilder gatewayType(GatewayType gatewayType);
     }
-
 }

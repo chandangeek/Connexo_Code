@@ -48,6 +48,8 @@ import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
@@ -223,7 +225,8 @@ public class PartialOutboundConnectionTaskCrudIT {
                     new MdcDynamicModule(),
                     new PluggableModule(),
                     new SchedulingModule(),
-                    new TimeModule());
+                    new TimeModule(),
+                    new CustomPropertySetsModule());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -236,6 +239,7 @@ public class PartialOutboundConnectionTaskCrudIT {
             initializeConnectionTypes(propertySpecService);
             FiniteStateMachineService finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringService.class);
+            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(MdcReadingTypeUtilService.class);
             engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
             protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);

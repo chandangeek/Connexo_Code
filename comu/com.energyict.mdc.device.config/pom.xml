@@ -130,6 +130,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>cbo</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cps</artifactId>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
