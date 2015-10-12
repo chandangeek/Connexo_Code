@@ -32,10 +32,9 @@ Ext.define('Uni.form.field.CustomAttributeSetSelector', {
                         me.onSelectAttributeSet(combo, records[0]);
                     }
                 },
-                afterSubTpl:
-                    '<div class="x-form-display-field"><i>' +
-                        Uni.I18n.translate('customattributeset.changeDescription', 'UNI', 'Changing the custom attribute set removes any values that were defined for the previous set.') +
-                        '</i></div>'
+                afterSubTpl: '<div class="x-form-display-field"><i>' +
+                    Uni.I18n.translate('customattributeset.changeDescription', 'UNI', 'Changing the custom attribute set removes any values that were defined for the previous set.') +
+                    '</i></div>'
             },
             {
                 xtype: 'panel',
@@ -74,7 +73,7 @@ Ext.define('Uni.form.field.CustomAttributeSetSelector', {
             comboStore.on('load', function () {
                 if (!this.getById(0) && me.emptyRecord) {
                     var model = Ext.ModelManager.getModel(this.model);
-                    this.insert(0, new model({id: 0, name: Uni.I18n.translate('customattributeset.none', 'UNI', '(none)')}));
+                    this.insert(0, new model({id: 0, name: Uni.I18n.translate('customattributeset.none', 'UNI', '(none)'), viewPrivileges: [], editPrivileges: [], attributes: []}));
                 }
             });
         }
@@ -116,12 +115,11 @@ Ext.define('Uni.form.field.CustomAttributeSetSelector', {
     onSelectAttributeSet: function (combo, record) {
         var me = this;
 
+        me.selectedRecord = record;
         if (record && record.get('id')) {
-            me.selectedRecord = record;
             me.showLessAttributes();
         } else {
             me.down('#custom-attribute-set-details-panel-id').hide();
-            me.selectedRecord = null;
         }
     },
 
@@ -132,23 +130,16 @@ Ext.define('Uni.form.field.CustomAttributeSetSelector', {
         if (Ext.isEmpty(id)) {
             id = 0;
         }
-
-        combo.getStore().load(function () {
-            combo.setValue(id);
-            combo.fireEvent('select', combo, [combo.getStore().getById(id)]);
-        });
+        combo.setValue(id);
+        combo.fireEvent('select', combo, [combo.getStore().getById(id)]);
     },
 
-    loadStore: function () {
-        this.down('combobox').getStore().load();
+    getStore: function () {
+        return this.down('combobox').getStore();
     },
 
     getValue: function () {
-        if (this.selectedRecord) {
-            return this.selectedRecord.get('id');
-        } else {
-            return null
-        }
+        return this.selectedRecord.getData();
     },
 
     manageButtons: function (showMore, showLess) {

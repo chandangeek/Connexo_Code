@@ -30,9 +30,9 @@ Ext.define('Uni.grid.plugin.ShowConditionalToolTip', {
                 if (!column.isHidden()) {
                     var header = column.getEl().down('.' + Ext.baseCSSPrefix + 'column-header-inner');
 
-                    if (column.text && (header.getWidth(true) < header.getTextWidth())) {
+                    if (column.text && (header !== null && header.getWidth(true) < header.getTextWidth())) {
                         header.set({'data-qtip': column.text});
-                    } else {
+                    } else if (header !== null) {
                         header.set({'data-qtip': undefined});
                     }
 
