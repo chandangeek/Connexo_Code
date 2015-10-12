@@ -70,7 +70,7 @@ public class StandardEventDataSelectorFactory implements DataSelectorFactory {
 
         @Override
         public Stream<ExportData> selectData(DataExportOccurrence dataExportOccurrence) {
-            return dataExportOccurrence.getTask().getReadingTypeDataSelector()
+            return dataExportOccurrence.getTask().getEventDataSelector()
                     .map(IStandardDataSelector.class::cast)
                     .map(readingTypeDataSelector -> readingTypeDataSelector.asEventDataSelector(logger, thesaurus))
                     .orElseThrow(IllegalStateException::new).selectData(dataExportOccurrence);
