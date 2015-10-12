@@ -22,7 +22,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskGrid',
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('deviceCommunicationTask.pagingtoolbartop.displayMsg', 'MDC', '{2} communication tasks'),
+                displayMsg: Uni.I18n.translate('deviceCommunicationTask.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} communication tasks'),
                 displayMoreMsg: Uni.I18n.translate('deviceCommunicationTask.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} communication tasks'),
                 emptyMsg: Uni.I18n.translate('deviceCommunicationTask.pagingtoolbartop.emptyMsg', 'MDC', 'There are no communication tasks to display')
             }

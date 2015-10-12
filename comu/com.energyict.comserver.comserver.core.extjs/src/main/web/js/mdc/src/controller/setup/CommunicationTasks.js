@@ -129,7 +129,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         var me = this,
             form = me.getCommunicationTaskPreviewForm();
         me.setPreLoader(form, Uni.I18n.translate('general.loading', 'MDC', 'Loading...'));
-        me.getCommunicationTaskPreviewPanel().setTitle(record.getData().comTask.name);
+        me.getCommunicationTaskPreviewPanel().setTitle(Ext.String.htmlEncode(record.getData().comTask.name));
         form.loadRecord(record);
         me.clearPreLoader();
     },
@@ -142,13 +142,13 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 gridView = grid.getView(),
                 selectionModel = gridView.getSelectionModel(),
                 communicationTasksCount = me.getCommunicationTaskConfigsOfDeviceConfigurationStore().getCount(),
-                word = Uni.I18n.translatePlural('communicationtasks.commtaskconfigurations', communicationTasksCount, 'MDC',
+                infoMsg = Uni.I18n.translatePlural('communicationtasks.commtaskconfigurations', communicationTasksCount, 'MDC',
                     'No communication task configurations',
                     '1 communication task configuration',
                     '{0} communication task configurations'
                 ),
                 widget = Ext.widget('container', {
-                    html: Ext.String.htmlEncode(communicationTasksCount + ' ' + word)
+                    html: Ext.String.htmlEncode(infoMsg)
                 });
             Ext.suspendLayouts();
             numberOfCommunicationTasksContainer.removeAll(true);
@@ -395,7 +395,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 },
                 failure: function (response, request) {
                     if (response.status == 400) {
-                        var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'MDC', 'Unknown error occurred');
+                        var errorText = Uni.I18n.translate('general.error.unknown', 'MDC', 'Unknown error occurred');
                         if (!Ext.isEmpty(response.statusText)) {
                             errorText = response.statusText;
                         }
@@ -477,7 +477,7 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 },
                 failure: function (record, operation) {
                     if (operation.response.status == 400) {
-                        var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'MDC', 'Unknown error occurred');
+                        var errorText = Uni.I18n.translate('general.error.unknown', 'MDC', 'Unknown error occurred');
                         if (!Ext.isEmpty(operation.response.statusText)) {
                             errorText = operation.response.statusText;
                         }

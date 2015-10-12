@@ -101,11 +101,9 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
             me.getRegisterTypeEmptyGrid().setVisible(true);
             me.getRegisterTypeGrid().getStore().load({
                 callback: function (records) {
+                    me.getRegisterGroupPreview().setTitle(Uni.I18n.translate('registerGroup.previewGroup', 'MDC', "Register types of {0}", registerGroups[0].get('name')));
                     if (records.length > 0) {
-                        me.getRegisterGroupPreview().setTitle(Uni.I18n.translate('registerGroup.previewGroup', 'MDC', "Register types of {0}",[Ext.String.htmlEncode(registerGroups[0].get('name'))]));
                         me.getRegisterTypeGrid().getSelectionModel().doSelect(0);
-                    } else {
-                        me.getRegisterGroupPreview().setTitle(Uni.I18n.translate('registerGroup.previewGroup', 'MDC', "Register types of {0}",[Ext.String.htmlEncode(registerGroups[0].get('name'))]));
                     }
                     me.getRegisterTypeEmptyGrid().setVisible(true);
                     me.getRegisterTypePreview().setVisible(true);
@@ -155,7 +153,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                         widget.setLoading(true);
                         me.getApplication().fireEvent('loadRegisterGroup', registerGroup);
                         widget.down('form').loadRecord(registerGroup);
-                        widget.down('panel').setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[Ext.String.htmlEncode(registerGroup.get('name'))]));
+                        widget.down('panel').setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", registerGroup.get('name')));
                         grid = widget.down('#editRegisterGroupGridField');
                         if (this.data.first.value.length > 0) {
                             grid.reconfigure(store);
@@ -225,10 +223,10 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                 var message;
 
                 if (me.mode == 'edit') {
-                    message = Uni.I18n.translate('registergroup.saved', 'MDC', 'Register group {0} saved.', [record.get('name')]);
+                    message = Uni.I18n.translate('registergroup.saved', 'MDC', 'Register group {0} saved.', record.get('name'), false);
                 }
                 else {
-                    message = Uni.I18n.translate('registergroup.added', 'MDC', 'Register group {0} added.', [record.get('name')]);
+                    message = Uni.I18n.translate('registergroup.added', 'MDC', 'Register group {0} added.', record.get('name'), false);
                 }
                 me.getApplication().fireEvent('acknowledge', message);
                 location.href = '#/administration/registergroups/';
@@ -270,7 +268,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                 app = opt.app;
             registerTypeToDelete.destroy({
                 success: function () {
-                    app.fireEvent('acknowledge', Uni.I18n.translate('registergroup.removed', 'MDC', 'Register group {0} removed.', [name]));
+                    app.fireEvent('acknowledge', Uni.I18n.translate('registergroup.removed', 'MDC', 'Register group {0} removed.', name, false));
                 },
                 callback: function () {
                     location.href = '#/administration/registergroups/';
