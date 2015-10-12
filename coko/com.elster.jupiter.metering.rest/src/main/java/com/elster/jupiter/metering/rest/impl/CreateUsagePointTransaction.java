@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.WaterDetail;
 import com.elster.jupiter.metering.WaterDetailBuilder;
+import com.elster.jupiter.metering.rest.UsagePointInfo;
 import com.elster.jupiter.transaction.Transaction;
 
 import javax.inject.Inject;

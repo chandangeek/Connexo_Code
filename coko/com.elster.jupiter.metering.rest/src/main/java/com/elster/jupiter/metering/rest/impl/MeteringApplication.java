@@ -1,26 +1,9 @@
 package com.elster.jupiter.metering.rest.impl;
 
-import java.time.Clock;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import javax.validation.MessageInterpolator;
-import javax.ws.rs.core.Application;
-
 import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventorAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-
 import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.MeteringService;
@@ -34,6 +17,21 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.collect.ImmutableSet;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.validation.MessageInterpolator;
+import javax.ws.rs.core.Application;
+import java.time.Clock;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Component(name = "com.elster.jupiter.metering.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true,
         property = {"alias=/mtr", "app=SYS", "name=" + MeteringApplication.COMPONENT_NAME})
@@ -129,6 +127,7 @@ public class MeteringApplication extends Application implements TranslationKeyPr
         for (EndDeviceEventorAction eventOrAction : EndDeviceEventorAction.values()) {
             keys.add(new SimpleTranslationKey(eventOrAction.name(), eventOrAction.getMnemonic()));
         }
+        keys.addAll(Arrays.asList(TranslationSeeds.values()));
         return keys;
     }
 
@@ -146,4 +145,5 @@ public class MeteringApplication extends Application implements TranslationKeyPr
 
         ;
     }
+
 }

@@ -5,14 +5,15 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.metering.rest.UsagePointInfo;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.users.User;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.SecurityContext;
 import java.security.Principal;
 import java.time.Clock;
 import java.util.Optional;
@@ -22,15 +23,13 @@ final class UpdateUsagePointTransaction implements Transaction<UsagePoint> {
     private final UsagePointInfo info;
     private final Principal principal;
     private final MeteringService meteringService;
-    private final SecurityContext securityContext;
     private final Clock clock;
 
     @Inject
-    UpdateUsagePointTransaction(UsagePointInfo info, SecurityContext securityContext, MeteringService meteringService, Clock clock) {
+    UpdateUsagePointTransaction(UsagePointInfo info, Principal principal, MeteringService meteringService, Clock clock) {
         this.info = info;
-        this.principal = securityContext.getUserPrincipal();
+        this.principal = principal;
         this.meteringService = meteringService;
-        this.securityContext = securityContext;
         this.clock = clock;
     }
 
@@ -89,7 +88,7 @@ final class UpdateUsagePointTransaction implements Transaction<UsagePoint> {
     }
 
     private boolean hasEditAllPrivilege() {
-        return securityContext.isUserInRole(Privileges.ADMIN_ANY);
+        return principal instanceof User && ((User) principal).hasPrivilege("MDC", Privileges.ADMIN_ANY);
     }
 
     private boolean isOwn(UsagePoint usagePoint) {
@@ -102,4 +101,5 @@ final class UpdateUsagePointTransaction implements Transaction<UsagePoint> {
         }
         return false;
     }
+
 }

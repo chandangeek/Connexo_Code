@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointBuilder;
+import com.elster.jupiter.metering.rest.UsagePointInfo;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,18 +40,18 @@ public class CreateUsagePointTransactionTest {
     private UsagePoint usagePoint;
 
     @Mock
-	private Clock clock;
+    private Clock clock;
     @Mock
-	private UsagePointBuilder usagePointBuilder;
+    private UsagePointBuilder usagePointBuilder;
     @Mock
-	private ElectricityDetailBuilder edBuilder;
+    private ElectricityDetailBuilder edBuilder;
     @Mock
-	private ElectricityDetail electricityDetail;
+    private ElectricityDetail electricityDetail;
 
     @Before
     public void setUp() {
         when(meteringService.getServiceCategory(ServiceKind.ELECTRICITY)).thenReturn(Optional.of(serviceCategory));
-       
+
 
         usagePointBuilder = FakeBuilder.initBuilderStub(usagePoint, UsagePointBuilder.class);
 
@@ -63,18 +64,15 @@ public class CreateUsagePointTransactionTest {
     }
 
 
-
     @After
     public void tearDown() {
     }
 
     @Test
     public void test() {
-    	when(serviceCategory.newUsagePoint(MR_ID)).thenReturn(usagePointBuilder);
-    	when(serviceCategory.getKind()).thenReturn(ServiceKind.ELECTRICITY);
-    	
+        when(serviceCategory.getKind()).thenReturn(ServiceKind.ELECTRICITY);
+        when(serviceCategory.newUsagePoint(MR_ID)).thenReturn(usagePointBuilder);
         when(usagePoint.newElectricityDetailBuilder(Matchers.any())).thenReturn(edBuilder);
-        
         when(edBuilder.withAmiBillingReady(Matchers.any())).thenReturn(edBuilder);
         when(edBuilder.withCheckBilling(Matchers.anyBoolean())).thenReturn(edBuilder);
         when(edBuilder.withConnectionState(Matchers.any())).thenReturn(edBuilder);
@@ -86,15 +84,13 @@ public class CreateUsagePointTransactionTest {
         when(edBuilder.withRatedCurrent(Matchers.any())).thenReturn(edBuilder);
         when(edBuilder.withRatedPower(Matchers.any())).thenReturn(edBuilder);
         when(edBuilder.withServiceDeliveryRemark(Matchers.anyString())).thenReturn(edBuilder);
-        
+
         when(edBuilder.build()).thenReturn(electricityDetail);
-        
-        
+
         when(serviceCategory.newUsagePoint(MR_ID)).thenReturn(usagePointBuilder);
 
         UsagePoint result = transaction.perform();
 
         assertThat(result).isEqualTo(usagePoint);
     }
-
 }
