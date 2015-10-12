@@ -19,6 +19,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
 
     stores: [
         'Mdc.store.ChannelsOfLoadProfilesOfDevice',
+        'Mdc.customattributesonvaluesobjects.store.ChannelCustomAttributeSets',
         'TimeUnits',
         'Mdc.store.Clipboard'
     ],
@@ -124,7 +125,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
             calculatedReadingType.hide();
         }
 
-        var customAttributesStore = me.getStore('Mdc.store.ChannelCustomAttributeSets');
+        var customAttributesStore = me.getStore('Mdc.customattributesonvaluesobjects.store.ChannelCustomAttributeSets');
         customAttributesStore.getProxy().setUrl(me.mRID, record.get('id'));
         customAttributesStore.load(function() {
             preview.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);

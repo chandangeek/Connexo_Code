@@ -17,6 +17,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     ],
 
     stores: [
+        'Mdc.customattributesonvaluesobjects.store.ChannelCustomAttributeSets',
         'Mdc.store.ChannelOfLoadProfileOfDeviceData',
         'Mdc.store.DataIntervalAndZoomLevels',
         'Mdc.store.LoadProfileDataDurations',
@@ -191,7 +192,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     },
 
     setupSpecificationsTab: function (device, channel, widget) {
-        var customAttributesStore = this.getStore('Mdc.store.ChannelCustomAttributeSets');
+        var customAttributesStore = this.getStore('Mdc.customattributesonvaluesobjects.store.ChannelCustomAttributeSets');
         customAttributesStore.getProxy().setUrl(device.get('mRID'), channel.get('id'));
         widget.down('#deviceLoadProfileChannelsOverviewForm').loadRecord(channel);
         customAttributesStore.load(function() {

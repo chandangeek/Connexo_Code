@@ -1,4 +1,4 @@
-Ext.define('Mdc.store.ChannelCustomAttributeSets', {
+Ext.define('Mdc.customattributesonvaluesobjects.store.ChannelCustomAttributeSets', {
     extend: 'Ext.data.Store',
     requires: [
         'Mdc.customattributesonvaluesobjects.model.AttributeSetOnObject'

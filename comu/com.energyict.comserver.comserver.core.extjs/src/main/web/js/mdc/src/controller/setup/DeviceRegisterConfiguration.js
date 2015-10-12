@@ -22,6 +22,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         'Mdc.model.RegisterValidationPreview'
         ],
     stores: [
+        'Mdc.customattributesonvaluesobjects.store.RegisterCustomAttributeSets',
         'RegisterConfigsOfDevice'
     ],
 
@@ -164,7 +165,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         widget.on('render', function () {
             widget.down('#deviceRegisterConfigurationActionMenu').record = record;
         }, me, {single: true});
-        var customAttributesStore = me.getStore('Mdc.store.RegisterCustomAttributeSets');
+        var customAttributesStore = me.getStore('Mdc.customattributesonvaluesobjects.store.RegisterCustomAttributeSets');
         customAttributesStore.getProxy().setUrl(me.mRID, record.get('id'));
         customAttributesStore.load(function() {
             widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
@@ -188,7 +189,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                         var type = register.get('type');
                         var widget = Ext.widget('tabbedDeviceRegisterView', {device: device, router: me.getController('Uni.controller.history.Router')});
                         var func = function () {
-                            var customAttributesStore = me.getStore('Mdc.store.RegisterCustomAttributeSets');
+                            var customAttributesStore = me.getStore('Mdc.customattributesonvaluesobjects.store.RegisterCustomAttributeSets');
                             customAttributesStore.getProxy().setUrl(mRID, registerId);
                             customAttributesStore.load(function() {
                                 widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);

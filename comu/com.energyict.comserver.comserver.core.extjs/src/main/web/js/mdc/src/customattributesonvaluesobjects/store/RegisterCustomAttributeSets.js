@@ -1,4 +1,4 @@
-Ext.define('Mdc.store.RegisterCustomAttributeSets', {
+Ext.define('Mdc.customattributesonvaluesobjects.store.RegisterCustomAttributeSets', {
     extend: 'Ext.data.Store',
     requires: [
         'Mdc.customattributesonvaluesobjects.model.AttributeSetOnObject'
