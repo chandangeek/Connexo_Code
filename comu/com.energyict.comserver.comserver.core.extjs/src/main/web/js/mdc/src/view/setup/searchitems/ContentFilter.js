@@ -22,7 +22,7 @@ Ext.define('Mdc.view.setup.searchitems.ContentFilter', {
         },
         { xtype: 'menuseparator' },
 
-// Sort
+        // Sort
         {
             xtype: 'filter-toolbar',
             title: Uni.I18n.translate('searchItems.filter.sort', 'MDC', 'Sort'),

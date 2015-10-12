@@ -11,33 +11,39 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step1', {
 
     title: Uni.I18n.translate('searchItems.bulk.step1title', 'MDC', 'Bulk action - Step 1 of 5: Select devices'),
 
-    items: [
-        {
-            xtype: 'panel',
-            layout: {
-                type: 'vbox',
-                align: 'left'
+    initComponent: function () {
+        this.items = [
+            {
+                xtype: 'panel',
+                layout: {
+                    type: 'vbox',
+                    align: 'left'
+                },
+                width: '100%',
+                items: [
+                    {
+                        itemId: 'step1-errors',
+                        xtype: 'uni-form-error-message',
+                        hidden: true,
+                        text: Uni.I18n.translate('searchItems.bulk.devicesError', 'MDC', 'It is required to select one or more devices to go to the next step.')
+                    }
+                ]
             },
-            width: '100%',
-            items: [
-                {
-                    itemId: 'step1-errors',
-                    xtype: 'uni-form-error-message',
-                    hidden: true,
-                    text: Uni.I18n.translate('searchItems.bulk.devicesError', 'MDC', 'It is required to select one or more devices to go to the next step.')
-                }
-            ]
-        },
-        {
-            xtype: 'devices-selection-grid',
-            itemId: 'devicesgrid'
-        },
-        {
-            xtype: 'container',
-            itemId: 'stepSelectionError',
-            margin: '-20 0 0 0',
-            hidden: true,
-            html: '<span style="color: #eb5642">' + Uni.I18n.translate('searchItems.bulk.selectatleast1device', 'MDC', 'Select at least 1 device') + '</span>'
-        }
-    ]
+            {
+                xtype: 'devices-selection-grid',
+                store: this.deviceStore,
+                itemId: 'devicesgrid'
+            },
+            {
+                xtype: 'container',
+                itemId: 'stepSelectionError',
+                margin: '-20 0 0 0',
+                hidden: true,
+                html: '<span style="color: #eb5642">' + Uni.I18n.translate('searchItems.bulk.selectatleast1device', 'MDC', 'Select at least 1 device') + '</span>'
+            }
+        ];
+
+        this.callParent(arguments);
+    }
+
 });

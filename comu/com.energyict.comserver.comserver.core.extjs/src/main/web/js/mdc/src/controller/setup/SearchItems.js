@@ -1,3 +1,6 @@
+/**
+ * @deprecated
+ */
 Ext.define('Mdc.controller.setup.SearchItems', {
     extend: 'Ext.app.Controller',
 
@@ -14,8 +17,8 @@ Ext.define('Mdc.controller.setup.SearchItems', {
 
     stores: [
         'Mdc.store.Devices',
-        'Mdc.store.DeviceConfigurations',
-        'Mdc.store.DevicesSelectedBulk'
+        'Mdc.store.DeviceConfigurations'
+        //'Mdc.store.DevicesSelectedBulk'
     ],
 
     refs: [
