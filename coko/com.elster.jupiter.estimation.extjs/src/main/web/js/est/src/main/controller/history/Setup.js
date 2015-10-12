@@ -30,7 +30,7 @@ Ext.define('Est.main.controller.history.Setup', {
                             action: 'showEstimationRuleSetDetails',
                             callback: function (route) {
                                 this.getApplication().on('loadEstimationRuleSet', function (record) {
-                                    route.setTitle(record.get('name'));
+                                    route.setTitle(Ext.String.htmlEncode(record.get('name')));
                                     return true;
                                 }, {single: true});
                                 return this;
@@ -74,7 +74,7 @@ Ext.define('Est.main.controller.history.Setup', {
                                             action: 'showOverview',
                                             callback: function (route) {
                                                 this.getApplication().on('loadEstimationRule', function (record) {
-                                                    route.setTitle(record.get('name'));
+                                                    route.setTitle(Ext.String.htmlEncode(record.get('name')));
                                                     return true;
                                                 }, {single: true});
                                                 return this;
@@ -141,7 +141,7 @@ Ext.define('Est.main.controller.history.Setup', {
                             privileges: Est.privileges.EstimationConfiguration.viewTask,
                             callback: function (route) {
                                 this.getApplication().on('estimationTaskLoaded', function (record) {
-                                    route.setTitle(record.get('name'));
+                                    route.setTitle(Ext.String.htmlEncode(record.get('name')));
                                     return true;
                                 }, {single: true});
                                 return this;

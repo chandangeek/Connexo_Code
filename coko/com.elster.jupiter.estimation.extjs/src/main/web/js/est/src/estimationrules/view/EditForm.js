@@ -32,7 +32,12 @@ Ext.define('Est.estimationrules.view.EditForm', {
                 name: 'name',
                 fieldLabel: Uni.I18n.translate('general.estimationRule', 'EST', 'Estimation rule'),
                 required: true,
-                emptyText: Uni.I18n.translate('general.placeholder.enterName', 'EST', 'Enter a name...')
+                emptyText: Uni.I18n.translate('general.placeholder.enterName', 'EST', 'Enter a name...'),
+                listeners: {
+                    afterrender: function(field) {
+                        field.focus(false, 200);
+                    }
+                }
             },
             {
                 xtype: 'combobox',

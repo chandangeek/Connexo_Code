@@ -32,7 +32,12 @@ Ext.define('Est.estimationrulesets.view.RuleSetEdit', {
                         fieldLabel: Uni.I18n.translate('general.name', 'EST', 'Name'),
                         name: 'name',
                         itemId: 'name',
-                        required: true
+                        required: true,
+                        listeners: {
+                            afterrender: function(field) {
+                                field.focus(false, 200);
+                            }
+                        }
                     },
                     {
                         xtype: 'textareafield',

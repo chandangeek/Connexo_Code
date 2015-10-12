@@ -39,7 +39,12 @@ Ext.define('Est.estimationtasks.view.AddEdit', {
                         fieldLabel: Uni.I18n.translate('general.name', 'EST', 'Name'),
                         allowBlank: false,
                         enforceMaxLength: true,
-                        maxLength: 80
+                        maxLength: 80,
+                        listeners: {
+                            afterrender: function(field) {
+                                field.focus(false, 200);
+                            }
+                        }
                     },
                     {
                         title: Uni.I18n.translate('estimationtasks.general.dataSources', 'EST', 'Data sources'),
