@@ -134,7 +134,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                 success: function (communicationSchedule) {
                     me.getApplication().fireEvent('loadCommunicationSchedule', communicationSchedule);
                     me.record = communicationSchedule;
-                    widget.down('#communicationScheduleEditForm').setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[Ext.String.htmlEncode(communicationSchedule.get('name'))]));
+                    widget.down('#communicationScheduleEditForm').setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", communicationSchedule.get('name')));
                     widget.down('#communicationScheduleEditForm').loadRecord(communicationSchedule);
                     widget.down('#noComTasksSelectedMsg').hide();
                     widget.down('#comTasksOnForm').show();
