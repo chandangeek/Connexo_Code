@@ -358,7 +358,7 @@ public class DlmsSecuritySupport implements DeviceProtocolSecurityCapabilities, 
 
         @Override
         public String getTranslation() {
-            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORT_AUTHENTICATIONLEVEL_0).format();
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORT_AUTHENTICATIONLEVEL_1).format();
         }
 
         @Override
