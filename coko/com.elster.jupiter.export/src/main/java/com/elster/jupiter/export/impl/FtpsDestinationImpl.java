@@ -7,6 +7,7 @@ import com.elster.jupiter.ftpclient.FtpClientService;
 import com.elster.jupiter.ftpclient.FtpSessionFactory;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.transaction.TransactionService;
 
 import javax.inject.Inject;
 import java.nio.file.FileSystem;
@@ -15,8 +16,8 @@ import java.time.Clock;
 public class FtpsDestinationImpl extends AbstractFtpDataExportDestination implements FtpsDestination {
 
     @Inject
-    FtpsDestinationImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, FileSystem fileSystem, DataVaultService dataVaultService, FtpClientService ftpClientService) {
-        super(dataModel, clock, thesaurus, dataExportService, fileSystem, dataVaultService, ftpClientService);
+    FtpsDestinationImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, FileSystem fileSystem, DataVaultService dataVaultService, FtpClientService ftpClientService, TransactionService transactionService) {
+        super(dataModel, clock, thesaurus, dataExportService, fileSystem, dataVaultService, ftpClientService, transactionService);
     }
 
     FtpsDestinationImpl initialize(IExportTask task, String server, int port, String user, String password, String fileLocation, String fileName, String fileExtension) {

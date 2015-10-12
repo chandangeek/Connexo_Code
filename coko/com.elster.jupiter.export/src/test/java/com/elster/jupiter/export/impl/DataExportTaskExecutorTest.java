@@ -283,7 +283,7 @@ public class DataExportTaskExecutorTest {
         assertThat(readingList2).hasSize(1);
         assertThat(readingList2.get(0).getMeterReading().getReadings()).has(new ReadingFor(reading2));
 
-        verify(destination).send(any(), any());
+        verify(destination).send(any(), any(), any(), any());
     }
 
     @Test
@@ -331,7 +331,7 @@ public class DataExportTaskExecutorTest {
         assertThat(readingList2.get(0).getMeterReading().getIntervalBlocks()).hasSize(1);
         assertThat(readingList2.get(0).getMeterReading().getIntervalBlocks().get(0).getIntervals()).has(new IntervalReadingFor(reading2));
 
-        verify(destination).send(any(), any());
+        verify(destination).send(any(), any(), any(), any());
     }
 
     @Test
@@ -360,7 +360,7 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(4).wasCommitted();
         transactionService.assertThatTransaction(5).wasCommitted();
 
-        verify(destination).send(any(), any());
+        verify(destination).send(any(), any(), any(), any());
     }
 
     @Test
@@ -387,7 +387,7 @@ public class DataExportTaskExecutorTest {
         verify(dataFormatter, never()).endItem(existingItem);
         verify(dataFormatter, never()).endExport();
 
-        verify(destination, never()).send(any(), any());
+        verify(destination, never()).send(any(), any(), any(), any());
 
     }
 
@@ -415,7 +415,7 @@ public class DataExportTaskExecutorTest {
         verify(dataFormatter, never()).endItem(existingItem);
         verify(dataFormatter, never()).endExport();
 
-        verify(destination, never()).send(any(), any());
+        verify(destination, never()).send(any(), any(), any(), any());
     }
 
     @Test
@@ -449,7 +449,7 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(4).wasNotCommitted(); // existingItem
         transactionService.assertThatTransaction(5).wasCommitted(); // log failure of existingItem
 
-        verify(destination, never()).send(any(), any());
+        verify(destination, never()).send(any(), any(), any(), any());
     }
 
     Predicate<List<? extends List<ExportData>>> hasStreamContainingReadingFor(String source) {
@@ -489,7 +489,7 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(3).wasCommitted();
         transactionService.assertThatTransaction(4).wasNotCommitted();
 
-        verify(destination, never()).send(any(), any());
+        verify(destination, never()).send(any(), any(), any(), any());
     }
 
     @Test
@@ -515,7 +515,7 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(2).wasNotCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
 
-        verify(destination).send(any(), any());
+        verify(destination).send(any(), any(), any(), any());
     }
 
     @Test
@@ -554,7 +554,7 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(3).wasCommitted();
         transactionService.assertThatTransaction(4).wasNotCommitted();
 
-        verify(destination, never()).send(any(), any());
+        verify(destination, never()).send(any(), any(), any(), any());
     }
 
     @Test
@@ -594,7 +594,7 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(4).wasNotCommitted();
         transactionService.assertThatTransaction(5).wasCommitted();
 
-        verify(destination, never()).send(any(), any());
+        verify(destination, never()).send(any(), any(), any(), any());
     }
 
     @Test
@@ -627,7 +627,7 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(2).wasNotCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
 
-        verify(destination).send(any(), any());
+        verify(destination).send(any(), any(), any(), any());
     }
 
     @Test
@@ -660,7 +660,7 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(4).wasNotCommitted();
         transactionService.assertThatTransaction(5).wasCommitted();
 
-        verify(destination, never()).send(any(), any());
+        verify(destination, never()).send(any(), any(), any(), any());
     }
 
     @Test
@@ -693,7 +693,7 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(4).wasNotCommitted();
         transactionService.assertThatTransaction(5).wasCommitted();
 
-        verify(destination, never()).send(any(), any());
+        verify(destination, never()).send(any(), any(), any(), any());
     }
 
     @Test
@@ -719,7 +719,7 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(2).wasNotCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
 
-        verify(destination).send(any(), any());
+        verify(destination).send(any(), any(), any(), any());
     }
 
     private static class IntervalReadingFor extends Condition<List<? extends IntervalReading>> {

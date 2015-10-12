@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
@@ -34,6 +35,7 @@ public abstract class AbstractDataExportDestination implements IDataExportDestin
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
     private final DataExportService dataExportService;
+    private final TransactionService transactionService;
     private final FileSystem fileSystem;
     private final Clock clock;
     private long version;
@@ -42,12 +44,13 @@ public abstract class AbstractDataExportDestination implements IDataExportDestin
     private String userName;
 
     @Inject
-    AbstractDataExportDestination(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, FileSystem fileSystem) {
+    AbstractDataExportDestination(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, FileSystem fileSystem, TransactionService transactionService) {
         this.dataModel = dataModel;
         this.clock = clock;
         this.thesaurus = thesaurus;
         this.dataExportService = dataExportService;
         this.fileSystem = fileSystem;
+        this.transactionService = transactionService;
     }
 
     public IExportTask getTask() {
@@ -117,5 +120,9 @@ public abstract class AbstractDataExportDestination implements IDataExportDestin
     @Override
     public String getUserName() {
         return userName;
+    }
+
+    protected TransactionService getTransactionService() {
+        return this.transactionService;
     }
 }

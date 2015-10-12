@@ -2,14 +2,18 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.devtools.persistence.test.TransactionVerifier;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.StructureMarker;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.DataModelImpl;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -38,8 +42,12 @@ import java.time.Clock;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -73,6 +81,8 @@ public class FileDestinationTest {
     private DataExportService dataExportService;
     @Mock
     DataModel dataModel;
+    private Logger logger = Logger.getAnonymousLogger();
+    private TransactionService transactionService = new TransactionVerifier();
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
@@ -82,6 +92,13 @@ public class FileDestinationTest {
 
     @Before
     public void setUp() throws IOException {
+
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenAnswer(invocation -> {
+            NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+            when(messageFormat.format(anyVararg())).thenReturn(((MessageSeed) invocation.getArguments()[0]).getDefaultFormat());
+            return messageFormat;
+        });
+
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         when(appService.getAppServer()).thenReturn(Optional.of(appServer));
         when(dataExportService.getExportDirectory(appServer)).thenReturn(Optional.of(fileSystem.getPath(APPSERVER_PATH)));
@@ -108,9 +125,9 @@ public class FileDestinationTest {
 
     @Test
     public void testExportToCsvWithAbsolutePath() {
-        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService,fileSystem);
+        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService,fileSystem, transactionService);
         fileDestination.init(null, ABSOLUTE_DIR, FILENAME, EXTENSION);
-        fileDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1), tagReplacerFactory);
+        fileDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1), tagReplacerFactory, logger, thesaurus);
         Path file = fileSystem.getPath(ABSOLUTE_DIR, FILENAME + "." + EXTENSION);
         assertThat(Files.exists(file)).isTrue();
         assertThat(getContent(file)).isEqualTo(DATA1 + DATA2);
@@ -118,9 +135,9 @@ public class FileDestinationTest {
 
     @Test
     public void testExportToCsvWithRelativePath() {
-        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
+        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem, transactionService);
         fileDestination.init(null, RELATIVE_DIR, FILENAME, EXTENSION);
-        fileDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1), tagReplacerFactory);
+        fileDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1), tagReplacerFactory, logger, thesaurus);
         Path file = fileSystem.getPath(APPSERVER_PATH, RELATIVE_DIR, FILENAME + "." + EXTENSION);
         assertThat(Files.exists(file)).isTrue();
         assertThat(getContent(file)).isEqualTo(DATA1 + DATA2);
@@ -141,14 +158,14 @@ public class FileDestinationTest {
 
     @Test
     public void testCreateDestinationWithValidPath() throws Exception {
-        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
+        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem, transactionService);
         fileDestination.init(null, "A/C", FILENAME, EXTENSION);
         fileDestination.save();
     }
 
     @Test
     public void testCreateDestinationWithValidFileExtension() throws Exception {
-        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
+        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem, transactionService);
         fileDestination.init(null, RELATIVE_DIR, FILENAME, "EXE");
         fileDestination.save();
     }
@@ -158,7 +175,7 @@ public class FileDestinationTest {
     @Test
     @ExpectedConstraintViolation(property = "fileLocation", messageId="{InvalidChars}")
     public void testCreateDestinationWithInvalidPath() throws Exception {
-        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
+        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem, transactionService);
         fileDestination.init(null, "A < C", FILENAME, EXTENSION);
         fileDestination.save();
     }
@@ -166,7 +183,7 @@ public class FileDestinationTest {
     @Test
     @ExpectedConstraintViolation(property = "fileName", messageId="{InvalidChars}")
     public void testCreateDestinationWithInvalidFileNameQuote() throws Exception {
-        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
+        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem, transactionService);
         fileDestination.init(null, RELATIVE_DIR, "A\"A", EXTENSION);
         fileDestination.save();
     }
@@ -174,7 +191,7 @@ public class FileDestinationTest {
     @Test
     @ExpectedConstraintViolation(property = "fileExtension", messageId="{InvalidChars}", strict=false)
     public void testCreateDestinationWithInvalidFileExtensionAstrix() throws Exception {
-        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
+        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem, transactionService);
         fileDestination.init(null, RELATIVE_DIR, FILENAME, "EX*E");
         fileDestination.save();
     }
@@ -182,7 +199,7 @@ public class FileDestinationTest {
     @Test
     @ExpectedConstraintViolation(property = "fileExtension", messageId="{InvalidChars}",strict=false)
     public void testCreateDestinationWithInvalidFileExtensionQuotedAstrix() throws Exception {
-        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
+        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem, transactionService);
         fileDestination.init(null, RELATIVE_DIR, FILENAME, "EX\\*E");
         fileDestination.save();
     }
@@ -190,7 +207,7 @@ public class FileDestinationTest {
     @Test
     @ExpectedConstraintViolation(property = "fileExtension", messageId="{InvalidChars}")
     public void testCreateDestinationWithInvalidFileExtensionQuote() throws Exception {
-        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
+        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem, transactionService);
         fileDestination.init(null, RELATIVE_DIR, FILENAME, "E\"XE");
         fileDestination.save();
     }
@@ -198,7 +215,7 @@ public class FileDestinationTest {
     @Test
     @ExpectedConstraintViolation(property = "fileExtension", messageId="{InvalidChars}")
     public void testCreateDestinationWithInvalidFileExtensionColon() throws Exception {
-        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
+        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem,transactionService);
         fileDestination.init(null, RELATIVE_DIR, FILENAME, "E:XE");
         fileDestination.save();
     }
@@ -206,7 +223,7 @@ public class FileDestinationTest {
     @Test
     @ExpectedConstraintViolation(property = "fileExtension", messageId="{InvalidChars}")
     public void testCreateDestinationWithInvalidFileExtensionSmaller() throws Exception {
-        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
+        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem, transactionService);
         fileDestination.init(null, RELATIVE_DIR, FILENAME, "E<XE");
         fileDestination.save();
     }
@@ -214,7 +231,7 @@ public class FileDestinationTest {
     @Test
     @ExpectedConstraintViolation(property = "fileExtension", messageId="{InvalidChars}")
     public void testCreateDestinationWithInvalidFileExtensionLarger() throws Exception {
-        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
+        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem, transactionService);
         fileDestination.init(null, RELATIVE_DIR, FILENAME, "E>XE");
         fileDestination.save();
     }
@@ -222,14 +239,14 @@ public class FileDestinationTest {
     @Test
     @ExpectedConstraintViolation(property = "fileExtension", messageId="{FieldSizeBetweenMinAndMax}")
     public void testCreateDestinationWithInvalidFileExtensionTooLong() throws Exception {
-        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
+        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem, transactionService);
         fileDestination.init(null, RELATIVE_DIR, FILENAME, "EXE98765432109876543210987654321098765432109876543210987654321098765432109876543210");
         fileDestination.save();
     }
 
     @Test
     public void testMultiple() {
-        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
+        FileDestinationImpl fileDestination = new FileDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem, transactionService);
         fileDestination.setFileName("export<identifier>");
         fileDestination.setFileExtension("txt");
         fileDestination.setFileLocation("a/b");
@@ -237,7 +254,7 @@ public class FileDestinationTest {
         StructureMarker marker1 = DefaultStructureMarker.createRoot(clock, "file1");
         StructureMarker marker2 = DefaultStructureMarker.createRoot(clock, "file2");
 
-        fileDestination.send(ImmutableMap.of(marker1, file1, marker2, file2), tagReplacerFactory);
+        fileDestination.send(ImmutableMap.of(marker1, file1, marker2, file2), tagReplacerFactory, logger, thesaurus);
 
         assertThat(fileSystem.getPath("/appserver/export/a/b/exportfile1.txt")).exists();
     }

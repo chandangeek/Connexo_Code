@@ -1,12 +1,16 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.devtools.persistence.test.TransactionVerifier;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.ftpclient.FtpClientService;
 import com.elster.jupiter.ftpclient.FtpSessionFactory;
 import com.elster.jupiter.ftpclient.IOConsumer;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -26,10 +30,13 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.Clock;
 import java.util.List;
+import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -57,9 +64,17 @@ public class FtpsDestinationImplTest {
     private FtpClientService ftpClientService;
     @Mock
     private IExportTask exportTask;
+    private Logger logger = Logger.getAnonymousLogger();
+    private TransactionService transactionService = new TransactionVerifier();
 
     @Before
     public void setUp() throws IOException {
+
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenAnswer(invocation -> {
+            NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+            when(messageFormat.format(anyVararg())).thenReturn(((MessageSeed) invocation.getArguments()[0]).getDefaultFormat());
+            return messageFormat;
+        });
 
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
 
@@ -93,10 +108,10 @@ public class FtpsDestinationImplTest {
 
     @Test
     public void testSend() {
-        FtpsDestinationImpl ftpsDestination = new FtpsDestinationImpl(dataModel, clock, thesaurus, dataExportService, fileSystem, dataVaultService, ftpClientService);
+        FtpsDestinationImpl ftpsDestination = new FtpsDestinationImpl(dataModel, clock, thesaurus, dataExportService, fileSystem, dataVaultService, ftpClientService, transactionService);
         ftpsDestination.initialize(exportTask, "server", 20, "user", "password", RELATIVE_DIR, "DDD<identifier>", "txt");
 
-        ftpsDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1), tagReplacerFactory);
+        ftpsDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1), tagReplacerFactory, logger, thesaurus);
 
         Path file = ftpFileSystem.getPath("/", RELATIVE_DIR, "DDDroot.txt");
         assertThat(Files.exists(file)).isTrue();

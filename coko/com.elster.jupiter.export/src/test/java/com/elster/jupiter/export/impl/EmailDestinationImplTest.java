@@ -1,14 +1,18 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.devtools.persistence.test.TransactionVerifier;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.mail.MailMessageBuilder;
 import com.elster.jupiter.mail.MailService;
 import com.elster.jupiter.mail.OutboundMailMessage;
 import com.elster.jupiter.mail.impl.MailAddressImpl;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -29,6 +33,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.time.Clock;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Logger;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -64,11 +69,20 @@ public class EmailDestinationImplTest {
     private MailService mailService;
     @Mock
     private OutboundMailMessage mailMessage;
+    private Logger logger = Logger.getAnonymousLogger();
     private AtomicReference<MailMessageBuilder> builder = new AtomicReference<>();
+    private TransactionService transactionService = new TransactionVerifier();
 
     @Before
     public void setUp() throws IOException {
-        when(dataModel.getInstance(EmailDestinationImpl.class)).thenAnswer(invocation -> new EmailDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem, mailService));
+
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenAnswer(invocation -> {
+            NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+            when(messageFormat.format(anyVararg())).thenReturn(((MessageSeed) invocation.getArguments()[0]).getDefaultFormat());
+            return messageFormat;
+        });
+
+        when(dataModel.getInstance(EmailDestinationImpl.class)).thenAnswer(invocation -> new EmailDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem, mailService, transactionService));
 
         fileSystem = Jimfs.newFileSystem(Configuration.windows());
         file1 = fileSystem.getPath("C:/a.tmp");
@@ -102,10 +116,10 @@ public class EmailDestinationImplTest {
 
     @Test
     public void testSend() throws Exception {
-        EmailDestinationImpl emailDestination = new EmailDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem, mailService);
+        EmailDestinationImpl emailDestination = new EmailDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem, mailService, transactionService);
         emailDestination.init(null, "target@mailinator.com", SUBJECT, "file", "txt");
 
-        emailDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1), tagReplacerFactory);
+        emailDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1), tagReplacerFactory, logger, thesaurus);
 
         verify(mailService).messageBuilder(MailAddressImpl.of("target@mailinator.com"));
         verify(builder.get()).withSubject(SUBJECT);
@@ -115,10 +129,10 @@ public class EmailDestinationImplTest {
 
     @Test
     public void testSendToMultipleAddresses() throws Exception {
-        EmailDestinationImpl emailDestination = new EmailDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem, mailService);
+        EmailDestinationImpl emailDestination = new EmailDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem, mailService, transactionService);
         emailDestination.init(null, "target1@mailinator.com;target2@mailinator.com", SUBJECT, "file", "txt");
 
-        emailDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1), tagReplacerFactory);
+        emailDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1), tagReplacerFactory, logger, thesaurus);
 
         verify(mailService).messageBuilder(MailAddressImpl.of("target1@mailinator.com"));
         verify(builder.get()).addRecipient(MailAddressImpl.of("target2@mailinator.com"));
@@ -129,10 +143,10 @@ public class EmailDestinationImplTest {
 
     @Test
     public void testSendMultipleAttachments() throws Exception {
-        EmailDestinationImpl emailDestination = new EmailDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem, mailService);
+        EmailDestinationImpl emailDestination = new EmailDestinationImpl(dataModel, clock, thesaurus, dataExportService, appService, fileSystem, mailService, transactionService);
         emailDestination.init(null, "target@mailinator.com", SUBJECT, "file<identifier>", "txt");
 
-        emailDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1, DefaultStructureMarker.createRoot(clock, "root2"), file2), tagReplacerFactory);
+        emailDestination.send(ImmutableMap.of(DefaultStructureMarker.createRoot(clock, "root"), file1, DefaultStructureMarker.createRoot(clock, "root2"), file2), tagReplacerFactory, logger, thesaurus);
 
         verify(mailService).messageBuilder(MailAddressImpl.of("target@mailinator.com"));
         verify(builder.get()).withSubject(SUBJECT);

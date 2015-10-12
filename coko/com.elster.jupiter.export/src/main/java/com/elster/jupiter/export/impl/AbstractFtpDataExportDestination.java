@@ -9,6 +9,8 @@ import com.elster.jupiter.ftpclient.FtpClientService;
 import com.elster.jupiter.ftpclient.FtpSessionFactory;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -17,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.util.Map;
+import java.util.logging.Logger;
 
 public abstract class AbstractFtpDataExportDestination extends AbstractDataExportDestination implements FtpDataExportDestination {
     private static final String NON_PATH_INVALID = "\":*?<>|";
@@ -25,10 +28,14 @@ public abstract class AbstractFtpDataExportDestination extends AbstractDataExpor
     private class Sender {
         private final TagReplacerFactory tagReplacerFactory;
         private final FileSystem remoteFileSystem;
+        private final Logger logger;
+        private final Thesaurus thesaurus;
 
-        private Sender(TagReplacerFactory tagReplacerFactory, FileSystem remoteFileSystem) {
+        private Sender(TagReplacerFactory tagReplacerFactory, FileSystem remoteFileSystem, Logger logger, Thesaurus thesaurus) {
             this.tagReplacerFactory = tagReplacerFactory;
             this.remoteFileSystem = remoteFileSystem;
+            this.logger = logger;
+            this.thesaurus = thesaurus;
         }
 
         private void send(Map<StructureMarker, Path> files) {
@@ -55,6 +62,10 @@ public abstract class AbstractFtpDataExportDestination extends AbstractDataExpor
         private void doCopy(Path source, Path target) {
             try {
                 Files.copy(source, target);
+                try (TransactionContext context = getTransactionService().getContext()) {
+                    MessageSeeds.DATA_EXPORTED_TO.log(logger, thesaurus, target.toAbsolutePath().toString());
+                    context.commit();
+                }
             } catch (IOException e) {
                 throw new FileIOException(getThesaurus(), target, e);
             }
@@ -94,8 +105,8 @@ public abstract class AbstractFtpDataExportDestination extends AbstractDataExpor
     }
 
     @Inject
-    AbstractFtpDataExportDestination(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, FileSystem fileSystem, DataVaultService dataVaultService, FtpClientService ftpClientService) {
-        super(dataModel, clock, thesaurus, dataExportService, fileSystem);
+    AbstractFtpDataExportDestination(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, FileSystem fileSystem, DataVaultService dataVaultService, FtpClientService ftpClientService, TransactionService transactionService) {
+        super(dataModel, clock, thesaurus, dataExportService, fileSystem, transactionService);
         this.dataVaultService = dataVaultService;
         this.ftpClientService = ftpClientService;
     }
@@ -105,12 +116,12 @@ public abstract class AbstractFtpDataExportDestination extends AbstractDataExpor
     }
 
     @Override
-    public void send(Map<StructureMarker, Path> files, TagReplacerFactory tagReplacerFactory) {
+    public void send(Map<StructureMarker, Path> files, TagReplacerFactory tagReplacerFactory, Logger logger, Thesaurus thesaurus) {
         try {
             getFtpSessionFactory().runInSession(
-                remoteFileSystem -> {
-                    new AbstractFtpDataExportDestination.Sender(tagReplacerFactory, remoteFileSystem).send(files);
-                }
+                    remoteFileSystem -> {
+                        new AbstractFtpDataExportDestination.Sender(tagReplacerFactory, remoteFileSystem, logger, thesaurus).send(files);
+                    }
             );
         } catch (IOException e) {
             throw new FtpIOException(getThesaurus(), getServer(), getPort(), e);
