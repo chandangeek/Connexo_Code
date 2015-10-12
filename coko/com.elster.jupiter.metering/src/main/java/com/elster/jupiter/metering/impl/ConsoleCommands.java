@@ -116,12 +116,16 @@ public class ConsoleCommands {
             threadPrincipalService.clear();
         }
     }
+    public void addUsagePointToCurrentMeterActivation() {
+        System.out.println("usage:");
+        System.out.println("       addUsagePointToCurrentMeterActivation <mrid> <usagepoint id>");
+    }
 
-    public void addUsagePointToCurrentMeterActivation(String meterMRID, String usagePointMRID) {
+    public void addUsagePointToCurrentMeterActivation(String mrId, String usagePointmrId) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            Meter meter = meteringService.findMeter(meterMRID).get();
-            UsagePoint usagePoint = meteringService.findUsagePoint(usagePointMRID).get();
+            Meter meter = meteringService.findMeter(mrId).get();
+            UsagePoint usagePoint = meteringService.findUsagePoint(usagePointmrId).get();
             ((UsagePointImpl) usagePoint).adopt((MeterActivationImpl) meter.getCurrentMeterActivation().get());
             context.commit();
         } finally {
@@ -153,6 +157,10 @@ public class ConsoleCommands {
         }
     }
 
+    public void createUsagePoint() {
+        System.out.println("Usage: createUsagePoint <mRID>");
+
+    }
     public void createUsagePoint(String mrId) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
