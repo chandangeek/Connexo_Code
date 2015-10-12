@@ -185,7 +185,7 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
                 me.deviceLifeCycle = deviceLifeCycleRecord;
                 me.getApplication().fireEvent('devicelifecycleload', deviceLifeCycleRecord);
                 me.getApplication().fireEvent('deviceLifeCycleEdit', deviceLifeCycleRecord);
-                form.setTitle(Uni.I18n.translate('deviceLifeCycles.edit.title', 'DLC', "Edit '{0}'", [deviceLifeCycleRecord.get('name')]));
+                form.setTitle(Uni.I18n.translate('deviceLifeCycles.edit.title', 'DLC', "Edit '{0}'", deviceLifeCycleRecord.get('name'), false));
                 form.loadRecord(deviceLifeCycleRecord);
                 me.getApplication().fireEvent('changecontentevent', view);
             }

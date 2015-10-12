@@ -43,7 +43,12 @@ Ext.define('Dlc.devicelifecycles.view.AddForm', {
                 fieldLabel: Uni.I18n.translate('general.name', 'DLC', 'Name'),
                 allowBlank: false,
                 enforceMaxLength: true,
-                maxLength: 80
+                maxLength: 80,
+                listeners: {
+                    afterrender: function(field) {
+                        field.focus(false, 200);
+                    }
+                }
             },
             {
                 xtype: 'fieldcontainer',
