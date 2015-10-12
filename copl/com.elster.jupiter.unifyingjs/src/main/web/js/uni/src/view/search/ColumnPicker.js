@@ -41,6 +41,7 @@ Ext.define('Uni.view.search.ColumnPicker', {
             },
             tbar: [{
                 xtype: 'button',
+                itemId: 'column-picker-restore-defaults-button',
                 text: 'Restore defaults',
                 ui: 'link',
                 handler: function() {
@@ -50,12 +51,14 @@ Ext.define('Uni.view.search.ColumnPicker', {
             buttons: [
                 {
                     text: 'Done',
+                    itemId: 'column-picker-done-button',
                     handler: function() {
                         me.grid.reconfigure(null, _.pluck(me.menu.down('#columns-selected').items.getRange(), 'column'));
                     }
                 },
                 {
                     text: 'Cancel',
+                    itemId: 'column-picker-cancel-button',
                     ui: 'link',
                     handler: function() {
                         me.menu.hide();
