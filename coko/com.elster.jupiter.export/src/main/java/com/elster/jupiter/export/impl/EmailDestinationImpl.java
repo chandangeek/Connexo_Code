@@ -39,6 +39,9 @@ class EmailDestinationImpl extends AbstractDataExportDestination implements Emai
         }
 
         private void send(Map<StructureMarker, Path> files) {
+            if (files.isEmpty()) {
+                return;
+            }
             ClassLoader tcl = Thread.currentThread().getContextClassLoader();
             try {
                 Thread.currentThread().setContextClassLoader(javax.mail.Session.class.getClassLoader());
