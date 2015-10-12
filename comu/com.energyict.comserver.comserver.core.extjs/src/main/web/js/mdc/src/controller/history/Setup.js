@@ -1203,11 +1203,26 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showDeviceAttributesView',
                             items: {
                                 edit: {
-                                    title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                    title: Uni.I18n.translate('deviceconfiguration.deviceAttributes.edit.general', 'MDC', 'Edit \'General\''),
                                     route: 'edit',
                                     privileges: Mdc.privileges.Device.editDeviceAttributes,
                                     controller: 'Mdc.controller.setup.DeviceAttributes',
                                     action: 'showEditDeviceAttributesView'
+                                },
+                                editcustomattributes: {
+                                    title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                    route: '{customAttributeSetId}/edit',
+                                    privileges: Mdc.privileges.Device.editDeviceAttributes,
+                                    controller: 'Mdc.controller.setup.DeviceAttributes',
+                                    action: 'showEditCustomAttributeSetsView',
+                                    callback: function (route) {
+                                        this.getApplication().on('loadCustomAttributeSetOnDevice', function (record) {
+                                            route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
+                                            return true;
+                                        }, {single: true});
+
+                                        return this;
+                                    }
                                 }
                             }
                         },

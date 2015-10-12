@@ -3,24 +3,29 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
 
     views: [
         'Mdc.view.setup.deviceattributes.Setup',
-        'Mdc.view.setup.deviceattributes.Edit'
+        'Mdc.view.setup.deviceattributes.Edit',
+        'Mdc.view.setup.deviceattributes.CustomAttributesEdit'
     ],
 
     models: [
         'Mdc.model.Device',
-        'Mdc.model.DeviceAttribute'
+        'Mdc.model.DeviceAttribute',
+        'Mdc.customattributesonvaluesobjects.model.AttributeSetOnDevice'
     ],
 
     stores: [
         'Mdc.store.UsagePointsForDeviceAttributes',
-        'Mdc.store.DeviceCustomAttributeSets'
+        'Mdc.customattributesonvaluesobjects.store.DeviceCustomAttributeSets'
     ],
 
     refs: [
         {ref: 'deviceAttributesDisplayForm', selector: '#device-attributes-view-form'},
         {ref: 'deviceAttributesEditForm', selector: '#device-attributes-edit-form'},
         {ref: 'deviceAttributesEditPage', selector: '#device-attributes-edit'},
-        {ref: 'usagePointEmptyStoreField', selector: '#usagePointEmptyStoreField'}
+        {ref: 'usagePointEmptyStoreField', selector: '#usagePointEmptyStoreField'},
+        {ref: 'editCustomAttributePropertyForm', selector: '#device-custom-attributes-edit-id #device-custom-attributes-property-form'},
+        {ref: 'deviceCustomAttributesEditView', selector: '#device-custom-attributes-edit-id'},
+        {ref: 'restoreToDefaultBtn', selector: '#device-custom-attributes-edit-id  #device-custom-attributes-restore-default-btn'}
 
     ],
 
@@ -31,8 +36,54 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
             },
             '#device-attributes-edit #deviceAttributesCancelBtn': {
                 click: this.goToAttributesLanding
+            },
+            '#device-custom-attributes-edit-id #device-custom-attributes-cancel-btn': {
+                click: this.goToAttributesLanding
+            },
+            '#device-custom-attributes-edit-id #device-custom-attributes-restore-default-btn': {
+                click: this.restoreDefaultCustomAttributes
+            },
+            '#device-custom-attributes-edit-id #device-custom-attributes-save-btn': {
+                click: this.saveCustomAttributes
+            },
+            '#device-custom-attributes-edit-id #device-custom-attributes-property-form': {
+                showRestoreAllBtn: this.showRestoreAllBtn
             }
         });
+    },
+
+    saveCustomAttributes: function() {
+        var me = this,
+            form = me.getEditCustomAttributePropertyForm(),
+            editView = me.getDeviceCustomAttributesEditView();
+
+        editView.setLoading();
+
+        form.updateRecord();
+        form.getRecord().save({
+            callback: function (model, operation, success) {
+                editView.setLoading(false);
+                if (success) {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('customAttributeSet.saved', 'MDC', 'Custom attribute saved'));
+                    me.goToAttributesLanding();
+                }
+            }
+        });
+    },
+
+    showRestoreAllBtn: function (value) {
+        var restoreBtn = this.getRestoreToDefaultBtn();
+        if (restoreBtn) {
+            if (value) {
+                restoreBtn.disable();
+            } else {
+                restoreBtn.enable();
+            }
+        }
+    },
+
+    restoreDefaultCustomAttributes: function () {
+        this.getEditCustomAttributePropertyForm().restoreAll();
     },
 
     saveAttributes: function () {
@@ -103,12 +154,43 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
         this.uploadAttributes('deviceAttributesEdit', mRID, false);
     },
 
+    showEditCustomAttributeSetsView: function (mRID, customAttributeSetId) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            model = Ext.ModelManager.getModel('Mdc.customattributesonvaluesobjects.model.AttributeSetOnDevice'),
+            widget;
+
+        viewport.setLoading();
+        model.getProxy().setUrl(mRID);
+        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+            success: function (device) {
+                widget = Ext.widget('device-custom-attributes-edit', {device: device});
+                me.getApplication().fireEvent('loadDevice', device);
+                me.getApplication().fireEvent('changecontentevent', widget);
+
+                model.load(customAttributeSetId, {
+                    success: function (record) {
+                        me.getApplication().fireEvent('loadCustomAttributeSetOnDevice', record);
+                        widget.down('#custom-attribute-set-edit-panel').setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
+                        widget.down('#device-custom-attributes-property-form').loadRecord(record);
+                        console.log(record);
+                    },
+                    callback: function () {
+                        viewport.setLoading(false);
+                    }
+                })
+
+            }
+        });
+    },
+
     uploadAttributes: function (view, mRID, showCustomAttributes) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             viewport = Ext.ComponentQuery.query('viewport')[0],
             model = Ext.ModelManager.getModel('Mdc.model.DeviceAttribute'),
-            customAttributesStore = me.getStore('Mdc.store.DeviceCustomAttributeSets'),
+            customAttributesStore = me.getStore('Mdc.customattributesonvaluesobjects.store.DeviceCustomAttributeSets'),
             widget;
 
         viewport.setLoading();
@@ -121,7 +203,7 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
                 me.getApplication().fireEvent('changecontentevent', widget);
 
                 if (showCustomAttributes) {
-                    customAttributesStore.load(function() {
+                    customAttributesStore.load(function () {
                         widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(this);
                     });
                 }

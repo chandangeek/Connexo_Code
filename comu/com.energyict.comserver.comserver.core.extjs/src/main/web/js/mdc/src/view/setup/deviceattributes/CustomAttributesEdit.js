@@ -1,22 +1,22 @@
-Ext.define('Mdc.view.setup.deviceattributes.Edit', {
+Ext.define('Mdc.view.setup.deviceattributes.CustomAttributesEdit', {
     extend: 'Uni.view.container.ContentContainer',
-    alias: 'widget.deviceAttributesEdit',
-    itemId: 'device-attributes-edit',
+    alias: 'widget.device-custom-attributes-edit',
+    itemId: 'device-custom-attributes-edit-id',
 
     requires: [
-        'Mdc.view.setup.deviceattributes.DeviceAttributesEditForm'
+        'Mdc.view.setup.deviceattributes.DeviceAttributesEditForm',
+        'Uni.property.form.Property'
     ],
 
     content: [
         {
             xtype: 'panel',
+            itemId: 'custom-attribute-set-edit-panel',
             ui: 'large',
-            title: Uni.I18n.translate('deviceconfiguration.deviceAttributes.edit.general', 'MDC', 'Edit \'General\''),
             items: [
                 {
-                    margin: '40 0 0 0',
-                    xtype: 'deviceAttributesEditForm',
-                    itemId: 'device-attributes-edit-form'
+                    xtype: 'property-form',
+                    itemId: 'device-custom-attributes-property-form'
                 }
             ],
             dockedItems: {
@@ -31,14 +31,20 @@ Ext.define('Mdc.view.setup.deviceattributes.Edit', {
                 items: [
                     {
                         xtype: 'button',
-                        itemId: 'deviceAttributesSaveBtn',
+                        itemId: 'device-custom-attributes-save-btn',
                         ui: 'action',
                         text: Uni.I18n.translate('general.save', 'MDC', 'Save')
                     },
                     {
                         xtype: 'button',
+                        text: Uni.I18n.translate('general.restoreToDefaultSettings', 'MDC', 'Restore to default settings'),
+                        icon: '../sky/build/resources/images/form/restore.png',
+                        itemId: 'device-custom-attributes-restore-default-btn'
+                    },
+                    {
+                        xtype: 'button',
                         ui: 'link',
-                        itemId: 'deviceAttributesCancelBtn',
+                        itemId: 'device-custom-attributes-cancel-btn',
                         text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel')
                     }
                 ]
