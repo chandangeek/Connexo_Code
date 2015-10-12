@@ -53,7 +53,7 @@ Ext.define('Isu.controller.CreationRules', {
 
         Ext.suspendLayouts();
         form.loadRecord(record);
-        itemPanel.setTitle(record.get('title'));
+        itemPanel.setTitle(Ext.String.htmlEncode(record.get('title')));
         if (menu) {
             menu.record = record;
         }
