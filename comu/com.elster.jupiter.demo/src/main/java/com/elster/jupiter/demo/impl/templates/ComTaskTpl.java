@@ -50,6 +50,12 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
         null,
         Collections.singletonList(TopologyAction.UPDATE),
         null),
+    VERIFY_STATUS_INFO("Verify status information",
+            null,
+            null,
+            null,
+            null,
+            null),
     ;
     private String name;
     private List<LoadProfileTypeTpl> loadProfileTypes;

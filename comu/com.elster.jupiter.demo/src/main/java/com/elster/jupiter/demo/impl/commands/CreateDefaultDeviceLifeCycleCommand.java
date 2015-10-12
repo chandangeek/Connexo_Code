@@ -4,18 +4,24 @@ import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.lifecycle.*;
-import com.energyict.mdc.device.lifecycle.config.*;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolationException;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedStandardTransitionAction;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import javax.inject.Inject;
-import java.time.*;
-import java.util.*;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -65,7 +71,7 @@ public class CreateDefaultDeviceLifeCycleCommand {
         defaultLifeCycle = DLCconfigurationService.findDefaultDeviceLifeCycle().orElseGet(()->DLCconfigurationService.newDefaultDeviceLifeCycle("dlc.standard.device.life.cycle"));
         // Use this one as device life cycle for each existing device type
         // And set all devices of this type to the 'Active State'
-        deviceConfigurationService.findAllDeviceTypes().stream().forEach(type -> changeDeviceLifeCycle(type, deviceService.deviceQuery().select(Operator.EQUAL.compare("deviceType", type))));
+        deviceConfigurationService.findAllDeviceTypes().stream().forEach(type -> changeDeviceLifeCycle(type, deviceService.findAllDevices(Where.where("deviceType").isEqualTo(type)).paged(0, 1000).find()));
     }
 
     private void changeDeviceLifeCycle(DeviceType deviceType, List<Device> devices){
