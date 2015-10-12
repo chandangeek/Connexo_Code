@@ -21,7 +21,7 @@ Ext.define('Mdc.store.DeviceStatePrivileges', {
         limitParam: false,
 
         setUrl: function(params) {
-            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(params.mRID));
+            this.url = this.urlTpl.replace('{mRID}', params.mRID);
         }
 
     }

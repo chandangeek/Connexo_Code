@@ -6,9 +6,9 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
     router: null,
 
     store: 'LoadProfileConfigurationDetailChannels',
-    displayMsg: '{2} channel configurations',
-    displayMoreMsg: '{0} - {1} of more than {2} channel configurations',
-    emptyMsg: '0 channel configurations',
+    displayMsg:  Uni.I18n.translate('channelConfig.channelConfigurations.display', 'MDC', '{0} - {1} of {2} channel configurations'),
+    displayMoreMsg: Uni.I18n.translate('channelConfig.channelConfigurations.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} channel configurations'),
+    emptyMsg: Uni.I18n.translate('channelConfig.channelConfigurations.emptyMsg', 'MDC', 'There are no channel configurations to display'),
     usesExactCount: true,
 
     initComponent: function () {
