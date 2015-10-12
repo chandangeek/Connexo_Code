@@ -125,6 +125,7 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
                             .peek(IReadingTypeDataExportItem::activate)
                             .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
                             .forEach(IReadingTypeDataExportItem::update);
+                    warnIfDevicesHaveNoneOfTheReadingTypes(logger, occurrence);
                     context.commit();
                 }
 
@@ -134,6 +135,24 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
                                 defaultItemDataSelector.selectData(occurrence, item),
                                 lastRuns.get(item).flatMap(since -> defaultItemDataSelector.selectDataForUpdate(occurrence, item, since))))
                         .flatMap(Functions.asStream());
+            }
+
+            private void warnIfDevicesHaveNoneOfTheReadingTypes(Logger logger, DataExportOccurrence occurrence) {
+                Range<Instant> range = occurrence.getDefaultSelectorOccurrence()
+                        .map(DefaultSelectorOccurrence::getExportedDataInterval)
+                        .orElse(Range.<Instant>all());
+                boolean hasMismatchedMeters = decorate(getEndDeviceGroup()
+                        .getMembers(range)
+                        .stream())
+                        .map(EndDeviceMembership::getEndDevice)
+                        .filterSubType(Meter.class)
+                        .anyMatch(meter -> meter.getReadingTypes(range)
+                                        .stream()
+                                        .noneMatch(readingType -> getReadingTypes().contains(readingType))
+                        );
+                if (hasMismatchedMeters) {
+                    MessageSeeds.SOME_DEVICES_HAVE_NONE_OF_THE_SELECTED_READINGTYPES.log(logger, thesaurus, getEndDeviceGroup().getName());
+                }
             }
         };
     }

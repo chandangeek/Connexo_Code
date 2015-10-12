@@ -2,7 +2,13 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.export.*;
+import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.DataExportStrategy;
+import com.elster.jupiter.export.DefaultSelectorOccurrence;
+import com.elster.jupiter.export.MeterReadingData;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
+import com.elster.jupiter.export.ReadingTypeDataSelector;
+import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
@@ -65,6 +71,15 @@ class DefaultItemDataSelector implements ItemDataSelector {
     @Override
     public Optional<MeterReadingData> selectData(DataExportOccurrence occurrence, IReadingTypeDataExportItem item) {
         Range<Instant> exportInterval = determineExportInterval(occurrence, item);
+
+        if (!exportInterval.hasUpperBound() || clock.instant().isBefore(exportInterval.upperEndpoint())) {
+            String relativePeriodName = occurrence.getTask().getReadingTypeDataSelector()
+                    .map(ReadingTypeDataSelector::getExportPeriod)
+                    .map(RelativePeriod::getName)
+                    .get();
+            MessageSeeds.EXPORT_PERIOD_COVERS_FUTURE.log(logger, thesaurus, relativePeriodName);
+        }
+
         List<? extends BaseReadingRecord> readings = new ArrayList<>(item.getReadingContainer().getReadings(exportInterval, item.getReadingType()));
 
         DataExportStrategy strategy = item.getSelector().getStrategy();
@@ -87,6 +102,7 @@ class DefaultItemDataSelector implements ItemDataSelector {
             MeterReadingImpl meterReading = asMeterReading(item, readings);
             return Optional.of(new MeterReadingData(item, meterReading, structureMarker(item, readings.get(0).getTimeStamp(), exportInterval)));
         }
+        MessageSeeds.ITEM_DOES_NOT_HAVE_DATA_FOR_EXPORT_WINDOW.log(logger, thesaurus, mrid, item.getReadingType().getAliasName());
         return Optional.empty();
     }
 
