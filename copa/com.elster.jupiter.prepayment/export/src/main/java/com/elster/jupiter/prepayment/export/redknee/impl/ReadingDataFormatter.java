@@ -13,7 +13,86 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Formatting {@link Reading} as defined for Redknee prepayment solution.
+ * <p>Formatting {@link Reading} as defined for Redknee prepayment solution.</p>
+ * <p>
+ * <ul>Format
+ * <li>1 reading per line</li>
+ * <li>Separator: &#7C</li>
+ * <li>Order of readings: chronologically sorted</li>
+ * <li>Each meter read file will have a header line starting with # ans specifies the version number</li>
+ * <li>All columns always available</li>
+ * <li>Intervals exported Closed-Open principle</li>
+ * <li>Data of 1 device is one file</li>
+ * </ul>
+ * </p>
+ * <p>
+ * <table>
+ *     <tr>
+ *          <th>Order</th>
+ *          <th>Column</th>
+ *          <th>Format</th>
+ *          <th>Note</th>
+ *          <th>Example</th>
+ *     </tr>
+ *     <tr>
+ *         <td>1</td>
+ *         <td>Record type</td>
+ *         <td>Char(1)</td>
+ *         <td>'D' = Detail</td>
+ *         <td>D</td>
+ *     </tr>
+ *     <tr>
+ *         <td>2</td>
+ *         <td>Meter ID</td>
+ *         <td>String</td>
+ *         <td>MRID of the device</td>
+ *         <td>SPE100000100001</td>
+ *     </tr>
+ *     <tr>
+ *         <td>3</td>
+ *         <td>Service Point ID</td>
+ *         <td>String</td>
+ *         <td>MRID of the usage point</td>
+ *         <td>UP100011</td>
+ *     </tr>
+ *     <tr>
+ *         <td>4</td>
+ *         <td>Reading type</td>
+ *         <td>String</td>
+ *         <td>Reading type with 18 digits</td>
+ *         <td>0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0</td>
+ *     </tr>
+ *     <tr>
+ *         <td>5</td>
+ *         <td>Reading quality</td>
+ *         <td>String</td>
+ *         <td>Reading quality of a reading in Connexo</td>
+ *         <td>3.0.0</td>
+ *     </tr>
+ *     <tr>
+ *         <td>6</td>
+ *         <td>Reading time</td>
+ *         <td>Number</td>
+ *         <td>in seconds since epoch (januari 1970)</td>
+ *         <td>1441803897</td>
+ *     </tr>
+ *     <tr>
+ *         <td>7</td>
+ *         <td>Offset to UTC</td>
+ *         <td>+/-dd:dd</td>
+ *         <td></td>
+ *         <td>+02:00</td>
+ *     </tr>
+ *     <tr>
+ *         <td>8</td>
+ *         <td>Reading value</td>
+ *         <td>Number</td>
+ *         <td></td>
+ *         <td>136</td>
+ *     </tr>
+ * </table>
+ * </p>
+ *
  * Copyrights EnergyICT
  * Date: 5/10/2015
  * Time: 13:19
@@ -93,7 +172,7 @@ public class ReadingDataFormatter implements com.elster.jupiter.export.ReadingDa
         @Override
         public String getAppendablePayload() {
             if (intervalBlock.getIntervals().isEmpty()) {
-                logger.finest("Nothing to export");
+                logger.finest(String.format("Nothing to export for meter %s", meter == null ? "" :  meter.getMRID()));
                 return "";
             }
             Instant start = intervalBlock.getIntervals().get(0).getTimeStamp();
@@ -106,8 +185,6 @@ public class ReadingDataFormatter implements com.elster.jupiter.export.ReadingDa
             StringBuffer payload = new StringBuffer();
 
             intervalBlock.getIntervals().forEach( x-> append(payload, x));
-
-            logger.finest("" + payload);
 
             return payload.toString();
         }
