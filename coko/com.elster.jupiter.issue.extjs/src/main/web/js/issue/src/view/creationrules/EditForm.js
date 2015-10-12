@@ -33,7 +33,12 @@ Ext.define('Isu.view.creationrules.EditForm', {
                 fieldLabel: Uni.I18n.translate('general.title.name', 'ISU', 'Name'),
                 required: true,
                 allowBlank: false,
-                maxLength: 80
+                maxLength: 80,
+                listeners: {
+                    afterrender: function(field) {
+                        field.focus(false, 200);
+                    }
+                }
             },
             {
                 itemId: 'issueType',
