@@ -19,6 +19,8 @@ public interface DataExportOccurrence {
 
     String getFailureReason();
 
+    String getSummary();
+
     Optional<DefaultSelectorOccurrence> getDefaultSelectorOccurrence();
 
     Instant getTriggerTime();

@@ -26,6 +26,7 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
     private Interval.EndpointBehavior exportedDataBoundaryType;
     private DataExportStatus status = DataExportStatus.BUSY;
     private String failureReason;
+    private String summary;
 
     private final DataModel dataModel;
     private final TaskService taskService;
@@ -85,6 +86,11 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
             exportedDataRange = exportedDataBoundaryType.toRange(exportedDataInterval);
         }
         return exportedDataRange;
+    }
+
+    @Override
+    public String getSummary() {
+        return this.summary;
     }
 
     @Override
