@@ -1,9 +1,9 @@
 Ext.define('Mdc.store.DeviceCustomAttributeSets', {
     extend: 'Ext.data.Store',
     requires: [
-        'Cps.common.valuesobjects.model.AttributeSetOnObject'
+        'Mdc.customattributesonvaluesobjects.model.AttributeSetOnObject'
     ],
-    model: 'Cps.common.valuesobjects.model.AttributeSetOnObject',
+    model: 'Mdc.customattributesonvaluesobjects.model.AttributeSetOnObject',
 
     proxy: {
         type: 'rest',

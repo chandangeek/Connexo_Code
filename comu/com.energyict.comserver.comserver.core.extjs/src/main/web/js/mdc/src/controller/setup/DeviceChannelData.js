@@ -802,7 +802,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     loadPropertiesRecord: function(widget) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
-            model = Ext.ModelManager.getModel('Cps.common.valuesobjects.model.AttributeSetOnObject'),
+            model = Ext.ModelManager.getModel('Mdc.customattributesonvaluesobjects.model.AttributeSetOnObject'),
             form = widget.down('property-form'),
             router = this.getController('Uni.controller.history.Router'),
             routeParams = router.arguments,

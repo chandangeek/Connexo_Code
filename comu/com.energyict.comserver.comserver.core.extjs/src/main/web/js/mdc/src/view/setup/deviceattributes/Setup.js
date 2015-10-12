@@ -6,7 +6,7 @@ Ext.define('Mdc.view.setup.deviceattributes.Setup', {
     requires: [
         'Mdc.view.setup.device.DeviceMenu',
         'Mdc.view.setup.device.DeviceAttributesForm',
-        'Cps.common.valuesobjects.view.AttributeSetsPlaceholderForm',
+        'Mdc.customattributesonvaluesobjects.view.AttributeSetsPlaceholderForm',
         'Mdc.view.setup.deviceattributes.DeviceAttributesActionMenu'
     ],
 

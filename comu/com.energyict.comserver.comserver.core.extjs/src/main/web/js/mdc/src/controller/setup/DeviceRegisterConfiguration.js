@@ -15,7 +15,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         'setup.deviceregisterconfiguration.ValidationPreview',
         'setup.deviceregisterconfiguration.TabbedDeviceRegisterView',
         'Mdc.view.setup.deviceregisterconfiguration.EditCustomAttributes',
-        'Cps.common.valuesobjects.view.AttributeSetsPlaceholderForm'
+        'Mdc.customattributesonvaluesobjects.view.AttributeSetsPlaceholderForm'
     ],
 
     models: [
@@ -360,7 +360,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
     loadPropertiesRecord: function(widget) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
-            model = Ext.ModelManager.getModel('Cps.common.valuesobjects.model.AttributeSetOnObject'),
+            model = Ext.ModelManager.getModel('Mdc.customattributesonvaluesobjects.model.AttributeSetOnObject'),
             form = widget.down('property-form'),
             router = this.getController('Uni.controller.history.Router'),
             routeParams = router.arguments,

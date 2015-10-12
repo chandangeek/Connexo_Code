@@ -6,7 +6,7 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
         'Uni.form.field.ObisDisplay',
         'Uni.form.field.ReadingTypeDisplay',
         'Mdc.view.setup.devicechannels.ValidationOverview',
-        'Cps.common.valuesobjects.view.AttributeSetsPlaceholderForm',
+        'Mdc.customattributesonvaluesobjects.view.AttributeSetsPlaceholderForm',
         'Mdc.view.setup.devicechannels.ActionMenu'
     ],
     device: null,
