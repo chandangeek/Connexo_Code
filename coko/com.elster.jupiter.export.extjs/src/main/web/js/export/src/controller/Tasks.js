@@ -2095,6 +2095,7 @@ Ext.define('Dxp.controller.Tasks', {
             grid.getStore().loadData(scheduleRecords, false);
             gridPreview.show();
         }
+        debugger;
     },
 
     fillInDisplayNames: function(eventType /*type: EventTypeForAddTaskGrid*/ ) {
