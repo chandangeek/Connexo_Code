@@ -48,7 +48,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
         Ext.suspendLayouts();
         preview.loadRecord(record);
         preview.down('property-form').loadRecord(record);
-        preview.setTitle(record.get('name'));
+        preview.setTitle(Ext.String.htmlEncode(record.get('name')));
         Ext.resumeLayouts(true);
         preview.down('firmware-campaigns-action-menu').record = record;
         preview.down('#firmware-campaigns-detail-action-menu-button').setVisible(record.get('status').id === 'ONGOING');
@@ -73,9 +73,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
 
         confirmationWindow.show({
             msg: Uni.I18n.translate('firmware.campaigns.cancel.msg', 'FWC', 'Cancel the firmware upload for all scheduled devices. Ongoing uploads will not be terminated and successful uploads will not be reversed.'),
-            title: Ext.String.format(
-                Uni.I18n.translate('firmware.campaigns.cancel.title', 'FWC', "Cancel firmware campaign '{0}'?"),
-                record.get('name'))
+            title: Uni.I18n.translate('firmware.campaigns.cancel.title', 'FWC', "Cancel firmware campaign '{0}'?", record.get('name'))
         });
     },
 

@@ -33,7 +33,7 @@ Ext.define('Fwc.controller.History', {
                     action: 'editFirmware',
                     callback: function (route) {
                         this.getApplication().on('loadFirmware', function (record) {
-                            route.setTitle('Edit \'' + record.get('firmwareVersion') + '\'');
+                            route.setTitle(Uni.I18n.translate('general.editx', 'FWC', "Edit '{0}'", record.get('firmwareVersion')));
                             return true;
                         }, {single: true});
 
@@ -123,7 +123,7 @@ Ext.define('Fwc.controller.History', {
                             privileges: Fwc.privileges.FirmwareCampaign.view,
                             callback: function (route) {
                                 this.getApplication().on('loadFirmwareCampaign', function (record) {
-                                    route.setTitle(record.get('name'));
+                                    route.setTitle(Ext.String.htmlEncode(record.get('name')));
                                     return true;
                                 }, {single: true});
                                 return this;

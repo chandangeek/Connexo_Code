@@ -20,7 +20,7 @@ Ext.define('Fwc.firmwarecampaigns.view.Grid', {
                 dataIndex: 'name',
                 flex: 2,
                 renderer: function (value, metaData, record) {
-                    return value ? '<a href="' + me.router.getRoute('workspace/firmwarecampaigns/firmwarecampaign').buildUrl({firmwareCampaignId: record.getId()}) +'">' + value + '</a>' : '';
+                    return value ? '<a href="' + me.router.getRoute('workspace/firmwarecampaigns/firmwarecampaign').buildUrl({firmwareCampaignId: record.getId()}) +'">' + Ext.String.htmlEncode(value) + '</a>' : '';
                 }
             },
             {
@@ -44,7 +44,7 @@ Ext.define('Fwc.firmwarecampaigns.view.Grid', {
                 dataIndex: 'firmwareVersion',
                 flex: 1,
                 renderer: function (value) {
-                    return value && value.firmwareVersion ? value.firmwareVersion : '';
+                    return value && value.firmwareVersion ? Ext.String.htmlEncode(value.firmwareVersion) : '';
                 }
             },
             {

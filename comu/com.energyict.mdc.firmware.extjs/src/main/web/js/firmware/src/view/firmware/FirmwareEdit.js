@@ -13,7 +13,7 @@ Ext.define('Fwc.view.firmware.FirmwareEdit', {
             {
                 xtype: 'panel',
                 ui: 'large',
-                title: this.router.getRoute().getTitle(),
+                title: Ext.String.htmlDecode(this.router.getRoute().getTitle()),
                 layout: 'fit',
                 items: {
                     xtype:  (  this.record.getAssociatedData().firmwareStatus

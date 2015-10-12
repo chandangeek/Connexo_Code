@@ -42,9 +42,9 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                             var result = '';
 
                             if (me.isPreview) {
-                                result = value ? '<a href="' + me.router.getRoute('workspace/firmwarecampaigns/firmwarecampaign').buildUrl({firmwareCampaignId: field.up('form').getRecord().getId()}) + '">' + value + '</a>' : '';
+                                result = value ? '<a href="' + me.router.getRoute('workspace/firmwarecampaigns/firmwarecampaign').buildUrl({firmwareCampaignId: field.up('form').getRecord().getId()}) + '">' + Ext.String.htmlEncode(value) + '</a>' : '';
                             } else {
-                                result = value || '';
+                                result = Ext.String.htmlEncode(value) || '';
                             }
 
                             return result;
