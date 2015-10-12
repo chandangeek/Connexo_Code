@@ -1,21 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.energyict.mdc.common.rest.ExceptionLogger;
-import com.energyict.mdc.common.rest.TransactionWrapper;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.configuration.rest.SecurityPropertySetPrivilegeTranslationKeys;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.tasks.TaskService;
-
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.MeteringService;
@@ -34,6 +19,21 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.PropertyUtils;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
+import com.energyict.mdc.common.rest.ExceptionLogger;
+import com.energyict.mdc.common.rest.TransactionWrapper;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.configuration.rest.SecurityPropertySetPrivilegeTranslationKeys;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -74,6 +74,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
     private volatile License license;
     private volatile FirmwareService firmwareService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile CustomPropertySetService customPropertySetService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -158,6 +159,11 @@ public class DeviceConfigurationApplication extends Application implements Messa
     }
 
     @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
+    }
+
+    @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
@@ -214,7 +220,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
-    @Reference(target="(com.elster.jupiter.license.rest.key=" + APP_KEY  + ")")
+    @Reference(target = "(com.elster.jupiter.license.rest.key=" + APP_KEY + ")")
     public void setLicense(License license) {
         this.license = license;
     }
@@ -260,7 +266,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
             bind(firmwareService).to(FirmwareService.class);
             bind(deviceLifeCycleConfigurationService).to(DeviceLifeCycleConfigurationService.class);
             bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
+            bind(customPropertySetService).to(CustomPropertySetService.class);
         }
     }
-
 }

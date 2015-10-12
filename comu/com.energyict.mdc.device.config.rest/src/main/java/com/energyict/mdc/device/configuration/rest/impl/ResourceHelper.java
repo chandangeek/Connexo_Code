@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -11,14 +14,15 @@ import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.masterdata.ChannelType;
+import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterGroup;
-
-import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.energyict.mdc.masterdata.RegisterType;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -26,17 +30,20 @@ public class ResourceHelper {
 
     private final ExceptionFactory exceptionFactory;
     private final MasterDataService masterDataService;
+    private final CustomPropertySetService customPropertySetService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
 
     @Inject
     public ResourceHelper(ExceptionFactory exceptionFactory,
                           MasterDataService masterDataService,
+                          CustomPropertySetService customPropertySetService,
                           DeviceConfigurationService deviceConfigurationService,
                           DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         super();
         this.exceptionFactory = exceptionFactory;
         this.masterDataService = masterDataService;
+        this.customPropertySetService = customPropertySetService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
@@ -47,23 +54,40 @@ public class ResourceHelper {
                 .orElseThrow(() -> new WebApplicationException("No register group with id " + id, Response.Status.NOT_FOUND));
     }
 
-    public com.energyict.mdc.masterdata.RegisterType findRegisterTypeByIdOrThrowException(long id) {
-        return masterDataService
-                .findRegisterType(id)
-                .orElseThrow(() -> new WebApplicationException("No register type with id " + id, Response.Status.NOT_FOUND));
-    }
-
     public ChannelType findChannelTypeByIdOrThrowException(long id) {
         return masterDataService
                 .findChannelTypeById(id)
                 .orElseThrow(() -> new WebApplicationException("No channel type with id " + id, Response.Status.NOT_FOUND));
     }
 
-
     public DeviceType findDeviceTypeByIdOrThrowException(long id) {
         return deviceConfigurationService
                 .findDeviceType(id)
                 .orElseThrow(() -> new WebApplicationException("No device type with id " + id, Response.Status.NOT_FOUND));
+    }
+
+    public LoadProfileType findLoadProfileTypeByIdOrThrowException(long id) {
+        return masterDataService
+                .findLoadProfileType(id)
+                .orElseThrow(() -> new WebApplicationException("Load profile with id " + id + Response.Status.NOT_FOUND));
+    }
+
+    public RegisterType findRegisterTypeByIdOrThrowException(long id) {
+        return masterDataService
+                .findRegisterType(id)
+                .orElseThrow(() -> new WebApplicationException("No register type with id " + id, Response.Status.NOT_FOUND));
+    }
+
+    public RegisteredCustomPropertySet findDeviceTypeCustomPropertySetByIdOrThrowException(long id) {
+        return customPropertySetService.findActiveCustomPropertySets()
+                .stream()
+                .filter(f -> f.getId() == id)
+                .findAny()
+                .orElseThrow(() -> new WebApplicationException("No custom property set with id " + id, Response.Status.NOT_FOUND));
+    }
+
+    public List<RegisteredCustomPropertySet> findCustomPropertySets() {
+        return customPropertySetService.findActiveCustomPropertySets();
     }
 
     public DeviceType findAndLockDeviceType(long id, long version) {
