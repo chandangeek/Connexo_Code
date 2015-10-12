@@ -130,11 +130,20 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
                 }
 
                 DefaultItemDataSelector defaultItemDataSelector = new DefaultItemDataSelector(clock, validationService, logger, thesaurus, transactionService);
-                return activeItems.stream()
-                        .flatMap(item -> Stream.of(
-                                defaultItemDataSelector.selectData(occurrence, item),
-                                lastRuns.get(item).flatMap(since -> defaultItemDataSelector.selectDataForUpdate(occurrence, item, since))))
-                        .flatMap(Functions.asStream());
+                try {
+                    return activeItems.stream()
+                            .flatMap(item -> Stream.of(
+                                    defaultItemDataSelector.selectData(occurrence, item),
+                                    lastRuns.get(item).flatMap(since -> defaultItemDataSelector.selectDataForUpdate(occurrence, item, since))))
+                            .flatMap(Functions.asStream());
+                } finally {
+                    try (TransactionContext context = transactionService.getContext()) {
+                        if (defaultItemDataSelector.getExportCount() == 0) {
+                            MessageSeeds.NO_DATA_TOEXPORT.log(logger, thesaurus);
+                            context.commit();
+                        }
+                    }
+                }
             }
 
             private void warnIfDevicesHaveNoneOfTheReadingTypes(Logger logger, DataExportOccurrence occurrence) {

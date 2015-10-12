@@ -59,6 +59,7 @@ class DefaultItemDataSelector implements ItemDataSelector {
     private final Thesaurus thesaurus;
     private final DateTimeFormatter timeFormatter = DefaultDateTimeFormatters.mediumDate().withLongTime().build().withZone(ZoneId.systemDefault());
     private final TransactionService transactionService;
+    private int exportCount;
 
     public DefaultItemDataSelector(Clock clock, ValidationService validationService, Logger logger, Thesaurus thesaurus, TransactionService transactionService) {
         this.clock = clock;
@@ -66,6 +67,10 @@ class DefaultItemDataSelector implements ItemDataSelector {
         this.logger = logger;
         this.thesaurus = thesaurus;
         this.transactionService = transactionService;
+    }
+
+    public int getExportCount() {
+        return exportCount;
     }
 
     @Override
@@ -97,9 +102,9 @@ class DefaultItemDataSelector implements ItemDataSelector {
             logMissings(item, exportInterval, readings, itemDescription);
         }
 
-
         if (!readings.isEmpty()) {
             MeterReadingImpl meterReading = asMeterReading(item, readings);
+            exportCount++;
             return Optional.of(new MeterReadingData(item, meterReading, structureMarker(item, readings.get(0).getTimeStamp(), exportInterval)));
         }
         MessageSeeds.ITEM_DOES_NOT_HAVE_DATA_FOR_EXPORT_WINDOW.log(logger, thesaurus, mrid, item.getReadingType().getAliasName());
