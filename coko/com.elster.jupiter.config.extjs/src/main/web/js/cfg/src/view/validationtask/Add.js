@@ -49,11 +49,14 @@ Ext.define('Cfg.view.validationtask.Add', {
                         itemId: 'txt-task-name',
                         width: 500,
                         required: true,
-                        //maskRe: /[^:\\/*?"<>|]/,
                         fieldLabel: Uni.I18n.translate('general.name', 'CFG', 'Name'),
-                        //allowBlank: false,
                         enforceMaxLength: true,
-                        maxLength: 80
+                        maxLength: 80,
+                        listeners: {
+                            afterrender: function(field) {
+                                field.focus(false, 200);
+                            }
+                        }
                     },
                     {
                         title: Uni.I18n.translate('validationTasks.general.dataSources', 'CFG', 'Data sources'),

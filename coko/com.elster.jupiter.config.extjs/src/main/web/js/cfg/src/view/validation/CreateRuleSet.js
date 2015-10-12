@@ -56,7 +56,12 @@ Ext.define('Cfg.view.validation.CreateRuleSet', {
                             width: 600,
                             msgTarget: 'under',
                             fieldLabel: Uni.I18n.translate('general.name', 'CFG', 'Name'),
-                            enforceMaxLength: true
+                            enforceMaxLength: true,
+                            listeners: {
+                                afterrender: function(field) {
+                                    field.focus(false, 200);
+                                }
+                            }
                         },
                         {
                             xtype: 'textarea',
