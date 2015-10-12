@@ -84,7 +84,7 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
             previewForm = page.down('device-life-cycle-transitions-preview-form');
 
         Ext.suspendLayouts();
-        preview.setTitle(record.get('name'));
+        preview.setTitle(Ext.String.htmlEncode(record.get('name')));
         previewForm.loadRecord(record);
         preview.down('transitions-action-menu').record = record;
         Ext.resumeLayouts(true);

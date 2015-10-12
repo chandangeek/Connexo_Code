@@ -199,7 +199,7 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
 
         deviceLifeCycleModel.load(deviceLifeCycleId, {
             success: function (deviceLifeCycleRecord) {
-                var title = Uni.I18n.translate('general.clonex', 'DLC', "Clone '{0}'",[deviceLifeCycleRecord.get('name')]),
+                var title = Uni.I18n.translate('general.clonex', 'DLC', "Clone '{0}'", deviceLifeCycleRecord.get('name'), false),
                     route;
 
                 me.getApplication().fireEvent('devicelifecyclecloneload', title);

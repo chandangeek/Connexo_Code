@@ -246,7 +246,7 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             previewForm = page.down('device-life-cycle-states-preview-form');
 
         Ext.suspendLayouts();
-        preview.setTitle(record.get('name'));
+        preview.setTitle(Ext.String.htmlEncode(record.get('name')));
         preview.down('device-life-cycle-states-action-menu').record = record;
         previewForm.loadRecord(record);
         Ext.resumeLayouts(true);
