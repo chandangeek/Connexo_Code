@@ -76,6 +76,10 @@ public enum DefaultDateTimeFormatters {
 
         private final StringBuilder builder = new StringBuilder();
 
+        public DateTimeFormatterBuilder(String datePattern) {
+            this(datePattern, Locale.getDefault());
+        }
+
         public DateTimeFormatterBuilder(String datePattern, Locale locale) {
             this.locale = locale;
             builder.append(datePattern);
