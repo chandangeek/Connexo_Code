@@ -183,7 +183,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         initializeStaticMocks();
         Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn(PartialOutboundConnectionTaskCrudIT.class.getSimpleName());
-        Injector injector = null;
+        injector = null;
         try {
             injector = Guice.createInjector(
                     new MockModule(),
