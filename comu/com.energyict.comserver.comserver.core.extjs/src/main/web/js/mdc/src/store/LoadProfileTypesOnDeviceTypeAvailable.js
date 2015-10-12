@@ -1,9 +1,9 @@
 Ext.define('Mdc.store.LoadProfileTypesOnDeviceTypeAvailable', {
     extend: 'Ext.data.Store',
     requires: [
-        'Mdc.model.LoadProfileType'
+        'Mdc.model.LoadProfileTypeOnDeviceType'
     ],
-    model: 'Mdc.model.LoadProfileType',
+    model: 'Mdc.model.LoadProfileTypeOnDeviceType',
     storeId: 'LoadProfileTypesOnDeviceTypeAvailable',
 
     buffered: true,
@@ -11,13 +11,17 @@ Ext.define('Mdc.store.LoadProfileTypesOnDeviceTypeAvailable', {
 
     proxy: {
         type: 'rest',
-        url: '/api/dtc/devicetypes/{deviceType}/loadprofiletypes',
+        urlTpl: '/api/dtc/devicetypes/{deviceTypeId}/loadprofiletypes',
         reader: {
             type: 'json',
             root: 'data'
         },
         extraParams: {
             available: true
+        },
+
+        setUrl: function(deviceTypeId) {
+            this.url = this.urlTpl.replace('{deviceTypeId}', encodeURIComponent(deviceTypeId));
         }
     }
 });

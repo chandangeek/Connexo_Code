@@ -2,16 +2,19 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
     extend: 'Ext.app.Controller',
 
     views: [
-        'setup.register.RegisterMappingsSetup',
-        'setup.register.RegisterMappingsGrid',
-        'setup.register.RegisterMappingPreview',
-        'setup.register.RegisterMappingAdd',
-        'setup.register.RegisterMappingAddGrid'
+        'Mdc.view.setup.register.RegisterMappingsSetup',
+        'Mdc.view.setup.register.RegisterMappingsGrid',
+        'Mdc.view.setup.register.RegisterMappingPreview',
+        'Mdc.view.setup.register.RegisterMappingAdd',
+        'Mdc.view.setup.register.RegisterMappingAddGrid',
+        'Mdc.view.setup.register.RegisterMappingEdit'
     ],
 
     requires: [
         'Mdc.store.RegisterTypesOfDevicetype',
-        'Mdc.store.AvailableRegisterTypes'
+        'Mdc.store.AvailableRegisterTypes',
+        'Mdc.model.RegisterTypeOnDeviceType',
+        'Mdc.store.CustomAttributeSetsOnRegister'
     ],
 
     stores: [
@@ -26,7 +29,8 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         {ref: 'registerMappingPreviewTitle', selector: '#registerMappingPreviewTitle'},
         {ref: 'addRegisterMappingBtn', selector: '#addRegisterMappingBtn'},
         {ref: 'registerMappingAddGrid', selector: '#register-mapping-add-grid'},
-        {ref: 'addRegisterMappingPanel', selector: '#addRegisterTypePanel'}
+        {ref: 'addRegisterMappingPanel', selector: '#addRegisterTypePanel'},
+        {ref: 'editRegisterTypePage', selector: '#register-mapping-edit-container-id'}
     ],
 
     deviceTypeId: null,
@@ -41,7 +45,8 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
                 click: this.addRegisterMappingHistory
             },
             '#registermappinggrid actioncolumn': {
-                removeTheRegisterMapping: this.removeRegisterMapping
+                removeTheRegisterMapping: this.removeRegisterMapping,
+                editTheRegisterMapping: this.moveToEditPage
             },
             '#addButton[action=addRegisterMappingAction]': {
                 click: this.addRegisterMappingsToDeviceType
@@ -49,24 +54,64 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
             '#registerMappingPreview menuitem[action=removeTheRegisterMapping]': {
                 click: this.removeRegisterMappingFromPreview
             },
+            '#registerMappingPreview #edit-register-mapping-btn-id': {
+                click: this.moveToEditPage
+            },
+            '#register-mapping-edit-container-id #cancel-edit-register-mapping-type-button': {
+                click: this.moveToRegistersPage
+            },
             'registerMappingAdd grid': {
                 selectionchange: this.hideRegisterMappingsErrorPanel
+            },
+            '#register-mapping-edit-container-id #edit-register-type-form-panel': {
+                saverecord: this.saveRegisterMapping
             }
         });
     },
 
+    moveToRegistersPage: function() {
+        this.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/registertypes').forward();
+    },
+
+    saveRegisterMapping: function(record, value) {
+        var me = this,
+            editPage = me.getEditRegisterTypePage();
+
+        editPage.setLoading();
+
+        record.set('customPropertySet', value);
+        record.save({
+            success: function () {
+                me.moveToRegistersPage();
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registertype.customattribute.saved', 'MDC', 'Register type saved'));
+                editPage.setLoading(false);
+            },
+            failure: function () {
+                editPage.setLoading(false);
+            }
+        });
+    },
+
+    moveToEditPage: function () {
+        var me = this,
+            grid = me.getRegisterMappingGrid(),
+            lastSelected = grid.getView().getSelectionModel().getLastSelected(),
+            router = me.getController('Uni.controller.history.Router');
+
+        router.arguments.registerTypeId = lastSelected.get('id');
+        router.getRoute('administration/devicetypes/view/registertypes/edit').forward();
+    },
+
     addRegisterMappingHistory: function () {
-        location.href = this.getAddRegisterMappingBtn().href;
+        this.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/registertypes/add').forward();
     },
 
     previewRegisterMapping: function (grid, record) {
         var registerMappings = this.getRegisterMappingGrid().getSelectionModel().getSelection();
         if (registerMappings.length == 1) {
             this.getRegisterMappingPreviewForm().loadRecord(registerMappings[0]);
-            //var registerMappingsName = this.getRegisterMappingPreviewForm().form.findField('readingType').getSubmitValue();
             this.getRegisterMappingPreview().getLayout().setActiveItem(1);
             this.getRegisterMappingPreview().setTitle(registerMappings[0].get('readingType').fullAliasName);
-            //this.getRegisterMappingPreviewForm().form.findField('unit').setValue(registerMappings[0].data.unitOfMeasure.localizedValue);
         } else {
             this.getRegisterMappingPreview().getLayout().setActiveItem(0);
         }
@@ -77,18 +122,12 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
             widget = Ext.widget('registerMappingsSetup', {deviceTypeId: id});
 
         this.getRegisterTypesOfDevicetypeStore().getProxy().setExtraParam('deviceType', id);
-        if(me.getAddRegisterMappingBtn()) {
+        if (me.getAddRegisterMappingBtn()) {
             me.getAddRegisterMappingBtn().href = '#/administration/devicetypes/' + id + '/registertypes/add';
         }
 
-        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
-            success: function (deviceType) {
-                me.getApplication().fireEvent('loadDeviceType', deviceType);
-                me.getApplication().fireEvent('changecontentevent', widget);
-                me.getRegisterMappingGrid().getSelectionModel().doSelect(0);
-                widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
-                widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', [deviceType.get('deviceConflictsCount')]));            }
-        });
+        me.getApplication().fireEvent('changecontentevent', widget);
+        me.loadDeviceTypeModel(me, widget, id, true);
     },
 
     addRegisterMappings: function (id) {
@@ -103,25 +142,20 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
                 value: true
             }
         ]));
-
+        me.loadDeviceTypeModel(me, widget, id, false);
         me.getApplication().fireEvent('changecontentevent', widget);
         store.load({
             callback: function () {
-                Ext.ModelManager.getModel('Mdc.model.DeviceType').load(id, {
-                    success: function (deviceType) {
-                        me.deviceTypeId = id;
-                        store.fireEvent('load', store);
-                        me.getApplication().fireEvent('loadDeviceType', deviceType);
-                    }
-                });
+                me.deviceTypeId = id;
+                store.fireEvent('load', store);
             }
         });
     },
 
     addRegisterMappingsToDeviceType: function () {
-        var me = this;
-        var registerMappings = this.getRegisterMappingAddGrid().getSelectionModel().getSelection();
-        var widget = this.getRegisterMappingAddGrid();
+        var me = this,
+            registerMappings = this.getRegisterMappingAddGrid().getSelectionModel().getSelection(),
+            widget = this.getRegisterMappingAddGrid();
 
         if (registerMappings.length === 0) {
             me.showRegisterMappingsErrorPanel();
@@ -134,9 +168,10 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
                         success: function () {
                             deviceType.commit();
                             me.getRegisterTypesOfDevicetypeStore().add(registerMappings);
-                            location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/registertypes';
-                            me.getApplication().fireEvent('acknowledge', 'Register type(s) added');
                             widget.setLoading(false);
+                            me.moveToRegistersPage();
+                            me.getApplication().fireEvent('acknowledge', 'Register type(s) added');
+
                         }
                     });
                 }
@@ -179,6 +214,38 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
         });
     },
 
+    showRegisterTypesEditView: function(deviceTypeId, registerTypeId) {
+        var me = this,
+            registerTypeModel = Ext.ModelManager.getModel('Mdc.model.RegisterTypeOnDeviceType'),
+            widget,
+            form;
+
+        registerTypeModel.getProxy().setUrl(deviceTypeId);
+        widget = Ext.widget('register-mapping-edit-container');
+        me.loadDeviceTypeModel(me, widget, deviceTypeId, false);
+        me.getApplication().fireEvent('changecontentevent', widget);
+        registerTypeModel.load(registerTypeId, {
+            success: function (registerType) {
+                me.getApplication().fireEvent('registertypeondevicetype', registerType);
+                form = widget.down('#edit-register-type-form-panel');
+                form.setTitle(me.getController('Uni.controller.history.Router').getRoute().title);
+                form.customLoadRecord(registerType, deviceTypeId);
+            }
+        });
+    },
+
+    loadDeviceTypeModel: function (scope, widget, deviceTypeId, setSideMenu) {
+        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
+            success: function (deviceType) {
+                scope.getApplication().fireEvent('loadDeviceType', deviceType);
+                if (setSideMenu) {
+                    widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
+                    widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', [deviceType.get('deviceConflictsCount')]));
+                }
+            }
+        });
+    },
+
     removeRegisterMappingFromPreview: function () {
         var me = this;
         var registerMappingToDelete = me.getRegisterMappingGrid().getSelectionModel().getSelection()[0];
@@ -194,7 +261,7 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
 
                 Ext.create('Uni.view.window.Confirmation').show({
                     msg: msg,
-                    title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?",[registerMappingToDelete.get('name')]),
+                    title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?", [registerMappingToDelete.get('name')]),
                     config: {
                         registerMappingToDelete: registerMappingToDelete,
                         deviceType: deviceType,
@@ -238,7 +305,5 @@ Ext.define('Mdc.controller.setup.RegisterMappings', {
 
         formErrorsPanel.hide();
         errorPanel.hide();
-
     }
-
 });

@@ -128,11 +128,26 @@ Ext.define('Mdc.controller.history.Setup', {
                                     action: 'showDeviceTypeLoadProfileTypesView',
                                     items: {
                                         add: {
-                                            title: 'Add load profiles',
+                                            title: Uni.I18n.translate('loadprofiletype.addloadprofiletypes', 'MDC', 'Add load profile types'),
                                             route: 'add',
                                             privileges: Mdc.privileges.DeviceType.admin,
                                             controller: 'Mdc.controller.setup.LoadProfileTypesOnDeviceType',
                                             action: 'showDeviceTypeLoadProfileTypesAddView'
+                                        },
+                                        edit: {
+                                            title: Uni.I18n.translate('general.loadProfileTypes.edit','MDC','Edit load profile type'),
+                                            route: '{loadProfileTypeId}/edit',
+                                            privileges: Mdc.privileges.DeviceType.admin,
+                                            controller: 'Mdc.controller.setup.LoadProfileTypesOnDeviceType',
+                                            action: 'showDeviceTypeLoadProfileTypesEditView',
+                                            callback: function (route) {
+                                                this.getApplication().on('loadprofiletypeondevicetype', function (record) {
+                                                    route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
+                                                    return true;
+                                                }, {single: true});
+
+                                                return this;
+                                            }
                                         }
                                     }
                                 },
@@ -166,7 +181,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                             },
                                             items: {
                                                 edit: {
-                                                    title: Uni.I18n.translate('genral.edit','MDC','Edit'),
+                                                    title: Uni.I18n.translate('general.edit','MDC','Edit'),
                                                     route: 'edit',
                                                     privileges: Mdc.privileges.DeviceType.admin,
                                                     controller: 'Mdc.controller.setup.DeviceConfigurations',
@@ -552,7 +567,23 @@ Ext.define('Mdc.controller.history.Setup', {
                                             privileges: Mdc.privileges.DeviceType.admin,
                                             controller: 'Mdc.controller.setup.RegisterMappings',
                                             action: 'addRegisterMappings'
+                                        },
+                                        edit: {
+                                            title: Uni.I18n.translate('general.registerType.edit','MDC','Edit register type'),
+                                            route: '{registerTypeId}/edit',
+                                            privileges: Mdc.privileges.DeviceType.admin,
+                                            controller: 'Mdc.controller.setup.RegisterMappings',
+                                            action: 'showRegisterTypesEditView',
+                                            callback: function (route) {
+                                                this.getApplication().on('registertypeondevicetype', function (record) {
+                                                    route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
+                                                    return true;
+                                                }, {single: true});
+
+                                                return this;
+                                            }
                                         }
+
                                     }
                                 },
                                 customattributesets: {

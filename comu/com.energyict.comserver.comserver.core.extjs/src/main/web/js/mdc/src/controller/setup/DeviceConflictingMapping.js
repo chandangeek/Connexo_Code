@@ -61,13 +61,13 @@ Ext.define('Mdc.controller.setup.DeviceConflictingMapping', {
             case('showAll'):
             {
                 mappingsStore = me.getStore('Mdc.store.DeviceConflictingMappings');
-                unsolved = '';
+                unsolved = false;
             }
                 break;
             case('showUnsolved'):
             {
                 mappingsStore = me.getStore('Mdc.store.DeviceConflictingMappingsUnsolved');
-                unsolved = Uni.I18n.translate('deviceConflictingMappings.empty.unsolvedTitle', 'MDC', 'This device type has no unsolved conflicting device configuration mappings')
+                unsolved = true;
             }
                 break;
         }
@@ -84,6 +84,7 @@ Ext.define('Mdc.controller.setup.DeviceConflictingMapping', {
             success: function (deviceType) {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
                 me.getApplication().fireEvent('changecontentevent', widget);
+                if (unsolved) widget.down('uni-form-empty-message').setText(Uni.I18n.translate('deviceConflictingMappings.empty.unsolvedTitle', 'MDC', 'This device type has no unsolved conflicting device configuration mappings'));
                 widget.down('deviceTypeSideMenu #overviewLink').setText(deviceType.get('name'));
                 widget.down('deviceTypeSideMenu #conflictingMappingLink').setText(Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', [deviceType.get('deviceConflictsCount')]));
                 viewport.setLoading(false);
