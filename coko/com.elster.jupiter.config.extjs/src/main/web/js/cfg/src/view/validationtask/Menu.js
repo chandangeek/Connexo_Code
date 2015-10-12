@@ -3,7 +3,7 @@ Ext.define('Cfg.view.validationtask.Menu', {
     alias: 'widget.cfg-tasks-menu',
 
     router: null,
-    title: Uni.I18n.translate('validationTasks.general.validationTasks', 'CFG', 'Validation tasks'),
+    title: Uni.I18n.translate('validationTasks.general.validationTask', 'CFG', 'Validation task'),
 
     initComponent: function () {
         var me = this;

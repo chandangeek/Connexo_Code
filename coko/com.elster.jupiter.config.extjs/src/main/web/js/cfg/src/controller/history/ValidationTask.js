@@ -33,7 +33,7 @@ Ext.define('Cfg.controller.history.ValidationTask', {
                             action: 'showValidationTaskDetailsView',
                             callback: function (route) {
                                 this.getApplication().on('validationtaskload', function (record) {
-                                    route.setTitle(record.get('name'));
+                                    route.setTitle(Ext.String.htmlEncode(record.get('name')));
                                     return true;
                                 }, {single: true});
                                 return this;
