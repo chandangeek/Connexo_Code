@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.importers.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
@@ -80,6 +82,7 @@ public class InMemoryIntegrationPersistence {
                 new MockModule(),
                 bootstrapModule,
                 new InMemoryMessagingModule(),
+                new CustomPropertySetsModule(),
                 new IdsModule(),
                 new MeteringModule("0.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0"),
                 new PartyModule(),
@@ -119,6 +122,7 @@ public class InMemoryIntegrationPersistence {
                 );
         this.transactionService = this.injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
+            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(DeviceDataImporterContext.class);
             ctx.commit();
