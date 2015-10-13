@@ -122,7 +122,7 @@ public class StandardDataSelectorImplTest {
                 .when(dataModel).getInstance(ReadingTypeInDataSelector.class);
         doAnswer(invocation -> new ReadingTypeDataExportItemImpl(meteringService, dataExportService, dataModel))
                 .when(dataModel).getInstance(ReadingTypeDataExportItemImpl.class);
-        doAnswer(invocation -> new ReadingTypeDataSelector(dataModel, transactionService))
+        doAnswer(invocation -> new ReadingTypeDataSelector(dataModel, transactionService, clock, validationService, thesaurus))
                 .when(dataModel).getInstance(ReadingTypeDataSelector.class);
         doAnswer(invocation -> new DefaultItemDataSelector(clock, validationService, thesaurus, transactionService))
                 .when(dataModel).getInstance(DefaultItemDataSelector.class);

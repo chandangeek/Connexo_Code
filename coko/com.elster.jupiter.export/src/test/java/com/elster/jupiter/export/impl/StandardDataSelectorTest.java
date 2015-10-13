@@ -142,7 +142,7 @@ public class StandardDataSelectorTest {
         when(dataModel.getInstance(StandardDataSelectorImpl.class)).thenAnswer(invocation -> spy(new StandardDataSelectorImpl(dataModel, meteringService)));
         when(dataModel.getInstance(ReadingTypeInDataSelector.class)).thenAnswer(invocation -> spy(new ReadingTypeInDataSelector(meteringService)));
         when(dataModel.getInstance(ReadingTypeDataExportItemImpl.class)).thenAnswer(invocation -> spy(new ReadingTypeDataExportItemImpl(meteringService, dataExportService, dataModel)));
-        when(dataModel.getInstance(ReadingTypeDataSelector.class)).thenAnswer(invocation -> new ReadingTypeDataSelector(dataModel, transactionService));
+        when(dataModel.getInstance(ReadingTypeDataSelector.class)).thenAnswer(invocation -> new ReadingTypeDataSelector(dataModel, transactionService, clock, validationService, thesaurus));
         when(dataModel.getInstance(DefaultItemDataSelector.class)).thenAnswer(invocation -> new DefaultItemDataSelector(clock, validationService, thesaurus, transactionService));
         when(dataModel.asRefAny(any())).thenAnswer(invocation -> new MyRefAny(invocation.getArguments()[0]));
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
