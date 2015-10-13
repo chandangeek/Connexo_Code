@@ -1,6 +1,7 @@
 package com.elster.jupiter.time.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.Query;
@@ -131,6 +132,7 @@ public class TimeServiceIT {
             injector = Guice.createInjector(
                     new MockModule(),
                     inMemoryBootstrapModule,
+                    new DataVaultModule(),
                     new InMemoryMessagingModule(),
                     new EventsModule(),
                     new DomainUtilModule(),
