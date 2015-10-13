@@ -43,7 +43,11 @@ Ext.define('Dsh.controller.Connections', {
         },
         {
             ref: 'filterPanel',
-            selector: '#connectionsdetails dsh-view-widget-connectionstopfilter'
+            selector: '#connectionsdetails filter-top-panel'
+        },
+        {
+            ref: 'sideFilterForm',
+            selector: '#connectionsdetails #filter-form'
         },
         {
             ref: 'connectionsActionMenu',
@@ -72,8 +76,9 @@ Ext.define('Dsh.controller.Connections', {
 
     ],
 
+    prefix: '#connectionsdetails',
+
     init: function () {
-        this.getStore('Dsh.store.ConnectionTasks').addListener('load', this.onStoreLoad, this);
         this.control({
             'connections-details #connectionsdetails': {
                 selectionchange: this.onSelectionChange
@@ -88,7 +93,7 @@ Ext.define('Dsh.controller.Connections', {
                 click: this.onGenerateReport
             },
             'connections-list #btn-connections-bulk-action': {
-                click: this.navigateToBulk
+                click: this.forwardToBulk
             },
             'connections-details uni-actioncolumn': {
                 run: this.connectionRun,
@@ -110,20 +115,12 @@ Ext.define('Dsh.controller.Connections', {
         this.callParent(arguments);
     },
 
-    onStoreLoad: function(records, operation, success) {
-        var commPanel = this.getCommunicationsPanel();
-
-        if (commPanel && success && records.data.length === 0) {
-            commPanel.hide();
-        }
-    },
-
     showOverview: function () {
-        var me = this,
-            widget = Ext.widget('connections-details'),
-            store = me.getStore('Dsh.store.ConnectionTasks');
+        var widget = Ext.widget('connections-details'),
+            store = this.getStore('Dsh.store.ConnectionTasks');
 
-        me.getApplication().fireEvent('changecontentevent', widget);
+        this.getApplication().fireEvent('changecontentevent', widget);
+        this.initFilter();
         store.load();
     },
 
@@ -134,20 +131,16 @@ Ext.define('Dsh.controller.Connections', {
             preview = me.getCommunicationPreview(),
             menuItems = [];
 
-        if (!_.isEmpty(record)) {
-            commPanel.show();
-            record.data.devConfig = {
-                config: record.data.deviceConfiguration,
-                devType: record.data.deviceType
-            };
+        commPanel.show();
+        record.data.devConfig = {
+            config: record.data.deviceConfiguration,
+            devType: record.data.deviceType
+        };
 
-            record.data.title = Ext.String.format(
-                Uni.I18n.translate('connection.widget.details.title.methodX.on.deviceY', 'DSH', '{0} on {1}'),
-                record.data.comTask.name, record.data.device.name);
-            preview.setTitle(record.data.title);
-            preview.loadRecord(record);
-            me.initMenu(record, menuItems);
-        }
+        record.data.title = record.data.comTask.name + ' on ' + record.data.device.name;
+        preview.setTitle(record.data.title);
+        preview.loadRecord(record);
+        this.initMenu(record, menuItems);
     },
 
     initMenu: function (record, menuItems) {
@@ -210,30 +203,24 @@ Ext.define('Dsh.controller.Connections', {
     initConnectionMenu: function (menu) {
         if (menu && menu.record) {
             if (menu.record.get('comSessionId') !== 0) {
-                !!menu.down('menuitem[action=viewLog]') && menu.down('menuitem[action=viewLog]').show()
+                menu.down('menuitem[action=viewLog]').show()
             } else {
-                !!menu.down('menuitem[action=viewLog]') && menu.down('menuitem[action=viewLog]').hide()
+                menu.down('menuitem[action=viewLog]').hide()
             }
         }
     },
 
     viewCommunicationLog: function (item) {
         location.href = '#/devices/' + item.action.comTask.mRID
-        + '/communicationtasks/' + item.action.comTask.comTaskId
-        + '/history/' + item.action.comTask.sessionId
-        + '/viewlog'
-        + '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22id%22%3Anull%7D';
+            + '/communicationtasks/' + item.action.comTask.comTaskId
+            + '/history/' + item.action.comTask.sessionId
+            + '/viewlog' +
+            '?filter=%7B%22logLevels%22%3A%5B%22Error%22%2C%22Warning%22%2C%22Information%22%5D%2C%22id%22%3Anull%7D';
     },
-
     onGenerateReport: function () {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            fieldsToFilterNameMap = {},
-            reportFilter = false,
-            filterName = undefined,
-            fieldValue = undefined,
-            filters = me.getFilterPanel().filters;
-
+        var me = this;
+        var router = this.getController('Uni.controller.history.Router');
+        var fieldsToFilterNameMap = {};
         fieldsToFilterNameMap['deviceGroup'] = 'GROUPNAME';
         fieldsToFilterNameMap['currentStates'] = 'STATUS';
         fieldsToFilterNameMap['latestResults'] = null;
@@ -242,33 +229,39 @@ Ext.define('Dsh.controller.Connections', {
         fieldsToFilterNameMap['comTasks'] = 'COMTASKNAME';
         fieldsToFilterNameMap['comPortPools'] = 'PORTPOOLNAME';
         fieldsToFilterNameMap['connectionTypes'] = 'CONNECTIONTYPE';
-        // TODO Check if finished interval is even supported by the Yellowfin report.
-        //fieldsToFilterNameMap['finishInterval'] = 'CONNECTIONDATE-FINISH';
 
-        filters.each(function (filter) {
-            filterName = fieldsToFilterNameMap[filter.dataIndex];
+        var reportFilter = false;
+
+        var fields = me.getSideFilterForm().getForm().getFields();
+        fields.each(function (field) {
             reportFilter = reportFilter || {};
-            fieldValue = undefined;
-
-            switch (filter.getXType()) {
-                case 'uni-grid-filtertop-interval':
-                    var fromValue = filter.getFromDateValue(),
-                        toValue = filter.getToDateValue();
-
-                    if (Ext.isDefined(fromValue) && Ext.isDefined(toValue)) {
-                        fieldValue = {
-                            from: Ext.Date.format(fromValue, "Y-m-d H:i:s"),
-                            to: Ext.Date.format(toValue, "Y-m-d H:i:s")
-                        };
-                    }
-                    break;
-                default:
-                    fieldValue = filter.getParamValue();
-                    break;
+            var filterName = fieldsToFilterNameMap[field.getName()];
+            if (filterName) {
+                var fieldValue = field.getRawValue();
+                if (field.getXType() == 'side-filter-combo') {
+                    fieldValue = Ext.isString(fieldValue) && fieldValue.split(', ') || fieldValue;
+                    fieldValue = _.isArray(fieldValue) && _.compact(fieldValue) || fieldValue;
+                }
             }
-
             reportFilter[filterName] = fieldValue;
-        }, me);
+        });
+
+        //handle special startBetween and finishBetween;
+
+        if(router.filter && router.filter.startedBetween){
+            var from = router.filter.startedBetween.get('from');
+            var to = router.filter.startedBetween.get('to');
+            reportFilter['CONNECTIONDATE'] ={
+                'from':from && Ext.Date.format(from,"Y-m-d H:i:s"),
+                'to':to && Ext.Date.format(to,"Y-m-d H:i:s")
+            };
+        }
+
+
+
+        //handle special startBetween and finishBetween;
+        //router.filter.startedBetween
+        //router.filter.finishBetween
 
         router.getRoute('generatereport').forward(null, {
             category: 'MDC',
@@ -279,12 +272,12 @@ Ext.define('Dsh.controller.Connections', {
 
     connectionRun: function (record) {
         var me = this;
-
         record.run(function () {
             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.runSucceeded', 'DSH', 'Run succeeded'));
             record.set('nextExecution', new Date());
             me.showOverview();
         });
+
     },
 
     viewLog: function (record) {
