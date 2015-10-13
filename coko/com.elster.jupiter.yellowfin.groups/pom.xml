@@ -51,9 +51,13 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>metering.groups</artifactId>
+            <artifactId>tasks</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering.groups</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools</artifactId>
@@ -121,7 +125,8 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>tasks</artifactId>
+            <artifactId>datavault</artifactId>
+            <scope>test</scope>
         </dependency>
         <!--<dependency>-->
             <!--<groupId>com.google.inject</groupId>-->
