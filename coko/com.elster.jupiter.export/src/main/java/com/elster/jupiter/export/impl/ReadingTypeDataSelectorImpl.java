@@ -6,6 +6,7 @@ import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataSelector;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.ExportData;
+import com.elster.jupiter.export.MeterReadingData;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ReadingTypeDataSelector;
 import com.elster.jupiter.export.ValidatedDataOption;
@@ -36,6 +37,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -125,15 +127,63 @@ public class ReadingTypeDataSelectorImpl implements IReadingTypeDataSelector {
                             .peek(IReadingTypeDataExportItem::activate)
                             .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
                             .forEach(IReadingTypeDataExportItem::update);
+                    warnIfDevicesHaveNoneOfTheReadingTypes(logger, occurrence);
                     context.commit();
                 }
 
                 DefaultItemDataSelector defaultItemDataSelector = new DefaultItemDataSelector(clock, validationService, logger, thesaurus, transactionService);
-                return activeItems.stream()
-                        .flatMap(item -> Stream.of(
-                                defaultItemDataSelector.selectData(occurrence, item),
-                                lastRuns.get(item).flatMap(since -> defaultItemDataSelector.selectDataForUpdate(occurrence, item, since))))
-                        .flatMap(Functions.asStream());
+                try {
+
+                    int numberOfItemsSkipped = 0;
+                    Map<IReadingTypeDataExportItem, Optional<MeterReadingData>> selectedData = new HashMap<>();
+                    for (IReadingTypeDataExportItem activeItem : activeItems) {
+                        Optional<MeterReadingData> meterReadingData = defaultItemDataSelector.selectData(occurrence, activeItem);
+                        selectedData.put(activeItem, meterReadingData);
+                        if (!meterReadingData.isPresent()) {
+                            numberOfItemsSkipped++;
+                        }
+                    }
+                    int numberOfItemsExported = activeItems.size() - numberOfItemsSkipped;
+                    ((IDataExportOccurrence) occurrence).summary(
+                            thesaurus.getFormat(TranslationKeys.NUMBER_OF_DATASOURCES_SUCCESSFULLY_EXPORTED).format(numberOfItemsExported) +
+                                    System.getProperty("line.separator") +
+                                    thesaurus.getFormat(TranslationKeys.NUMBER_OF_DATASOURCES_SKIPPED).format(numberOfItemsSkipped));
+
+                    return activeItems.stream()
+                            .flatMap(item -> Stream.of(
+                                            selectedData.get(item),
+                                    lastRuns.get(item).flatMap(since -> defaultItemDataSelector.selectDataForUpdate(occurrence, item, since)))
+                            )
+                            .flatMap(Functions.asStream());
+                } finally {
+                    try (TransactionContext context = transactionService.getContext()) {
+                        if (defaultItemDataSelector.getExportCount() == 0) {
+                            MessageSeeds.NO_DATA_TOEXPORT.log(logger, thesaurus);
+                            context.commit();
+                        }
+                    }
+                }
+            }
+
+            private void warnIfDevicesHaveNoneOfTheReadingTypes(Logger logger, DataExportOccurrence occurrence) {
+                Range<Instant> range = occurrence.getDefaultSelectorOccurrence()
+                        .map(DefaultSelectorOccurrence::getExportedDataInterval)
+                        .orElse(Range.<Instant>all());
+                boolean hasMismatchedMeters = decorate(getEndDeviceGroup()
+                        .getMembers(range)
+                        .stream())
+                        .map(EndDeviceMembership::getEndDevice)
+                        .filterSubType(Meter.class)
+                        .anyMatch(meter -> meter.getReadingTypes(range)
+                                        .stream()
+                                        .noneMatch(readingType -> getReadingTypes().contains(readingType))
+                        );
+                if (hasMismatchedMeters) {
+                    try (TransactionContext context = transactionService.getContext()) {
+                        MessageSeeds.SOME_DEVICES_HAVE_NONE_OF_THE_SELECTED_READINGTYPES.log(logger, thesaurus, getEndDeviceGroup().getName());
+                        context.commit();
+                    }
+                }
             }
         };
     }

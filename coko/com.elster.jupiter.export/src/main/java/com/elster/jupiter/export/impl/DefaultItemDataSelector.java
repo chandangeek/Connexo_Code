@@ -2,7 +2,13 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.export.*;
+import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.DataExportStrategy;
+import com.elster.jupiter.export.DefaultSelectorOccurrence;
+import com.elster.jupiter.export.MeterReadingData;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
+import com.elster.jupiter.export.ReadingTypeDataSelector;
+import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
@@ -53,6 +59,7 @@ class DefaultItemDataSelector implements ItemDataSelector {
     private final Thesaurus thesaurus;
     private final DateTimeFormatter timeFormatter = DefaultDateTimeFormatters.mediumDate().withLongTime().build().withZone(ZoneId.systemDefault());
     private final TransactionService transactionService;
+    private int exportCount;
 
     public DefaultItemDataSelector(Clock clock, ValidationService validationService, Logger logger, Thesaurus thesaurus, TransactionService transactionService) {
         this.clock = clock;
@@ -62,9 +69,26 @@ class DefaultItemDataSelector implements ItemDataSelector {
         this.transactionService = transactionService;
     }
 
+    public int getExportCount() {
+        return exportCount;
+    }
+
     @Override
     public Optional<MeterReadingData> selectData(DataExportOccurrence occurrence, IReadingTypeDataExportItem item) {
         Range<Instant> exportInterval = determineExportInterval(occurrence, item);
+
+        if (!exportInterval.hasUpperBound() || clock.instant().isBefore(exportInterval.upperEndpoint())) {
+            String relativePeriodName = occurrence.getTask().getReadingTypeDataSelector()
+                    .map(ReadingTypeDataSelector::getExportPeriod)
+                    .map(RelativePeriod::getName)
+                    .get();
+            try (TransactionContext context = transactionService.getContext()) {
+                MessageSeeds.EXPORT_PERIOD_COVERS_FUTURE.log(logger, thesaurus, relativePeriodName);
+                context.commit();
+            }
+
+        }
+
         List<? extends BaseReadingRecord> readings = new ArrayList<>(item.getReadingContainer().getReadings(exportInterval, item.getReadingType()));
 
         DataExportStrategy strategy = item.getSelector().getStrategy();
@@ -82,11 +106,17 @@ class DefaultItemDataSelector implements ItemDataSelector {
             logMissings(item, exportInterval, readings, itemDescription);
         }
 
-
         if (!readings.isEmpty()) {
             MeterReadingImpl meterReading = asMeterReading(item, readings);
+            exportCount++;
             return Optional.of(new MeterReadingData(item, meterReading, structureMarker(item, readings.get(0).getTimeStamp(), exportInterval)));
         }
+
+        try (TransactionContext context = transactionService.getContext()) {
+            MessageSeeds.ITEM_DOES_NOT_HAVE_DATA_FOR_EXPORT_WINDOW.log(logger, thesaurus, mrid, item.getReadingType().getAliasName());
+            context.commit();
+        }
+
         return Optional.empty();
     }
 

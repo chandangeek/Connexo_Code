@@ -33,4 +33,8 @@ public class FtpsDestinationImpl extends AbstractFtpDataExportDestination implem
     FtpSessionFactory getFtpSessionFactory() {
         return getFtpClientService().getFtpsFactory(getServer(), getPort(), getUser(), getPassword());
     }
+
+    String getMethodName() {
+        return "ftps";
+    }
 }

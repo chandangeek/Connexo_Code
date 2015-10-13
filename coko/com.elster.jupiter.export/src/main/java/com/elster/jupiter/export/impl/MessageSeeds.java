@@ -3,7 +3,6 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
@@ -35,10 +34,11 @@ public enum MessageSeeds implements MessageSeed {
     SUSPECT_WINDOW(1023, "dataexport.item.suspectwindow", "The export window starting from {0} till {1} with suspect/not validated data is not exported for item {2}", Level.INFO),
 
     DATA_EXPORTED_TO(1024, "dataexport.dataexportedto", "Data exported to {0}", Level.INFO),
-    DATA_MAILED_TO(1025, "dataexport.datamailedto", "Data exported to {0} with attachment(s) {1} ", Level.INFO);
-
-
-
+    DATA_MAILED_TO(1025, "dataexport.datamailedto", "Data exported to {0} with attachment(s) {1} ", Level.INFO),
+    SOME_DEVICES_HAVE_NONE_OF_THE_SELECTED_READINGTYPES(1026, "dataexport.device.mismatch", "Some devices of {0} do not contain the selected reading type(s) that have to be exported.", Level.WARNING),
+    ITEM_DOES_NOT_HAVE_DATA_FOR_EXPORT_WINDOW(1027, "dataexport.item.nodata", "{0} and reading type {1} do not contain data for the selected export window.", Level.WARNING),
+    EXPORT_PERIOD_COVERS_FUTURE(1028, "dataexport.exportwindow.overlapsfuture", "The export window {0} overlaps with the future. As a result the exported data is incomplete.", Level.WARNING),
+    NO_DATA_TOEXPORT(1029, "dataexport.nodata", "There is no data to export.", Level.INFO);
 
     private final int number;
     private final String key;
