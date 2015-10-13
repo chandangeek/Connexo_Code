@@ -419,10 +419,25 @@ abstract class ProFtpClientFileSystem<T extends ProFtpClientFileSystem<T>> exten
 
     @Override
     long size(FtpPath path) throws IOException {
+        boolean interrupted = false;
+        boolean acquired = false;
         try {
+            while (!acquired) {
+                try {
+                    openPipes.acquire();
+                    acquired = true;
+                } catch (InterruptedException e) {
+                    interrupted = true;
+                }
+            }
             return ftpClient.size(path.toString());
         } catch (FTPException e) {
             throw new IOException(e);
+        } finally {
+            openPipes.release();
+            if (interrupted) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 
