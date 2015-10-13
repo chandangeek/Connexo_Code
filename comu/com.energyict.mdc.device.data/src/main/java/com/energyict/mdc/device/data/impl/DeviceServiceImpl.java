@@ -280,11 +280,8 @@ public class DeviceServiceImpl implements ServerDeviceService {
         });
 
         Device modifiedDevice = null;
-        Optional<Throwable> exceptionDuringConfigChangeExecution = Optional.empty();
         try {
             modifiedDevice = deviceDataModelService.getTransactionService().execute(() -> DeviceConfigChangeExecutor.getInstance().execute((DeviceImpl) device, deviceDataModelService.deviceConfigurationService().findDeviceConfiguration(destinationDeviceConfigId).get()));
-        } catch (Throwable e) {
-            exceptionDuringConfigChangeExecution = Optional.of(e);
         } finally {
             deviceDataModelService.getTransactionService().execute(() -> new VoidTransaction(){
                 @Override
@@ -292,11 +289,6 @@ public class DeviceServiceImpl implements ServerDeviceService {
                     configChangeRequest.remove();
                 }
             });
-        }
-        if(exceptionDuringConfigChangeExecution.isPresent()){
-            // TODO make it a runtimeexception
-            exceptionDuringConfigChangeExecution.get().printStackTrace();
-//            throw exceptionDuringConfigChangeExecution.get();
         }
         return modifiedDevice;
     }

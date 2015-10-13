@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.impl.configchange;
 
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 
 /**
  * Serves as a Business lock object for the action 'change device config'.
