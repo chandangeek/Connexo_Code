@@ -1,6 +1,7 @@
 package com.elster.jupiter.issue.impl.service;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.Query;
@@ -134,6 +135,7 @@ public abstract class BaseTest {
                 new MockModule(),
                 inMemoryBootstrapModule,
                 new InMemoryMessagingModule(),
+                new DataVaultModule(),
                 new IdsModule(),
                 new MeteringModule(),
                 new PartyModule(),
