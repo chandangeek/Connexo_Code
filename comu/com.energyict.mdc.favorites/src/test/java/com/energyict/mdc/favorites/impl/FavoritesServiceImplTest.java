@@ -1,6 +1,8 @@
 package com.energyict.mdc.favorites.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
@@ -158,6 +160,7 @@ public class FavoritesServiceImplTest {
                 new MockModule(),
                 inMemoryBootstrapModule,
                 new UtilModule(),
+                new CustomPropertySetsModule(),
                 new ThreadSecurityModule(),
                 new EventsModule(),
                 new PubSubModule(),
@@ -198,6 +201,7 @@ public class FavoritesServiceImplTest {
 
         try (TransactionContext ctx = getTransactionService().getContext()) {
             userService = injector.getInstance(UserService.class);
+            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(FiniteStateMachineService.class);
             meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
             injector.getInstance(MasterDataService.class);
