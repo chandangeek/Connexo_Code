@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.topology.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.Translator;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -160,6 +162,7 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
                 new MockModule(),
                 this.bootstrapModule,
                 new ThreadSecurityModule(principal),
+                new CustomPropertySetsModule(),
                 new EventsModule(),
                 new PubSubModule(),
                 new TransactionModule(showSqlLogging),
@@ -198,6 +201,7 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
         this.transactionService = this.injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             injector.getInstance(EventService.class);
+            injector.getInstance(CustomPropertySetService.class);
             this.injector.getInstance(OrmService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MasterDataService.class);

@@ -74,7 +74,11 @@
             <artifactId>org.osgi.compendium</artifactId>
             <scope>provided</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cps</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <!-- Testing -->
         <!--<dependency>-->
         <!--<groupId>com.google.inject</groupId>-->

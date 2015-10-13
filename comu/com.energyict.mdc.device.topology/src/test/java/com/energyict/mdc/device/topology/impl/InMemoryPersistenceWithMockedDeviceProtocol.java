@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.topology.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
@@ -146,6 +148,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
                 new MockModule(),
                 bootstrapModule,
                 new UtilModule(clock),
+                new CustomPropertySetsModule(),
                 new ThreadSecurityModule(this.principal),
                 new EventsModule(),
                 new PubSubModule(),
@@ -214,6 +217,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         try (TransactionContext ctx = this.transactionService.getContext()) {
             injector.getInstance(PluggableService.class);
             this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
+            injector.getInstance(CustomPropertySetService.class);
             this.ormService = injector.getInstance(OrmService.class);
             this.eventService = injector.getInstance(EventService.class);
             this.nlsService = injector.getInstance(NlsService.class);
