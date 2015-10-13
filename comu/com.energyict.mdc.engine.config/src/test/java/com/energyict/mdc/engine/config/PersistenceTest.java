@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.config;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -57,6 +58,7 @@ public class PersistenceTest {
         injector = Guice.createInjector(
                 new MockModule(bundleContext),
                 inMemoryBootstrapModule,
+                new DataVaultModule(),
                 new OrmModule(),
                 new UtilModule(),
                 new EventsModule(),
