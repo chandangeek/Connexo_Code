@@ -1,5 +1,7 @@
 package com.elster.jupiter.users.impl;
 
+import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.datavault.impl.DataVaultServiceImpl;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
@@ -9,7 +11,6 @@ import com.elster.jupiter.users.MessageSeeds;
 import com.elster.jupiter.users.UserService;
 
 import javax.naming.Context;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Hashtable;
 
@@ -33,6 +34,7 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
     @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String baseGroup;
     private boolean manageGroupsInternal;
+
 
     final Hashtable<String, Object> commonEnvLDAP = new Hashtable<String, Object>(){{
         put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
@@ -111,7 +113,7 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
     @Override
     public void setPassword(String password) {
         if(!"".equals(password)) {
-            this.password = new AESencrpUtil().encrypt(getDomain(), password);
+            this.password = userService.getDataVaultService().encrypt(password.getBytes());
         }
     }
 
@@ -136,6 +138,6 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
     }
 
     protected String getPasswordDecrypt(){
-        return new AESencrpUtil().decrypt(getDomain(),getPassword());
+        return new String(userService.getDataVaultService().decrypt(getPassword()));
     }
 }

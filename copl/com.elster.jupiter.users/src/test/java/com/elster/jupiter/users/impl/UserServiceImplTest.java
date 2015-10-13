@@ -5,6 +5,7 @@ import static org.mockito.Mockito.mock;
 
 import java.sql.SQLException;
 
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.users.UserDirectory;
 
 import org.junit.AfterClass;
@@ -63,7 +64,8 @@ public class UserServiceImplTest {
         			new ThreadSecurityModule(), 
         			new PubSubModule(), 
         			new TransactionModule(printSql),
-        			new NlsModule());
+        			new NlsModule(),
+                    new DataVaultModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
         	injector.getInstance(UserService.class);
         	ctx.commit();

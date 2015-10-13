@@ -1,5 +1,6 @@
 package com.elster.jupiter.users.impl;
 
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.nls.Layer;
@@ -55,6 +56,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     private volatile Thesaurus thesaurus;
     private volatile UserPreferencesService userPreferencesService;
     private volatile ThreadPrincipalService threadPrincipalService;
+    private volatile DataVaultService dataVaultService;
 
     private static final String TRUSTSTORE_PATH = "com.elster.jupiter.users.truststore";
     private static final String TRUSTSTORE_PASS = "com.elster.jupiter.users.truststorepass";
@@ -73,12 +75,13 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     private final Object priviligeProviderRegistrationLock = new Object();
 
     @Inject
-    public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService, ThreadPrincipalService threadPrincipalService) {
+    public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService, ThreadPrincipalService threadPrincipalService,DataVaultService dataVaultService) {
         this();
         setTransactionService(transactionService);
         setQueryService(queryService);
         setOrmService(ormService);
         setNlsService(nlsService);
+        setDataVaultService(dataVaultService);
         setThreadPrincipalService(threadPrincipalService);
         activate(null);
         if (!dataModel.isInstalled()) {
@@ -99,7 +102,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(Thesaurus.class).toInstance(thesaurus);
-
+                bind(DataVaultService.class).toInstance(dataVaultService);
                 bind(UserService.class).toInstance(UserServiceImpl.this);
             }
         });
@@ -392,8 +395,14 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         return resourceFactory().find("componentName", component);
     }
 
+    @Override
     public QueryService getQueryService() {
         return queryService;
+    }
+
+    @Override
+    public DataVaultService getDataVaultService() {
+        return dataVaultService;
     }
 
     @Override
@@ -502,6 +511,11 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     @Reference
     public void setQueryService(QueryService queryService) {
         this.queryService = queryService;
+    }
+
+    @Reference
+    public void setDataVaultService(DataVaultService dataVaultService) {
+        this.dataVaultService = dataVaultService;
     }
 
     @Reference
