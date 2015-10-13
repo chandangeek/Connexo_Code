@@ -132,6 +132,12 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
     }
 
     @Override
+    public void summary(String summaryMessage) {
+        this.summary = summaryMessage;
+        //update();
+    }
+
+    @Override
     public Instant getTriggerTime() {
         return taskOccurrence.get().getTriggerTime();
     }

@@ -39,7 +39,7 @@ public enum MessageSeeds implements MessageSeed {
     ITEM_DOES_NOT_HAVE_DATA_FOR_EXPORT_WINDOW(1028, "dataexport.item.nodata", "{0} and reading type {1} do not contain data for the selected export window.", Level.WARNING),
     EXPORT_PERIOD_COVERS_FUTURE(1029, "dataexport.exportwindow.overlapsfuture", "The export window {0} overlaps with the future. As a result the exported data is incomplete.", Level.WARNING),
     NO_DATA_TOEXPORT(1030, "dataexport.nodata", "There is no data to export.", Level.INFO);
-
+    
     private final int number;
     private final String key;
     private final String defaultFormat;

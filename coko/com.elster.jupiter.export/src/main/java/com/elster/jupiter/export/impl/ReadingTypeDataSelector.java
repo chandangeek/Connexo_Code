@@ -1,6 +1,11 @@
 package com.elster.jupiter.export.impl;
 
-import com.elster.jupiter.export.*;
+import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.DataSelector;
+import com.elster.jupiter.export.DefaultSelectorOccurrence;
+import com.elster.jupiter.export.ExportData;
+import com.elster.jupiter.export.MeterReadingData;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -80,10 +85,26 @@ class ReadingTypeDataSelector implements DataSelector {
 
         DefaultItemDataSelector defaultItemDataSelector = new DefaultItemDataSelector(clock, validationService, thesaurus, transactionService);
         try {
+            Map<IReadingTypeDataExportItem, Optional<MeterReadingData>> selectedData = activeItems.stream()
+                    .collect(Collectors.toMap(
+                            Function.<IReadingTypeDataExportItem>identity(),
+                            activeItem -> defaultItemDataSelector.selectData(occurrence, activeItem)
+                    ));
+            long numberOfItemsExported = selectedData.values()
+                    .stream()
+                    .filter(Optional::isPresent)
+                    .count();
+            long numberOfItemsSkipped = activeItems.size() - numberOfItemsExported;
+            ((IDataExportOccurrence) occurrence).summary(
+                    thesaurus.getFormat(TranslationKeys.NUMBER_OF_DATASOURCES_SUCCESSFULLY_EXPORTED).format(numberOfItemsExported) +
+                            System.getProperty("line.separator") +
+                            thesaurus.getFormat(TranslationKeys.NUMBER_OF_DATASOURCES_SKIPPED).format(numberOfItemsSkipped));
+
             return activeItems.stream()
                     .flatMap(item -> Stream.of(
-                            defaultItemDataSelector.selectData(occurrence, item),
-                            lastRuns.get(item).flatMap(since -> defaultItemDataSelector.selectDataForUpdate(occurrence, item, since))))
+                                    selectedData.get(item),
+                                    lastRuns.get(item).flatMap(since -> defaultItemDataSelector.selectDataForUpdate(occurrence, item, since)))
+                    )
                     .flatMap(Functions.asStream());
         } finally {
             try (TransactionContext context = transactionService.getContext()) {
