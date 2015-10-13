@@ -502,7 +502,7 @@ Ext.define('Uni.controller.Search', {
 
         me.filters.each(function (item) {
             if (!Ext.isEmpty(item.getValue())) {
-                filters.push(item.getFilter())
+                filters.push(item.getFilter());
             }
         });
 
@@ -518,7 +518,11 @@ Ext.define('Uni.controller.Search', {
 
         searchResults.clearFilter(true);
         searchResults.filter(me.getFilters(), true);
-        searchResults.load();
+        searchResults.load({
+            callback: function(records, operation, success){
+                if(!success)this.removeAll();
+            }
+        });
     },
 
     createWidgetForProperty: function (property, removable) {

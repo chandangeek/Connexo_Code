@@ -2,6 +2,7 @@ Ext.define('Uni.property.form.GroupedPropertyForm', {
     extend: 'Uni.property.form.Property',
     alias: 'widget.grouped-property-form',
     addEditPage: false,
+    blankText: Uni.I18n.translate('general.requiredField', 'UNI', 'This field is required'),
 
     initProperties: function (properties) {
         var me = this;
@@ -34,7 +35,9 @@ Ext.define('Uni.property.form.GroupedPropertyForm', {
                         allowBlank: !property.get('required'),
                         name: property.get('key'),
                         itemId: property.get('key'),
-                        boxLabel: Uni.I18n.translate(property.get('key'), null, property.get('key'))
+                        boxLabel: Uni.I18n.translate(property.get('key'), null, property.get('key')),
+                        msgTarget: 'under',
+                        blankText: me.blankText
 
                     });
                     //groupName = partitions.join('.');
