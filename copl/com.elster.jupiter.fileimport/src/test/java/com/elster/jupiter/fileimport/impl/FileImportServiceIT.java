@@ -1,6 +1,7 @@
 package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -203,7 +204,8 @@ public class FileImportServiceIT {
                     new NlsModule(),
                     new UserModule(),
                     new BasicPropertiesModule(),
-                    new MockModule()
+                    new MockModule(),
+                    new DataVaultModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
