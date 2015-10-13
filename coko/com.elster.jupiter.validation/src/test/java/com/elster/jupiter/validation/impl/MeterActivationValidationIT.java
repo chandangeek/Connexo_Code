@@ -1,9 +1,11 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -131,10 +133,14 @@ public class MeterActivationValidationIT {
                 new ValidationModule(),
                 new FiniteStateMachineModule(),
                 new MeteringGroupsModule(),
-                new TaskModule()
+                new TaskModule(),
+                new DataVaultModule()
         );
         transactionService = injector.getInstance(TransactionService.class);
-        transactionService.execute(VoidTransaction.of(() -> validationService = (ValidationServiceImpl) injector.getInstance(ValidationService.class)));
+        transactionService.execute(VoidTransaction.of(() -> {
+            injector.getInstance(FiniteStateMachineService.class);
+            validationService = (ValidationServiceImpl) injector.getInstance(ValidationService.class);
+        }));
         ValidationEventHandler validationEventHandler = new ValidationEventHandler();
         validationEventHandler.setValidationService(validationService);
         Publisher publisher = injector.getInstance(Publisher.class);
