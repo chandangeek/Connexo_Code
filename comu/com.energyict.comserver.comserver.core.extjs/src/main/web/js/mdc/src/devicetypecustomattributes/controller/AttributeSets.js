@@ -11,7 +11,8 @@ Ext.define('Mdc.devicetypecustomattributes.controller.AttributeSets', {
     ],
 
     stores: [
-        'Mdc.devicetypecustomattributes.store.CustomAttributeSets'
+        'Mdc.devicetypecustomattributes.store.CustomAttributeSets',
+        'Mdc.devicetypecustomattributes.store.CustomAttributeSetsAvailable'
     ],
 
     refs: [
@@ -77,18 +78,13 @@ Ext.define('Mdc.devicetypecustomattributes.controller.AttributeSets', {
     removeCustomAttributeSet: function (record) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
-            setupPage = me.getCustomAttributeSetsSetup(),
-            grid = me.getCustomAttributeSetsGrid(),
-            gridToolbarTop = grid.down('pagingtoolbartop');
+            setupPage = me.getCustomAttributeSetsSetup();
 
         setupPage.setLoading();
         record.getProxy().setUrl(router.arguments.deviceTypeId);
         record.destroy({
             success: function () {
-                gridToolbarTop.isFullTotalCount = false;
-                gridToolbarTop.totalCount = -1;
-                grid.down('pagingtoolbarbottom').totalCount--;
-                grid.getStore().loadPage(1);
+                me.moveToCustomAttributes();
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('customattributesets.set.removed', 'MDC', 'Custom attribute set removed'));
             },
             callback: function () {
@@ -107,10 +103,10 @@ Ext.define('Mdc.devicetypecustomattributes.controller.AttributeSets', {
             url;
 
         Ext.Array.each(selection, function (item) {
-            selectedItems.push(item.get('id'));
+            selectedItems.push({id :item.get('id')});
         });
 
-        url = '/api/dtc/devicetypes/{deviceTypeId}/customattributesets'.replace('{deviceTypeId}', router.arguments.deviceTypeId);
+        url = '/api/dtc/devicetypes/{deviceTypeId}/custompropertysets'.replace('{deviceTypeId}', router.arguments.deviceTypeId);
         setupPage.setLoading();
 
         Ext.Ajax.request({
@@ -145,7 +141,6 @@ Ext.define('Mdc.devicetypecustomattributes.controller.AttributeSets', {
             widget;
 
         customAttributesSetsStore.getProxy().setUrl(deviceTypeId);
-        customAttributesSetsStore.getProxy().extraParams = {available: false};
         widget = Ext.widget('device-type-custom-attribute-sets-setup', {deviceTypeId: deviceTypeId});
         me.getApplication().fireEvent('changecontentevent', widget);
         me.loadDeviceTypeModel(me, widget, deviceTypeId);
@@ -153,11 +148,10 @@ Ext.define('Mdc.devicetypecustomattributes.controller.AttributeSets', {
 
     showAddCustomAttributeSets: function (deviceTypeId) {
         var me = this,
-            customAttributesSetsStore = me.getStore('Mdc.devicetypecustomattributes.store.CustomAttributeSets'),
+            customAttributesSetsStore = me.getStore('Mdc.devicetypecustomattributes.store.CustomAttributeSetsAvailable'),
             widget;
 
         customAttributesSetsStore.getProxy().setUrl(deviceTypeId);
-        customAttributesSetsStore.getProxy().extraParams = {available: true};
         widget = Ext.widget('device-type-add-custom-attribute-sets-setup', {deviceTypeId: deviceTypeId});
         me.getApplication().fireEvent('changecontentevent', widget);
         customAttributesSetsStore.load();

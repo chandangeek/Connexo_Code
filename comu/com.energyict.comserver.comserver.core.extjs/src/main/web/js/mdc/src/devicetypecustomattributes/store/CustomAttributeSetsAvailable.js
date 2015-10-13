@@ -1,4 +1,4 @@
-Ext.define('Mdc.devicetypecustomattributes.store.CustomAttributeSets', {
+Ext.define('Mdc.devicetypecustomattributes.store.CustomAttributeSetsAvailable', {
     extend: 'Ext.data.Store',
     model: 'Mdc.devicetypecustomattributes.model.CustomAttributeSet',
     requires: [
@@ -16,8 +16,11 @@ Ext.define('Mdc.devicetypecustomattributes.store.CustomAttributeSets', {
         },
 
         extraParams: {
-            filter: '[{"property":"linked","value":true}]'
+            filter: '[{"property":"linked","value":false}]'
         },
+        pageParam: false,
+        startParam: false,
+        limitParam: false,
 
         setUrl: function(deviceTypeId) {
             this.url = this.urlTpl.replace('{deviceTypeId}', encodeURIComponent(deviceTypeId));
