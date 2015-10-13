@@ -8,7 +8,8 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
         'Mdc.model.RegisterType',
         'Mdc.view.setup.register.RegisterMappingActionMenu',
         'Uni.form.field.ObisDisplay',
-        'Uni.form.field.ReadingTypeDisplay'
+        'Uni.form.field.ReadingTypeDisplay',
+        'Uni.form.field.CustomAttributeSetDisplay'
     ],
 
     layout: {
@@ -75,8 +76,10 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                                 name: 'readingType'
                             },
                             {
-                                xtype: 'obis-displayfield',
-                                name: 'obisCode'
+                                fieldLabel: Uni.I18n.translate('deviceloadprofiles.customattributeset', 'MDC', 'Custom attribute set'),
+                                itemId: 'custom-attribute-set-displayfield-id',
+                                xtype: 'custom-attribute-set-displayfield',
+                                name: 'customPropertySet'
                             }
                         ]
                     },
@@ -86,19 +89,10 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
                             labelWidth: 150
                         },
                         items: [
-                            /* {
-                             name: 'dataCollectionGroup',
-                             fieldLabel: Uni.I18n.translate('registerMapping.dataCollectionGroup', 'MDC', 'Data collection group'),
-                             }*/
-                          /*  {
-                                name: 'unit',
-                                fieldLabel: Uni.I18n.translate('registerMapping.measurementUnit', 'MDC', 'Unit of measure')
-                            },
                             {
-                                name: 'timeOfUse',
-                                fieldLabel: Uni.I18n.translate('registerMapping.timeOfUse', 'MDC', 'Time of use')
-                            }*/
-
+                                xtype: 'obis-displayfield',
+                                name: 'obisCode'
+                            }
                         ]
                     }
                 ]
