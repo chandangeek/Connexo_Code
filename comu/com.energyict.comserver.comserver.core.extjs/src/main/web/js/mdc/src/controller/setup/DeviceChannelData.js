@@ -66,6 +66,10 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         {
             ref: 'editCustomAttributesPanel',
             selector: '#deviceLoadProfileChannelsEditCustomAttributes'
+        },
+        {
+            ref: 'editCustomAttributesRestoreBtn',
+            selector: '#channelCustomAttributesRestoreBtn'
         }
     ],
 
@@ -111,6 +115,9 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             },
             '#deviceLoadProfileChannelsEditCustomAttributes #channelCustomAttributesCancelBtn': {
                 click: this.toPreviousPage
+            },
+            '#deviceLoadProfileChannelsEditCustomAttributes #channel-custom-attributes-property-form': {
+                showRestoreAllBtn: this.showRestoreAllBtn
             }
         });
     },
@@ -853,6 +860,16 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 }
             }
         });
-    }
+    },
 
+    showRestoreAllBtn: function (value) {
+        var restoreBtn = this.getEditCustomAttributesRestoreBtn();
+        if (restoreBtn) {
+            if (value) {
+                restoreBtn.disable();
+            } else {
+                restoreBtn.enable();
+            }
+        }
+    }
 });

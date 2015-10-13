@@ -36,6 +36,7 @@ Ext.define('Mdc.view.setup.devicechannels.EditCustomAttributes', {
                 items: [
                     {
                         xtype: 'property-form',
+                        itemId: 'channel-custom-attributes-property-form',
                         width: '100%'
                     }
                 ],
