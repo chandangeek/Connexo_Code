@@ -20,8 +20,9 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-public class StandardDataSelectorFactory implements DataSelectorFactory {
-    private final String DISPLAYNAME = "Device readings data selector";
+class StandardDataSelectorFactory implements DataSelectorFactory {
+    static final String TRANSLATION_KEY = ReadingTypeDataSelectorImpl.class.getName();
+    static final String DISPLAYNAME = "Device readings data selector";
     private final TransactionService transactionService;
     private final Thesaurus thesaurus;
     private final MeteringService meteringService;
@@ -62,7 +63,7 @@ public class StandardDataSelectorFactory implements DataSelectorFactory {
     }
 
     private NlsKey getNlsKey() {
-        return SimpleNlsKey.key(DataExportService.COMPONENTNAME, Layer.DOMAIN, ReadingTypeDataSelectorImpl.class.getName());
+        return SimpleNlsKey.key(DataExportService.COMPONENTNAME, Layer.DOMAIN, TRANSLATION_KEY);
     }
 
     private class DelegatingDataSelector implements DataSelector {

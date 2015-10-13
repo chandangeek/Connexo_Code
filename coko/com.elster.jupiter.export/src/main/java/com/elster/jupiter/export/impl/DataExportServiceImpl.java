@@ -12,8 +12,8 @@ import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.StructureMarker;
-import com.elster.jupiter.ftpclient.FtpClientService;
 import com.elster.jupiter.export.security.Privileges;
+import com.elster.jupiter.ftpclient.FtpClientService;
 import com.elster.jupiter.mail.MailService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
@@ -22,6 +22,7 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
@@ -500,9 +501,11 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
 
     @Override
     public List<TranslationKey> getKeys() {
+        SimpleTranslationKey standardDataSelectorKey = new SimpleTranslationKey(StandardDataSelectorFactory.TRANSLATION_KEY, StandardDataSelectorFactory.DISPLAYNAME);
         return Stream.of(
                 Stream.of(TranslationKeys.values()),
-                Stream.of(DataExportStatus.values()))
+                Stream.of(DataExportStatus.values()),
+                Stream.of(standardDataSelectorKey))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }
