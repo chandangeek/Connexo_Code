@@ -1,6 +1,7 @@
 package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -77,7 +78,8 @@ public class InMemoryPersistence {
                 new UserModule(),
                 new UtilModule(),
                 new DomainUtilModule(),
-                new NlsModule()
+                new NlsModule(),
+                new DataVaultModule()
         );
     }
 
