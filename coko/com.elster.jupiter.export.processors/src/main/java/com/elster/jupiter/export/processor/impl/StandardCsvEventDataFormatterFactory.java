@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
 public class StandardCsvEventDataFormatterFactory implements DataFormatterFactory {
 
     static final String NAME = "standardCsvEventDataProcessorFactory";
-    static final String DISPLAY_NAME = "CSV Formatter";
+    static final String DISPLAY_NAME = "CSV formatter";
     private static final String NON_PATH_INVALID = "\":*?<>|";
 
     private volatile PropertySpecService propertySpecService;
