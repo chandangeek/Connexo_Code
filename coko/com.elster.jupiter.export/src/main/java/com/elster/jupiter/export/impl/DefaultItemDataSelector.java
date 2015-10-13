@@ -82,7 +82,11 @@ class DefaultItemDataSelector implements ItemDataSelector {
                     .map(ReadingTypeDataSelector::getExportPeriod)
                     .map(RelativePeriod::getName)
                     .get();
-            MessageSeeds.EXPORT_PERIOD_COVERS_FUTURE.log(logger, thesaurus, relativePeriodName);
+            try (TransactionContext context = transactionService.getContext()) {
+                MessageSeeds.EXPORT_PERIOD_COVERS_FUTURE.log(logger, thesaurus, relativePeriodName);
+                context.commit();
+            }
+
         }
 
         List<? extends BaseReadingRecord> readings = new ArrayList<>(item.getReadingContainer().getReadings(exportInterval, item.getReadingType()));
@@ -107,7 +111,12 @@ class DefaultItemDataSelector implements ItemDataSelector {
             exportCount++;
             return Optional.of(new MeterReadingData(item, meterReading, structureMarker(item, readings.get(0).getTimeStamp(), exportInterval)));
         }
-        MessageSeeds.ITEM_DOES_NOT_HAVE_DATA_FOR_EXPORT_WINDOW.log(logger, thesaurus, mrid, item.getReadingType().getAliasName());
+
+        try (TransactionContext context = transactionService.getContext()) {
+            MessageSeeds.ITEM_DOES_NOT_HAVE_DATA_FOR_EXPORT_WINDOW.log(logger, thesaurus, mrid, item.getReadingType().getAliasName());
+            context.commit();
+        }
+
         return Optional.empty();
     }
 

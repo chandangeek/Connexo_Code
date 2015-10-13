@@ -26,6 +26,7 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
     private Interval.EndpointBehavior exportedDataBoundaryType;
     private DataExportStatus status = DataExportStatus.BUSY;
     private String failureReason;
+    private String summary;
 
     private final DataModel dataModel;
     private final TaskService taskService;
@@ -92,6 +93,11 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
         return this.failureReason;
     }
 
+    @Override
+    public String getSummary() {
+        return this.summary;
+    }
+
     public void persist() {
         dataModel.persist(this);
     }
@@ -116,6 +122,12 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
         this.status = status;
         this.failureReason = message;
         getTask().updateLastRun(getTriggerTime());
+    }
+
+    @Override
+    public void summary(String summaryMessage) {
+        this.summary = summaryMessage;
+        //update();
     }
 
     @Override

@@ -40,9 +40,6 @@ public enum MessageSeeds implements MessageSeed {
     EXPORT_PERIOD_COVERS_FUTURE(1028, "dataexport.exportwindow.overlapsfuture", "The export window {0} overlaps with the future. As a result the exported data is incomplete.", Level.WARNING),
     NO_DATA_TOEXPORT(1029, "dataexport.nodata", "There is no data to export.", Level.INFO);
 
-
-
-
     private final int number;
     private final String key;
     private final String defaultFormat;
