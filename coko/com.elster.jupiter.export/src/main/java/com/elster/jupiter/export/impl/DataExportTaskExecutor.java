@@ -117,10 +117,10 @@ class DataExportTaskExecutor implements TaskExecutor {
 
         catchingUnexpected(() -> {
             FormattedData formattedData;
-            if (task.hasDefaultSelector()) {
-                formattedData = doProcessFromDefaultSelector(dataFormatter, occurrence, data, itemExporter);
+            if (task.hasDefaultSelector() && task.getReadingTypeDataSelector().isPresent()) {
+                formattedData = doProcessFromDefaultReadingSelector(dataFormatter, occurrence, data, itemExporter);
             } else {
-                formattedData = doProcess(dataFormatter, occurrence, data, itemExporter);
+                formattedData = dataFormatter.processData(data);
             }
             Map<StructureMarker, Path> files = localFileWriter.writeToTempFiles(formattedData.getData());
             task.getCompositeDestination().send(files, new TagReplacerFactoryForOccurrence(occurrence), logger, thesaurus);
@@ -180,11 +180,7 @@ class DataExportTaskExecutor implements TaskExecutor {
         return dataExportService.getDataSelectorFactory(dataSelector).orElseThrow(() -> new NoSuchDataSelector(thesaurus, dataSelector));
     }
 
-    private FormattedData doProcess(DataFormatter dataFormatter, DataExportOccurrence occurrence, Stream<ExportData> exportData, ItemExporter itemExporter) {
-        return dataFormatter.processData(exportData);
-    }
-
-    private FormattedData doProcessFromDefaultSelector(DataFormatter dataFormatter, DataExportOccurrence occurrence, Stream<ExportData> exportDatas, ItemExporter itemExporter) {
+    private FormattedData doProcessFromDefaultReadingSelector(DataFormatter dataFormatter, DataExportOccurrence occurrence, Stream<ExportData> exportDatas, ItemExporter itemExporter) {
         List<FormattedExportData> formattedDatas = exportDatas
                 .map(MeterReadingData.class::cast)
                 .flatMap(meterReadingData -> doProcess(occurrence, meterReadingData, itemExporter).stream())
