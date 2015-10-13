@@ -341,7 +341,9 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                             form.loadRecord(model);
                             Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
                                 success: function (deviceType) {
-                                    viewport.down('deviceTypeSideMenu #conflictingMappingLink').setText(Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', [deviceType.get('deviceConflictsCount')]));
+                                    if(viewport.down('deviceTypeSideMenu')) {
+                                        viewport.down('deviceTypeSideMenu #conflictingMappingLink').setText(Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', [deviceType.get('deviceConflictsCount')]));
+                                    }
                                     me.getApplication().fireEvent('acknowledge', activeChange ? Uni.I18n.translate('deviceconfiguration.activated', 'MDC', 'Device configuration activated') :
                                         Uni.I18n.translate('deviceconfiguration.deactivated', 'MDC', 'Device configuration deactivated'));
                                     viewport.setLoading(false);

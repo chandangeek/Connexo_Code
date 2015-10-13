@@ -68,7 +68,6 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.RegisterMappings',
         'Mdc.controller.setup.RegisterTypes',
         'Mdc.controller.setup.RuleDeviceConfigurations',
-        'Mdc.controller.setup.SearchItems',
         'Mdc.controller.setup.SearchItemsBulkAction',
         'Mdc.controller.setup.SecuritySettings',
         'Mdc.controller.setup.SetupOverview',
@@ -97,7 +96,8 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.DeviceAttributes',
         'Mdc.usagepointmanagement.controller.UsagePoint',
         'Mdc.controller.setup.DeviceConflictingMapping',
-        'Mdc.devicetypecustomattributes.controller.AttributeSets'
+        'Mdc.devicetypecustomattributes.controller.AttributeSets',
+        'Mdc.controller.Search'
     ],
 
     stores: [

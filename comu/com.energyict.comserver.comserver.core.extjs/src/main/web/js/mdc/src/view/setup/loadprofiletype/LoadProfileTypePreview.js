@@ -5,7 +5,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypePreview', {
     requires: [
         'Mdc.view.setup.loadprofiletype.LoadProfileTypeActionMenu',
         'Uni.form.field.ObisDisplay',
-        'Mdc.store.Intervals'
+        'Mdc.store.Intervals',
+        'Uni.form.field.CustomAttributeSetDisplay'
     ],
     title: '',
     frame: true,
@@ -32,7 +33,8 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypePreview', {
         items: [
             {
                 defaults: {
-                    xtype: 'displayfield'
+                    xtype: 'displayfield',
+                    labelWidth: 140
                 },
                 items: [
                     {
@@ -50,10 +52,15 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypePreview', {
                             var intervalRecord = Ext.getStore('Mdc.store.Intervals').getById(value.id);
                             return intervalRecord ? Ext.String.htmlEncode(intervalRecord.get('name')) : '';
                         }
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('deviceloadprofiles.customattributeset', 'MDC', 'Custom attribute set'),
+                        itemId: 'custom-attribute-set-displayfield-id',
+                        xtype: 'custom-attribute-set-displayfield',
+                        name: 'customPropertySet'
                     }
                 ]
             },
-
             {
                 xtype: 'fieldcontainer',
                 fieldLabel: Uni.I18n.translate('general.registerTypes', 'MDC', 'Register types'),
@@ -67,8 +74,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypePreview', {
         Ext.suspendLayouts();
         this.down('#registerTypesArea').removeAll();
         for (var i = 0; i < selectedLoadProfileType.get('registerTypes').length; i++) {
-            var fieldlabel = i > 0 ? '&nbsp' : Uni.I18n.translate('general.registerTypes', 'MDC', 'Register types'),
-                readingType = selectedLoadProfileType.get('registerTypes')[i].readingType;
+            var readingType = selectedLoadProfileType.get('registerTypes')[i].readingType;
 
             this.down('#registerTypesArea').add(
                 {

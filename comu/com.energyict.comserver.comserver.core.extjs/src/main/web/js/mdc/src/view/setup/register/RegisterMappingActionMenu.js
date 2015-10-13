@@ -7,6 +7,11 @@ Ext.define('Mdc.view.setup.register.RegisterMappingActionMenu', {
     shadow: false,
     items: [
         {
+            text: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+            itemId: 'edit-register-mapping-btn-id',
+            action: 'editTheRegisterMapping'
+        },
+        {
             text: Uni.I18n.translate('general.remove', 'MDC', 'Remove'),
             itemId: 'removeRegisterMapping',
             action: 'removeTheRegisterMapping'
