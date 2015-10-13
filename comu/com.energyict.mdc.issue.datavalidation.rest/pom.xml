@@ -160,6 +160,11 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>datavault</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.config</artifactId>
             <scope>test</scope>
