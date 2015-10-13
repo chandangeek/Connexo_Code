@@ -1,5 +1,7 @@
 package com.energyict.mdc.issue.datavalidation.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
@@ -79,6 +81,8 @@ public class InMemoryIntegrationPersistence {
         this.injector = Guice.createInjector(
                 new MockModule(),
                 bootstrapModule,
+                new CustomPropertySetsModule(),
+                new DataVaultModule(),
                 new InMemoryMessagingModule(),
                 new IdsModule(),
                 new MeteringModule(),
@@ -119,6 +123,7 @@ public class InMemoryIntegrationPersistence {
                 );
         this.transactionService = this.injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
+            injector.getInstance(CustomPropertySetService.class);
             this.transactionService = this.injector.getInstance(TransactionService.class);
             ctx.commit();
         }
