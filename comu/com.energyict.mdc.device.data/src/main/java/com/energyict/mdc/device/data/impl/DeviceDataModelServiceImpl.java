@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.impl.TranslationKeys;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -515,7 +516,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys = Arrays.asList(PropertyTranslationKeys.values());
+        List<TranslationKey> keys = new ArrayList<>();
+        keys.addAll(Arrays.asList(PropertyTranslationKeys.values()));
         keys.addAll(Arrays.asList(
                 new SimpleTranslationKey(DataCollectionKpiCalculatorHandlerFactory.TASK_SUBSCRIBER, DataCollectionKpiCalculatorHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME),
                 new SimpleTranslationKey(ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory.TASK_SUBSCRIBER, ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory.TASK_SUBSCRIBER_DISPLAY_NAME),
