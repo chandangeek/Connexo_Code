@@ -1,12 +1,7 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.DataExportTaskBuilder;
-import com.elster.jupiter.export.DataFormatterFactory;
-import com.elster.jupiter.export.DataSelectorFactory;
-import com.elster.jupiter.export.ExportTask;
-import com.elster.jupiter.export.ReadingTypeDataSelector;
+import com.elster.jupiter.export.*;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
@@ -121,7 +116,7 @@ public class DataExportServiceImplTest {
     @Mock
     private PropertySpec propertySpec1, propertySpec2, propertySpec3;
     @Mock
-    private ReadingTypeDataSelector readingTypeDataSelector;
+    private StandardDataSelector standardDataSelector;
     @Mock
     private EndDeviceGroup endDeviceGroup;
     @Mock
@@ -136,11 +131,14 @@ public class DataExportServiceImplTest {
     @Before
     public void setUp() throws SQLException {
         when(dataFormatterFactory.getName()).thenReturn(DATA_FORMATTER);
-        when(iExportTask.getReadingTypeDataSelector()).thenReturn(Optional.of(readingTypeDataSelector));
+        when(iExportTask.getReadingTypeDataSelector()).thenReturn(Optional.of(standardDataSelector));
+        when(iExportTask.getEventDataSelector()).thenReturn(Optional.<EventDataSelector>empty());
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.addTable(anyString(), any())).thenReturn(table);
         when(dataModel.<ExportTask>mapper(any())).thenReturn(readingTypeDataExportTaskFactory);
         when(dataModel.<IExportTask>mapper(any())).thenReturn(iReadingTypeDataExportTaskFactory);
+        when(dataModel.getInstance(DataExportOccurrenceImpl.class)).thenReturn(dataExportOccurrence);
+        when(dataExportOccurrence.init(any(), any())).thenReturn(dataExportOccurrence);
         when(transactionService.execute(any())).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -163,20 +161,20 @@ public class DataExportServiceImplTest {
         dataExportService.setQueryService(queryService);
         dataExportService.setClock(clock);
         dataExportService.setUserService(userService);
-        dataExportService.addFormatter(dataFormatterFactory, ImmutableMap.of(DATA_TYPE_PROPERTY, DataExportService.STANDARD_DATA_TYPE));
+        dataExportService.addFormatter(dataFormatterFactory, ImmutableMap.of(DATA_TYPE_PROPERTY, DataExportService.STANDARD_READING_DATA_TYPE));
     }
 
     @Test
     public void testNewBuilder() {
         ExportTaskImpl readingTypeDataExportTaskImpl = new ExportTaskImpl(dataModel, dataExportService, taskService, thesaurus);
         when(dataModel.getInstance(ExportTaskImpl.class)).thenReturn(readingTypeDataExportTaskImpl);
-        ReadingTypeDataSelectorImpl selectorImpl = new ReadingTypeDataSelectorImpl(dataModel, transactionService, meteringService, validationService, clock);
-        when(dataModel.getInstance(ReadingTypeDataSelectorImpl.class)).thenReturn(selectorImpl);
+        StandardDataSelectorImpl selectorImpl = new StandardDataSelectorImpl(dataModel, meteringService);
+        when(dataModel.getInstance(StandardDataSelectorImpl.class)).thenReturn(selectorImpl);
         DataExportTaskBuilderImpl dataExportTaskBuilder = new DataExportTaskBuilderImpl(dataModel)
                 .setName(NAME)
                 .setDataFormatterName(DATA_FORMATTER)
                 .setNextExecution(nextExecution)
-                .selectingStandard()
+                .selectingReadingTypes()
                 .fromEndDeviceGroup(endDeviceGroup)
                 .fromExportPeriod(relativePeriod)
                 .endSelection();
@@ -193,7 +191,7 @@ public class DataExportServiceImplTest {
         DataExportOccurrenceImpl dataExportOccurrence1 = new DataExportOccurrenceImpl(dataModel, taskService);
         when(dataModel.getInstance(DataExportOccurrenceImpl.class)).thenReturn(dataExportOccurrence1);
         when(taskOccurrence.getTriggerTime()).thenReturn(NOW);
-        when(readingTypeDataSelector.getExportPeriod()).thenReturn(relativePeriod);
+        when(standardDataSelector.getExportPeriod()).thenReturn(relativePeriod);
         when(relativePeriod.getOpenClosedInterval(any())).thenReturn(Range.openClosed(NOW, NOW));
 
         assertThat(dataExportService.createExportOccurrence(taskOccurrence)).isEqualTo(dataExportOccurrence1);

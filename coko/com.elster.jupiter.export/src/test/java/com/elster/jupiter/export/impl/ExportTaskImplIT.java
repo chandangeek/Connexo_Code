@@ -20,7 +20,7 @@ import com.elster.jupiter.export.FileDestination;
 import com.elster.jupiter.export.FtpDestination;
 import com.elster.jupiter.export.FtpsDestination;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
-import com.elster.jupiter.export.ReadingTypeDataSelector;
+import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
@@ -219,7 +219,7 @@ public class ExportTaskImplIT {
 
         readingType = meteringService.getReadingType("0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
         anotherReadingType = meteringService.getReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0").get();
-        dataExportService.addFormatter(dataFormatterFactory, ImmutableMap.of(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_DATA_TYPE));
+        dataExportService.addFormatter(dataFormatterFactory, ImmutableMap.of(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_READING_DATA_TYPE));
         when(dataFormatterFactory.getName()).thenReturn(FORMATTER);
         when(dataFormatterFactory.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
         when(propertySpec.getName()).thenReturn("propy");
@@ -402,6 +402,7 @@ public class ExportTaskImplIT {
         ExportTask readingTypeDataExportTask = found.get();
 
         assertThat(readingTypeDataExportTask.getReadingTypeDataSelector()).isPresent();
+        assertThat(readingTypeDataExportTask.getEventDataSelector()).isEmpty();
         assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getEndDeviceGroup().getId()).isEqualTo(endDeviceGroup.getId());
         assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getExportPeriod().getId()).isEqualTo(lastYear.getId());
         assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getStrategy().getUpdatePeriod()).isPresent();
@@ -415,6 +416,46 @@ public class ExportTaskImplIT {
         assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getStrategy().isExportUpdate()).isTrue();
         assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getReadingTypes()).containsExactly(readingType);
         assertThat(readingTypeDataExportTask.getProperties()).hasSize(1).contains(entry("propy", BigDecimal.valueOf(100, 0)));
+    }
+
+    @Test
+    public void testCreationForEvents() {
+
+        ExportTask exportTask = null;
+        try (TransactionContext context = transactionService.getContext()) {
+            exportTask = dataExportService.newBuilder()
+                    .scheduleImmediately()
+                    .setDataFormatterName(FORMATTER)
+                    .setName(NAME)
+                    .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
+                    .selectingEventTypes()
+                    .fromExportPeriod(lastYear)
+                    .fromEndDeviceGroup(endDeviceGroup)
+                    .fromEventType("4.*.*.*")
+                    .continuousData(true)
+                    .endSelection()
+                    .create();
+
+            context.commit();
+        }
+
+        Optional<? extends ExportTask> found = dataExportService.findExportTask(exportTask.getId());
+
+        assertThat(found).isPresent();
+
+        ExportTask readingTypeDataExportTask = found.get();
+
+        assertThat(readingTypeDataExportTask.getReadingTypeDataSelector()).isEmpty();
+        assertThat(readingTypeDataExportTask.getEventDataSelector()).isPresent();
+        assertThat(readingTypeDataExportTask.getEventDataSelector().get().getEndDeviceGroup().getId()).isEqualTo(endDeviceGroup.getId());
+        assertThat(readingTypeDataExportTask.getEventDataSelector().get().getExportPeriod().getId()).isEqualTo(lastYear.getId());
+        assertThat(readingTypeDataExportTask.getLastRun()).isEmpty();
+        assertThat(readingTypeDataExportTask.getNextExecution()).isEqualTo(NOW.truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant());
+        assertThat(readingTypeDataExportTask.getOccurrences(/*Range.<Instant>all()*/)).isEmpty();
+        assertThat(readingTypeDataExportTask.getEventDataSelector().get().getEventStrategy()).isNotNull();
+        assertThat(readingTypeDataExportTask.getEventDataSelector().get().getEventStrategy().isExportContinuousData()).isTrue();
+        assertThat(readingTypeDataExportTask.getEventDataSelector().get().getEventTypeFilters()).hasSize(1);
+        assertThat(readingTypeDataExportTask.getEventDataSelector().get().getEventTypeFilters().get(0).getCode()).isEqualTo("4.*.*.*");
     }
 
     @Test
@@ -524,7 +565,7 @@ public class ExportTaskImplIT {
             readingTypeDataExportTask.setScheduleExpression(Never.NEVER);
             readingTypeDataExportTask.setProperty("propy", BigDecimal.valueOf(20000, 2));
             readingTypeDataExportTask.setName("New name!");
-            ReadingTypeDataSelector selector = readingTypeDataExportTask.getReadingTypeDataSelector().get();
+            StandardDataSelector selector = readingTypeDataExportTask.getReadingTypeDataSelector().get();
             selector.setExportPeriod(oneYearBeforeLastYear);
             selector.setUpdatePeriod(null);
             selector.setEndDeviceGroup(anotherEndDeviceGroup);
@@ -574,7 +615,7 @@ public class ExportTaskImplIT {
                 .setDataFormatterName(FORMATTER)
                 .setName(name)
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
-                .selectingStandard()
+                .selectingReadingTypes()
                 .fromExportPeriod(lastYear)
                 .fromEndDeviceGroup(endDeviceGroup)
                 .fromReadingType(readingType)
@@ -616,7 +657,7 @@ public class ExportTaskImplIT {
         ExportTaskImpl task = createDataExportTask();
         try (TransactionContext context = transactionService.getContext()) {
             meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalArgumentException::new).newMeter("test").create();
-            ((IReadingTypeDataSelector) task.getReadingTypeDataSelector().get()).addExportItem(meter, readingType);
+            ((IStandardDataSelector) task.getReadingTypeDataSelector().get()).addExportItem(meter, readingType);
             task.update();
             context.commit();
         }
@@ -641,7 +682,7 @@ public class ExportTaskImplIT {
         ExportTaskImpl task = createDataExportTask();
         try (TransactionContext context = transactionService.getContext()) {
             meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalArgumentException::new).newMeter("test").create();
-            IReadingTypeDataExportItem item = ((IReadingTypeDataSelector) task.getReadingTypeDataSelector().get()).addExportItem(meter, readingType);
+            IReadingTypeDataExportItem item = ((IStandardDataSelector) task.getReadingTypeDataSelector().get()).addExportItem(meter, readingType);
             item.deactivate();
             item.update();
             context.commit();

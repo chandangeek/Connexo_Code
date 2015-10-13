@@ -16,6 +16,7 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelectorOccurrence {
@@ -42,12 +43,18 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
         return model.getInstance(DataExportOccurrenceImpl.class).init(occurrence, task);
     }
 
-    private DataExportOccurrenceImpl init(TaskOccurrence occurrence, IExportTask task) {
+    DataExportOccurrenceImpl init(TaskOccurrence occurrence, IExportTask task) {
         taskOccurrence.set(occurrence);
         readingTask.set(task);
         //TODO ZoneId !!
 
         task.getReadingTypeDataSelector()
+                .map(selector -> selector.getExportPeriod().getOpenClosedInterval(occurrence.getTriggerTime().atZone(ZoneId.systemDefault())))
+                .ifPresent(instantRange -> {
+                    exportedDataInterval = Interval.of(instantRange);
+                    exportedDataBoundaryType = Interval.EndpointBehavior.fromRange(instantRange);
+                });
+        task.getEventDataSelector()
                 .map(selector -> selector.getExportPeriod().getOpenClosedInterval(occurrence.getTriggerTime().atZone(ZoneId.systemDefault())))
                 .ifPresent(instantRange -> {
                     exportedDataInterval = Interval.of(instantRange);
@@ -156,5 +163,18 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
         }
         List<TaskOccurrence> occurrences = taskService.getOccurrences(taskOccurrence.get().getRecurrentTask(), Range.closedOpen(since, triggerTime));
         return occurrences.size() + 1;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DataExportOccurrenceImpl)) return false;
+        DataExportOccurrenceImpl that = (DataExportOccurrenceImpl) o;
+        return Objects.equals(taskOccurrence, that.taskOccurrence);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(taskOccurrence);
     }
 }

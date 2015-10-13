@@ -4,7 +4,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ExportTask;
-import com.elster.jupiter.export.ReadingTypeDataSelector;
+import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
@@ -30,7 +30,7 @@ public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem
     private Instant lastExportedDate;
     private String readingTypeMRId;
     private RefAny readingContainer;
-    private Reference<IReadingTypeDataSelector> selector = ValueReference.absent();
+    private Reference<IStandardDataSelector> selector = ValueReference.absent();
     private boolean active = true;
 
     private transient DataModel dataModel;
@@ -44,11 +44,11 @@ public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem
         dataModel = model;
     }
 
-    static ReadingTypeDataExportItemImpl from(DataModel model, IReadingTypeDataSelector dataSelector, ReadingContainer readingContainer, ReadingType readingType) {
+    static ReadingTypeDataExportItemImpl from(DataModel model, IStandardDataSelector dataSelector, ReadingContainer readingContainer, ReadingType readingType) {
         return model.getInstance(ReadingTypeDataExportItemImpl.class).init(dataSelector, readingContainer, readingType);
     }
 
-    private ReadingTypeDataExportItemImpl init(IReadingTypeDataSelector dataSelector, ReadingContainer readingContainer, ReadingType readingType) {
+    private ReadingTypeDataExportItemImpl init(IStandardDataSelector dataSelector, ReadingContainer readingContainer, ReadingType readingType) {
         this.selector.set(dataSelector);
         this.readingTypeMRId = readingType.getMRID();
         this.readingType = readingType;
@@ -80,7 +80,7 @@ public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem
     }
 
     @Override
-    public ReadingTypeDataSelector getSelector() {
+    public StandardDataSelector getSelector() {
         return selector.orElseThrow(IllegalStateException::new);
     }
 

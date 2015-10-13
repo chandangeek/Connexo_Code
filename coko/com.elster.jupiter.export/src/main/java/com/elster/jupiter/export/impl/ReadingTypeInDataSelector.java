@@ -1,7 +1,7 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.export.ReadingTypeDataSelector;
+import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataModel;
@@ -21,7 +21,7 @@ class ReadingTypeInDataSelector {
     private String readingTypeMRID;
 
     private transient ReadingType readingType;
-    private Reference<IReadingTypeDataSelector> readingTypeDataSelector = ValueReference.absent();
+    private Reference<IStandardDataSelector> readingTypeDataSelector = ValueReference.absent();
 
     private long version;
     private Instant createTime;
@@ -33,25 +33,25 @@ class ReadingTypeInDataSelector {
         this.meteringService = meteringService;
     }
 
-    ReadingTypeInDataSelector init(IReadingTypeDataSelector readingTypeDataSelector, ReadingType readingType) {
+    ReadingTypeInDataSelector init(IStandardDataSelector readingTypeDataSelector, ReadingType readingType) {
         this.readingTypeDataSelector.set(readingTypeDataSelector);
         this.readingType = readingType;
         this.readingTypeMRID = readingType.getMRID();
         return this;
     }
 
-    static ReadingTypeInDataSelector from(DataModel dataModel, IReadingTypeDataSelector readingTypeDataSelector, ReadingType readingType) {
+    static ReadingTypeInDataSelector from(DataModel dataModel, IStandardDataSelector readingTypeDataSelector, ReadingType readingType) {
         return dataModel.getInstance(ReadingTypeInDataSelector.class).init(readingTypeDataSelector, readingType);
     }
 
-    static ReadingTypeInDataSelector from(DataModel dataModel, IReadingTypeDataSelector readingTypeDataSelector, String readingTypeMRID) {
+    static ReadingTypeInDataSelector from(DataModel dataModel, IStandardDataSelector readingTypeDataSelector, String readingTypeMRID) {
         ReadingTypeInDataSelector readingTypeInDataSelector = dataModel.getInstance(ReadingTypeInDataSelector.class);
         readingTypeInDataSelector.readingTypeDataSelector.set(readingTypeDataSelector);
         readingTypeInDataSelector.readingTypeMRID = readingTypeMRID;
         return readingTypeInDataSelector;
     }
 
-    public ReadingTypeDataSelector getReadingTypeDataSelector() {
+    public StandardDataSelector getReadingTypeDataSelector() {
         return readingTypeDataSelector.get();
     }
 

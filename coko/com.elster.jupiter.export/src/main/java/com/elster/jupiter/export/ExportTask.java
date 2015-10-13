@@ -14,10 +14,6 @@ import java.util.Optional;
 public interface ExportTask extends HasName, HasAuditInfo {
     long getId();
 
-    void activate(); // resume
-
-    void deactivate(); // suspend
-
     Optional<Instant> getLastRun();
 
     Map<String, Object> getProperties();
@@ -73,9 +69,11 @@ public interface ExportTask extends HasName, HasAuditInfo {
 
     Optional<ScheduleExpression> getScheduleExpression(Instant at);
 
-    Optional<ReadingTypeDataSelector> getReadingTypeDataSelector();
+    Optional<StandardDataSelector> getReadingTypeDataSelector();
 
-    Optional<ReadingTypeDataSelector> getReadingTypeDataSelector(Instant at);
+    Optional<EventDataSelector> getEventDataSelector();
+
+    Optional<StandardDataSelector> getReadingTypeDataSelector(Instant at);
 
     FileDestination addFileDestination(String fileLocation, String fileName, String fileExtension);
 

@@ -8,7 +8,7 @@ import java.time.Instant;
 import java.util.Optional;
 
 public interface ReadingTypeDataExportItem {
-    ReadingTypeDataSelector getSelector();
+    StandardDataSelector getSelector();
 
     ReadingContainer getReadingContainer();
 

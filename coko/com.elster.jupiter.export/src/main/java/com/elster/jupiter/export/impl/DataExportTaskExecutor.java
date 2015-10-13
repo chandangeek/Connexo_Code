@@ -180,7 +180,6 @@ class DataExportTaskExecutor implements TaskExecutor {
         return dataExportService.getDataSelectorFactory(dataSelector).orElseThrow(() -> new NoSuchDataSelector(thesaurus, dataSelector));
     }
 
-    //TODO get the data to the destinations
     private FormattedData doProcess(DataFormatter dataFormatter, DataExportOccurrence occurrence, Stream<ExportData> exportData, ItemExporter itemExporter) {
         return dataFormatter.processData(exportData);
     }

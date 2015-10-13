@@ -3,6 +3,7 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
+import com.elster.jupiter.export.EventDataExportStrategy;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.time.RelativePeriod;
@@ -13,7 +14,7 @@ import java.util.Optional;
 
 import static com.elster.jupiter.util.Ranges.copy;
 
-class DataExportStrategyImpl implements DataExportStrategy {
+class DataExportStrategyImpl implements DataExportStrategy, EventDataExportStrategy {
 
     private final boolean exportUpdate;
     private final boolean exportOnlyIfComplete;

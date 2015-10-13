@@ -223,7 +223,7 @@ public class DataExportServiceImplIT {
         nlsService.addMessageSeedProvider(dataExportService);
         readingType = meteringService.getReadingType("0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
         anotherReadingType = meteringService.getReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0").get();
-        dataExportService.addFormatter(dataFormatterFactory, ImmutableMap.of(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_DATA_TYPE));
+        dataExportService.addFormatter(dataFormatterFactory, ImmutableMap.of(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_READING_DATA_TYPE));
         when(dataFormatterFactory.getName()).thenReturn(FORMATTER);
         when(dataFormatterFactory.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
         when(propertySpec.getName()).thenReturn("propy");
@@ -257,7 +257,7 @@ public class DataExportServiceImplIT {
                     .setName(NAME)
                     .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
                     .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
-                    .selectingStandard()
+                    .selectingReadingTypes()
                     .fromExportPeriod(lastYear)
                     .fromEndDeviceGroup(endDeviceGroup)
                     .fromUpdatePeriod(oneYearBeforeLastYear)
@@ -315,7 +315,7 @@ public class DataExportServiceImplIT {
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
                 .setName(name)
                 .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
-                .selectingStandard()
+                .selectingReadingTypes()
                 .fromExportPeriod(lastYear)
                 .fromEndDeviceGroup(endDeviceGroup)
                 .fromReadingType(readingType)

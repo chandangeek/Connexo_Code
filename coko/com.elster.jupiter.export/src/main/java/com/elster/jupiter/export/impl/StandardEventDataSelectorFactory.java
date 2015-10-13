@@ -18,12 +18,11 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-public class StandardDataSelectorFactory implements DataSelectorFactory {
-    static final String TRANSLATION_KEY = DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR;
-    static final String DISPLAY_NAME = "Device readings data selector";
+public class StandardEventDataSelectorFactory implements DataSelectorFactory {
+    private final String DISPLAYNAME = "Device events data selector";
     private final Thesaurus thesaurus;
 
-    public StandardDataSelectorFactory(Thesaurus thesaurus) {
+    public StandardEventDataSelectorFactory(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
     }
 
@@ -43,12 +42,12 @@ public class StandardDataSelectorFactory implements DataSelectorFactory {
 
     @Override
     public String getName() {
-        return DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR;
+        return DataExportService.STANDARD_EVENT_DATA_SELECTOR;
     }
 
     @Override
     public String getDisplayName() {
-        return thesaurus.getString(getNlsKey().getKey(), DISPLAY_NAME);
+        return thesaurus.getString(getNlsKey().getKey(), DISPLAYNAME);
     }
 
     @Override
@@ -57,7 +56,7 @@ public class StandardDataSelectorFactory implements DataSelectorFactory {
     }
 
     private NlsKey getNlsKey() {
-        return SimpleNlsKey.key(DataExportService.COMPONENTNAME, Layer.DOMAIN, TRANSLATION_KEY);
+        return SimpleNlsKey.key(DataExportService.COMPONENTNAME, Layer.DOMAIN, DataExportService.STANDARD_EVENT_DATA_SELECTOR);
     }
 
     private class DelegatingDataSelector implements DataSelector {
@@ -71,9 +70,9 @@ public class StandardDataSelectorFactory implements DataSelectorFactory {
 
         @Override
         public Stream<ExportData> selectData(DataExportOccurrence dataExportOccurrence) {
-            return dataExportOccurrence.getTask().getReadingTypeDataSelector()
+            return dataExportOccurrence.getTask().getEventDataSelector()
                     .map(IStandardDataSelector.class::cast)
-                    .map(readingTypeDataSelector -> readingTypeDataSelector.asReadingTypeDataSelector(logger, thesaurus))
+                    .map(readingTypeDataSelector -> readingTypeDataSelector.asEventDataSelector(logger, thesaurus))
                     .orElseThrow(IllegalStateException::new).selectData(dataExportOccurrence);
         }
     }

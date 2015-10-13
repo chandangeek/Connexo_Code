@@ -78,7 +78,7 @@ public class LoggingItemExporterTest {
     @Mock
     private ExportTask task;
     @Mock
-    private IReadingTypeDataSelector dataSelector;
+    private IStandardDataSelector dataSelector;
 
     public LoggingItemExporterTest() {
     }

@@ -53,7 +53,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ReadingTypeDataSelectorImplTest {
+public class StandardDataSelectorImplTest {
 
     private static final ZonedDateTime UPDATE_START = ZonedDateTime.of(2014, 5, 19, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
     private static final ZonedDateTime START = ZonedDateTime.of(2014, 6, 19, 0, 0, 0, 0, TimeZoneNeutral.getMcMurdo());
@@ -116,12 +116,16 @@ public class ReadingTypeDataSelectorImplTest {
     public void setUp() {
         transactionService = new TransactionVerifier();
 
-        doAnswer(invocation -> new ReadingTypeDataSelectorImpl(dataModel, transactionService, meteringService, validationService, clock))
-                .when(dataModel).getInstance(ReadingTypeDataSelectorImpl.class);
+        doAnswer(invocation -> new StandardDataSelectorImpl(dataModel, meteringService))
+                .when(dataModel).getInstance(StandardDataSelectorImpl.class);
         doAnswer(invocation -> new ReadingTypeInDataSelector(meteringService))
                 .when(dataModel).getInstance(ReadingTypeInDataSelector.class);
         doAnswer(invocation -> new ReadingTypeDataExportItemImpl(meteringService, dataExportService, dataModel))
                 .when(dataModel).getInstance(ReadingTypeDataExportItemImpl.class);
+        doAnswer(invocation -> new ReadingTypeDataSelector(dataModel, transactionService, clock, validationService, thesaurus))
+                .when(dataModel).getInstance(ReadingTypeDataSelector.class);
+        doAnswer(invocation -> new DefaultItemDataSelector(clock, validationService, thesaurus, transactionService))
+                .when(dataModel).getInstance(DefaultItemDataSelector.class);
         doAnswer(invocation -> new FakeRefAny(invocation.getArguments()[0])).when(dataModel).asRefAny(any());
         doReturn(validatorFactory).when(dataModel).getValidatorFactory();
         doReturn(validator).when(validatorFactory).getValidator();
@@ -169,7 +173,7 @@ public class ReadingTypeDataSelectorImplTest {
     @Test
     public void testSelectWithUpdate() {
 
-        ReadingTypeDataSelectorImpl selector = ReadingTypeDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
+        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
         selector.addReadingType(readingType);
         selector.setExportUpdate(true);
         selector.setUpdatePeriod(updatePeriod);
@@ -177,11 +181,11 @@ public class ReadingTypeDataSelectorImplTest {
 
         doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
 
-        List<ExportData> collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        List<ExportData> collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(2);
 
-        collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(4);
 
@@ -205,7 +209,7 @@ public class ReadingTypeDataSelectorImplTest {
     @Test
     public void testSelectWithUpdateAndWindow() {
 
-        ReadingTypeDataSelectorImpl selector = ReadingTypeDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
+        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
         selector.addReadingType(readingType);
         selector.setExportUpdate(true);
         selector.setUpdatePeriod(updatePeriod);
@@ -214,11 +218,11 @@ public class ReadingTypeDataSelectorImplTest {
 
         doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
 
-        List<ExportData> collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        List<ExportData> collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(2);
 
-        collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(4);
 
@@ -247,7 +251,7 @@ public class ReadingTypeDataSelectorImplTest {
         when(meter1.toList(eq(readingType), any())).thenReturn(Arrays.asList(END.toInstant()));
         when(meter2.toList(eq(readingType), any())).thenReturn(Arrays.asList(START.toInstant(), END.toInstant()));
 
-        ReadingTypeDataSelectorImpl selector = ReadingTypeDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
+        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
         selector.addReadingType(readingType);
         selector.setExportUpdate(false);
         selector.setExportOnlyIfComplete(true);
@@ -255,7 +259,7 @@ public class ReadingTypeDataSelectorImplTest {
 
         doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
 
-        List<ExportData> collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        List<ExportData> collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(1);
 
@@ -269,7 +273,7 @@ public class ReadingTypeDataSelectorImplTest {
         when(meter1.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant()));
         when(meter2.toList(readingType, UPDATE_WINDOW_INTERVAL)).thenReturn(Arrays.asList(UPDATED_RECORD_TIME.toInstant(), UPDATED_RECORD_TIME.plusMinutes(5).toInstant()));
 
-        ReadingTypeDataSelectorImpl selector = ReadingTypeDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
+        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
         selector.addReadingType(readingType);
         selector.setExportUpdate(true);
         selector.setUpdatePeriod(updatePeriod);
@@ -279,11 +283,11 @@ public class ReadingTypeDataSelectorImplTest {
 
         doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
 
-        List<ExportData> collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        List<ExportData> collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(2);
 
-        collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(3);
 
@@ -316,7 +320,7 @@ public class ReadingTypeDataSelectorImplTest {
 
         when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.of(END.plusMonths(1).toInstant()));
 
-        ReadingTypeDataSelectorImpl selector = ReadingTypeDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
+        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
         selector.addReadingType(readingType);
         selector.setExportUpdate(true);
         selector.setUpdatePeriod(updatePeriod);
@@ -326,11 +330,11 @@ public class ReadingTypeDataSelectorImplTest {
 
         doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
 
-        List<ExportData> collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        List<ExportData> collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(2);
 
-        collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(4);
 
@@ -369,7 +373,7 @@ public class ReadingTypeDataSelectorImplTest {
         when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.of(END.plusMonths(1).toInstant()));
         when(validationEvaluator.getLastChecked(meter1, readingType)).thenReturn(Optional.of(END.minusMinutes(5).toInstant()));
 
-        ReadingTypeDataSelectorImpl selector = ReadingTypeDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
+        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
         selector.addReadingType(readingType);
         selector.setExportUpdate(true);
         selector.setUpdatePeriod(updatePeriod);
@@ -379,11 +383,11 @@ public class ReadingTypeDataSelectorImplTest {
 
         doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
 
-        List<ExportData> collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        List<ExportData> collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(2);
 
-        collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(4);
 
@@ -422,7 +426,7 @@ public class ReadingTypeDataSelectorImplTest {
 
         when(validationEvaluator.getLastChecked(any(), any())).thenReturn(Optional.of(END.plusMonths(1).toInstant()));
 
-        ReadingTypeDataSelectorImpl selector = ReadingTypeDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
+        StandardDataSelectorImpl selector = StandardDataSelectorImpl.from(dataModel, task, exportPeriod, endDeviceGroup);
         selector.addReadingType(readingType);
         selector.setExportUpdate(true);
         selector.setUpdatePeriod(updatePeriod);
@@ -432,11 +436,11 @@ public class ReadingTypeDataSelectorImplTest {
 
         doReturn(Optional.of(selector)).when(task).getReadingTypeDataSelector();
 
-        List<ExportData> collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        List<ExportData> collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(1);
 
-        collect = selector.asDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
+        collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(3);
 

@@ -6,13 +6,15 @@ import com.elster.jupiter.export.DataExportDestination;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.export.DataExportProperty;
+import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportStatus;
 import com.elster.jupiter.export.EmailDestination;
+import com.elster.jupiter.export.EventDataSelector;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.FileDestination;
 import com.elster.jupiter.export.FtpDestination;
 import com.elster.jupiter.export.FtpsDestination;
-import com.elster.jupiter.export.ReadingTypeDataSelector;
+import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
@@ -75,7 +77,7 @@ final class ExportTaskImpl implements IExportTask {
     private Instant modTime;
     private String userName;
     @Valid
-    private Reference<IReadingTypeDataSelector> readingTypeDataSelector = Reference.empty();
+    private Reference<IStandardDataSelector> readingTypeDataSelector = Reference.empty();
     @Valid
     private List<IDataExportDestination> destinations = new ArrayList<>();
 
@@ -94,18 +96,6 @@ final class ExportTaskImpl implements IExportTask {
     @Override
     public long getId() {
         return id;
-    }
-
-    @Override
-    public void activate() {
-        //TODO automatically generated method body, provide implementation.
-
-    }
-
-    @Override
-    public void deactivate() {
-        //TODO automatically generated method body, provide implementation.
-
     }
 
     @Override
@@ -159,14 +149,14 @@ final class ExportTaskImpl implements IExportTask {
         List<DataExportProperty> processorProperties = new ArrayList<DataExportProperty>();
         List<DataExportProperty> selectorProperties = new ArrayList<DataExportProperty>();
         for (DataExportProperty property : properties) {
-            for (PropertySpec processorPropertySpec : propertiesSpecsForProcessor)   {
+            for (PropertySpec processorPropertySpec : propertiesSpecsForProcessor) {
                 if (property.instanceOfSpec(processorPropertySpec)) {
                     processorProperties.add(property);
                 }
             }
         }
         for (DataExportProperty property : properties) {
-            for (PropertySpec selectorPropertySpec : propertiesSpecsForDataSelector)   {
+            for (PropertySpec selectorPropertySpec : propertiesSpecsForDataSelector) {
                 if (property.instanceOfSpec(selectorPropertySpec)) {
                     selectorProperties.add(property);
                 }
@@ -182,7 +172,7 @@ final class ExportTaskImpl implements IExportTask {
         } else {
             doUpdate();
         }
-        readingTypeDataSelector.getOptional().ifPresent(ReadingTypeDataSelector::save);
+        readingTypeDataSelector.getOptional().ifPresent(StandardDataSelector::save);
         recurrentTaskDirty = false;
         propertiesDirty = false;
     }
@@ -197,7 +187,7 @@ final class ExportTaskImpl implements IExportTask {
         }
         properties.clear();
         destinations.clear();
-        readingTypeDataSelector.getOptional().ifPresent(IReadingTypeDataSelector::delete);
+        readingTypeDataSelector.getOptional().ifPresent(IStandardDataSelector::delete);
         dataModel.mapper(DataExportOccurrence.class).remove(getOccurrences());
         dataModel.remove(this);
         if (recurrentTask.isPresent()) {
@@ -256,12 +246,12 @@ final class ExportTaskImpl implements IExportTask {
 
     @Override
     public List<PropertySpec> getDataSelectorPropertySpecs() {
-        return dataExportService.getDataSelectorFactory(dataSelector).orElseThrow(()->new IllegalArgumentException("No such data selector: " + dataSelector)).getPropertySpecs();
+        return dataExportService.getDataSelectorFactory(dataSelector).orElseThrow(() -> new IllegalArgumentException("No such data selector: " + dataSelector)).getPropertySpecs();
     }
 
     @Override
     public List<PropertySpec> getDataProcessorPropertySpecs() {
-        return dataExportService.getDataFormatterFactory(dataFormatter).orElseThrow(()->new IllegalArgumentException("No such data processor: " + dataFormatter)).getPropertySpecs();
+        return dataExportService.getDataFormatterFactory(dataFormatter).orElseThrow(() -> new IllegalArgumentException("No such data processor: " + dataFormatter)).getPropertySpecs();
     }
 
     @Override
@@ -365,6 +355,12 @@ final class ExportTaskImpl implements IExportTask {
                 .setFirstExecution(nextExecution);
         RecurrentTask task = builder.build();
         recurrentTask.set(task);
+        if (DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR.equals(dataSelector)) {
+            Save.CREATE.validate(dataModel, this, StandardDataSelector.class);
+        }
+        if (DataExportService.STANDARD_EVENT_DATA_SELECTOR.equals(dataSelector)) {
+            Save.CREATE.validate(dataModel, this, EventDataSelector.class);
+        }
         Save.CREATE.save(dataModel, this);
     }
 
@@ -410,12 +406,21 @@ final class ExportTaskImpl implements IExportTask {
     }
 
     @Override
-    public Optional<ReadingTypeDataSelector> getReadingTypeDataSelector() {
-        return readingTypeDataSelector.getOptional().map(ReadingTypeDataSelector.class::cast);
+    public Optional<StandardDataSelector> getReadingTypeDataSelector() {
+        return readingTypeDataSelector.getOptional()
+                .map(StandardDataSelector.class::cast)
+                .filter(selector -> DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR.equals(dataSelector));
     }
 
     @Override
-    public Optional<ReadingTypeDataSelector> getReadingTypeDataSelector(Instant at) {
+    public Optional<EventDataSelector> getEventDataSelector() {
+        return readingTypeDataSelector.getOptional()
+                .map(EventDataSelector.class::cast)
+                .filter(selector -> DataExportService.STANDARD_EVENT_DATA_SELECTOR.equals(dataSelector));
+    }
+
+    @Override
+    public Optional<StandardDataSelector> getReadingTypeDataSelector(Instant at) {
         return getReadingTypeDataSelector().flatMap(selector -> selector.getHistory().getVersionAt(at));
     }
 
@@ -433,9 +438,13 @@ final class ExportTaskImpl implements IExportTask {
     }
 
     @Override
-    public void setReadingTypeDataSelector(ReadingTypeDataSelectorImpl readingTypeDataSelector) {
+    public void setReadingTypeDataSelector(StandardDataSelectorImpl readingTypeDataSelector) {
         this.readingTypeDataSelector.set(readingTypeDataSelector);
+    }
 
+    @Override
+    public void setEventDataSelector(StandardDataSelectorImpl eventDataSelector) {
+        this.readingTypeDataSelector.set(eventDataSelector);
     }
 
     @Override

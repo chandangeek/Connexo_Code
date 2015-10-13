@@ -2,13 +2,7 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
-import com.elster.jupiter.export.DataExportOccurrence;
-import com.elster.jupiter.export.DataExportStrategy;
-import com.elster.jupiter.export.DefaultSelectorOccurrence;
-import com.elster.jupiter.export.MeterReadingData;
-import com.elster.jupiter.export.ReadingTypeDataExportItem;
-import com.elster.jupiter.export.ReadingTypeDataSelector;
-import com.elster.jupiter.export.StructureMarker;
+import com.elster.jupiter.export.*;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.Meter;
@@ -22,6 +16,7 @@ import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.beans.IntervalBlockImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -31,6 +26,7 @@ import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 
+import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -55,16 +51,17 @@ class DefaultItemDataSelector implements ItemDataSelector {
 
     private final Clock clock;
     private final ValidationService validationService;
-    private final Logger logger;
     private final Thesaurus thesaurus;
     private final DateTimeFormatter timeFormatter = DefaultDateTimeFormatters.mediumDate().withLongTime().build().withZone(ZoneId.systemDefault());
     private final TransactionService transactionService;
     private int exportCount;
 
-    public DefaultItemDataSelector(Clock clock, ValidationService validationService, Logger logger, Thesaurus thesaurus, TransactionService transactionService) {
+    private Logger logger;
+
+    @Inject
+    DefaultItemDataSelector(Clock clock, ValidationService validationService, Thesaurus thesaurus, TransactionService transactionService) {
         this.clock = clock;
         this.validationService = validationService;
-        this.logger = logger;
         this.thesaurus = thesaurus;
         this.transactionService = transactionService;
     }
@@ -73,12 +70,24 @@ class DefaultItemDataSelector implements ItemDataSelector {
         return exportCount;
     }
 
+    private DefaultItemDataSelector init(Logger logger) {
+        this.logger = logger;
+        return this;
+    }
+
+    static DefaultItemDataSelector from(DataModel dataModel, Logger logger) {
+        return dataModel.getInstance(DefaultItemDataSelector.class).init(logger);
+    }
+
     @Override
     public Optional<MeterReadingData> selectData(DataExportOccurrence occurrence, IReadingTypeDataExportItem item) {
         Range<Instant> exportInterval = determineExportInterval(occurrence, item);
 
         if (!exportInterval.hasUpperBound() || clock.instant().isBefore(exportInterval.upperEndpoint())) {
             String relativePeriodName = occurrence.getTask().getReadingTypeDataSelector()
+                    .map(IStandardDataSelector.class::cast)
+                    .map(standardDataSelector -> standardDataSelector.asReadingTypeDataSelector(logger, thesaurus))
+                    .map(ReadingTypeDataSelector.class::cast)
                     .map(ReadingTypeDataSelector::getExportPeriod)
                     .map(RelativePeriod::getName)
                     .get();
@@ -292,7 +301,7 @@ class DefaultItemDataSelector implements ItemDataSelector {
 
     private boolean isExportUpdates(DataExportOccurrence occurrence) {
         return occurrence.getTask().getReadingTypeDataSelector()
-                .map(ReadingTypeDataSelector::getStrategy)
+                .map(StandardDataSelector::getStrategy)
                 .map(DataExportStrategy::isExportUpdate)
                 .orElse(false);
     }
@@ -314,7 +323,7 @@ class DefaultItemDataSelector implements ItemDataSelector {
 
     private Range<Instant> determineExportInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
         return occurrence.getTask().getReadingTypeDataSelector()
-                .map(IReadingTypeDataSelector.class::cast)
+                .map(IStandardDataSelector.class::cast)
                 .map(selector -> selector.adjustedExportPeriod(occurrence, item))
                 .orElse(Range.all());
     }
@@ -329,7 +338,7 @@ class DefaultItemDataSelector implements ItemDataSelector {
 
     private Range<Instant> determineBaseUpdateInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
         return occurrence.getTask().getReadingTypeDataSelector()
-                .map(ReadingTypeDataSelector::getStrategy)
+                .map(StandardDataSelector::getStrategy)
                 .filter(DataExportStrategy::isExportUpdate)
                 .flatMap(DataExportStrategy::getUpdatePeriod)
                 .map(relativePeriod -> relativePeriod.getOpenClosedInterval(ZonedDateTime.ofInstant(occurrence.getTriggerTime(), item.getReadingContainer().getZoneId())))

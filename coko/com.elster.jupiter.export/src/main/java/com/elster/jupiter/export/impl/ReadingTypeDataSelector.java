@@ -1,0 +1,133 @@
+package com.elster.jupiter.export.impl;
+
+import com.elster.jupiter.export.*;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.EndDeviceMembership;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.streams.Functions;
+import com.elster.jupiter.validation.ValidationService;
+import com.google.common.collect.Range;
+
+import javax.inject.Inject;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
+
+class ReadingTypeDataSelector implements DataSelector {
+    private final DataModel dataModel;
+    private final TransactionService transactionService;
+    private final Clock clock;
+    private final ValidationService validationService;
+    private final Thesaurus thesaurus;
+
+    private Logger logger;
+    private StandardDataSelectorImpl selector;
+
+    @Inject
+    ReadingTypeDataSelector(DataModel dataModel, TransactionService transactionService, Clock clock, ValidationService validationService, Thesaurus thesaurus) {
+        this.dataModel = dataModel;
+        this.transactionService = transactionService;
+        this.clock = clock;
+        this.validationService = validationService;
+        this.thesaurus = thesaurus;
+    }
+
+    private ReadingTypeDataSelector init(StandardDataSelectorImpl selector,Logger logger) {
+        this.selector = selector;
+        this.logger = logger;
+        return this;
+    }
+
+    static ReadingTypeDataSelector from(DataModel dataModel, StandardDataSelectorImpl selector, Logger logger) {
+        return dataModel.getInstance(ReadingTypeDataSelector.class).init(selector, logger);
+    }
+
+    @Override
+    public Stream<ExportData> selectData(DataExportOccurrence occurrence) {
+        Set<IReadingTypeDataExportItem> activeItems;
+        Map<IReadingTypeDataExportItem, Optional<Instant>> lastRuns;
+        try (TransactionContext context = transactionService.getContext()) {
+            activeItems = selector.getActiveItems(occurrence);
+
+            getExportItems().stream()
+                    .filter(item -> !activeItems.contains(item))
+                    .peek(IReadingTypeDataExportItem::deactivate)
+                    .forEach(IReadingTypeDataExportItem::update);
+            lastRuns = activeItems.stream()
+                    .collect(Collectors.toMap(Function.identity(), ReadingTypeDataExportItem::getLastRun));
+            activeItems.stream()
+                    .peek(IReadingTypeDataExportItem::activate)
+                    .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
+                    .forEach(IReadingTypeDataExportItem::update);
+            warnIfDevicesHaveNoneOfTheReadingTypes(logger, occurrence);
+            context.commit();
+        }
+
+        DefaultItemDataSelector defaultItemDataSelector = new DefaultItemDataSelector(clock, validationService, thesaurus, transactionService);
+        try {
+            return activeItems.stream()
+                    .flatMap(item -> Stream.of(
+                            defaultItemDataSelector.selectData(occurrence, item),
+                            lastRuns.get(item).flatMap(since -> defaultItemDataSelector.selectDataForUpdate(occurrence, item, since))))
+                    .flatMap(Functions.asStream());
+        } finally {
+            try (TransactionContext context = transactionService.getContext()) {
+                if (defaultItemDataSelector.getExportCount() == 0) {
+                    MessageSeeds.NO_DATA_TOEXPORT.log(logger, thesaurus);
+                    context.commit();
+                }
+            }
+        }
+    }
+
+    private void warnIfDevicesHaveNoneOfTheReadingTypes(Logger logger, DataExportOccurrence occurrence) {
+        Range<Instant> range = occurrence.getDefaultSelectorOccurrence()
+                .map(DefaultSelectorOccurrence::getExportedDataInterval)
+                .orElse(Range.<Instant>all());
+        boolean hasMismatchedMeters = decorate(getEndDeviceGroup()
+                .getMembers(range)
+                .stream())
+                .map(EndDeviceMembership::getEndDevice)
+                .filterSubType(Meter.class)
+                .anyMatch(meter -> meter.getReadingTypes(range)
+                                .stream()
+                                .noneMatch(readingType -> getReadingTypes().contains(readingType))
+                );
+        if (hasMismatchedMeters) {
+            MessageSeeds.SOME_DEVICES_HAVE_NONE_OF_THE_SELECTED_READINGTYPES.log(logger, thesaurus, getEndDeviceGroup().getName());
+        }
+    }
+
+    private EndDeviceGroup getEndDeviceGroup() {
+        return selector.getEndDeviceGroup();
+    }
+
+    private List<IReadingTypeDataExportItem> getExportItems() {
+        return selector.getExportItems();
+    }
+
+    private Set<ReadingType> getReadingTypes() {
+        return selector.getReadingTypes();
+    }
+
+
+    public RelativePeriod getExportPeriod() {
+        return selector.getExportPeriod();
+    }
+}
+
