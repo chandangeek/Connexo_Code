@@ -97,10 +97,6 @@
       <groupId>com.elster.jupiter</groupId>
       <artifactId>cps</artifactId>
     </dependency>
-    <dependency>
-      <groupId>com.elster.jupiter</groupId>
-      <artifactId>datavault</artifactId>
-    </dependency>
 
     <!-- Test dependencies -->
     <dependency>
