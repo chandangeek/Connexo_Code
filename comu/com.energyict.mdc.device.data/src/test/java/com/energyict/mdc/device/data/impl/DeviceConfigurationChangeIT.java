@@ -12,6 +12,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.config.impl.PartialScheduledConnectionTaskImpl;
+import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingEngine;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
@@ -19,7 +20,12 @@ import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
 import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
 import com.energyict.mdc.device.data.impl.tasks.OutboundIpConnectionTypeImpl;
-import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -41,11 +47,10 @@ import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,7 +67,6 @@ import static org.mockito.Mockito.when;
 public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
 
     private static ConnectionTypePluggableClass outboundIpConnectionTypePluggableClass;
-    private static long CONFIG_VERSION = 1;
     private final String connectionTaskCreatedTopic = "com/energyict/mdc/device/config/partial(.*)connectiontask/CREATED";
     private final String securitySetCreatedTopic = "com/energyict/mdc/device/config/securitypropertyset/CREATED";
 
@@ -111,20 +115,32 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
                                                 device.getConnectionTasks().forEach(device::removeConnectionTask);
                                                 device.delete();
                                             }
-                                            );
-//                            final List<PartialConnectionTask> partialConnectionTasks = dc.getPartialConnectionTasks();
-//                            for (int i = 0; i < partialConnectionTasks.size(); i++) {
-//                                dc.remove(partialConnectionTasks.get(i));
-//                            }
-                            dc.getSecurityPropertySets().forEach(dc::removeSecurityPropertySet);
-                            dc.getComTaskEnablements().forEach(comTaskEnablement -> dc.disableComTask(comTaskEnablement.getComTask()));
+                                    );
                             dc.deactivate();
+                            DeviceConfigConflictMappingEngine.INSTANCE.reCalculateConflicts(dt);
+                            final List<ComTask> comTasks = dc.getComTaskEnablements().stream().map(ComTaskEnablement::getComTask).collect(Collectors.toList());
+                            comTasks.forEach(dc::disableComTask);
+
+                            final List<PartialConnectionTask> partialConnectionTasks = dc.getPartialConnectionTasks();
+                            for (int i = 0; i < partialConnectionTasks.size(); i++) {
+                                dc.remove(partialConnectionTasks.get(i));
+                            }
+                            final List<SecurityPropertySet> securityPropertySets = dc.getSecurityPropertySets();
+                            for (int i = 0; i < securityPropertySets.size(); i++) {
+                                dc.removeSecurityPropertySet(securityPropertySets.get(i));
+                            }
                             dt.removeConfiguration(dc);
                         });
                         dt.delete();
                     });
+
             inMemoryPersistence.getMasterDataService().findAllLoadProfileTypes().forEach(LoadProfileType::delete);
             inMemoryPersistence.getMasterDataService().findAllLogBookTypes().stream().forEach(LogBookType::delete);
+
+            inMemoryPersistence.getEngineConfigurationService().findAllComPortPools().stream()
+                    .forEach(ComPortPool::delete);
+
+            inMemoryPersistence.getEngineConfigurationService().findAllComServers().find().forEach(ComServer::delete);
             context.commit();
         }
     }
@@ -751,9 +767,12 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         }
         Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
-        assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
-        assertThat(modifiedDevice.getSecurityProperties(secondSecurityPropertySet).get(0).getName()).isEqualTo("Password");
-        assertThat(modifiedDevice.getSecurityProperties(firstSecurityPropertySet)).isEmpty();
+        try (TransactionContext context = getTransactionService().getContext()) {
+            assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
+            assertThat(modifiedDevice.getSecurityProperties(secondSecurityPropertySet).get(0).getName()).isEqualTo("Password");
+            assertThat(modifiedDevice.getSecurityProperties(firstSecurityPropertySet)).isEmpty();
+            context.commit();
+        }
     }
 
     @Test
@@ -785,9 +804,12 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         }
         Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
-        assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
-        assertThat(modifiedDevice.getSecurityProperties(secondSecurityPropertySet).get(0).getName()).isEqualTo("Password");
-        assertThat(modifiedDevice.getSecurityProperties(firstSecurityPropertySet)).isEmpty();
+        try (TransactionContext context = getTransactionService().getContext()) {
+            assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
+            assertThat(modifiedDevice.getSecurityProperties(secondSecurityPropertySet).get(0).getName()).isEqualTo("Password");
+            assertThat(modifiedDevice.getSecurityProperties(firstSecurityPropertySet)).isEmpty();
+            context.commit();
+        }
     }
 
     @Test
@@ -819,9 +841,12 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         }
         Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
-        assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
-        assertThat(modifiedDevice.getSecurityProperties(secondSecurityPropertySet)).isEmpty();
-        assertThat(modifiedDevice.getSecurityProperties(firstSecurityPropertySet)).isEmpty();
+        try (TransactionContext context = getTransactionService().getContext()) {
+            assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
+            assertThat(modifiedDevice.getSecurityProperties(secondSecurityPropertySet)).isEmpty();
+            assertThat(modifiedDevice.getSecurityProperties(firstSecurityPropertySet)).isEmpty();
+            context.commit();
+        }
     }
 
     @Test
@@ -997,8 +1022,11 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
         assertThat(modifiedDevice.getDeviceProtocolProperties().getProperty(propertyName)).isEqualTo(deviceValue);
 
-        modifiedDevice.removeProtocolProperty(propertyName);
-        modifiedDevice.save();
+        try (TransactionContext context = getTransactionService().getContext()) {
+            modifiedDevice.removeProtocolProperty(propertyName);
+            modifiedDevice.save();
+            context.commit();
+        }
 
         final Device reloadedDevice = inMemoryPersistence.getDeviceService().findDeviceById(modifiedDevice.getId()).get();
         assertThat(reloadedDevice.getDeviceProtocolProperties().getProperty(propertyName)).isEqualTo(configValue);
@@ -1014,7 +1042,10 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
 
             secondDeviceConfiguration = deviceType.newConfiguration("SecondDeviceConfiguration").add();
             secondDeviceConfiguration.activate();
-            secondDeviceConfiguration.getDeviceMessageEnablements().stream().forEach(deviceMessageEnablement -> secondDeviceConfiguration.removeDeviceMessageEnablement(deviceMessageEnablement.getDeviceMessageId()));
+            secondDeviceConfiguration.save();
+
+            final List<DeviceMessageId> deviceMessageIds = secondDeviceConfiguration.getDeviceMessageEnablements().stream().map(DeviceMessageEnablement::getDeviceMessageId).collect(Collectors.toList());
+            deviceMessageIds.stream().forEach(secondDeviceConfiguration::removeDeviceMessageEnablement);
             secondDeviceConfiguration.save();
 
             device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
@@ -1026,14 +1057,17 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         boolean ok = false; // keeping track of a boolean because we need to validate that the message was called due to the below method
-        try {
-            device.newDeviceMessage(DeviceMessageId.CONTACTOR_CLOSE).setReleaseDate(Instant.now()).add(); // should fail!
-        } catch (ConstraintViolationException e) {
-            if (!e.getMessage().contains("deviceMessage.not.allowed.config")) {
-                fail("Should have gotten an exception indicating that we could not create the message");
-            } else {
-                ok = true;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            try {
+                modifiedDevice.newDeviceMessage(DeviceMessageId.CONTACTOR_CLOSE).setReleaseDate(Instant.now()).add(); // should fail!
+            } catch (ConstraintViolationException e) {
+                if (!e.getMessage().contains("deviceMessage.not.allowed.config")) {
+                    fail("Should have gotten an exception indicating that we could not create the message");
+                } else {
+                    ok = true;
+                }
             }
+            context.commit();
         }
 
         if (!ok) {

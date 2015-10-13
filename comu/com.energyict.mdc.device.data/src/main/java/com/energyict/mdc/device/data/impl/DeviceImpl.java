@@ -467,6 +467,10 @@ public class DeviceImpl implements Device, CanLock, ServerDeviceForConfigChange 
 
     private void deleteProperties() {
         this.deviceProperties.clear();
+        for (ProtocolDialectProperties aDialectPropertiesList : dialectPropertiesList) {
+            final ProtocolDialectPropertiesImpl protocolDialectProperties = (ProtocolDialectPropertiesImpl) aDialectPropertiesList;
+            protocolDialectProperties.delete();
+        }
     }
 
     @Override

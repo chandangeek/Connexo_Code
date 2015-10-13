@@ -16,7 +16,7 @@ import java.util.List;
  * Date: 08.10.15
  * Time: 11:43
  */
-public class DeviceConfigChangeRequestImpl implements DeviceConfigChangeRequest {
+public final class DeviceConfigChangeRequestImpl implements DeviceConfigChangeRequest {
 
     public enum Fields {
         DEVICE_CONFIG_REFERENCE("destinationDeviceConfiguration"),
@@ -58,7 +58,6 @@ public class DeviceConfigChangeRequestImpl implements DeviceConfigChangeRequest 
         return this;
     }
 
-
     @Override
     public long getId() {
         return id;
@@ -76,5 +75,21 @@ public class DeviceConfigChangeRequestImpl implements DeviceConfigChangeRequest 
     @Override
     public void remove() {
         this.dataModel.remove(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DeviceConfigChangeRequestImpl that = (DeviceConfigChangeRequestImpl) o;
+
+        return id == that.id;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
     }
 }

@@ -112,6 +112,7 @@ public enum MessageSeeds implements MessageSeed {
     CANNOT_CHANGE_DEVICE_CONFIG_NOT_ALL_CONFLICTS_SOLVED(2082, Keys.CANNOT_CHANGE_DEVICE_CONFIG_NOT_ALL_CONFLICTS_SOLVED, "You can not change the configuration of device {0} to the configuration {1} because there are still unsolved conflicts"),
     CANNOT_CHANGE_DEVICE_CONFIG_TO_OTHER_DEVICE_TYPE(2083, Keys.CANNOT_CHANGE_DEVICE_CONFIG_TO_OTHER_DEVICE_TYPE, "You can not change the configuration of a device to a configuration of another devicetype"),
     NO_DESTINATION_DEVICE_CONFIG_FOUND_FOR_VERSION(2084, Keys.NO_DESTINATION_DEVICE_CONFIG_FOUND_FOR_VERSION, "No destination device configuration found for id {0} and version {1}"),
+    VETO_CONFIG_CHANGE_ACTIVE_NO_NEW_CONFLICTS_ALLOWED(2085, Keys.VETO_CONFIG_CHANGE_ACTIVE_NO_NEW_CONFLICTS_ALLOWED, "There is currently an active configuration change happening, your change would create new conflicts, please wait untill the action has finished."),
     ;
 
     private final int number;
@@ -253,5 +254,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CANNOT_CHANGE_DEVICE_CONFIG_NOT_ALL_CONFLICTS_SOLVED = "cannotChangeConfigStillUnsolvedConflicts";
         public static final String CANNOT_CHANGE_DEVICE_CONFIG_TO_OTHER_DEVICE_TYPE = "cannotChangeToConfigOfOtherDeviceType";
         public static final String NO_DESTINATION_DEVICE_CONFIG_FOUND_FOR_VERSION = "noDestinationDeviceConfigFoundForVersion";
+        public static final String VETO_CONFIG_CHANGE_ACTIVE_NO_NEW_CONFLICTS_ALLOWED = "activeConfigChangeNoNewConflictsAllowed";
     }
 }

@@ -7,8 +7,11 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
@@ -40,6 +43,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -247,16 +251,37 @@ public class DeviceServiceImpl implements ServerDeviceService {
             return deviceConfigChangeRequest;
         });
 
-        return deviceDataModelService.getTransactionService().execute(() -> {
-            final Device modifiedDevice = DeviceConfigChangeExecutor.getInstance().execute((DeviceImpl) device, deviceDataModelService.deviceConfigurationService().findDeviceConfiguration(destinationDeviceConfigId).get());
-            configChangeRequest.remove();
-            return modifiedDevice;
-        });
-
+        Device modifiedDevice = null;
+        Optional<Throwable> exceptionDuringConfigChangeExecution = Optional.empty();
+        try {
+            modifiedDevice = deviceDataModelService.getTransactionService().execute(() -> DeviceConfigChangeExecutor.getInstance().execute((DeviceImpl) device, deviceDataModelService.deviceConfigurationService().findDeviceConfiguration(destinationDeviceConfigId).get()));
+        } catch (Throwable e) {
+            exceptionDuringConfigChangeExecution = Optional.of(e);
+        } finally {
+            deviceDataModelService.getTransactionService().execute(() -> new VoidTransaction(){
+                @Override
+                protected void doPerform() {
+                    configChangeRequest.remove();
+                }
+            });
+        }
+        if(exceptionDuringConfigChangeExecution.isPresent()){
+            // TODO make it a runtimeexception
+            throw exceptionDuringConfigChangeExecution.get();
+        }
+        return modifiedDevice;
     }
 
     @Override
     public void changeDeviceConfigurationForDevices(DeviceConfiguration destinationDeviceConfiguration, Device... device) {
 
+    }
+
+    @Override
+    public boolean hasActiveDeviceConfigChangesFor(DeviceConfiguration originDeviceConfiguration, DeviceConfiguration destinationDeviceConfiguration) {
+        return this.deviceDataModelService.dataModel()
+                .stream(DeviceConfigChangeRequest.class)
+                .filter(Where.where(DeviceConfigChangeRequestImpl.Fields.DEVICE_CONFIG_REFERENCE.fieldName()).in(Arrays.asList(originDeviceConfiguration, destinationDeviceConfiguration)))
+                .findAny().isPresent();
     }
 }
