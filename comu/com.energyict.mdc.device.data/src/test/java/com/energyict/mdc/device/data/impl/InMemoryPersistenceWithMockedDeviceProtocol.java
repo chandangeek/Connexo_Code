@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -140,6 +142,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         Injector injector = Guice.createInjector(
                 new MockModule(),
                 bootstrapModule,
+                new CustomPropertySetsModule(),
                 new UtilModule(clock),
                 new ThreadSecurityModule(this.principal),
                 new EventsModule(),
@@ -185,6 +188,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             injector.getInstance(PluggableService.class);
+            injector.getInstance(CustomPropertySetService.class);
             this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             this.ormService = injector.getInstance(OrmService.class);
             this.eventService = injector.getInstance(EventService.class);
