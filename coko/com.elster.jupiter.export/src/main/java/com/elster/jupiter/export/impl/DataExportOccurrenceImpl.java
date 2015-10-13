@@ -98,11 +98,6 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
         return this.failureReason;
     }
 
-    @Override
-    public String getSummary() {
-        return this.summary;
-    }
-
     public void persist() {
         dataModel.persist(this);
     }
