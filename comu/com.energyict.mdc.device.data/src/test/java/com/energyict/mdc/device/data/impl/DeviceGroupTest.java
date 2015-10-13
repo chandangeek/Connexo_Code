@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.impl.EstimationModule;
@@ -188,6 +190,7 @@ public class DeviceGroupTest {
         injector = Guice.createInjector(
                 new ThreadSecurityModule(principal),
                 this.inMemoryBootstrapModule,
+                new CustomPropertySetsModule(),
                 new OrmModule(),
                 new DataVaultModule(),
                 new EventsModule(),
@@ -223,6 +226,7 @@ public class DeviceGroupTest {
                 new MockModule()
         );
         injector.getInstance(TransactionService.class).execute(() -> {
+            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringGroupsService.class);
             injector.getInstance(ThreadPrincipalService.class);

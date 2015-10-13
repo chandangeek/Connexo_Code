@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
@@ -220,6 +222,7 @@ public class DataCollectionKpiImplTest {
                 inMemoryBootstrapModule,
                 new InMemoryMessagingModule(),
                 new OrmModule(),
+                new CustomPropertySetsModule(),
                 new DataVaultModule(),
                 new EventsModule(),
                 new PubSubModule(),
@@ -255,6 +258,7 @@ public class DataCollectionKpiImplTest {
         );
         transactionService = injector.getInstance(TransactionService.class);
         endDeviceGroup = transactionService.execute(() -> {
+            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(MessageService.class);
             taskService = injector.getInstance(TaskService.class);
             kpiService = injector.getInstance(KpiService.class);
