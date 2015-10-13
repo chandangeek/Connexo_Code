@@ -19,7 +19,8 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 public class StandardEventDataSelectorFactory implements DataSelectorFactory {
-    private final String DISPLAYNAME = "Device events data selector";
+    static final String DISPLAY_NAME = "Device events data selector";
+    static final String TRANSLATION_KEY = DataExportService.STANDARD_EVENT_DATA_SELECTOR;
     private final Thesaurus thesaurus;
 
     public StandardEventDataSelectorFactory(Thesaurus thesaurus) {
@@ -47,7 +48,7 @@ public class StandardEventDataSelectorFactory implements DataSelectorFactory {
 
     @Override
     public String getDisplayName() {
-        return thesaurus.getString(getNlsKey().getKey(), DISPLAYNAME);
+        return thesaurus.getString(getNlsKey().getKey(), DISPLAY_NAME);
     }
 
     @Override
@@ -56,7 +57,7 @@ public class StandardEventDataSelectorFactory implements DataSelectorFactory {
     }
 
     private NlsKey getNlsKey() {
-        return SimpleNlsKey.key(DataExportService.COMPONENTNAME, Layer.DOMAIN, DataExportService.STANDARD_EVENT_DATA_SELECTOR);
+        return SimpleNlsKey.key(DataExportService.COMPONENTNAME, Layer.DOMAIN, TRANSLATION_KEY);
     }
 
     private class DelegatingDataSelector implements DataSelector {

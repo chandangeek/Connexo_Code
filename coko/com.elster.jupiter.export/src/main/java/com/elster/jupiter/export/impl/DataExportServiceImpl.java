@@ -503,6 +503,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     @Override
     public List<TranslationKey> getKeys() {
         SimpleTranslationKey standardDataSelectorKey = new SimpleTranslationKey(StandardDataSelectorFactory.TRANSLATION_KEY, StandardDataSelectorFactory.DISPLAY_NAME);
+        SimpleTranslationKey standardEventDataSelectorKey = new SimpleTranslationKey(StandardEventDataSelectorFactory.TRANSLATION_KEY, StandardEventDataSelectorFactory.DISPLAY_NAME);
         return Stream.of(
                 Stream.of(TranslationKeys.values()),
                 Stream.of(DataExportStatus.values()),
