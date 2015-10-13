@@ -142,10 +142,6 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.issue.datacollection</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>cps</artifactId>
-        </dependency>
 
         <!-- Testing -->
         <dependency>
@@ -271,7 +267,11 @@
             <artifactId>mdc.io</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cps</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!--     <dependency> -->
         <!--       <groupId>com.google.inject</groupId> -->
         <!--       <artifactId>guice</artifactId> -->
