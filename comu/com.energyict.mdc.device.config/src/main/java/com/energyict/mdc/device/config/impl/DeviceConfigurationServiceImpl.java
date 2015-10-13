@@ -536,7 +536,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "EVT", "NLS", "USR", "MDS", "CPC", "MDC", "SCH", "CTS", "VAL", "EST", "DLD", "DLC");
+        return Arrays.asList("ORM", "EVT", "NLS", "USR", "MDS", "CPC", "MDC", "SCH", "CTS", "VAL", "EST", "DLD", "DLC", "CPS");
     }
 
     @Reference
