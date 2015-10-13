@@ -60,11 +60,9 @@ public class CreateG3DemoBoardCommand {
 
         CreateG3SlaveCommand firstSlave = new CreateG3SlaveCommand(activeLifeCyclestatePostBuilder);
         firstSlave.setConfig("AS3000");
-        firstSlave.setMrId("Demo board AS3000");
 
         CreateG3SlaveCommand secondSlave = new CreateG3SlaveCommand(activeLifeCyclestatePostBuilder);
         secondSlave.setConfig("AS220");
-        firstSlave.setMrId("Demo board AS220");
 
         gatewayCommand.run();
         firstSlave.run();

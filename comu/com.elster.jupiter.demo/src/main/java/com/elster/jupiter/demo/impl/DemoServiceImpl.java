@@ -68,6 +68,7 @@ import java.time.Clock;
         "osgi.command.function=createDeliverDataSetup",
         "osgi.command.function=createCollectRemoteDataSetup",
         "osgi.command.function=createValidationSetup",
+        "osgi.command.function=createEstimationSetup",
         "osgi.command.function=createAssignmentRules",
         "osgi.command.function=addIntervalChannelReadings",
         "osgi.command.function=addNoneIntervalChannelReadings",
@@ -638,6 +639,14 @@ public class DemoServiceImpl {
     public void createValidationSetup(){
         executeTransaction(() -> {
             CreateValidationSetupCommand command = injector.getInstance(CreateValidationSetupCommand.class);
+            command.run();
+        });
+    }
+
+    @SuppressWarnings("unused")
+    public void createEstimationSetup(){
+        executeTransaction(() -> {
+            CreateEstimationSetupCommand command = injector.getInstance(CreateEstimationSetupCommand.class);
             command.run();
         });
     }

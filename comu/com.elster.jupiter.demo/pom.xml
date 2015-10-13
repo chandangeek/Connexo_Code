@@ -114,6 +114,10 @@
             <artifactId>validation</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>estimation</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.engine.config</artifactId>
         </dependency>
@@ -283,11 +287,6 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>estimation</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
             <artifactId>events</artifactId>
             <scope>test</scope>
         </dependency>
@@ -320,6 +319,11 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>cps</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdwutil</artifactId>
+            <version>9.1.6-SNAPSHOT</version>
         </dependency>
         <!--<dependency>-->
             <!--<groupId>com.google.inject</groupId>-->

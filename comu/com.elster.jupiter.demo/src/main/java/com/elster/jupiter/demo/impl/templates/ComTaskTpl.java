@@ -55,7 +55,12 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
             null,
             null,
             null,
-            null),
+            null){
+        @Override
+        protected boolean isVerifyStatusInformationTask() {
+            return true;
+        }
+    }
     ;
     private String name;
     private List<LoadProfileTypeTpl> loadProfileTypes;
@@ -92,6 +97,7 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
         }
         builder.withTopologyActions(topologyActions);
         builder.withClocks(clocks);
+        builder.withStatusInformationTask(isVerifyStatusInformationTask());
         return builder;
     }
 
@@ -99,8 +105,12 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
         return name;
     }
 
+    protected boolean isVerifyStatusInformationTask(){
+        return false;
+    }
+
     static ComTaskTpl[] excludeTopologyTpls(){
-        return  EnumSet.of(READ_ALL, READ_REGISTER_DATA, READ_LOAD_PROFILE_DATA, READ_LOG_BOOK_DATA).toArray(new ComTaskTpl[4]);
+        return  EnumSet.of(READ_ALL, READ_REGISTER_DATA, READ_LOAD_PROFILE_DATA, READ_LOG_BOOK_DATA, VERIFY_STATUS_INFO).toArray(new ComTaskTpl[5]);
     }
 
     static ComTaskTpl[] TopologyTpls(){
