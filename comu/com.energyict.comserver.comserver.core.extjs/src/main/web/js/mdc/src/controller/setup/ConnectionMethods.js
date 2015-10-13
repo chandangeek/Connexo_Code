@@ -211,9 +211,9 @@ Ext.define('Mdc.controller.setup.ConnectionMethods', {
 
                                 connectionTypesStore.load({
                                     callback: function () {
-                                        var deviceTypeName = deviceType.get('name');
-                                        var deviceConfigName = deviceConfig.get('name');
-                                        var title = direction === 'Outbound' ? Uni.I18n.translate('connectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method') : Uni.I18n.translate('connectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method');
+                                        var title = direction === 'Outbound'
+                                            ? Uni.I18n.translate('connectionmethod.addOutboundConnectionMethod', 'MDC', 'Add outbound connection method')
+                                            : Uni.I18n.translate('connectionmethod.addInboundConnectionMethod', 'MDC', 'Add inbound connection method');
                                         widget.down('#connectionMethodEditAddTitle').setTitle(title);
                                         widget.setLoading(false);
                                     }

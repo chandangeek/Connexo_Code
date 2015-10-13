@@ -38,7 +38,12 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
                     fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                     required: true,
                     allowBlank: false,
-                    name: 'name'
+                    name: 'name',
+                    listeners: {
+                        afterrender: function(field) {
+                            field.focus(false, 200);
+                        }
+                    }
                 },
                 {
                     xtype: 'displayfield',
