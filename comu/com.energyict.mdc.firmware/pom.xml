@@ -138,10 +138,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>time</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>cps</artifactId>
-        </dependency>
 
         <!-- Testing -->
         <!--<dependency>-->
@@ -257,6 +253,11 @@
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cps</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
