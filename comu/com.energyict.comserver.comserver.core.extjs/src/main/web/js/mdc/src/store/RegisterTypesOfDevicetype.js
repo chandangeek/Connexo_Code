@@ -1,9 +1,9 @@
 Ext.define('Mdc.store.RegisterTypesOfDevicetype', {
     extend: 'Ext.data.Store',
     requires: [
-        'Mdc.model.RegisterType'
+        'Mdc.model.RegisterTypeOnDeviceType'
     ],
-    model: 'Mdc.model.RegisterType',
+    model: 'Mdc.model.RegisterTypeOnDeviceType',
     storeId: 'RegisterTypesOfDevicetype',
     proxy: {
         type: 'rest',

@@ -1,7 +1,7 @@
 Ext.define('Mdc.devicetypecustomattributes.view.AddAttributeSetsGrid', {
     extend: 'Uni.view.grid.SelectionGrid',
     alias: 'widget.device-type-add-custom-attribute-sets-grid',
-    store: 'Mdc.devicetypecustomattributes.store.CustomAttributeSets',
+    store: 'Mdc.devicetypecustomattributes.store.CustomAttributeSetsAvailable',
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.grid.SelectionGrid'

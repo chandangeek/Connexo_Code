@@ -11,71 +11,69 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSetup', {
         'Mdc.view.setup.devicetype.SideMenu'
     ],
 
-    content: [
-        {
-            xtype: 'panel',
-            ui: 'large',
-            title: Uni.I18n.translate('general.loadProfileTypes', 'MDC', 'Load profile types'),
-            items: [
-                {
-                    xtype: 'preview-container',
-                    grid: {
-                        xtype: 'loadProfileTypeGrid'
-                    },
-                    emptyComponent: {
-                        xtype: 'no-items-found-panel',
-                        itemId: 'load-profile-type-empty-component',
-                        title: Uni.I18n.translate('loadProfileTypes.empty.title', 'MDC', 'No load profile types found'),
-                        reasons: [
-                            Uni.I18n.translate('loadProfileTypes.empty.list.item1', 'MDC', 'No load profile types have been defined yet.')
-                        ],
-                        stepItems: [
-                            {
-                                text: Uni.I18n.translate('loadProfileTypes.add', 'MDC', 'Add load profile type'),
-                                action: 'addloadprofiletypeaction',
-                                privileges: Mdc.privileges.MasterData.admin,
-                                href: '#/administration/loadprofiletypes/add'
-                            }
-                        ]
-                    },
-                    previewComponent: {
-                        xtype: 'loadProfileTypePreview'
-                    }
-                }
-            ]
-        }
-    ],
+    showCustomAttributeSet: false,
 
     initComponent: function () {
         var me = this,
             config = me.config,
-            previewContainer = me.content[0].items[0],
             addButtons;
 
-        config && config.gridStore && (previewContainer.grid.store = config.gridStore);
-
-        if (config) {
-            if (config.deviceTypeId) {
-                me.side = [
+        me.content = [
+            {
+                xtype: 'panel',
+                ui: 'large',
+                title: Uni.I18n.translate('general.loadProfileTypes', 'MDC', 'Load profile types'),
+                items: [
                     {
-                        xtype: 'panel',
-                        ui: 'medium',
-                        items: [
-                            {
-                                xtype: 'deviceTypeSideMenu',
-                                deviceTypeId: config.deviceTypeId,
-                                toggle: 2
-                            }
-                        ]
+                        xtype: 'preview-container',
+                        grid: {
+                            xtype: 'loadProfileTypeGrid',
+                            store: config.gridStore
+                        },
+                        emptyComponent: {
+                            xtype: 'no-items-found-panel',
+                            itemId: 'load-profile-type-empty-component',
+                            title: Uni.I18n.translate('loadProfileTypes.empty.title', 'MDC', 'No load profile types found'),
+                            reasons: [
+                                Uni.I18n.translate('loadProfileTypes.empty.list.item1', 'MDC', 'No load profile types have been defined yet.')
+                            ],
+                            stepItems: [
+                                {
+                                    text: Uni.I18n.translate('loadProfileTypes.add', 'MDC', 'Add load profile type'),
+                                    action: 'addloadprofiletypeaction',
+                                    privileges: Mdc.privileges.MasterData.admin,
+                                    href: '#/administration/loadprofiletypes/add'
+                                }
+                            ]
+                        },
+                        previewComponent: {
+                            xtype: 'loadProfileTypePreview'
+                        }
                     }
-                ];
+                ]
             }
+        ];
+
+        if (config && config.deviceTypeId) {
+            me.side = [
+                {
+                    xtype: 'panel',
+                    ui: 'medium',
+                    items: [
+                        {
+                            xtype: 'deviceTypeSideMenu',
+                            deviceTypeId: config.deviceTypeId,
+                            toggle: 2
+                        }
+                    ]
+                }
+            ];
         }
 
         me.callParent(arguments);
 
         addButtons = me.query('button[action=addloadprofiletypeaction]');
-
+        me.down('#custom-attribute-set-displayfield-id').setVisible(me.showCustomAttributeSet);
         if (config) {
 
             hasPrivilege = Mdc.privileges.DeviceType.canAdministrate();
