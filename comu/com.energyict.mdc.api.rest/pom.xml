@@ -164,7 +164,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>orm</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cps</artifactId>
+        </dependency>
 
         <!--INTEGRATION TESTS-->
         <dependency>
