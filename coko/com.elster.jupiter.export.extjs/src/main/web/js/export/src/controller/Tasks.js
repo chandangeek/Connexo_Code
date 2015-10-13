@@ -1342,6 +1342,10 @@ Ext.define('Dxp.controller.Tasks', {
             propertyForm.addEditPage = true;
             propertyForm.loadRecord(record);
             propertyForm.show();
+            var separator = record.properties().findRecord('key','formatterProperties.separator')
+            if(separator){
+                propertyForm.down('combobox').setValue('Comma (,)');
+            }
         } else {
             propertyForm.hide();
         }
