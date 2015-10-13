@@ -164,10 +164,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>orm</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>cps</artifactId>
-        </dependency>
 
         <!--INTEGRATION TESTS-->
         <dependency>
@@ -257,7 +253,11 @@
             <artifactId>mdc.firmware</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cps</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
