@@ -67,7 +67,11 @@ import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.Period;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -85,6 +89,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     private volatile EventService eventService;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
+    private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile MessageService messageService;
     private volatile JsonService jsonService;
 
@@ -97,7 +102,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Inject
     public MeteringServiceImpl(
-            Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService, NlsService nlsService, MessageService messageService, JsonService jsonService,
+            Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService, NlsService nlsService, FiniteStateMachineService finiteStateMachineService, MessageService messageService, JsonService jsonService,
             @Named("createReadingTypes") boolean createAllReadingTypes, @Named("requiredReadingTypes") String requiredReadingTypes) {
         this.clock = clock;
         this.createAllReadingTypes = createAllReadingTypes;
@@ -109,12 +114,18 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         setQueryService(queryService);
         setUserService(userService);
         setNlsService(nlsService);
+        setFiniteStateMachineService(finiteStateMachineService);
         setMessageService(messageService);
         setJsonService(jsonService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
         }
+    }
+
+    @Reference
+    public void setFiniteStateMachineService(FiniteStateMachineService finiteStateMachineService) {
+        this.finiteStateMachineService = finiteStateMachineService;
     }
 
     @Reference
