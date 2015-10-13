@@ -37,6 +37,7 @@ public class DataExportTaskHistoryInfo {
     public Long statusDate;
     public String statusPrefix;
     public DataExportTaskInfo task;
+    public String summary;
 
     public DataExportTaskHistoryInfo() {
     }
@@ -51,6 +52,7 @@ public class DataExportTaskHistoryInfo {
 
     private void populate(History<ExportTask> history, DataExportOccurrence dataExportOccurrence, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
         this.id = dataExportOccurrence.getId();
+        this.summary = dataExportOccurrence.getSummary();
 
         this.trigger = (dataExportOccurrence.wasScheduled() ? SCHEDULED : ON_REQUEST).translate(thesaurus);
         if (dataExportOccurrence.wasScheduled()) {
