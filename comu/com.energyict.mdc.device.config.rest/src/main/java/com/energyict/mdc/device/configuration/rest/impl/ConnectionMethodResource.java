@@ -2,9 +2,9 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.PagedInfoList;
-import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -165,9 +165,9 @@ public class ConnectionMethodResource {
     }
 
     /**
-     * Adds new properties, updates existing and removes properties no longer listed.
-     * Converts String values to correct type.
-     * Discards properties if there is no matching propertySpec.
+     * Add new properties, update existing and remove properties no longer listed
+     * Converts String values to correct type
+     * Discards properties if there is no matching propertySpec
      */
     private void updateProperties(ConnectionMethodInfo<PartialConnectionTask> connectionMethodInfo, PartialConnectionTask partialConnectionTask) {
         if (connectionMethodInfo.properties != null) {

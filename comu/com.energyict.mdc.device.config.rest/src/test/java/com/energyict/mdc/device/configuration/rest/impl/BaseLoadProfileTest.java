@@ -1,5 +1,25 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.Phase;
+import com.elster.jupiter.cbo.RationalNumber;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.EditPrivilege;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.ViewPrivilege;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -12,30 +32,17 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.Aggregate;
-import com.elster.jupiter.cbo.Commodity;
-import com.elster.jupiter.cbo.FlowDirection;
-import com.elster.jupiter.cbo.MacroPeriod;
-import com.elster.jupiter.cbo.MeasurementKind;
-import com.elster.jupiter.cbo.MetricMultiplier;
-import com.elster.jupiter.cbo.Phase;
-import com.elster.jupiter.cbo.RationalNumber;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.time.TimeDuration;
+import com.google.common.collect.Sets;
+import org.junit.Ignore;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Currency;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
-import org.junit.*;
-
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -78,12 +85,14 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
         return (int) (start + new Random().nextDouble() * range);
     }
 
-    protected TimeDuration getRandomTimeDuration(){
+    protected TimeDuration getRandomTimeDuration() {
         return LocalizedTimeDuration.intervals.get(getRandomInt(LocalizedTimeDuration.intervals.size() - 1)).getTimeDuration();
     }
 
     protected DeviceType mockDeviceType(String name, long id) {
         DeviceType deviceType = mock(DeviceType.class);
+        RegisteredCustomPropertySet registeredCustomPropertySet = mockRegisteredCustomPropertySet();
+        when(deviceType.getLoadProfileTypeCustomPropertySet(anyObject())).thenReturn(Optional.of(registeredCustomPropertySet));
         when(deviceType.getName()).thenReturn(name);
         when(deviceType.getId()).thenReturn(id);
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
@@ -95,6 +104,8 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
 
     protected DeviceType mockDeviceType(String name, long id, List<PropertySpec> specs) {
         DeviceType deviceType = mock(DeviceType.class);
+        RegisteredCustomPropertySet registeredCustomPropertySet = mockRegisteredCustomPropertySet();
+        when(deviceType.getLoadProfileTypeCustomPropertySet(anyObject())).thenReturn(Optional.of(registeredCustomPropertySet));
         when(deviceType.getName()).thenReturn(name);
         when(deviceType.getId()).thenReturn(id);
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
@@ -107,7 +118,7 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
         return deviceType;
     }
 
-    protected DeviceConfiguration mockDeviceConfiguration(String name, long id){
+    protected DeviceConfiguration mockDeviceConfiguration(String name, long id) {
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getName()).thenReturn(name);
         when(deviceConfiguration.getId()).thenReturn(id);
@@ -156,10 +167,10 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
         return channelType;
     }
 
-    protected LoadProfileSpec mockLoadProfileSpec(long id, String name){
+    protected LoadProfileSpec mockLoadProfileSpec(long id, String name) {
         LoadProfileSpec loadProfileSpec = mock(LoadProfileSpec.class);
-        ObisCode obisCode = new ObisCode(0,1,2,3,4,5);
-        ObisCode overrulledObisCode = new ObisCode(200,201,202,203,204,205);
+        ObisCode obisCode = new ObisCode(0, 1, 2, 3, 4, 5);
+        ObisCode overrulledObisCode = new ObisCode(200, 201, 202, 203, 204, 205);
         TimeDuration randomTimeDuration = getRandomTimeDuration();
         LoadProfileType loadProfileType = mockLoadProfileType(id, name, randomTimeDuration, obisCode, getChannelTypes(2, randomTimeDuration));
         when(loadProfileSpec.getId()).thenReturn(id);
@@ -180,8 +191,8 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
         when(readingType.getFlowDirection()).thenReturn(FlowDirection.FORWARD);
         when(readingType.getCommodity()).thenReturn(Commodity.AIR);
         when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ACVOLTAGEPEAK);
-        when(readingType.getInterharmonic()).thenReturn(new RationalNumber(1,2));
-        when(readingType.getArgument()).thenReturn(new RationalNumber(1,2));
+        when(readingType.getInterharmonic()).thenReturn(new RationalNumber(1, 2));
+        when(readingType.getArgument()).thenReturn(new RationalNumber(1, 2));
         when(readingType.getTou()).thenReturn(3);
         when(readingType.getCpp()).thenReturn(4);
         when(readingType.getConsumptionTier()).thenReturn(5);
@@ -190,5 +201,42 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
         when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
         return readingType;
+    }
+
+    @SuppressWarnings("unchecked")
+    private PropertySpec mockPropertySpec() {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        ValueFactory valueFactory = mock(BigDecimalFactory.class);
+        when(propertySpec.getName()).thenReturn("customAttribute");
+        when(propertySpec.getValueFactory()).thenReturn(valueFactory);
+        when(propertySpec.getValueFactory().getValueType()).thenReturn(BigDecimalFactory.class);
+        when(propertySpec.isRequired()).thenReturn(true);
+        when(propertySpec.getDescription()).thenReturn("kw");
+        return propertySpec;
+    }
+
+    @SuppressWarnings("unchecked")
+    private CustomPropertySet mockCustomPropertySet() {
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getName()).thenReturn("domainExtensionName");
+        when(customPropertySet.isRequired()).thenReturn(true);
+        when(customPropertySet.isVersioned()).thenReturn(false);
+        when(customPropertySet.defaultViewPrivileges()).thenReturn(Sets.newHashSet(ViewPrivilege.LEVEL_3));
+        when(customPropertySet.defaultEditPrivileges()).thenReturn(Sets.newHashSet(EditPrivilege.LEVEL_4));
+        when(customPropertySet.getDomainClass()).thenReturn(BigDecimalFactory.class);
+        return customPropertySet;
+    }
+
+    @SuppressWarnings("unchecked")
+    private RegisteredCustomPropertySet mockRegisteredCustomPropertySet() {
+        PropertySpec propertySpec = mockPropertySpec();
+        CustomPropertySet customPropertySet = mockCustomPropertySet();
+        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
+        when(registeredCustomPropertySet.getId()).thenReturn(100500L);
+        when(registeredCustomPropertySet.getViewPrivileges()).thenReturn(Sets.newHashSet(ViewPrivilege.LEVEL_1));
+        when(registeredCustomPropertySet.getEditPrivileges()).thenReturn(Sets.newHashSet(EditPrivilege.LEVEL_2));
+        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        when(registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
+        return registeredCustomPropertySet;
     }
 }

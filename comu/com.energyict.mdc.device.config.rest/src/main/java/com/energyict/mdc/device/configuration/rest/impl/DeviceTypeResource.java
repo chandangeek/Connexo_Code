@@ -1,7 +1,8 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -190,6 +191,46 @@ public class DeviceTypeResource {
         return DeviceTypeInfo.from(deviceType, deviceType.getRegisterTypes());
     }
 
+    @GET
+    @Path("/{id}/custompropertysets")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
+    public PagedInfoList getDeviceTypeCustomPropertySetUsage(@PathParam("id") long id, @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
+        boolean isLinked = filter.getBoolean("linked");
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        List<RegisteredCustomPropertySet> registeredCustomPropertySets;
+        if (!isLinked) {
+            registeredCustomPropertySets = resourceHelper.findCustomPropertySets()
+                    .stream()
+                    .filter(f -> !deviceType.getDeviceTypeCustomPropertySetUsage().stream().map(m -> m.getId()).collect(Collectors.toList()).contains(f.getId()))
+            .collect(Collectors.toList());
+        } else {
+            registeredCustomPropertySets = deviceType.getDeviceTypeCustomPropertySetUsage();
+        }
+        return PagedInfoList.fromPagedList("deviceTypeCustomPropertySets", DeviceTypeCustomPropertySetInfo.from(registeredCustomPropertySets), queryParameters);
+    }
+
+    @PUT
+    @Path("/{id}/custompropertysets")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
+    public Response addDeviceTypeCustomPropertySetUsage(@PathParam("id") long id, List<DeviceTypeCustomPropertySetInfo> infos) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        infos.stream().forEach(deviceTypeCustomPropertySetInfo ->
+                deviceType.addDeviceTypeCustomPropertySetUsage(resourceHelper.findDeviceTypeCustomPropertySetByIdOrThrowException(deviceTypeCustomPropertySetInfo.id)));
+        return Response.ok().build();
+    }
+
+    @DELETE
+    @Path("/{deviceTypeId}/custompropertysets/{customPropertySetId}")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
+    public Response deleteDeviceTypeCustomPropertySetUsage(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("customPropertySetId") long customPropertySetId) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
+        deviceType.removeDeviceTypeCustomPropertySetUsage(resourceHelper.findDeviceTypeCustomPropertySetByIdOrThrowException(customPropertySetId));
+        return Response.ok().build();
+    }
 
     @Path("/{id}/loadprofiletypes")
     public LoadProfileTypeResource getLoadProfileTypesResource() {
@@ -332,7 +373,7 @@ public class DeviceTypeResource {
             }
         }
         List<RegisterType> registerTypes = ListPager.of(matchingRegisterTypes, new RegisterTypeComparator()).from(queryParameters).find();
-        List<RegisterTypeInfo> registerTypeInfos = asInfoList(deviceType, registerTypes);
+        List<RegisterTypeOnDeviceTypeInfo> registerTypeInfos = asInfoList(deviceType, registerTypes);
         return PagedInfoList.fromPagedList("registerTypes", registerTypeInfos, queryParameters);
     }
 
@@ -353,12 +394,46 @@ public class DeviceTypeResource {
         return deviceType.getRegisterTypes().stream().filter(rt->!unavailableRegisterTypeIds.contains(rt.getId())).collect(toList());
     }
 
+    @GET
+    @Path("/{id}/registertypes/{registerTypeId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
+    public RegisterTypeOnDeviceTypeInfo getRegisterForDeviceType(@PathParam("id") long deviceTypeId,
+                                                                    @PathParam("registerTypeId") long registerTypeId) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
+        RegisterType registerType = resourceHelper.findRegisterTypeByIdOrThrowException(registerTypeId);
+        return new RegisterTypeOnDeviceTypeInfo(registerType, false, false, false, deviceType.getRegisterTypeTypeCustomPropertySet(registerType));
+    }
+
+    @PUT
+    @Path("/{id}/registertypes/{registerTypeId}")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
+    public Response changeRegisterTypeOnDeviceTypeCustomPropertySet(@PathParam("id") long deviceTypeId,
+                                                                    @PathParam("registerTypeId") long registerTypeId,
+                                                                    RegisterTypeOnDeviceTypeInfo registerTypeOnDeviceTypeInfo) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
+        RegisterType registerType = resourceHelper.findRegisterTypeByIdOrThrowException(registerTypeId);
+        deviceType.addRegisterTypeCustomPropertySet(registerType, registerTypeOnDeviceTypeInfo.customPropertySet.id > 0 ?
+                resourceHelper.findDeviceTypeCustomPropertySetByIdOrThrowException(registerTypeOnDeviceTypeInfo.customPropertySet.id) : null);
+        return Response.ok().build();
+    }
+
+    @GET
+    @Path("/{id}/registertypes/custompropertysets")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
+    public Response getRegisterCustomPropertySets() {
+        return Response.ok(DeviceTypeCustomPropertySetInfo.from(resourceHelper.findCustomPropertySets())).build();
+    }
+
     @POST
     @Path("/{id}/registertypes/{rmId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
-    public List<RegisterTypeInfo> linkRegisterTypesToDeviceType(@PathParam("id") long id, @PathParam("rmId") long rmId) {
+    public List<RegisterTypeOnDeviceTypeInfo> linkRegisterTypesToDeviceType(@PathParam("id") long id, @PathParam("rmId") long rmId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
 
         linkRegisterTypeToDeviceType(deviceType, rmId);
@@ -443,15 +518,14 @@ public class DeviceTypeResource {
         return idList;
     }
 
-    private List<RegisterTypeInfo> asInfoList(DeviceType deviceType, List<RegisterType> registerTypes) {
-        List<RegisterTypeInfo> registerTypeInfos = new ArrayList<>();
+    private List<RegisterTypeOnDeviceTypeInfo> asInfoList(DeviceType deviceType, List<RegisterType> registerTypes) {
+        List<RegisterTypeOnDeviceTypeInfo> registerTypeInfos = new ArrayList<>();
         for (RegisterType registerType : registerTypes) {
             boolean isLinkedByDeviceType = !deviceConfigurationService.findDeviceTypesUsingRegisterType(registerType).isEmpty();
             boolean isLinkedByActiveRegisterSpec = !deviceConfigurationService.findActiveRegisterSpecsByDeviceTypeAndRegisterType(deviceType, registerType).isEmpty();
             boolean isLinkedByInactiveRegisterSpec = !deviceConfigurationService.findInactiveRegisterSpecsByDeviceTypeAndRegisterType(deviceType, registerType).isEmpty();
-            registerTypeInfos.add(new RegisterTypeInfo(registerType, isLinkedByDeviceType, isLinkedByActiveRegisterSpec, isLinkedByInactiveRegisterSpec));
+            registerTypeInfos.add(new RegisterTypeOnDeviceTypeInfo(registerType, isLinkedByDeviceType, isLinkedByActiveRegisterSpec, isLinkedByInactiveRegisterSpec, deviceType.getRegisterTypeTypeCustomPropertySet(registerType)));
         }
         return registerTypeInfos;
     }
-
 }

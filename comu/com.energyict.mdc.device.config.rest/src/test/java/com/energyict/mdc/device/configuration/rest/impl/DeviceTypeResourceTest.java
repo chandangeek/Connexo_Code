@@ -1,5 +1,37 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.Phase;
+import com.elster.jupiter.cbo.RationalNumber;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.EditPrivilege;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.ViewPrivilege;
+import com.elster.jupiter.devtools.ExtjsFilter;
+import com.elster.jupiter.devtools.tests.Answers;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.IncompatibleFiniteStateMachineChangeException;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
@@ -28,34 +60,12 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
-
-import com.elster.jupiter.cbo.Accumulation;
-import com.elster.jupiter.cbo.Aggregate;
-import com.elster.jupiter.cbo.Commodity;
-import com.elster.jupiter.cbo.FlowDirection;
-import com.elster.jupiter.cbo.MacroPeriod;
-import com.elster.jupiter.cbo.MeasurementKind;
-import com.elster.jupiter.cbo.MetricMultiplier;
-import com.elster.jupiter.cbo.Phase;
-import com.elster.jupiter.cbo.RationalNumber;
-import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.cbo.TimeAttribute;
-import com.elster.jupiter.devtools.ExtjsFilter;
-import com.elster.jupiter.devtools.tests.Answers;
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.metering.IncompatibleFiniteStateMachineChangeException;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.nls.NlsMessageFormat;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.exception.MessageSeed;
+import com.google.common.collect.Sets;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -70,16 +80,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.LongStream;
 
-import org.junit.*;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.doThrow;
@@ -95,7 +101,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
     Unit unit = Unit.get("kWh");
 
-    private static ReadingType mockReadingType(String mrid){
+    private static ReadingType mockReadingType(String mrid) {
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMRID()).thenReturn(mrid);
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
@@ -105,8 +111,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(readingType.getFlowDirection()).thenReturn(FlowDirection.FORWARD);
         when(readingType.getCommodity()).thenReturn(Commodity.AIR);
         when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ACVOLTAGEPEAK);
-        when(readingType.getInterharmonic()).thenReturn(new RationalNumber(1,2));
-        when(readingType.getArgument()).thenReturn(new RationalNumber(1,2));
+        when(readingType.getInterharmonic()).thenReturn(new RationalNumber(1, 2));
+        when(readingType.getArgument()).thenReturn(new RationalNumber(1, 2));
         when(readingType.getTou()).thenReturn(3);
         when(readingType.getCpp()).thenReturn(4);
         when(readingType.getConsumptionTier()).thenReturn(5);
@@ -247,6 +253,9 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
     private DeviceType mockDeviceType(String name, long id) {
         DeviceType deviceType = mock(DeviceType.class);
+        RegisteredCustomPropertySet registeredCustomPropertySet = mockRegisteredCustomPropertySet();
+        when(deviceType.getRegisterTypeTypeCustomPropertySet(anyObject())).thenReturn(Optional.of(registeredCustomPropertySet));
+        when(deviceType.getDeviceTypeCustomPropertySetUsage()).thenReturn(Arrays.asList(registeredCustomPropertySet));
         when(deviceType.getName()).thenReturn(name);
         when(deviceType.getId()).thenReturn(id);
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
@@ -417,7 +426,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
     @Test
     public void testRegisterTypesInfoJavaScriptMappings() throws Exception {
-        DeviceType deviceType = mock(DeviceType.class);
+        DeviceType deviceType = mockDeviceType("name", 6);
         RegisterType registerType = mock(RegisterType.class);
         when(deviceType.getRegisterTypes()).thenReturn(Arrays.asList(registerType));
 
@@ -876,7 +885,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         Finder<RegisterType> registerTypeFinder = mockFinder(registerTypeList);
         when(masterDataService.findAllRegisterTypes()).thenReturn(registerTypeFinder);
 
-        Response response = target("/devicetypes/31/registertypes").queryParam("start",10).queryParam("limit", 10).queryParam("filter", ExtjsFilter.filter().property("available", "true").create()).request().get();
+        Response response = target("/devicetypes/31/registertypes").queryParam("start", 10).queryParam("limit", 10).queryParam("filter", ExtjsFilter.filter().property("available", "true").create()).request().get();
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(21);
         assertThat(jsonModel.<List<RegisterType>>get("$.registerTypes")).hasSize(10);
@@ -940,13 +949,12 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(Optional.of(deviceType));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
 
-        Response response = target("/devicetypes/31/registertypes").queryParam("start",10).queryParam("limit", 10).queryParam("filter",  ExtjsFilter.filter().property("available", "true").property("deviceconfigurationid", 41l).create()).request().get();
+        Response response = target("/devicetypes/31/registertypes").queryParam("start", 10).queryParam("limit", 10).queryParam("filter", ExtjsFilter.filter().property("available", "true").property("deviceconfigurationid", 41l).create()).request().get();
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(21);
         assertThat(jsonModel.<List<RegisterType>>get("$.registerTypes")).hasSize(10);
         assertThat(jsonModel.<List<Integer>>get("$.registerTypes[*].id")).containsOnly(112, 113, 114, 115, 116, 117, 118, 119, 120, 121);
     }
-
 
     @Test
     public void testGetDeviceCommunicationById() throws Exception {
@@ -1136,7 +1144,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(partialConnectionTask.getConnectionType()).thenReturn(connectionType);
         when(partialConnectionTask.getId()).thenReturn(connectionMethodId);
         when(partialConnectionTask.getName()).thenReturn("connection method");
-        when(partialConnectionTask.getCommunicationWindow()).thenReturn(new ComWindow(100,200));
+        when(partialConnectionTask.getCommunicationWindow()).thenReturn(new ComWindow(100, 200));
         when(partialConnectionTask.isSimultaneousConnectionsAllowed()).thenReturn(true);
         when(partialConnectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
         when(partialConnectionTask.getRescheduleDelay()).thenReturn(TimeDuration.minutes(15));
@@ -1347,6 +1355,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat(response.getStatus()).isEqualTo(200);
         verify(deviceConfigurationService).changeDeviceLifeCycle(deviceType, targetDeviceLifeCycle);
     }
+
     @Test
     public void testUpdateDeviceLifeCycleForDeviceTypeFail() throws Exception {
         DeviceType deviceType = mock(DeviceType.class);
@@ -1430,7 +1439,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         return partialInboundConnectionTask;
     }
 
-
     private <T> Finder<T> mockFinder(List<T> list) {
         Finder<T> finder = mock(Finder.class);
 
@@ -1477,4 +1485,40 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         }
     }
 
+    @SuppressWarnings("unchecked")
+    private PropertySpec mockPropertySpec() {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        ValueFactory valueFactory = mock(BigDecimalFactory.class);
+        when(propertySpec.getName()).thenReturn("customAttribute");
+        when(propertySpec.getValueFactory()).thenReturn(valueFactory);
+        when(propertySpec.getValueFactory().getValueType()).thenReturn(BigDecimalFactory.class);
+        when(propertySpec.isRequired()).thenReturn(true);
+        when(propertySpec.getDescription()).thenReturn("kw");
+        return propertySpec;
+    }
+
+    @SuppressWarnings("unchecked")
+    private CustomPropertySet mockCustomPropertySet() {
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getName()).thenReturn("domainExtensionName");
+        when(customPropertySet.isRequired()).thenReturn(true);
+        when(customPropertySet.isVersioned()).thenReturn(false);
+        when(customPropertySet.defaultViewPrivileges()).thenReturn(Sets.newHashSet(ViewPrivilege.LEVEL_3));
+        when(customPropertySet.defaultEditPrivileges()).thenReturn(Sets.newHashSet(EditPrivilege.LEVEL_4));
+        when(customPropertySet.getDomainClass()).thenReturn(BigDecimalFactory.class);
+        return customPropertySet;
+    }
+
+    @SuppressWarnings("unchecked")
+    private RegisteredCustomPropertySet mockRegisteredCustomPropertySet() {
+        PropertySpec propertySpec = mockPropertySpec();
+        CustomPropertySet customPropertySet = mockCustomPropertySet();
+        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
+        when(registeredCustomPropertySet.getId()).thenReturn(100500L);
+        when(registeredCustomPropertySet.getViewPrivileges()).thenReturn(Sets.newHashSet(ViewPrivilege.LEVEL_1));
+        when(registeredCustomPropertySet.getEditPrivileges()).thenReturn(Sets.newHashSet(EditPrivilege.LEVEL_2));
+        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        when(registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
+        return registeredCustomPropertySet;
+    }
 }

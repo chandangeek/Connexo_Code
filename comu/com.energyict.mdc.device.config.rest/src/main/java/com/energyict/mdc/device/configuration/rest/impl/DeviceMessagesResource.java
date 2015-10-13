@@ -1,19 +1,11 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceMessageEnablement;
-import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
-import com.energyict.mdc.device.config.DeviceMessageUserAction;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.security.Privileges;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -28,12 +20,21 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceMessageEnablement;
+import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
+import com.energyict.mdc.device.config.DeviceMessageUserAction;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.security.Privileges;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 public class DeviceMessagesResource {
 

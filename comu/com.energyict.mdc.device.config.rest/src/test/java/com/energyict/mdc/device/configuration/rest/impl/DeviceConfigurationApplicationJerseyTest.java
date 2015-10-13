@@ -1,5 +1,13 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -10,26 +18,14 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.TaskService;
-
-import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
-import com.elster.jupiter.estimation.EstimationService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.validation.ValidationService;
+import org.junit.Before;
+import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
-
-import org.junit.*;
-import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
-/**
- * Created by bvn on 9/19/14.
- */
 public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicationJerseyTest {
     @Mock
     MeteringService meteringService;
@@ -61,6 +57,8 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
     FirmwareService firmwareService;
     @Mock
     DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    @Mock
+    CustomPropertySetService customPropertySetService;
 
     @Before
     public void setup() {
@@ -93,6 +91,7 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
         application.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         application.setFirmwareService(firmwareService);
         application.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        application.setCustomPropertySetService(customPropertySetService);
         return application;
     }
 }
