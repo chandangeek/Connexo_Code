@@ -1,4 +1,5 @@
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -76,7 +77,7 @@ public class LicenseServiceTest {
     @BeforeClass
     public static void setUp() {
         injector = Guice.createInjector(inMemoryBootstrapModule, licenseModule,
-                new OrmModule(), new TransactionModule(), new PubSubModule(), new ThreadSecurityModule(),
+                new OrmModule(), new DataVaultModule(), new TransactionModule(), new PubSubModule(), new ThreadSecurityModule(),
                 new UtilModule(), new DomainUtilModule(), new UserModule(), new EventsModule(),
                 new InMemoryMessagingModule(), new NlsModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
