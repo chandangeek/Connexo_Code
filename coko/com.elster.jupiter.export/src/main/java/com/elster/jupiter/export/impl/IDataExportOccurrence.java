@@ -17,6 +17,4 @@ interface IDataExportOccurrence extends DataExportOccurrence {
     void end(DataExportStatus status);
 
     void end(DataExportStatus status, String message);
-
-    void summary(String summaryMessage);
 }

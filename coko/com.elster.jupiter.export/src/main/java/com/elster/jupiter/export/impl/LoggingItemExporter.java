@@ -36,7 +36,7 @@ class LoggingItemExporter implements ItemExporter {
     private final Logger logger;
     private final Thesaurus thesaurus;
     private final TransactionService transactionService;
-    private final DateTimeFormatter timeFormatter = DefaultDateTimeFormatters.longDate().withLongTime().build().withZone(ZoneId.systemDefault());
+    private final DateTimeFormatter timeFormatter = DefaultDateTimeFormatters.mediumDate().withLongTime().build().withZone(ZoneId.systemDefault());
 
     public LoggingItemExporter(Thesaurus thesaurus, TransactionService transactionService, Logger logger, ItemExporter decorated) {
         this.transactionService = transactionService;

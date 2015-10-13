@@ -17,7 +17,6 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
-import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
 
 enum TableSpecs {
 
@@ -133,8 +132,6 @@ enum TableSpecs {
             table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map("status").add();
             table.column("MESSAGE").varChar(Table.SHORT_DESCRIPTION_LENGTH).map("failureReason").add();
             table.column("SUMMARY").type("CLOB").conversion(CLOB2STRING).map("summary").add();
-            table.column("SUMMARY").type("CLOB").conversion(CLOB2STRING).map("summary").add();
-
 
             table.primaryKey("DES_PK_EXPOCC").on(taskOccurrence).add();
             table.foreignKey("DES_FK_EXPOCC_TSKOCC").on(taskOccurrence).references(TaskService.COMPONENTNAME, "TSK_TASK_OCCURRENCE")
