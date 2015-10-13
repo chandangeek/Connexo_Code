@@ -1,11 +1,13 @@
 package com.energyict.mdc.device.config.impl.deviceconfigchange;
 
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.impl.DeviceTypeImpl;
 
 import javax.inject.Inject;
@@ -21,6 +23,7 @@ import java.util.function.Predicate;
 public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapping{
 
     private final DataModel dataModel;
+    private final EventService eventService;
 
     public enum Fields {
         DEVICETYPE("deviceType"),
@@ -57,14 +60,16 @@ public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapp
     private long id;
 
     @Inject
-    public DeviceConfigConflictMappingImpl(DataModel dataModel) {
+    public DeviceConfigConflictMappingImpl(DataModel dataModel, EventService eventService) {
         this.dataModel = dataModel;
+        this.eventService = eventService;
     }
 
-    public DeviceConfigConflictMappingImpl initialize(DeviceTypeImpl deviceType, DeviceConfiguration origin, DeviceConfiguration destination) {
+    public DeviceConfigConflictMappingImpl initialize(DeviceType deviceType, DeviceConfiguration origin, DeviceConfiguration destination) {
         this.deviceType.set(deviceType);
         this.originDeviceConfig.set(origin);
         this.destinationDeviceConfig.set(destination);
+        notifyConflictCreatingEvent();
         return this;
     }
 
@@ -132,7 +137,7 @@ public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapp
         markAsNotSolved();
         ConflictingConnectionMethodSolution connectionMethodSolution = dataModel.getInstance(ConflictingConnectionMethodSolutionImpl.class).initialize(this, origin);
         this.connectionMethodSolutions.add(connectionMethodSolution);
-        update();
+        updateWithLockCheck();
         return connectionMethodSolution;
     }
 
@@ -140,7 +145,7 @@ public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapp
         markAsNotSolved();
         ConflictingSecuritySetSolution securitySetSolution = dataModel.getInstance(ConflictingSecuritySetSolutionImpl.class).initialize(this, origin);
         this.securitySetSolutions.add(securitySetSolution);
-        update();
+        updateWithLockCheck();
         return securitySetSolution;
     }
 
@@ -156,5 +161,14 @@ public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapp
 
     private void markAsNotSolved() {
         this.solved = false;
+    }
+
+    private void updateWithLockCheck(){
+        notifyConflictCreatingEvent();
+        update();
+    }
+
+    private void notifyConflictCreatingEvent() {
+        eventService.postEvent(EventType.DEVICE_CONFIG_CONFLICT_VALIDATE_CREATE.topic(), this);
     }
 }

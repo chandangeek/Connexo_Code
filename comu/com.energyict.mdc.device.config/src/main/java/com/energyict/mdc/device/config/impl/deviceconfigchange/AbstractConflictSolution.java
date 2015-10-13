@@ -75,4 +75,20 @@ public abstract class AbstractConflictSolution<S extends HasId> implements Confl
     protected DeviceConfigConflictMapping getConflictingMapping() {
         return conflictingMapping.get();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AbstractConflictSolution<?> that = (AbstractConflictSolution<?>) o;
+
+        return id == that.id;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
+    }
 }

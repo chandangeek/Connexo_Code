@@ -12,6 +12,8 @@ import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 
 /**
  * Copyrights EnergyICT
@@ -39,6 +41,7 @@ public class ConflictingConnectionMethodSolutionImpIT extends AbstractConflictIT
         deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).markSolutionAsRemove();
 
         DeviceType reloadedDeviceType = getReloadedDeviceType(deviceType);
+        verifyConflictValidation(times(2), deviceConfigConflictMapping);
 
         assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).haveExactly(1, new Condition<DeviceConfigConflictMapping>() {
             @Override
@@ -67,6 +70,7 @@ public class ConflictingConnectionMethodSolutionImpIT extends AbstractConflictIT
         deviceConfigConflictMapping.getConflictingConnectionMethodSolutions().get(0).markSolutionAsMap(destination);
 
         DeviceType reloadedDeviceType = getReloadedDeviceType(deviceType);
+        verifyConflictValidation(times(2), deviceConfigConflictMapping);
 
         assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).haveExactly(1, new Condition<DeviceConfigConflictMapping>() {
             @Override

@@ -23,11 +23,6 @@ public class ConflictingConnectionMethodSolutionImpl extends AbstractConflictSol
      */
     static final String DESTINATION_CONNECTION_METHOD_FIELD_NAME = "destinationConnectionMethod";
 
-    @Override
-    public List<PartialConnectionTask> getMappableToDataSources() {
-        return getConflictingMapping().getDestinationDeviceConfiguration().getPartialConnectionTasks().stream().filter(partialConnectionTask -> partialConnectionTask.getPluggableClass().getId() == getOriginDataSource().getPluggableClass().getId()).collect(Collectors.toList());
-    }
-
     public enum Fields {
         CONFLICTINGMAPPING("conflictingMapping"),
         ACTION("action"),
@@ -43,6 +38,7 @@ public class ConflictingConnectionMethodSolutionImpl extends AbstractConflictSol
         public String fieldName() {
             return javaFieldName;
         }
+
     }
 
     private Reference<PartialConnectionTask> originConnectionMethod = ValueReference.absent();
@@ -51,6 +47,11 @@ public class ConflictingConnectionMethodSolutionImpl extends AbstractConflictSol
     @Inject
     public ConflictingConnectionMethodSolutionImpl(DataModel dataModel) {
         super(dataModel);
+    }
+
+    @Override
+    public List<PartialConnectionTask> getMappableToDataSources() {
+        return getConflictingMapping().getDestinationDeviceConfiguration().getPartialConnectionTasks().stream().filter(partialConnectionTask -> partialConnectionTask.getPluggableClass().getId() == getOriginDataSource().getPluggableClass().getId()).collect(Collectors.toList());
     }
 
     @Override

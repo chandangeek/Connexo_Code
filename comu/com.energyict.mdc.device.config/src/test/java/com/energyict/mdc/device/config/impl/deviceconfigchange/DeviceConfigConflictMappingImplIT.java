@@ -12,7 +12,10 @@ import com.energyict.mdc.device.config.impl.ServerDeviceType;
 import org.junit.Test;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 /**
  * Copyrights EnergyICT
@@ -38,6 +41,7 @@ public class DeviceConfigConflictMappingImplIT extends AbstractConflictIT {
 
         DeviceType reloadedDeviceType = getReloadedDeviceType(deviceType);
         assertThat(reloadedDeviceType.getDeviceConfigConflictMappings()).hasSize(2);
+        verifyConflictValidation(never());
     }
 
     @Test

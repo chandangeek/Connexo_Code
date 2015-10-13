@@ -17,11 +17,7 @@ import com.energyict.mdc.device.config.exceptions.LogBookTypeAlreadyInDeviceType
 import com.energyict.mdc.device.config.exceptions.RegisterTypeAlreadyInDeviceTypeException;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingImpl;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.masterdata.ChannelType;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.MeasurementType;
-import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.masterdata.*;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;

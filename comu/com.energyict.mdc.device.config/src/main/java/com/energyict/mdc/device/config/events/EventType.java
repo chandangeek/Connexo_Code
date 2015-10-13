@@ -202,7 +202,8 @@ public enum EventType {
     SECURITY_PROPERTY_SET_DELETED("securitypropertyset/DELETED"),
     DEVICE_MESSAGE_ENABLEMENT_UPDATED("devicemessageenablement/UPDATED"),
     DEVICE_MESSAGE_ENABLEMENT_CREATED("devicemessageenablement/CREATED"),
-    DEVICE_MESSAGE_ENABLEMENT_DELETE("devicemessageenablement/DELETED");
+    DEVICE_MESSAGE_ENABLEMENT_DELETE("devicemessageenablement/DELETED"),
+    DEVICE_CONFIG_CONFLICT_VALIDATE_CREATE("deviceconfigconflict/VALIDATE_CREATE");
 
     private static final String NAMESPACE = "com/energyict/mdc/device/config/";
     private final String topic;

@@ -42,7 +42,9 @@ import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
+import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
 import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.impl.*;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
@@ -85,6 +87,7 @@ import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.verification.VerificationMode;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -300,5 +303,15 @@ public abstract class AbstractConflictIT {
             injector.getInstance(DeviceConfigConflictMappingHandler.class).onEvent(localEvent);
             return null;
         }).when(eventService.getSpy()).postEvent(any(), any());
+    }
+
+
+    void verifyConflictValidation(VerificationMode mode) {
+        final DeviceConfigConflictMappingImpl deviceConfigConflictMapping = mock(DeviceConfigConflictMappingImpl.class);
+        verifyConflictValidation(mode, deviceConfigConflictMapping);
+    }
+
+    void verifyConflictValidation(VerificationMode mode, DeviceConfigConflictMapping deviceConfigConflictMapping) {
+        verify(eventService.getSpy(), mode).postEvent(EventType.DEVICE_CONFIG_CONFLICT_VALIDATE_CREATE.topic(), deviceConfigConflictMapping);
     }
 }
