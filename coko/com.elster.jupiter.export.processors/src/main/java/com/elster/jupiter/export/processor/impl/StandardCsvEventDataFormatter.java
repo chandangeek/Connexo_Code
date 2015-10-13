@@ -23,6 +23,10 @@ import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
 class StandardCsvEventDataFormatter implements StandardFormatter {
 
+    public static final String SEMICOLON_VALUE = "Semicolon (;)";
+    public static final String COMMA_VALUE = "Comma (,)";
+    public static final String SEMICOLON_SEPARATOR = ";";
+    public static final String COMMA_SEPARATOR = ",";
     private final DataExportService dataExportService;
     private String separator;
     private String tag;
@@ -32,7 +36,7 @@ class StandardCsvEventDataFormatter implements StandardFormatter {
     }
 
     private StandardCsvEventDataFormatter init(String separator, String tag) {
-        this.separator = separator;
+        this.separator = defineSeparator(separator);
         this.tag = tag;
         return this;
     }
@@ -76,4 +80,16 @@ class StandardCsvEventDataFormatter implements StandardFormatter {
     public void endExport() {
 
     }
+
+    private String defineSeparator(String separator) {
+        switch (separator) {
+            case SEMICOLON_VALUE:
+                return SEMICOLON_SEPARATOR;
+            case COMMA_VALUE:
+            default:
+                return COMMA_SEPARATOR;
+        }
+    }
+
+
 }

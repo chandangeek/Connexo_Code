@@ -88,7 +88,15 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
 
     @Override
     public DataFormatter createDataFormatter(Map<String, Object> properties) {
-        return new StandardCsvEventDataFormatter(dataExportService);
+        return StandardCsvEventDataFormatter.from(dataExportService, getSeparator(properties), getTag(properties));
+    }
+
+    private String getTag(Map<String, Object> properties) {
+        return (String) properties.get(FormatterProperties.TAG.getKey());
+    }
+
+    private String getSeparator(Map<String, Object> properties) {
+        return (String) properties.get(FormatterProperties.SEPARATOR.getKey());
     }
 
     @Override
