@@ -183,6 +183,11 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>datavault</artifactId>
+        </dependency>
+
 
         <!--INTEGRATION TESTS-->
         <dependency>
