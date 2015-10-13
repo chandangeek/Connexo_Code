@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -71,6 +72,7 @@ public class InMemoryPersistence {
     private static List<Module> defaultModules() {
         return Arrays.asList(
                 new InMemoryMessagingModule(),
+                new DataVaultModule(),
                 new TransactionModule(),
                 new OrmModule(),
                 new EventsModule(),
