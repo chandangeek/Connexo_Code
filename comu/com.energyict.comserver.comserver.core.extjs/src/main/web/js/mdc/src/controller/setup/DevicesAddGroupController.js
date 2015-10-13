@@ -45,8 +45,12 @@ Ext.define('Mdc.controller.setup.DevicesAddGroupController', {
         this.initAddDeviceGroupActionController();
         if ((this.getDynamicRadioButton() && this.getDynamicRadioButton().checked) || (!this.getDynamicRadioButton() && this.isDynamic)) {
             this.getDynamicGridFilter().applyFilters();
+            this.getDynamicGridFilter().down('[dataIndex=mRID]').itemId = 'dynamicFilterMRID';
+            this.getDynamicGridFilter().down('[dataIndex=serialNumber]').itemId = 'dynamicFilterSerialNumber';
         } else {
             this.getStaticGridFilter().applyFilters();
+            this.getStaticGridFilter().down('[dataIndex=mRID]').itemId = 'staticFilterMRID';
+            this.getStaticGridFilter().down('[dataIndex=serialNumber]').itemId = 'staticFilterSerialNumber';
         }
     },
 
