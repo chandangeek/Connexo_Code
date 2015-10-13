@@ -6,8 +6,16 @@ Ext.define('Bpm.controller.OpenTask', {
     ],
     refs: [
         {
+            ref: 'openTaskPage',
+            selector: 'bpm-task-open-task'
+        },
+        {
             ref: 'formContent',
             selector: 'bpm-task-open-task #formContent'
+        },
+        {
+            ref: 'formContent2',
+            selector: 'bpm-task-open-task #formContent2'
         },
         {
             ref: 'btnClaim',
@@ -53,13 +61,16 @@ Ext.define('Bpm.controller.OpenTask', {
             'bpm-task-open-task #btn-complete':{
                 click: this.chooseAction
             }
+
         });
     },
+
 
     showOpenTask : function(taskId){
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             queryString = Uni.util.QueryString.getQueryStringValues(false),
+            tasksRoute = router.getRoute('workspace/taksmanagementtasks'),
             openTaskView, openTaskForm, taskRecord,
             flowUrl;
 
@@ -71,24 +82,23 @@ Ext.define('Bpm.controller.OpenTask', {
         status = router.arguments.status;
         process = router.arguments.process;
 
-        if (sort && (sort != '')){
-            queryParams.sort = router.arguments.sort;
-        }
         sort && (sort != '') && (queryParams.sort = sort);
         user && (user != '') && (queryParams.user = user);
         dueDate && (dueDate != '') && (queryParams.dueDate = dueDate);
-        sort && (sort != '') && (queryParams.sort = status);
-        sort && (sort != '') && (queryParams.sort = process);
+        status && (status != '') && (queryParams.status = status);
+        process && (process != '') && (queryParams.process = process);
+        tasksRoute.params.use = true;
 
-        openTaskView = Ext.create('Bpm.view.task.OpenTask', {
-            returnLink: router.getRoute('workspace/taksmanagementtasks').buildUrl({}, queryParams)});
-
-        openTaskView.setLoading();
         var task = me.getModel('Bpm.model.task.Task');
         task.load(taskId, {
             success: function (taskRecord) {
 
-                openTaskView.taskRecord = taskRecord;
+                openTaskView = Ext.create('Bpm.view.task.OpenTask', {
+                //    returnLink: router.getRoute('workspace/taksmanagementtasks').buildUrl({}, queryParams),
+                    taskRecord: taskRecord});
+
+                //openTaskView.setLoading();
+                //openTaskView.taskRecord = taskRecord;
                 me.getApplication().fireEvent('openTask', taskRecord);
 
                 openTaskForm = openTaskView.down('#frm-add-user-directory');
@@ -118,11 +128,11 @@ Ext.define('Bpm.controller.OpenTask', {
                                     if (status == 'SUCCESS') {
                                         var formURL = xmlDoc.getElementsByTagName("formUrl");
                                         if (formURL && formURL.length > 0 && formURL[0].childNodes.length > 0) {
-                                            this.formURL = formURL[0].childNodes[0].nodeValue;
-                                            var html = "<iframe id='" + this.containerId + "_form' src='" + this.formURL + "' frameborder='0' style='width:100%; height:100%'></iframe>";
+                                            openTaskView.formURL = formURL[0].childNodes[0].nodeValue;
+                                            var html = "<iframe id='iframeId' src='" + openTaskView.formURL + "' frameborder='0' style='width:100%; height:100%'></iframe>";
                                             var formContent = me.getFormContent();
                                             formContent.getEl().dom.innerHTML = html;
-                                            me.resizeReportPanel(formContent);
+                                            //me.resizeReportPanel(formContent);
                                             me.refreshButtons(taskRecord);
                                             return;
                                         }
@@ -133,15 +143,16 @@ Ext.define('Bpm.controller.OpenTask', {
                             }
                         }
                     })
+
                 }
-                openTaskView.setLoading(false);
+                //openTaskView.setLoading(false);
             },
             failure: function (record, operation) {
             }
         });
     },
 
-    getXMLDoc : function(xml) {
+     getXMLDoc: function(xml) {
         if (!xml) return;
 
         var xmlDoc;
@@ -157,7 +168,7 @@ Ext.define('Bpm.controller.OpenTask', {
     },
 
     resizeReportPanel: function(component) {
-        return;
+
         if (!component)
             return;
 
@@ -182,13 +193,38 @@ Ext.define('Bpm.controller.OpenTask', {
         me.getBtnTaskActions().setVisible(false);
     },
 
-    chooseAction: function (menu, item) {
-        
+    chooseAction: function (button, item) {
+
+        var listener = function dolisten(event){
+            alert('great');
+            };
+        if (window.addEventListener){
+            window.addEventListener("message", function(event){
+                alert('great');
+            }, false)
+        } else {
+            attachEvent("onmessage", listener)
+        }
+
         var me = this,
-            action = item.action;
+            action = button.action,
+            taskRecord = button.taskRecord;
 
 
+        var rowIndex = Uni.store.Apps.findExact('name', 'Flow');
+        if (rowIndex != -1) {
+            flowUrl = Uni.store.Apps.getAt(rowIndex).get('url');
+            var frame = document.getElementById('iframeId').contentWindow;
+
+            var request = '{"action":"'+ action + '","taskId":"' + taskRecord.get('id') + '"}';
+            console.log(request);
+            console.log(me.getOpenTaskPage().formURL);
+            console.log(frame);
+
+            frame.postMessage(request, me.getOpenTaskPage().formURL);
+        }
     }
+
 
 
 });

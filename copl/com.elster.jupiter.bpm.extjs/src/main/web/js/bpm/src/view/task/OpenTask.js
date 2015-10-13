@@ -2,24 +2,10 @@ Ext.define('Bpm.view.task.OpenTask', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.bpm-task-open-task',
     requires: [
-//        'Uni.util.FormErrorMessage',
-        //      'Usr.store.SecurityProtocols'
-    ],
 
+    ],
+    taskRecord: null,
     edit: false,
-    setEdit: function (edit, returnLink) {
-        /*    if (edit) {
-         this.edit = edit;
-         this.down('#btn-add').setText(Uni.I18n.translate('general.save', 'USR', 'Save'));
-         this.down('#btn-add').action = 'edit';
-         } else {
-         this.edit = edit;
-         this.down('#btn-add').setText(Uni.I18n.translate('general.add', 'USR', 'Add'));
-         this.down('#btn-add').action = 'add';
-         }
-         */
-        this.down('#btn-cancel-link').href = returnLink;
-    },
 
     initComponent: function () {
         var me = this;
@@ -43,7 +29,6 @@ Ext.define('Bpm.view.task.OpenTask', {
                             align: 'stretch'
                         },
                         items: [
-
                             {
                                 xtype: 'container',
                                 itemId: 'formContent',
@@ -62,7 +47,8 @@ Ext.define('Bpm.view.task.OpenTask', {
                                 hidden: true,
                                 ui: 'action',
                                 itemId: 'btn-claim',
-                                action: 'claim'
+                                action: 'claimTask',
+                                taskRecord: me.taskRecord
                             },
                             {
                                 text: Uni.I18n.translate('task.action.save', 'BPM', 'Save'),
@@ -70,7 +56,8 @@ Ext.define('Bpm.view.task.OpenTask', {
                                 hidden: true,
                                 ui: 'action',
                                 itemId: 'btn-save',
-                                action: 'save'
+                                action: 'saveTask',
+                                taskRecord: me.taskRecord
                             },
                             {
                                 text: Uni.I18n.translate('task.action.release', 'BPM', 'Release'),
@@ -78,7 +65,8 @@ Ext.define('Bpm.view.task.OpenTask', {
                                 hidden: true,
                                 ui: 'action',
                                 itemId: 'btn-release',
-                                action: 'release'
+                                action: 'releaseTask',
+                                taskRecord: me.taskRecord
                             },
                             {
                                 text: Uni.I18n.translate('task.action', 'BPM', 'Start'),
@@ -86,7 +74,8 @@ Ext.define('Bpm.view.task.OpenTask', {
                                 hidden: true,
                                 ui: 'action',
                                 itemId: 'btn-start',
-                                action: 'start'
+                                action: 'startTask',
+                                taskRecord: me.taskRecord
                             },
                             {
                                 text: Uni.I18n.translate('task.action.complete', 'BPM', 'Complete'),
@@ -94,7 +83,8 @@ Ext.define('Bpm.view.task.OpenTask', {
                                 hidden: true,
                                 ui: 'action',
                                 itemId: 'btn-complete',
-                                action: 'complete'
+                                action: 'completeTask',
+                                taskRecord: me.taskRecord
                             },
                             {
                                 text: Uni.I18n.translate('task.action.taskactions', 'BPM', 'Task actions'),
@@ -102,22 +92,23 @@ Ext.define('Bpm.view.task.OpenTask', {
                                 hidden: true,
                                 ui: 'action',
                                 itemId: 'btn-taskactions',
-                                action: 'taskaction'
-                            },
+                                action: 'taskaction',
+                                taskRecord: me.taskRecord
+                            }/*,
                             {
                                 xtype: 'button',
                                 text: Uni.I18n.translate('general.cancel', 'BPM', 'Cancel'),
                                 href: '#/administration/taksmanagementtasks',
                                 itemId: 'btn-cancel-link',
                                 ui: 'link'
-                            }
+                            }*/
                         ]
                     }
                 ]
             }
         ];
         me.callParent(arguments);
-        me.setEdit(me.edit, me.returnLink);
+    //    me.setEdit(me.edit, me.returnLink);
     }
 });
 

@@ -19,6 +19,14 @@ Ext.define('Bpm.controller.history.BpmManagement', {
                     controller: 'Bpm.controller.Task',
                     action: 'showTasks',
                     privileges: Bpm.privileges.BpmManagement.all,
+                    params: {
+                        use: false,
+                        sort: '',
+                        user: '',
+                        dueDate:'',
+                        status:'',
+                        process: ''
+                    },
                     items: {
                         openTask: {
                             title: Uni.I18n.translate('bpm.task.openTask', 'BPM', 'Open task'),

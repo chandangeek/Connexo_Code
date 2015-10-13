@@ -85,6 +85,22 @@ Ext.define('Bpm.controller.Task', {
             queryString.sort = Ext.JSON.encode(sort);
             window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
         }
+        else if (router.getRoute('workspace/taksmanagementtasks').params.use === true){
+
+            var argSort = router.arguments.sort, argUser = router.arguments.user,
+                argDueDate = router.arguments.dueDate, argStatus = router.arguments.status,
+                argProcess = router.arguments.process;
+
+            router.getRoute('workspace/taksmanagementtasks').params.use = false;
+            queryString.param = undefined;
+            argSort && (argSort != '') && (queryString.sort = argSort);
+            argUser && (argUser != '') && (queryString.user = argUser);
+            argDueDate && (argDueDate != '') && (queryString.dueDate = argDueDate);
+            argStatus && (argStatus != '') && (queryString.status = argStatus);
+            argProcess && (argProcess != '') && (queryString.process = argProcess);
+
+            window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
+        }
         else {
             var store = Ext.getStore('Bpm.store.task.Tasks');
             store.loadData([], false);
@@ -126,6 +142,21 @@ Ext.define('Bpm.controller.Task', {
                 break;
         }
 
+        //
+        var tasksRoute = router.getRoute('workspace/taksmanagementtasks');
+        tasksRoute.params.sort = undefined;
+        tasksRoute.params.user = undefined;
+        tasksRoute.params.dueDate = undefined;
+        tasksRoute.params.status = undefined;
+        tasksRoute.params.process = undefined;
+
+        queryString.sort && (queryString.sort != '') && (tasksRoute.params.sort = queryString.sort);
+        queryString.user && (queryString.user != '') && (tasksRoute.params.user = queryString.user);
+        queryString.dueDate && (queryString.dueDate != '') && (tasksRoute.params.dueDate = queryString.dueDate);
+        queryString.status && (queryString.status != '') && (tasksRoute.params.status = queryString.status);
+        queryString.process && (queryString.process != '') && (tasksRoute.params.process = queryString.process);
+
+        //
         route && (route = router.getRoute(route));
         route.params.sort = queryString.sort;
         route.params.user = queryString.user;
