@@ -3,6 +3,7 @@ package com.elster.jupiter.parties;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.cbo.StreetAddress;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -63,6 +64,7 @@ public class PartyCrudTest {
         injector = Guice.createInjector(
         			new MockModule(),
         			inMemoryBootstrapModule,
+					new DataVaultModule(),
         			new PartyModule(),
         			new UserModule(),
         			new EventsModule(),
