@@ -3,6 +3,8 @@ package com.elster.jupiter.demo;
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.datavault.impl.DataVaultServiceImpl;
 import com.elster.jupiter.demo.impl.ConsoleUser;
@@ -322,7 +324,8 @@ public class DemoTest {
                 new FirmwareModule(),
                 new FileImportModule(),
                 new MailModule(),
-                new DemoModule()
+                new DemoModule(),
+                new CustomPropertySetsModule()
         );
         doPreparations();
     }
@@ -736,6 +739,7 @@ public class DemoTest {
     protected void doPreparations() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             createOracleTablesSubstitutes();
+            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(DataVaultServiceImpl.class);
             injector.getInstance(FiniteStateMachineService.class);
             createRequiredProtocols();
