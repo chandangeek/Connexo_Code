@@ -1,10 +1,30 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.ChannelSpecLinkType;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
+import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationEstimationRuleSetUsage;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceMessageUserAction;
+import com.energyict.mdc.device.config.DeviceSecurityUserAction;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.DeviceTypeFields;
+import com.energyict.mdc.device.config.IncompatibleDeviceLifeCycleChangeException;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.masterdata.ChannelType;
@@ -29,6 +49,7 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Layer;
@@ -42,10 +63,13 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -71,10 +95,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static java.util.stream.Collectors.toList;
@@ -85,7 +110,7 @@ import static java.util.stream.Collectors.toList;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-01-30 (15:38)
  */
-@Component(name = "com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, ServerDeviceConfigurationService.class, InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class}, property = "name=" + DeviceConfigurationService.COMPONENTNAME, immediate = true)
+@Component(name = "com.energyict.mdc.device.config", service = {DeviceConfigurationService.class, ServerDeviceConfigurationService.class, InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class, ReferencePropertySpecFinderProvider.class}, property = "name=" + DeviceConfigurationService.COMPONENTNAME, immediate = true)
 public class DeviceConfigurationServiceImpl implements ServerDeviceConfigurationService, InstallService, TranslationKeyProvider, MessageSeedProvider, PrivilegesProvider {
 
     private volatile ProtocolPluggableService protocolPluggableService;
@@ -99,6 +124,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile MdcReadingTypeUtilService readingTypeUtilService;
     private volatile EngineConfigurationService engineConfigurationService;
     private volatile MasterDataService masterDataService;
+    private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile SchedulingService schedulingService;
     private volatile UserService userService;
@@ -107,12 +133,14 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     private volatile EstimationService estimationService;
     private volatile QueryService queryService;
 
+    private final Set<Privilege> privileges = new HashSet<>();
+
     public DeviceConfigurationServiceImpl() {
         super();
     }
 
     @Inject
-    public DeviceConfigurationServiceImpl(OrmService ormService, Clock clock, ThreadPrincipalService threadPrincipalService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService, EstimationService estimationService, MasterDataService masterDataService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public DeviceConfigurationServiceImpl(OrmService ormService, Clock clock, ThreadPrincipalService threadPrincipalService, EventService eventService, NlsService nlsService, MeteringService meteringService, MdcReadingTypeUtilService mdcReadingTypeUtilService, UserService userService, ProtocolPluggableService protocolPluggableService, EngineConfigurationService engineConfigurationService, SchedulingService schedulingService, ValidationService validationService, EstimationService estimationService, MasterDataService masterDataService, FiniteStateMachineService finiteStateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this();
         this.setOrmService(ormService);
         this.setClock(clock);
@@ -128,6 +156,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         this.setSchedulingService(schedulingService);
         this.setValidationService(validationService);
         this.setEstimationService(estimationService);
+        this.setFiniteStateMachineService(finiteStateMachineService);
         this.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         this.activate();
         this.install();
@@ -437,11 +466,19 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+        initPrivileges();
     }
 
     @Reference
     public void setSchedulingService(SchedulingService schedulingService) {
         this.schedulingService = schedulingService;
+    }
+
+    Optional<Privilege> findPrivilege(String userActionPrivilege) {
+        return this.privileges
+                .stream()
+                .filter(privilege -> privilege.getName().equals(userActionPrivilege))
+                .findAny();
     }
 
     private Module getModule() {
@@ -494,6 +531,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public void install() {
         new Installer(this.dataModel, this.eventService, userService).install(true);
+        initPrivileges();
     }
 
     @Override
@@ -528,6 +566,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     public void setMasterDataService(MasterDataService masterDataService) {
         // Not actively used but required for foreign keys in TableSpecs
         this.masterDataService = masterDataService;
+    }
+
+    @Reference
+    public void setFiniteStateMachineService(FiniteStateMachineService finiteStateMachineService) {
+        this.finiteStateMachineService = finiteStateMachineService;
     }
 
     @Reference
@@ -653,6 +696,23 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         return new LinkableConfigResolverBySql(queryService.wrap(dataModel.query(DeviceConfiguration.class, DeviceType.class))).getLinkableDeviceConfigurations(validationRuleSet);
     }
 
+    private void initPrivileges() {
+        privileges.clear();
+        List<Resource> resources = userService.getResources("MDC");
+        for (Resource resource : resources) {
+            for (Privilege privilege : resource.getPrivileges()) {
+                Optional<DeviceSecurityUserAction> found = DeviceSecurityUserAction.forPrivilege(privilege.getName());
+                if (found.isPresent()) {
+                    privileges.add(privilege);
+                }
+                Optional<DeviceMessageUserAction> deviceMessageUserAction = DeviceMessageUserAction.forPrivilege(privilege.getName());
+                if(deviceMessageUserAction.isPresent()){
+                    privileges.add(privilege);
+                }
+            }
+        }
+    }
+
     @Override
     public List<SecurityPropertySet> findUniqueSecurityPropertySets() {
         List<SecurityPropertySet> securityPropertySets = dataModel.mapper(SecurityPropertySet.class).find();
@@ -664,7 +724,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                                 .sorted((s3, s4) -> s4.getAuthenticationDeviceAccessLevel().getId() - s3.getAuthenticationDeviceAccessLevel().getId())
                                 .sorted((s3, s4) -> s4.getEncryptionDeviceAccessLevel().getId() - s3.getEncryptionDeviceAccessLevel().getId())
                                 .findFirst().get().getId())
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     @Override
@@ -685,8 +745,10 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         return Arrays.asList(
                 this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, "masterData.masterData", "masterData.masterData.description", Arrays.asList(Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA)),
                 this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, "deviceType.deviceTypes", "deviceType.deviceTypes.description", Arrays.asList(Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE)),
-                this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, "deviceSecurity.deviceSecurities", "deviceSecurity.deviceSecurities.description", Arrays.asList(DeviceSecurityUserAction.values()).stream().map(DeviceSecurityUserAction::getPrivilege).collect(toList())),
-                this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, "deviceCommand.deviceCommands", "deviceCommand.deviceCommands.description", Arrays.asList(DeviceMessageUserAction.values()).stream().map(DeviceMessageUserAction::getPrivilege).collect(toList()))
+                this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, "deviceSecurity.deviceSecurities", "deviceSecurity.deviceSecurities.description", Arrays.asList(DeviceSecurityUserAction
+                        .values()).stream().map(DeviceSecurityUserAction::getPrivilege).collect(toList())),
+                this.userService.createModuleResourceWithPrivileges(DeviceConfigurationService.COMPONENTNAME, "deviceCommand.deviceCommands", "deviceCommand.deviceCommands.description", Arrays.asList(DeviceMessageUserAction
+                        .values()).stream().map(DeviceMessageUserAction::getPrivilege).collect(toList()))
         );
     }
 
@@ -700,4 +762,14 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     public Optional<DeviceConfigConflictMapping> findDeviceConfigConflictMapping(long id) {
         return this.getDataModel().mapper(DeviceConfigConflictMapping.class).getUnique("id", id);
     }
+
+    @Override
+    public List<CanFindByLongPrimaryKey<? extends HasId>> finders () {
+        List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
+        finders.add(new DeviceTypeFinder(this));
+        finders.add(new DeviceConfigurationFinder(this));
+        finders.add(new FiniteStateFinder(this.finiteStateMachineService));
+        return finders;
+    }
+
 }

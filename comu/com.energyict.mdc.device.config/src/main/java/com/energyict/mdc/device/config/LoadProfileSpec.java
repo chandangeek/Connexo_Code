@@ -2,7 +2,7 @@ package com.energyict.mdc.device.config;
 
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.validation.ValidationRule;
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
 

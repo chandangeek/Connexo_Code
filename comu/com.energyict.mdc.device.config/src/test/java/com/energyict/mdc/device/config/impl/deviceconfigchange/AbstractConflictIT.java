@@ -1,6 +1,50 @@
 package com.energyict.mdc.device.config.impl.deviceconfigchange;
 
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
+import com.energyict.mdc.common.IdBusinessObjectFactory;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.config.impl.DeviceConfigurationServiceImpl;
+import com.energyict.mdc.device.config.impl.InboundNoParamsConnectionTypeImpl;
+import com.energyict.mdc.device.config.impl.IpConnectionType;
+import com.energyict.mdc.device.config.impl.OutboundNoParamsConnectionTypeImpl;
+import com.energyict.mdc.device.config.impl.PartialOutboundConnectionTaskCrudIT;
+import com.energyict.mdc.device.config.impl.ServerDeviceType;
+import com.energyict.mdc.device.config.impl.SpyEventService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.engine.config.impl.EngineModelModule;
+import com.energyict.mdc.io.impl.MdcIOModule;
+import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.impl.MasterDataModule;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
+import com.energyict.mdc.pluggable.PluggableService;
+import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.scheduling.SchedulingModule;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
@@ -36,6 +80,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
@@ -99,9 +144,17 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.*;
+import org.junit.rules.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT
@@ -199,7 +252,8 @@ public abstract class AbstractConflictIT {
                     new MdcDynamicModule(),
                     new PluggableModule(),
                     new SchedulingModule(),
-                    new TimeModule());
+                    new TimeModule(),
+                    new CustomPropertySetsModule());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -210,8 +264,9 @@ public abstract class AbstractConflictIT {
             NlsService nlsService = injector.getInstance(NlsService.class);
             PropertySpecServiceImpl propertySpecService = (PropertySpecServiceImpl) injector.getInstance(PropertySpecService.class);
             initializeConnectionTypes(propertySpecService);
-            injector.getInstance(FiniteStateMachineService.class);
+            FiniteStateMachineService finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringService.class);
+            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(MdcReadingTypeUtilService.class);
             engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
             protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
@@ -237,6 +292,7 @@ public abstract class AbstractConflictIT {
                     injector.getInstance(ValidationService.class),
                     injector.getInstance(EstimationService.class),
                     injector.getInstance(MasterDataService.class),
+                    finiteStateMachineService,
                     injector.getInstance(DeviceLifeCycleConfigurationService.class));
             ctx.commit();
         }

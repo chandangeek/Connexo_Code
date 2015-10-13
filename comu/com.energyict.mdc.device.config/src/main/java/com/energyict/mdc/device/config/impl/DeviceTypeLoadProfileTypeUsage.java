@@ -1,35 +1,40 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 
+import javax.inject.Inject;
 import java.time.Instant;
+import java.util.Objects;
+import java.util.Optional;
 
-/**
- * Models the fact that a {@link DeviceType} uses a {@link LoadProfileType}.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2014-01-30 (08:25)
- */
 class DeviceTypeLoadProfileTypeUsage {
+
+    @IsPresent
     private Reference<DeviceType> deviceType = ValueReference.absent();
+    @IsPresent
     private Reference<LoadProfileType> loadProfileType = ValueReference.absent();
+    private Reference<RegisteredCustomPropertySet> customPropertySet = ValueReference.absent();
+    private DataModel dataModel;
     private String userName;
     private long version;
     private Instant createTime;
     private Instant modTime;
 
-    // For orm service only
-    DeviceTypeLoadProfileTypeUsage() {
-        super();
+    @Inject
+    DeviceTypeLoadProfileTypeUsage(DataModel dataModel) {
+        this.dataModel = dataModel;
     }
 
-    DeviceTypeLoadProfileTypeUsage(DeviceType deviceType, LoadProfileType loadProfileType) {
-        this();
+    DeviceTypeLoadProfileTypeUsage initialize(DeviceType deviceType, LoadProfileType loadProfileType) {
         this.deviceType.set(deviceType);
         this.loadProfileType.set(loadProfileType);
+        return this;
     }
 
     public DeviceType getDeviceType() {
@@ -40,8 +45,38 @@ class DeviceTypeLoadProfileTypeUsage {
         return loadProfileType.get();
     }
 
-    public boolean sameLoadProfileType (LoadProfileType loadProfileType) {
+    public Optional<RegisteredCustomPropertySet> getRegisteredCustomPropertySet() {
+        return customPropertySet.getOptional();
+    }
+
+    public void setCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet) {
+        this.customPropertySet.set(registeredCustomPropertySet);
+        update();
+    }
+
+    public boolean sameLoadProfileType(LoadProfileType loadProfileType) {
         return this.getLoadProfileType().getId() == loadProfileType.getId();
     }
 
+    public void update() {
+        dataModel.update(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        DeviceTypeLoadProfileTypeUsage that = (DeviceTypeLoadProfileTypeUsage) o;
+        return this.getDeviceType().getId() == that.getDeviceType().getId() &&
+                this.getLoadProfileType().getId() == that.getLoadProfileType().getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(deviceType, loadProfileType);
+    }
 }

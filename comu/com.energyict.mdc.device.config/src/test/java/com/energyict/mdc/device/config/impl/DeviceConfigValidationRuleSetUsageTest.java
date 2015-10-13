@@ -1,36 +1,8 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.relation.RelationService;
-import com.energyict.mdc.engine.config.impl.EngineModelModule;
-import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.impl.MasterDataModule;
-import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
-import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
-import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
-import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
-import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
-import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
-import com.energyict.mdc.scheduling.SchedulingModule;
-import com.energyict.mdc.tasks.impl.TasksModule;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.impl.EstimationModule;
@@ -62,9 +34,44 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
+import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.relation.RelationService;
+import com.energyict.mdc.engine.config.impl.EngineModelModule;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.impl.MasterDataModule;
+import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
+import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.scheduling.SchedulingModule;
+import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -73,16 +80,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -136,7 +136,7 @@ public class DeviceConfigValidationRuleSetUsageTest {
     private UserService userService;
 
     @Before
-    public void setup () {
+    public void setup() {
         when(principal.getName()).thenReturn("Ernie");
         when(userService.getPrivileges()).thenReturn(Arrays.asList());
         this.bootstrapModule = new InMemoryBootstrapModule();
@@ -173,7 +173,8 @@ public class DeviceConfigValidationRuleSetUsageTest {
                 new BasicPropertiesModule(),
                 new ProtocolApiModule(),
                 new TasksModule(),
-                new TimeModule());
+                new TimeModule(),
+                new CustomPropertySetsModule());
         TransactionService transactionService = injector.getInstance(TransactionService.class);
 
         try (TransactionContext ctx = transactionService.getContext()) {
@@ -181,6 +182,7 @@ public class DeviceConfigValidationRuleSetUsageTest {
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(ValidationService.class);
             injector.getInstance(MasterDataService.class);
+            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(DeviceLifeCycleConfigurationService.class);
             injector.getInstance(DeviceConfigurationService.class);
             ctx.commit();
@@ -188,12 +190,12 @@ public class DeviceConfigValidationRuleSetUsageTest {
     }
 
     @After
-    public void cleanupDatabase () {
+    public void cleanupDatabase() {
         this.bootstrapModule.deactivate();
     }
 
     @Before
-    public void setupThesaurus () {
+    public void setupThesaurus() {
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
         when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit testing");
         when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
@@ -216,11 +218,11 @@ public class DeviceConfigValidationRuleSetUsageTest {
             bind(InboundDeviceProtocolService.class).toInstance(inboundDeviceProtocolService);
             bind(LicensedProtocolService.class).toInstance(licensedProtocolService);
             bind(UserService.class).toInstance(userService);
-
         }
     }
+
     @Test
-    public void testDeviceConfigValidationRuleSetUsage () {
+    public void testDeviceConfigValidationRuleSetUsage() {
         TransactionService transactionService = injector.getInstance(TransactionService.class);
 
         try (TransactionContext context = transactionService.getContext()) {
@@ -239,10 +241,9 @@ public class DeviceConfigValidationRuleSetUsageTest {
 
             assertThat(usages.size() == 1).isTrue();
 
-            DeviceConfValidationRuleSetUsage usage =  usages.get(0);
+            DeviceConfValidationRuleSetUsage usage = usages.get(0);
             assertThat(usage.getDeviceConfiguration().getId() == deviceConfId).isTrue();
             assertThat(usage.getValidationRuleSet().getId() == validationRuleSet1.getId());
-
 
             List<ValidationRuleSet> ruleSets = deviceConfiguration.getValidationRuleSets();
             assertThat(ruleSets.size() == 1);
@@ -299,7 +300,4 @@ public class DeviceConfigValidationRuleSetUsageTest {
         when(encryptionAccessLevel.getId()).thenReturn(0);
         when(this.deviceProtocol.getEncryptionAccessLevels()).thenReturn(Arrays.asList(encryptionAccessLevel));
     }
-
 }
-
-
