@@ -267,7 +267,8 @@ public class DeviceServiceImpl implements ServerDeviceService {
         }
         if(exceptionDuringConfigChangeExecution.isPresent()){
             // TODO make it a runtimeexception
-            throw exceptionDuringConfigChangeExecution.get();
+            exceptionDuringConfigChangeExecution.get().printStackTrace();
+//            throw exceptionDuringConfigChangeExecution.get();
         }
         return modifiedDevice;
     }
