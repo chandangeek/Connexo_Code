@@ -1,17 +1,10 @@
 package com.energyict.mdc.device.config;
 
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.device.config.impl.deviceconfigchange.*;
-
 import com.elster.jupiter.util.HasId;
+import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigChangeConnectionTaskItem;
+import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigChangeSecuritySetItem;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Predicate;
 
 /**
