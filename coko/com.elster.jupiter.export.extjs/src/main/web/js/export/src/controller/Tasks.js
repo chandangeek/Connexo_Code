@@ -521,6 +521,7 @@ Ext.define('Dxp.controller.Tasks', {
             this.getNoEventTypesLabel().hide();
             this.getEventTypesGrid().show();
         }
+        this.validateEventsGrid(false);
         button.up('window').close();
     },
 
@@ -1510,11 +1511,7 @@ Ext.define('Dxp.controller.Tasks', {
 
 
         var emptyEventTypes = (selectedDataSelector) && (selectedDataSelector.get('selectorType')==='DEFAULT_EVENTS') && (page.down('#eventTypesGridPanel').getStore().data.items.length == 0);
-        if (emptyEventTypes) {
-            form.down('#eventTypesFieldContainer').setActiveError(me.requiredFieldText);
-        } else {
-            form.down('#eventTypesFieldContainer').unsetActiveError();
-        }
+        me.validateEventsGrid(emptyEventTypes);
         form.down('#eventTypesFieldContainer').doComponentLayout();
 
 
@@ -1733,6 +1730,19 @@ Ext.define('Dxp.controller.Tasks', {
         }
     },
 
+    validateEventsGrid: function(emptyEventTypes) {
+        var me = this,
+        page = me.getAddPage(),
+        form = page.down('#add-data-export-task-form'),
+        dataSelectorCombo = form.down('#data-selector-combo');
+        var selectedDataSelector = dataSelectorCombo.findRecord(dataSelectorCombo.valueField, dataSelectorCombo.getValue());
+        if (emptyEventTypes) {
+                form.down('#eventTypesFieldContainer').setActiveError(me.requiredFieldText);
+        } else {
+                form.down('#eventTypesFieldContainer').unsetActiveError();
+        }
+        form.down('#eventTypesFieldContainer').doComponentLayout();
+    },
 
     forwardToPreviousPage: function () {
         var router = this.getController('Uni.controller.history.Router'),
