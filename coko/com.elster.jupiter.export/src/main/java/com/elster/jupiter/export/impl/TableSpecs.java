@@ -13,6 +13,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
 
+import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
@@ -149,6 +150,7 @@ enum TableSpecs {
             table.column("INTERVALENDPTBEHAVIOUR").number().conversion(ColumnConversion.NUMBER2ENUM).map("exportedDataBoundaryType").add();
             table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map("status").add();
             table.column("MESSAGE").varChar(Table.SHORT_DESCRIPTION_LENGTH).map("failureReason").add();
+            table.column("SUMMARY").type("CLOB").conversion(CLOB2STRING).map("summary").add();
 
             table.primaryKey("DES_PK_EXPOCC").on(taskOccurrence).add();
             table.foreignKey("DES_FK_EXPOCC_TSKOCC").on(taskOccurrence).references(TaskService.COMPONENTNAME, "TSK_TASK_OCCURRENCE")
