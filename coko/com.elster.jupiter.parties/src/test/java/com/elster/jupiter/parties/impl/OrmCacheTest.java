@@ -1,6 +1,7 @@
 package com.elster.jupiter.parties.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -50,19 +51,21 @@ public class OrmCacheTest {
     
     private static Injector getInjector(InMemoryBootstrapModule boot) {
     	return Guice.createInjector(
-    			new MockModule(), 
-    			boot,  
-    			new PartyModule(), 
-    			new UserModule(),
-    			new EventsModule(),
-    			new InMemoryMessagingModule(),
-    			new DomainUtilModule(), 
-    			new OrmModule(),
-    			new UtilModule(), 
-    			new ThreadSecurityModule(), 
-    			new PubSubModule(), 
-    			new TransactionModule(printSql),
-                new NlsModule());
+                new MockModule(),
+                boot,
+                new DataVaultModule(),
+                new PartyModule(),
+                new UserModule(),
+                new EventsModule(),
+                new InMemoryMessagingModule(),
+                new DomainUtilModule(),
+                new OrmModule(),
+                new UtilModule(),
+                new ThreadSecurityModule(),
+                new PubSubModule(),
+                new TransactionModule(printSql),
+                new NlsModule()
+        );
     }
     
     @BeforeClass

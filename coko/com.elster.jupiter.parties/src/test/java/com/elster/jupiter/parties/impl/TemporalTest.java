@@ -1,6 +1,7 @@
 package com.elster.jupiter.parties.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -45,40 +46,41 @@ public class TemporalTest {
 
     private static class MockModule extends AbstractModule {
         @Override
-        protected void configure() {       
-           bind(BundleContext.class).toInstance(mock(BundleContext.class));  
-           bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
+        protected void configure() {
+            bind(BundleContext.class).toInstance(mock(BundleContext.class));
+            bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
         }
     }
-    
+
     private static final boolean printSql = false;
 
     @BeforeClass
-    public static void setUp() throws SQLException {
+    public static void setUp() {
         injector = Guice.createInjector(
-        			new MockModule(), 
-        			inMemoryBootstrapModule,  
-        			new PartyModule(), 
-        			new UserModule(),
-        			new EventsModule(),
-        			new InMemoryMessagingModule(),
-        			new DomainUtilModule(), 
-        			new OrmModule(),
-        			new UtilModule(), 
-        			new ThreadSecurityModule(), 
-        			new PubSubModule(), 
-        			new TransactionModule(printSql),
-                    new NlsModule()
-                );
+                new MockModule(),
+                inMemoryBootstrapModule,
+                new DataVaultModule(),
+                new PartyModule(),
+                new UserModule(),
+                new EventsModule(),
+                new InMemoryMessagingModule(),
+                new DomainUtilModule(),
+                new OrmModule(),
+                new UtilModule(),
+                new ThreadSecurityModule(),
+                new PubSubModule(),
+                new TransactionModule(printSql),
+                new NlsModule()
+        );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
-        	injector.getInstance(PartyService.class);
-        	ctx.commit();
+            injector.getInstance(PartyService.class);
+            ctx.commit();
         }
     }
 
     @AfterClass
     public static void tearDown() throws SQLException {
-    	inMemoryBootstrapModule.deactivate();
+        inMemoryBootstrapModule.deactivate();
     }
 
     private PartyService getPartyService() {

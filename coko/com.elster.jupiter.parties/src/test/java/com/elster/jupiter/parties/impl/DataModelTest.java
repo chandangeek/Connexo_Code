@@ -1,6 +1,7 @@
 package com.elster.jupiter.parties.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -50,54 +51,55 @@ import static org.mockito.Mockito.mock;
 
 public class DataModelTest {
 
-    private static Injector injector;
-    private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
+	private static Injector injector;
+	private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
-    private static class MockModule extends AbstractModule {
-        @Override
-        protected void configure() {       
-           bind(BundleContext.class).toInstance(mock(BundleContext.class));   
-           bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
-        }
-    }
-    
-    private static final boolean printSql = true;
+	private static class MockModule extends AbstractModule {
+		@Override
+		protected void configure() {
+			bind(BundleContext.class).toInstance(mock(BundleContext.class));
+			bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
+		}
+	}
 
-    @BeforeClass
-    public static void setUp() throws SQLException {
-        injector = Guice.createInjector(
-        			new MockModule(), 
-        			inMemoryBootstrapModule,  
-        			new PartyModule(), 
-        			new UserModule(),
-        			new EventsModule(),
-        			new InMemoryMessagingModule(),
-        			new DomainUtilModule(), 
-        			new OrmModule(),
-        			new UtilModule(), 
-        			new ThreadSecurityModule(), 
-        			new PubSubModule(), 
-        			new TransactionModule(printSql),
-                    new NlsModule()
-                );
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
-        	injector.getInstance(PartyService.class);
-        	ctx.commit();
-        }
-    }
+	private static final boolean printSql = false;
 
-    @AfterClass
-    public static void tearDown() throws SQLException {
-    	inMemoryBootstrapModule.deactivate();
-    }
+	@BeforeClass
+	public static void setUp() {
+		injector = Guice.createInjector(
+				new MockModule(),
+				inMemoryBootstrapModule,
+				new DataVaultModule(),
+				new PartyModule(),
+				new UserModule(),
+				new EventsModule(),
+				new InMemoryMessagingModule(),
+				new DomainUtilModule(),
+				new OrmModule(),
+				new UtilModule(),
+				new ThreadSecurityModule(),
+				new PubSubModule(),
+				new TransactionModule(printSql),
+				new NlsModule()
+		);
+		try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
+			injector.getInstance(PartyService.class);
+			ctx.commit();
+		}
+	}
 
-    private PartyService getPartyService() {
-        return injector.getInstance(PartyService.class);
-    }
+	@AfterClass
+	public static void tearDown() throws SQLException {
+		inMemoryBootstrapModule.deactivate();
+	}
 
-    private TransactionService getTransactionService() {
-        return injector.getInstance(TransactionService.class);
-    }
+	private PartyService getPartyService() {
+		return injector.getInstance(PartyService.class);
+	}
+
+	private TransactionService getTransactionService() {
+		return injector.getInstance(TransactionService.class);
+	}
     
     @Test
     public void testInheritance()  {
