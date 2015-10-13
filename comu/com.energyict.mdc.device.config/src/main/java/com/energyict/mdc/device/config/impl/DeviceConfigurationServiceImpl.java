@@ -696,6 +696,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
         return new LinkableConfigResolverBySql(queryService.wrap(dataModel.query(DeviceConfiguration.class, DeviceType.class))).getLinkableDeviceConfigurations(validationRuleSet);
     }
 
+    public List<DeviceConfiguration> getLinkableDeviceConfigurations(EstimationRuleSet estimationRuleSet) {
+        return new LinkableConfigResolverBySql(queryService.wrap(dataModel.query(DeviceConfiguration.class, DeviceType.class))).getLinkableDeviceConfigurations(estimationRuleSet);
+    }
+
+
     private void initPrivileges() {
         privileges.clear();
         List<Resource> resources = userService.getResources("MDC");
