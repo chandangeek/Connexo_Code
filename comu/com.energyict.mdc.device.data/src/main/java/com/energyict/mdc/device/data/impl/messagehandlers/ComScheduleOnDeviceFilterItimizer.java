@@ -4,15 +4,25 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.search.SearchBuilder;
+import com.elster.jupiter.search.SearchDomain;
+import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.ComScheduleOnDevicesFilterSpecification;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.ItemizeComScheduleQueueMessage;
+import com.energyict.mdc.device.data.QueueMessage;
 import com.energyict.mdc.device.data.impl.ComScheduleOnDeviceQueueMessage;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.google.common.base.Strings;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -20,7 +30,7 @@ import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
-import static com.elster.jupiter.util.conditions.Where.where;
+import static java.util.stream.Collectors.toList;
 
 /**
  * This message handler will add/remove comschedules on devices, either listed exhaustively or defined by a filter.
@@ -30,6 +40,7 @@ public class ComScheduleOnDeviceFilterItimizer implements MessageHandler {
     private DeviceService deviceService;
     private MessageService messageService;
     private JsonService jsonService;
+    private SearchService searchService;
 
     @Override
     public void process(Message message) {
@@ -38,11 +49,29 @@ public class ComScheduleOnDeviceFilterItimizer implements MessageHandler {
             ItemizeComScheduleQueueMessage queueMessage = jsonService.deserialize(message.getPayload(), ItemizeComScheduleQueueMessage.class);
             for (Long scheduleId : queueMessage.scheduleIds) {
                 Stream<Device> deviceStream;
-                if (queueMessage.filter !=null) {
-                    Condition deviceSearchCondition = buildFilterFromJsonQuery(queueMessage.filter);
-                    deviceStream = deviceService.findAllDevices(deviceSearchCondition).stream();
-                }
-                else {
+                if (queueMessage.filter != null) {
+                    Optional<SearchDomain> searchDomain = searchService.findDomain(Device.class.getName());
+                    if (!searchDomain.isPresent()) {
+                        break;
+                    }
+                    SearchBuilder<Object> searchBuilder = searchService.search(searchDomain.get());
+                    searchDomain.get().getProperties().stream().
+                            filter(p -> queueMessage.filter.getPropertyValue(p) != null).
+                            forEach(searchableProperty -> {
+                                try {
+                                    if (searchableProperty.getSelectionMode() == SearchableProperty.SelectionMode.MULTI) {
+                                        searchBuilder.where(searchableProperty).in(getQueryParameterAsObjectList(queueMessage.filter, searchableProperty));
+                                    } else if (searchableProperty.getSpecification().getValueFactory().getValueType().equals(String.class)) {
+                                        searchBuilder.where(searchableProperty).likeIgnoreCase((String) getQueryParameterAsObject(queueMessage.filter, searchableProperty));
+                                    } else {
+                                        searchBuilder.where(searchableProperty).isEqualTo(getQueryParameterAsObject(queueMessage.filter, searchableProperty));
+                                    }
+                                } catch (InvalidValueException e) {
+                                    // LOG failure
+                                }
+                            });
+                    deviceStream = searchBuilder.toFinder().stream().map(Device.class::cast);
+                } else {
                     deviceStream = queueMessage.deviceMRIDs.stream().map(deviceService::findByUniqueMrid).filter(Optional::isPresent).map(Optional::get);
                 }
                 deviceStream.forEach(
@@ -51,6 +80,16 @@ public class ComScheduleOnDeviceFilterItimizer implements MessageHandler {
         } else {
             // LOG failure
         }
+    }
+
+    private Object getQueryParameterAsObject(ComScheduleOnDevicesFilterSpecification filter, SearchableProperty constrainingProperty) {
+        return constrainingProperty.getSpecification().getValueFactory().fromStringValue(filter.singleProperties.get(constrainingProperty.getName()));
+    }
+
+    private List<Object> getQueryParameterAsObjectList(ComScheduleOnDevicesFilterSpecification filter, SearchableProperty constrainingProperty) {
+        return filter.listProperties.get(constrainingProperty.getName()).stream().
+                map(p -> constrainingProperty.getSpecification().getValueFactory().fromStringValue(p)).
+                collect(toList());
     }
 
     private void processMessagePost(QueueMessage message, DestinationSpec destinationSpec) {
@@ -63,28 +102,12 @@ public class ComScheduleOnDeviceFilterItimizer implements MessageHandler {
 
     }
 
-    public MessageHandler init(MessageService messageService, JsonService jsonService, DeviceService deviceService) {
+    public MessageHandler init(MessageService messageService, JsonService jsonService, DeviceService deviceService, SearchService searchService) {
         this.messageService = messageService;
         this.jsonService = jsonService;
         this.deviceService = deviceService;
+        this.searchService = searchService;
         return this;
-    }
-
-    private Condition buildFilterFromJsonQuery(ComScheduleOnDevicesFilterSpecification primitiveFilter) {
-        Condition condition = Condition.TRUE;
-        if (primitiveFilter.deviceTypes!=null) {
-            condition=condition.and(primitiveFilter.deviceTypes.stream().map(id->Where.where("deviceConfiguration.deviceType.id").isEqualTo(id)).collect(toCondition()));
-        }
-        if (primitiveFilter.deviceConfigurations!=null) {
-            condition=condition.and(primitiveFilter.deviceConfigurations.stream().map(id->Where.where("deviceConfiguration.id").isEqualTo(id)).collect(toCondition()));
-        }
-        if (!Strings.isNullOrEmpty(primitiveFilter.mRID)) {
-            condition=condition.and(where("mRID").likeIgnoreCase(primitiveFilter.mRID));
-        }
-        if (!Strings.isNullOrEmpty(primitiveFilter.serialNumber)) {
-            condition=condition.and(where("serialNumber").likeIgnoreCase(primitiveFilter.mRID));
-        }
-        return condition;
     }
 
     private Collector<Condition, Condition, Condition> toCondition() {

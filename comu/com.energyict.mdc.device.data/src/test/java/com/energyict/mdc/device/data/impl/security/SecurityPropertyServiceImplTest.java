@@ -293,17 +293,17 @@ public class SecurityPropertyServiceImplTest {
         when(this.securityPropertySet1.currentUserIsAllowedToViewDeviceProperties()).thenReturn(true);
         when(this.clock.instant()).thenReturn(currentRelationFrom.plusSeconds(10));
 
-        // Business method
+            // Business method
         List<SecurityProperty> securityProperties = this.testService().getSecurityProperties(this.device, this.clock.instant(), this.securityPropertySet1);
 
-        // Asserts
-        verify(this.protocolPluggableService).findSecurityPropertyRelationType(this.deviceProtocolPluggableClass);
+            // Asserts
+            verify(this.protocolPluggableService).findSecurityPropertyRelationType(this.deviceProtocolPluggableClass);
         Map<String, Object> propertyNames =
                 securityProperties
                         .stream()
                         .collect(Collectors.toMap(
-                            SecurityProperty::getName,
-                            SecurityProperty::getValue));
+                                SecurityProperty::getName,
+                                SecurityProperty::getValue));
         assertThat(propertyNames.keySet()).containsOnly(USERNAME_SECURITY_PROPERTY_NAME, PASSWORD_SECURITY_PROPERTY_NAME);
         assertThat(propertyNames.get(USERNAME_SECURITY_PROPERTY_NAME)).isEqualTo(expectedUser);
         assertThat(propertyNames.get(PASSWORD_SECURITY_PROPERTY_NAME)).isEqualTo(expectedPassword);

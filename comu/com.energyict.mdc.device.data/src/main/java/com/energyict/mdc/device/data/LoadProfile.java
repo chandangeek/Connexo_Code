@@ -1,8 +1,6 @@
 package com.energyict.mdc.device.data;
 
-import com.energyict.mdc.common.HasId;
-
-import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.time.TimeDuration;
 import com.google.common.collect.Range;
 
@@ -21,7 +19,6 @@ import java.util.Optional;
  * Date: 3/17/14
  * Time: 3:30 PM
  */
-@ProviderType
 public interface LoadProfile extends BaseLoadProfile<Channel>, HasId {
 
     @Override

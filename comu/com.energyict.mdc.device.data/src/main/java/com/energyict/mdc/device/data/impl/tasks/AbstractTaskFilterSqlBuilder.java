@@ -1,19 +1,19 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.util.streams.DecoratedStream;
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
 import com.energyict.mdc.device.data.impl.TableSpecs;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.sql.SqlFragment;
+import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -26,7 +26,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Provides code reuse opportunities to builds SQL queries that will
@@ -111,7 +110,7 @@ public abstract class AbstractTaskFilterSqlBuilder {
                     .map(chunk -> chunk.stream().filter(Objects::nonNull).map(objectMapper).collect(Collectors.joining(", ")))
                     .collect(Collectors.joining(") OR " + columnName + " IN (" , columnName + " IN (", ") ")));
         }
-    }
+                }
 
     protected <T extends HasId> void appendInClause(String columnName, Set<T> idBusinessObjects) {
         this.appendInClause(columnName, idBusinessObjects, obj -> String.valueOf(obj.getId()));

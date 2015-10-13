@@ -111,8 +111,6 @@ public interface DeviceService {
      */
     public List<Device> findDevicesByConnectionTypeAndProperty(Class<? extends ConnectionType> connectionTypeClass, String propertyName, String propertyValue);
 
-    public Query<Device> deviceQuery();
-
     /**
      * Change the DeviceConfiguration of the device to the provided destinationDeviceConfiguration.
      * <b>NOTE:</b> Make sure you don't create your own transaction. This will be performed during the execution

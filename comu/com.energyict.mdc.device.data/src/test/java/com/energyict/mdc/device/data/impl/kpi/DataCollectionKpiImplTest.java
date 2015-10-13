@@ -1,5 +1,36 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
+import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
+import com.energyict.mdc.device.data.impl.DeviceDataModule;
+import com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
+import com.energyict.mdc.device.data.impl.ServerDeviceService;
+import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.relation.RelationService;
+import com.energyict.mdc.engine.config.impl.EngineModelModule;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.impl.MasterDataModule;
+import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
+import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.scheduling.SchedulingModule;
+import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
@@ -23,7 +54,6 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
@@ -39,10 +69,13 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.Ranges;
-import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.data.DeviceService;
@@ -77,6 +110,7 @@ import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Scopes;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -91,6 +125,8 @@ import org.osgi.service.log.LogService;
 
 import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.security.Principal;
 import java.time.Clock;
 import java.time.Duration;
@@ -131,10 +167,9 @@ public class DataCollectionKpiImplTest {
     private static DeviceDataModelServiceImpl deviceDataModelService;
     private static QueryEndDeviceGroup endDeviceGroup;
     private static CronExpressionParser cronExpressionParser;
-    private static CronExpression cronExpression;
     private static MeteringGroupsService meteringGroupsService;
     private static MeteringService meteringService;
-    private static DeviceService deviceService;
+    private static ServerDeviceService deviceService;
 
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
@@ -144,6 +179,7 @@ public class DataCollectionKpiImplTest {
     private static class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            bind(FileSystem.class).toInstance(FileSystems.getDefault());
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(LicenseService.class).toInstance(licenseService);
@@ -159,14 +195,17 @@ public class DataCollectionKpiImplTest {
             bind(InboundDeviceProtocolService.class).toInstance(mock(InboundDeviceProtocolService.class));
             bind(LicensedProtocolService.class).toInstance(mock(LicensedProtocolService.class));
             bind(LogService.class).toInstance(mock(LogService.class));
-            bind(Thesaurus.class).toInstance(mock(Thesaurus.class));
+            bind(CronExpressionParser.class).toInstance(cronExpressionParser);
+            bind(Clock.class).toInstance(clock);
+            bind(JsonService.class).to(JsonServiceImpl.class).in(Scopes.SINGLETON);
+            bind(BeanService.class).to(BeanServiceImpl.class).in(Scopes.SINGLETON);
         }
     }
 
     @BeforeClass
     public static void setUp() {
         cronExpressionParser = mock(CronExpressionParser.class, RETURNS_DEEP_STUBS);
-        cronExpression = mock(CronExpression.class);
+        CronExpression cronExpression = mock(CronExpression.class);
         when(cronExpression.encoded()).thenReturn("0 0 0/1 * * ? *");
         when(cronExpressionParser.parse(anyString())).thenReturn(Optional.of(cronExpression));
         doReturn(Optional.of(ZonedDateTime.now())).when(cronExpression).nextOccurrence(any());
@@ -181,7 +220,6 @@ public class DataCollectionKpiImplTest {
                 inMemoryBootstrapModule,
                 new InMemoryMessagingModule(),
                 new OrmModule(),
-                new UtilModule(clock),
                 new DataVaultModule(),
                 new EventsModule(),
                 new PubSubModule(),
@@ -278,8 +316,7 @@ public class DataCollectionKpiImplTest {
         DataCollectionKpi kpi = builder.displayPeriod(TimeDuration.days(1)).save();
 
         // Business method
-        java.util.Optional<DataCollectionKpi> found = deviceDataModelService.dataCollectionKpiService().findDataCollectionKpi(kpi.getId());
-
+        deviceDataModelService.dataCollectionKpiService().findDataCollectionKpi(kpi.getId());
     }
 
     @Test
@@ -551,7 +588,7 @@ public class DataCollectionKpiImplTest {
         builder.frequency(unsupported).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
 
         // Business method
-        DataCollectionKpiImpl kpi = (DataCollectionKpiImpl) builder.displayPeriod(TimeDuration.days(1)).save();
+        builder.displayPeriod(TimeDuration.days(1)).save();
 
         // Asserts: see expected exception rule
     }
@@ -819,8 +856,7 @@ public class DataCollectionKpiImplTest {
         kpi.dropComTaskExecutionKpi();
 
         // must reload to trigger postLoad and init strategies
-        kpi = (DataCollectionKpiImpl) deviceDataModelService.dataCollectionKpiService().findDataCollectionKpi(kpi.getId()).get();
-
+        deviceDataModelService.dataCollectionKpiService().findDataCollectionKpi(kpi.getId()).get();
     }
 
     @Test

@@ -1,17 +1,23 @@
 package com.energyict.mdc.device.data;
 
-import java.time.Instant;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import com.elster.jupiter.search.SearchableProperty;
 
-/**
- * Simple structure to hold all IDs so we can store the filter in the DB
- */
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class ComScheduleOnDevicesFilterSpecification {
 
-    public String mRID;
-    public String serialNumber;
-    public List<Long> deviceTypes;
-    public List<Long> deviceConfigurations;
+    public Map<String, String> singleProperties = new HashMap<>();
+    public Map<String, List<String>> listProperties = new HashMap<>();
+
+    public Object getPropertyValue(SearchableProperty property) {
+        if (singleProperties.containsKey(property.getName())) {
+            return singleProperties.get(property.getName());
+        } else if (listProperties.containsKey(property.getName())) {
+            return listProperties.get(property.getName());
+        } else {
+            return null;
+        }
+    }
 }
