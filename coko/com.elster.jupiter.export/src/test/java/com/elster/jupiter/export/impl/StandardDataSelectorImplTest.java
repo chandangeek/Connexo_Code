@@ -5,7 +5,10 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.persistence.test.TransactionVerifier;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
-import com.elster.jupiter.export.*;
+import com.elster.jupiter.export.DefaultSelectorOccurrence;
+import com.elster.jupiter.export.ExportData;
+import com.elster.jupiter.export.MeterReadingData;
+import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingQualityRecord;
@@ -14,11 +17,13 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EndDeviceMembership;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableSet;
@@ -35,6 +40,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import java.text.MessageFormat;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
@@ -48,9 +54,7 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StandardDataSelectorImplTest {
@@ -80,7 +84,7 @@ public class StandardDataSelectorImplTest {
     @Mock
     private DataModel dataModel;
     @Mock(extraInterfaces = DefaultSelectorOccurrence.class)
-    private DataExportOccurrence occurrence;
+    private IDataExportOccurrence occurrence;
     @Mock
     private IExportTask task;
     @Mock
@@ -127,6 +131,16 @@ public class StandardDataSelectorImplTest {
         doAnswer(invocation -> new DefaultItemDataSelector(clock, validationService, thesaurus, transactionService))
                 .when(dataModel).getInstance(DefaultItemDataSelector.class);
         doAnswer(invocation -> new FakeRefAny(invocation.getArguments()[0])).when(dataModel).asRefAny(any());
+
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenAnswer(invocation -> {
+            NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+            when(messageFormat.format(anyVararg())).thenAnswer(invocation1 -> {
+                String defaultFormat = ((MessageSeed) invocation.getArguments()[0]).getDefaultFormat();
+                return MessageFormat.format(defaultFormat, invocation1.getArguments());
+            });
+            return messageFormat;
+        });
+
         doReturn(validatorFactory).when(dataModel).getValidatorFactory();
         doReturn(validator).when(validatorFactory).getValidator();
 

@@ -62,6 +62,14 @@ import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -78,18 +86,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
-import static com.elster.jupiter.time.RelativeField.DAY;
-import static com.elster.jupiter.time.RelativeField.HOUR;
-import static com.elster.jupiter.time.RelativeField.MINUTES;
-import static com.elster.jupiter.time.RelativeField.MONTH;
-import static com.elster.jupiter.time.RelativeField.YEAR;
+import static com.elster.jupiter.time.RelativeField.*;
 import static org.assertj.core.api.Fail.fail;
 import static org.fest.reflect.core.Reflection.field;
 import static org.mockito.Mockito.when;
@@ -186,6 +184,7 @@ public class DataExportServiceImplIT {
                     new FiniteStateMachineModule(),
                     new MeteringModule("0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"),
                     new PartyModule(),
+                    new DataVaultModule(),
                     new EventsModule(),
                     new DomainUtilModule(),
                     new OrmModule(),
@@ -212,9 +211,9 @@ public class DataExportServiceImplIT {
         }
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
+            meteringService = injector.getInstance(MeteringService.class);
             dataExportService = (DataExportServiceImpl) injector.getInstance(DataExportService.class);
             timeService = injector.getInstance(TimeService.class);
-            meteringService = injector.getInstance(MeteringService.class);
             meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
             return null;
         });

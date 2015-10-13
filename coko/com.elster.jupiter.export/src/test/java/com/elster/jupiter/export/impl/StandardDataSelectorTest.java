@@ -27,6 +27,7 @@ import com.elster.jupiter.tasks.TaskLogHandler;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.validation.ValidationEvaluator;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.Range;
 import org.junit.After;
@@ -127,6 +128,8 @@ public class StandardDataSelectorTest {
     private ValidationService validationService;
     @Mock
     private Logger logger;
+    @Mock
+    private ValidationEvaluator evaluator;
 
     @Before
     public void setUp() {
@@ -196,6 +199,7 @@ public class StandardDataSelectorTest {
         when(dataFormatter.processData(any())).thenReturn(formattedData);
         when(reading1.getSource()).thenReturn("reading1");
         when(reading2.getSource()).thenReturn("reading2");
+        when(validationService.getEvaluator()).thenReturn(evaluator);
     }
 
     @After

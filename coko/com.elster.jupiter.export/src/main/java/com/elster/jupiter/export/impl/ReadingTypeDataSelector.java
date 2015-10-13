@@ -83,7 +83,7 @@ class ReadingTypeDataSelector implements DataSelector {
             context.commit();
         }
 
-        DefaultItemDataSelector defaultItemDataSelector = new DefaultItemDataSelector(clock, validationService, thesaurus, transactionService);
+        DefaultItemDataSelector defaultItemDataSelector = DefaultItemDataSelector.from(dataModel, logger);
         try {
             Map<IReadingTypeDataExportItem, Optional<MeterReadingData>> selectedData = activeItems.stream()
                     .collect(Collectors.toMap(
