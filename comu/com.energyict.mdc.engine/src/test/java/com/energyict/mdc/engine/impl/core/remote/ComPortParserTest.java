@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core.remote;
 
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.time.TimeDuration;
@@ -72,6 +73,7 @@ public class ComPortParserTest {
                 new EventsModule(),
                 new UserModule(),
                 new TransactionModule(false),
+                new DataVaultModule(),
                 new EngineModelModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
             injector.getInstance(NlsService.class);

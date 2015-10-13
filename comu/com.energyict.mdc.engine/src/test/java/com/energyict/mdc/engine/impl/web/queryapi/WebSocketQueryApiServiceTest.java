@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.web.queryapi;
 
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -103,7 +104,8 @@ public class WebSocketQueryApiServiceTest {
                 new EventsModule(),
                 new UserModule(),
                 new TransactionModule(false),
-                new EngineModelModule());
+                new EngineModelModule(),
+                new DataVaultModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             injector.getInstance(NlsService.class); // fake call to make sure component is initialized
             injector.getInstance(ProtocolPluggableService.class); // fake call to make sure component is initialized
