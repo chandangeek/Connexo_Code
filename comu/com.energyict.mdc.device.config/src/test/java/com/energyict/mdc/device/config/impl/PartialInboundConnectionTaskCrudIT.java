@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -149,6 +151,7 @@ public class PartialInboundConnectionTaskCrudIT {
                     new MockModule(),
                     bootstrapModule,
                     new ThreadSecurityModule(principal),
+                    new CustomPropertySetsModule(),
                     new EventsModule(),
                     new PubSubModule(),
                     new TransactionModule(false),
@@ -190,6 +193,7 @@ public class PartialInboundConnectionTaskCrudIT {
         }
         transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
+            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(OrmService.class);
             injector.getInstance(EventService.class);
             injector.getInstance(NlsService.class);
