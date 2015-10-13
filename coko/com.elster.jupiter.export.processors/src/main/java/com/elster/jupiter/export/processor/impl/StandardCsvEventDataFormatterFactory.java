@@ -22,13 +22,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-@Component(name = "com.elster.jupiter.export.processor.StandardCsvDataProcessorFactory",
-        property = {DataExportService.DATA_TYPE_PROPERTY + "=" + DataExportService.STANDARD_READING_DATA_TYPE},
+@Component(name = "com.elster.jupiter.export.processor.StandardCsvEventDataFormatterFactory",
+        property = {DataExportService.DATA_TYPE_PROPERTY + "=" + DataExportService.STANDARD_EVENT_DATA_TYPE},
         service = DataFormatterFactory.class, immediate = true)
-public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
+public class StandardCsvEventDataFormatterFactory implements DataFormatterFactory {
 
-    static final String NAME = "standardCsvDataProcessorFactory";
-    static final String DISPLAY_NAME = "CSV formatter";
+    static final String NAME = "standardCsvEventDataProcessorFactory";
+    static final String DISPLAY_NAME = "CSV Formatter";
     private static final String NON_PATH_INVALID = "\":*?<>|";
 
     private volatile PropertySpecService propertySpecService;
@@ -38,12 +38,12 @@ public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
     private volatile Thesaurus thesaurus;
 
     //OSGI
-    public StandardCsvDataFormatterFactory() {
+    public StandardCsvEventDataFormatterFactory() {
     }
 
     // Tests
     @Inject
-    public StandardCsvDataFormatterFactory(PropertySpecService propertySpecService, DataExportService dataExportService, ValidationService validationService, NlsService nlsService, MeteringService meteringService) {
+    public StandardCsvEventDataFormatterFactory(PropertySpecService propertySpecService, DataExportService dataExportService, ValidationService validationService, NlsService nlsService, MeteringService meteringService) {
         setPropertySpecService(propertySpecService);
         setDataExportService(dataExportService);
         setValidationService(validationService);
@@ -88,7 +88,7 @@ public class StandardCsvDataFormatterFactory implements DataFormatterFactory {
 
     @Override
     public DataFormatter createDataFormatter(Map<String, Object> properties) {
-        return new StandardCsvDataFormatter(properties, thesaurus, validationService, dataExportService, meteringService);
+        return new StandardCsvEventDataFormatter(dataExportService);
     }
 
     @Override

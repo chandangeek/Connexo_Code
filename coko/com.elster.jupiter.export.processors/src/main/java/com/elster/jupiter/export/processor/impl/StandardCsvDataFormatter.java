@@ -40,7 +40,6 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -53,7 +52,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class StandardCsvDataFormatter implements ReadingDataFormatter {
+class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatter {
 
     public static final String VALID_STRING = "valid";
     public static final String INVALID_STRING = "suspect";
@@ -156,7 +155,7 @@ public class StandardCsvDataFormatter implements ReadingDataFormatter {
         if (reading.getValue() != null) {
             StringBuilder writer = new StringBuilder();
             ZonedDateTime date = ZonedDateTime.ofInstant(reading.getTimeStamp(), ZoneId.systemDefault());
-            writer.append(date.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+            writer.append(date.format(DEFAULT_DATE_TIME_FORMAT));
             writer.append(fieldSeparator);
             writer.append(meter.getMRID());
             writer.append(fieldSeparator);
@@ -211,7 +210,7 @@ public class StandardCsvDataFormatter implements ReadingDataFormatter {
         if (reading.getValue() != null) {
             StringBuilder writer = new StringBuilder();
             ZonedDateTime date = ZonedDateTime.ofInstant(reading.getTimeStamp(), ZoneId.systemDefault());
-            writer.append(date.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+            writer.append(date.format(DEFAULT_DATE_TIME_FORMAT));
             writer.append(fieldSeparator);
             writer.append(meter.getMRID());
             writer.append(fieldSeparator);
@@ -242,7 +241,7 @@ public class StandardCsvDataFormatter implements ReadingDataFormatter {
         if (reading.getValue() != null) {
             StringBuilder writer = new StringBuilder();
             ZonedDateTime date = ZonedDateTime.ofInstant(reading.getTimeStamp(), ZoneId.systemDefault());
-            writer.append(date.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+            writer.append(date.format(DEFAULT_DATE_TIME_FORMAT));
             writer.append(fieldSeparator);
             writer.append(meter.getMRID());
             writer.append(fieldSeparator);
