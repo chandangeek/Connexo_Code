@@ -2,6 +2,8 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
+import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -11,7 +13,15 @@ import com.elster.jupiter.util.conditions.Condition;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.metering.console", service = ConsoleCommands.class, property = {
         "osgi.command.scope=metering",
@@ -28,7 +38,8 @@ import java.time.Instant;
         "osgi.command.function=addUsagePointToCurrentMeterActivation",
         "osgi.command.function=endCurrentMeterActivation",
         "osgi.command.function=advanceStartDate",
-        "osgi.command.function=explain"
+        "osgi.command.function=explain",
+        "osgi.command.function=addEvents"
 }, immediate = true)
 public class ConsoleCommands {
 
@@ -175,6 +186,34 @@ public class ConsoleCommands {
         meteringService.getAvailableReadingTypes().stream()
                 .map(IdentifiedObject::getMRID)
                 .forEach(System.out::println);
+    }
+
+    public void addEvents(String mrId, String dataFile) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            File eventData = new File(dataFile);
+            try (Scanner scanner = new Scanner(eventData)) {
+                List<String> lines = new ArrayList<>();
+                while (scanner.hasNextLine()){
+                    lines.add(scanner.nextLine());
+                }
+
+                List<EndDeviceEventImpl> deviceEvents = lines.stream()
+                        .map(line -> line.split(";"))
+                        .map(line -> EndDeviceEventImpl.of(line[1], ZonedDateTime.parse(line[0], DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssxxx")).toInstant()))
+                        .collect(Collectors.toList());
+
+                MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+                meterReading.addAllEndDeviceEvents(deviceEvents);
+                meteringService.findMeter(mrId).get().store(meterReading);
+
+                context.commit();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        } finally {
+            threadPrincipalService.clear();
+        }
     }
 
     @Reference
