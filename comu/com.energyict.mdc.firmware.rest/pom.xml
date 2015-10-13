@@ -132,10 +132,6 @@
             <groupId>org.glassfish.jersey.media</groupId>
             <artifactId>jersey-media-multipart</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>cps</artifactId>
-        </dependency>
 
         <!-- Testing -->
         <dependency>
@@ -236,7 +232,11 @@
             <artifactId>mdc.io</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cps</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!--<dependency>-->
         <!--<groupId>com.google.inject</groupId>-->
         <!--<artifactId>guice</artifactId>-->
