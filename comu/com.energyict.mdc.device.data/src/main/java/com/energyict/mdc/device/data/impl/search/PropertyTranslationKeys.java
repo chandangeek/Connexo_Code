@@ -18,7 +18,10 @@ public enum PropertyTranslationKeys implements TranslationKey {
     DEVICE_STATUS("device.status.name", "state"),
     DEVICE_GROUP("device.group", "Device group"),
     DEVICE_CERT_YEAR("device.cert.year", "Year of certification"),
-    BATCH("device.batch", "Batch");
+    BATCH("device.batch", "Batch"),
+    DEVICE_DOMAIN("device.search.domain", "Device"),
+
+    ;
 
     private String key;
     private String defaultFormat;

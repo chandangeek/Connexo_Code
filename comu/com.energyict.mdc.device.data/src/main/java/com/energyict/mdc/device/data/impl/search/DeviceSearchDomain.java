@@ -205,6 +205,11 @@ public class DeviceSearchDomain implements SearchDomain {
                 this.deviceDataModelService.dataModel());
     }
 
+    @Override
+    public String displayName() {
+        return deviceDataModelService.thesaurus().getFormat(PropertyTranslationKeys.DEVICE_DOMAIN).format();
+    }
+
     /**
      * Wraps a {@link SearchablePropertyConstriction} to add sorting capabilities.
      */
