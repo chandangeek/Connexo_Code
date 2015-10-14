@@ -126,12 +126,12 @@ Ext.define('Dxp.view.tasks.HistoryPreviewForm', {
                     },
                     {
                         fieldLabel: Uni.I18n.translate('general.exportWindow', 'DES', 'Export window'),
-                        name: 'exportPeriod',
+                        name: 'exportPeriod_range',
                         hidden: true,
                         itemId: 'data-selector-exportPeriod-preview',
                         renderer: function (value) {
                             if (value) {
-                                return Ext.String.htmlEncode(value);
+                                return Ext.String.htmlDecode(value);
                             }
                         }
                     },
@@ -150,7 +150,14 @@ Ext.define('Dxp.view.tasks.HistoryPreviewForm', {
                         fieldLabel: Uni.I18n.translate('general.exportUpdate', 'DES', 'Updated data'),
                         name: 'exportUpdateForPreview',
                         hidden: true,
-                        itemId: 'updated-data'
+                        itemId: 'updated-data',
+                        renderer: function (value) {
+                            if (value) {
+                                debugger;
+                                return Ext.String.htmlDecode(value);
+                            }
+                        }
+
                     },
                     {
                         fieldLabel: ' ',

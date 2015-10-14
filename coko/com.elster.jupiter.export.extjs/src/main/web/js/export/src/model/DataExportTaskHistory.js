@@ -17,6 +17,8 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
         {name: 'statusDate', type: 'number'},
         {name: 'statusPrefix', type: 'string'},
         {name: 'trigger', type: 'string'},
+        {name: 'updatePeriodFrom', type: 'string'},
+        {name: 'updatePeriodTo', type: 'string'},
 
         {
             name: 'dataProcessor',
@@ -136,8 +138,38 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             mapping: function (data) {
                 if ((data.exportPeriodFrom && data.exportPeriodFrom !== 0) &&
                     (data.exportPeriodTo && data.exportPeriodTo !== 0)) {
-                    return 'From ' + Uni.DateTime.formatDateTimeLong(new Date(data.exportPeriodFrom)) +
-                        ' to ' + Uni.DateTime.formatDateTimeLong(new Date(data.exportPeriodTo));
+                    return Uni.I18n.translate('general.fromTo', 'DES', 'From {0} to {1}', [Uni.DateTime.formatDateTimeLong(new Date(data.exportPeriodFrom)),Uni.DateTime.formatDateTimeLong(new Date(data.exportPeriodTo))]);
+                }
+                return '-';
+            }
+        },
+        {
+            name: 'updatePeriodFrom_formatted',
+            persist: false,
+            mapping: function (data) {
+                if (data.updatePeriodFrom && (data.updatePeriodFrom !== 0)) {
+                    return moment(data.updatePeriodFrom).format('ddd, DD MMM YYYY HH:mm:ss');
+                }
+                return '-';
+            }
+        },
+        {
+            name: 'updatePeriodTo_formatted',
+            persist: false,
+            mapping: function (data) {
+                if (data.updatePeriodTo && (data.updatePeriodTo !== 0)) {
+                    return moment(data.updatePeriodTo).format('ddd, DD MMM YYYY HH:mm:ss');
+                }
+                return '-';
+            }
+        },
+        {
+            name: 'updatePeriod_range',
+            persist: false,
+            mapping: function (data) {
+                if ((data.updatePeriodFrom && data.updatePeriodFrom !== 0) &&
+                    (data.updatePeriodTo && data.updatePeriodTo !== 0)) {
+                    return Uni.I18n.translate('general.toPeriod', 'DES', '{0} to {1}', [Uni.DateTime.formatDateTimeLong(new Date(data.updatePeriodFrom)),Uni.DateTime.formatDateTimeLong(new Date(data.updatePeriodTo))]);
                 }
                 return '-';
             }
@@ -166,7 +198,7 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             convert: function(value,record){
                 if(record.data.task.standardDataSelector){
                     return record.data.task.standardDataSelector.exportUpdate ?
-                        Uni.I18n.translate('general.exportWithinWindowX', 'DES', "Export within the update window '{0}'",[record.data.task.standardDataSelector.updatePeriod?record.data.task.standardDataSelector.updatePeriod.name:Uni.I18n.translate('general.notDefined', 'DES', 'Not defined')]):
+                        Uni.I18n.translate('general.exportWithinWindowX', 'DES', 'Export within the update window {0}', [record.data.task.standardDataSelector.updatePeriod ? record.data.updatePeriod_range : Uni.I18n.translate('general.notDefined', 'DES', 'not defined')]):
                         Uni.I18n.translate('general.noExportForUpdated', 'DES', 'Do not export');
                 } else {
                     return '';
