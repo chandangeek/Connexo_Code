@@ -301,18 +301,22 @@
             <artifactId>mdc.io</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cps</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-        <groupId>com.google.inject</groupId>
-        <artifactId>guice</artifactId>
-        <version>4.0-beta5</version>
-        <scope>test</scope>
-        </dependency>
+        <!--<dependency>-->
+        <!--<groupId>com.google.inject</groupId>-->
+        <!--<artifactId>guice</artifactId>-->
+        <!--<version>4.0-beta5</version>-->
+        <!--<scope>test</scope>-->
+        <!--</dependency>-->
     </dependencies>
 
     <build>
