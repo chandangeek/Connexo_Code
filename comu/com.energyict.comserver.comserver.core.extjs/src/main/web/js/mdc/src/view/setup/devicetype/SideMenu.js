@@ -45,7 +45,7 @@ Ext.define('Mdc.view.setup.devicetype.SideMenu', {
                 ]
             },
             {
-                title: Uni.I18n.translate('devicetypemenu.customattribute', 'MDC', 'Custom attribute'),
+                title: Uni.I18n.translate('devicetypemenu.customattribute', 'MDC', 'Custom attributes'),
                 items: [
                     {
                         text: Uni.I18n.translate('devicetypemenu.customattribute.sets', 'MDC', 'Custom attribute sets'),
