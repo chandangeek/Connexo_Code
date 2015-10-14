@@ -1,6 +1,12 @@
 package com.elster.jupiter.export.rest.impl;
 
-import com.elster.jupiter.export.*;
+import com.elster.jupiter.export.DataExportDestination;
+import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.export.DataExportStatus;
+import com.elster.jupiter.export.DataExportStrategy;
+import com.elster.jupiter.export.DefaultSelectorOccurrence;
+import com.elster.jupiter.export.ExportTask;
+import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
@@ -14,13 +20,12 @@ import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
-import static com.elster.jupiter.export.rest.impl.MessageSeeds.Labels.NONRECURRING;
-import static com.elster.jupiter.export.rest.impl.MessageSeeds.Labels.ON_REQUEST;
-import static com.elster.jupiter.export.rest.impl.MessageSeeds.Labels.SCHEDULED;
+import static com.elster.jupiter.export.rest.impl.MessageSeeds.Labels.*;
 
 public class DataExportTaskHistoryInfo {
 
@@ -34,6 +39,8 @@ public class DataExportTaskHistoryInfo {
     public Long lastRun;
     public Long exportPeriodFrom;
     public Long exportPeriodTo;
+    public Long updatePeriodFrom;
+    public Long updatePeriodTo;
     public Long statusDate;
     public String statusPrefix;
     public DataExportTaskInfo task;
@@ -65,16 +72,24 @@ public class DataExportTaskHistoryInfo {
         this.status = getName(dataExportOccurrence.getStatus(), thesaurus);
         this.reason = dataExportOccurrence.getFailureReason();
         this.lastRun = dataExportOccurrence.getTriggerTime().toEpochMilli();
+        ExportTask version = history.getVersionAt(dataExportOccurrence.getStartDate().get())
+                .orElseGet(() -> history.getVersionAt(dataExportOccurrence.getTask().getCreateTime())
+                        .orElseGet(dataExportOccurrence::getTask));
         dataExportOccurrence.getDefaultSelectorOccurrence()
                 .map(DefaultSelectorOccurrence::getExportedDataInterval)
                 .ifPresent(interval -> {
                     this.exportPeriodFrom = interval.lowerEndpoint().toEpochMilli();
                     this.exportPeriodTo = interval.upperEndpoint().toEpochMilli();
                 });
+        version.getReadingTypeDataSelector(dataExportOccurrence.getStartDate().get())
+                .map(StandardDataSelector::getStrategy)
+                .flatMap(DataExportStrategy::getUpdatePeriod)
+                .map(relativePeriod -> relativePeriod.getOpenClosedInterval(ZonedDateTime.ofInstant(dataExportOccurrence.getTriggerTime(), ZoneId.systemDefault())))
+                .ifPresent(interval -> {
+                    this.updatePeriodFrom = interval.lowerEndpoint().toEpochMilli();
+                    this.updatePeriodTo = interval.upperEndpoint().toEpochMilli();
+                });
         setStatusOnDate(dataExportOccurrence, thesaurus);
-        ExportTask version = history.getVersionAt(dataExportOccurrence.getStartDate().get())
-                .orElseGet(() -> history.getVersionAt(dataExportOccurrence.getTask().getCreateTime())
-                        .orElseGet(dataExportOccurrence::getTask));
         task = new DataExportTaskInfo();
         task.populate(version, thesaurus, timeService, propertyUtils);
         if (version != null) {
