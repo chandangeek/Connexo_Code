@@ -29,8 +29,8 @@ public class EstimationRuleSetBuilder extends NamedBuilder<EstimationRuleSet, Es
 
     @Override
     public Optional<EstimationRuleSet> find() {
-        return estimationService.getEstimationTaskQuery()
-                .select(where("name").isEqualTo(getName()).and(where("obsoleteTime").isNull()))
+        return estimationService.getEstimationRuleSetQuery()
+                .select(where("name").isEqualTo(getName()))
                 .stream().map(EstimationRuleSet.class::cast)
                 .findFirst();
     }

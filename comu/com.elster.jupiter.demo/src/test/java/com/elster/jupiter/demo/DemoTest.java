@@ -545,7 +545,7 @@ public class DemoTest {
                 DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2,
                 DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
         assertThat(configuration.getPartialOutboundConnectionTasks().isEmpty()).isTrue();
-        assertThat(configuration.getComTaskEnablements()).hasSize(4);
+        assertThat(configuration.getComTaskEnablements()).hasSize(3);
         for (ComTaskEnablement enablement : configuration.getComTaskEnablements()) {
             if ( ComTaskTpl.TOPOLOGY_UPDATE.getName().equals(enablement.getComTask().getName()) ||
                  ComTaskTpl.READ_LOAD_PROFILE_DATA.getName().equals(enablement.getComTask().getName()) ||

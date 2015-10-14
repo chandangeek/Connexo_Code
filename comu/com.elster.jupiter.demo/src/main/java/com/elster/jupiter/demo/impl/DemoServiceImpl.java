@@ -2,6 +2,7 @@ package com.elster.jupiter.demo.impl;
 
 import com.elster.jupiter.demo.impl.commands.*;
 import com.elster.jupiter.demo.impl.commands.devices.*;
+import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -86,6 +87,7 @@ public class DemoServiceImpl {
     private volatile EngineConfigurationService engineConfigurationService;
     private volatile UserService userService;
     private volatile ValidationService validationService;
+    private volatile EstimationService estimationService;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile ProtocolPluggableService protocolPluggableService;
@@ -131,6 +133,7 @@ public class DemoServiceImpl {
             EngineConfigurationService engineConfigurationService,
             UserService userService,
             ValidationService validationService,
+            EstimationService estimationService,
             TransactionService transactionService,
             ThreadPrincipalService threadPrincipalService,
             ProtocolPluggableService protocolPluggableService,
@@ -166,6 +169,7 @@ public class DemoServiceImpl {
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
         setValidationService(validationService);
+        setEstimationService(estimationService);
         setTransactionService(transactionService);
         setThreadPrincipalService(threadPrincipalService);
         setProtocolPluggableService(protocolPluggableService);
@@ -210,6 +214,7 @@ public class DemoServiceImpl {
                 bind(EngineConfigurationService.class).toInstance(engineConfigurationService);
                 bind(UserService.class).toInstance(userService);
                 bind(ValidationService.class).toInstance(validationService);
+                bind(EstimationService.class).toInstance(estimationService);
                 bind(TransactionService.class).toInstance(transactionService);
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
@@ -265,6 +270,12 @@ public class DemoServiceImpl {
     @SuppressWarnings("unused")
     public final void setValidationService(ValidationService validationService) {
         this.validationService = validationService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public final void setEstimationService(EstimationService estimationService) {
+        this.estimationService = estimationService;
     }
 
     @Reference
