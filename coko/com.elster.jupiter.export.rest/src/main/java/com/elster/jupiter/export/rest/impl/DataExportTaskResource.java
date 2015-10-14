@@ -57,6 +57,7 @@ import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -271,12 +272,14 @@ public class DataExportTaskResource {
 
     private void updateEvents(DataExportTaskInfo info, ExportTask task) {
         EventDataSelector selector = task.getEventDataSelector().orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
-        selector.getEventTypeFilters().stream()
+        Set<String> toRemove = selector.getEventTypeFilters().stream()
                 .filter(t -> info.standardDataSelector.eventTypeCodes
                         .stream()
                         .map(r -> r.eventFilterCode)
                         .noneMatch(m -> t.getCode().equals(m)))
                 .map(EndDeviceEventTypeFilter::getCode)
+                .collect(Collectors.toSet());
+        toRemove.stream()
                 .forEach(selector::removeEventTypeFilter);
         info.standardDataSelector.eventTypeCodes.stream()
                 .map(r -> r.eventFilterCode)
