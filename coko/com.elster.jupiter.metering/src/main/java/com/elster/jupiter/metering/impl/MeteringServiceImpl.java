@@ -10,25 +10,9 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.MessageSeeds;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.PurgeConfiguration;
-import com.elster.jupiter.metering.ReadingStorer;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.ServiceLocation;
-import com.elster.jupiter.metering.StorerProcess;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointAccountability;
-import com.elster.jupiter.metering.UsagePointDetail;
-import com.elster.jupiter.metering.UsagePointFilter;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
 import com.elster.jupiter.metering.security.Privileges;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -563,6 +547,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         List<TranslationKey> translationKeys = new ArrayList<>();
         Arrays.stream(DefaultTranslationKey.values()).forEach(translationKeys::add);
         Arrays.stream(ServiceKind.values()).forEach(translationKeys::add);
+        Arrays.stream(PropertyTranslationKeys.values()).forEach(translationKeys::add);
+        Arrays.stream(UsagePointConnectedKind.values()).forEach(translationKeys::add);
         return translationKeys;
     }
 
@@ -570,5 +556,4 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
-
 }
