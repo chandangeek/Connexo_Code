@@ -116,7 +116,7 @@ Ext.define('Bpm.controller.OpenTask', {
                 me.getApplication().fireEvent('openTask', taskRecord);
 
                 openTaskForm = openTaskView.down('#frm-open-task');
-                openTaskForm.setTitle(Ext.String.format(Uni.I18n.translate('bpm.task.openTask', 'BPM', "'{0}' task"), taskRecord.get('name')));
+                openTaskForm.setTitle(Ext.String.format(Uni.I18n.translate('bpm.task.openTaskTitle', 'BPM', "'{0}' task"), taskRecord.get('name')));
 
                 //openTaskForm.loadRecord(taskRecord);
                 me.getApplication().fireEvent('changecontentevent', openTaskView);
