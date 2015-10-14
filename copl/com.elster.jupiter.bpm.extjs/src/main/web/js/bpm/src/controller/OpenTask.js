@@ -44,6 +44,9 @@ Ext.define('Bpm.controller.OpenTask', {
 
 
     ],
+    listener: null,
+    loadingObject: null,
+
     init: function () {
         this.control({
             'bpm-task-open-task #btn-claim':{
@@ -63,6 +66,17 @@ Ext.define('Bpm.controller.OpenTask', {
             }
 
         });
+
+        listener = function dolisten(event){
+            var me = this;
+
+           
+        };
+        if (window.addEventListener){
+            addEventListener("message", listener, false)
+        } else {
+            attachEvent("onmessage", listener)
+        }
     },
 
 
@@ -101,12 +115,12 @@ Ext.define('Bpm.controller.OpenTask', {
                 //openTaskView.taskRecord = taskRecord;
                 me.getApplication().fireEvent('openTask', taskRecord);
 
-                openTaskForm = openTaskView.down('#frm-add-user-directory');
+                openTaskForm = openTaskView.down('#frm-open-task');
                 openTaskForm.setTitle(Ext.String.format(Uni.I18n.translate('bpm.task.openTask', 'BPM', "'{0}' task"), taskRecord.get('name')));
 
-                openTaskForm.loadRecord(taskRecord);
+                //openTaskForm.loadRecord(taskRecord);
                 me.getApplication().fireEvent('changecontentevent', openTaskView);
-
+                openTaskView.setLoading();
                 var rowIndex = Uni.store.Apps.findExact('name', 'Flow');
                 if (rowIndex != -1){
                     flowUrl = Uni.store.Apps.getAt(rowIndex).get('url');
@@ -130,22 +144,29 @@ Ext.define('Bpm.controller.OpenTask', {
                                         if (formURL && formURL.length > 0 && formURL[0].childNodes.length > 0) {
                                             openTaskView.formURL = formURL[0].childNodes[0].nodeValue;
                                             var html = "<iframe id='iframeId' src='" + openTaskView.formURL + "' frameborder='0' style='width:100%; height:100%'></iframe>";
+
                                             var formContent = me.getFormContent();
                                             formContent.getEl().dom.innerHTML = html;
+
+                                            document.getElementById("iframeId").addEventListener('load', function() {
+                                                openTaskView.setLoading(false);
+                                            });
                                             //me.resizeReportPanel(formContent);
                                             me.refreshButtons(taskRecord);
-                                            return;
+
                                         }
                                     }
+
                                 }
 
                             } catch (err) {
+                                openTaskView.setLoading(false);
                             }
                         }
                     })
 
                 }
-                //openTaskView.setLoading(false);
+
             },
             failure: function (record, operation) {
             }
@@ -194,37 +215,19 @@ Ext.define('Bpm.controller.OpenTask', {
     },
 
     chooseAction: function (button, item) {
-
-        var listener = function dolisten(event){
-            alert('great');
-            };
-        if (window.addEventListener){
-            window.addEventListener("message", function(event){
-                alert('great');
-            }, false)
-        } else {
-            attachEvent("onmessage", listener)
-        }
-
         var me = this,
             action = button.action,
             taskRecord = button.taskRecord;
-
 
         var rowIndex = Uni.store.Apps.findExact('name', 'Flow');
         if (rowIndex != -1) {
             flowUrl = Uni.store.Apps.getAt(rowIndex).get('url');
             var frame = document.getElementById('iframeId').contentWindow;
 
+            openTaskForm = me.getOpenTaskPage().down('#frm-open-task-container').setLoading();
             var request = '{"action":"'+ action + '","taskId":"' + taskRecord.get('id') + '"}';
-            console.log(request);
-            console.log(me.getOpenTaskPage().formURL);
-            console.log(frame);
-
             frame.postMessage(request, me.getOpenTaskPage().formURL);
         }
     }
-
-
 
 });

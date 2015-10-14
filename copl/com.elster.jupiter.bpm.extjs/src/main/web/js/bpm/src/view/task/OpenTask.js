@@ -12,13 +12,14 @@ Ext.define('Bpm.view.task.OpenTask', {
         me.content = [
             {
                 xtype: 'form',
-                itemId: 'frm-add-user-directory',
+                itemId: 'frm-open-task',
                 ui: 'large',
                 items: [
                     {
                         xtype: 'container',
                         padding: 10,
                         border: 1,
+                        itemId: 'frm-open-task-container',
                         style: {
                             borderColor: 'lightgray',
                             borderStyle: 'solid'

@@ -22,7 +22,7 @@ Ext.define('Bpm.store.task.Tasks', {
                 params.sort = queryString.sort;
             }
 
-            var result = [];
+          /*  var result = [];
             for (var dataIndex in queryString) {
                 if (dataIndex === 'sort'){
                     continue;
@@ -41,7 +41,7 @@ Ext.define('Bpm.store.task.Tasks', {
                     result.push(filter);
                 }
             }
-            params.filter = Ext.encode(result);
+            params.filter = Ext.encode(result);*/
             Ext.apply(options.params, params);
         }
     }
