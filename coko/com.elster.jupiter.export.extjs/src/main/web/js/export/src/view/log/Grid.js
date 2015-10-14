@@ -34,7 +34,7 @@ Ext.define('Dxp.view.log.Grid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('log.pagingtoolbartop.displayMsg', 'DES', '{0} - {1} of {2} log lines per page'),
+                displayMsg: Uni.I18n.translate('log.pagingtoolbartop.displayMsg', 'DES', '{0} - {1} of {2} log lines'),
                 displayMoreMsg: Uni.I18n.translate('log.pagingtoolbartop.displayMoreMsg', 'DES', '{0} - {1} of more than {2} log lines'),
                 emptyMsg: Uni.I18n.translate('log.pagingtoolbartop.emptyMsg', 'DES', 'There are no log lines to display')
             },
