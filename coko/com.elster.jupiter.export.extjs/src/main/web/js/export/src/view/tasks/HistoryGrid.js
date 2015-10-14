@@ -41,6 +41,7 @@ Ext.define('Dxp.view.tasks.HistoryGrid', {
             },
             {
                 header: Uni.I18n.translate('general.exportPeriod', 'DES', 'Export period'),
+                itemId: 'export-period-column',
                 dataIndex: 'exportPeriod_range',
                 textAlign: 'center',
                 flex: 3
