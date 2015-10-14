@@ -1,8 +1,6 @@
 package com.elster.insight.usagepoint.config.impl;
 
 
-import java.time.Clock;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
