@@ -63,7 +63,7 @@ public abstract class AbstractFtpDataExportDestination extends AbstractDataExpor
             try {
                 Files.copy(source, target);
                 try (TransactionContext context = getTransactionService().getContext()) {
-                    MessageSeeds.DATA_EXPORTED_TO.log(logger, thesaurus, AbstractFtpDataExportDestination.this.getServerInfo() +  target.toAbsolutePath().toString());
+                    MessageSeeds.DATA_EXPORTED_TO.log(logger, thesaurus, target.toAbsolutePath().toString());
                     context.commit();
                 }
             } catch (IOException e) {
@@ -197,10 +197,4 @@ public abstract class AbstractFtpDataExportDestination extends AbstractDataExpor
     public void setPort(int port) {
         this.port = port;
     }
-
-    private String getServerInfo() {
-        return getMethodName() + "://" + this.getServer() + ":" + this.getPort();
-    }
-
-    abstract String getMethodName();
 }
