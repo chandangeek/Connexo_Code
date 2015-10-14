@@ -45,7 +45,7 @@ public class EstimationRuleSetBuilder extends NamedBuilder<EstimationRuleSet, Es
     }
 
     private void addEstimateWithSamplesEstimationRule(EstimationRuleSet ruleSet) {
-        EstimationRule rule = ruleSet.addRule("AverageWithSamplesEstimator", "Estimate with samples");
+        EstimationRule rule = ruleSet.addRule("com.elster.jupiter.estimators.impl.AverageWithSamplesEstimator", "Estimate with samples");
         rule.addReadingType("0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.0.72.0");
         rule.addReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
         rule.addProperty("averagewithsamples.maxNumberOfConsecutiveSuspects", 10L);
@@ -58,7 +58,7 @@ public class EstimationRuleSetBuilder extends NamedBuilder<EstimationRuleSet, Es
     }
 
     private void addValueFillEstimationRule(EstimationRuleSet ruleSet) {
-        EstimationRule rule = ruleSet.addRule("ValueFillEstimator", "Value fill");
+        EstimationRule rule = ruleSet.addRule("com.elster.jupiter.estimators.impl.ValueFillEstimator", "Value fill");
         rule.addReadingType("0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.0.72.0");
         rule.addReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
         rule.addProperty("valuefill.maxNumberOfConsecutiveSuspects", 5L);
