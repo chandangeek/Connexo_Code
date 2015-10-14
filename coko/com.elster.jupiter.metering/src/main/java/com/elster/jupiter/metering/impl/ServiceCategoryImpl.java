@@ -46,7 +46,7 @@ public class ServiceCategoryImpl implements ServiceCategory {
 		return kind;
 	}
 	
-	public int getId() {
+	public long getId() {
 		return kind.ordinal() + 1;
 	}
 
