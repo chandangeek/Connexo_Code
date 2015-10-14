@@ -43,7 +43,12 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     allowBlank: false,
                     maxLength: 75,
                     required: true,
-                    width: 600
+                    width: 600,
+                    listeners: {
+                        afterrender: function(field) {
+                            field.focus(false, 200);
+                        }
+                    }
                 },
                 {
                     xtype: 'displayfield',

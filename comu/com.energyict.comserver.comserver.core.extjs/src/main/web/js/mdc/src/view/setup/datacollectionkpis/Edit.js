@@ -40,7 +40,12 @@ Ext.define('Mdc.view.setup.datacollectionkpis.Edit', {
                     valueField: 'id',
                     allowBlank: false,
                     required: true,
-                    width: 600
+                    width: 600,
+                    listeners: {
+                        afterrender: function(field) {
+                            field.focus(false, 200);
+                        }
+                    }
                 },
                 {
                     xtype: 'displayfield',

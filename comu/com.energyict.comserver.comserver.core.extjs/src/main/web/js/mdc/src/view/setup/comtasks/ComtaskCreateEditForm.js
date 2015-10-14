@@ -27,7 +27,12 @@ Ext.define('Mdc.view.setup.comtasks.ComtaskCreateEditForm', {
                     itemId: 'addComtaskName',
                     fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                     required: true,
-                    width: 500
+                    width: 500,
+                    listeners: {
+                        afterrender: function(field) {
+                            field.focus(false, 200);
+                        }
+                    }
                 },
                 {
                     xtype: 'fieldcontainer',
