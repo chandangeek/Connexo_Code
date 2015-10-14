@@ -1,14 +1,5 @@
 package com.energyict.mdc.scheduling.model.impl;
 
-import com.energyict.mdc.scheduling.NextExecutionSpecs;
-import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
-import com.energyict.mdc.scheduling.model.SchedulingStatus;
-import com.energyict.mdc.scheduling.security.Privileges;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.TaskService;
-
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -25,6 +16,16 @@ import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
+import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
+import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
+import com.energyict.mdc.scheduling.model.SchedulingStatus;
+import com.energyict.mdc.scheduling.security.Privileges;
+import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.TaskService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -43,8 +44,8 @@ import java.util.stream.Collectors;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 
-@Component(name = "com.energyict.mdc.scheduling", service = {ServerSchedulingService.class,SchedulingService.class, InstallService.class, MessageSeedProvider.class, PrivilegesProvider.class}, immediate = true, property = "name=" + SchedulingService.COMPONENT_NAME)
-public class SchedulingServiceImpl implements ServerSchedulingService, InstallService, MessageSeedProvider, PrivilegesProvider {
+@Component(name = "com.energyict.mdc.scheduling", service = {ServerSchedulingService.class,SchedulingService.class, InstallService.class, MessageSeedProvider.class, PrivilegesProvider.class, ReferencePropertySpecFinderProvider.class}, immediate = true, property = "name=" + SchedulingService.COMPONENT_NAME)
+public class SchedulingServiceImpl implements ServerSchedulingService, InstallService, MessageSeedProvider, PrivilegesProvider, ReferencePropertySpecFinderProvider {
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
@@ -203,6 +204,13 @@ public class SchedulingServiceImpl implements ServerSchedulingService, InstallSe
         resources.add(userService.createModuleResourceWithPrivileges(SchedulingService.COMPONENT_NAME, "sharedCommunicationSchedule.sharedCommunicationSchedules", "sharedCommunicationSchedule.sharedCommunicationSchedules.description",
                 Arrays.asList(Privileges.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE, Privileges.VIEW_SHARED_COMMUNICATION_SCHEDULE)));
         return resources;
+    }
+
+    @Override
+    public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
+        List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
+        finders.add(new ComScheduleFinder(this));
+        return finders;
     }
 
     class ComScheduleBuilderImpl implements ComScheduleBuilder {
