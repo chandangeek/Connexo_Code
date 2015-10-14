@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -26,6 +27,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.SchedulingService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -41,6 +43,7 @@ import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -78,6 +81,10 @@ public class DeviceSearchDomainTest {
     private DeviceService deviceService;
     @Mock
     private MeteringGroupsService meteringGroupsService;
+    @Mock
+    private SchedulingService schedulingService;
+    @Mock
+    private MeteringService meteringService;
 
     private Injector injector;
 
@@ -100,6 +107,15 @@ public class DeviceSearchDomainTest {
         mockDeviceGroupPropertySpec();
         mockYearOfCertificationPropertySpec();
         mockBatchPropertySpec();
+        mockConnectionMethodPropertySpec();
+        mockServiceCategoryPropertySpec();
+        mockSharedSchedulePropertySpec();
+        mockUsagePointPropertySpec();
+        mockMasterDevicePropertySpec();
+        mockSlaveDevicePropertySpec();
+        mockValidationStatusPropertySpec();
+        mockEstimationStatusPropertySpec();
+        mockSecurityNamePropertySpec();
     }
 
     @Test
@@ -139,6 +155,14 @@ public class DeviceSearchDomainTest {
         verify(this.dataModel).getInstance(DeviceGroupSearchableProperty.class);
         verify(this.dataModel).getInstance(BatchSearchableProperty.class);
         verify(this.dataModel).getInstance(YearOfCertificationSearchableProperty.class);
+        verify(this.dataModel).getInstance(ConnectionMethodSearchableProperty.class);
+        verify(this.dataModel).getInstance(ServiceCategorySearchableProperty.class);
+        verify(this.dataModel).getInstance(UsagePointSearchableProperty.class);
+        verify(this.dataModel).getInstance(SharedScheduleSearchableProperty.class);
+        verify(this.dataModel).getInstance(MasterDeviceSearchableProperty.class);
+        verify(this.dataModel).getInstance(SlaveDeviceSearchableProperty.class);
+        verify(this.dataModel).getInstance(ValidationStatusSearchableProperty.class);
+        verify(this.dataModel).getInstance(EstimationStatusSearchableProperty.class);
     }
 
     @Test
@@ -767,6 +791,93 @@ public class DeviceSearchDomainTest {
                 Matchers.<StringFactory>anyObject())).thenReturn(batch);
     }
 
+    private void mockConnectionMethodPropertySpec() {
+        PropertySpec connectionMethod = mock(PropertySpec.class);
+        when(connectionMethod.getName()).thenReturn(ConnectionMethodSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.referencePropertySpec(
+                eq(ConnectionMethodSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                eq(FactoryIds.CONNECTION_TYPE),
+                anyList())).thenReturn(connectionMethod);
+    }
+
+    private void mockSharedSchedulePropertySpec() {
+        PropertySpec sharedSchedule = mock(PropertySpec.class);
+        when(sharedSchedule.getName()).thenReturn(SharedScheduleSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.referencePropertySpec(
+                eq(SharedScheduleSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                eq(FactoryIds.COMSCHEDULE),
+                anyList())).thenReturn(sharedSchedule);
+    }
+
+    private void mockServiceCategoryPropertySpec() {
+        PropertySpec serviceCategory = mock(PropertySpec.class);
+        when(serviceCategory.getName()).thenReturn(ServiceCategorySearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.referencePropertySpec(
+                eq(ServiceCategorySearchableProperty.PROPERTY_NAME),
+                eq(false),
+                eq(FactoryIds.SERVICE_CATEGORY),
+                anyList())).thenReturn(serviceCategory);
+        when(meteringService.getServiceCategory(any())).thenReturn(Optional.empty());
+    }
+
+    private void mockUsagePointPropertySpec() {
+        PropertySpec usagePoint = mock(PropertySpec.class);
+        when(usagePoint.getName()).thenReturn(UsagePointSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.basicPropertySpec(
+                eq(UsagePointSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                Matchers.<StringFactory>anyObject())).thenReturn(usagePoint);
+    }
+
+    private void mockMasterDevicePropertySpec() {
+        PropertySpec masterDevice = mock(PropertySpec.class);
+        when(masterDevice.getName()).thenReturn(MasterDeviceSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.basicPropertySpec(
+                eq(MasterDeviceSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                Matchers.<StringFactory>anyObject())).thenReturn(masterDevice);
+    }
+
+    private void mockSlaveDevicePropertySpec() {
+        PropertySpec slaveDevice = mock(PropertySpec.class);
+        when(slaveDevice.getName()).thenReturn(SlaveDeviceSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.basicPropertySpec(
+                eq(SlaveDeviceSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                Matchers.<StringFactory>anyObject())).thenReturn(slaveDevice);
+    }
+
+    private void mockValidationStatusPropertySpec() {
+        PropertySpec validationStatus = mock(PropertySpec.class);
+        when(validationStatus.getName()).thenReturn(ValidationStatusSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.booleanPropertySpec(
+                eq(ValidationStatusSearchableProperty.PROPERTY_NAME),
+                eq(ValidationStatusSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                anyBoolean())).thenReturn(validationStatus);
+    }
+
+    private void mockEstimationStatusPropertySpec() {
+        PropertySpec validationStatus = mock(PropertySpec.class);
+        when(validationStatus.getName()).thenReturn(EstimationStatusSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.booleanPropertySpec(
+                eq(EstimationStatusSearchableProperty.PROPERTY_NAME),
+                eq(EstimationStatusSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                anyBoolean())).thenReturn(validationStatus);
+    }
+
+    private void mockSecurityNamePropertySpec() {
+        PropertySpec securityName = mock(PropertySpec.class);
+        when(securityName.getName()).thenReturn(SecurityNameSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.basicPropertySpec(
+                eq(SecurityNameSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                Matchers.<StringFactory>anyObject())).thenReturn(securityName);
+    }
+
     @Test
     public void getPropertiesWithDeviceConfigurationConstrictionsWithTheSamePluggableClassDoesNotCreateDuplicateConnectionTypeProperties() {
         PropertySpec deviceTypePropertySpec = mock(PropertySpec.class);
@@ -865,8 +976,9 @@ public class DeviceSearchDomainTest {
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
                 bind(DeviceService.class).toInstance(deviceService);
                 bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
+                bind(SchedulingService.class).toInstance(schedulingService);
+                bind(MeteringService.class).toInstance(meteringService);
             }
         };
     }
-
 }

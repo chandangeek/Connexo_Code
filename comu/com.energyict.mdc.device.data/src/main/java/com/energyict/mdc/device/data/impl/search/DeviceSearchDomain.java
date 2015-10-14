@@ -1,14 +1,5 @@
 package com.energyict.mdc.device.data.impl.search;
 
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.impl.DeviceDataModelService;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.search.SearchDomain;
@@ -17,8 +8,14 @@ import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.streams.Predicates;
-import java.util.HashSet;
-import java.util.function.Predicate;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.DeviceDataModelService;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -27,9 +24,11 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
@@ -107,6 +106,10 @@ public class DeviceSearchDomain implements SearchDomain {
     private List<SearchableProperty> fixedProperties() {
         DataModel injector = this.deviceDataModelService.dataModel();
         DeviceTypeSearchableProperty deviceTypeSearchableProperty = injector.getInstance(DeviceTypeSearchableProperty.class).init(this);
+        TopologySearchablePropertyGroup topologyGroup = injector.getInstance(TopologySearchablePropertyGroup.class);
+        ValidationSearchablePropertyGroup validationGroup = injector.getInstance(ValidationSearchablePropertyGroup.class);
+        EstimationSearchablePropertyGroup estimationGroup = injector.getInstance(EstimationSearchablePropertyGroup.class);
+        SecuritySearchablePropertyGroup securitySearchablePropertyGroup = injector.getInstance(SecuritySearchablePropertyGroup.class);
         return Arrays.asList(
                 injector.getInstance(MasterResourceIdentifierSearchableProperty.class).init(this),
                 injector.getInstance(SerialNumberSearchableProperty.class).init(this),
@@ -115,7 +118,17 @@ public class DeviceSearchDomain implements SearchDomain {
                 injector.getInstance(StateNameSearchableProperty.class).init(this, deviceTypeSearchableProperty),
                 injector.getInstance(DeviceGroupSearchableProperty.class).init(this),
                 injector.getInstance(BatchSearchableProperty.class).init(this),
-                injector.getInstance(YearOfCertificationSearchableProperty.class).init(this));
+                injector.getInstance(YearOfCertificationSearchableProperty.class).init(this),
+                injector.getInstance(ConnectionMethodSearchableProperty.class).init(this),
+                injector.getInstance(SharedScheduleSearchableProperty.class).init(this),
+                injector.getInstance(UsagePointSearchableProperty.class).init(this),
+                injector.getInstance(ServiceCategorySearchableProperty.class).init(this),
+                injector.getInstance(MasterDeviceSearchableProperty.class).init(this, topologyGroup),
+                injector.getInstance(SlaveDeviceSearchableProperty.class).init(this, topologyGroup),
+                injector.getInstance(ValidationStatusSearchableProperty.class).init(this, validationGroup),
+                injector.getInstance(EstimationStatusSearchableProperty.class).init(this, estimationGroup),
+                injector.getInstance(SecurityNameSearchableProperty.class).init(this, deviceTypeSearchableProperty, securitySearchablePropertyGroup)
+        );
     }
 
     private Collection<? extends SearchableProperty> connectionTypeProperties() {

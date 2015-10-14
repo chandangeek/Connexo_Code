@@ -1,17 +1,16 @@
 package com.energyict.mdc.device.data.impl.search;
 
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.search.SearchablePropertyCondition;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.sql.SqlFragment;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelationAttributeTypeNames;
 
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.search.SearchablePropertyCondition;
-import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.sql.SqlFragment;
-
 import java.time.Instant;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -25,7 +24,7 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
 
     private final List<SearchablePropertyCondition> conditions;
     private final SqlBuilder underConstruction;
-    private final Set<JoinType> joins = new HashSet<>();
+    private final Set<JoinType> joins = new LinkedHashSet<>();
     private final Instant effectiveDate;
     private SqlBuilder complete;
 
@@ -110,13 +109,72 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
     }
 
     @Override
+    public JoinClauseBuilder addConnectionTask() {
+        this.joins.add(Joins.ConnectionTask);
+        return this;
+    }
+
+    @Override
+    public JoinClauseBuilder addComTaskExecution() {
+        this.joins.add(Joins.ComTaskExecution);
+        return this;
+    }
+
+    @Override
+    public JoinClauseBuilder addComSchedule() {
+        this.joins.add(Joins.ComTaskExecution);
+        this.joins.add(Joins.ComSchedule);
+        return this;
+    }
+
+    @Override
+    public JoinClauseBuilder addUsagePoint() {
+        this.joins.add(Joins.EndDevice);
+        this.joins.add(Joins.MeterActivation);
+        this.joins.add(Joins.UsagePoint);
+        return this;
+    }
+
+    @Override
+    public JoinClauseBuilder addServiceCategory() {
+        addUsagePoint();
+        this.joins.add(Joins.ServiceCategory);
+        return this;
+    }
+
+    @Override
+    public JoinClauseBuilder addTopologyForSlaves() {
+        this.joins.add(Joins.TopologyForSlaves);
+        return this;
+    }
+
+    @Override
+    public JoinClauseBuilder addTopologyForMasters() {
+        this.joins.add(Joins.TopologyForMasters);
+        return this;
+    }
+
+    @Override
+    public JoinClauseBuilder addMeterValidation() {
+        this.addEndDevice();
+        this.joins.add(Joins.MeterValidation);
+        return this;
+    }
+
+    @Override
+    public JoinClauseBuilder addDeviceEstimation() {
+        this.joins.add(Joins.DeviceEstimation);
+        return this;
+    }
+
+    @Override
     public JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass) {
         this.joins.add(new ConnectionTypePropertyJoinType(connectionTypePluggableClass));
         return this;
     }
 
     private interface JoinType {
-        public void appendTo(SqlBuilder sqlBuilder);
+        void appendTo(SqlBuilder sqlBuilder);
     }
 
     private enum Joins implements JoinType {
@@ -147,7 +205,82 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
                 sqlBuilder.append(" join DDC_DEVICEINBATCH dib on dib.DEVICEID = dev.id ");
                 sqlBuilder.append(" join DDC_BATCH bch on bch.ID = dib.BATCHID ");
             }
-        }
+        },
+
+        ConnectionTask {
+            @Override
+            public void appendTo(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" join ");
+                sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
+                sqlBuilder.append(" ct on ct.device = dev.id ");
+            }
+        },
+
+        ComTaskExecution {
+            @Override
+            public void appendTo(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" join ");
+                sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
+                sqlBuilder.append(" cte on cte.device = dev.id ");
+            }
+        },
+
+        ComSchedule {
+            @Override
+            public void appendTo(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" join SCH_COMSCHEDULE csh on csh.id = cte.comschedule ");
+            }
+        },
+
+        MeterActivation {
+            @Override
+            public void appendTo(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" join MTR_METERACTIVATION ma on ma.meterid = ed.id ");
+            }
+        },
+
+        UsagePoint {
+            @Override
+            public void appendTo(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" join MTR_USAGEPOINT up on up.id = ma.usagepointid ");
+            }
+        },
+
+        ServiceCategory {
+            @Override
+            public void appendTo(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" join MTR_SERVICECATEGORY serv_cat on serv_cat.id = up.servicekind ");
+            }
+        },
+
+        TopologyForSlaves {
+            @Override
+            public void appendTo(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" join DTL_PHYSICALGATEWAYREFERENCE gateway_ref on gateway_ref.originid = dev.id ");
+            }
+        },
+
+        TopologyForMasters {
+            @Override
+            public void appendTo(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" join DTL_PHYSICALGATEWAYREFERENCE gateway_ref on gateway_ref.gatewayid = dev.id ");
+            }
+        },
+
+        MeterValidation {
+            @Override
+            public void appendTo(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" left join VAL_METER_VALIDATION val on val.meterid = ed.id ");
+            }
+        },
+
+        DeviceEstimation {
+            @Override
+            public void appendTo(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" left join DDC_DEVICEESTACTIVATION est on est.device = dev.id ");
+            }
+        },
+
     }
 
     private static class ConnectionTypePropertyJoinType implements JoinType {
@@ -204,7 +337,5 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
         private SqlFragment build() {
             return this.property.toSqlFragment(this.spec.getCondition(), effectiveDate);
         }
-
     }
-
 }

@@ -62,7 +62,7 @@ public class DeviceGroupSearchableProperty extends AbstractSearchableDevicePrope
 
     @Override
     public boolean affectsAvailableDomainProperties() {
-        return true;
+        return false;
     }
 
     @Override

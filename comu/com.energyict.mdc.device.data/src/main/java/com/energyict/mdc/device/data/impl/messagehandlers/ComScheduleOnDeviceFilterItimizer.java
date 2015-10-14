@@ -63,6 +63,8 @@ public class ComScheduleOnDeviceFilterItimizer implements MessageHandler {
                                         searchBuilder.where(searchableProperty).in(getQueryParameterAsObjectList(queueMessage.filter, searchableProperty));
                                     } else if (searchableProperty.getSpecification().getValueFactory().getValueType().equals(String.class)) {
                                         searchBuilder.where(searchableProperty).likeIgnoreCase((String) getQueryParameterAsObject(queueMessage.filter, searchableProperty));
+                                    } else if (searchableProperty.getSpecification().getValueFactory().getValueType().equals(Boolean.class)) {
+                                        searchBuilder.where(searchableProperty).is((Boolean) getQueryParameterAsObject(queueMessage.filter, searchableProperty));
                                     } else {
                                         searchBuilder.where(searchableProperty).isEqualTo(getQueryParameterAsObject(queueMessage.filter, searchableProperty));
                                     }

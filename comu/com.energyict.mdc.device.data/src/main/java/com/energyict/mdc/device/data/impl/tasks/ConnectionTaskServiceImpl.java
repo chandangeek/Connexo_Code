@@ -13,6 +13,7 @@ import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.EventType;
 import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
+import com.energyict.mdc.device.data.impl.finders.ConnectionTypeFinder;
 import com.energyict.mdc.device.data.impl.tasks.history.ComSessionBuilderImpl;
 import com.energyict.mdc.device.data.impl.tasks.history.ComSessionImpl;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
@@ -102,6 +103,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
         List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
         finders.add(new ConnectionTaskFinder(this.deviceDataModelService.dataModel()));
+        finders.add(new ConnectionTypeFinder(this.protocolPluggableService));
         return finders;
     }
 

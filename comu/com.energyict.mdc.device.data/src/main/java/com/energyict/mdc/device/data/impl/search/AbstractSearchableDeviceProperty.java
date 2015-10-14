@@ -11,6 +11,7 @@ import com.elster.jupiter.util.conditions.Exists;
 import com.elster.jupiter.util.conditions.FragmentExpression;
 import com.elster.jupiter.util.conditions.Membership;
 import com.elster.jupiter.util.conditions.Not;
+import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Or;
 import com.elster.jupiter.util.conditions.Text;
 import com.elster.jupiter.util.conditions.Visitor;
@@ -102,12 +103,16 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
 
     @Override
     public void visitTrue(Constant trueCondition) {
-        // Ignore
+        this.underConstruction.add(new ComparisonFragment(this.columnName, Operator.EQUAL.compare(this.columnName, "Y")));
     }
 
     @Override
     public void visitFalse(Constant falseCondition) {
-        // Ignore
+        this.underConstruction.openBracket();
+        this.underConstruction.add(new ComparisonFragment(this.columnName, Operator.EQUAL.compare(this.columnName, "N")));
+        this.underConstruction.append(" OR ");
+        this.underConstruction.add(new ComparisonFragment(this.columnName, Operator.ISNULL.compare(this.columnName)));
+        this.underConstruction.closeBracket();
     }
 
     @Override

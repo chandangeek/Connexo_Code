@@ -22,8 +22,26 @@ public interface JoinClauseBuilder {
 
     JoinClauseBuilder addFiniteState();
 
-    public JoinClauseBuilder addBatch();
+    JoinClauseBuilder addConnectionTask();
 
-    public JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass);
+    JoinClauseBuilder addComTaskExecution();
+
+    JoinClauseBuilder addComSchedule();
+
+    JoinClauseBuilder addBatch();
+
+    JoinClauseBuilder addUsagePoint();
+
+    JoinClauseBuilder addServiceCategory();
+
+    JoinClauseBuilder addTopologyForSlaves();
+
+    JoinClauseBuilder addTopologyForMasters();
+
+    JoinClauseBuilder addMeterValidation();
+
+    JoinClauseBuilder addDeviceEstimation();
+
+    JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass);
 
 }
