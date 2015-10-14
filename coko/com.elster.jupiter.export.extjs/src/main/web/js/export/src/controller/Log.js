@@ -53,6 +53,7 @@ Ext.define('Dxp.controller.Log', {
                     view.down('#log-preview-form').loadRecord(occurrenceTask);
                     view.down('#reason-field').setVisible(occurrenceTask.get('status')==='Failed');
                     view.down('#run-started-on').setValue(runStartedOnFormatted);
+                    view.down('#des-log-preview').updateSummary(occurrenceTask.get('summary'));
                     me.getApplication().fireEvent('changecontentevent', view);
                 });
             }
