@@ -230,6 +230,26 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
         }
     }
 
+    @Test
+    public void lockIsRemovedEvenWhenExceptionOccurs() {
+        DeviceConfiguration firstDeviceConfiguration;
+        Device device;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
+            firstDeviceConfiguration.activate();
+
+            device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
+            device.save();
+            context.commit();
+        }
+        try {
+            Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, firstDeviceConfiguration.getId(), firstDeviceConfiguration.getVersion());
+        } catch (DeviceConfigurationChangeException e) {
+            // we expect this :)
+        }
+        assertThat(inMemoryPersistence.getDeviceService().hasActiveDeviceConfigChangesFor(firstDeviceConfiguration, firstDeviceConfiguration)).isFalse();
+    }
+
     @Test(expected = DeviceConfigurationChangeException.class)
     public void changeConfigToConfigOfOtherDeviceTypeTest() {
         Device device;

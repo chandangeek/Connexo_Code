@@ -34,7 +34,7 @@ public class DeviceConfigCRUDLockingTest extends PersistenceIntegrationTest {
 
     @Test(expected = VetoCreateNewConflictForActiveConfigChange.class)
     @Transactional
-    public void cantCreateConnectionMethodOnConfigWhenLockedTest() {
+    public void eventHandlerGeneratesProperVetoWhenLockExists() {
         final DeviceConfiguration myConfig = deviceType.newConfiguration("MyConfig").add();
         myConfig.save();
         deviceType.save();

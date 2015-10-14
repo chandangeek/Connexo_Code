@@ -245,7 +245,6 @@ public class DeviceServiceImpl implements ServerDeviceService {
         return DefaultFinder.of(Device.class, where("deviceConfiguration").isEqualTo(deviceConfiguration), this.deviceDataModelService.dataModel()).defaultSortColumn("lower(name)");
     }
 
-
     @Override
     public List<Device> findDevicesByPropertySpecValue(String propertySpecName, String propertySpecValue) {
         Condition condition = where("deviceProperties.propertySpec").isEqualTo(propertySpecName).and(where("deviceProperties.propertyValue").isEqualTo(propertySpecValue));
@@ -268,14 +267,11 @@ public class DeviceServiceImpl implements ServerDeviceService {
     @Override
     public Device changeDeviceConfigurationForSingleDevice(Device device, long destinationDeviceConfigId, long destinationDeviceConfigVersion) {
         final DeviceConfigChangeRequestImpl configChangeRequest = deviceDataModelService.getTransactionService().execute(() -> {
-
             final DeviceConfiguration deviceConfiguration = deviceDataModelService.deviceConfigurationService()
                     .findAndLockDeviceConfigurationByIdAndVersion(destinationDeviceConfigId, destinationDeviceConfigVersion)
                     .orElseThrow(() -> DeviceConfigurationChangeException.noDestinationConfigFoundForVersion(thesaurus, destinationDeviceConfigId, destinationDeviceConfigVersion));
-
             final DeviceConfigChangeRequestImpl deviceConfigChangeRequest = deviceDataModelService.dataModel().getInstance(DeviceConfigChangeRequestImpl.class).init(deviceConfiguration);
             deviceConfigChangeRequest.save();
-
             return deviceConfigChangeRequest;
         });
 
@@ -283,12 +279,7 @@ public class DeviceServiceImpl implements ServerDeviceService {
         try {
             modifiedDevice = deviceDataModelService.getTransactionService().execute(() -> DeviceConfigChangeExecutor.getInstance().execute((DeviceImpl) device, deviceDataModelService.deviceConfigurationService().findDeviceConfiguration(destinationDeviceConfigId).get()));
         } finally {
-            deviceDataModelService.getTransactionService().execute(() -> new VoidTransaction(){
-                @Override
-                protected void doPerform() {
-                    configChangeRequest.remove();
-                }
-            });
+            deviceDataModelService.getTransactionService().execute(VoidTransaction.of(configChangeRequest::remove));
         }
         return modifiedDevice;
     }
