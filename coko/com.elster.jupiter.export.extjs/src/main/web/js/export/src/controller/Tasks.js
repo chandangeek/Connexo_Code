@@ -358,6 +358,11 @@ Ext.define('Dxp.controller.Tasks', {
             success: function (record) {
                 me.getApplication().fireEvent('dataexporttaskload', record);
                 view.down('#tasks-view-menu  #tasks-view-link').setText(record.get('name'));
+                if(record.get('dataSelector').selectorType==='CUSTOM'){
+                    view.down('#export-period-column').hide();
+                } else {
+                    view.down('#export-period-column').show();
+                }
             }
         });
     },
