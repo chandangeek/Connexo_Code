@@ -34,7 +34,7 @@ Ext.define('Cfg.view.log.Grid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('validationTasks.log.pagingtoolbartop.displayMsg', 'CFG', '{0} - {1} of {2} log lines per page'),
+                displayMsg: Uni.I18n.translate('validationTasks.log.pagingtoolbartop.displayMsg', 'CFG', '{0} - {1} of {2} log lines'),
                 displayMoreMsg: Uni.I18n.translate('validationTasks.log.pagingtoolbartop.displayMoreMsg', 'CFG', '{0} - {1} of more than {2} log lines'),
                 emptyMsg: Uni.I18n.translate('validationTasks.log.pagingtoolbartop.emptyMsg', 'CFG', 'There are no log lines to display')
             },
