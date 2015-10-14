@@ -21,7 +21,6 @@ import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.EstimationService;
-import com.elster.jupiter.estimation.EstimatorFactory;
 import com.elster.jupiter.estimation.impl.EstimationModule;
 import com.elster.jupiter.estimation.impl.EstimationServiceImpl;
 import com.elster.jupiter.estimators.impl.DefaultEstimatorFactory;
