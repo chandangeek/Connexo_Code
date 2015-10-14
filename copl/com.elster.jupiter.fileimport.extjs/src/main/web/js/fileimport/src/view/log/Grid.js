@@ -34,7 +34,7 @@ Ext.define('Fim.view.log.Grid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
-                displayMsg: Uni.I18n.translate('importService.log.pagingtoolbartop.displayMsg', 'FIM', '{0} - {1} of {2} log lines per page'),
+                displayMsg: Uni.I18n.translate('importService.log.pagingtoolbartop.displayMsg', 'FIM', '{0} - {1} of {2} log lines'),
                 displayMoreMsg: Uni.I18n.translate('importService.log.pagingtoolbartop.displayMoreMsg', 'FIM', '{0} - {1} of more than {2} log lines'),
                 emptyMsg: Uni.I18n.translate('importService.log.pagingtoolbartop.emptyMsg', 'FIM', 'There are no log lines to display')
             },
