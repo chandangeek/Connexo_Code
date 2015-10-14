@@ -25,7 +25,11 @@ public enum FactoryIds {
     CONNECTION_TASK(Constants.CONNECTION_TASK_FACTORYID),
     SECURITY_SET(Constants.SECURITY_SET_FACTORYID),
     LOGBOOK(Constants.LOGBOOK_FACTORYID),
-    FIRMWAREVERSION(Constants.FIRMWARE_FACTORYID);
+    FIRMWAREVERSION(Constants.FIRMWARE_FACTORYID),
+    CONNECTION_TYPE(Constants.CONNECTION_TYPE_FACTORYID),
+    COMSCHEDULE(Constants.COMSCHEDULE_FACTORYID),
+    SERVICE_CATEGORY(Constants.SERVICE_CATEGORY_FACTORYID)
+    ;
 
     int id;
 
@@ -61,10 +65,13 @@ public enum FactoryIds {
         public static final int TIMEZONE_IN_USE_FACTORYID = 207;
         public static final int DEVICE_PROTOCOL_DIALECT = 5010;
         public static final int CONNECTION_TASK_FACTORYID = 5004;
+        public static final int CONNECTION_TYPE_FACTORYID = 5005;
         public static final int SECURITY_SET_FACTORYID = 5012;
         public static final int LOGBOOK_FACTORYID = 206;
         public static final int FIRMWARE_FACTORYID = 10000;
         public static final int FINITE_STATE_FACTORY_ID = 10001;
         public static final int DEVICE_GROUP_FACTORY_ID = 10002;
+        public static final int COMSCHEDULE_FACTORYID = 10003;
+        public static final int SERVICE_CATEGORY_FACTORYID = 10004;
     }
 }
