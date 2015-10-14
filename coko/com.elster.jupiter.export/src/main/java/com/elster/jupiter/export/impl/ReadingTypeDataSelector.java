@@ -95,7 +95,7 @@ class ReadingTypeDataSelector implements DataSelector {
                     .filter(Optional::isPresent)
                     .count();
             long numberOfItemsSkipped = activeItems.size() - numberOfItemsExported;
-            ((IDataExportOccurrence) occurrence).summary(
+            ((IDataExportOccurrence) occurrence).summarize(
                     thesaurus.getFormat(TranslationKeys.NUMBER_OF_DATASOURCES_SUCCESSFULLY_EXPORTED).format(numberOfItemsExported) +
                             System.getProperty("line.separator") +
                             thesaurus.getFormat(TranslationKeys.NUMBER_OF_DATASOURCES_SKIPPED).format(numberOfItemsSkipped));

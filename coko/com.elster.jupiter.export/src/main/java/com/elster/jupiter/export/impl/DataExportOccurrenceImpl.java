@@ -7,6 +7,8 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.logging.LogEntry;
 import com.elster.jupiter.util.logging.LogEntryFinder;
 import com.elster.jupiter.util.time.Interval;
@@ -31,13 +33,15 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
 
     private final DataModel dataModel;
     private final TaskService taskService;
+    private final TransactionService transactionService;
 
     private transient Range<Instant> exportedDataRange;
 
     @Inject
-    DataExportOccurrenceImpl(DataModel dataModel, TaskService taskService) {
+    DataExportOccurrenceImpl(DataModel dataModel, TaskService taskService, TransactionService transactionService) {
         this.dataModel = dataModel;
         this.taskService = taskService;
+        this.transactionService = transactionService;
     }
 
     static DataExportOccurrenceImpl from(DataModel model, TaskOccurrence occurrence, IExportTask task) {
@@ -132,9 +136,12 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
     }
 
     @Override
-    public void summary(String summaryMessage) {
-        this.summary = summaryMessage;
-        //update();
+    public void summarize(String summaryMessage) {
+        try (TransactionContext context = transactionService.getContext()) {
+            this.summary = summaryMessage;
+            update();
+            context.commit();
+        }
     }
 
     @Override
