@@ -121,6 +121,8 @@ public class DynamicSearchResource {
                             searchBuilder.where(searchableProperty).in(getQueryParameterAsObjectList(jsonQueryFilter, searchableProperty));
                         } else if (searchableProperty.getSpecification().getValueFactory().getValueType().equals(String.class)) {
                             searchBuilder.where(searchableProperty).likeIgnoreCase((String) getQueryParameterAsObject(jsonQueryFilter, searchableProperty));
+                        } else if (searchableProperty.getSpecification().getValueFactory().getValueType().equals(Boolean.class)) {
+                            searchBuilder.where(searchableProperty).is((Boolean) getQueryParameterAsObject(jsonQueryFilter, searchableProperty));
                         } else {
                             searchBuilder.where(searchableProperty).isEqualTo(getQueryParameterAsObject(jsonQueryFilter, searchableProperty));
                         }
