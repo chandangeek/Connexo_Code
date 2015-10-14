@@ -268,6 +268,21 @@ public interface SearchBuilder<T> {
          */
         public SearchBuilder<T> likeIgnoreCase(String wildCardPattern) throws InvalidValueException;
 
-    }
+        /**
+         * Builds a criterion that checks that the target {@link SearchableProperty}
+         * matches the specified boolean value.
+         * <p>
+         * Will throw an {@link com.elster.jupiter.properties.InvalidValueException}
+         * when the specified value is not compatible with the
+         * property's {@link com.elster.jupiter.properties.PropertySpec specification}.
+         * </p>
+         *
+         * @param value The boolean constant
+         * @return The same SearchBuilder to support method chaining
+         * @throws InvalidValueException Thrown on the first value that is not compatible
+         *         with the property's specification
+         */
+        public SearchBuilder<T> is(Boolean value) throws InvalidValueException;
 
+    }
 }
