@@ -11,7 +11,7 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
         labelWidth: 150,
         xtype: 'displayfield',
         hidden: true,
-        width: 420,
+        width: 450,
         renderer: function (value) {
             if (Ext.isEmpty(value.displayValue)) {
                 return '-'
@@ -123,7 +123,7 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                     if (Ext.isEmpty(value.displayValue)) {
                         return '-'
                     } else {
-                        return Uni.DateTime.formatDateLong(new Date(value.displayValue));
+                        return Uni.DateTime.formatDateTimeShort(new Date(value.displayValue));
                     }
                 }
             },
@@ -141,7 +141,7 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                     if (Ext.isEmpty(value.displayValue)) {
                         return '-'
                     } else {
-                        return Uni.DateTime.formatDateLong(new Date(value.displayValue));
+                        return Uni.DateTime.formatDateTimeShort(new Date(value.displayValue));
                     }
                 }
             },
@@ -159,7 +159,7 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                     if (Ext.isEmpty(value.displayValue)) {
                         return '-'
                     } else {
-                        return Uni.DateTime.formatDateLong(new Date(value.displayValue));
+                        return Uni.DateTime.formatDateTimeShort(new Date(value.displayValue));
                     }
                 }
             },
@@ -178,7 +178,7 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                     if (Ext.isEmpty(value.displayValue)) {
                         return '-'
                     } else {
-                        return Uni.DateTime.formatDateLong(new Date(value.displayValue));
+                        return Uni.DateTime.formatDateTimeShort(new Date(value.displayValue));
                     }
                 }
             },
