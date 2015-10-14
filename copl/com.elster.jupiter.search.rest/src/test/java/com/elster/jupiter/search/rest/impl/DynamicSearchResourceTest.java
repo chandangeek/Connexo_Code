@@ -57,6 +57,7 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
         when(searchService.findDomain("com.devices")).thenReturn(Optional.of(devicesDomain));
 
         when(devicesDomain.getProperties()).thenReturn(Arrays.asList(mRID, deviceType, deviceConfig));
+        when(devicesDomain.displayName()).thenReturn("devices");
         return devicesDomain;
     }
 

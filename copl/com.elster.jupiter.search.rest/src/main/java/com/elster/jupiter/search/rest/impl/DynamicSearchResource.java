@@ -226,7 +226,7 @@ public class DynamicSearchResource {
 
         public SearchDomainInfo(SearchDomain searchDomain, UriInfo uriInfo) {
             this.id = searchDomain.getId();
-            this.displayValue = searchDomain.getId().substring(searchDomain.getId().lastIndexOf(".")+1); // Placeholder implementation
+            this.displayValue = searchDomain.displayName();
             this.link = new ArrayList<>();
             link.add(Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(DynamicSearchResource.class).path(DynamicSearchResource.class, "doSearch")).rel("self").build(searchDomain.getId()));
             link.add(Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(DynamicSearchResource.class).path(DynamicSearchResource.class, "getSearchablePropertiesForDomain")).rel("glossary").build(searchDomain.getId()));
