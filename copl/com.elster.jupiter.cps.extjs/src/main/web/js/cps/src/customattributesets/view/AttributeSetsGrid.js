@@ -43,7 +43,7 @@ Ext.define('Cps.customattributesets.view.AttributeSetsGrid', {
                 flex: 2
             },
             {
-                header: Uni.I18n.translate('customattributesets.timesliced', 'CPS', 'Time-sliced'),
+                header: Uni.I18n.translate('customattributesets.timeSliced', 'CPS', 'Time-sliced'),
                 dataIndex: 'isVersioned',
                 flex: 1,
                 renderer: function (value) {
