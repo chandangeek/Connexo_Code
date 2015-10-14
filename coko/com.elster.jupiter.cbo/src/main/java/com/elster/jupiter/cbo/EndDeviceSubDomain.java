@@ -154,7 +154,25 @@ public enum EndDeviceSubDomain implements HasNumericCode {
     VERSION("Version", 124, "Related to a specific iteration or translation"),
     VOLTAGE("Voltage", 38, "Related to the electrical force that would drive an electric current between two points"),
     WINDOW("Window", 73, "Related to a period of time during which a device can be linked/paired with a meter or other device"),
-    WRITEACCESS("WriteAccess", 282, "Related to the permission level one has; as in read, write, update");
+    WRITEACCESS("WriteAccess", 282, "Related to the permission level one has; as in read, write, update"),
+    ACTIVATION("Activation", 283, "Initiation of a function"),
+    ALARMTABLE("AlarmTable", 285, "A table in a device for the tracking of alarms"),
+    APPARENTPOWER("ApparentPower", 290, "The magnitude of the complex power measured in voltamps"),
+    CHECKSUM("Checksum", 284, "A fixed-size datum computed from an arbitrary block of digital data for the purpose of detecting accidental errors"),
+    INITIALISATION("Initialisation", 298, "Start-up function"),
+    MEASUREMENTTYPE("MeasurementType", 286, "A code defining the kind of data under measurement"),
+    PHASEA("PhaseA", 126, "Related to the A phase of a multi-phase circuit"),
+    PHASEAAPPARENTPOWER("PhaseAApparentPower", 291, "The apparent power on phase A of a multi-phase circuit"),
+    PHASEACURRENT("PhaseACurrent", 287, "Related to the current of the first phase of 3-phase power"),
+    PHASEAREACTIVEPOWER("PhaseAReactivePower", 295, "The reactive power on phase A of a multi-phase circuit"),
+    PHASEB("PhaseB", 134, "Related to the B phase of a multi-phase circuit"),
+    PHASEBAPPARENTPOWER("PhaseBApparentPower", 292, "The apparent power on phase B of a multi-phase circuit"),
+    PHASEBCURRENT("PhaseBCurrent", 288, "Related to the current of the second phase of 3-phase power"),
+    PHASEBREACTIVEPOWER("PhaseBReactivePower", 296, "The reactive power on phase B of a multi-phase circuit"),
+    PHASEC("PhaseC", 135, "Related to the C phase of a multi-phase circuit"),
+    PHASECAPPARENTPOWER("PhaseCApparentPower", 293, "The apparent power on phase C of a multi-phase circuit"),
+    PHASECCURRENT("PhaseCCurrent", 289, "Related to the current of the third phase of 3-phase power"),
+    PHASECREACTIVEPOWER("PhaseCReactivePower", 297, "The reactive power on phase C of a multi-phase circuit");
 
     private final String mnemonic;
     private final int value;

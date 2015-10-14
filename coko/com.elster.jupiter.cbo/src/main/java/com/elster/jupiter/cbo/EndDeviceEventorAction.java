@@ -126,7 +126,30 @@ public enum EndDeviceEventorAction implements HasNumericCode {
     UNSECURE("Unsecure", 63, "An event to indicate that the item (identified by the EndDeviceDomain/EndDeviceSubdomain) is in an unprotected state."),
     UNSTABLE("Unstable", 270, "An event to indicate that the item (identified by the EndDeviceDomain/EndDeviceSubdomain) is in an irregular state."),
     UPLOADED("Uploaded", 60, "An event to indicate that the item (identified by the EndDeviceDomain/EndDeviceSubdomain) has been transmitted from the device to the network."),
-    WARMSTARTED("WarmStarted", 278, "An event that indicates the item (identified by the EndDeviceDomain/EndDeviceSubdomain) has been started from an already started state (as opposed to a ColdStart which implies that it was started from a stopped state)."),;
+    WARMSTARTED("WarmStarted", 278, "An event that indicates the item (identified by the EndDeviceDomain/EndDeviceSubdomain) has been started from an already started state (as opposed to a ColdStart which implies that it was started from a stopped state)."),
+    ALMOSTFULL("AlmostFull", 283, "An event to indicate that a resource is near capacity"),
+    CHANGEOUTREQUIRED("ChangeOutRequired", 27, "A command to request that a device is replaced by a new device ofthe same kind."),
+    CLOSE("Close", 299, "A control command for the item described by EndDeviceDomain/EndDeviceSubdomain. NOTE This command might be used to close a pairing window. It should not be used to close a switch. The “Connect” command should be used instead."),
+    CORRUPTIONCLEARED("CorruptionCleared", 281, "An event to indicate that a corruption condition has been cleared"),
+    ERRORCLEARED("ErrorCleared", 279, "An event to indicate that an error condition has been cleared"),
+    EVENTSTARTED("EventStarted", 287, "An event to indicate that an event (for example, demand response event) has begun"),
+    EVENTSTOPPED("EventStopped", 288, "An event to indicate that an event (for example, demand response event) has halted"),
+    LIMITCHANGED("LimitChanged", 296, "An event to indicate that the set point for a limit has been changed"),
+    LIMITREACHED("LimitReached", 286, "An event to indicate that an upper or lower limit has been breached"),
+    MAXLIMITCHANGED("MaxLimitChanged", 295, "An event to indicate that the set point for a maximum limit has been changed"),
+    MAXLIMITCLEARED("MaxLimitCleared", 293, "An event to indicate that a previous MaxLimitReached event has been cleared"),
+    MINLIMITCHANGED("MinLimitChanged", 294, "An event to indicate that the set point for a minimum limit has been changed"),
+    MINLIMITCLEARED("MinLimitCleared", 292, "An event to indicate that a previous MinLimitReached event has been cleared"),
+    MISSING("Missing", 285, "An event to indicate that an entity (for example, asset, measurement, etc.) is missing"),
+    NOTARMED("NotArmed", 290, "An event to indicate that a device is longer in an armed state"),
+    OPEN("Open", 298, "A control command for the item described by EndDeviceDomain/EndDeviceSubdomain. NOTE This command might be used to open a pairing window. It should not be used to open a switch. The “Disconnect” command should be used instead."),
+    READYFORACTIVATION("ReadyForActivation", 280, "An event to indicate that a device has been made ready"),
+    SCHEDULE("Schedule", 300, "A control command to ask that the item (identified by the EndDeviceDomain/EndDeviceSubdomain) will be set to execute at a future date."),
+    SCHEDULEFAILED("ScheduleFailed", 301, "An event to indicate that the command to ask that the item (identified by the EndDeviceDomain/EndDeviceSubdomain) to execute at a future date failed to schedule."),
+    SWITCHPOSITIONCHANGED("SwitchPositionChanged", 289, "An event to indicate that a switch position has changed"),
+    TAMPERCLEARED("TamperCleared", 291, "An event to indicate that a tamper alarm has been cleared"),
+    TERMINATEFAILED("TerminateFailed", 303, "An event to indicate that the attempt to terminate the item (identified by the EndDeviceDomain/EndDeviceSubdomain) has failed."),
+    WRITEFAILED("WriteFailed", 282, "An event to indicate that a write operation has failed");
 
     private final String mnemonic;
     private final int value;

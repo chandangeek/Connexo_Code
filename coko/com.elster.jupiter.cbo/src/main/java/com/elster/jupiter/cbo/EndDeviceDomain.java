@@ -28,7 +28,13 @@ public enum EndDeviceDomain implements HasNumericCode {
     SECURITY("Security", 12, "Events or controls related to device security (including SecurityKey, HMAC, Parity, Rotation, other TamperDetection, etc.)."),
     TEMPERATURE("Temperature", 35, "Events or controls related to device"),
     VIDEODISPLAY("VideoDisplay", 13, "Events or controls related to device CRT/display."),
-    WATERSUPPLY("WaterSupply", 5, "Events or controls related to the supply of water.");
+    WATERSUPPLY("WaterSupply", 5, "Events or controls related to the supply of water."),
+    ASSOCIATEDDEVICE("AssociatedDevice", 39, "A device(for example, a relay)that can be associated with an end device."),
+    KYZPULSECOUNTER("KYZPulseCounter", 38, "Pulse counting function inside a meter or other end device."),
+    RECODER("Recoder", 41, "A device for encoding"),
+    VOLUME("Volume", 40, "A quantity of 3-dimensional space enclosed by a boundary; the space occupied by a liquid or gas."),
+    WATCHDOG("Watchdog", 37, "A hardware or software function triggered by a timer expiring.");
+
 
     EndDeviceDomain(String mnemonic, int value, String description) {
         this.description = description;
