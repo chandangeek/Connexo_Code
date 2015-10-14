@@ -28,7 +28,7 @@ import java.util.regex.Pattern;
 public class StandardCsvEventDataFormatterFactory implements DataFormatterFactory {
 
     static final String NAME = "standardCsvEventDataProcessorFactory";
-    static final String DISPLAY_NAME = "CSV Formatter";
+    static final String DISPLAY_NAME = "CSV formatter";
     private static final String NON_PATH_INVALID = "\":*?<>|";
 
     private volatile PropertySpecService propertySpecService;
@@ -87,7 +87,15 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
 
     @Override
     public DataFormatter createDataFormatter(Map<String, Object> properties) {
-        return new StandardCsvEventDataFormatter(dataExportService);
+        return StandardCsvEventDataFormatter.from(dataExportService, getSeparator(properties), getTag(properties));
+    }
+
+    private String getTag(Map<String, Object> properties) {
+        return (String) properties.get(FormatterProperties.TAG.getKey());
+    }
+
+    private String getSeparator(Map<String, Object> properties) {
+        return (String) properties.get(FormatterProperties.SEPARATOR.getKey());
     }
 
     @Override
