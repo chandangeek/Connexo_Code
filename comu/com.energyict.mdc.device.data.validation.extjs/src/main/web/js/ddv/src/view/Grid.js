@@ -45,7 +45,7 @@ Ext.define('Ddv.view.Grid', {
                     xtype: 'pagingtoolbartop',
                     store: me.store,
                     dock: 'top',
-                    displayMsg: Uni.I18n.translate('validation.validationOverview.pagingtoolbartop.displayMsg', 'DDV', '{0} - {1} of {2} devices with suspects per page'),
+                    displayMsg: Uni.I18n.translate('validation.validationOverview.pagingtoolbartop.displayMsg', 'DDV', '{0} - {1} of {2} devices with suspects'),
                     displayMoreMsg: Uni.I18n.translate('validation.validationOverview.pagingtoolbartop.displayMoreMsg', 'DDV', '{0} - {1} of more than {2} devices with suspects'),
                     emptyMsg: Uni.I18n.translate('validation.validationOverview.pagingtoolbartop.emptyMsg', 'DDV', 'There are no devices with suspects to display')
                 },
