@@ -606,7 +606,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public String getTranslation() {
-            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_0).format();
+            return thesaurus.getFormat(TranslationKeys.DLMSSECURITYSUPPORTPERCLIENT_AUTHENTICATIONLEVEL_6).format();
         }
     }
 
