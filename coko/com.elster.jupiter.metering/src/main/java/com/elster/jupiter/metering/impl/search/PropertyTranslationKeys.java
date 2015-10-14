@@ -41,7 +41,11 @@ public enum PropertyTranslationKeys implements TranslationKey {
 
     USAGEPOINT_GROUP_ELECTRICITY("usagepoint.group.electricity", "Electricity"),
     USAGEPOINT_GROUP_GAS("usagepoint.group.gas", "Gas"),
-    USAGEPOINT_GROUP_WATER("usagepoint.group.water", "Water");
+    USAGEPOINT_GROUP_WATER("usagepoint.group.water", "Water"),
+
+    USAGEPOINT_DOMAIN("usagepoint.domain", "Usage point"),
+
+    ;
 
     private String key;
     private String defaultFormat;
@@ -65,5 +69,4 @@ public enum PropertyTranslationKeys implements TranslationKey {
     public String getDisplayName(Thesaurus thesaurus) {
         return thesaurus.getString(this.key, this.defaultFormat);
     }
-
 }

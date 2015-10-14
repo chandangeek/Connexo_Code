@@ -2,9 +2,13 @@ package com.elster.jupiter.metering.impl.search;
 
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.*;
 import com.elster.jupiter.util.conditions.Condition;
@@ -28,6 +32,7 @@ public class UsagePointSearchDomain implements SearchDomain {
 
     private volatile PropertySpecService propertySpecService;
     private volatile ServerMeteringService meteringService;
+    private volatile Thesaurus thesaurus;
 
     // For OSGi purposes
     public UsagePointSearchDomain() {
@@ -36,10 +41,11 @@ public class UsagePointSearchDomain implements SearchDomain {
 
     // For Testing purposes
     @Inject
-    public UsagePointSearchDomain(PropertySpecService propertySpecService, ServerMeteringService meteringService) {
+    public UsagePointSearchDomain(PropertySpecService propertySpecService, ServerMeteringService meteringService, NlsService nlsService) {
         this();
         this.setPropertySpecService(propertySpecService);
         this.setMeteringService(meteringService);
+        this.setNlsService(nlsService);
     }
 
     @Reference
@@ -50,6 +56,12 @@ public class UsagePointSearchDomain implements SearchDomain {
     @Reference
     public void setMeteringService(ServerMeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+
+    @Reference
+    public final void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(MessageService.COMPONENTNAME, Layer.DOMAIN);
     }
 
     @Override
@@ -86,6 +98,11 @@ public class UsagePointSearchDomain implements SearchDomain {
     public Finder<?> finderFor(List<SearchablePropertyCondition> conditions) {
         return DefaultFinder.of(UsagePoint.class, this.toCondition(conditions), this.meteringService.getDataModel(), UsagePointDetail.class)
                 .defaultSortColumn("mRID");
+    }
+
+    @Override
+    public String displayName() {
+        return thesaurus.getFormat(PropertyTranslationKeys.USAGEPOINT_DOMAIN).format();
     }
 
     private Condition toCondition(List<SearchablePropertyCondition> conditions) {
