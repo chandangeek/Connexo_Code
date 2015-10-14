@@ -20,8 +20,8 @@ Ext.define('Mdc.controller.Search', {
                         return '<a href="{0}">{1}</a>'.replace('{0}', url).replace('{1}', Ext.String.htmlEncode(value));
                     }
                 } else if (me.searchDomain.get('id') == 'com.elster.jupiter.metering.UsagePoint') {
-                    column.renderer = function (value) {
-                        var url = router.getRoute('usagepoints/usagepoint').buildUrl({usagePointMRID: value});
+                    column.renderer = function (value, metaData, record) {
+                        var url = router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: record.get('id')});
                         return '<a href="{0}">{1}</a>'.replace('{0}', url).replace('{1}', Ext.String.htmlEncode(value));
                     }
                 }
