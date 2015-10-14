@@ -121,6 +121,7 @@ public class DemoServiceImpl {
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile DeviceLifeCycleService deviceLifeCycleService;
     private volatile FileImportService fileImportService;
+    private volatile EstimationService estimationService;
 
     private Injector injector;
     private boolean reThrowEx = false;
@@ -164,7 +165,8 @@ public class DemoServiceImpl {
             FiniteStateMachineService finiteStateMachineService,
             DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
             DeviceLifeCycleService deviceLifeCycleService,
-            FileImportService fileImportService) {
+            FileImportService fileImportService,
+            EstimationService estimationService) {
         this();
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
@@ -201,6 +203,7 @@ public class DemoServiceImpl {
         setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         setDeviceLifeCycleService(deviceLifeCycleService);
         setFileImportService(fileImportService);
+        setEstimationService(estimationService);
 
         activate();
         reThrowEx = true;
@@ -249,6 +252,7 @@ public class DemoServiceImpl {
                 bind(DeviceLifeCycleService.class).toInstance(deviceLifeCycleService);
                 bind(FileSystem.class).toInstance(FileSystems.getDefault());
                 bind(FileImportService.class).toInstance(fileImportService);
+                bind(EstimationService.class).toInstance(estimationService);
             }
         });
         Builders.initWith(this.injector);
@@ -288,6 +292,12 @@ public class DemoServiceImpl {
     @SuppressWarnings("unused")
     public final void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public void setEstimationService(EstimationService estimationService) {
+        this.estimationService = estimationService;
     }
 
     @Reference
