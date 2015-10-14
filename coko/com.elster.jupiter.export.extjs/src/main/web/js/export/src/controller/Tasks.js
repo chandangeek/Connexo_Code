@@ -1492,6 +1492,7 @@ Ext.define('Dxp.controller.Tasks', {
             propertyForm = form.down('grouped-property-form'),
             selectorPropertyForm = form.down('#data-selector-properties'),
             dataSelectorCombo = form.down('#data-selector-combo'),
+            exportWindowCombo = form.down('#export-period-combo'),
             lastDayOfMonth = false,
             startOnDate,
             timeUnitValue,
@@ -1536,10 +1537,29 @@ Ext.define('Dxp.controller.Tasks', {
                 form.down('#formatter-container').unsetActiveError();
             }
             form.down('#formatter-container').doComponentLayout();
+
+            var deviceGroupCombo = page.down('#device-group-combo'),
+                noDeviceGroupChosen = !deviceGroupCombo.getValue() || deviceGroupCombo.getValue().length === 0;
+            if (noDeviceGroupChosen) {
+                form.down('#device-group-container').setActiveError(me.requiredFieldText);
+            } else {
+                form.down('#device-group-container').unsetActiveError();
+            }
+            form.down('#device-group-container').doComponentLayout();
+
+            var selectedExportWindow = !exportWindowCombo.getValue() || exportWindowCombo.getValue().length === 0;
+            if (selectedExportWindow) {
+                form.down('#export-periods-container').setActiveError(me.requiredFieldText);
+            } else {
+                form.down('#export-periods-container').unsetActiveError();
+            }
+            form.down('#export-periods-container').doComponentLayout();
         }
         form.down('#dxp-data-selector-container').doComponentLayout();
 
-        if ((form.isValid()) && (!emptyReadingTypes) && (!emptyEventTypes) && (!emptyDestinations) && (!noFormatterChosen) && (!noDataSelectorChosen)) {
+
+
+        if ((form.isValid()) && (!emptyReadingTypes) && (!emptyEventTypes) && (!emptyDestinations) && (!noFormatterChosen) && (!noDataSelectorChosen) && (!selectedExportWindow)) {
             var record = me.taskModel || Ext.create('Dxp.model.DataExportTask'),
                 readingTypesStore = page.down('#readingTypesGridPanel').getStore(),
                 eventTypesStore = page.down('#eventTypesGridPanel').getStore(),

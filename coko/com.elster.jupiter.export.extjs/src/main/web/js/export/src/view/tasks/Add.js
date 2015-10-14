@@ -227,6 +227,7 @@ Ext.define('Dxp.view.tasks.Add', {
                         fieldLabel: Uni.I18n.translate('general.deviceGroup', 'DES', 'Device group'),
                         hidden: true,
                         itemId: 'device-group-container',
+                        msgTarget: 'under',
                         required: true,
                         layout: 'hbox',
                         items: [
@@ -381,6 +382,7 @@ Ext.define('Dxp.view.tasks.Add', {
                         xtype: 'fieldcontainer',
                         itemId: 'export-periods-container',
                         fieldLabel: Uni.I18n.translate('general.exportWindow', 'DES', 'Export window'),
+                        msgTarget: 'under',
                         hidden: true,
                         required: true,
                         layout: 'hbox',
