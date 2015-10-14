@@ -7,7 +7,7 @@ import java.util.logging.Level;
 
 public enum  MessageSeeds implements MessageSeed {
 
-    PURGE_HISTORY_DOES_NOT_EXIST(1, "PurgeHistoryDoesNotExist", "The purge history record with id = '{0}' doesn't exist", Level.WARNING),
+    PURGE_HISTORY_DOES_NOT_EXIST(1, "PurgeHistoryDoesNotExist", "The purge history record with id = ''{0}'' doesn't exist", Level.WARNING),
     INVALID_LICENSE_FILE(2, "InvalidLicenseFile", "Invalid license file", Level.SEVERE),
     ;
 
