@@ -52,6 +52,15 @@ public class MetrologyConfigurationResource {
                 .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("metrologyconfigurations", metrologyConfigurationsInfos, queryParameters);
     }
+    
+    @GET
+//    @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public MetrologyConfigurationInfo getMeterologyConfiguration(@PathParam("id") long id, @Context SecurityContext securityContext) {
+        MetrologyConfiguration metrologyConfiguration = usagePointConfigurationService.findMetrologyConfiguration(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        return new MetrologyConfigurationInfo(metrologyConfiguration);
+    }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -87,131 +96,4 @@ public class MetrologyConfigurationResource {
         return new MetrologyConfigurationInfo(updatedMetrologyConfiguration);
     }
     
-//    @PUT
-//    @Path("/{deviceConfigurationId}")
-//    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-//    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
-//    public DeviceConfigurationInfo updateDeviceConfigurations(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, DeviceConfigurationInfo deviceConfigurationInfo) {
-//        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-//        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-//        deviceConfigurationInfo.writeTo(deviceConfiguration);
-//        deviceConfiguration.save();
-//        return new DeviceConfigurationInfo(deviceConfiguration);
-//    }
-
-    //
-    //    @GET
-    //    @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
-    //    @Path("/{mrid}/")
-    //    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    //    public UsagePointInfos getUsagePoint(@PathParam("mrid") String mRid, @Context SecurityContext securityContext) {
-    //        UsagePoint usagePoint = fetchUsagePoint(mRid, securityContext);
-    //        UsagePointInfos result = new UsagePointInfos(usagePoint, clock);
-    //        result.addServiceLocationInfo();
-    //        return result;
-    //    }
-    //
-    //    @POST
-    //    @RolesAllowed({Privileges.ADMIN_ANY})
-    //    @Consumes(MediaType.APPLICATION_JSON)
-    //    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    //    public UsagePointInfos createUsagePoint(UsagePointInfo info) {
-    //        UsagePointInfos result = new UsagePointInfos();
-    //        result.add(transactionService.execute(new CreateUsagePointTransaction(info, meteringService, clock)), clock);
-    //        return result;
-    //    }
-    //
-    //    @GET
-    //    @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
-    //    @Path("/{mrid}/meteractivations")
-    //    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    //    public MeterActivationInfos getMeterActivations(@PathParam("mrid") String mRid, @Context SecurityContext securityContext) {
-    //        UsagePoint usagePoint = fetchUsagePoint(mRid, securityContext);
-    //        return new MeterActivationInfos(usagePoint.getMeterActivations());
-    //    }
-    //
-    //
-    //    @GET
-    //    @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
-    //    @Path("/{id}/readingtypes")
-    //    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    //    public ReadingTypeInfos getReadingTypes(@PathParam("id") long id, @Context SecurityContext securityContext) {
-    //        UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
-    //        return new ReadingTypeInfos(collectReadingTypes(usagePoint));
-    //    }
-    //
-    ////    @GET
-    ////    @Path("/readingtypes")
-    ////    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    ////    public ReadingTypeInfos getReadingTypes(@Context UriInfo uriInfo) {
-    ////        return new ReadingTypeInfos(meteringService.getAvailableReadingTypes());
-    ////    }
-    //    
-    //    @Path("/{mrid}/channels")
-    //    public ChannelResource getChannelResource() {
-    //        return channelsOnUsagePointResourceProvider.get();
-    //    }
-    //    
-    //    @Path("/{mrid}/registers")
-    //    public RegisterResource getRegisterResource() {
-    //        return registersOnUsagePointResourceProvider.get();
-    //    }
-    //
-    //    private FluentIterable<? extends MeterActivation> meterActivationsForReadingTypeWithMRID(long id, String mRID, SecurityContext securityContext) {
-    //        UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
-    //        return FluentIterable.from(usagePoint.getMeterActivations()).filter(new HasReadingType(mRID));
-    //    }
-    //
-    //    private Set<ReadingType> collectReadingTypes(UsagePoint usagePoint) {
-    //        Set<ReadingType> readingTypes = new LinkedHashSet<>();
-    //        List<? extends MeterActivation> meterActivations = usagePoint.getMeterActivations();
-    //        for (MeterActivation meterActivation : meterActivations) {
-    //            readingTypes.addAll(meterActivation.getReadingTypes());
-    //        }
-    //        return readingTypes;
-    //    }
-    //
-    //    private UsagePoint fetchUsagePoint(long id, SecurityContext securityContext) {
-    //        Optional<UsagePoint> found = meteringService.findUsagePoint(id);
-    //        UsagePoint usagePoint = found.orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-    //        if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal()) && !((User) securityContext.getUserPrincipal()).hasPrivilege("MTR",Privileges.BROWSE_ANY)) {
-    //            throw new WebApplicationException(Response.Status.FORBIDDEN);
-    //        }
-    //        return usagePoint;
-    //    }
-    //
-    //    private UsagePoint fetchUsagePoint(String mRid, SecurityContext securityContext) {
-    //        Optional<UsagePoint> found = meteringService.findUsagePoint(mRid);
-    //        UsagePoint usagePoint = found.orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-    //        if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal()) && !((User) securityContext.getUserPrincipal()).hasPrivilege("MTR",Privileges.BROWSE_ANY)) {
-    //            throw new WebApplicationException(Response.Status.FORBIDDEN);
-    //        }
-    //        return usagePoint;
-    //    }
-    //
-    //    private static class HasReadingType implements Predicate<MeterActivation> {
-    //        private final MRIDMatcher mridMatcher;
-    //
-    //        public HasReadingType(String mRID) {
-    //            mridMatcher = new MRIDMatcher(mRID);
-    //        }
-    //
-    //        @Override
-    //        public boolean apply(MeterActivation input) {
-    //            return input != null && FluentIterable.from(input.getReadingTypes()).anyMatch(mridMatcher);
-    //        }
-    //    }
-    //
-    //    private static class MRIDMatcher implements Predicate<ReadingType> {
-    //        private final String mRID;
-    //
-    //        private MRIDMatcher(String mRID) {
-    //            this.mRID = mRID;
-    //        }
-    //
-    //        @Override
-    //        public boolean apply(ReadingType input) {
-    //            return input.getMRID().equals(mRID);
-    //        }
-    //    }
 }
