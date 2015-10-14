@@ -320,11 +320,6 @@
             <artifactId>cps</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdwutil</artifactId>
-            <version>9.1.6-SNAPSHOT</version>
-        </dependency>
         <!--<dependency>-->
             <!--<groupId>com.google.inject</groupId>-->
             <!--<artifactId>guice</artifactId>-->
