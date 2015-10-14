@@ -29,7 +29,7 @@ public enum HardCodedFieldNames {
 
         @Override
         public String databaseName() {
-            return "cps";
+            return "CPS";
         }
 
         @Override
@@ -81,5 +81,4 @@ public enum HardCodedFieldNames {
      * @return The type of the field
      */
     public abstract Class fieldType();
-
 }
