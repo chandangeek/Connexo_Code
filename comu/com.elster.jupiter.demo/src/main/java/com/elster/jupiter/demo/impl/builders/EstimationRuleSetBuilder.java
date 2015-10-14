@@ -1,25 +1,26 @@
 package com.elster.jupiter.demo.impl.builders;
 
-import com.elster.jupiter.estimation.EstimationRuleSet;
-import com.elster.jupiter.estimation.EstimationService;
-import com.elster.jupiter.validation.*;
+import com.elster.jupiter.estimation.*;
+import com.elster.jupiter.estimators.impl.DefaultEstimatorFactory;
+import com.elster.jupiter.time.TimeService;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
 public class EstimationRuleSetBuilder extends NamedBuilder<EstimationRuleSet, EstimationRuleSetBuilder> {
-    private final EstimationService estimationService;
 
+    private final EstimationService estimationService;
+    private final TimeService timeService;
     private String description;
 
     @Inject
-    public EstimationRuleSetBuilder(EstimationService estimationService) {
+    public EstimationRuleSetBuilder(EstimationService estimationService, TimeService timeService) {
         super(EstimationRuleSetBuilder.class);
         this.estimationService = estimationService;
+        this.timeService = timeService;
     }
 
     public EstimationRuleSetBuilder withDescription(String description){
@@ -38,52 +39,31 @@ public class EstimationRuleSetBuilder extends NamedBuilder<EstimationRuleSet, Es
     @Override
     public EstimationRuleSet create() {
         EstimationRuleSet ruleSet = estimationService.createEstimationRuleSet(getName(), description);
-//        ValidationRuleSetVersion ruleSetVersion = ruleSet.addRuleSetVersion("Demo Default Version", Instant.EPOCH );
-//        addRegisterIncreaseValidationRule(ruleSetVersion);
-//        addDetectMissingValuesValidationRule(ruleSetVersion);
-//        addDetectThresholdViolationValidationRule(ruleSetVersion);
+        addEstimateWithSamplesEstimationRule(ruleSet);
+        addValueFillEstimationRule(ruleSet);
         ruleSet.save();
         return ruleSet;
     }
 
-    private void addDetectThresholdViolationValidationRule(ValidationRuleSetVersion ruleSetVersion) {
-        ValidationRule rule;
-        rule = ruleSetVersion.addRule(ValidationAction.FAIL, "com.elster.jupiter.validators.impl.ThresholdValidator", "Detect threshold violation");
-        rule.addReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
+    private void addEstimateWithSamplesEstimationRule(EstimationRuleSet ruleSet) {
+        EstimationRule rule = ruleSet.addRule(DefaultEstimatorFactory.AVG_WITH_SAMPLES_ESTIMATOR, "Estimate with samples");
         rule.addReadingType("0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.0.72.0");
-        rule.addProperty("minimum", new BigDecimal(0));
-        rule.addProperty("maximum", new BigDecimal(1000));
+        rule.addReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
+        rule.addProperty("averagewithsamples.maxNumberOfConsecutiveSuspects", 10L);
+        rule.addProperty("averagewithsamples.minNumberOfSamples", 1L);
+        rule.addProperty("averagewithsamples.maxNumberOfSamples", 5L);
+        rule.addProperty("averagewithsamples.allowNegativeValues",false);
+        rule.addProperty("averagewithsamples.relativePeriod", timeService.getAllRelativePeriod());
+        rule.addProperty("averagewithsamples.advanceReadingsSettings",NoneAdvanceReadingsSettings.INSTANCE);
         rule.activate();
     }
 
-    private void addDetectMissingValuesValidationRule(ValidationRuleSetVersion ruleSetVersion) {
-        ValidationRule rule;
-        rule = ruleSetVersion.addRule(ValidationAction.FAIL, "com.elster.jupiter.validators.impl.MissingValuesValidator", "Detect missing values");
-        // 15min Electricity
-        rule.addReadingType("0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
-        rule.addReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0");
-        // Daily Electricity
-        rule.addReadingType("11.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0");
-        rule.addReadingType("11.0.0.9.1.1.12.0.0.0.0.2.0.0.0.0.72.0");
-        rule.addReadingType("11.0.0.9.19.1.12.0.0.0.0.1.0.0.0.0.72.0");
-        rule.addReadingType("11.0.0.9.19.1.12.0.0.0.0.2.0.0.0.0.72.0");
-        // Monthly Electricity
-        rule.addReadingType("13.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0");
-        rule.addReadingType("13.0.0.9.1.1.12.0.0.0.0.2.0.0.0.0.72.0");
-        rule.addReadingType("13.0.0.9.19.1.12.0.0.0.0.1.0.0.0.0.72.0");
-        rule.addReadingType("13.0.0.9.19.1.12.0.0.0.0.2.0.0.0.0.72.0");
-        rule.activate();
-    }
-
-    private void addRegisterIncreaseValidationRule(ValidationRuleSetVersion ruleSetVersion) {
-        ValidationRule rule = ruleSetVersion.addRule(ValidationAction.FAIL, "com.elster.jupiter.validators.impl.RegisterIncreaseValidator", "Register increase");
-        rule.addReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
-        rule.addReadingType("0.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0");
-        rule.addReadingType("0.0.0.9.1.1.12.0.0.0.0.2.0.0.0.0.72.0");
-        rule.addReadingType("0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0");
-        rule.addReadingType("0.0.0.9.19.1.12.0.0.0.0.1.0.0.0.0.72.0");
-        rule.addReadingType("0.0.0.9.19.1.12.0.0.0.0.2.0.0.0.0.72.0");
-        rule.addProperty("failEqualData", false);
+    private void addValueFillEstimationRule(EstimationRuleSet ruleSet) {
+        EstimationRule rule = ruleSet.addRule(DefaultEstimatorFactory.VALUE_FILL_ESTIMATOR, "Value fill");
+        rule.addReadingType("0.0.2.4.19.1.12.0.0.0.0.0.0.0.0.0.72.0");
+        rule.addReadingType("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
+        rule.addProperty("valuefill.maxNumberOfConsecutiveSuspects", 5L);
+        rule.addProperty("valuefill.fillValue", new BigDecimal(900));
         rule.activate();
     }
 }

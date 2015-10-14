@@ -118,6 +118,10 @@
             <artifactId>estimation</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>estimators</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.engine.config</artifactId>
         </dependency>

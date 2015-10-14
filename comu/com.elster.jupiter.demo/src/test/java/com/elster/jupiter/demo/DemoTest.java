@@ -20,7 +20,11 @@ import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
 import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.estimation.EstimatorFactory;
 import com.elster.jupiter.estimation.impl.EstimationModule;
+import com.elster.jupiter.estimation.impl.EstimationServiceImpl;
+import com.elster.jupiter.estimators.impl.DefaultEstimatorFactory;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.impl.DataExportServiceImpl;
@@ -57,6 +61,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -792,6 +797,7 @@ public class DemoTest {
         propertySpecService.addFactoryProvider((DeviceServiceImpl) injector.getInstance(DeviceService.class));
         propertySpecService.addFactoryProvider((ConnectionTaskServiceImpl) injector.getInstance(ConnectionTaskService.class));
 
+
         DefaultValidatorFactory defaultValidatorFactory = new DefaultValidatorFactory();
         defaultValidatorFactory.setPropertySpecService(propertySpecService);
         defaultValidatorFactory.setNlsService(injector.getInstance(NlsService.class));
@@ -814,6 +820,7 @@ public class DemoTest {
         injector.getInstance(IssueDataCollectionService.class);
         injector.getInstance(IssueDataValidationService.class);
         fixIssueTemplates();
+        fixEstimators(propertySpecService, injector.getInstance(TimeService.class));
     }
 
     private void fixIssueTemplates() {
@@ -823,6 +830,15 @@ public class DemoTest {
         IssueServiceImpl issueService = (IssueServiceImpl) injector.getInstance(IssueService.class);
         issueService.addCreationRuleTemplate(template);
         issueService.addCreationRuleTemplate(dataValidationIssueCreationRuleTemplate);
+    }
+
+    private void fixEstimators(PropertySpecService propertySpecService, TimeService timeService){
+        EstimationServiceImpl estimationService = (EstimationServiceImpl) injector.getInstance(EstimationService.class);
+        DefaultEstimatorFactory estimatorFactory = new DefaultEstimatorFactory();
+        estimatorFactory.setPropertySpecService(propertySpecService);
+        estimatorFactory.setTimeService(timeService);
+        estimationService.addEstimatorFactory(estimatorFactory);
+
     }
 
     private void createDefaultStuff() {
