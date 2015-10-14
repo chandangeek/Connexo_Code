@@ -20,11 +20,8 @@ public class MetrologyConfigurationInfo {
         this.name = metrologyConfiguration.getName();
     }
     
-    public static MetrologyConfigurationInfo from(MetrologyConfiguration metrologyConfiguration) {
-        MetrologyConfigurationInfo info = new MetrologyConfigurationInfo();
-        info.id = metrologyConfiguration.getId();
-        info.version = metrologyConfiguration.getVersion();
-        info.name = metrologyConfiguration.getName();
-        return info;
+    public void writeTo(MetrologyConfiguration metrologyConfiguration) {
+        metrologyConfiguration.setName(this.name);
     }
+    
 }
