@@ -460,8 +460,9 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
     @Override
     public Optional<RegisteredCustomPropertySet> getLoadProfileTypeCustomPropertySet(LoadProfileType loadProfileType) {
-        DeviceTypeLoadProfileTypeUsage deviceTypeLoadProfileTypeUsage = this.loadProfileTypeUsages.stream().filter(f -> f.sameLoadProfileType(loadProfileType)).findAny().get();
-        return deviceTypeLoadProfileTypeUsage.getRegisteredCustomPropertySet();
+        return this.loadProfileTypeUsages.stream().filter(f -> f.sameLoadProfileType(loadProfileType))
+                .findAny()
+                .flatMap(DeviceTypeLoadProfileTypeUsage::getRegisteredCustomPropertySet);
     }
 
     @Override
@@ -539,8 +540,9 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     public Optional<RegisteredCustomPropertySet> getRegisterTypeTypeCustomPropertySet(RegisterType registerType) {
-        DeviceTypeRegisterTypeUsage registerTypeOnDeviceTypeUsage = this.registerTypeUsages.stream().filter(f -> f.sameRegisterType(registerType)).findAny().get();
-        return registerTypeOnDeviceTypeUsage.getRegisteredCustomPropertySet();
+        return this.registerTypeUsages.stream().filter(f -> f.sameRegisterType(registerType))
+                .findAny()
+                .flatMap(DeviceTypeRegisterTypeUsage::getRegisteredCustomPropertySet);
     }
 
     @Override
