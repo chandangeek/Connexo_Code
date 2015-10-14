@@ -26,7 +26,7 @@ import java.util.Optional;
 
 public class CreateG3GatewayCommand {
 
-    static final String GATEWAY_MRID = "Demo_board_RTU_Server_G3";
+    static final String GATEWAY_MRID = "Demo board RTU+Server G3";
     static final String GATEWAY_SERIAL = "660-05A043-1428";
     static final String SECURITY_PROPERTY_SET_NAME = "High level authentication - No encryption";
     static final String REQUIRED_PLUGGABLE_CLASS_NAME = "OutboundTcpIp";

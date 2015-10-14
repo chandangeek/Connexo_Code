@@ -21,6 +21,7 @@ public class CreateDemoDataCommand {
     private final Provider<CreateNtaConfigCommand> createNtaConfigCommandProvider;
     private final Provider<UploadAllCommand> uploadAllCommandProvider;
     private final Provider<CreateValidationSetupCommand> createValidationSetupCommandProvider;
+    private final Provider<CreateEstimationSetupCommand> createEstimationSetupCommandProvider;
     private final Provider<CreateDeviceCommand> createDeviceCommandProvider;
     private final Provider<CreateDeliverDataSetupCommand> createDeliverDataSetupCommandProvider;
     private final Provider<ValidateStartDateCommand> validateStartDateCommandProvider;
@@ -41,6 +42,7 @@ public class CreateDemoDataCommand {
             Provider<CreateNtaConfigCommand> createNtaConfigCommandProvider,
             Provider<UploadAllCommand> uploadAllCommandProvider,
             Provider<CreateValidationSetupCommand> createValidationSetupCommandProvider,
+            Provider<CreateEstimationSetupCommand> createEstimationSetupCommandProvider,
             Provider<CreateDeviceCommand> createDeviceCommandProvider,
             Provider<CreateDeliverDataSetupCommand> createDeliverDataSetupCommandProvider,
             Provider<ValidateStartDateCommand> validateStartDateCommandProvider,
@@ -53,6 +55,7 @@ public class CreateDemoDataCommand {
         this.createNtaConfigCommandProvider = createNtaConfigCommandProvider;
         this.uploadAllCommandProvider = uploadAllCommandProvider;
         this.createValidationSetupCommandProvider = createValidationSetupCommandProvider;
+        this.createEstimationSetupCommandProvider = createEstimationSetupCommandProvider;
         this.createDeviceCommandProvider = createDeviceCommandProvider;
         this.createDeliverDataSetupCommandProvider = createDeliverDataSetupCommandProvider;
         this.validateStartDateCommandProvider = validateStartDateCommandProvider;
@@ -90,6 +93,7 @@ public class CreateDemoDataCommand {
         setupFirmwareManagementCommand();
         createImportersCommand();
         createValidationSetupCommand();
+        createEstimationSetupCommand();
         createNtaConfigCommand();
         createMockedDataDeviceCommand();
         createDeliverDataSetupCommand();
@@ -142,6 +146,11 @@ public class CreateDemoDataCommand {
 
     private void createValidationSetupCommand(){
         CreateValidationSetupCommand command = this.createValidationSetupCommandProvider.get();
+        command.run();
+    }
+
+    private void createEstimationSetupCommand(){
+        CreateEstimationSetupCommand command = this.createEstimationSetupCommandProvider.get();
         command.run();
     }
 

@@ -4,7 +4,8 @@ import com.elster.jupiter.demo.impl.builders.ValidationRuleSetBuilder;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
 public enum ValidationRuleSetTpl implements Template<ValidationRuleSet, ValidationRuleSetBuilder> {
-    RESIDENTIAL_CUSTOMERS("Residential customers", "Set with rules regarding residential customers"),
+
+    RESIDENTIAL_CUSTOMERS("Residential customers", "Set with rules regarding residential customers")
     ;
 
     private String name;
