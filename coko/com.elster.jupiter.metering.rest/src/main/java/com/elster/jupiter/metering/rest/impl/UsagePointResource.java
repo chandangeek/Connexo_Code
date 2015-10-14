@@ -98,7 +98,6 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public UsagePointInfos getUsagePoint(@PathParam("id") long id, @Context SecurityContext securityContext) {
         UsagePoint usagePoint = fetchUsagePoint(id, securityContext);
-
         UsagePointInfos result = new UsagePointInfos(usagePoint, clock);
         result.addServiceLocationInfo();
         return result;
@@ -223,12 +222,7 @@ public class UsagePointResource {
     }
 
     private UsagePoint fetchUsagePoint(long id, SecurityContext securityContext) {
-        Optional<UsagePoint> found = meteringService.findUsagePoint(id);
-        UsagePoint usagePoint = found.orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal()) && !((User) securityContext.getUserPrincipal()).hasPrivilege("MTR",Privileges.BROWSE_ANY)) {
-            throw new WebApplicationException(Response.Status.FORBIDDEN);
-        }
-        return usagePoint;
+        return meteringService.findUsagePoint(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     private UsagePoint fetchUsagePoint(String mRid, SecurityContext securityContext) {
