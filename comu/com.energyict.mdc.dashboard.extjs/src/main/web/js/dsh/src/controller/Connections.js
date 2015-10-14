@@ -120,7 +120,6 @@ Ext.define('Dsh.controller.Connections', {
             store = this.getStore('Dsh.store.ConnectionTasks');
 
         this.getApplication().fireEvent('changecontentevent', widget);
-        this.initFilter();
         store.load();
     },
 
