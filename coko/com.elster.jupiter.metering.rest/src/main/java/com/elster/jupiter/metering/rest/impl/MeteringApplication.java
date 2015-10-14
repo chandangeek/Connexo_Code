@@ -11,6 +11,7 @@ import java.util.Set;
 import javax.validation.MessageInterpolator;
 import javax.ws.rs.core.Application;
 
+import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -127,8 +128,5 @@ public class MeteringApplication extends Application implements TranslationKeyPr
             bind(thesaurus).to(Thesaurus.class);
             bind(thesaurus).to(MessageInterpolator.class);
         }
-
-        ;
     }
-
 }
