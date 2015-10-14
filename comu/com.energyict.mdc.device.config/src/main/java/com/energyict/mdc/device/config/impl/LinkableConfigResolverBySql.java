@@ -85,7 +85,7 @@ public class LinkableConfigResolverBySql implements LinkableConfigResolver {
         builder.append("select distinct(id) from ((select rs.deviceconfigid as id from dtc_registerspec rs where rs.registertypeid in" +
                 "  (select id from mds_measurementtype rm " +
                 "  where rm.readingtype in (select tier.readingtypemrid from est_readingtypeinestrule tier " +
-                "    where tivr.ruleid in (select vr.id from est_estimationrule er where er.rulesetid = ");
+                "    where tier.ruleid in (select er.id from est_estimationrule er where er.rulesetid = ");
         builder.addLong(ruleSet.getId());
         builder.append(") )))" +
                 " union" +
@@ -93,10 +93,10 @@ public class LinkableConfigResolverBySql implements LinkableConfigResolver {
                 "  (select cs.loadprofilespecid from dtc_channelspec cs where cs.channeltypeid in" +
                 "  (select id from mds_measurementtype rm " +
                 "  where rm.readingtype in (select tier.readingtypemrid from est_readingtypeinestrule tier " +
-                "    where tivr.ruleid in (select vr.id from est_estimationrule er where er.rulesetid = ");
+                "    where tier.ruleid in (select er.id from est_estimationrule er where er.rulesetid = ");
         builder.addLong(ruleSet.getId());
         builder.append(") )))))" +
-                "  where id not in (select rsu.deviceconfig from DTC_DEVCFGESTRULESETUSAGE rsu where rsu.estimationrulesetid = ");
+                "  where id not in (select rsu.deviceconfig from DTC_DEVCFGESTRULESETUSAGE rsu where rsu.estimationruleset = ");
         builder.addLong(ruleSet.getId());
         builder.append(")");
         return builder;
