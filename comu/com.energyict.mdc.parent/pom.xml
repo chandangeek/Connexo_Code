@@ -98,16 +98,6 @@
                     <arguments>-DskipTests=true</arguments>
                 </configuration>
             </plugin>
-            <plugin>
-                <groupId>com.qmino</groupId>
-                <artifactId>miredot-plugin</artifactId>
-                <configuration>
-                    <licence>
-                        T3JnYW5pc2F0aW9ufGNvbS5lbmVyZ3lpY3R8MjAxNS0xMC0wMnx0cnVlI01DNENGUUNHMmZyWlVmMzFlNWY1TVdpcHpiYnRDMGJGbGdJVkFJdm1xNkZnbkZJSFZYWFAwWUMvZ0xodmxUSDE=
-                    </licence>
-                    <!-- insert other configuration here (optional) -->
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 
