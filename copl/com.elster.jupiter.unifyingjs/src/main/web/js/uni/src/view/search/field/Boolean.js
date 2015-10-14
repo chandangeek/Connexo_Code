@@ -8,13 +8,13 @@ Ext.define('Uni.view.search.field.Boolean', {
         var me = this;
         me.items = [
             {
-                xtype: 'radiofield', boxLabel: Uni.I18n.translate('window.messabox.yes', 'UNI', 'Yes'), name: 'bool', inputValue: "1", itemId: 'radio-yes', checked: true
+                xtype: 'radiofield', boxLabel: Uni.I18n.translate('general.yes', 'UNI', 'Yes'), name: 'bool', inputValue: "1", itemId: 'radio-yes', checked: true
             },
             {
                 xtype: 'menuseparator'
             },
             {
-                xtype: 'radiofield', boxLabel: Uni.I18n.translate('window.messabox.no', 'UNI', 'No'), name: 'bool', inputValue: "0", itemId: 'radio-no'
+                xtype: 'radiofield', boxLabel: Uni.I18n.translate('general.no', 'UNI', 'No'), name: 'bool', inputValue: "0", itemId: 'radio-no'
             }
         ];
 
