@@ -92,17 +92,20 @@ public class MessageServiceImpl implements MessageService, InstallService {
 
     @Override
     public Optional<QueueTableSpec> getQueueTableSpec(String name) {
-        return dataModel.mapper(QueueTableSpec.class).getOptional(name);
+        // check if dataModel is already installed because this method get potentially called before the initAll is run
+        return dataModel.isInstalled() ? dataModel.mapper(QueueTableSpec.class).getOptional(name) : Optional.<QueueTableSpec>empty();
     }
 
     @Override
     public Optional<DestinationSpec> getDestinationSpec(String name) {
-        return dataModel.mapper(DestinationSpec.class).getOptional(name);
+        // check if dataModel is already installed because this method get potentially called before the initAll is run
+        return dataModel.isInstalled() ? dataModel.mapper(DestinationSpec.class).getOptional(name) : Optional.<DestinationSpec>empty();
     }
 
     @Override
     public Optional<SubscriberSpec> getSubscriberSpec(String destinationSpecName, String name) {
-        return dataModel.mapper(SubscriberSpec.class).getOptional(destinationSpecName, name);
+        // check if dataModel is already installed because this method get potentially called before the initAll is run
+        return dataModel.isInstalled() ? dataModel.mapper(SubscriberSpec.class).getOptional(destinationSpecName, name) : Optional.<SubscriberSpec>empty();
     }
 
     @Override
