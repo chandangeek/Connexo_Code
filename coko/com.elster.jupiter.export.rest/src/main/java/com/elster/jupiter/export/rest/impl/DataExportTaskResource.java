@@ -167,8 +167,7 @@ public class DataExportTaskResource {
             } else if (info.dataSelector.selectorType == SelectorType.DEFAULT_EVENTS) {
                 DataExportTaskBuilder.EventSelectorBuilder selectorBuilder = builder.selectingEventTypes()
                         .fromExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod))
-                        .fromEndDeviceGroup(endDeviceGroup(info.standardDataSelector.deviceGroup.id))
-                        .continuousData(info.standardDataSelector.exportContinuousData);
+                        .fromEndDeviceGroup(endDeviceGroup(info.standardDataSelector.deviceGroup.id));
                 info.standardDataSelector.eventTypeCodes.stream()
                         .map(r -> r.eventFilterCode)
                         .forEach(selectorBuilder::fromEventType);
@@ -256,7 +255,6 @@ public class DataExportTaskResource {
                     EventDataSelector selector = task.getEventDataSelector().orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
                     selector.setEndDeviceGroup(endDeviceGroup(info.standardDataSelector.deviceGroup.id));
                     selector.setExportPeriod(getRelativePeriod(info.standardDataSelector.exportPeriod));
-                    selector.setExportContinuousData(info.standardDataSelector.exportContinuousData);
                     updateEvents(info, task);
                 }
             }
