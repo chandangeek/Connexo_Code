@@ -74,8 +74,6 @@ public interface DataExportTaskBuilder {
 
         EventSelectorBuilder fromEndDeviceGroup(EndDeviceGroup endDeviceGroup);
 
-        EventSelectorBuilder continuousData(boolean exportContinuousData);
-
         DataExportTaskBuilder endSelection();
 
     }
