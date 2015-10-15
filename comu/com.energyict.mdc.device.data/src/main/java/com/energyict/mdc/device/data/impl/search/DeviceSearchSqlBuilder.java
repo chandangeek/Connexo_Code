@@ -168,6 +168,21 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
     }
 
     @Override
+    public JoinClauseBuilder addRegisterSpec() {
+        this.joins.add(Joins.RegisterSpec);
+        this.joins.add(Joins.RegisterMeasurementType);
+        return this;
+    }
+
+    @Override
+    public JoinClauseBuilder addRegisterReadingType() {
+        this.joins.add(Joins.RegisterSpec);
+        this.joins.add(Joins.RegisterMeasurementType);
+        this.joins.add(Joins.RegisterReadingType);
+        return this;
+    }
+
+    @Override
     public JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass) {
         this.joins.add(new ConnectionTypePropertyJoinType(connectionTypePluggableClass));
         return this;
@@ -278,6 +293,27 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
             @Override
             public void appendTo(SqlBuilder sqlBuilder) {
                 sqlBuilder.append(" left join DDC_DEVICEESTACTIVATION est on est.device = dev.id ");
+            }
+        },
+
+        RegisterSpec {
+            @Override
+            public void appendTo(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" join DTC_REGISTERSPEC reg_spec on reg_spec.deviceconfigid = dev.deviceconfigid ");
+            }
+        },
+
+        RegisterMeasurementType {
+            @Override
+            public void appendTo(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" join MDS_MEASUREMENTTYPE reg_msr_type on reg_msr_type.id = reg_spec.registertypeid ");
+            }
+        },
+
+        RegisterReadingType {
+            @Override
+            public void appendTo(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" join MTR_READINGTYPE reg_rt on reg_rt.mrid = reg_msr_type.readingtype ");
             }
         },
 

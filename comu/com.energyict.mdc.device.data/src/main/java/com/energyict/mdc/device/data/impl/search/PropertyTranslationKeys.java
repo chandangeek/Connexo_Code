@@ -31,7 +31,13 @@ public enum PropertyTranslationKeys implements TranslationKey {
     ESTIMATION("device.estimation", "Estimation"),
     ESTIMATION_STATUS("device.estimation.status", "Estimation active"),
     SECURITY("device.security", "Security"),
-    SECURITY_NAME("device.security.name", "Name")
+    SECURITY_NAME("device.security.name", "Name"),
+    REGISTER("device.register", "Register"),
+    REGISTER_OBISCODE("device.register.obiscode", "OBIS code"),
+    REGISTER_LAST_READING("device.register.last.reading", "Last reading"),
+    READING_TYPE_NAME("reading.type.name", "Reading type: Name"),
+    READING_TYPE_UNIT_OF_MEASURE("reading.type.unit.of.measure", "Reading type: Unit of measure"),
+    READING_TYPE_TOU("reading.type.tou", "Reading type: Time of use"),
     ;
 
     private String key;

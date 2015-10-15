@@ -109,7 +109,8 @@ public class DeviceSearchDomain implements SearchDomain {
         TopologySearchablePropertyGroup topologyGroup = injector.getInstance(TopologySearchablePropertyGroup.class);
         ValidationSearchablePropertyGroup validationGroup = injector.getInstance(ValidationSearchablePropertyGroup.class);
         EstimationSearchablePropertyGroup estimationGroup = injector.getInstance(EstimationSearchablePropertyGroup.class);
-        SecuritySearchablePropertyGroup securitySearchablePropertyGroup = injector.getInstance(SecuritySearchablePropertyGroup.class);
+        SecuritySearchablePropertyGroup securityGroup = injector.getInstance(SecuritySearchablePropertyGroup.class);
+        RegisterSearchablePropertyGroup registerGroup = injector.getInstance(RegisterSearchablePropertyGroup.class);
         return Arrays.asList(
                 injector.getInstance(MasterResourceIdentifierSearchableProperty.class).init(this),
                 injector.getInstance(SerialNumberSearchableProperty.class).init(this),
@@ -127,7 +128,11 @@ public class DeviceSearchDomain implements SearchDomain {
                 injector.getInstance(SlaveDeviceSearchableProperty.class).init(this, topologyGroup),
                 injector.getInstance(ValidationStatusSearchableProperty.class).init(this, validationGroup),
                 injector.getInstance(EstimationStatusSearchableProperty.class).init(this, estimationGroup),
-                injector.getInstance(SecurityNameSearchableProperty.class).init(this, deviceTypeSearchableProperty, securitySearchablePropertyGroup)
+                injector.getInstance(SecurityNameSearchableProperty.class).init(this, deviceTypeSearchableProperty, securityGroup),
+                injector.getInstance(RegisterObisCodeSearchableProperty.class).init(this, registerGroup),
+                injector.getInstance(RegisterReadingTypeNameSearchableProperty.class).init(this, registerGroup),
+                injector.getInstance(RegisterReadingTypeTimeOfUseSearchableProperty.class).init(this, registerGroup),
+                injector.getInstance(RegisterReadingTypeUnitOfMeasureSearchableProperty.class).init(this, registerGroup)
         );
     }
 

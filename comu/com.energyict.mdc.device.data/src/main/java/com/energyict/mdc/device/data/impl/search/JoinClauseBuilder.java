@@ -42,6 +42,10 @@ public interface JoinClauseBuilder {
 
     JoinClauseBuilder addDeviceEstimation();
 
+    JoinClauseBuilder addRegisterSpec();
+
+    JoinClauseBuilder addRegisterReadingType();
+
     JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass);
 
 }
