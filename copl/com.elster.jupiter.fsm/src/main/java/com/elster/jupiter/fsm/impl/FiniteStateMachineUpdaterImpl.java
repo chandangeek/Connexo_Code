@@ -1,6 +1,13 @@
 package com.elster.jupiter.fsm.impl;
 
-import com.elster.jupiter.fsm.*;
+import com.elster.jupiter.fsm.FiniteStateMachine;
+import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
+import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
+import com.elster.jupiter.fsm.ProcessReference;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateChangeBusinessProcess;
+import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.fsm.UnknownStateException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
@@ -8,7 +15,6 @@ import com.elster.jupiter.orm.DataModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link FiniteStateMachineUpdater} interface.
@@ -108,11 +114,13 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
 
     @Override
     public FiniteStateMachineImpl complete() {
-        FiniteStateMachineImpl updated = super.complete();
+        FiniteStateMachineImpl updated = this.getUnderConstruction();
         this.completedStateUpdaters.forEach(StateUpdaterImpl::save);
         this.completedNewStates.forEach(AddState::save);
         this.completedNewTransitions.forEach(updated::add);
-        updated.save();
+        this.state.complete();
+        this.state = new Complete();
+        updated.update();
         return updated;
     }
 
@@ -201,7 +209,7 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
         }
 
         private void save() {
-            this.underConstruction.save();
+            this.underConstruction.update();
         }
 
         boolean hasTheSameState(State candidate){

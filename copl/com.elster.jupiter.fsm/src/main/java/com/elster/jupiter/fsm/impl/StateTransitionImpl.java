@@ -13,6 +13,7 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 
 import javax.validation.constraints.Size;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -24,7 +25,7 @@ import java.util.stream.Stream;
  * @since 2015-03-02 (16:29)
  */
 @Unique(message = "{" + MessageSeeds.Keys.DUPLICATE_STATE_TRANSITION + "}", groups = { Save.Create.class, Save.Update.class })
-public class StateTransitionImpl implements StateTransition {
+public final class StateTransitionImpl implements StateTransition {
 
     public enum Fields {
         NAME("name"),
@@ -276,7 +277,24 @@ public class StateTransitionImpl implements StateTransition {
         public boolean equalTo(StateTransitionEventType other) {
             return this.target.getId() == other.getId();
         }
-
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        StateTransitionImpl that = (StateTransitionImpl) o;
+
+        return this.id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

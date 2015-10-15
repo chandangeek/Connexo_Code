@@ -23,6 +23,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -33,7 +34,7 @@ import java.util.stream.Collectors;
  * @since 2015-03-02 (15:20)
  */
 @Unique(message = MessageSeeds.Keys.UNIQUE_STATE_NAME, groups = { Save.Create.class, Save.Update.class })
-public class StateImpl implements State {
+public final class StateImpl implements State {
 
     public enum Fields {
         NAME("name"),
@@ -216,7 +217,7 @@ public class StateImpl implements State {
         this.dataModel.update(this, Fields.OBSOLETE_TIMESTAMP.fieldName());
     }
 
-    void save() {
+    void update() {
         Save.UPDATE.save(this.dataModel, this);
     }
 
@@ -225,4 +226,22 @@ public class StateImpl implements State {
         return this.getClass().getSimpleName() + "(" + this.getName() + ")";
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        StateImpl that = (StateImpl) o;
+
+        return this.id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

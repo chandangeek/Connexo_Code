@@ -78,10 +78,9 @@ public class StateTransitionEventTypeIT {
     @Test
     public void createCustomWithoutViolations() {
         String symbol = "createCustomWithoutViolations";
-        CustomStateTransitionEventType eventType = this.getTestService().newCustomStateTransitionEventType(symbol);
 
         // Business method
-        eventType.save();
+        CustomStateTransitionEventType eventType = this.getTestService().newCustomStateTransitionEventType(symbol);
 
         // Asserts
         assertThat(eventType.getSymbol()).isEqualTo(symbol);
@@ -90,12 +89,9 @@ public class StateTransitionEventTypeIT {
     @Transactional
     @Test
     public void createMultipleCustomWithoutViolations() {
+        // Business method
         CustomStateTransitionEventType eventType1 = this.getTestService().newCustomStateTransitionEventType("symbol1");
         CustomStateTransitionEventType eventType2 = this.getTestService().newCustomStateTransitionEventType("symbol2");
-
-        // Business method
-        eventType1.save();
-        eventType2.save();
 
         // Asserts
         assertThat(eventType1).isNotNull();
@@ -106,10 +102,8 @@ public class StateTransitionEventTypeIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "symbol")
     @Test
     public void createCustomWithNullSymbol() {
-        CustomStateTransitionEventType eventType = this.getTestService().newCustomStateTransitionEventType(null);
-
         // Business method
-        eventType.save();
+        CustomStateTransitionEventType eventType = this.getTestService().newCustomStateTransitionEventType(null);
 
         // Asserts: see expected constraint violation rule
     }
@@ -118,10 +112,8 @@ public class StateTransitionEventTypeIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "symbol")
     @Test
     public void createCustomWithEmptySymbol() {
-        CustomStateTransitionEventType eventType = this.getTestService().newCustomStateTransitionEventType("");
-
         // Business method
-        eventType.save();
+        CustomStateTransitionEventType eventType = this.getTestService().newCustomStateTransitionEventType("");
 
         // Asserts: see expected constraint violation rule
     }
@@ -130,10 +122,8 @@ public class StateTransitionEventTypeIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}", property = "symbol")
     @Test
     public void createCustomWithTooLongSymbol() {
-        CustomStateTransitionEventType eventType = this.getTestService().newCustomStateTransitionEventType(Strings.repeat("Symbol", 100));
-
         // Business method
-        eventType.save();
+        CustomStateTransitionEventType eventType = this.getTestService().newCustomStateTransitionEventType(Strings.repeat("Symbol", 100));
 
         // Asserts: see expected constraint violation rule
     }
@@ -143,12 +133,10 @@ public class StateTransitionEventTypeIT {
     @Test
     public void createCustomDuplicate() {
         String symbol = "First";
-        CustomStateTransitionEventType first = this.getTestService().newCustomStateTransitionEventType(symbol);
-        first.save();
-        CustomStateTransitionEventType withSameName = this.getTestService().newCustomStateTransitionEventType(symbol);
+        this.getTestService().newCustomStateTransitionEventType(symbol);
 
         // Business method
-        withSameName.save();
+        this.getTestService().newCustomStateTransitionEventType(symbol);
 
         // Asserts: see expected constraint violation rule
     }
@@ -157,10 +145,9 @@ public class StateTransitionEventTypeIT {
     @Test
     public void createStandardWithoutViolations() {
         com.elster.jupiter.events.EventType eventType = inMemoryPersistence.getService(EventService.class).getEventType(EVENT1_TOPIC).get();
-        StandardStateTransitionEventType stateTransitionEventType = this.getTestService().newStandardStateTransitionEventType(eventType);
 
         // Business method
-        stateTransitionEventType.save();
+        StandardStateTransitionEventType stateTransitionEventType = this.getTestService().newStandardStateTransitionEventType(eventType);
 
         // Asserts
         assertThat(stateTransitionEventType.getEventType().getTopic()).isEqualTo(EVENT1_TOPIC);
@@ -173,12 +160,10 @@ public class StateTransitionEventTypeIT {
     public void createMultipleStandardWithoutViolations() {
         com.elster.jupiter.events.EventType eventType1 = inMemoryPersistence.getService(EventService.class).getEventType(EVENT1_TOPIC).get();
         com.elster.jupiter.events.EventType eventType2 = inMemoryPersistence.getService(EventService.class).getEventType(EVENT2_TOPIC).get();
-        StandardStateTransitionEventType stateTransitionEventType1 = this.getTestService().newStandardStateTransitionEventType(eventType1);
-        StandardStateTransitionEventType stateTransitionEventType2 = this.getTestService().newStandardStateTransitionEventType(eventType2);
 
         // Business method
-        stateTransitionEventType1.save();
-        stateTransitionEventType2.save();
+        StandardStateTransitionEventType stateTransitionEventType1 = this.getTestService().newStandardStateTransitionEventType(eventType1);
+        StandardStateTransitionEventType stateTransitionEventType2 = this.getTestService().newStandardStateTransitionEventType(eventType2);
 
         // Asserts
         assertThat(stateTransitionEventType1).isNotNull();
@@ -191,10 +176,8 @@ public class StateTransitionEventTypeIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "eventType")
     @Test
     public void createStandardWithoutEventType() {
-        StandardStateTransitionEventType stateTransitionEventType = this.getTestService().newStandardStateTransitionEventType(null);
-
         // Business method
-        stateTransitionEventType.save();
+        StandardStateTransitionEventType stateTransitionEventType = this.getTestService().newStandardStateTransitionEventType(null);
 
         // Asserts
         assertThat(stateTransitionEventType.getEventType().getTopic()).isEqualTo(EVENT1_TOPIC);
@@ -205,10 +188,10 @@ public class StateTransitionEventTypeIT {
     @Test
     public void createStandardDuplicates() {
         com.elster.jupiter.events.EventType eventType = inMemoryPersistence.getService(EventService.class).getEventType(EVENT1_TOPIC).get();
-        this.getTestService().newStandardStateTransitionEventType(eventType).save();
+        this.getTestService().newStandardStateTransitionEventType(eventType);
 
         // Business method
-        this.getTestService().newStandardStateTransitionEventType(eventType).save();
+        this.getTestService().newStandardStateTransitionEventType(eventType);
 
         // Asserts: see expected constraint violation rule
     }
@@ -218,7 +201,6 @@ public class StateTransitionEventTypeIT {
     public void deleteStandardClearsEnabledFlagOnJupiterEventType() {
         com.elster.jupiter.events.EventType eventType = inMemoryPersistence.getService(EventService.class).getEventType(EVENT1_TOPIC).get();
         StandardStateTransitionEventType stateTransitionEventType = this.getTestService().newStandardStateTransitionEventType(eventType);
-        stateTransitionEventType.save();
 
         // Business method
         stateTransitionEventType.delete();

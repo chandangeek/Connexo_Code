@@ -78,11 +78,10 @@ public interface FiniteStateMachine {
     public FiniteStateMachineUpdater startUpdate();
 
     /**
-     * Saves this FiniteStateMachine after creating it
-     * or after having applied changes to it
+     * Saves this FiniteStateMachine after having applied changes to it
      * via a {@link FiniteStateMachineUpdater}.
      */
-    public void save();
+    public void update();
 
     /**
      * Marks this FiniteStateMachine as obsolete

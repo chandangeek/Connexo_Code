@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableMap;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Provides an implementation for the {@link StateTransitionEventType} interface.
@@ -89,9 +90,13 @@ public abstract class StateTransitionEventTypeImpl implements StateTransitionEve
         return modTime;
     }
 
+    void save() {
+        Save.CREATE.save(this.dataModel, this);
+    }
+
     @Override
-    public void save() {
-        Save.action(this.id).save(this.dataModel, this);
+    public void update() {
+        Save.UPDATE.save(this.dataModel, this);
     }
 
     @Override
@@ -107,4 +112,22 @@ public abstract class StateTransitionEventTypeImpl implements StateTransitionEve
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        StateTransitionEventTypeImpl that = (StateTransitionEventTypeImpl) o;
+
+        return this.id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

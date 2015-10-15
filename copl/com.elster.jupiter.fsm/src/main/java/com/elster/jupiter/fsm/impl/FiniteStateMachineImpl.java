@@ -26,6 +26,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -38,7 +39,7 @@ import java.util.stream.Collectors;
 @Unique(message = "{" + MessageSeeds.Keys.UNIQUE_FINITE_STATE_MACHINE_NAME + "}", groups = { Save.Create.class, Save.Update.class })
 @AtLeastOneState(groups = { Save.Create.class, Save.Update.class })
 @ExactlyOneInitialState(groups = { Save.Create.class, Save.Update.class })
-public class FiniteStateMachineImpl implements FiniteStateMachine {
+public final class FiniteStateMachineImpl implements FiniteStateMachine {
 
     public enum Fields {
         NAME("name"),
@@ -237,9 +238,13 @@ public class FiniteStateMachineImpl implements FiniteStateMachine {
         return new FiniteStateMachineUpdaterImpl(this.dataModel, this.thesaurus, this);
     }
 
+    void save() {
+        Save.CREATE.save(this.dataModel, this);
+    }
+
     @Override
-    public void save() {
-        Save.action(this.id).save(this.dataModel, this);
+    public void update() {
+        Save.UPDATE.save(this.dataModel, this);
     }
 
     @Override
@@ -270,4 +275,22 @@ public class FiniteStateMachineImpl implements FiniteStateMachine {
         this.states.clear();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        FiniteStateMachineImpl that = (FiniteStateMachineImpl) o;
+
+        return this.id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

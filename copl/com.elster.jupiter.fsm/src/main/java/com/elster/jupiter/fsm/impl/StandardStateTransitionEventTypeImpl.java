@@ -49,7 +49,11 @@ public class StandardStateTransitionEventTypeImpl extends StateTransitionEventTy
     }
 
     @Override
-    public void save() {
+    public void update() {
+        super.update();
+    }
+
+    void save() {
         super.save();
         EventType eventType = this.getEventType();
         eventType.enableForUseInStateMachines();

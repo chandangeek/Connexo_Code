@@ -20,7 +20,7 @@ public class FiniteStateMachineBuilderImpl implements FiniteStateMachineBuilder 
 
     private final DataModel dataModel;
     private final FiniteStateMachineImpl underConstruction;
-    private BuildState state;
+    protected BuildState state;
 
     public FiniteStateMachineBuilderImpl(DataModel dataModel, FiniteStateMachineImpl underConstruction) {
         super();
@@ -60,6 +60,7 @@ public class FiniteStateMachineBuilderImpl implements FiniteStateMachineBuilder 
     public FiniteStateMachineImpl complete() {
         this.state.complete();
         this.state = new Complete();
+        this.underConstruction.save();
         return this.underConstruction;
     }
 
@@ -87,7 +88,7 @@ public class FiniteStateMachineBuilderImpl implements FiniteStateMachineBuilder 
 
     }
 
-    private class Complete implements BuildState {
+    protected class Complete implements BuildState {
         @Override
         public StateBuilder newState(boolean custom, String name) {
             illegalStateException();

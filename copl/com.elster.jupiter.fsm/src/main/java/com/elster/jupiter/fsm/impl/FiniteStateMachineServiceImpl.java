@@ -236,18 +236,21 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
                 .stream()
                 .filter(not(com.elster.jupiter.events.EventType::isEnabledForUseInStateMachines))
                 .filter(predicate::isCandidate)
-                .map(this::newStandardStateTransitionEventType)
-                .forEach(StandardStateTransitionEventType::save);
+                .forEach(this::newStandardStateTransitionEventType);
     }
 
     @Override
     public CustomStateTransitionEventType newCustomStateTransitionEventType(String symbol) {
-        return this.dataModel.getInstance(CustomStateTransitionEventTypeImpl.class).initialize(symbol);
+        CustomStateTransitionEventTypeImpl eventType = this.dataModel.getInstance(CustomStateTransitionEventTypeImpl.class).initialize(symbol);
+        eventType.save();
+        return eventType;
     }
 
     @Override
     public StandardStateTransitionEventType newStandardStateTransitionEventType(com.elster.jupiter.events.EventType eventType) {
-        return this.dataModel.getInstance(StandardStateTransitionEventTypeImpl.class).initialize(eventType);
+        StandardStateTransitionEventTypeImpl stateTransitionEventType = this.dataModel.getInstance(StandardStateTransitionEventTypeImpl.class).initialize(eventType);
+        stateTransitionEventType.save();
+        return stateTransitionEventType;
     }
 
     @Override
@@ -297,27 +300,18 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     public FiniteStateMachine cloneFiniteStateMachine(FiniteStateMachine source, String name) {
         FiniteStateMachineBuilder builder = this.newFiniteStateMachine(name);
         Map<Long, FiniteStateMachineBuilder.StateBuilder> stateBuilderMap = this.cloneStateAndTransitions(source, builder);
-        List<Optional<FiniteStateMachine>> allStates = source
-            .getStates()
-            .stream()
-            .map(sourceState -> this.completeCloning(sourceState, stateBuilderMap, builder))
-            .filter(Optional::isPresent)
-            .collect(Collectors.toList());
-        // Exactly one source initial State so allStates will have size 1
-        FiniteStateMachine cloned = allStates.get(0).get();
-        cloned.save();
-        return cloned;
+        List<State> initialState = source.getStates().stream()
+                .map(sourceState -> this.completeCloning(sourceState, stateBuilderMap, builder))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());//expect only one initial state
+        return builder.complete(initialState.get(0));
     }
 
-    private Optional<FiniteStateMachine> completeCloning(State sourceState, Map<Long, FiniteStateMachineBuilder.StateBuilder> stateBuilderMap, FiniteStateMachineBuilder builder) {
+    private Optional<State> completeCloning(State sourceState, Map<Long, FiniteStateMachineBuilder.StateBuilder> stateBuilderMap, FiniteStateMachineBuilder builder) {
         FiniteStateMachineBuilder.StateBuilder stateBuilder = stateBuilderMap.get(sourceState.getId());
         State state = stateBuilder.complete();
-        if (sourceState.isInitial()) {
-            return Optional.of(builder.complete(state));
-        }
-        else {
-            return Optional.empty();
-        }
+        return sourceState.isInitial() ? Optional.of(state) : Optional.empty();
     }
 
     private Map<Long, FiniteStateMachineBuilder.StateBuilder> cloneStateAndTransitions(FiniteStateMachine source, FiniteStateMachineBuilder builder) {

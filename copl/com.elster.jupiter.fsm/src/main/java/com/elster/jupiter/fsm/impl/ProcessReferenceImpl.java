@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.util.Checks;
 
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 /**
  * Provides an implementation for the {@link ProcessReference} interface.
@@ -15,7 +16,7 @@ import javax.validation.constraints.NotNull;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-03 (13:02)
  */
-public class ProcessReferenceImpl implements ProcessReference {
+public final class ProcessReferenceImpl implements ProcessReference {
 
     public enum Fields {
         STATE("state"),
@@ -78,4 +79,22 @@ public class ProcessReferenceImpl implements ProcessReference {
         return Checks.is(this.process.get().getId()).equalTo(process.getId());
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ProcessReferenceImpl that = (ProcessReferenceImpl) o;
+
+        return this.id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

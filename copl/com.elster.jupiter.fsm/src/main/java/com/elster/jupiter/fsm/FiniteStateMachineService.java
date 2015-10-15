@@ -66,7 +66,6 @@ public interface FiniteStateMachineService {
 
     /**
      * Creates a new {@link CustomStateTransitionEventType} with the specified symbol.
-     * Note that you are responsible for saving the CustomStateTransitionEventType.
      *
      * @param symbol The symbolic representation of the event
      * @return The CustomStateTransitionEventType
@@ -75,7 +74,6 @@ public interface FiniteStateMachineService {
 
     /**
      * Creates a new {@link StandardStateTransitionEventType} with the specified symbol.
-     * Note that you are responsible for saving the StandardStateTransitionEventType.
      *
      * @param eventType The standard EventType
      * @return The StandardStateTransitionEventType
