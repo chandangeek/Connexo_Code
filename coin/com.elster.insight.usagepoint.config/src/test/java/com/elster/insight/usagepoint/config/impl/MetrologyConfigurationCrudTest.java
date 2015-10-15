@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.validation.ConstraintViolationException;
-import javax.validation.MessageInterpolator;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -21,6 +20,7 @@ import org.osgi.service.event.EventAdmin;
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -67,6 +67,7 @@ public class MetrologyConfigurationCrudTest {
         			new OrmModule(),
         			new UtilModule(),
         			new ThreadSecurityModule(),
+        			new DataVaultModule(),
         			new PubSubModule(),
         			new TransactionModule(printSql),
                     new NlsModule()
