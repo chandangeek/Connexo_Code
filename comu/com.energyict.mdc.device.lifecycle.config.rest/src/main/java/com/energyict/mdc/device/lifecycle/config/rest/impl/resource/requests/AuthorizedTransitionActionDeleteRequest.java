@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource.requests;
 
-import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
@@ -34,8 +33,7 @@ public class AuthorizedTransitionActionDeleteRequest implements AuthorizedAction
                 .state(this.obsoleteAction.getState().getId())
                 .prohibit(eventType)
                 .complete();
-        FiniteStateMachine finiteStateMachine = finiteStateMachineUpdater.complete();
-        finiteStateMachine.save();
+        finiteStateMachineUpdater.complete();
 
         return this.obsoleteAction;
     }

@@ -9,11 +9,8 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleUpdater;
-import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.rest.info.AuthorizedActionInfo;
 
-import java.util.Collections;
 import java.util.Objects;
 
 public class AuthorizedTransitionActionCreateRequest implements AuthorizedActionChangeRequest {
@@ -41,7 +38,6 @@ public class AuthorizedTransitionActionCreateRequest implements AuthorizedAction
                 .transitionTo(this.infoForCreation.toState.id)
                 .complete();
         FiniteStateMachine finiteStateMachine = firstState ? finiteStateMachineUpdater.complete(newState) : finiteStateMachineUpdater.complete();
-        finiteStateMachine.save();
 
         // Create a new authorized action
         StateTransition newStateTransition = finiteStateMachine.getTransitions().stream()

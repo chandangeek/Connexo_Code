@@ -98,16 +98,13 @@ public class AuthorizedActionRequestFactoryIT {
         State a = builder.newCustomState("A").on(eventType).transitionTo(b).complete();
         builder.newCustomState("C").complete();
         FiniteStateMachine stateMachine = builder.complete(a);
-        stateMachine.save();
         return stateMachine;
     }
 
     private static CustomStateTransitionEventType createEventTypes() {
         FiniteStateMachineService service = inMemoryPersistence.getService(FiniteStateMachineService.class);
         CustomStateTransitionEventType eventType1 = service.newCustomStateTransitionEventType(EVENT_TYPE_1);
-        eventType1.save();
         CustomStateTransitionEventType eventType2 = service.newCustomStateTransitionEventType(EVENT_TYPE_2);
-        eventType2.save();
         return eventType1;
     }
 
