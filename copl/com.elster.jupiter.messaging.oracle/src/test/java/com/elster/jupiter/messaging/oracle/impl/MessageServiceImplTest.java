@@ -9,7 +9,6 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
-import java.util.Optional;
 import oracle.jdbc.OracleConnection;
 import org.junit.After;
 import org.junit.Before;
@@ -21,9 +20,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -75,6 +77,7 @@ public class MessageServiceImplTest {
         when(dataModel.getConnection(anyBoolean())).thenReturn(connection);
         when(connection.prepareStatement(anyString())).thenReturn(preparedStatement);
         when(dataModel.getInstance(QueueTableSpecImpl.class)).thenReturn(new QueueTableSpecImpl(dataModel, null, thesaurus));
+        when(dataModel.isInstalled()).thenReturn(true);
 
         service = new MessageServiceImpl();
         service.setOrmService(ormService);
