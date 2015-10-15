@@ -1270,9 +1270,7 @@ Ext.define('Dxp.controller.Tasks', {
                 selector: newValue
             },
             callback: function () {
-                if (me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues')) {
-                    me.setFormValues(page);
-                } else {
+                if (!me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues')) {
                     formatterCombo.setValue(formatterCombo.store.getAt(0));
                 }
             }
