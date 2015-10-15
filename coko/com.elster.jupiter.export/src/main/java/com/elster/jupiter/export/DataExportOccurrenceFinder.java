@@ -7,9 +7,9 @@ import java.time.Instant;
 import java.util.List;
 
 public interface DataExportOccurrenceFinder {
-    DataExportOccurrenceFinder setStart(Integer start);
+    DataExportOccurrenceFinder setStart(int start);
 
-    DataExportOccurrenceFinder setLimit(Integer limit);
+    DataExportOccurrenceFinder setLimit(int limit);
 
     DataExportOccurrenceFinder withStartDateIn(Range<Instant> interval);
 
