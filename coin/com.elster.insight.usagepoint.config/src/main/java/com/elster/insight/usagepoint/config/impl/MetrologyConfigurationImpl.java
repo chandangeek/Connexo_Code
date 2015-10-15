@@ -3,6 +3,7 @@ package com.elster.insight.usagepoint.config.impl;
 import static com.elster.jupiter.domain.util.Save.action;
 import static com.google.common.base.MoreObjects.toStringHelper;
 
+import java.time.Instant;
 import java.util.Objects;
 
 import javax.inject.Inject;
@@ -19,6 +20,9 @@ import com.elster.jupiter.orm.DataModel;
 public class MetrologyConfigurationImpl implements MetrologyConfiguration {
     private long id;
     private long version;
+    private Instant createTime;
+    private Instant modTime;
+    private String userName;
 
     @NotEmpty    
     @Size(max=80)
@@ -54,6 +58,34 @@ public class MetrologyConfigurationImpl implements MetrologyConfiguration {
     @Override
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Instant getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Instant createTime) {
+        this.createTime = createTime;
+    }
+
+    public Instant getModTime() {
+        return modTime;
+    }
+
+    public void setModTime(Instant modTime) {
+        this.modTime = modTime;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public void setVersion(long version) {
+        this.version = version;
     }
 
     @Override

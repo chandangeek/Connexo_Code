@@ -12,6 +12,7 @@ public enum TableSpecs {
 			table.map(MetrologyConfigurationImpl.class);
 			Column id = table.addAutoIdColumn();
 			Column name = table.column("NAME").varChar().notNull().map("name").add();
+			table.addAuditColumns();
 			table.unique("UPC_UK_METROLOGYCONFIGURATION").on(name).add();
 			table.primaryKey("UPC_PK_METROLOGYCONFIGURATION").on(id).add();
 		}
