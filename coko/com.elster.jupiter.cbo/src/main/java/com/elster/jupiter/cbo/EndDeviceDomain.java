@@ -2,6 +2,7 @@ package com.elster.jupiter.cbo;
 
 public enum EndDeviceDomain implements HasNumericCode {
     NA("NA", 0, "Not applicable. Use when a domain is not needed. This should rarely be used."),
+    ASSOCIATEDDEVICE("AssociatedDevice", 39, "A device(for example, a relay)that can be associated with an end device."),
     BATTERY("Battery", 2, "Any events or controls related to a device battery."),
     BILLING("Billing", 20, "Events or controls related to cost of energy (Including Pricing, Tariff, TOU, etc.)."),
     CARTRIDGE("Cartridge", 3, "Events or controls related to cartridge fuses."),
@@ -12,6 +13,7 @@ public enum EndDeviceDomain implements HasNumericCode {
     FIRMWARE("Firmware", 11, "Events or controls related to device firmware."),
     GASSUPPLY("GasSupply", 4, "Events or controls related to the supply of natural gas or propane."),
     INSTALLATION("Installation", 6, "Events or controls related to device installation."),
+    KYZPULSECOUNTER("KYZPulseCounter", 38, "Pulse counting function inside a meter or other end device."),
     LOADCONTROL("LoadControl", 15, "Events or controls related to the automatic restriction or control of a customer’s energy consumption."),
     LOADPROFILE("LoadProfile", 16, "Events or controls related to the energy consumption (ie. “load”) over time on a device."),
     LOGS("Logs", 17, "Events or controls related to device internal logs."),
@@ -25,14 +27,12 @@ public enum EndDeviceDomain implements HasNumericCode {
     POWER("Power", 26, "Events or controls related to device energization status."),
     PRESSURE("Pressure", 29, "Events or controls related to device pressure thresholds."),
     RCDSWITCH("RCDSwitch", 31, "Events or controls related to device remote connect/disconnect activities."),
+    RECODER("Recoder", 41, "A device for encoding"),
     SECURITY("Security", 12, "Events or controls related to device security (including SecurityKey, HMAC, Parity, Rotation, other TamperDetection, etc.)."),
     TEMPERATURE("Temperature", 35, "Events or controls related to device"),
     VIDEODISPLAY("VideoDisplay", 13, "Events or controls related to device CRT/display."),
-    WATERSUPPLY("WaterSupply", 5, "Events or controls related to the supply of water."),
-    ASSOCIATEDDEVICE("AssociatedDevice", 39, "A device(for example, a relay)that can be associated with an end device."),
-    KYZPULSECOUNTER("KYZPulseCounter", 38, "Pulse counting function inside a meter or other end device."),
-    RECODER("Recoder", 41, "A device for encoding"),
     VOLUME("Volume", 40, "A quantity of 3-dimensional space enclosed by a boundary; the space occupied by a liquid or gas."),
+    WATERSUPPLY("WaterSupply", 5, "Events or controls related to the supply of water."),
     WATCHDOG("Watchdog", 37, "A hardware or software function triggered by a timer expiring.");
 
 
