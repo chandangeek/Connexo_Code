@@ -286,7 +286,7 @@
                     <output>
                         <title>Multisense API v${api.version}</title>
                         <html>
-                            <baseUrl>http://localhost:8080/public/api/dda/v${api.version}</baseUrl>
+                            <baseUrl>http://localhost:8080/public/api/multisense/v${api.version}</baseUrl>
                         </html>
                     </output>
                 </configuration>
