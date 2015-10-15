@@ -1265,14 +1265,16 @@ Ext.define('Dxp.controller.Tasks', {
             propertyForm = page.down('#data-selector-properties');
 
         formatterCombo.store.load({
+            scope: me,
             params: {
                 selector: newValue
-            }
-        }, function () {
-            if (me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues')) {
-                me.setFormValues(page);
-            } else {
-                fileFormatterCombo.setValue(this.getAt(0));
+            },
+            callback: function () {
+                if (me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues')) {
+                    me.setFormValues(page);
+                } else {
+                    formatterCombo.setValue(formatterCombo.store.getAt(0));
+                }
             }
         });
         formatterContainer.show();
