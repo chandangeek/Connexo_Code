@@ -13,7 +13,21 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.*;
+import com.elster.jupiter.users.ApplicationPrivilegesProvider;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.LdapUserDirectory;
+import com.elster.jupiter.users.MessageSeeds;
+import com.elster.jupiter.users.NoDefaultDomainException;
+import com.elster.jupiter.users.NoDomainFoundException;
+import com.elster.jupiter.users.NoDomainIdFoundException;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.Resource;
+import com.elster.jupiter.users.ResourceDefinition;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserDirectory;
+import com.elster.jupiter.users.UserPreferencesService;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
@@ -30,7 +44,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -75,7 +88,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     private final Object priviligeProviderRegistrationLock = new Object();
 
     @Inject
-    public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService, ThreadPrincipalService threadPrincipalService,DataVaultService dataVaultService) {
+    public UserServiceImpl(OrmService ormService, TransactionService transactionService, QueryService queryService, NlsService nlsService, ThreadPrincipalService threadPrincipalService, DataVaultService dataVaultService) {
         this();
         setTransactionService(transactionService);
         setQueryService(queryService);
@@ -136,13 +149,13 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     public LdapUserDirectory getLdapUserDirectory(long id) {
         Optional<LdapUserDirectory> found = dataModel.mapper(LdapUserDirectory.class).getOptional(id);
         if (!found.isPresent()) {
-            throw new NoDomainIdFoundException(thesaurus,id);
+            throw new NoDomainIdFoundException(thesaurus, id);
         }
         return found.get();
     }
 
     @Override
-    public Thesaurus getThesaurus(){
+    public Thesaurus getThesaurus() {
         return thesaurus;
     }
 
@@ -168,11 +181,11 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     }
 
     @Override
-    public List<User> getAllUsers(long id){
+    public List<User> getAllUsers(long id) {
         return dataModel.mapper(User.class).find()
                 .stream()
-                .filter(s->s.getUserDirectoryId() == id)
-                .sorted((s1,s2)-> s1.getName().toLowerCase().compareTo(s2.getName().toLowerCase()))
+                .filter(s -> s.getUserDirectoryId() == id)
+                .sorted((s1, s2) -> s1.getName().toLowerCase().compareTo(s2.getName().toLowerCase()))
                 .collect(Collectors.toList());
     }
 
@@ -214,18 +227,18 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     }
 
     @Override
-    public User createApacheDirectoryUser(String name, String domain,boolean status) {
+    public User createApacheDirectoryUser(String name, String domain, boolean status) {
         ApacheDirectoryImpl directory = (ApacheDirectoryImpl) this.findUserDirectory(domain).orElse(null);
-        UserImpl result = directory.newUser(name, domain, false,status);
+        UserImpl result = directory.newUser(name, domain, false, status);
         result.save();
 
         return result;
     }
 
     @Override
-    public User createActiveDirectoryUser(String name, String domain,boolean status) {
+    public User createActiveDirectoryUser(String name, String domain, boolean status) {
         ActiveDirectoryImpl directory = (ActiveDirectoryImpl) this.findUserDirectory(domain).orElse(null);
-        UserImpl result = directory.newUser(name, domain, false,status);
+        UserImpl result = directory.newUser(name, domain, false, status);
         result.save();
 
         return result;
@@ -283,8 +296,8 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     public Optional<User> findUser(String authenticationName) {
         Condition condition = Operator.EQUALIGNORECASE.compare("authenticationName", authenticationName);
         List<User> users = dataModel.query(User.class, UserInGroup.class).select(condition);
-        if(!users.isEmpty()){
-            if(users.get(0).getStatus()){
+        if (!users.isEmpty()) {
+            if (users.get(0).getStatus()) {
                 return Optional.of(users.get(0));
             }
         }
@@ -292,16 +305,16 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     }
 
     @Override
-    public User findOrCreateUser(String name, String domain, String directoryType,boolean status) {
+    public User findOrCreateUser(String name, String domain, String directoryType, boolean status) {
         Condition userCondition = Operator.EQUALIGNORECASE.compare("authenticationName", name);
         Condition domainCondition = Operator.EQUALIGNORECASE.compare("userDirectory.name", domain);
         List<User> users = dataModel.query(User.class, UserDirectory.class).select(userCondition.and(domainCondition));
         if (users.isEmpty()) {
             if (ApacheDirectoryImpl.TYPE_IDENTIFIER.equals(directoryType)) {
-                return createApacheDirectoryUser(name, domain,status);
+                return createApacheDirectoryUser(name, domain, status);
             }
             if (ActiveDirectoryImpl.TYPE_IDENTIFIER.equals(directoryType)) {
-                return createActiveDirectoryUser(name, domain,status);
+                return createActiveDirectoryUser(name, domain, status);
             }
         }
         if (!users.isEmpty()) {
@@ -310,7 +323,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
                 users.get(0).save();
             }
             return users.get(0);
-        }else{
+        } else {
             return createUser(name, domain);
         }
 
@@ -318,7 +331,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Override
     public User findOrCreateUser(String name, String domain, String directoryType) {
-       return findOrCreateUser(name, domain, directoryType, true);
+        return findOrCreateUser(name, domain, directoryType, true);
     }
 
     @Override
@@ -484,15 +497,15 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     @Override
     public Optional<UserDirectory> findUserDirectory(String domain) {
         List<UserDirectory> found = dataModel.query(UserDirectory.class).select(Operator.EQUAL.compare("name", domain));
-        if(found.isEmpty()){
+        if (found.isEmpty()) {
             return Optional.empty();
-        }else{
+        } else {
             return Optional.of(found.get(0));
         }
     }
 
     @Override
-    public Optional<UserDirectory> findUserDirectoryIgnoreCase(String domain){
+    public Optional<UserDirectory> findUserDirectoryIgnoreCase(String domain) {
         List<UserDirectory> found = dataModel.query(UserDirectory.class).select(Operator.EQUALIGNORECASE.compare("name", domain));
         if (found.isEmpty()) {
             return Optional.empty();
@@ -538,37 +551,19 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         this.threadPrincipalService = threadPrincipalService;
     }
 
-    private void clearPrincipal() {
-        threadPrincipalService.clear();
-    }
-
-    private void setPrincipal() {
-        threadPrincipalService.set(getPrincipal());
-    }
-
-    private Principal getPrincipal() {
-        return () -> "Jupiter Installer";
-    }
-
     @Reference(name = "ModulePrivilegesProvider", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     @SuppressWarnings("unused")
     public void addModulePrivileges(PrivilegesProvider privilegesProvider) {
         synchronized (priviligeProviderRegistrationLock) {
-            if (!dataModel.isInstalled()) {
+            if (dataModel.isInstalled()) {
                 try {
-                    setPrincipal();
-                    threadPrincipalService.set("INSTALL-privilege", privilegesProvider.getModuleName());
-                    transactionService.execute(() -> {
+                    transactionService.builder().principal(() -> "Jupiter Installer").action("INSTALL-privilege").module(getModuleName()).run(() -> {
                         doInstallPrivileges(privilegesProvider);
-                        return null;
                     });
                 } catch (Exception e) {
                     System.out.println(e.getMessage());
-                } finally {
-                    clearPrincipal();
                 }
             }
-
             privilegesProviders.add(privilegesProvider);
         }
     }
