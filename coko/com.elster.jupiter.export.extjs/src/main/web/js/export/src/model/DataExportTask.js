@@ -227,7 +227,7 @@ Ext.define('Dxp.model.DataExportTask', {
             persist: false,
             convert: function(value,record){
                 return record.getData().exportUpdate==='true'?
-                    Uni.I18n.translate('general.exportWithinWindowX', 'DES', "Export within the update window '{0}'",[record.getData().standardDataSelector.updatePeriod?record.getData().standardDataSelector.updatePeriod.name:Uni.I18n.translate('general.notDefined', 'DES', 'Not defined')]):
+                    Uni.I18n.translate('general.exportWithinWindowX', 'DES', 'Export within the update window {0}',[record.getData().standardDataSelector.updatePeriod?record.getData().standardDataSelector.updatePeriod.name:Uni.I18n.translate('general.notDefined', 'DES', 'Not defined')]):
                     Uni.I18n.translate('general.noExportForUpdated', 'DES', 'Do not export');
             }
         },
