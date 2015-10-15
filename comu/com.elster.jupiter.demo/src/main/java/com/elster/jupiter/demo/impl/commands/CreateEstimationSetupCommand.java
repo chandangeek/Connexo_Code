@@ -8,7 +8,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.*;
-import com.energyict.mdc.device.data.impl.ServerDeviceService;
 
 import javax.inject.Inject;
 import java.util.List;
