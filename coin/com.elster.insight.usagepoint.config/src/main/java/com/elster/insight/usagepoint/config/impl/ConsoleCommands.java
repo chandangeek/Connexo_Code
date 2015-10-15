@@ -66,7 +66,7 @@ public class ConsoleCommands {
     }
 
     public void metrologyConfigurations() {
-       usagePointConfigurationService.findAllMetrologyConfigurations().find().stream().forEach(System.out::println);
+       usagePointConfigurationService.findAllMetrologyConfigurations().stream().forEach(System.out::println);
     }
     
     @Reference

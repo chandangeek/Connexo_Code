@@ -109,8 +109,7 @@ public class MetrologyConfigurationCrudTest {
             Optional<MetrologyConfiguration> mc2 = getUsagePointConfigurationService().findMetrologyConfiguration(2);
             assertThat(mc2.isPresent());
             assertThat(mc2.get().getName()).isEqualTo("Commercial 1");    
-            Finder<MetrologyConfiguration> allFinder = upcService.findAllMetrologyConfigurations();
-            List<MetrologyConfiguration> all = allFinder.find();
+            List<MetrologyConfiguration> all = upcService.findAllMetrologyConfigurations();
             assertThat(all.size()).isEqualTo(2);
             context.commit();
         }
@@ -129,8 +128,7 @@ public class MetrologyConfigurationCrudTest {
         }
         try (TransactionContext context = getTransactionService().getContext()) {
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
-            Finder<MetrologyConfiguration> allFinder = upcService.findAllMetrologyConfigurations();
-            List<MetrologyConfiguration> all = allFinder.find();
+            List<MetrologyConfiguration> all = upcService.findAllMetrologyConfigurations();
         	for (MetrologyConfiguration mc : all) {
         		mc.delete();
         	}
@@ -138,8 +136,7 @@ public class MetrologyConfigurationCrudTest {
         }
         try (TransactionContext context = getTransactionService().getContext()) {
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
-            Finder<MetrologyConfiguration> allFinder = upcService.findAllMetrologyConfigurations();
-            List<MetrologyConfiguration> all = allFinder.find();
+            List<MetrologyConfiguration> all = upcService.findAllMetrologyConfigurations();
             assertThat(all).isEmpty();
             context.commit();
         }
