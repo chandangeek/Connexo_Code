@@ -6,7 +6,9 @@ import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
 import com.elster.jupiter.cbo.HasNumericCode;
 import com.elster.jupiter.export.EndDeviceEventTypeFilter;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
@@ -24,6 +26,8 @@ import java.util.stream.Stream;
 
 class FieldBasedEndDeviceEventTypeFilter implements EndDeviceEventTypeFilter, PersistenceAware {
 
+    private final MeteringService meteringService;
+
     private Reference<IStandardDataSelector> dataSelector = ValueReference.absent();
     private String code;
 
@@ -38,7 +42,8 @@ class FieldBasedEndDeviceEventTypeFilter implements EndDeviceEventTypeFilter, Pe
     private String userName;
 
     @Inject
-    FieldBasedEndDeviceEventTypeFilter() {
+    FieldBasedEndDeviceEventTypeFilter(MeteringService meteringService) {
+        this.meteringService = meteringService;
     }
 
     FieldBasedEndDeviceEventTypeFilter init(IStandardDataSelector selector, EndDeviceType type, EndDeviceDomain domain, EndDeviceSubDomain subDomain, EndDeviceEventorAction eventOrAction) {
@@ -58,12 +63,12 @@ class FieldBasedEndDeviceEventTypeFilter implements EndDeviceEventTypeFilter, Pe
         return this;
     }
 
-    static FieldBasedEndDeviceEventTypeFilter from(IStandardDataSelector selector, EndDeviceType type, EndDeviceDomain domain, EndDeviceSubDomain subDomain, EndDeviceEventorAction eventOrAction) {
-        return new FieldBasedEndDeviceEventTypeFilter().init(selector, type, domain, subDomain, eventOrAction);
+    static FieldBasedEndDeviceEventTypeFilter from(DataModel dataModel, IStandardDataSelector selector, EndDeviceType type, EndDeviceDomain domain, EndDeviceSubDomain subDomain, EndDeviceEventorAction eventOrAction) {
+        return dataModel.getInstance(FieldBasedEndDeviceEventTypeFilter.class).init(selector, type, domain, subDomain, eventOrAction);
     }
 
-    static FieldBasedEndDeviceEventTypeFilter from(IStandardDataSelector selector, String code) {
-        FieldBasedEndDeviceEventTypeFilter filter = new FieldBasedEndDeviceEventTypeFilter();
+    static FieldBasedEndDeviceEventTypeFilter from(DataModel dataModel, IStandardDataSelector selector, String code) {
+        FieldBasedEndDeviceEventTypeFilter filter = dataModel.getInstance(FieldBasedEndDeviceEventTypeFilter.class);
         filter.code = code;
         filter.dataSelector.set(selector);
         filter.postLoad();
@@ -81,6 +86,15 @@ class FieldBasedEndDeviceEventTypeFilter implements EndDeviceEventTypeFilter, Pe
                 .and(matchesDomain())
                 .and(matchesSubDomain())
                 .and(matchesEventOrAction());
+    }
+
+    @Override
+    public Predicate<String> asEndDeviceEventTypeCodePredicate() {
+        return code -> {
+            return meteringService.getEndDeviceEventType(code)
+                    .map(asEndDeviceEventTypePredicate()::test)
+                    .orElse(false);
+        };
     }
 
     private Predicate<EndDeviceEventType> matchesType() {
@@ -112,4 +126,5 @@ class FieldBasedEndDeviceEventTypeFilter implements EndDeviceEventTypeFilter, Pe
                 .filter(i -> fields[i].charAt(0) != '*')
                 .forEach(i -> setters.get(i).accept(fields[i]));
     }
+
 }

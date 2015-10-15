@@ -345,7 +345,7 @@ class StandardDataSelectorImpl implements IStandardDataSelector {
 
     @Override
     public EndDeviceEventTypeFilter addEventTypeFilter(String code) {
-        FieldBasedEndDeviceEventTypeFilter filter = FieldBasedEndDeviceEventTypeFilter.from(this, code);
+        FieldBasedEndDeviceEventTypeFilter filter = FieldBasedEndDeviceEventTypeFilter.from(dataModel, this, code);
         eventTypeFilters.add(filter);
         return filter;
     }
@@ -362,6 +362,6 @@ class StandardDataSelectorImpl implements IStandardDataSelector {
     public Predicate<? super EndDeviceEventRecord> getFilterPredicate() {
         return eventTypeFilters.stream()
                 .map(EndDeviceEventTypeFilter::asEndDeviceEventPredicate)
-                .reduce(t -> true, Predicate::or);
+                .reduce(t -> false, Predicate::or);
     }
 }
