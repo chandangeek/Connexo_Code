@@ -52,7 +52,7 @@ public class StandardCsvEventDataFormatterTest {
 
     @Test
     public void test() {
-        StandardCsvEventDataFormatter standardCsvEventDataFormatter = StandardCsvEventDataFormatter.from(dataExportService, "|", "Tag");
+        StandardCsvEventDataFormatter standardCsvEventDataFormatter = StandardCsvEventDataFormatter.from(dataExportService, "Comma (,)", "Tag");
 
         MeterReadingImpl meterReading1 = MeterReadingImpl.newInstance();
         meterReading1.addEndDeviceEvent(EndDeviceEventImpl.of("1.2.3.4", time1.toInstant()));
@@ -68,15 +68,15 @@ public class StandardCsvEventDataFormatterTest {
 
         assertThat(formattedData.getData().get(0)).isInstanceOf(TextLineExportData.class);
         TextLineExportData textLine1 = (TextLineExportData) formattedData.getData().get(0);
-        assertThat(textLine1.getAppendablePayload()).isEqualTo("2014-03-13T15:42:00.000+13:00|1.2.3.4|MRID1\n");
+        assertThat(textLine1.getAppendablePayload()).isEqualTo("2014-03-13T15:42:00.000+13:00,1.2.3.4,MRID1\n");
         assertThat(textLine1.getStructureMarker()).isEqualTo(DefaultStructureMarker.createRoot(clock, "Tag").child("MRID1"));
 
         TextLineExportData textLine2 = (TextLineExportData) formattedData.getData().get(1);
-        assertThat(textLine2.getAppendablePayload()).isEqualTo("2014-04-13T15:42:00.000+12:00|2.2.3.4|MRID1\n");
+        assertThat(textLine2.getAppendablePayload()).isEqualTo("2014-04-13T15:42:00.000+12:00,2.2.3.4,MRID1\n");
         assertThat(textLine2.getStructureMarker()).isEqualTo(DefaultStructureMarker.createRoot(clock, "Tag").child("MRID1"));
 
         TextLineExportData textLine3 = (TextLineExportData) formattedData.getData().get(2);
-        assertThat(textLine3.getAppendablePayload()).isEqualTo("2014-05-13T15:42:00.000+12:00|3.2.3.4|MRID2\n");
+        assertThat(textLine3.getAppendablePayload()).isEqualTo("2014-05-13T15:42:00.000+12:00,3.2.3.4,MRID2\n");
         assertThat(textLine3.getStructureMarker()).isEqualTo(DefaultStructureMarker.createRoot(clock, "Tag").child("MRID2"));
     }
 
