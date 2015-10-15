@@ -60,6 +60,7 @@ public class MetrologyConfigurationImpl implements MetrologyConfiguration {
         this.name = name;
     }
 
+    @Override
     public Instant getCreateTime() {
         return createTime;
     }
@@ -68,6 +69,7 @@ public class MetrologyConfigurationImpl implements MetrologyConfiguration {
         this.createTime = createTime;
     }
 
+    @Override
     public Instant getModTime() {
         return modTime;
     }
@@ -76,6 +78,7 @@ public class MetrologyConfigurationImpl implements MetrologyConfiguration {
         this.modTime = modTime;
     }
 
+    @Override
     public String getUserName() {
         return userName;
     }
