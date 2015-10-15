@@ -131,7 +131,7 @@ Ext.define('Dxp.view.tasks.HistoryPreviewForm', {
                         itemId: 'data-selector-exportPeriod-preview',
                         renderer: function (value) {
                             if (value) {
-                                return Ext.String.htmlDecode(value);
+                                return value;
                             }
                         }
                     },
@@ -153,7 +153,7 @@ Ext.define('Dxp.view.tasks.HistoryPreviewForm', {
                         itemId: 'updated-data',
                         renderer: function (value) {
                             if (value) {
-                                return Ext.String.htmlDecode(value);
+                                return value;
                             }
                         }
 

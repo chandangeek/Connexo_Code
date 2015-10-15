@@ -139,7 +139,7 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             mapping: function (data) {
                 if ((data.exportPeriodFrom && data.exportPeriodFrom !== 0) &&
                     (data.exportPeriodTo && data.exportPeriodTo !== 0)) {
-                    return Uni.I18n.translate('general.fromTo', 'DES', 'From {0} to {1}', [Uni.DateTime.formatDateTimeLong(new Date(data.exportPeriodFrom)),Uni.DateTime.formatDateTimeLong(new Date(data.exportPeriodTo))]);
+                    return Uni.I18n.translate('general.fromTo', 'DES', 'From {0} to {1}', [Uni.DateTime.formatDateTimeLong(new Date(data.exportPeriodFrom)),Uni.DateTime.formatDateTimeLong(new Date(data.exportPeriodTo))], false);
                 }
                 return '-';
             }
@@ -170,7 +170,7 @@ Ext.define('Dxp.model.DataExportTaskHistory', {
             mapping: function (data) {
                 if ((data.updatePeriodFrom && data.updatePeriodFrom !== 0) &&
                     (data.updatePeriodTo && data.updatePeriodTo !== 0)) {
-                    return Uni.I18n.translate('general.toPeriod', 'DES', '{0} to {1}', [Uni.DateTime.formatDateTimeLong(new Date(data.updatePeriodFrom)),Uni.DateTime.formatDateTimeLong(new Date(data.updatePeriodTo))]);
+                    return Uni.I18n.translate('general.toPeriod', 'DES', '{0} to {1}', [Uni.DateTime.formatDateTimeLong(new Date(data.updatePeriodFrom)),Uni.DateTime.formatDateTimeLong(new Date(data.updatePeriodTo))], false);
                 }
                 return '-';
             }
