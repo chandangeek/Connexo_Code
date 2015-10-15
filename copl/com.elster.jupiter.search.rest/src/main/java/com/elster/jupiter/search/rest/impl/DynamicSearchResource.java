@@ -1,6 +1,7 @@
 package com.elster.jupiter.search.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -212,6 +213,8 @@ public class DynamicSearchResource {
             info.id = ((Enum)valueObject).name();
         } else if (Long.class.isAssignableFrom(valueObject.getClass())) {
             info.id = valueObject;
+        } else if (HasIdAndName.class.isAssignableFrom(valueObject.getClass())) {
+            info.id = ((HasIdAndName) valueObject).getId();
         }
         return info;
     }
