@@ -1,19 +1,5 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
-import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedStandardTransitionAction;
-import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleUpdater;
-import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
-import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
-import com.energyict.mdc.device.lifecycle.config.TransitionType;
-
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -28,7 +14,26 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedBusinessProcessAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedStandardTransitionAction;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleUpdater;
+import com.energyict.mdc.device.lifecycle.config.MicroAction;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
+import com.energyict.mdc.device.lifecycle.config.TransitionType;
 import com.google.common.base.Strings;
+import org.assertj.core.api.Condition;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import java.sql.SQLException;
 import java.util.EnumSet;
@@ -36,10 +41,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.assertj.core.api.Condition;
-import org.junit.*;
-import org.junit.rules.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -1235,12 +1236,10 @@ public class DeviceLifeCycleIT {
     private FiniteStateMachine createFiniteStateMachineWithCustomTransitions() {
         FiniteStateMachineService finiteStateMachineService = inMemoryPersistence.getService(FiniteStateMachineService.class);
         CustomStateTransitionEventType eventType = finiteStateMachineService.newCustomStateTransitionEventType(CUSTOM_EVENT_SYMBOL);
-        eventType.save();
         FiniteStateMachineBuilder stateMachineBuilder = finiteStateMachineService.newFiniteStateMachine("For Testing Purposes Only");
         State b = stateMachineBuilder.newCustomState("B").complete();
         State a = stateMachineBuilder.newCustomState("A").on(eventType).transitionTo(b).complete();
         FiniteStateMachine stateMachine = stateMachineBuilder.complete(a);
-        stateMachine.save();
         return stateMachine;
     }
 
@@ -1248,12 +1247,10 @@ public class DeviceLifeCycleIT {
         com.elster.jupiter.events.EventType jupiterEventType = inMemoryPersistence.getService(EventService.class).getEventType(EventType.START_BPM.topic()).get();
         FiniteStateMachineService finiteStateMachineService = inMemoryPersistence.getService(FiniteStateMachineService.class);
         StandardStateTransitionEventType eventType = finiteStateMachineService.newStandardStateTransitionEventType(jupiterEventType);
-        eventType.save();
         FiniteStateMachineBuilder stateMachineBuilder = finiteStateMachineService.newFiniteStateMachine("For Testing Purposes Only");
         State b = stateMachineBuilder.newCustomState("B").complete();
         State a = stateMachineBuilder.newCustomState("A").on(eventType).transitionTo(b).complete();
         FiniteStateMachine stateMachine = stateMachineBuilder.complete(a);
-        stateMachine.save();
         return stateMachine;
     }
 
