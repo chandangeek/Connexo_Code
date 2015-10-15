@@ -85,8 +85,8 @@ public class EventSelectorTest {
         when(endDeviceGroup.getMembers(any(Range.class))).thenReturn(Arrays.asList(membership1, membership2));
         when(membership1.getEndDevice()).thenReturn(endDevice1);
         when(membership2.getEndDevice()).thenReturn(endDevice2);
-        when(endDevice1.getDeviceEvents(any())).thenReturn(Arrays.asList(event1, event2, event3));
-        when(endDevice2.getDeviceEvents(any())).thenReturn(Arrays.asList(event4, event5, event6));
+        when(endDevice1.getDeviceEventsByReadTime(any())).thenReturn(Arrays.asList(event1, event2, event3));
+        when(endDevice2.getDeviceEventsByReadTime(any())).thenReturn(Arrays.asList(event4, event5, event6));
         when(event1.getEventTypeCode()).thenReturn("4.11.15.0");
         when(event2.getEventTypeCode()).thenReturn("4.12.15.0");
         when(event3.getEventTypeCode()).thenReturn("4.13.15.0");
