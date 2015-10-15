@@ -24,6 +24,10 @@ public enum ServiceKind implements TranslationKey {
 		this.defaultFormat = defaultFormat;
 	}
 
+	public String getDisplayName() {
+		return this.displayName;
+	}
+
 	public String getDisplayName(Thesaurus thesaurus) {
 		return thesaurus.getString(getTranslationKey(this), this.defaultFormat);
 	}
