@@ -1262,8 +1262,8 @@ Ext.define('Dxp.controller.Tasks', {
             formatterCombo = page.down('#file-formatter-combo'),
             formatterContainer = page.down('#formatter-container'),
             formatterTitle = page.down('#file-formatter-title'),
-            propertyForm = page.down('#data-selector-properties');
-
+            propertyForm = page.down('#data-selector-properties'),
+            tooltip = page.down('#file-formatter-info');
         formatterCombo.store.load({
             scope: me,
             params: {
@@ -1280,6 +1280,7 @@ Ext.define('Dxp.controller.Tasks', {
         formatterContainer.show();
         formatterTitle.show();
         formatterCombo.show();
+        me.changeFormatterTooltip(tooltip, record.get('selectorType'));
         if (record.get('selectorType')==='DEFAULT_READINGS') {
             me.showReadingTypeDataSelectorProperties();
         } else if (record.get('selectorType')==='DEFAULT_EVENTS') {
@@ -1293,6 +1294,43 @@ Ext.define('Dxp.controller.Tasks', {
             } else {
                 propertyForm.hide();
             }
+        }
+    },
+
+    changeFormatterTooltip: function(tooltip, selectorType){
+        if (selectorType==='DEFAULT_READINGS') {
+            tooltip.setVisible(true);
+            tooltip.setTooltip(
+                Ext.String.format(
+                    Uni.I18n.translate('addDataExportTask.formatter.tooltip', 'DES', 'The export file contains 5 columns')
+                    + ':<br>'
+                    + '<div style="text-indent: 40px">{0}</div>'
+                    + '<div style="text-indent: 40px">{1}</div>'
+                    + '<div style="text-indent: 40px">{2}</div>'
+                    + '<div style="text-indent: 40px">{3}</div>'
+                    + '<div style="text-indent: 40px">{4}</div>',
+                    Uni.I18n.translate('addDataExportTask.formatter.tooltip.col1', 'DES', 'Interval timestamp (YYYY-MM-DDThh:mm:ss.sTZD)'),
+                    Uni.I18n.translate('addDataExportTask.formatter.tooltip.col2', 'DES', 'Device MRID (text)'),
+                    Uni.I18n.translate('addDataExportTask.formatter.tooltip.col3', 'DES', 'Reading type (text)'),
+                    Uni.I18n.translate('addDataExportTask.formatter.tooltip.col4', 'DES', 'Value (number)'),
+                    Uni.I18n.translate('addDataExportTask.formatter.tooltip.col5', 'DES', 'Validation result (text)')));
+        } else if (selectorType==='DEFAULT_EVENTS') {
+            tooltip.setVisible(true);
+            tooltip.setTooltip(
+                Ext.String.format(
+                    Uni.I18n.translate('addDataExportTask.formatter.tooltip2', 'DES', 'The export file contains 3 columns')
+                    + ':<br>'
+                    + '<div style="text-indent: 40px">{0}</div>'
+                    + '<div style="text-indent: 40px">{1}</div>'
+                    + '<div style="text-indent: 40px">{2}</div>'
+                    + '<div style="text-indent: 40px">{3}</div>'
+                    + '<div style="text-indent: 40px">{4}</div>',
+                    Uni.I18n.translate('addDataExportTask.eventFormatter.tooltip.col1', 'DES', 'Event date (YYYY-MM-DDThh:mm:ss.sTZD)'),
+                    Uni.I18n.translate('addDataExportTask.eventFormatter.tooltip.col2', 'DES', 'Event type (text)'),
+                    Uni.I18n.translate('addDataExportTask.eventFormatter.tooltip.col3', 'DES', 'Device MRID (text)')));
+        } else {
+            tooltip.setTooltip('');
+            tooltip.setVisible(false);
         }
     },
 

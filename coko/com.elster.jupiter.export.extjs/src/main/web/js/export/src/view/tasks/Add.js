@@ -664,26 +664,14 @@ Ext.define('Dxp.view.tasks.Add', {
                             },
                             {
                                 xtype: 'button',
-                                tooltip: Ext.String.format(
-                                    Uni.I18n.translate('addDataExportTask.formatter.tooltip', 'DES', 'The export file contains 5 columns')
-                                    + ':<br>'
-                                    + '<div style="text-indent: 40px">{0}</div>'
-                                    + '<div style="text-indent: 40px">{1}</div>'
-                                    + '<div style="text-indent: 40px">{2}</div>'
-                                    + '<div style="text-indent: 40px">{3}</div>'
-                                    + '<div style="text-indent: 40px">{4}</div>',
-                                    Uni.I18n.translate('addDataExportTask.formatter.tooltip.col1', 'DES', 'Interval timestamp (yyyy-mm-dd hh:mm:ss)'),
-                                    Uni.I18n.translate('addDataExportTask.formatter.tooltip.col2', 'DES', 'MRID (text)'),
-                                    Uni.I18n.translate('addDataExportTask.formatter.tooltip.col3', 'DES', 'Reading type (text)'),
-                                    Uni.I18n.translate('addDataExportTask.formatter.tooltip.col4', 'DES', 'Value (number)'),
-                                    Uni.I18n.translate('addDataExportTask.formatter.tooltip.col5', 'DES', 'Validation result (text)')
-                                ),
+                                tooltip:'',
                                 iconCls: 'uni-icon-info-small',
                                 ui: 'blank',
                                 itemId: 'file-formatter-info',
                                 shadow: false,
                                 margin: '5 0 0 10',
-                                width: 16
+                                width: 16,
+                                hidden: true
                             }
                         ]
                     },
