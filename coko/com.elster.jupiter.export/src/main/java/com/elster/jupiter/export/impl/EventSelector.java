@@ -93,12 +93,12 @@ class EventSelector implements DataSelector {
 
     private MeterEventData buildEventData(EndDevice endDevice, Range<Instant> range) {
         MeterReadingImpl meterReading = buildMeterReading(endDevice, range);
-        StructureMarker structureMarker = buildStructureMarker(endDevice);
+        StructureMarker structureMarker = buildStructureMarker(endDevice, range);
         return new MeterEventData(meterReading, structureMarker);
     }
 
-    private StructureMarker buildStructureMarker(EndDevice endDevice) {
-        return dataExportService.forRoot(endDevice.getMRID());
+    private StructureMarker buildStructureMarker(EndDevice endDevice, Range<Instant> range) {
+        return dataExportService.forRoot(endDevice.getMRID()).withPeriod(range);
     }
 
     private MeterReadingImpl buildMeterReading(EndDevice endDevice, Range<Instant> range) {
