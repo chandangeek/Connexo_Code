@@ -165,7 +165,6 @@
             <artifactId>orm</artifactId>
         </dependency>
 
-
         <!--INTEGRATION TESTS-->
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
@@ -254,7 +253,11 @@
             <artifactId>mdc.firmware</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cps</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
