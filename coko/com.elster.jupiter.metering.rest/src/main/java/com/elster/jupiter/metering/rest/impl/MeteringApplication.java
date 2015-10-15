@@ -11,6 +11,7 @@ import java.util.Set;
 import javax.validation.MessageInterpolator;
 import javax.ws.rs.core.Application;
 
+import com.elster.jupiter.cbo.*;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Activate;
@@ -18,8 +19,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
-import com.elster.jupiter.cbo.MacroPeriod;
-import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
