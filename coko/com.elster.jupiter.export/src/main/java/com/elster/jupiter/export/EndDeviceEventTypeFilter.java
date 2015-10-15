@@ -13,7 +13,7 @@ public interface EndDeviceEventTypeFilter {
     Predicate<String> asEndDeviceEventTypeCodePredicate();
 
     default Predicate<EndDeviceEvent> asEndDeviceEventPredicate() {
-        return event -> asEndDeviceEventTypeCodePredicate().test(event.getType());
+        return event -> asEndDeviceEventTypeCodePredicate().test(event.getEventTypeCode());
     }
 
     String getCode();
