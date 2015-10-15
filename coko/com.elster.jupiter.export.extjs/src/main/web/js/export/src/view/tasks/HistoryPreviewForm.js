@@ -153,7 +153,6 @@ Ext.define('Dxp.view.tasks.HistoryPreviewForm', {
                         itemId: 'updated-data',
                         renderer: function (value) {
                             if (value) {
-                                debugger;
                                 return Ext.String.htmlDecode(value);
                             }
                         }
