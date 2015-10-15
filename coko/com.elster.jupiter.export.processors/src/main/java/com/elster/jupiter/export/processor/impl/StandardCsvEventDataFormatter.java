@@ -60,7 +60,7 @@ class StandardCsvEventDataFormatter implements StandardFormatter {
                 .filterSubType(MeterEventData.class)
                 .flatMap(meterEventData -> meterEventData.getMeterReading().getEvents().stream()
                         .map(endDeviceEvent -> formatPayload(endDeviceEvent, meterEventData.getStructureMarker()))
-                        .map(payload -> TextLineExportData.of(rootStructureMarker.adopt(meterEventData.getStructureMarker()), payload)))
+                        .map(payload -> TextLineExportData.of(rootStructureMarker.adopt(meterEventData.getStructureMarker()).withPeriodOf(meterEventData.getStructureMarker()), payload)))
                 .collect(Collectors.toList());
     }
 
