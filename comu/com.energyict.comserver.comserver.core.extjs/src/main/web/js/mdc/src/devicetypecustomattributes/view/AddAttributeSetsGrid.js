@@ -34,7 +34,7 @@ Ext.define('Mdc.devicetypecustomattributes.view.AddAttributeSetsGrid', {
                 flex: 2
             },
             {
-                header: Uni.I18n.translate('customattributesets.timesliced', 'MDC', 'Time-Sliced'),
+                header: Uni.I18n.translate('customattributesets.timeSliced', 'MDC', 'Time-sliced'),
                 dataIndex: 'isVersioned',
                 renderer: function (value) {
                     return value ?

@@ -21,7 +21,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
     init: function () {
     },
 
-    showUsagePoint: function (mRID) {
+    showUsagePoint: function (id) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             usagePointModel = me.getModel('Mdc.usagepointmanagement.model.UsagePointComplete'),
@@ -31,7 +31,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
 
         pageMainContent.setLoading(true);
 
-        usagePointModel.load(mRID, {
+        usagePointModel.load(id, {
             success: function (record) {
                 me.getApplication().fireEvent('usagePointLoaded', record);
                 var widget = Ext.widget('usage-point-management-setup', {router: router});
@@ -57,7 +57,7 @@ Ext.define('Mdc.usagepointmanagement.controller.UsagePoint', {
 
                 var store = me.getStore('Mdc.usagepointmanagement.store.MeterActivations'),
                     metrologyConfiguration = me.getMetrologyConfiguration();
-                store.getProxy().setExtraParam('usagePointMRID', mRID);
+                store.getProxy().setExtraParam('usagePointId', id);
                 store.load({
                     callback: function () {
                         store.each(function (item) {
