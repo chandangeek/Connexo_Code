@@ -57,7 +57,7 @@ public abstract class ComServerImpl implements ComServer {
                     REMOTE_COMSERVER_DISCRIMINATOR, RemoteComServerImpl.class);
 
     private final DataModel dataModel;
-    private final Provider<OutboundComPortImpl> outboundComPortProvider;
+    private final Provider<OutboundComPort> outboundComPortProvider;
 
     private final Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider;
     private final Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider;
@@ -117,7 +117,7 @@ public abstract class ComServerImpl implements ComServer {
     private Instant obsoleteDate;
 
     @Inject
-    protected ComServerImpl(DataModel dataModel, Provider<OutboundComPortImpl> outboundComPortProvider, Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider, Thesaurus thesaurus) {
+    protected ComServerImpl(DataModel dataModel, Provider<OutboundComPort> outboundComPortProvider, Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider, Thesaurus thesaurus) {
         super();
         this.dataModel = dataModel;
         this.outboundComPortProvider = outboundComPortProvider;
@@ -497,6 +497,22 @@ public abstract class ComServerImpl implements ComServer {
             return this.getName();
         }
 
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ComServerImpl comServer = (ComServerImpl) o;
+
+        return id == comServer.id;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
     }
 
     static abstract class AbstractComServerBuilder<CS extends ComServerImpl, CSB extends ComServerBuilder> implements ComServerBuilder<CS, CSB> {

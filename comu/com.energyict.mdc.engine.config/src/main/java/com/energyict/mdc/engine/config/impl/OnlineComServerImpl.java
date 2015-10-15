@@ -24,7 +24,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-03-28 (15:36)
  */
-public class OnlineComServerImpl extends ComServerImpl implements OnlineComServer {
+public final class OnlineComServerImpl extends ComServerImpl implements OnlineComServer {
 
     private final EngineConfigurationService engineConfigurationService;
     @URI(message = "{"+ MessageSeeds.Keys.MDC_INVALID_URL+"}", groups = {Save.Update.class, Save.Create.class})
@@ -47,7 +47,7 @@ public class OnlineComServerImpl extends ComServerImpl implements OnlineComServe
     private int storeTaskThreadPriority;
 
     @Inject
-    public OnlineComServerImpl(DataModel dataModel, EngineConfigurationService engineConfigurationService, Provider<OutboundComPortImpl> outboundComPortProvider, Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider, Thesaurus thesaurus) {
+    public OnlineComServerImpl(DataModel dataModel, EngineConfigurationService engineConfigurationService, Provider<OutboundComPort> outboundComPortProvider, Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider, Thesaurus thesaurus) {
         super(dataModel, outboundComPortProvider, servletBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
         this.engineConfigurationService = engineConfigurationService;
     }

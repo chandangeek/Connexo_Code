@@ -22,7 +22,7 @@ import javax.xml.bind.annotation.XmlElement;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-03-28 (15:40)
  */
-public class RemoteComServerImpl extends ComServerImpl implements RemoteComServer {
+public final class RemoteComServerImpl extends ComServerImpl implements RemoteComServer {
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY + "}")
     private final Reference<OnlineComServer> onlineComServer = ValueReference.absent();
@@ -40,7 +40,7 @@ public class RemoteComServerImpl extends ComServerImpl implements RemoteComServe
     }
 
     @Inject
-    public RemoteComServerImpl(DataModel dataModel, Provider<OutboundComPortImpl> outboundComPortProvider, Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider, Thesaurus thesaurus) {
+    public RemoteComServerImpl(DataModel dataModel, Provider<OutboundComPort> outboundComPortProvider, Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider, Thesaurus thesaurus) {
         super(dataModel, outboundComPortProvider, servletBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
     }
 
