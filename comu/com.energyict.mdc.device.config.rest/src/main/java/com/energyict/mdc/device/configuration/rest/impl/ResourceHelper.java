@@ -25,6 +25,7 @@ import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class ResourceHelper {
 
@@ -86,8 +87,11 @@ public class ResourceHelper {
                 .orElseThrow(() -> new WebApplicationException("No custom property set with id " + id, Response.Status.NOT_FOUND));
     }
 
-    public List<RegisteredCustomPropertySet> findCustomPropertySets() {
-        return customPropertySetService.findActiveCustomPropertySets();
+    public List<RegisteredCustomPropertySet> findCustomPropertySets(String domainExtensionName) {
+        return customPropertySetService.findActiveCustomPropertySets()
+                .stream()
+                .filter(f -> f.getCustomPropertySet().getDomainClass().getName().equals(domainExtensionName))
+                .collect(Collectors.toList());
     }
 
     public DeviceType findAndLockDeviceType(long id, long version) {
