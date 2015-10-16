@@ -129,7 +129,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         when(comSchedule2.getId()).thenReturn(102L);
         ComSchedule comSchedule3 = mock(ComSchedule.class);
         when(comSchedule3.getId()).thenReturn(103L);
-        when(schedulingService.findAllSchedules()).thenReturn(Arrays.asList(comSchedule1, comSchedule2, comSchedule3));
+        when(schedulingService.getAllSchedules()).thenReturn(Arrays.asList(comSchedule1, comSchedule2, comSchedule3));
 
         Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("comSchedules", Arrays.asList(103l, 102l))).queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
 
