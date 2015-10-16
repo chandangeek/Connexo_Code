@@ -126,8 +126,8 @@ public final class ComScheduleImpl implements ComSchedule {
     }
 
     @Override
-    public String getmRID() {
-        return mRID;
+    public Optional<String> getmRID() {
+        return mRID==null?Optional.empty():Optional.of(mRID);
     }
 
     @Override

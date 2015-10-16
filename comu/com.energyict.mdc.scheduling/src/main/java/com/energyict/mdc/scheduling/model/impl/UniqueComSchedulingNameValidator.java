@@ -27,7 +27,7 @@ public class UniqueComSchedulingNameValidator implements ConstraintValidator<Uni
         if (Checks.is(value.getName()).emptyOrOnlyWhiteSpace()) {
             return true;
         }
-        for (ComSchedule comSchedule : schedulingService.findAllSchedules()) {
+        for (ComSchedule comSchedule : schedulingService.getAllSchedules()) {
             if (value.getName().equals(comSchedule.getName()) && comSchedule.getId()!=value.getId()) {
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate(message)
