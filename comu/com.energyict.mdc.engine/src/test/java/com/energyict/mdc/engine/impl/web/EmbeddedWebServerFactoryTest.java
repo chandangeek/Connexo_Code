@@ -1,16 +1,17 @@
 package com.energyict.mdc.engine.impl.web;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 import com.energyict.mdc.common.BusinessException;
+import com.energyict.mdc.engine.config.*;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
-import com.energyict.mdc.engine.config.OfflineComServer;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.RemoteComServer;
 import com.energyict.mdc.engine.config.impl.OfflineComServerImpl;
 import com.energyict.mdc.engine.config.impl.OnlineComServerImpl;
 import com.energyict.mdc.engine.config.impl.RemoteComServerImpl;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
 
+import com.google.inject.Provider;
 import org.fest.assertions.api.Assertions;
 
 import java.net.URISyntaxException;
@@ -40,6 +41,22 @@ public class EmbeddedWebServerFactoryTest {
     private static final String INVALID_URI = "Anything but a valid URL";
 
     @Mock
+    EngineConfigurationService engineConfigurationService;
+    @Mock
+    DataModel dataModel;
+    @Mock
+    Provider<OutboundComPort> outboundComPortProvider;
+    @Mock
+    Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider;
+    @Mock
+    Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider;
+    @Mock
+    Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider;
+    @Mock
+    Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider;
+    @Mock
+    Thesaurus thesaurus;
+    @Mock
     private WebSocketEventPublisherFactory webSocketEventPublisherFactory;
 
     private EmbeddedWebServerFactory factory;
@@ -49,10 +66,13 @@ public class EmbeddedWebServerFactoryTest {
         this.factory = new DefaultEmbeddedWebServerFactory(this.webSocketEventPublisherFactory);
     }
 
+    private OfflineComServer createOfflineComServer() {
+        return new OfflineComServerImpl(dataModel, outboundComPortProvider, servletBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
+    }
+
     @Test
     public void testEventsWithOfflineComServer () throws BusinessException {
-        OfflineComServer comServer = mock(OfflineComServerImpl.class);
-        doCallRealMethod().when(comServer).getEventRegistrationUriIfSupported();
+        OfflineComServer comServer = createOfflineComServer();
 
         // Business method
         EmbeddedWebServer eventWebServer = this.factory.findOrCreateEventWebServer(comServer);
@@ -62,14 +82,17 @@ public class EmbeddedWebServerFactoryTest {
         assertThat(eventWebServer.getClass().getSimpleName()).startsWith("Void");
     }
 
+
+    private OnlineComServer createOnlineComServer(String eventRegistrationUri) {
+        final OnlineComServerImpl onlineComServer = new OnlineComServerImpl(dataModel, engineConfigurationService, outboundComPortProvider, servletBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
+        onlineComServer.setEventRegistrationUri(eventRegistrationUri);
+        return onlineComServer;
+    }
+
     @Test
     public void testEventsWithOnlineComServerThatDoesNotSupportEventRegistration () throws BusinessException {
-        OnlineComServer comServer = mock(OnlineComServerImpl.class);
-        doCallRealMethod().when(comServer).getEventRegistrationUriIfSupported();
-        doCallRealMethod().when(comServer).isOffline();
-        doCallRealMethod().when(comServer).isOnline();
-        doCallRealMethod().when(comServer).isRemote();
-        when(comServer.getEventRegistrationUri()).thenReturn(null);
+        OnlineComServer comServer = createOnlineComServer(null);
+        comServer.setUsesDefaultEventRegistrationUri(false);
 
         // Business method
         EmbeddedWebServer eventWebServer = this.factory.findOrCreateEventWebServer(comServer);
@@ -81,12 +104,7 @@ public class EmbeddedWebServerFactoryTest {
 
     @Test(expected = CodingException.class)
     public void testEventsWithOnlineComServerWithInvalidEventRegistrationURI () throws BusinessException {
-        OnlineComServer comServer = mock(OnlineComServerImpl.class);
-        doCallRealMethod().when(comServer).getEventRegistrationUriIfSupported();
-        doCallRealMethod().when(comServer).isOffline();
-        doCallRealMethod().when(comServer).isOnline();
-        doCallRealMethod().when(comServer).isRemote();
-        when(comServer.getEventRegistrationUri()).thenReturn(INVALID_URI);
+        OnlineComServer comServer = createOnlineComServer(INVALID_URI);
 
         // Business method
         try {
@@ -100,12 +118,7 @@ public class EmbeddedWebServerFactoryTest {
 
     @Test
     public void testEventsWithOnlineComServer () throws BusinessException {
-        OnlineComServer comServer = mock(OnlineComServerImpl.class);
-        doCallRealMethod().when(comServer).getEventRegistrationUriIfSupported();
-        doCallRealMethod().when(comServer).isOffline();
-        doCallRealMethod().when(comServer).isOnline();
-        doCallRealMethod().when(comServer).isRemote();
-        when(comServer.getEventRegistrationUri()).thenReturn(EVENT_REGISTRATION_URL);
+        OnlineComServer comServer = createOnlineComServer(EVENT_REGISTRATION_URL);
 
         // Business method
         EmbeddedWebServer eventWebServer = this.factory.findOrCreateEventWebServer(comServer);
@@ -114,14 +127,16 @@ public class EmbeddedWebServerFactoryTest {
         assertThat(eventWebServer).isNotNull();
     }
 
+    private RemoteComServer createRemoteComServerWithRegistrationUri(String eventRegistrationUri) {
+        final RemoteComServerImpl remoteComServer = new RemoteComServerImpl(dataModel, outboundComPortProvider, servletBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
+        remoteComServer.setEventRegistrationUri(eventRegistrationUri);
+        return remoteComServer;
+    }
+
     @Test
     public void testEventsWithRemoteComServerThatDoesNotSupportEventRegistration () throws BusinessException {
-        RemoteComServer comServer = mock(RemoteComServerImpl.class);
-        doCallRealMethod().when(comServer).getEventRegistrationUriIfSupported();
-        doCallRealMethod().when(comServer).isOffline();
-        doCallRealMethod().when(comServer).isOnline();
-        doCallRealMethod().when(comServer).isRemote();
-        when(comServer.getEventRegistrationUri()).thenReturn(null);
+        RemoteComServer comServer = createRemoteComServerWithRegistrationUri(null);
+        comServer.setUsesDefaultEventRegistrationUri(false);
 
         // Business method
         EmbeddedWebServer eventWebServer = this.factory.findOrCreateEventWebServer(comServer);
@@ -133,12 +148,7 @@ public class EmbeddedWebServerFactoryTest {
 
     @Test(expected = CodingException.class)
     public void testEventsWithRemoteComServerWithInvalidEventRegistrationURL () throws BusinessException {
-        RemoteComServer comServer = mock(RemoteComServerImpl.class);
-        doCallRealMethod().when(comServer).getEventRegistrationUriIfSupported();
-        doCallRealMethod().when(comServer).isOffline();
-        doCallRealMethod().when(comServer).isOnline();
-        doCallRealMethod().when(comServer).isRemote();
-        when(comServer.getEventRegistrationUri()).thenReturn(INVALID_URI);
+        RemoteComServer comServer = createRemoteComServerWithRegistrationUri(INVALID_URI);
 
         // Business method
         try {
@@ -152,12 +162,7 @@ public class EmbeddedWebServerFactoryTest {
 
     @Test
     public void testEventsWithRemoteComServer () throws BusinessException {
-        RemoteComServer comServer = mock(RemoteComServerImpl.class);
-        doCallRealMethod().when(comServer).getEventRegistrationUriIfSupported();
-        doCallRealMethod().when(comServer).isOffline();
-        doCallRealMethod().when(comServer).isOnline();
-        doCallRealMethod().when(comServer).isRemote();
-        when(comServer.getEventRegistrationUri()).thenReturn(EVENT_REGISTRATION_URL);
+        RemoteComServer comServer = createRemoteComServerWithRegistrationUri(EVENT_REGISTRATION_URL);
 
         // Business method
         EmbeddedWebServer eventWebServer = this.factory.findOrCreateEventWebServer(comServer);
@@ -168,9 +173,8 @@ public class EmbeddedWebServerFactoryTest {
 
     @Test
     public void testQueriesWithOnlineComServer () throws BusinessException {
-        OnlineComServer comServer = mock(OnlineComServerImpl.class);
-        when(comServer.getQueryApiPostUri()).thenReturn("http://localhost/remote/query-api");
-        doCallRealMethod().when(comServer).getQueryApiPostUriIfSupported();
+        OnlineComServer comServer = createOnlineComServer(null);
+        comServer.setQueryAPIPostUri("http://localhost/remote/query-api");
         RunningOnlineComServer runningOnlineComServer = mock(RunningOnlineComServer.class);
         when(runningOnlineComServer.getComServer()).thenReturn(comServer);
 
@@ -184,9 +188,8 @@ public class EmbeddedWebServerFactoryTest {
 
     @Test(expected = CodingException.class)
     public void testQueriesWithURISyntaxError () throws BusinessException {
-        OnlineComServer comServer = mock(OnlineComServerImpl.class);
-        when(comServer.getQueryApiPostUri()).thenReturn(INVALID_URI);
-        doCallRealMethod().when(comServer).getQueryApiPostUriIfSupported();
+        OnlineComServer comServer = createOnlineComServer(null);
+        comServer.setQueryAPIPostUri(INVALID_URI);
         RunningOnlineComServer runningOnlineComServer = mock(RunningOnlineComServer.class);
         when(runningOnlineComServer.getComServer()).thenReturn(comServer);
 
@@ -202,7 +205,7 @@ public class EmbeddedWebServerFactoryTest {
 
     @Test
     public void testQueriesWithOnlineComServerThatDoesNotSupportRemoteQueries () throws BusinessException {
-        OnlineComServer comServer = mock(OnlineComServerImpl.class);
+        OnlineComServer comServer = mock(OnlineComServer.class);
         doThrow(BusinessException.class).when(comServer).getQueryApiPostUriIfSupported();
         RunningOnlineComServer runningOnlineComServer = mock(RunningOnlineComServer.class);
         when(runningOnlineComServer.getComServer()).thenReturn(comServer);

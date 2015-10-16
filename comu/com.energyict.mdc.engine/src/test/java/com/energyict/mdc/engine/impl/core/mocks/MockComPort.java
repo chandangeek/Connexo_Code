@@ -147,7 +147,7 @@ public abstract class MockComPort implements ComPort, Cloneable {
     }
 
     @Override
-    public void save() {
+    public void update() {
 
     }
 

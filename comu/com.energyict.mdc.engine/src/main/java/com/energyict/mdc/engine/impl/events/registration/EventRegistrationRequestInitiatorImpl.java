@@ -34,7 +34,6 @@ public class EventRegistrationRequestInitiatorImpl implements EventRegistrationR
 
     @Override
     public String getRegistrationURL (ComServer comServer) throws BusinessException {
-        comServer.getEventRegistrationUriIfSupported();
         return comServer.getEventRegistrationUriIfSupported();
     }
 
