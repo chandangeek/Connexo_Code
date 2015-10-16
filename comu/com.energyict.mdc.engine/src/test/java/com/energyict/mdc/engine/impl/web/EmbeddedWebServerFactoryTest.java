@@ -60,10 +60,17 @@ public class EmbeddedWebServerFactoryTest {
     private WebSocketEventPublisherFactory webSocketEventPublisherFactory;
 
     private EmbeddedWebServerFactory factory;
+    private EmbeddedWebServer embeddedWebServer;
 
     @Before
     public void setupFactoryUnderTest () {
         this.factory = new DefaultEmbeddedWebServerFactory(this.webSocketEventPublisherFactory);
+    }
+
+    public void cleanUp(){
+        if(embeddedWebServer != null){
+            embeddedWebServer.shutdownImmediate();
+        }
     }
 
     private OfflineComServer createOfflineComServer() {
@@ -75,11 +82,11 @@ public class EmbeddedWebServerFactoryTest {
         OfflineComServer comServer = createOfflineComServer();
 
         // Business method
-        EmbeddedWebServer eventWebServer = this.factory.findOrCreateEventWebServer(comServer);
+        embeddedWebServer = this.factory.findOrCreateEventWebServer(comServer);
 
         // Asserts
-        assertThat(eventWebServer).isNotNull();
-        assertThat(eventWebServer.getClass().getSimpleName()).startsWith("Void");
+        assertThat(embeddedWebServer).isNotNull();
+        assertThat(embeddedWebServer.getClass().getSimpleName()).startsWith("Void");
     }
 
 
@@ -95,11 +102,11 @@ public class EmbeddedWebServerFactoryTest {
         comServer.setUsesDefaultEventRegistrationUri(false);
 
         // Business method
-        EmbeddedWebServer eventWebServer = this.factory.findOrCreateEventWebServer(comServer);
+        embeddedWebServer = this.factory.findOrCreateEventWebServer(comServer);
 
         // Asserts
-        assertThat(eventWebServer).isNotNull();
-        assertThat(eventWebServer.getClass().getSimpleName()).startsWith("Void");
+        assertThat(embeddedWebServer).isNotNull();
+        assertThat(embeddedWebServer.getClass().getSimpleName()).startsWith("Void");
     }
 
     @Test(expected = CodingException.class)
@@ -121,10 +128,10 @@ public class EmbeddedWebServerFactoryTest {
         OnlineComServer comServer = createOnlineComServer(EVENT_REGISTRATION_URL);
 
         // Business method
-        EmbeddedWebServer eventWebServer = this.factory.findOrCreateEventWebServer(comServer);
+        embeddedWebServer = this.factory.findOrCreateEventWebServer(comServer);
 
         // Asserts
-        assertThat(eventWebServer).isNotNull();
+        assertThat(embeddedWebServer).isNotNull();
     }
 
     private RemoteComServer createRemoteComServerWithRegistrationUri(String eventRegistrationUri) {
@@ -139,11 +146,11 @@ public class EmbeddedWebServerFactoryTest {
         comServer.setUsesDefaultEventRegistrationUri(false);
 
         // Business method
-        EmbeddedWebServer eventWebServer = this.factory.findOrCreateEventWebServer(comServer);
+        embeddedWebServer = this.factory.findOrCreateEventWebServer(comServer);
 
         // Asserts
-        assertThat(eventWebServer).isNotNull();
-        assertThat(eventWebServer.getClass().getSimpleName()).startsWith("Void");
+        assertThat(embeddedWebServer).isNotNull();
+        assertThat(embeddedWebServer.getClass().getSimpleName()).startsWith("Void");
     }
 
     @Test(expected = CodingException.class)
@@ -165,10 +172,10 @@ public class EmbeddedWebServerFactoryTest {
         RemoteComServer comServer = createRemoteComServerWithRegistrationUri(EVENT_REGISTRATION_URL);
 
         // Business method
-        EmbeddedWebServer eventWebServer = this.factory.findOrCreateEventWebServer(comServer);
+        embeddedWebServer = this.factory.findOrCreateEventWebServer(comServer);
 
         // Asserts
-        assertThat(eventWebServer).isNotNull();
+        assertThat(embeddedWebServer).isNotNull();
     }
 
     @Test
@@ -179,11 +186,11 @@ public class EmbeddedWebServerFactoryTest {
         when(runningOnlineComServer.getComServer()).thenReturn(comServer);
 
         // Business method
-        EmbeddedWebServer eventWebServer = this.factory.findOrCreateRemoteQueryWebServer(runningOnlineComServer);
+        embeddedWebServer = this.factory.findOrCreateRemoteQueryWebServer(runningOnlineComServer);
 
         // Asserts
-        assertThat(eventWebServer).isNotNull();
-        assertThat(eventWebServer.getClass().getSimpleName()).doesNotMatch("Void.*");
+        assertThat(embeddedWebServer).isNotNull();
+        assertThat(embeddedWebServer.getClass().getSimpleName()).doesNotMatch("Void.*");
     }
 
     @Test(expected = CodingException.class)
@@ -195,7 +202,7 @@ public class EmbeddedWebServerFactoryTest {
 
         // Business method
         try {
-            this.factory.findOrCreateRemoteQueryWebServer(runningOnlineComServer);
+            embeddedWebServer = this.factory.findOrCreateRemoteQueryWebServer(runningOnlineComServer);
         }
         catch (CodingException e) {
             Assertions.assertThat(e.getCause()).isInstanceOf(URISyntaxException.class);
@@ -211,11 +218,11 @@ public class EmbeddedWebServerFactoryTest {
         when(runningOnlineComServer.getComServer()).thenReturn(comServer);
 
         // Business method
-        EmbeddedWebServer eventWebServer = this.factory.findOrCreateRemoteQueryWebServer(runningOnlineComServer);
+        embeddedWebServer = this.factory.findOrCreateRemoteQueryWebServer(runningOnlineComServer);
 
         // Asserts
-        assertThat(eventWebServer).isNotNull();
-        assertThat(eventWebServer.getClass().getSimpleName()).startsWith("Void");
+        assertThat(embeddedWebServer).isNotNull();
+        assertThat(embeddedWebServer.getClass().getSimpleName()).startsWith("Void");
     }
 
 }
