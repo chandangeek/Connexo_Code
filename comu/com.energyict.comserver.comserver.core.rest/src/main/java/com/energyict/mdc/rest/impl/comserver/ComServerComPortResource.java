@@ -86,7 +86,7 @@ public class ComServerComPortResource {
         ComServer comServer = findComServerOrThrowException(comServerId);
         ComPort comPort = findComPortOrThrowException(comServer, id);
         comPortInfo.writeTo(comPort, engineConfigurationService);
-        comPort.save();
+        comPort.update();
         return ComPortInfoFactory.asInfo(comPort, engineConfigurationService);
     }
 

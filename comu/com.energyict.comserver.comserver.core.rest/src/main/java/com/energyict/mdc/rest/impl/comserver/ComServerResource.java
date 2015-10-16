@@ -179,7 +179,7 @@ public class ComServerResource {
             if (newComPortIdMap.containsKey(comPort.getId())) {
                 newComPortIdMap.get(comPort.getId()).writeTo(comPort, engineConfigurationService);
                 newComPortIdMap.remove(comPort.getId());
-                comPort.save();
+                comPort.update();
             } else {
                 comServer.removeComPort(comPort.getId());
             }

@@ -183,7 +183,7 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
         final Response response = target("/comportpools/"+comPortPool_id).request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
-        verify(mockOutboundComPortPool).save();
+        verify(mockOutboundComPortPool).update();
         verify(mockOutboundComPortPool).removeOutboundComPort(mockTcpPort3);
         ArgumentCaptor<OutboundComPort> comPortArgumentCaptor = ArgumentCaptor.forClass(OutboundComPort.class);
         verify(mockOutboundComPortPool).addOutboundComPort(comPortArgumentCaptor.capture());

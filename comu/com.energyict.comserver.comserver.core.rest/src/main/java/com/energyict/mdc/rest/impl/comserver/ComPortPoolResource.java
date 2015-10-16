@@ -152,7 +152,6 @@ public class ComPortPoolResource {
     @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public Response createComPortPool(ComPortPoolInfo<ComPortPool> comPortPoolInfo, @Context UriInfo uriInfo) {
         ComPortPool comPortPool = comPortPoolInfo.createNew(engineConfigurationService, protocolPluggableService);
-        comPortPool.save();
         if (comPortPool instanceof OutboundComPortPool) { // TODO Polymorphism is in place here: get rid of these checks!
             handlePools(comPortPoolInfo, (OutboundComPortPool) comPortPool, engineConfigurationService, getBoolean(uriInfo, ALL));
         } else if (comPortPool instanceof InboundComPortPool) {
@@ -178,7 +177,7 @@ public class ComPortPoolResource {
         if (InboundComPortPool.class.isAssignableFrom(comPortPool.get().getClass())) {
             handleInboundPoolPorts((InboundComPortPool)comPortPool.get(), Optional.ofNullable(comPortPoolInfo.inboundComPorts));
         }
-        comPortPool.get().save();
+        comPortPool.get().update();
         return ComPortPoolInfoFactory.asInfo(comPortPool.get(), engineConfigurationService);
     }
 
@@ -201,7 +200,7 @@ public class ComPortPoolResource {
                     newComPortIdMap.remove(comPort.getId());
                 } else {
                     comPort.setComPortPool(null);
-                    comPort.save();
+                    comPort.update();
                 }
             }
 
@@ -209,13 +208,13 @@ public class ComPortPoolResource {
                 Optional<? extends ComPort> comPort = engineConfigurationService.findComPort(inboundComPortInfo.id);
                 if (comPort.isPresent() && (comPort.get() instanceof InboundComPort)) {
                     ((InboundComPort) comPort.get()).setComPortPool(inboundComPortPool);
-                    comPort.get().save();
+                    comPort.get().update();
                 }
             }
         } else {
             for (InboundComPort comPort : inboundComPortPool.getComPorts()) {
                 comPort.setComPortPool(null);
-                comPort.save();
+                comPort.update();
             }
         }
     }

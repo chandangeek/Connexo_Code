@@ -88,9 +88,8 @@ public class ComPortPoolComPortResource {
             ComPort comPort = findComPortOrThrowException(comPortPool, comPortId);
             if(InboundComPort.class.isAssignableFrom(comPort.getClass())) {
                 ((InboundComPort)comPort).setComPortPool(null);
-                comPort.save();
+                comPort.update();
             }
-            return;
         }
     }
 
