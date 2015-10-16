@@ -87,7 +87,7 @@ public class MetrologyConfigurationResource {
             @Override
             public MetrologyConfiguration perform() {
                 metrologyConfigurationInfo.writeTo(metrologyConfiguration);
-                metrologyConfiguration.save();
+                metrologyConfiguration.update();
                 return metrologyConfiguration;
             }
         });
