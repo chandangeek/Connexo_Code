@@ -103,6 +103,7 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
         map.put("nextExecution", ((comTaskExecutionInfo, comTaskExecution, uriInfo) -> comTaskExecutionInfo.nextExecution = comTaskExecution.getNextExecutionTimestamp()));
         map.put("plannedNextExecution", ((comTaskExecutionInfo, comTaskExecution, uriInfo) -> comTaskExecutionInfo.plannedNextExecution = comTaskExecution.getPlannedNextExecutionTimestamp()));
         map.put("priority", ((comTaskExecutionInfo, comTaskExecution, uriInfo) -> comTaskExecutionInfo.priority = comTaskExecution.getPlannedPriority()));
+        map.put("ignoreNextExecutionSpecForInbound", ((comTaskExecutionInfo, comTaskExecution, uriInfo) -> comTaskExecutionInfo.ignoreNextExecutionSpecForInbound = comTaskExecution.isIgnoreNextExecutionSpecsForInbound()));
         map.put("schedule", ((comTaskExecutionInfo, comTaskExecution, uriInfo) -> {
             if (comTaskExecution.usesSharedSchedule()) {
                 UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
@@ -137,6 +138,7 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
         if (comTaskExecutionInfo.schedulingSpec==null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.SCHEDULE_SPEC_EXPECTED);
         }
+        Optional<ConnectionTask> connectionTask = getConnectionTaskOrThrowException(comTaskExecutionInfo);
 
         ComTask comTask = taskService.findComTask(comTaskExecutionInfo.comTask.id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_COM_TASK));
@@ -145,12 +147,14 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.COM_TASK_NOT_ENABLED));
 
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> builder = device.newManuallyScheduledComTaskExecution(comTaskEnablement, comTaskExecutionInfo.schedulingSpec.asTemporalExpression());
-        if (comTaskExecutionInfo.connectionTask!=null && comTaskExecutionInfo.connectionTask.id!=null) {
-            if (comTaskEnablement.hasPartialConnectionTask()) {
-                ConnectionTask connectionTask = connectionTaskService.findConnectionTask(comTaskExecutionInfo.connectionTask.id)
-                        .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_CONNECTION_TASK));
-                builder.connectionTask(connectionTask);
-            }
+        if (connectionTask.isPresent()) {
+            builder.connectionTask(connectionTask.get());
+        }
+        if (comTaskExecutionInfo.priority!=null) {
+            builder.priority(comTaskExecutionInfo.priority);
+        }
+        if (comTaskExecutionInfo.ignoreNextExecutionSpecForInbound!=null) {
+            builder.ignoreNextExecutionSpecForInbound(comTaskExecutionInfo.ignoreNextExecutionSpecForInbound);
         }
         ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = builder.add();
         device.save();
@@ -168,22 +172,19 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
         if (comTaskExecutionInfo.schedule==null || comTaskExecutionInfo.schedule.id==null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.SCHEDULE_EXPECTED);
         }
+        Optional<ConnectionTask> connectionTask = getConnectionTaskOrThrowException(comTaskExecutionInfo);
         ComSchedule comSchedule = schedulingService.findSchedule(comTaskExecutionInfo.schedule.id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_COM_SCHEDULE));
 
-        ComTask comTask = taskService.findComTask(comTaskExecutionInfo.comTask.id)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_COM_TASK));
-
-        ComTaskEnablement comTaskEnablement = device.getDeviceConfiguration().getComTaskEnablementFor(comTask)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.COM_TASK_NOT_ENABLED));
-
         ComTaskExecutionBuilder<ScheduledComTaskExecution> builder = device.newScheduledComTaskExecution(comSchedule);
-        if (comTaskExecutionInfo.connectionTask!=null && comTaskExecutionInfo.connectionTask.id!=null) {
-            if (comTaskEnablement.hasPartialConnectionTask()) {
-                ConnectionTask connectionTask = connectionTaskService.findConnectionTask(comTaskExecutionInfo.connectionTask.id)
-                        .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_CONNECTION_TASK));
-                builder.connectionTask(connectionTask);
-            }
+        if (connectionTask.isPresent()) {
+            builder.connectionTask(connectionTask.get());
+        }
+        if (comTaskExecutionInfo.priority!=null) {
+            builder.priority(comTaskExecutionInfo.priority);
+        }
+        if (comTaskExecutionInfo.ignoreNextExecutionSpecForInbound!=null) {
+            builder.ignoreNextExecutionSpecForInbound(comTaskExecutionInfo.ignoreNextExecutionSpecForInbound);
         }
         ScheduledComTaskExecution scheduledComTaskExecution = builder.add();
         device.save();
@@ -197,6 +198,7 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
         if (comTaskExecutionInfo.schedulingSpec!=null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.TYPE_DOES_NOT_SUPPORT_SCHEDULE_SPEC);
         }
+        Optional<ConnectionTask> connectionTask = getConnectionTaskOrThrowException(comTaskExecutionInfo);
         ComTask comTask = taskService.findComTask(comTaskExecutionInfo.comTask.id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_COM_TASK));
 
@@ -204,16 +206,26 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.COM_TASK_NOT_ENABLED));
 
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> builder = device.newAdHocComTaskExecution(comTaskEnablement);
-        if (comTaskExecutionInfo.connectionTask!=null && comTaskExecutionInfo.connectionTask.id!=null) {
-            if (comTaskEnablement.hasPartialConnectionTask()) {
-                ConnectionTask connectionTask = connectionTaskService.findConnectionTask(comTaskExecutionInfo.connectionTask.id)
-                        .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_CONNECTION_TASK));
-                builder.connectionTask(connectionTask);
-            }
+        if (connectionTask.isPresent()) {
+            builder.connectionTask(connectionTask.get());
+        }
+        if (comTaskExecutionInfo.priority!=null) {
+            builder.priority(comTaskExecutionInfo.priority);
+        }
+        if (comTaskExecutionInfo.ignoreNextExecutionSpecForInbound!=null) {
+            builder.ignoreNextExecutionSpecForInbound(comTaskExecutionInfo.ignoreNextExecutionSpecForInbound);
         }
         ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = builder.add();
         device.save();
         return manuallyScheduledComTaskExecution;
+    }
+
+    protected Optional<ConnectionTask> getConnectionTaskOrThrowException(ComTaskExecutionInfo comTaskExecutionInfo) {
+        if (comTaskExecutionInfo.connectionTask!=null && comTaskExecutionInfo.connectionTask.id!=null) {
+            return Optional.of(connectionTaskService.findConnectionTask(comTaskExecutionInfo.connectionTask.id)
+                    .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.NO_SUCH_CONNECTION_TASK)));
+        }
+        return Optional.empty();
     }
 
 }

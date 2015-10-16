@@ -58,6 +58,7 @@ import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
@@ -447,6 +448,15 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(comTaskEnablement.getPriority()).thenReturn(-19);
         when(comTaskEnablement.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         return comTaskEnablement;
+    }
+
+    ComSchedule mockComSchedule(long scheduleId) {
+        ComSchedule comSchedule = mock(ComSchedule.class);
+        when(comSchedule.getId()).thenReturn(scheduleId);
+        when(comSchedule.getName()).thenReturn("Some schedule");
+        when(comSchedule.getmRID()).thenReturn(Optional.<String>empty());
+        when(schedulingService.findSchedule(scheduleId)).thenReturn(Optional.of(comSchedule));
+        return comSchedule;
     }
 
     <T> Finder<T> mockFinder(List<T> list) {

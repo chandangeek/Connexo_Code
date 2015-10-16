@@ -20,6 +20,7 @@ public class ComTaskExecutionInfo extends LinkInfo {
     public Instant plannedNextExecution;
     public Integer priority;
     public Instant lastCommunicationStart;
+    public Boolean ignoreNextExecutionSpecForInbound;
     @XmlJavaTypeAdapter(TaskStatusAdapter.class)
     public TaskStatus status;
     public Instant lastSuccessfulCompletion;
