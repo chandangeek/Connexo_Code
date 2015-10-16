@@ -53,12 +53,14 @@ public class IdsServiceImpl implements IdsService, InstallService, MessageSeedPr
 
     @Override
     public Optional<Vault> getVault(String component, long id) {
-        return dataModel.mapper(Vault.class).getOptional(component, id);
+        // check if dataModel is installed because this method can be/us called before the install is run
+        return dataModel.isInstalled() ? dataModel.mapper(Vault.class).getOptional(component, id) : Optional.<Vault>empty();
     }
 
     @Override
     public Optional<RecordSpec> getRecordSpec(String component, long id) {
-        return dataModel.mapper(RecordSpec.class).getOptional(component, id);
+        // check if dataModel is installed because this method can be/us called before the install is run
+        return dataModel.isInstalled() ? dataModel.mapper(RecordSpec.class).getOptional(component, id) : Optional.<RecordSpec>empty();
     }
 
     @Override
