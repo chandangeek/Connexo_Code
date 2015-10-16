@@ -34,10 +34,10 @@ public class ComScheduleInfo {
         comScheduleInfo.temporalExpression = TemporalExpressionInfo.from(comSchedule.getTemporalExpression());
         Optional<ZonedDateTime> nextOccurrence = comSchedule.getTemporalExpression().nextOccurrence(ZonedDateTime.ofInstant(Instant.now(), ZoneId.systemDefault()));
         nextOccurrence.ifPresent(zonedDateTime -> comScheduleInfo.plannedDate = zonedDateTime.toInstant());
-        comScheduleInfo.startDate = comSchedule.getStartDate() == null ? null : comSchedule.getStartDate();
+        comScheduleInfo.startDate = comSchedule.getStartDate();
         comScheduleInfo.isInUse = inUse;
         comScheduleInfo.comTaskUsages = ComTaskInfo.from(comSchedule.getComTasks());
-        comScheduleInfo.mRID = comSchedule.getmRID();
+        comScheduleInfo.mRID = comSchedule.getmRID().orElse(null);
         return comScheduleInfo;
     }
 
