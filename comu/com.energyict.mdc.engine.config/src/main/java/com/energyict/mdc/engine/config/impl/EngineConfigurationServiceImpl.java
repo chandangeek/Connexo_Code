@@ -380,12 +380,16 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
 
     @Override
     public InboundComPortPool newInboundComPortPool(String name, ComPortType comPortType, InboundDeviceProtocolPluggableClass discoveryProtocol) {
-        return this.dataModel.getInstance(InboundComPortPoolImpl.class).initialize(name, comPortType, discoveryProtocol);
+        final InboundComPortPoolImpl inboundComPortPool = this.dataModel.getInstance(InboundComPortPoolImpl.class).initialize(name, comPortType, discoveryProtocol);
+        inboundComPortPool.save();
+        return inboundComPortPool;
     }
 
     @Override
     public OutboundComPortPool newOutboundComPortPool(String name, ComPortType comPortType, TimeDuration taskExecutionTimeout) {
-        return dataModel.getInstance(OutboundComPortPoolImpl.class).initialize(name, comPortType, taskExecutionTimeout);
+        final OutboundComPortPoolImpl outboundComPortPool = dataModel.getInstance(OutboundComPortPoolImpl.class).initialize(name, comPortType, taskExecutionTimeout);
+        outboundComPortPool.save();
+        return outboundComPortPool;
     }
 
     @Override

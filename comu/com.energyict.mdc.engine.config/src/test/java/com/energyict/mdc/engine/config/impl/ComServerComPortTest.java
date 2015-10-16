@@ -176,13 +176,13 @@ public class ComServerComPortTest extends PersistenceTest {
         onlineComServer.setActive(false);
         OutboundComPort comPort1 = onlineComServer.getOutboundComPorts().get(0);
         comPort1.setName("Updated-1");
-        comPort1.save();
+        comPort1.update();
         OutboundComPort comPort2 = onlineComServer.getOutboundComPorts().get(1);
         comPort2.setName("Updated-2");
-        comPort2.save();
+        comPort2.update();
         OutboundComPort comPort3 = onlineComServer.getOutboundComPorts().get(2);
         comPort3.setName("Updated-3");
-        comPort3.save();
+        comPort3.update();
 
         // Asserts
         assertThat(onlineComServer.getOutboundComPorts().size()).isEqualTo(numberOfComPorts);
@@ -410,7 +410,7 @@ public class ComServerComPortTest extends PersistenceTest {
     private InboundComPortPool newInboundComPortPool(ComPortType comPortType) {
         InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool("Unique comPortPool "+comPortPoolIndex++, comPortType, inboundDeviceProtocolPluggableClass);
         inboundComPortPool.setDescription("description");
-        inboundComPortPool.save();
+        inboundComPortPool.update();
         return inboundComPortPool;
     }
 
@@ -430,7 +430,7 @@ public class ComServerComPortTest extends PersistenceTest {
     private OutboundComPortPool createOutboundComPortPool (String name) {
         OutboundComPortPool comPortPool = getEngineModelService().newOutboundComPortPool(name, ComPortType.TCP, TimeDuration.minutes(1));
         comPortPool.setActive(true);
-        comPortPool.save();
+        comPortPool.update();
         return comPortPool;
     }
 

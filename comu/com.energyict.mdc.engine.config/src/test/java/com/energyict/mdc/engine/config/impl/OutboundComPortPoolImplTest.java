@@ -105,7 +105,6 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
     public void testCreateWithoutName() throws TranslatableApplicationException, SQLException {
         OutboundComPortPool outboundComPortPool = getEngineModelService().newOutboundComPortPool(null, COM_PORT_TYPE, EXECUTION_TIMEOUT);
         outboundComPortPool.setDescription(DESCRIPTION);
-        outboundComPortPool.save();
 
         // Expecting TranslatableApplicationException because the name is not set
     }
@@ -116,7 +115,6 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
     public void testCreateWithoutComPortType() throws TranslatableApplicationException, SQLException {
         OutboundComPortPool outboundComPortPool = getEngineModelService().newOutboundComPortPool(NAME_BASIS + outboundComPortPoolIndex++, null, EXECUTION_TIMEOUT);
         outboundComPortPool.setDescription(DESCRIPTION);
-        outboundComPortPool.save();
 
         // Expecting TranslatableApplicationException because the ComPortType is not set
     }
@@ -144,7 +142,7 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
         comPortPool.setDescription(comPortPool.getDescription() + "Updated");
 
         // Business method
-        comPortPool.save();
+        comPortPool.update();
 
         OutboundComPortPool retrievedComPortPool = getEngineModelService().findOutboundComPortPool(comPortPool.getId()).get();
 
@@ -190,11 +188,11 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
         String name = NAME_BASIS + outboundComPortPoolIndex++;
         OutboundComPortPool outboundComPortPool = getEngineModelService().newOutboundComPortPool(name, COM_PORT_TYPE, EXECUTION_TIMEOUT);
         outboundComPortPool.setDescription(DESCRIPTION);
-        outboundComPortPool.save();
+        outboundComPortPool.update();
 
         OutboundComPortPool duplicateComPortPool = getEngineModelService().newOutboundComPortPool(name, COM_PORT_TYPE, EXECUTION_TIMEOUT);
         duplicateComPortPool.setDescription(DESCRIPTION);
-        duplicateComPortPool.save();
+        duplicateComPortPool.update();
 
         // Expecting a DuplicateException
     }
@@ -207,7 +205,7 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
         comPortPool.setName(null);
 
         // Business method
-        comPortPool.save();
+        comPortPool.update();
 
         // Expecting TranslatableApplicationException because the name is not set
     }
@@ -260,7 +258,7 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
         comPortPool.makeObsolete();
 
         // Business method
-        comPortPool.save();
+        comPortPool.update();
 
         // Expected a TranslatableApplicationException because an obsolete ComPortPool cannot be updated any longer
     }
@@ -295,7 +293,7 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
         // creating the exact same comportpool
         OutboundComPortPool outboundComPortPool = getEngineModelService().newOutboundComPortPool(comPortPoolName, COM_PORT_TYPE, EXECUTION_TIMEOUT);
         outboundComPortPool.setDescription(DESCRIPTION);
-        outboundComPortPool.save();
+        outboundComPortPool.update();
 
         Optional<? extends ComPortPool> newComPortPoolForName = getEngineModelService().findComPortPoolByName(comPortPoolName);
         assertThat(newComPortPoolForName.isPresent()).isTrue();
@@ -305,7 +303,7 @@ public class OutboundComPortPoolImplTest extends PersistenceTest {
     private OutboundComPortPool newOutboundComPortPoolWithoutViolations() {
         OutboundComPortPool outboundComPortPool = getEngineModelService().newOutboundComPortPool(NAME_BASIS+outboundComPortPoolIndex++, COM_PORT_TYPE, EXECUTION_TIMEOUT);
         outboundComPortPool.setDescription(DESCRIPTION);
-        outboundComPortPool.save();
+        outboundComPortPool.update();
         return outboundComPortPool;
     }
 

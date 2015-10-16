@@ -111,7 +111,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
                 .add();
 
         tcpBasedInboundComPort.setActive(true);
-        tcpBasedInboundComPort.save();
+        tcpBasedInboundComPort.update();
     }
 
     @Test
@@ -125,7 +125,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
         InboundComPortPool comPortPool = createComPortPool();
         tcpBasedInboundComPort.setComPortPool(comPortPool);
         tcpBasedInboundComPort.setActive(true);
-        tcpBasedInboundComPort.save();
+        tcpBasedInboundComPort.update();
 
         assertThat(tcpBasedInboundComPort.isActive()).isTrue();
         assertThat(tcpBasedInboundComPort.getComPortPool()).isEqualTo(comPortPool);
@@ -225,7 +225,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
         comPort.setPortNumber(newPortNumber);
         comPort.setNumberOfSimultaneousConnections(newNumberOfSimultaneousConnections);
 
-        comPort.save();
+        comPort.update();
 
         // Asserts
         assertEquals("Name does not match", newName, comPort.getName());
@@ -237,9 +237,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
 
     private int comPortPoolIndex=1;
     private InboundComPortPool createComPortPool() {
-        InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool("ComPortPool "+comPortPoolIndex++, ComPortType.TCP, inboundDeviceProtocolPluggableClass);
-        inboundComPortPool.save();
-        return inboundComPortPool;
+        return getEngineModelService().newInboundComPortPool("ComPortPool "+comPortPoolIndex++, ComPortType.TCP, inboundDeviceProtocolPluggableClass);
     }
 
     private TCPBasedInboundComPort createSimpleComPort() {

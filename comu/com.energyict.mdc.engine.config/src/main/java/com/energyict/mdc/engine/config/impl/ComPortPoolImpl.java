@@ -161,7 +161,6 @@ public abstract class ComPortPoolImpl implements ComPortPool {
         }
     }
 
-    @Override
     public void save() {
         Save.action(getId()).save(dataModel, this);
     }
@@ -180,4 +179,24 @@ public abstract class ComPortPoolImpl implements ComPortPool {
         this.eventService.postEvent(EventType.COMPORTPOOL_VALIDATE_DELETE.topic(), this);
     }
 
+    @Override
+    public void update() {
+        Save.action(getId()).save(dataModel, this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ComPortPoolImpl that = (ComPortPoolImpl) o;
+
+        return id == that.id;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
+    }
 }

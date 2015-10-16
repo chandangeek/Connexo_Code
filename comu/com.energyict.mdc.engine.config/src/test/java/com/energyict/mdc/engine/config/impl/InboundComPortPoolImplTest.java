@@ -57,7 +57,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
     public void testCreateWithoutName() {
         InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool(null, ComPortType.TCP, inboundDeviceProtocolPluggableClass);
         inboundComPortPool.setDescription(DESCRIPTION);
-        inboundComPortPool.save();
+        inboundComPortPool.update();
         // Expecting BusinessException because the name is not set
     }
 
@@ -85,7 +85,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
         comPortPool.setActive(false);
 
         // Business method
-        comPortPool.save();
+        comPortPool.update();
 
         // Asserts
         assertThat(comPortPool.getDescription()).isEqualTo(comPortPool.getDescription());
@@ -102,11 +102,11 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
     public void testUpdateWithSameName() {
         InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool("Test for duplication", ComPortType.TCP, inboundDeviceProtocolPluggableClass);
         inboundComPortPool.setDescription(DESCRIPTION);
-        inboundComPortPool.save();
+        inboundComPortPool.update();
         // Business method
         inboundComPortPool = getEngineModelService().newInboundComPortPool("Test for duplication", ComPortType.TCP, inboundDeviceProtocolPluggableClass);
         inboundComPortPool.setDescription(DESCRIPTION);
-        inboundComPortPool.save();
+        inboundComPortPool.update();
         // Expecting a DuplicateException
     }
 
@@ -118,7 +118,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
         // Business method
         InboundComPortPool notADuplicate = getEngineModelService().newInboundComPortPool(comPortPool.getName(), ComPortType.TCP, inboundDeviceProtocolPluggableClass);
         notADuplicate.setDescription(DESCRIPTION);
-        notADuplicate.save();
+        notADuplicate.update();
 
         // No BusinessException expected, because a new ComPortPool can have the same name as a deleted one.
         // Asserts
@@ -283,7 +283,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
         InboundComPortPool comPortPool = this.newInboundComPortPoolWithoutViolations();
         comPortPool.makeObsolete();
 
-        comPortPool.save();
+        comPortPool.update();
 
         // Expected a BusinessException because an obsolete ComPortPool cannot be updated any longer
     }
@@ -306,7 +306,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
     public void testCreateWithoutComPortType() {
         InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool("Unique comPortPool "+comPortPoolIndex++, null, inboundDeviceProtocolPluggableClass);
         inboundComPortPool.setDescription(DESCRIPTION);
-        inboundComPortPool.save();
+        inboundComPortPool.update();
         // Expecting InvalidValueException because the ComPortType is not set
     }
 
@@ -341,7 +341,7 @@ public class InboundComPortPoolImplTest extends PersistenceTest {
     private InboundComPortPool newInboundComPortPoolWithoutViolations() {
         InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool("Unique comPortPool "+comPortPoolIndex++, ComPortType.TCP, inboundDeviceProtocolPluggableClass);
         inboundComPortPool.setDescription(DESCRIPTION);
-        inboundComPortPool.save();
+        inboundComPortPool.update();
         return inboundComPortPool;
     }
 

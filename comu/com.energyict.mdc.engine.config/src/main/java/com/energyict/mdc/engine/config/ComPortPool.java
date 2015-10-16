@@ -76,8 +76,7 @@ public interface ComPortPool extends HasId, HasName {
 
     public List<? extends ComPort> getComPorts();
 
-    public void save();
-
     public void delete();
 
+    void update();
 }

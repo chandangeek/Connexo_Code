@@ -105,7 +105,7 @@ public interface ComPort extends HasId, HasName  {
 
     public void setDescription(String description);
 
-    public void save();
+    public void update();
 
     public interface Builder<B extends Builder<B,C>, C extends ComPort> {
         B active(boolean active);

@@ -147,7 +147,7 @@ public class OutboundComPortImplTest extends PersistenceTest {
         comPort.setActive(newActive);
         comPort.setNumberOfSimultaneousConnections(newNumberOfSimultaneousConnections);
 
-        comPort.save();
+        comPort.update();
 
         // Asserts
         assertThat(comPort.getName()).isEqualTo(newName);

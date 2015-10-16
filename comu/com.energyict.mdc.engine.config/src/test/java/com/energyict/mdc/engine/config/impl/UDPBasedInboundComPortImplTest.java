@@ -124,7 +124,7 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
                 .add();
 
         udpBasedInboundComPort.setActive(true);
-        udpBasedInboundComPort.save();
+        udpBasedInboundComPort.update();
     }
 
     @Test
@@ -139,7 +139,7 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
         InboundComPortPool comPortPool = createComPortPool();
         udpBasedInboundComPort.setComPortPool(comPortPool);
         udpBasedInboundComPort.setActive(true);
-        udpBasedInboundComPort.save();
+        udpBasedInboundComPort.update();
 
         assertThat(udpBasedInboundComPort.isActive()).isTrue();
         assertThat(udpBasedInboundComPort.getComPortPool()).isEqualTo(comPortPool);
@@ -252,7 +252,7 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
         comPort.setNumberOfSimultaneousConnections(newNumberOfSimultaneousConnections);
         comPort.setBufferSize(newBufferSize);
 
-        comPort.save();
+        comPort.update();
         // Asserts
         assertEquals("Name does not match", newName, comPort.getName());
         assertEquals("Description does not match", newDescription, comPort.getDescription());
@@ -264,9 +264,7 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
 
     private int comPortPoolIndex=1;
     private InboundComPortPool createComPortPool() {
-        InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool("comPortPool "+comPortPoolIndex++, ComPortType.UDP, inboundDeviceProtocolPluggableClass);
-        inboundComPortPool.save();
-        return inboundComPortPool;
+        return getEngineModelService().newInboundComPortPool("comPortPool "+comPortPoolIndex++, ComPortType.UDP, inboundDeviceProtocolPluggableClass);
     }
 
     private UDPBasedInboundComPort createSimpleComPort() {

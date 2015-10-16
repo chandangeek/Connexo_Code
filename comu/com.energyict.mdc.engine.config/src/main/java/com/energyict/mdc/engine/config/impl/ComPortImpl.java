@@ -191,7 +191,7 @@ public abstract class ComPortImpl implements ComPort {
     }
 
     @Override
-    public void save() {
+    public void update() {
         if (this.getId()==0) {
             throw new IllegalStateException("ComPort should have been created using the ComServer, how did you end up here?");
         } else {
