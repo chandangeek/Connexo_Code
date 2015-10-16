@@ -79,7 +79,6 @@ public class ScheduleQueryTest extends ConnectionTaskImplIT {
         outboundComPortBuilder.comPortType(ComPortType.TCP);
         OutboundComPort outboundComPort = outboundComPortBuilder.add();
         outboundTcpipComPortPool2.addOutboundComPort(outboundComPort);
-        outboundTcpipComPortPool2.save();
         return outboundComPort;
     }
 

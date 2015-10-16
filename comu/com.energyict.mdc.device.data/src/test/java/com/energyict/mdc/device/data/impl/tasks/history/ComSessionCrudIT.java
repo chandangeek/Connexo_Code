@@ -321,7 +321,7 @@ public class ComSessionCrudIT {
 
             outboundTcpipComPortPool = engineConfigurationService.newOutboundComPortPool("outTCPIPPool", ComPortType.TCP, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
             outboundTcpipComPortPool.setActive(true);
-            outboundTcpipComPortPool.save();
+            outboundTcpipComPortPool.update();
 
             connectionTask = this.device.getScheduledConnectionTaskBuilder(this.partialScheduledConnectionTask)
                     .setComPortPool(outboundTcpipComPortPool)
