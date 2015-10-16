@@ -10,7 +10,10 @@ public enum EventType {
 
     METROLOGYCONFIGURATION_CREATED("metrologyconfiguration/CREATED"),
     METROLOGYCONFIGURATION_UPDATED("metrologyconfiguration/UPDATED"),
-    METROLOGYCONFIGURATION_DELETED("metrologyconfiguration/DELETED");
+    METROLOGYCONFIGURATION_DELETED("metrologyconfiguration/DELETED"),
+    USAGEPOINTMETROLOGYCONFIGURATION_CREATED("usagepointmetrologyconfiguration/CREATED"),
+    USAGEPOINTMETROLOGYCONFIGURATION_UPDATED("usagepointmetrologyconfiguration/UPDATED"),
+    USAGEPOINTMETROLOGYCONFIGURATION_DELETED("usagepointmetrologyconfiguration/DELETED");
 
     private static final String NAMESPACE = "com/elster/insight/usagepoint/config/";
     private final String topic;

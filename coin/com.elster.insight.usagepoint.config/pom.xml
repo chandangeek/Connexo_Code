@@ -62,6 +62,14 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>transaction</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering</artifactId>
+        </dependency>   
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cbo</artifactId>
+        </dependency>  
         
         <dependency>
             <groupId>com.elster.jupiter</groupId>
