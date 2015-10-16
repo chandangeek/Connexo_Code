@@ -48,11 +48,11 @@ public class SetupFirmwareManagementCommand {
     private void setUpDeviceTypeForFirmwareManagement(DeviceType deviceType){
         if (!isExcluded(deviceType)) {
             FirmwareVersion v1 = firmwareService.getFirmwareVersionByVersionAndType(FIRMWARE_VERSION_V1, FirmwareType.METER, deviceType)
-                                .orElseGet(() -> firmwareService.newFirmwareVersion(deviceType, FIRMWARE_VERSION_V1, FirmwareStatus.TEST, FirmwareType.METER).create());
+                                .orElseGet(() -> firmwareService.newFirmwareVersion(deviceType, FIRMWARE_VERSION_V1, FirmwareStatus.GHOST, FirmwareType.METER).create());
             setFirmwareBytes(v1, getClass().getClassLoader().getResourceAsStream(FIRMWARE_VERSION_V1+".firm"));
 
             FirmwareVersion v2 = firmwareService.getFirmwareVersionByVersionAndType(FIRMWARE_VERSION_V2, FirmwareType.METER, deviceType)
-                    .orElseGet(() -> firmwareService.newFirmwareVersion(deviceType, FIRMWARE_VERSION_V2, FirmwareStatus.TEST, FirmwareType.METER).create());
+                    .orElseGet(() -> firmwareService.newFirmwareVersion(deviceType, FIRMWARE_VERSION_V2, FirmwareStatus.GHOST, FirmwareType.METER).create());
             setFirmwareBytes(v2, getClass().getClassLoader().getResourceAsStream(FIRMWARE_VERSION_V2+".firm"));
 
             if (firmwareService.getAllowedFirmwareManagementOptionsFor(deviceType).isEmpty()) {
