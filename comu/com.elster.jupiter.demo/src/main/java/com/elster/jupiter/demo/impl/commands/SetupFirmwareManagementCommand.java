@@ -48,11 +48,11 @@ public class SetupFirmwareManagementCommand {
     private void setUpDeviceTypeForFirmwareManagement(DeviceType deviceType){
         if (!isExcluded(deviceType)) {
             FirmwareVersion v1 = firmwareService.getFirmwareVersionByVersionAndType(FIRMWARE_VERSION_V1, FirmwareType.METER, deviceType)
-                                .orElseGet(() -> firmwareService.newFirmwareVersion(deviceType, FIRMWARE_VERSION_V1, FirmwareStatus.FINAL, FirmwareType.METER));
+                                .orElseGet(() -> firmwareService.newFirmwareVersion(deviceType, FIRMWARE_VERSION_V1, FirmwareStatus.TEST, FirmwareType.METER).create());
             setFirmwareBytes(v1, getClass().getClassLoader().getResourceAsStream(FIRMWARE_VERSION_V1+".firm"));
 
             FirmwareVersion v2 = firmwareService.getFirmwareVersionByVersionAndType(FIRMWARE_VERSION_V2, FirmwareType.METER, deviceType)
-                    .orElseGet(() -> firmwareService.newFirmwareVersion(deviceType, FIRMWARE_VERSION_V2, FirmwareStatus.TEST, FirmwareType.METER));
+                    .orElseGet(() -> firmwareService.newFirmwareVersion(deviceType, FIRMWARE_VERSION_V2, FirmwareStatus.TEST, FirmwareType.METER).create());
             setFirmwareBytes(v2, getClass().getClassLoader().getResourceAsStream(FIRMWARE_VERSION_V2+".firm"));
 
             if (firmwareService.getAllowedFirmwareManagementOptionsFor(deviceType).isEmpty()) {
@@ -66,7 +66,8 @@ public class SetupFirmwareManagementCommand {
     private void setFirmwareBytes(FirmwareVersion firmwareVersion, InputStream inputStream){
         try {
             firmwareVersion.setFirmwareFile(getBytes(inputStream));
-            firmwareVersion.save();
+            firmwareVersion.setFirmwareStatus(FirmwareStatus.FINAL);
+            firmwareVersion.update();
         }catch(IOException exception){
            throw new UnableToCreate("FirmwareFile " + firmwareVersion.getFirmwareVersion() + ".firm could not be read");
         }
