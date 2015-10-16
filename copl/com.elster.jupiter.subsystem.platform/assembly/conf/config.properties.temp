@@ -43,6 +43,7 @@ org.osgi.framework.system.packages.extra=sun.net.http,sun.net.www.protocol.http,
 felix.log.level=1
 
 mail.smtp.host=
+mail.smtp.port=
 mail.user=
 mail.password=
 mail.from=
