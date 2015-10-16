@@ -119,7 +119,7 @@ public class MetrologyConfigurationCrudTest {
             assertThat(mc1).isPresent();
             assertThat(mc1.get().getName()).isEqualTo("Residenshull");
             mc1.get().setName("Residential");
-            mc1.get().save();
+            mc1.get().update();
             mc1 = upcService.findMetrologyConfiguration(1);
             Optional<MetrologyConfiguration> mc2 = getUsagePointConfigurationService().findMetrologyConfiguration(2);
             assertThat(mc1).isPresent();

@@ -39,7 +39,7 @@ public class ConsoleCommands {
                 
                 MetrologyConfiguration metrologyConfiguration = usagePointConfigurationService.findMetrologyConfiguration(id).get();
                 metrologyConfiguration.setName(name);
-                metrologyConfiguration.save();
+                metrologyConfiguration.update();
                 
             }));
         } catch (Exception e) {

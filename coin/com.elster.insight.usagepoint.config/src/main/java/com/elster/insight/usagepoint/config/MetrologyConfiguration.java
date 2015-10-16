@@ -6,7 +6,7 @@ public interface MetrologyConfiguration {
     long getId();
     String getName();
     void setName(String name);
-    void save();
+    void update();
     void delete();
     long getVersion();
     Instant getCreateTime();

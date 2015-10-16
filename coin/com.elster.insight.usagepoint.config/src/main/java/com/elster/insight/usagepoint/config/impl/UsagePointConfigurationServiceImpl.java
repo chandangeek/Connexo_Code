@@ -128,7 +128,9 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
 
     @Override
     public MetrologyConfiguration newMetrologyConfiguration(String name) {
-        return dataModel.getInstance(MetrologyConfigurationImpl.class).init(name);
+    	MetrologyConfigurationImpl metrologyConfiguration = dataModel.getInstance(MetrologyConfigurationImpl.class).init(name);
+    	metrologyConfiguration.update();
+        return metrologyConfiguration;
     }
     
     @Override

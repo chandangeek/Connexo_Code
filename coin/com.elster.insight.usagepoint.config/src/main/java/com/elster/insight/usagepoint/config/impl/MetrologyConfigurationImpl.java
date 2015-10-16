@@ -17,7 +17,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 
 @Unique(fields="name", groups = Save.Create.class)
-public class MetrologyConfigurationImpl implements MetrologyConfiguration {
+public final class MetrologyConfigurationImpl implements MetrologyConfiguration {
     private long id;
     private long version;
     private Instant createTime;
@@ -41,7 +41,6 @@ public class MetrologyConfigurationImpl implements MetrologyConfiguration {
         if (name != null) {
             setName(name.trim());
         }
-        this.save();
         return this;
     }
     
@@ -92,7 +91,7 @@ public class MetrologyConfigurationImpl implements MetrologyConfiguration {
     }
 
     @Override
-    public void save() {
+    public void update() {
         Save s = action(getId());
         s.save(dataModel, this);
         if (s == Save.CREATE) {
