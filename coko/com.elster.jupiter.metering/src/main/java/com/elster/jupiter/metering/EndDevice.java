@@ -33,6 +33,8 @@ public interface EndDevice extends IdentifiedObject {
     List<EndDeviceEventRecord> getDeviceEvents(Range<Instant> range, List<EndDeviceEventType> eventTypes);
     List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter);
 
+    List<EndDeviceEventRecord> getDeviceEventsByReadTime(Range<Instant> range);
+
     void setSerialNumber(String serialNumber);
 
     /**
