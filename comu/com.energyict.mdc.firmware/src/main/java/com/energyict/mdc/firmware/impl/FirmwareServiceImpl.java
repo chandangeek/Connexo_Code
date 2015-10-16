@@ -23,8 +23,6 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 
-import com.elster.jupiter.domain.util.DefaultFinder;
-import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.MessageService;
@@ -181,19 +179,15 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
     }
 
     @Override
-    public FirmwareVersion newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type) {
-        return FirmwareVersionImpl.from(dataModel, deviceType, firmwareVersion, status, type);
+    public FirmwareVersion.FirmwareVersionBuilder newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type) {
+        return new FirmwareVersionImpl.FirmwareVersionImplBuilder(dataModel.getInstance(FirmwareVersionImpl.class), deviceType, firmwareVersion, status, type);
     }
 
     @Override
     public boolean isFirmwareVersionInUse(long firmwareVersionId) {
         Optional<FirmwareVersion> firmwareVersionRef = getFirmwareVersionById(firmwareVersionId);
-        if (firmwareVersionRef.isPresent()) {
-            return !dataModel.query(ActivatedFirmwareVersion.class)
-                    .select(where(ActivatedFirmwareVersionImpl.Fields.FIRMWARE_VERSION.fieldName()).isEqualTo(firmwareVersionRef.get()), null, false, null, 1, 2)
-                    .isEmpty();
-        }
-        return false;
+        return firmwareVersionRef.isPresent()
+                && !dataModel.query(ActivatedFirmwareVersion.class).select(where(ActivatedFirmwareVersionImpl.Fields.FIRMWARE_VERSION.fieldName()).isEqualTo(firmwareVersionRef.get()), null, false, null, 1, 2).isEmpty();
     }
 
     @Override

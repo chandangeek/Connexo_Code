@@ -23,7 +23,7 @@ public interface FirmwareService extends ReferencePropertySpecFinderProvider {
     Finder<FirmwareVersion> findAllFirmwareVersions(FirmwareVersionFilter filter);
     Optional<FirmwareVersion> getFirmwareVersionById(long id);
     Optional<FirmwareVersion> getFirmwareVersionByVersionAndType(String version, FirmwareType firmwareType, DeviceType deviceType);
-    FirmwareVersion newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type);
+    FirmwareVersion.FirmwareVersionBuilder newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type);
     boolean isFirmwareVersionInUse(long firmwareVersionId);
 
 

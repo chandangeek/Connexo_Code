@@ -48,10 +48,8 @@ public class FirmwareVersionImplTest extends PersistenceTest{
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
     public void uniqueVersionTest() {
         String version = "Version1";
-        FirmwareVersion meterVersion1 = inMemoryPersistence.getFirmwareService().newFirmwareVersion(deviceType, version, FirmwareStatus.GHOST, FirmwareType.METER);
-        meterVersion1.save();
-        FirmwareVersion meterVersion2 = inMemoryPersistence.getFirmwareService().newFirmwareVersion(deviceType, version, FirmwareStatus.GHOST, FirmwareType.METER);
-        meterVersion2.save();
+        FirmwareVersion meterVersion1 = inMemoryPersistence.getFirmwareService().newFirmwareVersion(deviceType, version, FirmwareStatus.GHOST, FirmwareType.METER).create();
+        FirmwareVersion meterVersion2 = inMemoryPersistence.getFirmwareService().newFirmwareVersion(deviceType, version, FirmwareStatus.GHOST, FirmwareType.METER).create();
     }
 
 
@@ -59,10 +57,8 @@ public class FirmwareVersionImplTest extends PersistenceTest{
     @Transactional
     public void uniqueVersionCheckButDifferentTypeTest() {
         String version = "Version1";
-        FirmwareVersion meterVersion1 = inMemoryPersistence.getFirmwareService().newFirmwareVersion(deviceType, version, FirmwareStatus.GHOST, FirmwareType.METER);
-        meterVersion1.save();
-        FirmwareVersion meterVersion2 = inMemoryPersistence.getFirmwareService().newFirmwareVersion(deviceType, version, FirmwareStatus.GHOST, FirmwareType.COMMUNICATION);
-        meterVersion2.save();
+        FirmwareVersion meterVersion1 = inMemoryPersistence.getFirmwareService().newFirmwareVersion(deviceType, version, FirmwareStatus.GHOST, FirmwareType.METER).create();
+        FirmwareVersion meterVersion2 = inMemoryPersistence.getFirmwareService().newFirmwareVersion(deviceType, version, FirmwareStatus.GHOST, FirmwareType.COMMUNICATION).create();
 
         List<FirmwareVersion> firmwareVersions = inMemoryPersistence.getFirmwareService().findAllFirmwareVersions(new FirmwareVersionFilter(deviceType)).find();
         assertThat(firmwareVersions).hasSize(2);

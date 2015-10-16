@@ -27,8 +27,15 @@ public interface FirmwareVersion extends HasId {
 
     void validate();
 
-    void save();
-
     void deprecate();
+
+    void update();
+
+    interface FirmwareVersionBuilder {
+
+        FirmwareVersionBuilder setFirmwareFile(byte[] firmwareFile);
+
+        FirmwareVersion create();
+    }
 
 }
