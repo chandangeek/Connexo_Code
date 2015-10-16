@@ -248,9 +248,20 @@ public final class FirmwareVersionImpl implements FirmwareVersion, PersistenceAw
         }
 
         @Override
+        public FirmwareVersionBuilder setExpectedFirmwareSize(Integer fileSize) {
+            underConstruction.setExpectedFirmwareSize(fileSize);
+            return this;
+        }
+
+        @Override
         public FirmwareVersion create() {
             underConstruction.save();
             return underConstruction;
+        }
+
+        @Override
+        public void validate() {
+            underConstruction.validate();
         }
     }
 }

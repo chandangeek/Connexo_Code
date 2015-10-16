@@ -35,7 +35,14 @@ public interface FirmwareVersion extends HasId {
 
         FirmwareVersionBuilder setFirmwareFile(byte[] firmwareFile);
 
+        FirmwareVersionBuilder setExpectedFirmwareSize(Integer fileSize);
+
         FirmwareVersion create();
+
+        /**
+         * Validate will not create anything, just running the validation
+         */
+        void validate();
     }
 
 }
