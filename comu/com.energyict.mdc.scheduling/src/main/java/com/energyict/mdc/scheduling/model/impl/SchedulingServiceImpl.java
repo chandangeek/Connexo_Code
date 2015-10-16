@@ -152,6 +152,7 @@ public class SchedulingServiceImpl implements ServerSchedulingService, InstallSe
     public NextExecutionSpecs newNextExecutionSpecs(TemporalExpression temporalExpression) {
         NextExecutionSpecsImpl instance = dataModel.getInstance(NextExecutionSpecsImpl.class);
         instance.setTemporalExpression(temporalExpression);
+        instance.save();
         return instance;
     }
 
@@ -206,7 +207,8 @@ public class SchedulingServiceImpl implements ServerSchedulingService, InstallSe
     }
 
     class ComScheduleBuilderImpl implements ComScheduleBuilder {
-        private ComSchedule instance;
+
+        private ComScheduleImpl instance;
 
         ComScheduleBuilderImpl(String name, TemporalExpression temporalExpression, Instant startDate) {
             instance = dataModel.getInstance(ComScheduleImpl.class);
@@ -223,7 +225,14 @@ public class SchedulingServiceImpl implements ServerSchedulingService, InstallSe
         }
 
         @Override
+        public ComScheduleBuilder addComTask(ComTask comTask) {
+            instance.addComTask(comTask);
+            return this;
+        }
+
+        @Override
         public ComSchedule build() {
+            instance.save();
             return instance;
         }
     }

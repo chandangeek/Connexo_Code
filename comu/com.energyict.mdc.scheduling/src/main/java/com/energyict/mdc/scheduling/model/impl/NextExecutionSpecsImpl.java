@@ -4,14 +4,15 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.elster.jupiter.time.TemporalExpression;
+import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.events.CreateEventType;
 import com.energyict.mdc.scheduling.events.DeleteEventType;
 import com.energyict.mdc.scheduling.events.UpdateEventType;
+
+import javax.inject.Inject;
 import java.util.Calendar;
 import java.util.Date;
-import javax.inject.Inject;
 
 /**
  * Provides an implementation for the {@link NextExecutionSpecs} interface.
@@ -22,7 +23,7 @@ import javax.inject.Inject;
 @HasValidTemporalExpression(groups = { Save.Create.class, Save.Update.class })
 @OffsetNotGreaterThanFrequency(groups = { Save.Create.class, Save.Update.class })
 @OnlyRegularFrequencies(groups = { Save.Create.class, Save.Update.class })
-public class NextExecutionSpecsImpl extends PersistentIdObject<NextExecutionSpecs> implements NextExecutionSpecs {
+public final class NextExecutionSpecsImpl extends PersistentIdObject<NextExecutionSpecs> implements NextExecutionSpecs {
 
     enum Fields {
         TEMPORAL_EXPRESSION("temporalExpression");

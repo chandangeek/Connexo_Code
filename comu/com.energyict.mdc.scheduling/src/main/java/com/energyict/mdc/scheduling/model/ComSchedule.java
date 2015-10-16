@@ -39,7 +39,7 @@ public interface ComSchedule extends HasId, HasName, DataCollectionConfiguration
 
     public void setTemporalExpression(TemporalExpression temporalExpression);
 
-    public void save();
+    public void update();
 
     public void delete();
 

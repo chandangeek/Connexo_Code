@@ -33,7 +33,7 @@ public interface NextExecutionSpecs extends NextExecutionCalculator {
 
     public void setTemporalExpression(TemporalExpression temporalExpression);
 
-    public void save();
+    public void update();
 
     public void delete();
 

@@ -1,9 +1,5 @@
 package com.energyict.mdc.scheduling.model.impl;
 
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
-import com.energyict.mdc.tasks.ComTask;
-
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -12,13 +8,16 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
+import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
+import com.energyict.mdc.tasks.ComTask;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import java.time.Instant;
 import java.util.Optional;
-
-import org.junit.*;
-import org.junit.rules.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,8 +28,9 @@ public class ComScheduleImplTest extends PersistenceTest {
     private static final TimeDuration THIRTY_SECONDS = new TimeDuration("30 seconds");
 
     private static ComTask simpleComTask;
-    static{
-        try (TransactionContext context = inMemoryPersistence.getTransactionService().getContext()){
+
+    static {
+        try (TransactionContext context = inMemoryPersistence.getTransactionService().getContext()) {
             simpleComTask = inMemoryPersistence.getTaskService().newComTask("Simple task");
             simpleComTask.createStatusInformationTask();
             simpleComTask.save();
@@ -48,11 +48,9 @@ public class ComScheduleImplTest extends PersistenceTest {
     public void testSimpleCreateAndRetrieveSchedule() throws Exception {
         ComScheduleBuilder comScheduleBuilder = inMemoryPersistence.getSchedulingService().newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now());
         comScheduleBuilder.mrid("xyz");
-        ComSchedule comSchedule = comScheduleBuilder.build();
-        comSchedule.addComTask(simpleComTask);
 
         // Business method
-        comSchedule.save();
+        ComSchedule comSchedule = comScheduleBuilder.addComTask(simpleComTask).build();
 
         // Asserts
         Optional<ComSchedule> retrievedSchedule = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
@@ -67,9 +65,10 @@ public class ComScheduleImplTest extends PersistenceTest {
     @Test
     @Transactional
     public void testNameIsTrimmed() throws Exception {
-        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("name ", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now()).build();
-        comSchedule.addComTask(simpleComTask);
-        comSchedule.save();
+        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService()
+                .newComSchedule("name ", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now())
+                .addComTask(simpleComTask)
+                .build();
         Optional<ComSchedule> retrievedSchedule = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
         assertThat(retrievedSchedule.isPresent()).isTrue();
         assertThat(retrievedSchedule.get().getName()).isEqualTo("name");
@@ -78,9 +77,11 @@ public class ComScheduleImplTest extends PersistenceTest {
     @Test
     @Transactional
     public void testMRIDIsTrimmed() throws Exception {
-        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("name ", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now()).mrid(" mrid ").build();
-        comSchedule.addComTask(simpleComTask);
-        comSchedule.save();
+        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService()
+                .newComSchedule("name ", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now())
+                .mrid(" mrid ")
+                .addComTask(simpleComTask)
+                .build();
         Optional<ComSchedule> retrievedSchedule = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
         assertThat(retrievedSchedule.isPresent()).isTrue();
         assertThat(retrievedSchedule.get().getmRID()).isEqualTo("mrid");
@@ -89,9 +90,11 @@ public class ComScheduleImplTest extends PersistenceTest {
     @Test
     @Transactional
     public void testMRIDCanBuNull() throws Exception {
-        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("name ", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now()).mrid(null).build();
-        comSchedule.addComTask(simpleComTask);
-        comSchedule.save();
+        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService()
+                .newComSchedule("name ", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now())
+                .mrid(null)
+                .addComTask(simpleComTask)
+                .build();
         Optional<ComSchedule> retrievedSchedule = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
         assertThat(retrievedSchedule.isPresent()).isTrue();
         assertThat(retrievedSchedule.get().getmRID()).isNull();
@@ -99,132 +102,155 @@ public class ComScheduleImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.NOT_UNIQUE+"}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NOT_UNIQUE + "}", property = "name")
     public void testCanNotDuplicateName() throws Exception {
-        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("nameX", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now()).build();
-        comSchedule.addComTask(simpleComTask);
-        comSchedule.save();
+        inMemoryPersistence.getSchedulingService()
+                .newComSchedule("nameX", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now())
+                .addComTask(simpleComTask)
+                .build();
 
-        comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("nameX", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now()).build();
-        comSchedule.addComTask(simpleComTask);
-        comSchedule.save();
+        inMemoryPersistence.getSchedulingService()
+                .newComSchedule("nameX", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now())
+                .addComTask(simpleComTask)
+                .build();
     }
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.TOO_LONG+"}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.TOO_LONG + "}", property = "name")
     public void testNameMaxLength() throws Exception {
         String illegalName = StringUtils.repeat("x", Table.NAME_LENGTH + 1);
-        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule(illegalName, temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now()).build();
-        comSchedule.addComTask(simpleComTask);
-        comSchedule.save();
+        inMemoryPersistence.getSchedulingService()
+                .newComSchedule(illegalName, temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now())
+                .addComTask(simpleComTask)
+                .build();
     }
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.TOO_LONG+"}", property = "mRID")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.TOO_LONG + "}", property = "mRID")
     public void testMridMaxLength() throws Exception {
         String illegalMrid = StringUtils.repeat("x", Table.NAME_LENGTH + 1);
-        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now()).mrid(illegalMrid).build();
-        comSchedule.addComTask(simpleComTask);
-        comSchedule.save();
+        inMemoryPersistence.getSchedulingService()
+                .newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now())
+                .mrid(illegalMrid)
+                .addComTask(simpleComTask)
+                .build();
     }
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.NOT_UNIQUE+"}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NOT_UNIQUE + "}", property = "name")
     public void testCanNotDuplicateNameThroughUpdate() throws Exception {
-        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("nameX", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now()).build();
-        comSchedule.addComTask(simpleComTask);
-        comSchedule.save();
+        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService()
+                .newComSchedule("nameX", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now())
+                .addComTask(simpleComTask)
+                .build();
 
-        comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("nameOK", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now()).build();
-        comSchedule.addComTask(simpleComTask);
-        comSchedule.save();
+        comSchedule = inMemoryPersistence.getSchedulingService()
+                .newComSchedule("nameOK", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now())
+                .addComTask(simpleComTask)
+                .build();
         comSchedule.setName("nameX");
-        comSchedule.save();
+        comSchedule.update();
     }
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.NOT_UNIQUE+"}", property = "mRID")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NOT_UNIQUE + "}", property = "mRID")
     public void testCanNotDuplicateMRID() throws Exception {
-        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("nameX", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now()).mrid("MRID").build();
-        comSchedule.addComTask(simpleComTask);
-        comSchedule.save();
-        comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("nameY", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now()).mrid("MRID").build();
-        comSchedule.addComTask(simpleComTask);
-        comSchedule.save();
+        inMemoryPersistence.getSchedulingService()
+                .newComSchedule("nameX", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now())
+                .mrid("MRID")
+                .addComTask(simpleComTask)
+                .build();
+        inMemoryPersistence.getSchedulingService()
+                .newComSchedule("nameY", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now())
+                .mrid("MRID")
+                .addComTask(simpleComTask)
+                .build();
     }
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.NOT_UNIQUE+"}", property = "mRID")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NOT_UNIQUE + "}", property = "mRID")
     public void testCanNotDuplicateMRIDThroughUpdate() throws Exception {
-        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("nameX", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now()).mrid("MRID").build();
-        comSchedule.addComTask(simpleComTask);
-        comSchedule.save();
+        inMemoryPersistence.getSchedulingService()
+                .newComSchedule("nameX", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now())
+                .mrid("MRID")
+                .addComTask(simpleComTask)
+                .build();
 
-        comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("nameY", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now()).mrid("MRID-OK").build();
-        comSchedule.addComTask(simpleComTask);
-        comSchedule.save();
+        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService()
+                .newComSchedule("nameY", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now())
+                .mrid("MRID-OK")
+                .addComTask(simpleComTask)
+                .build();
         comSchedule.setmRID("MRID");
-        comSchedule.save();
+        comSchedule.update();
     }
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}", property = "startDate")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "startDate")
     public void testCanNotCreateWithoutStartDate() throws Exception {
-        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("nameX", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), null).build();
-        comSchedule.addComTask(simpleComTask);
-        comSchedule.save();
+        inMemoryPersistence.getSchedulingService()
+                .newComSchedule("nameX", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), null)
+                .addComTask(simpleComTask)
+                .build();
     }
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}", property = "startDate")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "startDate")
     public void testCanNotUpdateWithoutStartDate() throws Exception {
-        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("nameX", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now()).build();
+        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService()
+                .newComSchedule("nameX", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now())
+                .addComTask(simpleComTask)
+                .build();
         comSchedule.setStartDate(null);
-        comSchedule.addComTask(simpleComTask);
-        comSchedule.save();
+        comSchedule.update();
     }
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "name")
     public void testCanNotCreateWithoutName() throws Exception {
-        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule(null, temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now()).build();
-        comSchedule.addComTask(simpleComTask);
-        comSchedule.save();
+        inMemoryPersistence.getSchedulingService()
+                .newComSchedule(null, temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now())
+                .addComTask(simpleComTask)
+                .build();
     }
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}", property = "name")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}", property = "name")
     public void testCanNotUpdateWithoutName() throws Exception {
-        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now()).build();
+        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService()
+                .newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now())
+                .addComTask(simpleComTask)
+                .build();
         comSchedule.setName(null);
-        comSchedule.addComTask(simpleComTask);
-        comSchedule.save();
+        comSchedule.update();
     }
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED_KEY+"}", property = "nextExecutionSpecs.temporalExpression")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED_KEY + "}", property = "nextExecutionSpecs.temporalExpression")
     public void testCanCreateWithoutTemporalExpression() throws Exception {
-        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("nameX", null, Instant.now()).build();
-        comSchedule.addComTask(simpleComTask);
-        comSchedule.save();
+        inMemoryPersistence.getSchedulingService()
+                .newComSchedule("nameX", null, Instant.now())
+                .addComTask(simpleComTask)
+                .build();
     }
 
     @Test
     @Transactional
     public void testDeleteComSchedule() throws Exception {
-        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now()).build();
-        comSchedule.addComTask(simpleComTask);
-        comSchedule.save();
+        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService()
+                .newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now())
+                .addComTask(simpleComTask)
+                .build();
         Optional<ComSchedule> retrievedSchedule = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
         retrievedSchedule.get().delete();
         assertThat(inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId()).isPresent()).isFalse();
@@ -233,12 +259,13 @@ public class ComScheduleImplTest extends PersistenceTest {
     @Test
     @Transactional
     public void testUpdateComScheduleTemporalExpression() throws Exception {
-        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now()).build();
-        comSchedule.addComTask(simpleComTask);
-        comSchedule.save();
+        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService()
+                .newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now())
+                .addComTask(simpleComTask)
+                .build();
         Optional<ComSchedule> retrievedSchedule = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
         retrievedSchedule.get().setTemporalExpression(temporalExpression(TEN_MINUTES, THIRTY_SECONDS));
-        retrievedSchedule.get().save();
+        retrievedSchedule.get().update();
 
         assertThat(inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId())).isNotNull();
     }
@@ -246,13 +273,13 @@ public class ComScheduleImplTest extends PersistenceTest {
     @Test
     @Transactional
     public void testAddComTaskToUnusedSchedule() throws Exception {
-        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now()).build();
         ComTask comTask1 = inMemoryPersistence.getTaskService().newComTask("task 1");
         comTask1.createStatusInformationTask();
         comTask1.save();
-
-        comSchedule.addComTask(comTask1);
-        comSchedule.save();
+        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService()
+                .newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now())
+                .addComTask(comTask1)
+                .build();
 
         Optional<ComSchedule> retrieved = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
         assertThat(retrieved).isNotNull();
@@ -266,20 +293,20 @@ public class ComScheduleImplTest extends PersistenceTest {
     @Test
     @Transactional
     public void testAddSecondComTaskToSchedule() throws Exception {
-        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now()).build();
         ComTask comTask1 = inMemoryPersistence.getTaskService().newComTask("task 1");
         comTask1.createStatusInformationTask();
         comTask1.save();
-
-        comSchedule.addComTask(comTask1);
-        comSchedule.save();
+        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService()
+                .newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now())
+                .addComTask(comTask1)
+                .build();
 
         Optional<ComSchedule> updating = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
         ComTask comTask2 = inMemoryPersistence.getTaskService().newComTask("task 2");
         comTask2.createStatusInformationTask();
         comTask2.save();
         updating.get().addComTask(comTask2);
-        updating.get().save();
+        updating.get().update();
 
         Optional<ComSchedule> retrieved = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
         assertThat(retrieved).isNotNull();
@@ -293,24 +320,24 @@ public class ComScheduleImplTest extends PersistenceTest {
     @Test
     @Transactional
     public void testDeleteComTaskFromSchedule() throws Exception {
-        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now()).build();
-
         ComTask comTask1 = inMemoryPersistence.getTaskService().newComTask("task 1");
         comTask1.createStatusInformationTask();
         comTask1.save();
-        comSchedule.addComTask(comTask1);
-        comSchedule.save();
+
+        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService()
+                .newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now())
+                .addComTask(comTask1).build();
 
         ComTask comTask2 = inMemoryPersistence.getTaskService().newComTask("task 2");
         comTask2.createStatusInformationTask();
         comTask2.save();
         comSchedule.addComTask(comTask2);
-        comSchedule.save();
+        comSchedule.update();
 
         Optional<ComSchedule> updating = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
         ComTask task = inMemoryPersistence.getTaskService().findComTask(comTask2.getId()).get();
         updating.get().removeComTask(task);
-        updating.get().save();
+        updating.get().update();
 
         Optional<ComSchedule> retrieved = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
         assertThat(retrieved).isNotNull();
@@ -322,31 +349,33 @@ public class ComScheduleImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.COM_TASK_USAGES_NOT_FOUND+"}", property = "comTaskUsages")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.COM_TASK_USAGES_NOT_FOUND + "}", property = "comTaskUsages")
     public void testCreateComScheduleWithouComTask() throws Exception {
         ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now()).build();
-        comSchedule.save();
+        comSchedule.update();
     }
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.COM_TASK_USAGES_NOT_FOUND+"}", property = "comTaskUsages")
+    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.COM_TASK_USAGES_NOT_FOUND + "}", property = "comTaskUsages")
     public void testSaveComScheduleWithouComTask() throws Exception {
-        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now()).build();
-        comSchedule.addComTask(simpleComTask);
-        comSchedule.save();
+        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService()
+                .newComSchedule("name", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now())
+                .addComTask(simpleComTask)
+                .build();
 
         ComSchedule updating = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId()).get();
         updating.removeComTask(simpleComTask);
-        updating.save();
+        updating.update();
     }
 
     @Test
     @Transactional
     public void testMakeObsolete() throws Exception {
-        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule("testMakeObsolete", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now()).build();
-        comSchedule.addComTask(simpleComTask);
-        comSchedule.save();
+        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService()
+                .newComSchedule("testMakeObsolete", temporalExpression(TEN_MINUTES, TWENTY_SECONDS), Instant.now())
+                .addComTask(simpleComTask)
+                .build();
 
         // Business method
         comSchedule.makeObsolete();
@@ -355,8 +384,8 @@ public class ComScheduleImplTest extends PersistenceTest {
         assertThat(comSchedule.isObsolete()).isTrue();
     }
 
-    private TemporalExpression temporalExpression(TimeDuration ... td) {
-        if (td.length==1) {
+    private TemporalExpression temporalExpression(TimeDuration... td) {
+        if (td.length == 1) {
             return new TemporalExpression(td[0]);
         } else {
             return new TemporalExpression(td[0], td[1]);
