@@ -387,7 +387,7 @@ public class DashboardServiceImplTest {
     @Test
     public void testComTaskExecutionsComScheduleBreakdownWithoutComSchedules() {
         List<ComSchedule> comSchedules = new ArrayList<>(0);
-        when(this.schedulingService.findAllSchedules()).thenReturn(comSchedules);
+        when(this.schedulingService.getAllSchedules()).thenReturn(comSchedules);
 
         // Business methods
         ComScheduleBreakdown breakdown = this.dashboardService.getCommunicationTasksComScheduleBreakdown();
@@ -407,7 +407,7 @@ public class DashboardServiceImplTest {
         ComSchedule comSchedule = mock(ComSchedule.class);
         List<ComSchedule> comSchedules = new ArrayList<>();
         comSchedules.add(comSchedule);
-        when(this.schedulingService.findAllSchedules()).thenReturn(comSchedules);
+        when(this.schedulingService.getAllSchedules()).thenReturn(comSchedules);
         Map<TaskStatus, Long> statusCounters = new EnumMap<>(TaskStatus.class);
         for (TaskStatus taskStatus : TaskStatus.values()) {
             statusCounters.put(taskStatus, EXPECTED_STATUS_COUNT_VALUE);
