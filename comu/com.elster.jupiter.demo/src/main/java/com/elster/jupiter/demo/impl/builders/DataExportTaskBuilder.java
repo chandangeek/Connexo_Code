@@ -63,7 +63,7 @@ public class DataExportTaskBuilder extends NamedBuilder<ExportTask, DataExportTa
                 .setDataFormatterName("standardCsvDataProcessorFactory")
                 .setScheduleExpression(new TemporalExpression(TimeDuration.days(1), TimeDuration.hours(11)))
                 .setNextExecution(startOn.toInstant(ZoneOffset.UTC))
-                .selectingStandard()
+                .selectingReadingTypes()
                 .fromExportPeriod(yesterday.get())
                 .fromUpdatePeriod(yesterday.get())
                 .withValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
