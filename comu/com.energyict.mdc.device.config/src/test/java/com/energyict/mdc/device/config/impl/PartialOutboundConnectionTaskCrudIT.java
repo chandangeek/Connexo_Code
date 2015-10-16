@@ -305,10 +305,10 @@ public class PartialOutboundConnectionTaskCrudIT {
             connectionTypePluggableClass2.save();
             outboundComPortPool = engineConfigurationService.newOutboundComPortPool("inboundComPortPool", ComPortType.TCP, FIFTEEN_MINUTES);
             outboundComPortPool.setActive(true);
-            outboundComPortPool.save();
+            outboundComPortPool.update();
             outboundComPortPool1 = engineConfigurationService.newOutboundComPortPool("inboundComPortPool2", ComPortType.TCP, TimeDuration.minutes(5));
             outboundComPortPool1.setActive(true);
-            outboundComPortPool1.save();
+            outboundComPortPool1.update();
             context.commit();
         }
     }
