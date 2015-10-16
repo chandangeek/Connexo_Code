@@ -1,5 +1,7 @@
 package com.energyict.mdc.scheduling.model.impl;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -156,8 +158,13 @@ public class SchedulingServiceImpl implements ServerSchedulingService, InstallSe
     }
 
     @Override
-    public List<ComSchedule> findAllSchedules() {
+    public List<ComSchedule> getAllSchedules() {
         return this.dataModel.query(ComSchedule.class, NextExecutionSpecs.class).select(where(ComScheduleImpl.Fields.OBSOLETE_DATE.fieldName()).isNull());
+    }
+
+    @Override
+    public Finder<ComSchedule> findAllSchedules() {
+        return DefaultFinder.of(ComSchedule.class, where(ComScheduleImpl.Fields.OBSOLETE_DATE.fieldName()).isNull(), this.dataModel).defaultSortColumn(ComScheduleImpl.Fields.NAME.fieldName());
     }
 
     @Override
