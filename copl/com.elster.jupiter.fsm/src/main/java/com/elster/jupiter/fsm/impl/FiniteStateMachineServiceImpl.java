@@ -44,6 +44,7 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -95,6 +96,7 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     @Override
     public void install() {
         new Installer(this.dataModel, this.userService, eventService).install(true);
+        createStandardEventTypeNoTransaction(new ArrayList<>(standardEventPredicates));
     }
 
     @Override
@@ -212,7 +214,11 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     @Reference(name = "zStandardEventPredicates", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addStandardEventPredicate(StandardEventPredicate predicate) {
         this.standardEventPredicates.add(predicate);
-        this.createStandardEventType(predicate);
+        // check if dataModel is installed because this method can be/us called before the install is run
+        // the install() will install predicates that have been registerd before the dataModel was installed
+        if (dataModel.isInstalled()) {
+            this.createStandardEventType(predicate);
+        }
     }
 
     public void removeStandardEventPredicate(StandardEventPredicate predicate) {
@@ -228,7 +234,11 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
         transactionService
                 .builder()
                 .principal(() -> "Fsm Install")
-                .run(() -> this.createStandardEventType(predicate, this.eventService.getEventTypes()));
+                .run(() -> createStandardEventTypeNoTransaction(Collections.singletonList(predicate)));
+    }
+
+    private void createStandardEventTypeNoTransaction(List<StandardEventPredicate> predicates) {
+        predicates.forEach(predicate -> this.createStandardEventType(predicate, this.eventService.getEventTypes()));
     }
 
     private void createStandardEventType(StandardEventPredicate predicate, List<com.elster.jupiter.events.EventType> allEventTypes) {
