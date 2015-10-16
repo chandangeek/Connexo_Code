@@ -79,12 +79,11 @@ public abstract class PartialOutboundConnectionTaskImpl extends PartialConnectio
     public void setTemporalExpression(TemporalExpression temporalExpression) {
         if (!this.nextExecutionSpecs.isPresent()) {
             NextExecutionSpecs newNextExecutionSpecs = schedulingService.newNextExecutionSpecs(temporalExpression);
-            newNextExecutionSpecs.save();
             this.nextExecutionSpecs.set(newNextExecutionSpecs);
         } else  {
             this.nextExecutionSpecs.get().setTemporalExpression(temporalExpression);
+            this.nextExecutionSpecs.get().update();
         }
-        this.nextExecutionSpecs.get().save();
     }
 
     @Override
