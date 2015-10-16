@@ -95,7 +95,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     @Override
     protected void validateAndCreate() {
         if (this.nextExecutionSpecs.isPresent()) {
-            this.getNextExecutionSpecs().save();
+            this.getNextExecutionSpecs().update();
         }
         super.validateAndCreate();
         if (this.getNextExecutionSpecs() != null) {
@@ -720,6 +720,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
      * and new NextExecutionSpecs need to be created.
      */
     private class CreateSchedule extends DefaultStrategy {
+
         private final NextExecutionSpecs nextExecutionSpecs;
 
         protected CreateSchedule(TemporalExpression temporalExpression) {
@@ -728,7 +729,6 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
         @Override
         public void prepare() {
-            this.nextExecutionSpecs.save();
             ScheduledConnectionTaskImpl.this.setNextExecutionSpecs(this.nextExecutionSpecs);
         }
 
@@ -780,7 +780,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
         @Override
         public void prepare() {
-            this.getNextExecutionSpecs().save();
+            this.getNextExecutionSpecs().update();
             doUpdateNextExecutionTimestamp(PostingMode.LATER);
         }
 

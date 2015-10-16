@@ -185,10 +185,10 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
     }
 
     protected ComSchedule createComSchedule(String name, ComTask comTask, TemporalExpression temporalExpression) {
-        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule(name, temporalExpression, Instant.now()).build();
-        comSchedule.addComTask(comTask);
-        comSchedule.save();
-        return comSchedule;
+        return inMemoryPersistence.getSchedulingService()
+                .newComSchedule(name, temporalExpression, Instant.now())
+                .addComTask(comTask)
+                .build();
     }
 
     protected OutboundComPort createOutboundComPort() {
