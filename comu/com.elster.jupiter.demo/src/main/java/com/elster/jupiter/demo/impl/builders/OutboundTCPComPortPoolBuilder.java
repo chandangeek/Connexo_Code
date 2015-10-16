@@ -21,8 +21,8 @@ public class OutboundTCPComPortPoolBuilder extends NamedBuilder<OutboundComPortP
         this.engineConfigurationService = engineConfigurationService;
     }
 
-    public OutboundTCPComPortPoolBuilder withComPortNames(List<String> comPortNames){
-       this.comPortNames = comPortNames;
+    public OutboundTCPComPortPoolBuilder withComPortNames(List<String> comPortNames) {
+        this.comPortNames = comPortNames;
         return this;
     }
 
@@ -32,15 +32,15 @@ public class OutboundTCPComPortPoolBuilder extends NamedBuilder<OutboundComPortP
     }
 
     @Override
-    public OutboundComPortPool create(){
+    public OutboundComPortPool create() {
         Log.write(this);
         OutboundComPortPool outboundComPortPool = engineConfigurationService.newOutboundComPortPool(getName(), ComPortType.TCP, new TimeDuration(0, TimeDuration.TimeUnit.SECONDS));
         outboundComPortPool.setActive(true);
         if (comPortNames != null) {
             engineConfigurationService.findAllOutboundComPorts().stream().filter(port -> comPortNames.contains(port.getName()))
-            .forEach(port -> outboundComPortPool.addOutboundComPort(port));
+                    .forEach(outboundComPortPool::addOutboundComPort);
         }
-        outboundComPortPool.save();
+        outboundComPortPool.update();
         return outboundComPortPool;
     }
 }
