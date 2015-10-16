@@ -14,14 +14,18 @@ import org.osgi.service.component.annotations.Reference;
 
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
+import com.elster.insight.usagepoint.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.time.Interval;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 
@@ -35,12 +39,14 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     private volatile QueryService queryService;
     private volatile EventService eventService;
     private volatile OrmService ormService;
+    private volatile MeteringService meteringService;
 
     public UsagePointConfigurationServiceImpl() {
     }
 
     @Inject
-    public UsagePointConfigurationServiceImpl(Clock clock, OrmService ormService, QueryService queryService, UserService userService, EventService eventService, ThreadPrincipalService threadPrincipalService) {
+    public UsagePointConfigurationServiceImpl(Clock clock, OrmService ormService, QueryService queryService, UserService userService, EventService eventService, ThreadPrincipalService threadPrincipalService,
+            MeteringService meteringService) {
         setClock(clock);
         setOrmService(ormService);
         setQueryService(queryService);
@@ -122,6 +128,11 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
         this.userService = userService;
     }
 
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
+    
     DataModel getDataModel() {
         return dataModel;
     }
@@ -141,5 +152,23 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     @Override
     public List<MetrologyConfiguration> findAllMetrologyConfigurations() {
         return DefaultFinder.of(MetrologyConfiguration.class, this.getDataModel()).defaultSortColumn("lower(name)").find();
+    }
+
+    @Override
+    public UsagePointMetrologyConfiguration link(UsagePoint up, MetrologyConfiguration mc, Interval interval) {
+        UsagePointMetrologyConfigurationImpl candidate = new UsagePointMetrologyConfigurationImpl(clock, dataModel, eventService);
+        candidate.init(up, mc, interval);
+        validateAddingLink(candidate);
+        candidate.update();
+        return candidate;        
+    }
+    
+    private void validateAddingLink(UsagePointMetrologyConfigurationImpl candidate) {
+        List<UsagePointMetrologyConfiguration> existing = dataModel.mapper(UsagePointMetrologyConfiguration.class).find();
+        for (UsagePointMetrologyConfiguration other : existing) {
+            if (candidate.conflictsWith(other)) {
+                throw new IllegalArgumentException("Conflicts with existing association : " + other);
+            }
+        }
     }
 }

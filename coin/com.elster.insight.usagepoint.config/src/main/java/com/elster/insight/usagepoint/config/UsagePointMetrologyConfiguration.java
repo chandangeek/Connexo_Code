@@ -1,5 +1,7 @@
 package com.elster.insight.usagepoint.config;
 
+import java.time.Instant;
+
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.associations.Effectivity;
 
@@ -18,4 +20,7 @@ public interface UsagePointMetrologyConfiguration extends Effectivity {
 	boolean conflictsWith(UsagePointMetrologyConfiguration other);
 
     long getVersion();
+    Instant getCreateTime();
+    Instant getModTime();
+    String getUserName();
 }

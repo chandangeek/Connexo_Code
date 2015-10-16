@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.sql.SQLException;
-import java.util.List;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Optional;
-
-import javax.validation.ConstraintViolationException;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -19,13 +19,23 @@ import org.osgi.service.event.EventAdmin;
 
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
+import com.elster.insight.usagepoint.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -33,13 +43,14 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.time.Interval;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MetrologyConfigurationCrudTest {
-
+public class LinkTest {
+    private static final Instant START = ZonedDateTime.of(2013, 4, 14, 17, 20, 4, 0,ZoneId.systemDefault()).toInstant();
     private static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
@@ -59,6 +70,9 @@ public class MetrologyConfigurationCrudTest {
         			new MockModule(),
         			inMemoryBootstrapModule,
         			new UsagePointConfigModule(),
+                    new IdsModule(),
+                    new MeteringModule(),
+                    new PartyModule(),
         			new UserModule(),
         			new EventsModule(),
         			new InMemoryMessagingModule(),
@@ -69,6 +83,7 @@ public class MetrologyConfigurationCrudTest {
         			new DataVaultModule(),
         			new PubSubModule(),
         			new TransactionModule(printSql),
+                    new FiniteStateMachineModule(),
                     new NlsModule()
                 );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
@@ -89,73 +104,38 @@ public class MetrologyConfigurationCrudTest {
     private TransactionService getTransactionService() {
         return injector.getInstance(TransactionService.class);
     }
-
+    
+    private ServerMeteringService getMeteringService() {
+        return injector.getInstance(ServerMeteringService.class);
+    }
+    
     @Test
-    public void testCrud()  {
+    public void testLink()  {
+        long upId;
+        long mcId;
+
         try (TransactionContext context = getTransactionService().getContext()) {
+            MeteringService mtrService = getMeteringService();
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
-            MetrologyConfiguration mc1 = upcService.newMetrologyConfiguration("Residenshull");
-            assertThat(mc1.getName()).isEqualTo("Residenshull");
-            MetrologyConfiguration mc2 = upcService.newMetrologyConfiguration("Commercial 1");
-            assertThat(mc2.getName()).isEqualTo("Commercial 1");
+            ServiceCategory serviceCategory = mtrService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+            UsagePoint up = serviceCategory.newUsagePoint("mrID").create();
+            upId = up.getId();
+            MetrologyConfiguration mc = upcService.newMetrologyConfiguration("Residential");
+            mcId = mc.getId();
         	context.commit();
         }
         try (TransactionContext context = getTransactionService().getContext()) {
+            MeteringService mtrService = getMeteringService();
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
-        	Optional<MetrologyConfiguration> mc1 = upcService.findMetrologyConfiguration(1);
-        	assertThat(mc1).isPresent();
-        	assertThat(mc1.get().getName()).isEqualTo("Residenshull");
-            Optional<MetrologyConfiguration> mc2 = getUsagePointConfigurationService().findMetrologyConfiguration(2);
-            assertThat(mc2.isPresent());
-            assertThat(mc2.get().getName()).isEqualTo("Commercial 1");    
-            List<MetrologyConfiguration> all = upcService.findAllMetrologyConfigurations();
-            assertThat(all.size()).isEqualTo(2);
-            context.commit();
-        }
-        try (TransactionContext context = getTransactionService().getContext()) {
-            UsagePointConfigurationService upcService = getUsagePointConfigurationService();
-            Optional<MetrologyConfiguration> mc1 = upcService.findMetrologyConfiguration(1);
-            assertThat(mc1).isPresent();
-            assertThat(mc1.get().getName()).isEqualTo("Residenshull");
-            mc1.get().setName("Residential");
-            mc1.get().update();
-            mc1 = upcService.findMetrologyConfiguration(1);
-            Optional<MetrologyConfiguration> mc2 = getUsagePointConfigurationService().findMetrologyConfiguration(2);
-            assertThat(mc1).isPresent();
-            assertThat(mc1.get().getName()).isEqualTo("Residential");
-            context.commit();
-        }
-        try (TransactionContext context = getTransactionService().getContext()) {
-            UsagePointConfigurationService upcService = getUsagePointConfigurationService();
-            List<MetrologyConfiguration> all = upcService.findAllMetrologyConfigurations();
-        	for (MetrologyConfiguration mc : all) {
-        		mc.delete();
-        	}
-        	context.commit();
-        }
-        try (TransactionContext context = getTransactionService().getContext()) {
-            UsagePointConfigurationService upcService = getUsagePointConfigurationService();
-            List<MetrologyConfiguration> all = upcService.findAllMetrologyConfigurations();
-            assertThat(all).isEmpty();
+            Optional<UsagePoint> up = mtrService.findUsagePoint(upId);
+        	Optional<MetrologyConfiguration> mc = upcService.findMetrologyConfiguration(mcId);
+        	assertThat(up).isPresent();
+        	assertThat(mc).isPresent();
+        	assertThat(mc.get().getName()).isEqualTo("Residential");
+        	assertThat(up.get().getMRID()).isEqualTo("mrID");
+        	UsagePointMetrologyConfiguration upmc = upcService.link(up.get(),  mc.get(), Interval.startAt(START));
+            assertThat(upmc).isNotNull();            
             context.commit();
         }
     }
-    
-    @Test(expected = ConstraintViolationException.class)
-    public void testEmptyName()  {
-        try (TransactionContext context = getTransactionService().getContext()) {
-            UsagePointConfigurationService upcService = getUsagePointConfigurationService();
-            MetrologyConfiguration mc1 = upcService.newMetrologyConfiguration("");
-            context.commit();
-        }
-    }
-    
-    @Test(expected = ConstraintViolationException.class)
-    public void testNullName()  {
-        try (TransactionContext context = getTransactionService().getContext()) {
-            UsagePointConfigurationService upcService = getUsagePointConfigurationService();
-            MetrologyConfiguration mc1 = upcService.newMetrologyConfiguration(null);
-            context.commit();
-        }
-    }    
 }
