@@ -13,7 +13,7 @@ public enum TranslationKeys implements TranslationKey {
     SUBSCRIBER_NAME(Installer.SUBSCRIBER_NAME, DataExportServiceImpl.SUBSCRIBER_DISPLAYNAME),
 
     NUMBER_OF_DATASOURCES_SUCCESSFULLY_EXPORTED("dataexport.dataSourcesSuccessfullyExported", "{0} data source(s) successfully exported"),
-    NUMBER_OF_DATASOURCES_SKIPPED("dataexport.dataSourcesSuccessfullyExported", "{0} data source(s) skipped");
+    NUMBER_OF_DATASOURCES_SKIPPED("dataexport.dataSourcesSuccessfullySkipped", "{0} data source(s) skipped"),
     ;
 
     private String key;

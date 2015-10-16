@@ -52,8 +52,10 @@ public abstract class AbstractFtpDataExportDestination extends AbstractDataExpor
             if (!Files.exists(targetDirectory)) {
                 try {
                     targetDirectory = Files.createDirectories(targetDirectory);
-                } catch (IOException e) {
-                    throw new FileIOException(getThesaurus(), targetDirectory, e);
+                } catch (Exception e) {
+                    throw new DestinationFailedException(
+                            thesaurus, MessageSeeds.FTP_DESTINATION_FAILED, e,
+                            AbstractFtpDataExportDestination.this.getResolvedUrl(tagReplacerFactory, structureMarker), e.getMessage());
                 }
             }
             return targetDirectory.resolve(tagReplacer.replaceTags(fileName) + '.' + fileExtension);
@@ -66,14 +68,17 @@ public abstract class AbstractFtpDataExportDestination extends AbstractDataExpor
                     MessageSeeds.DATA_EXPORTED_TO.log(logger, thesaurus, AbstractFtpDataExportDestination.this.getServerInfo() +  target.toAbsolutePath().toString());
                     context.commit();
                 }
-            } catch (IOException e) {
-                throw new FileIOException(getThesaurus(), target, e);
+            } catch (Exception e) {
+                throw new DestinationFailedException(
+                        thesaurus, MessageSeeds.FTP_DESTINATION_FAILED, e, AbstractFtpDataExportDestination.this.getServerInfo() +  target.toAbsolutePath().toString(), e.getMessage());
             }
         }
 
         private Path getTargetDirectory(String fileLocation) {
             return remoteFileSystem.getPath("/").resolve(fileLocation);
         }
+
+
 
     }
 
@@ -118,14 +123,27 @@ public abstract class AbstractFtpDataExportDestination extends AbstractDataExpor
     @Override
     public void send(Map<StructureMarker, Path> files, TagReplacerFactory tagReplacerFactory, Logger logger, Thesaurus thesaurus) {
         try {
+            if (files.isEmpty()) {
+                return;
+            }
             getFtpSessionFactory().runInSession(
                     remoteFileSystem -> {
                         new AbstractFtpDataExportDestination.Sender(tagReplacerFactory, remoteFileSystem, logger, thesaurus).send(files);
                     }
             );
-        } catch (IOException e) {
-            throw new FtpIOException(getThesaurus(), getServer(), getPort(), e);
+        } catch (Exception e) {
+            StructureMarker marker = files.keySet().iterator().next();
+            throw new DestinationFailedException(
+                    thesaurus, MessageSeeds.FTP_DESTINATION_FAILED, e, getResolvedUrl(tagReplacerFactory, marker), e.getMessage());
         }
+    }
+
+
+    private String getResolvedUrl(TagReplacerFactory tagReplacerFactory, StructureMarker structureMarker) {
+        TagReplacer tagReplacer = tagReplacerFactory.forMarker(structureMarker);
+        String fileNameWithTags = tagReplacer.replaceTags(fileName) + '.' + fileExtension;
+        String targetLocation = tagReplacer.replaceTags(fileLocation);
+        return AbstractFtpDataExportDestination.this.getServerInfo() + "/" + targetLocation + "/" + fileNameWithTags;
     }
 
     @Override

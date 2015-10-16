@@ -49,26 +49,30 @@ class FileDestinationImpl extends AbstractDataExportDestination implements FileD
 
         private Path determineTargetFile(StructureMarker structureMarker) {
             TagReplacer tagReplacer = tagReplacerFactory.forMarker(structureMarker);
-            Path targetDirectory = getTargetDirectory(tagReplacer.replaceTags(fileLocation));
+            String fileLocationWithTags = tagReplacer.replaceTags(fileLocation);
+            Path targetDirectory = getTargetDirectory(fileLocationWithTags);
+            String fileNameWithTags = tagReplacer.replaceTags(fileName) + '.' + fileExtension;
             if (!Files.exists(targetDirectory)) {
                 try {
                     targetDirectory = Files.createDirectories(targetDirectory);
                 } catch (IOException e) {
-                    throw new FileIOException(getThesaurus(), targetDirectory, e);
+                    throw new DestinationFailedException(
+                            thesaurus, MessageSeeds.FILE_DESTINATION_FAILED, e, fileLocationWithTags + "/" + fileNameWithTags, e.getMessage());
                 }
             }
-            return targetDirectory.resolve(tagReplacer.replaceTags(fileName) + '.' + fileExtension);
+            return targetDirectory.resolve(fileNameWithTags);
         }
 
         private void doCopy(Path source, Path target) {
             try {
                 Files.copy(source, target);
-                try (TransactionContext context = getTransactionService().getContext()) {
+            } catch (Exception e) {
+                throw new DestinationFailedException(
+                        thesaurus, MessageSeeds.FILE_DESTINATION_FAILED, e, target.toAbsolutePath().toString(), e.getMessage());
+            }
+            try (TransactionContext context = getTransactionService().getContext()) {
                     MessageSeeds.DATA_EXPORTED_TO.log(logger, thesaurus, target.toAbsolutePath().toString());
                     context.commit();
-                }
-            } catch (IOException e) {
-                throw new FileIOException(getThesaurus(), target, e);
             }
         }
 

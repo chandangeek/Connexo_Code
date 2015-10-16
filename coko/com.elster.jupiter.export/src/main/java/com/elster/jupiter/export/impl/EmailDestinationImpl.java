@@ -8,6 +8,7 @@ import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.mail.MailAddress;
 import com.elster.jupiter.mail.MailMessageBuilder;
 import com.elster.jupiter.mail.MailService;
+import com.elster.jupiter.mail.OutboundMailMessage;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -55,30 +56,35 @@ class EmailDestinationImpl extends AbstractDataExportDestination implements Emai
         }
 
         private void sendMail(Map<String, Path> files) {
-            List<String> recipients = getRecipientsList();
-            if (recipients.isEmpty()) {
-                return;
-            }
-            MailAddress primary = mailService.mailAddress(recipients.get(0));
-            MailMessageBuilder mailBuilder = mailService.messageBuilder(primary)
-                    .withSubject(subject);
-
-            files.forEach((fileName, path) -> mailBuilder.withAttachment(path, fileName));
             String fileNames = "";
             Object[] fileNamesArray = files.keySet().toArray();
-
             for (int i = 0; i < fileNamesArray.length; i++) {
                 fileNames = fileNames + fileNamesArray[i].toString();
                 if (i < (fileNamesArray.length - 1)) {
                     fileNames = fileNames + ",";
                 }
             }
+            try {
+                List<String> recipients = getRecipientsList();
+                if (recipients.isEmpty()) {
+                    return;
+                }
+                MailAddress primary = mailService.mailAddress(recipients.get(0));
+                MailMessageBuilder mailBuilder = mailService.messageBuilder(primary)
+                        .withSubject(subject);
 
-            recipients.stream()
-                    .skip(1)
-                    .map(mailService::mailAddress)
-                    .forEach(mailBuilder::addRecipient);
-            mailBuilder.build().send();
+                files.forEach((fileName, path) -> mailBuilder.withAttachment(path, fileName));
+
+                recipients.stream()
+                        .skip(1)
+                        .map(mailService::mailAddress)
+                        .forEach(mailBuilder::addRecipient);
+
+                mailBuilder.build().send();
+            } catch (Exception e) {
+                throw new DestinationFailedException(
+                        thesaurus, MessageSeeds.MAIL_DESTINATION_FAILED, e, fileNames, e.getMessage());
+            }
             try (TransactionContext context = getTransactionService().getContext()) {
                 MessageSeeds.DATA_MAILED_TO.log(logger, thesaurus, EmailDestinationImpl.this.recipients, fileNames);
                 context.commit();

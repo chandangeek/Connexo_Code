@@ -71,7 +71,7 @@ class DataExportTaskExecutor implements TaskExecutor {
             success = true;
         } catch (Exception ex) {
             thrown = ex;
-            errorMessage = ex.getMessage();
+            errorMessage = ex.getLocalizedMessage();
             if (is(errorMessage).emptyOrOnlyWhiteSpace()) {
                 errorMessage = ex.toString();
             }
@@ -79,7 +79,12 @@ class DataExportTaskExecutor implements TaskExecutor {
         } finally {
             try (TransactionContext transactionContext = transactionService.getContext()) {
                 if (thrown != null) {
-                    occurrenceLogger.log(Level.SEVERE, errorMessage, thrown);
+                    if (thrown.getCause() instanceof DestinationFailedException) {
+                        occurrenceLogger.log(Level.SEVERE, errorMessage, thrown);
+                    } else {
+                        //default error message (fallback)
+                        MessageSeeds.DEFAULT_MESSAGE_EXPORT_FAILED.log(occurrenceLogger, thesaurus, thrown.getLocalizedMessage());
+                    }
                 }
                 dataExportOccurrence.end(success ? DataExportStatus.SUCCESS : DataExportStatus.FAILED, errorMessage);
                 dataExportOccurrence.update();

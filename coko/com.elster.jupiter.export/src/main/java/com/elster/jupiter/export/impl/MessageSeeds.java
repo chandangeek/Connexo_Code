@@ -38,8 +38,15 @@ public enum MessageSeeds implements MessageSeed {
     SOME_DEVICES_HAVE_NONE_OF_THE_SELECTED_READINGTYPES(1027, "dataexport.device.mismatch", "Some devices of {0} do not contain the selected reading type(s) that have to be exported.", Level.WARNING),
     ITEM_DOES_NOT_HAVE_DATA_FOR_EXPORT_WINDOW(1028, "dataexport.item.nodata", "{0} and reading type {1} do not contain data for the selected export window.", Level.WARNING),
     EXPORT_PERIOD_COVERS_FUTURE(1029, "dataexport.exportwindow.overlapsfuture", "The export window {0} overlaps with the future. As a result the exported data is incomplete.", Level.WARNING),
-    NO_DATA_TOEXPORT(1030, "dataexport.nodata", "There is no data to export.", Level.INFO);
-    
+    NO_DATA_TOEXPORT(1030, "dataexport.nodata", "There is no data to export.", Level.INFO),
+
+    MAIL_DESTINATION_FAILED(1031, "dataexport.mailDestinationFailed", "Failed to export to mail destination {0}, due to {1}", Level.SEVERE),
+    FILE_DESTINATION_FAILED(1032, "dataexport.fileDestinationFailed", "Failed to export to file destination {0}, due to {1}", Level.SEVERE),
+    FTP_DESTINATION_FAILED(1033, "dataexport.ftpDestinationFailed", "Failed to export to ftp(s) destination {0}, due to {1}", Level.SEVERE),
+
+    DEFAULT_MESSAGE_EXPORT_FAILED(1033, "dataexport.exportFailed", "Failed to export, due to {0}", Level.SEVERE);
+
+
     private final int number;
     private final String key;
     private final String defaultFormat;
