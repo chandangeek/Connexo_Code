@@ -170,12 +170,6 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
         }
 
         @Override
-        public EventSelectorBuilderImpl continuousData(boolean continuous) {
-            exportContinuousData = continuous;
-            return this;
-        }
-
-        @Override
         public EventSelectorBuilderImpl fromEventType(String filterCode) {
             eventTypeFilters.add(filterCode);
             return this;

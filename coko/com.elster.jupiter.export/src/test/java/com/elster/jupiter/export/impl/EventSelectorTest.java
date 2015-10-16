@@ -1,6 +1,6 @@
 package com.elster.jupiter.export.impl;
 
-import com.elster.jupiter.export.DataExportOccurrence;
+import com.elster.jupiter.devtools.persistence.test.TransactionVerifier;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.EventDataExportStrategy;
@@ -12,8 +12,14 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EndDeviceMembership;
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.Range;
 import org.junit.After;
 import org.junit.Before;
@@ -21,7 +27,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
+import java.text.MessageFormat;
 import java.time.Clock;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -33,8 +41,8 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -42,10 +50,12 @@ public class EventSelectorTest {
 
     private static final ZonedDateTime eventTime = ZonedDateTime.of(2012, 11, 22, 0, 5, 13, 0, ZoneId.systemDefault());
 
+    private TransactionService transactionService = new TransactionVerifier();
+
     @Mock
     private DataExportService dataExportService;
     @Mock
-    private DataExportOccurrence occurrence;
+    private IDataExportOccurrence occurrence;
     @Mock
     private DataModel dataModel;
     @Mock
@@ -64,17 +74,19 @@ public class EventSelectorTest {
     private DefaultSelectorOccurrence defaultSelectorOccurrence;
     @Mock
     private Clock clock;
+    @Mock
+    private Thesaurus thesaurus;
 
     @Before
     public void setUp() {
-        when(dataModel.getInstance(EventSelector.class)).thenAnswer(invocation -> new EventSelector(dataExportService));
+        when(dataModel.getInstance(EventSelector.class)).thenAnswer(invocation -> new EventSelector(transactionService, dataExportService, clock, thesaurus));
         when(dataExportService.forRoot(anyString())).thenAnswer(invocation -> DefaultStructureMarker.createRoot(clock, (String) invocation.getArguments()[0]));
         when(selector.getEndDeviceGroup()).thenReturn(endDeviceGroup);
         when(endDeviceGroup.getMembers(any(Range.class))).thenReturn(Arrays.asList(membership1, membership2));
         when(membership1.getEndDevice()).thenReturn(endDevice1);
         when(membership2.getEndDevice()).thenReturn(endDevice2);
-        when(endDevice1.getDeviceEvents(any())).thenReturn(Arrays.asList(event1, event2, event3));
-        when(endDevice2.getDeviceEvents(any())).thenReturn(Arrays.asList(event4, event5, event6));
+        when(endDevice1.getDeviceEventsByReadTime(any())).thenReturn(Arrays.asList(event1, event2, event3));
+        when(endDevice2.getDeviceEventsByReadTime(any())).thenReturn(Arrays.asList(event4, event5, event6));
         when(event1.getEventTypeCode()).thenReturn("4.11.15.0");
         when(event2.getEventTypeCode()).thenReturn("4.12.15.0");
         when(event3.getEventTypeCode()).thenReturn("4.13.15.0");
@@ -93,6 +105,19 @@ public class EventSelectorTest {
         when(eventStrategy.isExportContinuousData()).thenReturn(false);
         when(selector.getFilterPredicate()).thenReturn(event -> true);
         when(occurrence.getDefaultSelectorOccurrence()).thenReturn(Optional.of(defaultSelectorOccurrence));
+        Answer<NlsMessageFormat> formatAnswer = invocation -> {
+            NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+            when(messageFormat.format(anyVararg())).thenAnswer(invocation1 -> {
+                String defaultFormat = invocation.getArguments()[0] instanceof MessageSeed ? ((MessageSeed) invocation.getArguments()[0]).getDefaultFormat()
+                        : ((TranslationKey) invocation.getArguments()[0]).getDefaultFormat();
+                return MessageFormat.format(defaultFormat, invocation1.getArguments());
+            });
+            return messageFormat;
+        };
+        when(thesaurus.getFormat(any(MessageSeed.class))).thenAnswer(formatAnswer);
+        when(thesaurus.getFormat(any(TranslationKey.class))).thenAnswer(formatAnswer);
+        RelativePeriod exportPeriod = mock(RelativePeriod.class);
+        when(selector.getExportPeriod()).thenReturn(exportPeriod);
     }
 
     @After

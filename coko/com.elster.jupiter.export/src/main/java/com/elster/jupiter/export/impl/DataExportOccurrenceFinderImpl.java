@@ -32,13 +32,13 @@ class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinder {
     }
 
     @Override
-    public DataExportOccurrenceFinder setStart(Integer start) {
+    public DataExportOccurrenceFinder setStart(int start) {
         this.start = start;
         return this;
     }
 
     @Override
-    public DataExportOccurrenceFinder setLimit(Integer limit) {
+    public DataExportOccurrenceFinder setLimit(int limit) {
         this.limit = limit;
         return this;
     }
@@ -69,12 +69,17 @@ class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinder {
 
     @Override
     public QueryStream<DataExportOccurrence> stream() {
-        return dataModel.stream(DataExportOccurrence.class)
+        QueryStream<DataExportOccurrence> queryStream = dataModel.stream(DataExportOccurrence.class)
                 .join(TaskOccurrence.class)
                 .filter(condition)
-                .sorted(order)
-                .skip(start)
-                .limit(limit);
+                .sorted(order);
+        if (start != null) {
+            queryStream.skip(start);
+        }
+        if (limit != null) {
+            queryStream.limit(limit);
+        }
+        return queryStream;
     }
 
     // documentation only

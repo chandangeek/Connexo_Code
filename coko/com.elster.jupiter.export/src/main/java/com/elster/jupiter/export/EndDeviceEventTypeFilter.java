@@ -10,8 +10,10 @@ public interface EndDeviceEventTypeFilter {
 
     Predicate<EndDeviceEventType> asEndDeviceEventTypePredicate();
 
+    Predicate<String> asEndDeviceEventTypeCodePredicate();
+
     default Predicate<EndDeviceEvent> asEndDeviceEventPredicate() {
-        return event -> asEndDeviceEventPredicate().test(event);
+        return event -> asEndDeviceEventTypeCodePredicate().test(event.getEventTypeCode());
     }
 
     String getCode();

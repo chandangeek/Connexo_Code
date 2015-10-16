@@ -23,6 +23,7 @@ import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ftpclient.impl.FtpModule;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -50,7 +51,12 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.tasks.impl.TaskModule;
-import com.elster.jupiter.time.*;
+import com.elster.jupiter.time.RelativeDate;
+import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.RelativePeriodCategory;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -64,7 +70,11 @@ import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
@@ -210,6 +220,7 @@ public class ExportTaskImplIT {
         }
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
+            injector.getInstance(FiniteStateMachineService.class);
             dataExportService = (DataExportServiceImpl) injector.getInstance(DataExportService.class);
             timeService = injector.getInstance(TimeService.class);
             meteringService = injector.getInstance(MeteringService.class);
@@ -432,7 +443,6 @@ public class ExportTaskImplIT {
                     .fromExportPeriod(lastYear)
                     .fromEndDeviceGroup(endDeviceGroup)
                     .fromEventType("4.*.*.*")
-                    .continuousData(true)
                     .endSelection()
                     .create();
 
@@ -453,7 +463,7 @@ public class ExportTaskImplIT {
         assertThat(readingTypeDataExportTask.getNextExecution()).isEqualTo(NOW.truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant());
         assertThat(readingTypeDataExportTask.getOccurrences(/*Range.<Instant>all()*/)).isEmpty();
         assertThat(readingTypeDataExportTask.getEventDataSelector().get().getEventStrategy()).isNotNull();
-        assertThat(readingTypeDataExportTask.getEventDataSelector().get().getEventStrategy().isExportContinuousData()).isTrue();
+        assertThat(readingTypeDataExportTask.getEventDataSelector().get().getEventStrategy().isExportContinuousData()).isFalse();
         assertThat(readingTypeDataExportTask.getEventDataSelector().get().getEventTypeFilters()).hasSize(1);
         assertThat(readingTypeDataExportTask.getEventDataSelector().get().getEventTypeFilters().get(0).getCode()).isEqualTo("4.*.*.*");
     }

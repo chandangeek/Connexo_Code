@@ -507,7 +507,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         return Stream.of(
                 Stream.of(TranslationKeys.values()),
                 Stream.of(DataExportStatus.values()),
-                Stream.of(standardDataSelectorKey))
+                Stream.of(standardDataSelectorKey, standardEventDataSelectorKey))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }

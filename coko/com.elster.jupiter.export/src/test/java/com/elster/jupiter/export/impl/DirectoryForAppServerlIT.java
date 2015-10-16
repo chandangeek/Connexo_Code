@@ -14,6 +14,7 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataFormatter;
 import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ftpclient.impl.FtpModule;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -159,6 +160,7 @@ public class DirectoryForAppServerlIT {
         when(userService.createUser(any(), any())).thenReturn(user);
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
+            injector.getInstance(FiniteStateMachineService.class);
             dataExportService = (DataExportServiceImpl) injector.getInstance(DataExportService.class);
             appService = injector.getInstance(AppService.class);
             appServer = appService.createAppServer("AppServer", new DefaultCronExpressionParser().parse("0 0 * * * ? *").get());
