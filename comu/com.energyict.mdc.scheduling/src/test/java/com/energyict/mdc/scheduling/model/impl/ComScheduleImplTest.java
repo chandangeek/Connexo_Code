@@ -58,7 +58,8 @@ public class ComScheduleImplTest extends PersistenceTest {
         Optional<ComSchedule> retrievedSchedule = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
         assertThat(retrievedSchedule.isPresent()).isTrue();
         assertThat(retrievedSchedule.get().getName()).isEqualTo("name");
-        assertThat(retrievedSchedule.get().getmRID()).isEqualTo("xyz");
+        assertThat(retrievedSchedule.get().getmRID()).isPresent();
+        assertThat(retrievedSchedule.get().getmRID().get()).isEqualTo("xyz");
         assertThat(retrievedSchedule.get().getTemporalExpression().getEvery()).isEqualTo(TEN_MINUTES);
         assertThat(retrievedSchedule.get().getTemporalExpression().getOffset()).isEqualTo(TWENTY_SECONDS);
         assertThat(retrievedSchedule.get().isObsolete()).isFalse();
@@ -83,7 +84,8 @@ public class ComScheduleImplTest extends PersistenceTest {
         comSchedule.save();
         Optional<ComSchedule> retrievedSchedule = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
         assertThat(retrievedSchedule.isPresent()).isTrue();
-        assertThat(retrievedSchedule.get().getmRID()).isEqualTo("mrid");
+        assertThat(retrievedSchedule.get().getmRID()).isPresent();
+        assertThat(retrievedSchedule.get().getmRID().get()).isEqualTo("mrid");
     }
 
     @Test
@@ -94,7 +96,7 @@ public class ComScheduleImplTest extends PersistenceTest {
         comSchedule.save();
         Optional<ComSchedule> retrievedSchedule = inMemoryPersistence.getSchedulingService().findSchedule(comSchedule.getId());
         assertThat(retrievedSchedule.isPresent()).isTrue();
-        assertThat(retrievedSchedule.get().getmRID()).isNull();
+        assertThat(retrievedSchedule.get().getmRID()).isEmpty();
     }
 
     @Test

@@ -77,7 +77,7 @@ public interface ComSchedule extends HasId, HasName, DataCollectionConfiguration
      *
      * @return This ComSchedule's master resource identifier
      */
-    public String getmRID();
+    public Optional<String> getmRID();
 
     public void setmRID(String mRID);
 
