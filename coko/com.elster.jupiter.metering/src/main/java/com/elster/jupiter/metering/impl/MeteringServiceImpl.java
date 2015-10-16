@@ -10,7 +10,25 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.Channel;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.MessageSeeds;
+import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeterActivation;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.PurgeConfiguration;
+import com.elster.jupiter.metering.ReadingStorer;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ServiceCategory;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.ServiceLocation;
+import com.elster.jupiter.metering.StorerProcess;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointAccountability;
+import com.elster.jupiter.metering.UsagePointConnectedKind;
+import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
 import com.elster.jupiter.metering.security.Privileges;
@@ -62,7 +80,9 @@ import java.util.stream.Collectors;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 
-@Component(name = "com.elster.jupiter.metering", service = {MeteringService.class, ServerMeteringService.class, InstallService.class, PrivilegesProvider.class, MessageSeedProvider.class, TranslationKeyProvider.class}, property = "name=" + MeteringService.COMPONENTNAME)
+@Component(name = "com.elster.jupiter.metering",
+        service = {MeteringService.class, ServerMeteringService.class, InstallService.class, PrivilegesProvider.class, MessageSeedProvider.class, TranslationKeyProvider.class},
+        property = "name=" + MeteringService.COMPONENTNAME)
 public class MeteringServiceImpl implements ServerMeteringService, InstallService, PrivilegesProvider, TranslationKeyProvider, MessageSeedProvider {
 
     private volatile IdsService idsService;
@@ -73,9 +93,9 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     private volatile EventService eventService;
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
-    private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile MessageService messageService;
     private volatile JsonService jsonService;
+    private volatile FiniteStateMachineService finiteStateMachineService;
 
     private volatile boolean createAllReadingTypes;
     private volatile String[] requiredReadingTypes;
@@ -86,8 +106,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
 
     @Inject
     public MeteringServiceImpl(
-            Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService, NlsService nlsService, FiniteStateMachineService finiteStateMachineService, MessageService messageService, JsonService jsonService,
-            @Named("createReadingTypes") boolean createAllReadingTypes, @Named("requiredReadingTypes") String requiredReadingTypes) {
+            Clock clock, OrmService ormService, IdsService idsService, EventService eventService, PartyService partyService, QueryService queryService, UserService userService, NlsService nlsService, MessageService messageService, JsonService jsonService,
+            FiniteStateMachineService finiteStateMachineService, @Named("createReadingTypes") boolean createAllReadingTypes, @Named("requiredReadingTypes") String requiredReadingTypes) {
         this.clock = clock;
         this.createAllReadingTypes = createAllReadingTypes;
         this.requiredReadingTypes = requiredReadingTypes.split(";");
@@ -98,18 +118,13 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         setQueryService(queryService);
         setUserService(userService);
         setNlsService(nlsService);
-        setFiniteStateMachineService(finiteStateMachineService);
         setMessageService(messageService);
         setJsonService(jsonService);
+        setFiniteStateMachineService(finiteStateMachineService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
         }
-    }
-
-    @Reference
-    public void setFiniteStateMachineService(FiniteStateMachineService finiteStateMachineService) {
-        this.finiteStateMachineService = finiteStateMachineService;
     }
 
     @Reference
@@ -311,6 +326,13 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Reference
     public final void setEventService(EventService eventService) {
         this.eventService = eventService;
+    }
+
+    @Reference
+    public final void setFiniteStateMachineService(FiniteStateMachineService service) {
+        // method was added to make sure that the MeteringService is started after the FiniteStateMachineService
+        // because the Metering datamodel depends on the FiniteStateMachine datamodel
+        this.finiteStateMachineService = service;
     }
 
     @Activate
