@@ -326,7 +326,7 @@ Ext.define('Dxp.controller.Tasks', {
                     selectorPropertyForm.setVisible(false);
                     deviceGroup.setVisible(false);
                     exportPeriod.setVisible(true);
-                    continuousDataPreview.setVisible(true);
+                    continuousDataPreview.setVisible(false);
                     readingTypes.setVisible(false);
                     eventTypes.setVisible(true);
                     dataValidation.setVisible(false);
@@ -438,7 +438,7 @@ Ext.define('Dxp.controller.Tasks', {
                 previewForm.down('#data-selector-readingTypes-preview').hide();
                 previewForm.down('#data-selector-eventTypes-preview').show();
                 previewForm.down('#data-selector-exportPeriod-preview').show();
-                previewForm.down('#continuousData-preview').show();
+                previewForm.down('#continuousData-preview').hide();
                 previewForm.down('#updated-data').hide();
                 previewForm.down('#updated-values').hide();
                 previewForm.down('#data-selector-export-complete').hide();
@@ -1033,7 +1033,7 @@ Ext.define('Dxp.controller.Tasks', {
             selectorPropertyForm.hide();
             deviceGroup.show();
             exportPeriod.show();
-            continuousData.show();
+            continuousData.hide();
             readingTypes.hide();
             eventTypes.show();
             dataValidation.hide();
@@ -1362,7 +1362,7 @@ Ext.define('Dxp.controller.Tasks', {
         page.down('#data-selector-validated-data').setVisible(false);
         page.down('#data-selector-export-complete').setVisible(false);
         page.down('#updated-data-container').setVisible(false);
-        page.down('#continuous-data-container').setVisible(true);
+        page.down('#continuous-data-container').setVisible(false);
     },
 
     hideDefaultDataSelectorProperties: function () {
@@ -1609,7 +1609,11 @@ Ext.define('Dxp.controller.Tasks', {
         form.down('#dxp-data-selector-container').doComponentLayout();
 
 
-        if ((form.isValid()) && (!emptyReadingTypes) && (!emptyEventTypes) && (!emptyDestinations) && (!noFormatterChosen) && (!noDataSelectorChosen) && (!selectedExportWindow || selectedDataSelector.get('selectorType')==='CUSTOM')) {
+        if ( form.isValid() && (!emptyReadingTypes) && (!emptyEventTypes) && (!emptyDestinations) &&
+             (!noFormatterChosen) && (!noDataSelectorChosen) &&
+             (!selectedExportWindow || selectedDataSelector.get('selectorType')==='CUSTOM') &&
+             (!noDeviceGroupChosen || selectedDataSelector.get('selectorType')==='CUSTOM')
+        ) {
             var record = me.taskModel || Ext.create('Dxp.model.DataExportTask'),
                 readingTypesStore = page.down('#readingTypesGridPanel').getStore(),
                 eventTypesStore = page.down('#eventTypesGridPanel').getStore(),
