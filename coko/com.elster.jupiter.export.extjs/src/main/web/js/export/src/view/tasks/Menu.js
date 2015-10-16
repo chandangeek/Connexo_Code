@@ -33,6 +33,13 @@ Ext.define('Dxp.view.tasks.Menu', {
         }
 
         me.callParent(arguments);
+    },
+
+    removeDataSourcesMenuItem: function() {
+        var me = this;
+        if (me.router.arguments.taskId) {
+            me.remove('tasks-data-sources-link');
+        }
     }
 });
 

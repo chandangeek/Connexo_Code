@@ -322,7 +322,7 @@ Ext.define('Dxp.controller.Tasks', {
                     } else {
                         updatedValuesData.setVisible(true);
                     }
-                }  else if (record.getDataSelector().get('selectorType')==='DEFAULT_EVENTS') {
+                } else if (record.getDataSelector().get('selectorType')==='DEFAULT_EVENTS') {
                     selectorPropertyForm.setVisible(false);
                     deviceGroup.setVisible(false);
                     exportPeriod.setVisible(true);
@@ -333,6 +333,7 @@ Ext.define('Dxp.controller.Tasks', {
                     missingData.setVisible(false);
                     updatedData.setVisible(false);
                     updatedValuesData.setVisible(false);
+                    view.down('#tasks-view-menu').removeDataSourcesMenuItem();
                 }
             }
         });
@@ -362,6 +363,9 @@ Ext.define('Dxp.controller.Tasks', {
                     view.down('#export-period-column').hide();
                 } else {
                     view.down('#export-period-column').show();
+                    if (record.get('dataSelector').selectorType==='DEFAULT_EVENTS') {
+                        view.down('#tasks-view-menu').removeDataSourcesMenuItem();
+                    }
                 }
             }
         });
