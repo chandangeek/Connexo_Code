@@ -81,8 +81,8 @@ public class FirmwareVersionResource {
     public Response validateFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, FirmwareVersionInfo firmwareVersionInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeOrElseThrowException(deviceTypeId);
 
-        FirmwareVersion versionToValidate = firmwareService.newFirmwareVersion(deviceType, firmwareVersionInfo.firmwareVersion,
-                firmwareVersionInfo.firmwareStatus.id, firmwareVersionInfo.firmwareType.id).create();
+        FirmwareVersion.FirmwareVersionBuilder versionToValidate = firmwareService.newFirmwareVersion(deviceType, firmwareVersionInfo.firmwareVersion,
+                firmwareVersionInfo.firmwareStatus.id, firmwareVersionInfo.firmwareType.id);
 
         if (firmwareVersionInfo.fileSize != null) {
             versionToValidate.setExpectedFirmwareSize(firmwareVersionInfo.fileSize);

@@ -14,6 +14,8 @@ import org.glassfish.jersey.media.multipart.file.FileDataBodyPart;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
@@ -27,8 +29,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class FirmwareVersionResourceTest extends BaseFirmwareTest {
     @Mock
@@ -53,6 +54,13 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
         Finder<FirmwareVersion> firmwareVersionFinder = mockFinder(Arrays.asList(firmwareVersion));
         when(firmwareService.findAllFirmwareVersions(any(FirmwareVersionFilter.class))).thenReturn(firmwareVersionFinder);
         when(firmwareVersionBuilder.create()).thenReturn(firmwareVersion);
+        doAnswer(new Answer() {
+            @Override
+            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+                firmwareVersion.validate();
+                return null;
+            }
+        }).when(firmwareVersionBuilder).validate();
         when(firmwareService.newFirmwareVersion(any(DeviceType.class), anyString(), any(), any())).thenReturn(firmwareVersionBuilder);
     }
 
@@ -104,7 +112,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
         firmwareVersionInfo.fileSize = 1;
         response = target("devicetypes/1/firmwares/validate").request().post(Entity.json(firmwareVersionInfo));
 
-        verify(firmwareVersion).setExpectedFirmwareSize(firmwareVersionInfo.fileSize);
+        verify(firmwareVersionBuilder).setExpectedFirmwareSize(firmwareVersionInfo.fileSize);
         assertThat(response.getEntity()).isNotNull();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
