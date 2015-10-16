@@ -10,7 +10,7 @@ import java.util.*;
 
 
 @Component(name = "com.elster.jupiter.prepayment.export.redknee.ReadingDataFormatterFactory",
-        property = {DataExportService.DATA_TYPE_PROPERTY + "=" + DataExportService.STANDARD_DATA_TYPE},
+        property = {DataExportService.DATA_TYPE_PROPERTY + "=" + DataExportService.STANDARD_READING_DATA_TYPE},
         service = DataFormatterFactory.class,
         immediate = true)
 public class ReadingDataFormatterFactory implements DataFormatterFactory {
