@@ -363,11 +363,13 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Override
     public Optional<Privilege> getPrivilege(String privilegeName) {
-        return privilegeFactory().getOptional(privilegeName);
+        // check if dataModel is installed because this method can be/us called before the install is run
+        return dataModel.isInstalled() ? privilegeFactory().getOptional(privilegeName) : Optional.<Privilege>empty();
     }
 
     public Optional<Resource> getResource(String resourceName) {
-        return resourceFactory().getOptional(resourceName);
+        // check if dataModel is installed because this method can be/us called before the install is run
+        return dataModel.isInstalled() ? resourceFactory().getOptional(resourceName) : Optional.<Resource>empty();
     }
 
     private DataMapper<Privilege> privilegeFactory() {
@@ -376,16 +378,21 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Override
     public List<Privilege> getPrivileges(String applicationName) {
-        List<String> applicationPrivileges = applicationPrivilegesProviders
-                .stream()
-                .filter(ap -> ap.getApplicationName().equalsIgnoreCase(applicationName))
-                .flatMap(ap -> ap.getApplicationPrivileges().stream())
-                .collect(Collectors.toList());
-        return privilegeFactory()
-                .find()
-                .stream()
-                .filter(p -> applicationPrivileges.contains(p.getName()))
-                .collect(Collectors.toList());
+        // check if dataModel is installed because this method can be/us called before the install is run
+        if (dataModel.isInstalled()) {
+            List<String> applicationPrivileges = applicationPrivilegesProviders
+                    .stream()
+                    .filter(ap -> ap.getApplicationName().equalsIgnoreCase(applicationName))
+                    .flatMap(ap -> ap.getApplicationPrivileges().stream())
+                    .collect(Collectors.toList());
+            return privilegeFactory()
+                    .find()
+                    .stream()
+                    .filter(p -> applicationPrivileges.contains(p.getName()))
+                    .collect(Collectors.toList());
+        } else {
+            return Collections.emptyList();
+        }
     }
 
 
@@ -405,7 +412,8 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
 
     @Override
     public List<Resource> getResources(String component) {
-        return resourceFactory().find("componentName", component);
+        // check if dataModel is installed because this method can be/us called before the install is run
+        return dataModel.isInstalled() ? resourceFactory().find("componentName", component) : Collections.emptyList();
     }
 
     @Override
