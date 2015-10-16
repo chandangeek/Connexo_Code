@@ -298,6 +298,11 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     }
 
     @Override
+    public List<EndDeviceEventRecord> getDeviceEventsByReadTime(Range<Instant> range) {
+        return dataModel.query(EndDeviceEventRecord.class).select(createdInRange(range), Order.ascending("createdDateTime"));
+    }
+
+    @Override
     public List<EndDeviceEventRecord> getDeviceEvents(Range<Instant> range, List<EndDeviceEventType> eventTypes) {
         Condition condition = inRange(range).and(where("eventType").in(eventTypes));
         return dataModel.query(EndDeviceEventRecord.class).select(condition, Order.ascending("createdDateTime"));
@@ -334,6 +339,10 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
 
     private Condition inRange(Range<Instant> range) {
         return where("endDevice").isEqualTo(this).and(where("createdDateTime").in(range));
+    }
+
+    private Condition createdInRange(Range<Instant> range) {
+        return where("endDevice").isEqualTo(this).and(where("createTime").in(range));
     }
 
     DataModel getDataModel() {
