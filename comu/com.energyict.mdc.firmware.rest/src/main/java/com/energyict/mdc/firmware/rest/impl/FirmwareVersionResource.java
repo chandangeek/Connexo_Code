@@ -82,7 +82,7 @@ public class FirmwareVersionResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeOrElseThrowException(deviceTypeId);
 
         FirmwareVersion versionToValidate = firmwareService.newFirmwareVersion(deviceType, firmwareVersionInfo.firmwareVersion,
-                firmwareVersionInfo.firmwareStatus.id, firmwareVersionInfo.firmwareType.id);
+                firmwareVersionInfo.firmwareStatus.id, firmwareVersionInfo.firmwareType.id).create();
 
         if (firmwareVersionInfo.fileSize != null) {
             versionToValidate.setExpectedFirmwareSize(firmwareVersionInfo.fileSize);
@@ -109,9 +109,9 @@ public class FirmwareVersionResource {
         FirmwareType firmwareType = parseFirmwareTypeField(typeInputStream).orElse(null);
         FirmwareStatus firmwareStatus = parseFirmwareStatusField(statusInputStream).orElse(null);
 
-        FirmwareVersion versionToSave = firmwareService.newFirmwareVersion(deviceType, firmwareVersion, firmwareStatus, firmwareType);
-        setFirmwareFile(versionToSave, fileInputStream);
-        versionToSave.save();
+        FirmwareVersion.FirmwareVersionBuilder firmwareVersionBuilder = firmwareService.newFirmwareVersion(deviceType, firmwareVersion, firmwareStatus, firmwareType);
+        setFirmwareFile(firmwareVersionBuilder, fileInputStream);
+        firmwareVersionBuilder.create();
 
         return Response.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
     }
@@ -152,7 +152,7 @@ public class FirmwareVersionResource {
         firmwareVersion.setFirmwareVersion(getStringValueFromStream(versionInputStream));
         parseFirmwareStatusField(statusInputStream).ifPresent(firmwareVersion::setFirmwareStatus);
         setFirmwareFile(firmwareVersion, fileInputStream);
-        firmwareVersion.save();
+        firmwareVersion.update();
 
         return Response.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
     }
@@ -171,7 +171,7 @@ public class FirmwareVersionResource {
             break;
         case FINAL:
             firmwareVersion.setFirmwareStatus(FirmwareStatus.FINAL);
-            firmwareVersion.save();
+            firmwareVersion.update();
             break;
         default:
         }
@@ -207,6 +207,25 @@ public class FirmwareVersionResource {
         }
         if (firmwareVersion.getFirmwareStatus().equals(FirmwareStatus.DEPRECATED)) {
             throw exceptionFactory.newException(MessageSeeds.VERSION_IS_DEPRECATED);
+        }
+    }
+
+    private void setFirmwareFile(FirmwareVersion.FirmwareVersionBuilder firmwareVersionBuilder, InputStream fileInputStream) {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream(); InputStream fis = fileInputStream) {
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = fis.read(buffer)) != -1) {
+                out.write(buffer, 0, length);
+                if (out.size() > FirmwareService.MAX_FIRMWARE_FILE_SIZE) {
+                    throw exceptionFactory.newException(MessageSeeds.MAX_FILE_SIZE_EXCEEDED);
+                }
+            }
+            byte[] firmwareFile = out.toByteArray();
+            if (firmwareFile.length > 0 ) {
+                firmwareVersionBuilder.setFirmwareFile(firmwareFile);
+            }
+        } catch (IOException ex) {
+            throw exceptionFactory.newException(MessageSeeds.FILE_IO);
         }
     }
 

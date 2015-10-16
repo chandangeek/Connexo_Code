@@ -36,6 +36,8 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
     @Mock
     private FirmwareVersion firmwareVersion;
     @Mock
+    private FirmwareVersion.FirmwareVersionBuilder firmwareVersionBuilder;
+    @Mock
     private Condition condition;
     @Mock
     private JsonQueryParameters queryParameters;
@@ -50,7 +52,8 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
         when(firmwareVersion.getFirmwareType()).thenReturn(FirmwareType.METER);
         Finder<FirmwareVersion> firmwareVersionFinder = mockFinder(Arrays.asList(firmwareVersion));
         when(firmwareService.findAllFirmwareVersions(any(FirmwareVersionFilter.class))).thenReturn(firmwareVersionFinder);
-        when(firmwareService.newFirmwareVersion(any(DeviceType.class), anyString(), any(), any())).thenReturn(firmwareVersion);
+        when(firmwareVersionBuilder.create()).thenReturn(firmwareVersion);
+        when(firmwareService.newFirmwareVersion(any(DeviceType.class), anyString(), any(), any())).thenReturn(firmwareVersionBuilder);
     }
 
     @Test
@@ -116,7 +119,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
 
         Response response = target("devicetypes/1/firmwares").request().post(Entity.entity(formDataMultiPart, MediaType.MULTIPART_FORM_DATA_TYPE));
 
-        verify(firmwareVersion).save();
+        verify(firmwareVersionBuilder).create();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
@@ -148,7 +151,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
 
         Response response = target("devicetypes/1/firmwares/1").request().post(Entity.entity(formDataMultiPart, MediaType.MULTIPART_FORM_DATA_TYPE));
 
-        verify(firmwareVersion).save();
+        verify(firmwareVersion).update();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
     
@@ -173,7 +176,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
         Response response = target("devicetypes/1/firmwares/1").request().put(Entity.json(info));
         
         verify(firmwareVersion).setFirmwareStatus(FirmwareStatus.FINAL);
-        verify(firmwareVersion).save();
+        verify(firmwareVersion).update();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 }
