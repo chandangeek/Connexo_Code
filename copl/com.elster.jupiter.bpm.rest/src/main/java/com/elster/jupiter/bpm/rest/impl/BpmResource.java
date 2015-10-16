@@ -317,6 +317,30 @@ public class BpmResource {
         return PagedInfoListCustomized.fromPagedList("data", assigneeFilterListInfo.getData(), queryParameters, params.getStart() == 0 ? 1 : 0);
     }
 
+    @POST
+    @Path("tasks/{id}")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(Privileges.ASSIGN_TASK)
+    public Response assignUser(@Context UriInfo uriInfo,@PathParam("id") long id) {
+        String priority = getQueryValue(uriInfo, "priority");
+        String date = getQueryValue(uriInfo, "duedate");
+        String rest = "/rest/tasks/";
+        rest += String.valueOf(id) + "/set";
+        if(priority != null || date != null) {
+            if(priority !=null) {
+                rest += "?priority=" + priority;
+                if(date !=null) {
+                    rest += "&duedate=" + date;
+                }
+            }else{
+                rest += "?duedate=" + date;
+            }
+            bpmService.getBpmServer().doPost(rest);
+            return Response.ok().build();
+        }
+        return Response.ok().build();
+    }
+
     private String getQueryParam(QueryParameters queryParam){
         String req = "";
         int i = 0;
