@@ -64,6 +64,7 @@ public class KpiServiceImpl implements IKpiService, InstallService {
                 bind(IKpiService.class).toInstance(KpiServiceImpl.this);
             }
         });
+        initVaultAndRecordSpec();
     }
 
     @Deactivate
@@ -145,7 +146,6 @@ public class KpiServiceImpl implements IKpiService, InstallService {
     @Reference
     public final void setIdsService(IdsService idsService) {
         this.idsService = idsService;
-        initVaultAndRecordSpec();
     }
 
     private void initVaultAndRecordSpec() {
