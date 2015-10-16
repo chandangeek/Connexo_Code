@@ -86,6 +86,39 @@ Ext.define('InsightApp.controller.History', {
                     action: 'showDevice'
                 }
             }
-        }
+        },
+        metrologyconfiguration: {
+            title: Uni.I18n.translate('general.metrologyConfiguration', 'INS', 'Metrology Configuration'),
+            route: 'metrologyconfiguration',
+            disabled: true,
+            items: {
+            	add: {
+                	title: Uni.I18n.translate('general.metrologyConfigurationAdd', 'INS', 'Add Metrology Configuration'),
+                    route: 'add',
+                    controller: 'Imt.metrologyconfiguration.controller.Edit',
+                    action: 'createMetrologyConfiguration'
+            	},
+           		view: {
+           			title: Uni.I18n.translate('general.metrologyConfigurationView', 'INS', 'View Metrology Configuration'),
+           			route: '{id}',
+           			controller: 'Imt.metrologyconfiguration.controller.View',
+           			action: 'showMetrologyConfiguration',
+           			callback: function (route) {
+                        this.getApplication().on('metrologyConfigurationLoaded', function (record) {
+                            route.setTitle(record.get('name'));
+                            return true;
+                        }, {single: true});
+
+                        return this;
+                    },
+           		},
+   				edit: {
+                	title: Uni.I18n.translate('general.metrologyConfigurationEdit', 'INS', 'Edit Metrology Configuration'),
+                    route: '{id}/edit',
+                    controller: 'Imt.metrologyconfiguration.controller.Edit',
+                    action: 'editMetrologyConfiguration'               					
+   				}
+            }
+        },
     }
 });
