@@ -33,6 +33,7 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -178,7 +179,8 @@ public class EventServiceImpl implements EventService, InstallService, MessageSe
 
     @Override
     public List<EventType> getEventTypes() {
-        return eventTypeFactory().find();
+        // check if dataModel is installed because this method can be/us called before the install is run
+        return dataModel.isInstalled() ? eventTypeFactory().find() : Collections.<EventType>emptyList();
     }
 
     @Override
