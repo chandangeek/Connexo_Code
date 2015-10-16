@@ -40,7 +40,7 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
     @Test
     public void testGetEmptyScheduleList() throws Exception {
         List<ComSchedule> comSchedules = new ArrayList<>();
-        when(schedulingService.findAllSchedules()).thenReturn(comSchedules);
+        when(schedulingService.getAllSchedules()).thenReturn(comSchedules);
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
         Map<String, Object> map = target("/schedules/").request().get(Map.class);
@@ -62,7 +62,7 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         ComTask comTask1 = mockComTask(11L, "Com task 1");
         ComTask comTask2 = mockComTask(12L, "Com task 2");
         when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
-        when(schedulingService.findAllSchedules()).thenReturn(Arrays.asList(mockedSchedule));
+        when(schedulingService.getAllSchedules()).thenReturn(Arrays.asList(mockedSchedule));
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
         Map<String, Object> map = target("/schedules/").request().get(Map.class);
@@ -85,7 +85,7 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
     public void testGetScheduleListSecondPage() throws Exception {
         List<ComSchedule> schedules = new ArrayList<>();
         IntStream.range(1, 100).forEach(i -> schedules.add(mockComSchedule(i, MessageFormat.format("cs {0}",i))));
-        when(schedulingService.findAllSchedules()).thenReturn(schedules);
+        when(schedulingService.getAllSchedules()).thenReturn(schedules);
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
         Response response = target("/schedules/").queryParam("start",10).queryParam("limit",10).request().get();

@@ -71,7 +71,7 @@ public class SchedulingResource {
     public PagedInfoList getSchedules(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
         String mrid = queryFilter.hasProperty("mrid") ? queryFilter.getString("mrid") : null;
         boolean available = queryFilter.hasProperty("available") ? queryFilter.getBoolean("available") : false;
-        List<ComSchedule> comSchedules = schedulingService.findAllSchedules();
+        List<ComSchedule> comSchedules = schedulingService.getAllSchedules();
         Collections.sort(comSchedules, new CompareBySchedulingStatus());
         if (mrid != null && available) {
             filterAvailableSchedulesOnly(mrid, comSchedules);
