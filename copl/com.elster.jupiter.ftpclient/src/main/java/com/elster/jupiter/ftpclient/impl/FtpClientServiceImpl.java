@@ -52,7 +52,7 @@ public class FtpClientServiceImpl implements FtpClientService {
             @Override
             public void runInSession(IOConsumer ftpSessionBehavior) throws IOException {
                 try {
-                    URI uri = new URI(FtpFileSystemProvider.SCHEME, user + ':' + password, host, port, null, null, null);
+                    URI uri = new URI(SftpFileSystemProvider.SCHEME, user + ':' + password, host, port, null, null, null);
                     try (FileSystem fileSystem = sftpProvider.newFileSystem(uri, Collections.emptyMap())) {
                         ftpSessionBehavior.accept(fileSystem);
                     }
@@ -86,7 +86,7 @@ public class FtpClientServiceImpl implements FtpClientService {
             @Override
             public void runInSession(IOConsumer ftpSessionBehavior) throws IOException {
                 try {
-                    URI uri = new URI(FtpFileSystemProvider.SCHEME, user + ':' + password, host, port, null, null, null);
+                    URI uri = new URI(FtpsFileSystemProvider.SCHEME, user + ':' + password, host, port, null, null, null);
                     try (FileSystem fileSystem = ftpsProvider.newFileSystem(uri, Collections.emptyMap())) {
                         ftpSessionBehavior.accept(fileSystem);
                     }

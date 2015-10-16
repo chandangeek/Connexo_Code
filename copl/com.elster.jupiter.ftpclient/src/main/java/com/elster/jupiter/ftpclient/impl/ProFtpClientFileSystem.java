@@ -40,17 +40,17 @@ import java.util.stream.Collectors;
 
 import static java.nio.file.StandardOpenOption.*;
 
-abstract class ProFtpClientFileSystem<T extends ProFtpClientFileSystem<T>> extends AbstractFtpFileSystem {
+abstract class ProFtpClientFileSystem<S extends ProFTPClient, T extends ProFtpClientFileSystem<S, T>> extends AbstractFtpFileSystem {
     private static final Pattern AUTH = Pattern.compile("([^:]*):(.*)");
     private static final int READ_BUFFER_SIZE = 64;
     private static final int WRITE_BUFFER_SIZE = 64;
     protected final AbstractFtpFileSystemProvider<T> provider;
-    private final ProFTPClient ftpClient;
+    private final S ftpClient;
     private Semaphore openPipes = new Semaphore(1, true);
     private boolean open;
 
 
-    ProFtpClientFileSystem(URI uri, AbstractFtpFileSystemProvider<T> provider, ProFTPClient proFTPClient) {
+    ProFtpClientFileSystem(URI uri, AbstractFtpFileSystemProvider<T> provider, S proFTPClient) {
         super(uri);
         this.provider = provider;
         this.ftpClient = proFTPClient;
@@ -75,6 +75,7 @@ abstract class ProFtpClientFileSystem<T extends ProFtpClientFileSystem<T>> exten
                     ftpClient.setRemotePort(getUri().getPort());
                 }
                 ftpClient.connect();
+                postConnectCommands(ftpClient);
                 ftpClient.login(matcher.group(1), matcher.group(2));
             } else {
                 throw new IOException("unable to log in");
@@ -82,6 +83,10 @@ abstract class ProFtpClientFileSystem<T extends ProFtpClientFileSystem<T>> exten
         } catch (FTPException e) {
             throw new IOException(e);
         }
+    }
+
+    protected void postConnectCommands(S ftpClient) throws IOException, FTPException {
+        // nothing by default
     }
 
     @Override
