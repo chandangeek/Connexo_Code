@@ -2,6 +2,8 @@ package com.elster.insight.usagepoint.config.impl;
 
 import java.security.Principal;
 import java.time.Clock;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -170,5 +172,17 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                 throw new IllegalArgumentException("Conflicts with existing association : " + other);
             }
         }
+    }
+
+    @Override
+    public Optional<UsagePointMetrologyConfiguration> findMetrologyConfigurationForUsagePoint(UsagePoint up, Instant time) {
+        // TODO: query
+        return Optional.empty();
+    }
+
+    @Override
+    public List<UsagePoint> findUsagePointsForMetrologyConfiguration(MetrologyConfiguration mc, Instant time) {
+        // TODO: query
+        return new ArrayList<UsagePoint>();
     }
 }

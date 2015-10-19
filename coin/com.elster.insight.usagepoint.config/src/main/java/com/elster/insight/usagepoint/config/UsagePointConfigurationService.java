@@ -1,5 +1,6 @@
 package com.elster.insight.usagepoint.config;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -12,4 +13,6 @@ public interface UsagePointConfigurationService {
     Optional<MetrologyConfiguration> findMetrologyConfiguration(long id);
     List<MetrologyConfiguration> findAllMetrologyConfigurations();
     UsagePointMetrologyConfiguration link(UsagePoint up, MetrologyConfiguration mc, Interval interval);
+    Optional<UsagePointMetrologyConfiguration> findMetrologyConfigurationForUsagePoint(UsagePoint up, Instant time);
+    List<UsagePoint> findUsagePointsForMetrologyConfiguration(MetrologyConfiguration mc, Instant time);
 }
