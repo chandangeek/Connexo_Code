@@ -5,6 +5,7 @@ import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.users.UserService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -67,6 +68,7 @@ public class BpmApplication extends Application {
             bind(userService).to(UserService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(nlsService).to(NlsService.class);
+            bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
         }
     }
 }

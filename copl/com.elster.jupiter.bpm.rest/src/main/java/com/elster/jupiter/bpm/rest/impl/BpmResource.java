@@ -6,6 +6,7 @@ import com.elster.jupiter.bpm.rest.*;
 import com.elster.jupiter.bpm.rest.resource.StandardParametersBean;
 import com.elster.jupiter.bpm.security.Privileges;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -275,21 +276,23 @@ public class BpmResource {
         return Response.ok(new AssigneeFilterListInfo(list)).build();
     }
 
+
     @POST
     @Path("tasks/{id}/assign")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ASSIGN_TASK)
-    public Response assignUser(@Context UriInfo uriInfo,@PathParam("id") long id,@Context SecurityContext securityContext){
-        String userName = getQueryValue(uriInfo, "username");
+    public Response assignUser(@Context UriInfo uriInfo,@PathParam("id") long id,@Context SecurityContext securityContext,
+                               @QueryParam("username") String userName){
         String rest = "/rest/tasks/";
         rest += String.valueOf(id);
-        if(userName != null) {
+        if(userName != null && !userName.isEmpty()) {
             rest += "/assign?username=" + userName;
             rest += "&currentuser=" + securityContext.getUserPrincipal().getName();
             bpmService.getBpmServer().doPost(rest);
             return Response.ok().build();
         }
-        return Response.ok().build();
+
+        throw new LocalizedFieldValidationException(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY, "assignee");
     }
 
     @GET
@@ -338,7 +341,7 @@ public class BpmResource {
             bpmService.getBpmServer().doPost(rest);
             return Response.ok().build();
         }
-        return Response.ok().build();
+        return Response.notModified().build();
     }
 
     private String getQueryParam(QueryParameters queryParam){
