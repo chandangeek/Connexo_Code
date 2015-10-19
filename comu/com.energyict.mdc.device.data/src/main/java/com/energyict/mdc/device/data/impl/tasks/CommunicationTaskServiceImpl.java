@@ -276,7 +276,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     private Map<ComSchedule, Map<TaskStatus, Long>> injectComSchedulesAndAddMissing(Map<Long, Map<TaskStatus, Long>> breakdown) {
         Map<Long, ComSchedule> comSchedules =
-                this.deviceDataModelService.schedulingService().findAllSchedules().stream().
+                this.deviceDataModelService.schedulingService().getAllSchedules().stream().
                         collect(Collectors.toMap(ComSchedule::getId, Function.identity()));
         return this.injectBreakDownsAndAddMissing(breakdown, comSchedules);
     }
