@@ -29,6 +29,7 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column usagePointIdColumn = table.column("USAGEPOINTID").number().notNull().conversion(NUMBER2LONG).add();
             Column metrologyConfigIdColumn = table.column("METROLOGYCONFIGID").number().notNull().conversion(NUMBER2LONG).add();
+            table.addIntervalColumns("interval");
             table.addAuditColumns();
 	        table.primaryKey("UPC_PK_USGPNTMETROLOGYCONFIG").on(idColumn).add();
 	        table.foreignKey("UPC_FK_USGPNTMETROLOGYCONFIGUP").on(usagePointIdColumn).references(UsagePoint.class).onDelete(DeleteRule.RESTRICT).map("usagePoint").add();

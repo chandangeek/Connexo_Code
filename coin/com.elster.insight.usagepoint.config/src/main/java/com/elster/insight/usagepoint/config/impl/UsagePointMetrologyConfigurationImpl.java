@@ -18,6 +18,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 
 public class UsagePointMetrologyConfigurationImpl implements UsagePointMetrologyConfiguration {
 	
@@ -67,7 +68,7 @@ public class UsagePointMetrologyConfigurationImpl implements UsagePointMetrology
 
 	@Override
 	public boolean isCurrent() {
-		return interval.isCurrent(clock);
+		return getRange().contains(clock.instant());
 	}
 
 	@Override
@@ -94,14 +95,16 @@ public class UsagePointMetrologyConfigurationImpl implements UsagePointMetrology
     
     @Override
     public boolean conflictsWith(UsagePointMetrologyConfiguration other) {
-        return getUsagePoint().equals(other.getUsagePoint()) && interval.overlaps(other.getInterval());
+        return getUsagePoint().getId() == other.getUsagePoint().getId() && 
+                other.getRange().isConnected(getRange()) &&
+                !other.getRange().intersection(getRange()).isEmpty();
     }
 
     void terminate(Instant date) {
         if (!isEffectiveAt(date)) {
             throw new IllegalArgumentException();
         }
-        interval = interval.withEnd(date);
+        interval = Interval.of(Range.atLeast(date));
     }
 
     @Override

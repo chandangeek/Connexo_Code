@@ -44,6 +44,7 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -133,8 +134,35 @@ public class LinkTest {
         	assertThat(mc).isPresent();
         	assertThat(mc.get().getName()).isEqualTo("Residential");
         	assertThat(up.get().getMRID()).isEqualTo("mrID");
-        	UsagePointMetrologyConfiguration upmc = upcService.link(up.get(),  mc.get(), Interval.startAt(START));
+        	UsagePointMetrologyConfiguration upmc = upcService.link(up.get(),  mc.get(), Interval.of(Range.atLeast(START)));
             assertThat(upmc).isNotNull();            
+            assertThat(upmc.getMetrologyConfiguration().getName()).isEqualTo("Residential");
+            assertThat(upmc.getUsagePoint().getMRID()).isEqualTo("mrID");
+            context.commit();
+        }
+    }
+    
+    @Test(expected = IllegalArgumentException.class)
+    public void testConflict() {
+        UsagePoint up;
+        MetrologyConfiguration mc;
+
+        try (TransactionContext context = getTransactionService().getContext()) {
+            MeteringService mtrService = getMeteringService();
+            UsagePointConfigurationService upcService = getUsagePointConfigurationService();
+            ServiceCategory serviceCategory = mtrService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+            up = serviceCategory.newUsagePoint("Duplicate").create();
+            mc = upcService.newMetrologyConfiguration("Duplicate");
+            context.commit();
+        }
+        try (TransactionContext context = getTransactionService().getContext()) {
+            UsagePointConfigurationService upcService = getUsagePointConfigurationService();
+            upcService.link(up,  mc, Interval.of(Range.atLeast(START)));
+            context.commit();
+        }
+        try (TransactionContext context = getTransactionService().getContext()) {
+            UsagePointConfigurationService upcService = getUsagePointConfigurationService();
+            upcService.link(up,  mc, Interval.of(Range.atLeast(START)));
             context.commit();
         }
     }
