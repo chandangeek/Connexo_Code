@@ -7,8 +7,10 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.SingleComTaskComTaskExecution;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -328,6 +330,48 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         assertThat(response.getHeaderString("location")).isEqualTo("http://localhost:9998/devices/SPE001/comtaskexecutions/999");
         verify(device).newScheduledComTaskExecution(comSchedule);
         verify(builder).add();
+    }
+
+    @Test
+    public void testUpdateScheduledComTaskExecution() throws Exception {
+        long comTaskId = 24;
+        long scheduleId = 24L;
+
+        ComTaskExecutionInfo info = new ComTaskExecutionInfo();
+        info.schedule = new LinkInfo();
+        info.schedule.id = scheduleId;
+        info.useDefaultConnectionTask = true;
+        info.type = ComTaskExecutionType.SharedSchedule;
+
+        DeviceType deviceType = mockDeviceType(21, "Some type");
+        ComSchedule comSchedule = mockComSchedule(scheduleId, "Some schedule");
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType);
+        Device device = mockDevice("SPE001", "01011", deviceConfiguration);
+        ComTask comTask = mockComTask(comTaskId, "Com task");
+        ComTaskEnablement comTaskEnablement = mockComTaskEnablement(comTask, deviceConfiguration);
+
+
+        ScheduledComTaskExecution scheduledComTaskExecution = mockScheduledComTaskExecution(999L, comSchedule, device);
+        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(scheduledComTaskExecution));
+        when(deviceConfiguration.getComTaskEnablementFor(comTask)).thenReturn(Optional.of(comTaskEnablement));
+        ScheduledComTaskExecutionUpdater updater = mock(ScheduledComTaskExecutionUpdater.class);
+        when(scheduledComTaskExecution.getUpdater()).thenReturn(updater);
+        ScheduledComTaskExecution comTaskExecution1 = mock(ScheduledComTaskExecution.class);
+        when(comTaskExecution1.getDevice()).thenReturn(device);
+        when(comTaskExecution1.getId()).thenReturn(999L);
+        when(updater.update()).thenReturn(comTaskExecution1);
+
+        Response response = target("/devices/SPE001/comtaskexecutions/999").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(updater).update();
+    }
+
+    protected ScheduledComTaskExecution mockScheduledComTaskExecution(long id, ComSchedule comSchedule, Device device) {
+        ScheduledComTaskExecution scheduledComTaskExecution = mock(ScheduledComTaskExecution.class);
+        when(scheduledComTaskExecution.getComSchedule()).thenReturn(comSchedule);
+        when(scheduledComTaskExecution.getId()).thenReturn(id);
+        when(scheduledComTaskExecution.getDevice()).thenReturn(device);
+        return scheduledComTaskExecution;
     }
 
     @Test

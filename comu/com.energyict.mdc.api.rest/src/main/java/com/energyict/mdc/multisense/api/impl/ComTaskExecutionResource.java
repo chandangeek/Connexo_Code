@@ -114,7 +114,7 @@ public class ComTaskExecutionResource {
                 .resolveTemplate("mrid", mrid)
                 .resolveTemplate("comTaskExecutionId", updatedComTaskExecution.getId())
                 .build();
-        return Response.created(uri).build();
+        return Response.ok(uri).build();
 
     }
 
