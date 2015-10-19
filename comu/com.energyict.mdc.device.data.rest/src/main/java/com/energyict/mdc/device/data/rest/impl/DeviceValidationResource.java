@@ -363,14 +363,12 @@ public class DeviceValidationResource {
                 .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, Collections.emptyList(), loadProfileRange).stream())
                 .collect(Collectors.toList());
 
-        if (lpStatuses.isEmpty()) {
             result &= device.getLoadProfiles().stream()
                     .flatMap(l -> l.getChannels().stream())
                     .allMatch(r -> r.getDevice().forValidation().allDataValidated(r, clock.instant()));
-        } else {
+
             result &= lpStatuses.stream()
                     .allMatch(DataValidationStatus::completelyValidated);
-        }
 
         Range<Instant> registerRange = Range.openClosed(end.minusYears(1).toInstant(), end.toInstant());
 
@@ -378,13 +376,12 @@ public class DeviceValidationResource {
                 .flatMap(r -> device.forValidation().getValidationStatus(r, Collections.emptyList(), registerRange).stream())
                 .collect(Collectors.toList());
 
-        if (rgStatuses.isEmpty()) {
             result &= device.getRegisters().stream()
                     .allMatch(r -> r.getDevice().forValidation().allDataValidated(r, clock.instant()));
-        } else {
+
             result &= rgStatuses.stream()
                     .allMatch(DataValidationStatus::completelyValidated);
-        }
+
         return result;
     }
 
