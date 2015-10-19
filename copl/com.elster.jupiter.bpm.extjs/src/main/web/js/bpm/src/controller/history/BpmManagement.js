@@ -32,7 +32,7 @@ Ext.define('Bpm.controller.history.BpmManagement', {
                             title: Uni.I18n.translate('bpm.task.openTask', 'BPM', 'Open task'),
                             route: '{taskId}/openTask',
                             controller: 'Bpm.controller.OpenTask',
-                            privileges: Bpm.privileges.BpmManagement.execute,
+                            privileges: Bpm.privileges.BpmManagement.assignAndExecute,
                             action: 'showOpenTask',
                             params: {
                                 sort: '',

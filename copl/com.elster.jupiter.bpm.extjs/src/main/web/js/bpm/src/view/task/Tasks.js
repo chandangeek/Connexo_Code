@@ -53,7 +53,8 @@ Ext.define('Bpm.view.task.Tasks', {
                         reasons: [
                             Uni.I18n.translate('bpm.task.empty.list.item1', 'BPM', 'No tasks have been created yet.'),
                             Uni.I18n.translate('bpm.task.empty.list.item2', 'BPM', 'Tasks exist, but you do not have permission to view them.'),
-                            Uni.I18n.translate('bpm.task.empty.list.item3', 'BPM', 'The filter criteria are too narrow.')
+                            Uni.I18n.translate('bpm.task.empty.list.item3', 'BPM', 'The filter criteria are too narrow.'),
+                            Uni.I18n.translate('bpm.task.empty.list.item4', 'BPM', 'Connexo Flow is not available.')
                         ]
                     },
                     previewComponent: {
