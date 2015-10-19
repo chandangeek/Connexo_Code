@@ -2,6 +2,7 @@ package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
@@ -88,7 +89,8 @@ public class UserIT extends EqualsContractTest {
                     new PubSubModule(),
                     new TransactionModule(),
                     new UserModule(),
-                    new NlsModule());
+                    new NlsModule(),
+                    new DataVaultModule());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -30,7 +30,7 @@ public class UniqueAbstractLdapNameValid implements ConstraintValidator<UniqueNa
 
     private boolean checkValidity(AbstractUserDirectoryImpl abstractUserDirectory , ConstraintValidatorContext constraintValidatorContext) {
 
-        Optional<? extends UserDirectory> alreadyExisting = userService.findUserDirectory(abstractUserDirectory.getDomain());
+        Optional<? extends UserDirectory> alreadyExisting = userService.findUserDirectoryIgnoreCase(abstractUserDirectory.getDomain());
         if(alreadyExisting.isPresent()) {
             if (alreadyExisting.get().getType().equals("INT")) {
                 if((!abstractUserDirectory.getType().equals("INT")) &&(abstractUserDirectory.getDomain().equals("Local"))){
@@ -56,7 +56,7 @@ public class UniqueAbstractLdapNameValid implements ConstraintValidator<UniqueNa
         return false;
     }
     private boolean areNotTheSame(AbstractUserDirectoryImpl abstractUserDirectory, AbstractUserDirectoryImpl alreadyExisting) {
-        return abstractUserDirectory.getId() != alreadyExisting.getId();
+        return ((abstractUserDirectory.getId() != alreadyExisting.getId())&(abstractUserDirectory.getDomain().toLowerCase().equals(alreadyExisting.getDomain().toLowerCase())));
     }
 
 

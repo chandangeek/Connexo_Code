@@ -1,6 +1,8 @@
 package com.elster.jupiter.users;
 
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.impl.AbstractLdapDirectoryImpl;
 import com.elster.jupiter.users.impl.UserImpl;
@@ -72,6 +74,9 @@ public interface UserService {
 
     List<Privilege> getPrivileges(String applicationName);
 
+    public QueryService getQueryService();
+
+    public DataVaultService getDataVaultService();
 
     List<Resource> getResources();
 
@@ -80,6 +85,8 @@ public interface UserService {
     UserDirectory createInternalDirectory(String domain);
 
     Optional<UserDirectory> findUserDirectory(String domain);
+
+    Optional<UserDirectory> findUserDirectoryIgnoreCase(String domain);
 
     UserDirectory findDefaultUserDirectory();
 

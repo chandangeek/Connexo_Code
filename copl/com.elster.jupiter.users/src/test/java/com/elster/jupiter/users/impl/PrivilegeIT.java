@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.users.ResourceDefinition;
 import org.junit.After;
 import org.junit.Before;
@@ -79,7 +80,8 @@ public class PrivilegeIT extends EqualsContractTest {
                 new PubSubModule(),
                 new TransactionModule(),
                 new UserModule(),
-                new NlsModule());
+                new NlsModule(),
+                new DataVaultModule());
         injector.getInstance(TransactionService.class).execute(() -> {
             injector.getInstance(UserService.class);
             return null;

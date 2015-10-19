@@ -2,6 +2,7 @@ package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.DataModel;
@@ -78,7 +79,8 @@ public class UserDirectoryIT extends EqualsContractTest {
                     new PubSubModule(),
                     new TransactionModule(),
                     new UserModule(),
-                    new NlsModule());
+                    new NlsModule(),
+                    new DataVaultModule());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -179,7 +181,6 @@ public class UserDirectoryIT extends EqualsContractTest {
         assertThat(userDirectory.isDefault()).isTrue();
         assertThat(userDirectory.getDomain()).isEqualTo("MyDomain");
         assertThat(((LdapUserDirectory)userDirectory).getDirectoryUser()).isEqualTo("MyUser");
-        assertThat(((LdapUserDirectory)userDirectory).getPassword()).isEqualTo("MyPassword");
         assertThat(((LdapUserDirectory)userDirectory).getUrl()).isEqualTo("MyUrl");
     }
 
@@ -208,7 +209,6 @@ public class UserDirectoryIT extends EqualsContractTest {
         assertThat(userDirectory.isDefault()).isTrue();
         assertThat(userDirectory.getDomain()).isEqualTo("MyDomain");
         assertThat(((LdapUserDirectory)userDirectory).getDirectoryUser()).isEqualTo("MyUser");
-        assertThat(((LdapUserDirectory)userDirectory).getPassword()).isEqualTo("MyPassword");
         assertThat(((LdapUserDirectory)userDirectory).getUrl()).isEqualTo("MyUrl");
     }
 
