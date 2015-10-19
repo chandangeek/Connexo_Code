@@ -31,16 +31,13 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
     ],
     config: {
         deviceTypeName: null,
-        deviceConfigId: null
+        deviceConfigName: null
     },
 
     secId: -1,
 
     init: function () {
         me = this;
-        // intercepted Functions for initializing the breadcrumb
-        Ext.Function.createInterceptor('showSecuritySettingsCreateView', me.prepareBreadcrumb);
-        Ext.Function.createInterceptor('showSecuritySettingsEditView', me.prepareBreadcrumb);
         this.control({
             'securitySettingSetup securitySettingGrid': {
                 select: this.loadGridItemDetail
@@ -95,35 +92,14 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         window.location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/securitysettings/' + lastSelected.getData().id + '/edit';
     },
 
-    prepareBreadcrumb: function(deviceTypeId, deviceConfigurationId, securitySettingId){
-        var me = this;
-        console.log("Preparing breadcrumb");
-        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
-            success: function (deviceType) {
-                me.getApplication().fireEvent('loadDeviceType', deviceType);
-                var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
-                model.getProxy().setExtraParam('deviceType', deviceTypeId);
-                model.load(deviceConfigurationId, {
-                    success: function (deviceConfig) {
-                        me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
-                        me.setDeviceTypeName(deviceType.get('name'));
-                        me.setDeviceConfigName(deviceConfig.get('name'));
-                        return true;
-                    }
-                });
-            },
-        });
-        return false;
-    },
-
     removeSecuritySetting: function () {
         var me = this,
             grid = me.getSecurityGridPanel(),
             lastSelected = grid.getView().getSelectionModel().getLastSelected();
 
         Ext.create('Uni.view.window.Confirmation').show({
-            msg: "This security setting configuration will no longer be available",
-            title: "Remove " + ' \'' + lastSelected.getData().name + '\'?',
+            msg: Uni.I18n.translate('securitySetting.remove.info', 'MDC', 'This security setting will no longer be available'),
+            title: Uni.I18n.translate('general.removeConfirmation', 'MDC', 'Remove \'{0}\'?', lastSelected.getData().name),
             config: {
                 securitySettingToDelete: lastSelected,
                 me: me
@@ -140,21 +116,21 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             Ext.Ajax.request({
                 url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/securityproperties/' + securitySettingToDelete.getData().id,
                 method: 'DELETE',
-                waitMsg: 'Removing...',
+                waitMsg: Uni.I18n.translate('general.removing', 'MDC', 'Removing...'),
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicesecuritysetting.saveSuccess.msg.remove', 'MDC', 'Security setting removed'));
                     me.store.load();
                 },
                 failure: function (response, request) {
-                    var errorText = "Unknown error occurred";
+                    var errorInfo = Uni.I18n.translate('devicesecuritysetting.removeErrorMsg', 'MDC', 'Error during removal of security setting'),
+                        errorText = Uni.I18n.translate('general.error.unknown', 'MDC', "Unknown error occurred");
 
                     if (response.status == 400) {
                         var result = Ext.JSON.decode(response.responseText, true);
                         if (result && result.message) {
                             errorText = result.message;
                         }
-
-                        me.getApplication().getController('Uni.controller.Error').showError("Error during removing of security setting", errorText);
+                        me.getApplication().getController('Uni.controller.Error').showError(errorInfo, errorText);
                     }
                 }
             });
@@ -261,32 +237,62 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
 
     showSecuritySettingsCreateView: function (deviceTypeId, deviceConfigurationId) {
         var me = this;
-        var form = Ext.widget('securitySettingForm', {
-            deviceTypeId: deviceTypeId,
-            deviceConfigurationId: deviceConfigurationId,
-            securityHeader: Uni.I18n.translate('securitySetting.addSecuritySetting', 'MDC', 'Add security setting'),
-            actionButtonName: Uni.I18n.translate('general.add', 'MDC', 'Add'),
-            securityAction: 'add'
+        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
+            success: function (deviceType) {
+                me.getApplication().fireEvent('loadDeviceType', deviceType);
+                var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
+                model.getProxy().setExtraParam('deviceType', deviceTypeId);
+                model.load(deviceConfigurationId, {
+                    success: function (deviceConfig) {
+                        me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
+                        me.setDeviceTypeName(deviceType.get('name'));
+                        me.setDeviceConfigName(deviceConfig.get('name'));
+
+                        var form = Ext.widget('securitySettingForm', {
+                            deviceTypeId: deviceTypeId,
+                            deviceConfigurationId: deviceConfigurationId,
+                            securityHeader: Uni.I18n.translate('securitySetting.addSecuritySetting', 'MDC', 'Add security setting'),
+                            actionButtonName: Uni.I18n.translate('general.add', 'MDC', 'Add'),
+                            securityAction: 'add'
+                        });
+                        var record  =  me.createSecuritySettingModel(deviceTypeId, deviceConfigurationId).create();
+                        form.down('form#myForm').loadRecord(record);
+                        me.getApplication().fireEvent('changecontentevent', form);
+
+                    }
+                });
+            },
         });
-        var record  =  me.createSecuritySettingModel(deviceTypeId, deviceConfigurationId).create();
-        form.down('form#myForm').loadRecord(record);
-        me.getApplication().fireEvent('changecontentevent', form);
     },
 
     showSecuritySettingsEditView: function (deviceTypeId, deviceConfigurationId, securitySettingId) {
         var me = this;
-        me.createSecuritySettingModel(deviceTypeId, deviceConfigurationId).load(securitySettingId, {
-            success: function (securitySetting) {
-                var form = Ext.widget('securitySettingForm', {
-                    deviceTypeId: deviceTypeId,
-                    deviceConfigurationId: deviceConfigurationId,
-                    securityHeader: Ext.String.format(Uni.I18n.translate('securitySetting.editX', 'MDC', "Edit security setting '{0}'"), securitySetting.get('name')),
-                    actionButtonName: Uni.I18n.translate('general.save', 'MDC', 'Save'),
-                    securityAction: 'save'
+        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
+            success: function (deviceType) {
+                me.getApplication().fireEvent('loadDeviceType', deviceType);
+                var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
+                model.getProxy().setExtraParam('deviceType', deviceTypeId);
+                model.load(deviceConfigurationId, {
+                    success: function (deviceConfig) {
+                        me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
+                        me.setDeviceTypeName(deviceType.get('name'));
+                        me.setDeviceConfigName(deviceConfig.get('name'));
+                        me.createSecuritySettingModel(deviceTypeId, deviceConfigurationId).load(securitySettingId, {
+                            success: function (securitySetting) {
+                                var form = Ext.widget('securitySettingForm', {
+                                    deviceTypeId: deviceTypeId,
+                                    deviceConfigurationId: deviceConfigurationId,
+                                    securityHeader: Ext.String.format(Uni.I18n.translate('securitySetting.editX', 'MDC', "Edit security setting '{0}'"), securitySetting.get('name')),
+                                    actionButtonName: Uni.I18n.translate('general.save', 'MDC', 'Save'),
+                                    securityAction: 'save'
+                                });
+                                form.down('form#myForm').loadRecord(securitySetting);
+                                me.getApplication().fireEvent('changecontentevent', form);
+                            }
+                        });
+                    }
                 });
-                form.down('form#myForm').loadRecord(securitySetting);
-                me.getApplication().fireEvent('changecontentevent', form);
-            }
+            },
         });
     },
 
@@ -438,8 +444,8 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 failure: function (response) {
                     if (response.status == 400) {
                         var result = Ext.decode(response.responseText, true),
-                            errorTitle = 'Failed to add',
-                            errorText = 'Privileges could not be added. There was a problem accessing the database';
+                            errorTitle = Uni.I18n.translate('general.failedToAdd', 'MDC', 'Failed to add'),
+                            errorText = Uni.I18n.translate('executionlevels.add.failure', 'MDC', 'Privileges could not be added. There was a problem accessing the database');
 
                         if (result !== null) {
                             errorTitle = result.error;
@@ -493,15 +499,15 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                     });
                 },
                 failure: function (response, request) {
-                    var errorText = "Unknown error occurred";
+                    var errorInfo = Uni.I18n.translate('executionLevel.removeErrorMsg', 'MDC', 'Error during removal of privilege'),
+                        errorText = Uni.I18n.translate('general.error.unknown', 'MDC', "Unknown error occurred")
 
                     if (response.status == 400) {
                         var result = Ext.JSON.decode(response.responseText, true);
                         if (result && result.message) {
                             errorText = result.message;
                         }
-
-                        me.getApplication().getController('Uni.controller.Error').showError("Error during removing of privilege", errorText);
+                        me.getApplication().getController('Uni.controller.Error').showError(errorInfo, errorText);
                     }
                 }
             });

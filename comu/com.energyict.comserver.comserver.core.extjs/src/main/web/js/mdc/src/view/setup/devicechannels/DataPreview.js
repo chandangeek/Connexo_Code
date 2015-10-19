@@ -236,9 +236,9 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 name: 'interval',
                 renderer: function (value) {
                     return value
-                        ? Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[Uni.DateTime.formatDateLong(new Date(value.start)),Uni.DateTime.formatTimeLong(new Date(value.start))]).toLowerCase()
+                        ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',[Uni.DateTime.formatDateLong(new Date(value.start)),Uni.DateTime.formatTimeLong(new Date(value.start))])
                         + ' - ' +
-                        Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[Uni.DateTime.formatDateLong(new Date(value.end)),Uni.DateTime.formatTimeLong(new Date(value.end))]).toLowerCase()
+                        Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',[Uni.DateTime.formatDateLong(new Date(value.end)),Uni.DateTime.formatTimeLong(new Date(value.end))])
                         : '';
                 },
                 htmlEncode: false
@@ -247,11 +247,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 fieldLabel: Uni.I18n.translate('deviceloadprofiles.readingTime', 'MDC', 'Reading time'),
                 name: 'readingTime',
                 renderer: function (value, field) {
-                    return value
-                        ? Uni.DateTime.formatDateLong(new Date(value))
-                    + ' ' + Uni.I18n.translate('general.at', 'MDC', 'At').toLowerCase() + ' '
-                    + Uni.DateTime.formatTimeLong(new Date(value))
-                        : '';
+                    return value ? Uni.I18n.translate('general.dateAtTime', 'MDC', '{0} at {1}',[Uni.DateTime.formatDateLong(new Date(value)), Uni.DateTime.formatTimeLong(new Date(value))]) : '';
                 }
             },
             {

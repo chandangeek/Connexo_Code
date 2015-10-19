@@ -10,7 +10,8 @@ Ext.define('Mdc.view.setup.deviceconflictingmappings.DeviceConflictingMappingSet
         'Mdc.view.setup.devicetype.SideMenu',
         'Uni.view.container.EmptyGridContainer',
         'Uni.view.notifications.NoItemsFoundPanel',
-        'Mdc.view.setup.deviceconflictingmappings.DeviceConflictingMappingGrid'
+        'Mdc.view.setup.deviceconflictingmappings.DeviceConflictingMappingGrid',
+        'Uni.util.FormEmptyMessage'
     ],
 
     initComponent: function () {
@@ -72,12 +73,9 @@ Ext.define('Mdc.view.setup.deviceconflictingmappings.DeviceConflictingMappingSet
                             store: this.store
                         },
                         emptyComponent: {
-                            xtype: 'panel',
+                            xtype: 'uni-form-empty-message',
                             itemId: 'noItemMessage',
-                            ui: 'form-error-framed',
-                            html: this.unsolved
-                                ? this.unsolved
-                                : Uni.I18n.translate('deviceConflicting.empty.title', 'MDC', 'This device type has no conflicting device configuration mappings')
+                            text: Uni.I18n.translate('deviceConflicting.empty.title', 'MDC', 'This device type has no conflicting device configuration mappings')
                         }
                     }
                 ]

@@ -431,7 +431,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
                 actionButton.action = 'editModel';
                 directionField.show();
 
-                me.getAddComPortForm().setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[Ext.String.htmlEncode(recordData.name)]));
+                me.getAddComPortForm().setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", recordData.name));
                 widget.showForm(me.portDirection, me.portType);
                 addForm = widget.down('#addComPortForm');
                 comportTypeSelectCombo = widget.down('#comPortTypeSelect');

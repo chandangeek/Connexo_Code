@@ -135,7 +135,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
             this.getDeviceCommunicationTaskPreviewForm().loadRecord(deviceCommunicationTasks[0]);
             var communicationTaskName = deviceCommunicationTasks[0].get('comTask').name;
             this.getDeviceCommunicationTaskPreview().getLayout().setActiveItem(1);
-            this.getDeviceCommunicationTaskPreview().setTitle(communicationTaskName);
+            this.getDeviceCommunicationTaskPreview().setTitle(Ext.String.htmlEncode(communicationTaskName));
         } else {
             this.getConnectionMethodPreview().getLayout().setActiveItem(0);
         }

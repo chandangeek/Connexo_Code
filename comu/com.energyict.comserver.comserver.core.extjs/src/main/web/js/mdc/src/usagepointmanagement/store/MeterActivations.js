@@ -3,7 +3,7 @@ Ext.define('Mdc.usagepointmanagement.store.MeterActivations', {
     model: 'Mdc.usagepointmanagement.model.MeterActivations',
     proxy: {
         type: 'rest',
-        url: '/api/mtr/usagepoints/{usagePointMRID}/meteractivations',
+        url: '/api/mtr/usagepoints/{usagePointId}/meteractivations',
         timeout: 240000,
         reader: {
             type: 'json',

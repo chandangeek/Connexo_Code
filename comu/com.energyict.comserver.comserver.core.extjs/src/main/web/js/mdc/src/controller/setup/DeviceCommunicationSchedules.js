@@ -220,7 +220,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
                 Ext.each(communicationSchedules[0].comTaskUsages().data.items, function (comTaskUsage) {
                     me.getAddSharedCommunicationSchedulePreviewForm().down('#comTaskPreviewContainer').add({
                         xtype: 'displayfield',
-                        value: '<li>' + comTaskUsage.get('name') + '</li>',
+                        value: '<li>' + Ext.String.htmlEncode(comTaskUsage.get('name')) + '</li>',
                         htmlEncode: false
                     })
                 });

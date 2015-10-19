@@ -12,7 +12,7 @@ Ext.define('Mdc.controller.history.Setup', {
             items: {
                 usagepoint: {
                     title: Uni.I18n.translate('general.usagePoint', 'MDC', 'Usage point'),
-                    route: '{usagePointMRID}',
+                    route: '{usagePointId}',
                     controller: 'Mdc.usagepointmanagement.controller.UsagePoint',
                     action: 'showUsagePoint',
                     callback: function (route) {
@@ -961,7 +961,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showCommunicationTasksCreateEdit',
                             callback: function (route) {
                                 this.getApplication().on('loadCommunicationTask', function (record) {
-                                    route.setTitle('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]);
+                                    route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", record.get('name')));
                                     return true;
                                 }, {single: true});
 
