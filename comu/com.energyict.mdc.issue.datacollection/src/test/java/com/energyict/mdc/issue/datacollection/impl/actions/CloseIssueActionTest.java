@@ -110,7 +110,7 @@ public class CloseIssueActionTest extends BaseTest {
         local.setUrl("url");
         local.setDirectoryUser("dirUser");
         local.setPassword("pass");
-        local.save();
+        local.update();
         User user = getUserService().findOrCreateUser("user", "local", "APD");
         getThreadPrincipalService().set(user);
 
