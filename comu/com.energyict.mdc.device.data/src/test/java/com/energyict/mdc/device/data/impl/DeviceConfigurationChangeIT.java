@@ -35,6 +35,7 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
 import org.assertj.core.api.Condition;
@@ -184,7 +185,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
     private OutboundComPortPool createOutboundIpComPortPool(String name) {
         OutboundComPortPool ipComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool(name, ComPortType.TCP, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
         ipComPortPool.setActive(true);
-        ipComPortPool.save();
+        ipComPortPool.update();
         return ipComPortPool;
     }
 
@@ -909,9 +910,9 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             final ComTask clockComTask = inMemoryPersistence.getTaskService().newComTask("ClockComTask");
             clockComTask.createClockTask(ClockTaskType.FORCECLOCK).add();
             clockComTask.save();
-            final ComSchedule mySchedule = inMemoryPersistence.getSchedulingService().newComSchedule("MySchedule", new TemporalExpression(TimeDuration.days(1)), Instant.now()).build();
+            final ComScheduleBuilder mySchedule = inMemoryPersistence.getSchedulingService().newComSchedule("MySchedule", new TemporalExpression(TimeDuration.days(1)), Instant.now());
             mySchedule.addComTask(clockComTask);
-            mySchedule.save();
+            ComSchedule comSchedule = mySchedule.build();
 
             final DeviceConfiguration firstDeviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
             final String securityPropertySetName = "NoSecurity";
@@ -927,7 +928,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
 
             device = inMemoryPersistence.getDeviceService().newDevice(firstDeviceConfiguration, "DeviceName", "DeviceMRID");
             device.save();
-            final ScheduledComTaskExecution scheduledComTaskExecution = device.newScheduledComTaskExecution(mySchedule).add();
+            final ScheduledComTaskExecution scheduledComTaskExecution = device.newScheduledComTaskExecution(comSchedule).add();
             device.save();
             context.commit();
         }
