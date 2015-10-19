@@ -37,7 +37,7 @@ public class AssignIssueActionTest extends BaseTest {
         local.setUrl("url");
         local.setDirectoryUser("directoryUser");
         local.setPassword("password");
-        local.save();
+        local.update();
         User user = getUserService().findOrCreateUser("user", "local", "APD");
         getThreadPrincipalService().set(user);
         
