@@ -88,22 +88,22 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
     public void initBefore() {
         outboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool("OutboundComPortPool", ComPortType.TCP, TimeDuration.minutes(15));
         outboundComPortPool.setActive(true);
-        outboundComPortPool.save();
+        outboundComPortPool.update();
 
         otherOutboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool("OtherPool", ComPortType.TCP, TimeDuration.minutes(30));
         otherOutboundComPortPool.setActive(true);
-        otherOutboundComPortPool.save();
+        otherOutboundComPortPool.update();
 
         InboundDeviceProtocolPluggableClass inboundDeviceProtocolPluggableClass = inMemoryPersistence.getProtocolPluggableService()
                 .newInboundDeviceProtocolPluggableClass("MyInboundDeviceProtocolPluggableClass", SimpleDiscoveryProtocol.class.getName());
         inboundDeviceProtocolPluggableClass.save();
         inboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool("InboundComPortPool", ComPortType.TCP, inboundDeviceProtocolPluggableClass);
         inboundComPortPool.setActive(true);
-        inboundComPortPool.save();
+        inboundComPortPool.update();
 
         otherInboundComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool("OtherInboundPool", ComPortType.TCP, inboundDeviceProtocolPluggableClass);
         otherInboundComPortPool.setActive(true);
-        otherInboundComPortPool.save();
+        otherInboundComPortPool.update();
         IssueStatus wontFix = mock(IssueStatus.class);
         when(inMemoryPersistence.getIssueService().findStatus(IssueStatus.WONT_FIX)).thenReturn(Optional.of(wontFix));
     }

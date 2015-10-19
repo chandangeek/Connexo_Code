@@ -264,21 +264,21 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     private static OutboundComPortPool createOutboundIpComPortPool(String name) {
         OutboundComPortPool ipComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool(name, ComPortType.TCP, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
         ipComPortPool.setActive(true);
-        ipComPortPool.save();
+        ipComPortPool.update();
         return ipComPortPool;
     }
 
     private static OutboundComPortPool createOutboundModemComPortPool(String name) {
         OutboundComPortPool modemComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool(name, ComPortType.SERIAL, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
         modemComPortPool.setActive(true);
-        modemComPortPool.save();
+        modemComPortPool.update();
         return modemComPortPool;
     }
 
     private static InboundComPortPool createInboundIpComPortPool(String name) {
         InboundComPortPool ipComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool(name, ComPortType.TCP, discoveryProtocolPluggableClass);
         ipComPortPool.setActive(true);
-        ipComPortPool.save();
+        ipComPortPool.update();
         return ipComPortPool;
     }
 
@@ -466,10 +466,10 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     private ComSchedule createComSchedule(ComTask comTask) {
-        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule(comTask.getName(), new TemporalExpression(TimeDuration.days(1)), Instant.now()).build();
-        comSchedule.addComTask(comTask);
-        comSchedule.save();
-        return comSchedule;
+        return inMemoryPersistence.getSchedulingService()
+                .newComSchedule(comTask.getName(), new TemporalExpression(TimeDuration.days(1)), Instant.now())
+                .addComTask(comTask)
+                .build();
     }
 
     protected ComTaskExecution getReloadedComTaskExecution(Device device) {

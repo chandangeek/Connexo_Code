@@ -216,13 +216,11 @@ public class CommunicationTaskServiceImplOracleSpecificIT {
                         "testGetCommunicationTasksComScheduleBreakdown",
                         new TemporalExpression(TimeDuration.days(1)),
                         Instant.now());
-        ComSchedule comSchedule = scheduleBuilder.build();
 
         ComTask simpleComTask = oracleIntegrationPersistence.getTaskService().newComTask("Simple task");
         simpleComTask.createStatusInformationTask();
         simpleComTask.save();
-        comSchedule.addComTask(simpleComTask);
-        comSchedule.save();
+        ComSchedule comSchedule = scheduleBuilder.addComTask(simpleComTask).build();
 
         ComTaskExecutionFilterSpecification filter = new ComTaskExecutionFilterSpecification();
         filter.taskStatuses = this.breakdownStatusses();
