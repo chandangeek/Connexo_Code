@@ -128,7 +128,7 @@ public class MetrologyConfigurationCrudTest {
             mc1.get().setName("Residential");
             mc1.get().update();
             mc1 = upcService.findMetrologyConfiguration(1);
-            Optional<MetrologyConfiguration> mc2 = getUsagePointConfigurationService().findMetrologyConfiguration(2);
+            getUsagePointConfigurationService().findMetrologyConfiguration(2);
             assertThat(mc1).isPresent();
             assertThat(mc1.get().getName()).isEqualTo("Residential");
             context.commit();
@@ -153,7 +153,7 @@ public class MetrologyConfigurationCrudTest {
     public void testEmptyName()  {
         try (TransactionContext context = getTransactionService().getContext()) {
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
-            MetrologyConfiguration mc1 = upcService.newMetrologyConfiguration("");
+            upcService.newMetrologyConfiguration("");
             context.commit();
         }
     }
@@ -162,7 +162,7 @@ public class MetrologyConfigurationCrudTest {
     public void testNullName()  {
         try (TransactionContext context = getTransactionService().getContext()) {
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
-            MetrologyConfiguration mc1 = upcService.newMetrologyConfiguration(null);
+            upcService.newMetrologyConfiguration(null);
             context.commit();
         }
     }    
