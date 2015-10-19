@@ -16,6 +16,7 @@ import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleInfo;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -200,7 +201,7 @@ public class DeviceTypeResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<RegisteredCustomPropertySet> registeredCustomPropertySets;
         if (!isLinked) {
-            registeredCustomPropertySets = resourceHelper.findCustomPropertySets()
+            registeredCustomPropertySets = resourceHelper.findCustomPropertySets(DeviceType.class.getName())
                     .stream()
                     .filter(f -> !deviceType.getDeviceTypeCustomPropertySetUsage().stream().map(m -> m.getId()).collect(Collectors.toList()).contains(f.getId()))
             .collect(Collectors.toList());
@@ -425,7 +426,7 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
     public Response getRegisterCustomPropertySets() {
-        return Response.ok(DeviceTypeCustomPropertySetInfo.from(resourceHelper.findCustomPropertySets())).build();
+        return Response.ok(DeviceTypeCustomPropertySetInfo.from(resourceHelper.findCustomPropertySets(MeasurementType.class.getName()))).build();
     }
 
     @POST
