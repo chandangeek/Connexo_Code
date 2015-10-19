@@ -406,9 +406,8 @@ final class ExportTaskImpl implements IExportTask {
     }
 
     @Override
-    public Optional<StandardDataSelector> getReadingTypeDataSelector() {
+    public Optional<IStandardDataSelector> getReadingTypeDataSelector() {
         return readingTypeDataSelector.getOptional()
-                .map(StandardDataSelector.class::cast)
                 .filter(selector -> DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR.equals(dataSelector));
     }
 

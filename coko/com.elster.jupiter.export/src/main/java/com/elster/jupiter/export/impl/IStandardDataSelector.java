@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.util.Set;
 import java.util.logging.Logger;
 
 interface IStandardDataSelector extends StandardDataSelector, EventDataSelector {
@@ -20,6 +21,8 @@ interface IStandardDataSelector extends StandardDataSelector, EventDataSelector 
     DataSelector asReadingTypeDataSelector(Logger logger, Thesaurus thesaurus);
 
     DataSelector asEventDataSelector(Logger logger, Thesaurus thesaurus);
+
+    Set<IReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence);
 
     void delete();
 

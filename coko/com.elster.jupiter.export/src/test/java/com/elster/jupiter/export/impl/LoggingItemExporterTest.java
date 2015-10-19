@@ -36,8 +36,7 @@ import java.util.logging.Logger;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class LoggingItemExporterTest {
 
@@ -92,9 +91,9 @@ public class LoggingItemExporterTest {
 
         from = ZonedDateTime.of(2013, 4, 18, 13, 2, 19, 0, ZoneId.systemDefault());
         to = ZonedDateTime.of(2013, 4, 18, 18, 2, 19, 0, ZoneId.systemDefault());
-        range =  Range.closed(from.toInstant(), to.toInstant());
+        range = Range.closed(from.toInstant(), to.toInstant());
 
-        when(task.getReadingTypeDataSelector()).thenReturn(Optional.of(dataSelector));
+        doReturn(Optional.of(dataSelector)).when(task).getReadingTypeDataSelector();
         when(meterReadingData.getItem()).thenReturn(item);
         when(decorated.exportItem(occurrence, meterReadingData)).thenReturn(Collections.emptyList());
         when(item.getReadingType()).thenReturn(readingType);

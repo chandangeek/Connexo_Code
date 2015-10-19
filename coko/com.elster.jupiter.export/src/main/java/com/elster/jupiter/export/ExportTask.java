@@ -69,7 +69,7 @@ public interface ExportTask extends HasName, HasAuditInfo {
 
     Optional<ScheduleExpression> getScheduleExpression(Instant at);
 
-    Optional<StandardDataSelector> getReadingTypeDataSelector();
+    Optional<? extends StandardDataSelector> getReadingTypeDataSelector();
 
     Optional<EventDataSelector> getEventDataSelector();
 

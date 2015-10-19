@@ -236,7 +236,6 @@ public class StandardDataSelectorTest {
 
         InOrder inOrder = inOrder(existingItem);
         inOrder.verify(existingItem).activate();
-        inOrder.verify(existingItem).update();
     }
 
     @Test
