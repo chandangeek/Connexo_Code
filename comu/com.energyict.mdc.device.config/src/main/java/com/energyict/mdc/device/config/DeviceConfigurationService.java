@@ -264,6 +264,8 @@ public interface DeviceConfigurationService {
 
     public List<DeviceConfiguration> getLinkableDeviceConfigurations(ValidationRuleSet validationRuleSet);
 
+    public List<DeviceConfiguration> getLinkableDeviceConfigurations(EstimationRuleSet estimationRuleSet);
+
     public List<SecurityPropertySet> findUniqueSecurityPropertySets();
 
     public Finder<DeviceConfiguration> findDeviceConfigurationsForEstimationRuleSet(EstimationRuleSet estimationRuleSet);

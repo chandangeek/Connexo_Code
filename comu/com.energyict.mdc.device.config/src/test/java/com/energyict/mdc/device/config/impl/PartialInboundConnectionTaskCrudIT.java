@@ -240,10 +240,10 @@ public class PartialInboundConnectionTaskCrudIT {
             discoveryPluggable.save();
             inboundComPortPool = engineConfigurationService.newInboundComPortPool("inboundComPortPool", ComPortType.TCP, discoveryPluggable);
             inboundComPortPool.setActive(true);
-            inboundComPortPool.save();
+            inboundComPortPool.update();
             inboundComPortPool2 = engineConfigurationService.newInboundComPortPool("inboundComPortPool2", ComPortType.TCP, discoveryPluggable);
             inboundComPortPool2.setActive(true);
-            inboundComPortPool2.save();
+            inboundComPortPool2.update();
             context.commit();
         }
     }
