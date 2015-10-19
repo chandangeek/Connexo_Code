@@ -1266,8 +1266,7 @@ Ext.define('Dxp.controller.Tasks', {
             formatterCombo = page.down('#file-formatter-combo'),
             formatterContainer = page.down('#formatter-container'),
             formatterTitle = page.down('#file-formatter-title'),
-            propertyForm = page.down('#data-selector-properties'),
-            tooltip = page.down('#file-formatter-info');
+            propertyForm = page.down('#data-selector-properties');
         formatterCombo.store.load({
             scope: me,
             params: {
@@ -1282,7 +1281,6 @@ Ext.define('Dxp.controller.Tasks', {
         formatterContainer.show();
         formatterTitle.show();
         formatterCombo.show();
-        me.changeFormatterTooltip(tooltip, record.get('selectorType'));
         if (record.get('selectorType')==='DEFAULT_READINGS') {
             me.showReadingTypeDataSelectorProperties();
         } else if (record.get('selectorType')==='DEFAULT_EVENTS') {
@@ -1299,8 +1297,8 @@ Ext.define('Dxp.controller.Tasks', {
         }
     },
 
-    changeFormatterTooltip: function(tooltip, selectorType){
-        if (selectorType==='DEFAULT_READINGS') {
+    changeFormatterTooltip: function(tooltip, formatterType) {
+        if (formatterType === 'standardCsvDataProcessorFactory') {
             tooltip.setVisible(true);
             tooltip.setTooltip(
                 Ext.String.format(
@@ -1316,7 +1314,7 @@ Ext.define('Dxp.controller.Tasks', {
                     Uni.I18n.translate('addDataExportTask.formatter.tooltip.col3', 'DES', 'Reading type (text)'),
                     Uni.I18n.translate('addDataExportTask.formatter.tooltip.col4', 'DES', 'Value (number)'),
                     Uni.I18n.translate('addDataExportTask.formatter.tooltip.col5', 'DES', 'Validation result (text)')));
-        } else if (selectorType==='DEFAULT_EVENTS') {
+        } else if (formatterType === 'standardCsvEventDataProcessorFactory') {
             tooltip.setVisible(true);
             tooltip.setTooltip(
                 Ext.String.format(
@@ -1335,7 +1333,6 @@ Ext.define('Dxp.controller.Tasks', {
             tooltip.setVisible(false);
         }
     },
-
 
     showReadingTypeDataSelectorProperties: function () {
         var me = this;
@@ -1384,7 +1381,12 @@ Ext.define('Dxp.controller.Tasks', {
         var me = this,
             page = me.getAddPage(),
             record = Ext.getStore('Dxp.store.FileFormatters').getById(newValue),
-            propertyForm = page.down('grouped-property-form');
+            propertyForm = page.down('grouped-property-form'),
+            tooltip = page.down('#file-formatter-info');
+
+        if(record!==null){
+            me.changeFormatterTooltip(tooltip,record.get('name'));
+        }
 
         if (record && record.properties() && record.properties().count()) {
             propertyForm.addEditPage = true;
