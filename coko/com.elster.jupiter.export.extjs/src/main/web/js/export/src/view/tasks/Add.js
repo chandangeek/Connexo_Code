@@ -659,6 +659,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                 hidden: true,
                                 store: 'Dxp.store.FileFormatters',
                                 editable: false,
+                                emptyText: Uni.I18n.translate('addDataExportTask.dataFormatterPrompt', 'DES', 'Select a data formatter...'),
                                 displayField: 'displayName',
                                 valueField: 'name'
                             },

@@ -1273,9 +1273,9 @@ Ext.define('Dxp.controller.Tasks', {
             params: {
                 selector: newValue
             },
-            callback: function () {
-                if (!me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues')) {
-                    formatterCombo.setValue(formatterCombo.store.getAt(0));
+            callback: function (record) {
+                if (!page.edit && !me.getStore('Dxp.store.Clipboard').get('addDataExportTaskValues')) {
+                    formatterCombo.setValue(formatterCombo.store.getCount()==1 ? formatterCombo.store.getAt(0) : null);
                 }
             }
         });
@@ -1806,14 +1806,12 @@ Ext.define('Dxp.controller.Tasks', {
 
     validateEventsGrid: function(emptyEventTypes) {
         var me = this,
-        page = me.getAddPage(),
-        form = page.down('#add-data-export-task-form'),
-        dataSelectorCombo = form.down('#data-selector-combo');
-        var selectedDataSelector = dataSelectorCombo.findRecord(dataSelectorCombo.valueField, dataSelectorCombo.getValue());
+            page = me.getAddPage(),
+            form = page.down('#add-data-export-task-form');
         if (emptyEventTypes) {
-                form.down('#eventTypesFieldContainer').setActiveError(me.requiredFieldText);
+            form.down('#eventTypesFieldContainer').setActiveError(me.requiredFieldText);
         } else {
-                form.down('#eventTypesFieldContainer').unsetActiveError();
+            form.down('#eventTypesFieldContainer').unsetActiveError();
         }
         form.down('#eventTypesFieldContainer').doComponentLayout();
     },
