@@ -122,6 +122,10 @@ Ext.define('Apr.controller.AppServers', {
         }
     },
 
+    showAppServerOverview: function(){
+        console.log('Show overview');
+    },
+
     setupMenuItems: function (record) {
         var me = this,
             suspended = record.data.active;

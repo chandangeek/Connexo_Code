@@ -36,6 +36,20 @@ Ext.define('Apr.controller.history.AppServer', {
                                 }, {single: true});
                                 return this;
                             }
+                        },
+                        detail: {
+                            route: '{appServerName}',
+                            privileges: Apr.privileges.AppServer.admin,
+                            title: Uni.I18n.translate('general.overview', 'APR', 'Overview'),
+                            controller: 'Apr.controller.AppServers',
+                            action: 'showAppServerOverview'
+                            //callback: function (route) {
+                            //    this.getApplication().on('appserverload', function (name) {
+                            //        route.setTitle(Uni.I18n.translate('general.editx', 'APR', "Edit '{0}'",[name]));
+                            //        return true;
+                            //    }, {single: true});
+                            //    return this;
+                            //}
                         }
                     }
                 }
