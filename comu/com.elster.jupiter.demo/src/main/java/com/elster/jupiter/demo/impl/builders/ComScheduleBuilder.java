@@ -39,7 +39,7 @@ public class ComScheduleBuilder extends NamedBuilder<ComSchedule, ComScheduleBui
 
     @Override
     public Optional<ComSchedule> find(){
-        return schedulingService.findAllSchedules().stream().filter(cs -> cs.getName().equals(getName())).findFirst();
+        return schedulingService.getAllSchedules().stream().filter(cs -> cs.getName().equals(getName())).findFirst();
     }
 
     @Override
