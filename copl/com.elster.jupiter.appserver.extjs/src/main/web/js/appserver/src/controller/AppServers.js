@@ -2,7 +2,10 @@ Ext.define('Apr.controller.AppServers', {
     extend: 'Ext.app.Controller',
     views: [
         'Apr.view.appservers.Setup',
-        'Apr.view.appservers.Add'
+        'Apr.view.appservers.Add',
+        'Apr.view.appservers.AppServerOverview',
+        'Apr.view.appservers.AppServerMessageServices',
+        'Apr.view.appservers.AppServerImportServices'
     ],
     stores: [
         'Apr.store.AppServers',
@@ -28,7 +31,10 @@ Ext.define('Apr.controller.AppServers', {
             ref: 'addPage',
             selector: 'appservers-add'
         },
-
+        {
+            ref: 'overviewPage',
+            selector: 'appserver-overview'
+        }
     ],
     appServer: null,
     exportPath: null,
@@ -69,7 +75,9 @@ Ext.define('Apr.controller.AppServers', {
 
     showAppServers: function () {
         var me = this,
-            view = Ext.widget('appservers-setup'),
+            view = Ext.widget('appservers-setup', {
+                router: me.getController('Uni.controller.history.Router')
+            }),
             store = view.down('appservers-grid').getStore(),
             exportPathsStore = me.getStore('Apr.store.ExportPaths'),
             importPathsStore = me.getStore('Apr.store.ImportPaths');
@@ -122,8 +130,33 @@ Ext.define('Apr.controller.AppServers', {
         }
     },
 
-    showAppServerOverview: function(){
-        console.log('Show overview');
+    showAppServerOverview: function(appServerName) {
+        var me = this,
+            view = Ext.widget('appserver-overview', {
+                router: me.getController('Uni.controller.history.Router'),
+                appServerName: appServerName
+            });
+        //me.fromDetails = false;
+        me.getApplication().fireEvent('changecontentevent', view);
+        me.getApplication().fireEvent('appserverload', appServerName);
+    },
+
+    showMessageServices: function(appServerName) {
+        var me = this,
+            view = Ext.widget('appserver-message-services', {
+                router: me.getController('Uni.controller.history.Router'),
+                appServerName: appServerName
+            });
+        me.getApplication().fireEvent('changecontentevent', view);
+    },
+
+    showImportServices: function(appServerName) {
+        var me = this,
+            view = Ext.widget('appserver-import-services', {
+                router: me.getController('Uni.controller.history.Router'),
+                appServerName: appServerName
+            });
+        me.getApplication().fireEvent('changecontentevent', view);
     },
 
     setupMenuItems: function (record) {
