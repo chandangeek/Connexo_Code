@@ -1,8 +1,8 @@
 package com.energyict.mdc.multisense.api.impl;
 
-import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -11,6 +11,8 @@ import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
 import com.energyict.mdc.multisense.api.security.Privileges;
 
+import java.net.URI;
+import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -18,6 +20,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -26,8 +29,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import java.net.URI;
-import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
@@ -87,6 +88,31 @@ public class ComTaskExecutionResource {
                 .path(ComTaskExecutionResource.class, "getComTaskExecution")
                 .resolveTemplate("mrid", mrid)
                 .resolveTemplate("comTaskExecutionId", comTaskExecution.getId())
+                .build();
+        return Response.created(uri).build();
+
+    }
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @Path("/{comTaskExecutionId}")
+    public Response updateComTaskExecution(@PathParam("mrid") String mrid, @PathParam("comTaskExecutionId") long comTaskExecutionId,
+                                           ComTaskExecutionInfo comTaskExecutionInfo, @Context UriInfo uriInfo) {
+        ComTaskExecution comTaskExecution = deviceService.findByUniqueMrid(mrid)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE))
+                .getComTaskExecutions().stream()
+                .filter(cte -> cte.getId() == comTaskExecutionId)
+                .findFirst()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_COM_TASK_EXECUTION));
+
+        ComTaskExecution updatedComTaskExecution = comTaskExecutionInfo.type.updateComTaskExecution(comTaskExecutionInfoFactory, comTaskExecutionInfo, comTaskExecution);
+        URI uri = uriInfo.getBaseUriBuilder()
+                .path(ComTaskExecutionResource.class)
+                .path(ComTaskExecutionResource.class, "getComTaskExecution")
+                .resolveTemplate("mrid", mrid)
+                .resolveTemplate("comTaskExecutionId", updatedComTaskExecution.getId())
                 .build();
         return Response.created(uri).build();
 
