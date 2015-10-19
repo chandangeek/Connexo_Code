@@ -66,7 +66,7 @@ public class BpmServerImpl implements BpmServer {
         return url;
     }
 
-    public String doGet(String targetURL) throws IOException {
+    public String doGet(String targetURL) {
         HttpURLConnection httpConnection = null;
         try {
             URL targetUrl = new URL(url + targetURL);
@@ -89,6 +89,8 @@ public class BpmServerImpl implements BpmServer {
             }
             return jsonContent.toString();
 
+        } catch (IOException e) {
+            throw new RuntimeException(e.getStackTrace().toString());
         } finally {
             if (httpConnection != null) {
                 httpConnection.disconnect();

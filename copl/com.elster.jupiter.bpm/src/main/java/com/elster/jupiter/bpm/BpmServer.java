@@ -13,5 +13,5 @@ public interface BpmServer {
 
     void doPost(String resourceURL);
 
-    String doGet(String resourceURL) throws IOException;
+    String doGet(String resourceURL);
 }
