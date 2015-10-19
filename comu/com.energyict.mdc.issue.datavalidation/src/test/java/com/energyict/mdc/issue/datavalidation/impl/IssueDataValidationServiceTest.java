@@ -146,10 +146,10 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
         local.setUrl("url");
         local.setDirectoryUser("dirUser");
         local.setPassword("pass");
-        local.save();
+        local.update();
 
         User assignee = inMemoryPersistence.getService(UserService.class).findOrCreateUser("User", "APD", "APD");
-        assignee.save();
+        assignee.update();
         IssueDataValidation issue = issueDataValidationService.findOpenIssue(baseIssues.get(0).getId()).get();
         issue.assignTo(IssueAssignee.Types.USER, assignee.getId());
         issue.update();
@@ -172,7 +172,7 @@ public class IssueDataValidationServiceTest extends PersistenceIntegrationTest {
 
         filter = new DataValidationIssueFilter();
         User anotherAssignee = inMemoryPersistence.getService(UserService.class).findOrCreateUser("AnotherUser", "APD", "APD");
-        anotherAssignee.save();
+        anotherAssignee.update();
         filter.setAssignee(anotherAssignee);
         issues = issueDataValidationService.findAllDataValidationIssues(filter).find();
         assertThat(issues).isEmpty();
