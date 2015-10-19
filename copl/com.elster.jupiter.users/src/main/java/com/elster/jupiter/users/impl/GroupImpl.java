@@ -50,7 +50,7 @@ final class GroupImpl implements Group {
     private final DataModel dataModel;
 
     @Inject
-	private GroupImpl(QueryService queryService, DataModel dataModel) {
+    GroupImpl(QueryService queryService, DataModel dataModel) {
         this.queryService = queryService;
         this.dataModel = dataModel;
     }
@@ -181,7 +181,7 @@ final class GroupImpl implements Group {
 		grant(applicationName, privilege);
 	}
 
-	public void save() {
+	public void update() {
         Save.action(this.id).save(this.dataModel, this);
 	}
 

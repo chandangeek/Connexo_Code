@@ -1,8 +1,10 @@
 package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -28,20 +30,37 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.fest.reflect.core.Reflection.field;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UserIT {
+public class UserIT extends EqualsContractTest {
 
     private Injector injector;
+    private User user;
 
     @Mock
     private BundleContext bundleContext;
     @Mock
     private EventAdmin eventAdmin;
+    @Mock
+    private DataModel dataModel;
+    @Mock
+    UserDirectory userDirectory;
+
+    //userName placeholder as equals will be tested against the PK id
+    private static final String TEST_USER_NAME = "userName";
+    private static final String TEST_USER_DESCRIPTION = "userDescription";
+    private static final boolean ALLOW_PWD_CHANGE = true;
+    private static final boolean STATUS_ACTIVE = true;
+    private static final long ID = 0;
+    private static final long OTHER_ID = 1;
+
+
 
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
@@ -82,9 +101,49 @@ public class UserIT {
         });
     }
 
+
+
     @After
     public void tearDown() {
         inMemoryBootstrapModule.deactivate();
+    }
+
+    private void setId(Object entity, long id) {
+
+        field("id").ofType(Long.TYPE).in(entity).set(id);
+    }
+
+    @Override
+    protected Object getInstanceA() {
+        if(user==null) {
+          user = new UserImpl(dataModel).init(userDirectory, TEST_USER_NAME,TEST_USER_DESCRIPTION, ALLOW_PWD_CHANGE, STATUS_ACTIVE);
+            setId(user, ID);
+        }
+        return user;
+        }
+
+    @Override
+    protected Object getInstanceEqualToA() {
+        User userB = new UserImpl(dataModel).init(userDirectory, TEST_USER_NAME, TEST_USER_DESCRIPTION, ALLOW_PWD_CHANGE, STATUS_ACTIVE);
+        setId(userB, ID);
+        return userB;
+    }
+
+    @Override
+    protected Iterable<?> getInstancesNotEqualToA() {
+       User userC = new UserImpl(dataModel).init(userDirectory, TEST_USER_NAME, TEST_USER_DESCRIPTION, ALLOW_PWD_CHANGE, STATUS_ACTIVE);
+        setId(userC, OTHER_ID);
+        return Collections.singletonList(userC);
+    }
+
+    @Override
+    protected boolean canBeSubclassed() {
+        return false;
+    }
+
+    @Override
+    protected Object getInstanceOfSubclassEqualToA() {
+        return null;
     }
 
     @Test
@@ -98,13 +157,20 @@ public class UserIT {
                 User user = userDirectory.newUser("authName", "description", false,true);
                 user.setLocale(Locale.CANADA_FRENCH);
                 user.setPassword("password");
-                user.save();
+                user.update();
 
+                User user2 = userDirectory.newUser("authName2", "description2", false,true);
+                user2.setLocale(Locale.CANADA_FRENCH);
+                user2.setPassword("password2");
+                user2.update();
+                //test get user using authenticatin name
                 Optional<User> found = userService.findUser("authName");
                 assertThat(found.get()).isEqualTo(user);
                 assertThat(found.get().getDescription()).isEqualTo("description");
                 assertThat(found.get().check("password")).isTrue();
-                assertThat(found.get().getLocale().get()).isEqualTo(Locale.CANADA_FRENCH);
+               assertThat(found.get().getLocale().get()).isEqualTo(Locale.CANADA_FRENCH);
+                Optional<User> found2 = userService.findUser("authName2");
+                assertThat(found2.get()).isNotEqualTo(user);
             }
         });
     }

@@ -1,11 +1,15 @@
 package com.elster.jupiter.users.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.fest.reflect.core.Reflection.field;
 
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 
+import com.elster.jupiter.devtools.tests.EqualsContractTest;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.ResourceDefinition;
 import org.junit.After;
 import org.junit.Before;
@@ -35,15 +39,21 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 @RunWith(MockitoJUnitRunner.class)
-public class PrivilegeIT {
-
+public class PrivilegeIT extends EqualsContractTest {
+    private Privilege privilege;
     private Injector injector;
 
     @Mock
     private BundleContext bundleContext;
     @Mock
     private EventAdmin eventAdmin;
+    @Mock
+    private DataModel dataModel;
+    @Mock
+    private Resource resource;
 
+    private static final String NAME = "Privilege1";
+    private static final String OTHER_NAME = "Privilege2";
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
@@ -79,6 +89,36 @@ public class PrivilegeIT {
     @After
     public void tearDown() {
         inMemoryBootstrapModule.deactivate();
+    }
+
+    @Override
+    protected Object getInstanceA() {
+        if (privilege == null) {
+            privilege = PrivilegeImpl.from(dataModel, NAME, resource);
+        }
+        return privilege;
+    }
+
+    @Override
+    protected Object getInstanceEqualToA() {
+        Privilege privilegeB = PrivilegeImpl.from(dataModel, NAME, resource);
+        return privilegeB;
+    }
+
+    @Override
+    protected Iterable<?> getInstancesNotEqualToA() {
+        PrivilegeImpl privilege = PrivilegeImpl.from(dataModel, OTHER_NAME, resource);
+        return Collections.singletonList(privilege);
+    }
+
+    @Override
+    protected boolean canBeSubclassed() {
+        return false;
+    }
+
+    @Override
+    protected Object getInstanceOfSubclassEqualToA() {
+        return null;
     }
 
     @Test

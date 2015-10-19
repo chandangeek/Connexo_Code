@@ -1,8 +1,10 @@
 package com.elster.jupiter.users.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
@@ -27,24 +29,32 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.fest.reflect.core.Reflection.field;
+import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
-public class UserDirectoryIT {
+public class UserDirectoryIT extends EqualsContractTest {
 
     private Injector injector;
+    private UserDirectory userDir;
 
     @Mock
     private BundleContext bundleContext;
     @Mock
     private EventAdmin eventAdmin;
+    @Mock
+    private DataModel dataModel;
 
 
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-
+    private static final long ID = 0;
+    private static final long OTHER_ID = 1;
+    private static final String TEST_DOMAIN = "ACD";
 
     private class MockModule extends AbstractModule {
 
@@ -86,6 +96,44 @@ public class UserDirectoryIT {
         inMemoryBootstrapModule.deactivate();
     }
 
+    private void setId(Object entity, long id) {
+
+        field("id").ofType(Long.TYPE).in(entity).set(id);
+    }
+
+    @Override
+    protected Object getInstanceA() {
+        if(userDir==null) {
+            userDir = new ActiveDirectoryImpl(dataModel, mock(UserService.class)).init(TEST_DOMAIN);
+            setId(userDir, ID);
+        }
+        return userDir;
+    }
+
+    @Override
+    protected Object getInstanceEqualToA() {
+        UserDirectory userDirB = new ActiveDirectoryImpl(dataModel, mock(UserService.class)).init(TEST_DOMAIN);
+        setId(userDirB, ID);
+        return userDirB;
+    }
+
+    @Override
+    protected Iterable<?> getInstancesNotEqualToA() {
+        UserDirectory userDirC = new ActiveDirectoryImpl(dataModel, mock(UserService.class)).init(TEST_DOMAIN);
+        setId(userDirC, OTHER_ID);
+        return Collections.singletonList(userDirC);
+    }
+
+    @Override
+    protected boolean canBeSubclassed() {
+        return false;
+    }
+
+    @Override
+    protected Object getInstanceOfSubclassEqualToA() {
+        return null;
+    }
+
     @Test
     public void testPersistenceInternalDirectory() {
         TransactionService transactionService = injector.getInstance(TransactionService.class);
@@ -93,7 +141,7 @@ public class UserDirectoryIT {
         try (TransactionContext context = transactionService.getContext()) {
             UserDirectory internalDirectory = userService.createInternalDirectory("MyDomain");
             internalDirectory.setDefault(true);
-            internalDirectory.save();
+            internalDirectory.update();
             context.commit();
         }
         Optional<UserDirectory> found = userService.findUserDirectory("MyDomain");
@@ -119,7 +167,7 @@ public class UserDirectoryIT {
             activeDirectory.setBaseUser("BaseUser");
             activeDirectory.setBackupUrl("backupUrl");
             activeDirectory.setSecurity("NONE");
-            activeDirectory.save();
+            activeDirectory.update();
             context.commit();
         }
         Optional<UserDirectory> found = userService.findUserDirectory("MyDomain");
@@ -148,7 +196,7 @@ public class UserDirectoryIT {
             apacheDirectory.setBaseUser("BaseUser");
             apacheDirectory.setBackupUrl("backupUrl");
             apacheDirectory.setSecurity("NONE");
-            apacheDirectory.save();
+            apacheDirectory.update();
             context.commit();
         }
         Optional<UserDirectory> found = userService.findUserDirectory("MyDomain");
@@ -179,7 +227,7 @@ public class UserDirectoryIT {
             activeDirectory.setBaseUser("OU=Users,OU=ROGHI01,DC=rimroe,DC=elster-group,DC=com");
             activeDirectory.setBackupUrl("ldap://localhost:12389");
             activeDirectory.setSecurity("NONE");
-            activeDirectory.save();
+            activeDirectory.update();
             Optional<User> user = activeDirectory.authenticate("iancud","xxxxxx");
             Optional<User> user1 = activeDirectory.authenticate("iancud","xxxxxx");
             List<Group> groups = activeDirectory.getGroups(user1.get());
@@ -216,7 +264,7 @@ public class UserDirectoryIT {
             apacheDirectory.setBaseGroup("ou=Groups,dc=WSO2,dc=ORG");
             apacheDirectory.setBackupUrl("ldap://localhost:11389");
             apacheDirectory.setSecurity("NONE");
-            apacheDirectory.save();
+            apacheDirectory.update();
             Optional<User> user = apacheDirectory.authenticate("root","tester");
             Optional<User> user1 = apacheDirectory.authenticate("root","tester");
             List<Group> groups = apacheDirectory.getGroups(user1.get());
@@ -250,7 +298,7 @@ public class UserDirectoryIT {
             apacheDirectory.setBaseUser("BaseUser");
             apacheDirectory.setBackupUrl("BackupUrl");
             apacheDirectory.setSecurity("NONE");
-            apacheDirectory.save();
+            apacheDirectory.update();
             context.commit();
         }
         Optional<UserDirectory> found = userService.findUserDirectory("MyDomain");
@@ -261,7 +309,7 @@ public class UserDirectoryIT {
             apacheDirectory.setUrl("MyUrl2");
             apacheDirectory.setBackupUrl("BackupUrl2");
             apacheDirectory.setSecurity("SSL");
-            apacheDirectory.save();
+            apacheDirectory.update();
             context.commit();
         }
         Optional<UserDirectory> foundEdited = userService.findUserDirectory("MyDomain");
@@ -286,7 +334,7 @@ public class UserDirectoryIT {
             activeDirectory.setBaseUser("BaseUser");
             activeDirectory.setBackupUrl("backupUrl");
             activeDirectory.setSecurity("NONE");
-            activeDirectory.save();
+            activeDirectory.update();
             context.commit();
         }
         Optional<UserDirectory> found = userService.findUserDirectory("MyDomain");
@@ -298,7 +346,7 @@ public class UserDirectoryIT {
             activeDirectory.setUrl("MyUrl2");
             activeDirectory.setBackupUrl("BackupUrl2");
             activeDirectory.setSecurity("SSL");
-            activeDirectory.save();
+            activeDirectory.update();
             context.commit();
         }
         Optional<UserDirectory> foundEdited = userService.findUserDirectory("MyDomain");
@@ -324,7 +372,7 @@ public class UserDirectoryIT {
             apacheDirectory.setBaseUser("ApacheBaseUser");
             apacheDirectory.setBackupUrl("ApachebackupUrl");
             apacheDirectory.setSecurity("NONE");
-            apacheDirectory.save();
+            apacheDirectory.update();
             LdapUserDirectory activeDirectory = userService.createActiveDirectory("ActiveDomain");
             activeDirectory.setDefault(false);
             activeDirectory.setDirectoryUser("ActiveUser");
@@ -333,10 +381,10 @@ public class UserDirectoryIT {
             activeDirectory.setBaseUser("ActiveBaseUser");
             activeDirectory.setBackupUrl("ActivebackupUrl");
             activeDirectory.setSecurity("NONE");
-            activeDirectory.save();
+            activeDirectory.update();
             UserDirectory internalDirectory = userService.createInternalDirectory("InternalDomain");
             internalDirectory.setDefault(false);
-            internalDirectory.save();
+            internalDirectory.update();
             context.commit();
         }
         Optional<UserDirectory> found = userService.findUserDirectory("ApacheDomain");
@@ -356,7 +404,7 @@ public class UserDirectoryIT {
             activeDirectory.setDefault(true);
             apacheDirectory.setDefault(false);
             internalDirectory.setDefault(false);
-            activeDirectory.save();
+            activeDirectory.update();
             context.commit();
         }
         assertThat(activeDirectory.isDefault()).isTrue();
@@ -367,7 +415,7 @@ public class UserDirectoryIT {
             activeDirectory.setDefault(false);
             apacheDirectory.setDefault(false);
             internalDirectory.setDefault(true);
-            activeDirectory.save();
+            activeDirectory.update();
             context.commit();
         }
         assertThat(activeDirectory.isDefault()).isFalse();
@@ -388,7 +436,7 @@ public class UserDirectoryIT {
             apacheDirectory.setBaseUser("ApacheBaseUser");
             apacheDirectory.setBackupUrl("ApachebackupUrl");
             apacheDirectory.setSecurity("NONE");
-            apacheDirectory.save();
+            apacheDirectory.update();
             LdapUserDirectory activeDirectory = userService.createActiveDirectory("ActiveDomain");
             activeDirectory.setDefault(false);
             activeDirectory.setDirectoryUser("ActiveUser");
@@ -397,10 +445,10 @@ public class UserDirectoryIT {
             activeDirectory.setBaseUser("ActiveBaseUser");
             activeDirectory.setBackupUrl("ActivebackupUrl");
             activeDirectory.setSecurity("NONE");
-            activeDirectory.save();
+            activeDirectory.update();
             UserDirectory internalDirectory = userService.createInternalDirectory("InternalDomain");
             internalDirectory.setDefault(false);
-            internalDirectory.save();
+            internalDirectory.update();
             context.commit();
         }
         List<UserDirectory> userDirectories = userService.getUserDirectories();
