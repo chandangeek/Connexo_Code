@@ -222,7 +222,7 @@ public class CommunicationResource {
         filter.comSchedules = new HashSet<>();
         if (jsonQueryFilter.hasProperty(FilterOption.comSchedules.name())) {
             List<Long> comScheduleIds = jsonQueryFilter.getLongList(FilterOption.comSchedules.name());
-            filter.comSchedules.addAll(getObjectsByIdFromList(comScheduleIds, schedulingService.findAllSchedules()));
+            filter.comSchedules.addAll(getObjectsByIdFromList(comScheduleIds, schedulingService.getAllSchedules()));
         }
 
         filter.comTasks = new HashSet<>();

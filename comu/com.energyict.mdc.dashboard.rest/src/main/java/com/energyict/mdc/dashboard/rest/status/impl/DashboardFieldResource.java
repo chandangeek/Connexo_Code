@@ -8,7 +8,6 @@ import com.energyict.mdc.device.data.rest.ConnectionTaskLifecycleStatusAdapter;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
-import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -154,7 +153,7 @@ public class DashboardFieldResource extends FieldResource {
     @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Object getComSchedules() {
-        return Response.ok(asInfoMap("comSchedules", schedulingService.findAllSchedules())).build();
+        return Response.ok(asInfoMap("comSchedules", schedulingService.getAllSchedules())).build();
     }
 
     @GET
