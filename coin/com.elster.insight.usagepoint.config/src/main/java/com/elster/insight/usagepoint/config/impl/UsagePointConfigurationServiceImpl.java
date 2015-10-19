@@ -1,6 +1,5 @@
 package com.elster.insight.usagepoint.config.impl;
 
-import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -25,7 +24,6 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.Interval;
 import com.google.inject.AbstractModule;
@@ -35,26 +33,22 @@ import com.google.inject.Module;
 public class UsagePointConfigurationServiceImpl implements UsagePointConfigurationService, InstallService {
 
     private volatile DataModel dataModel;
-    private volatile ThreadPrincipalService threadPrincipalService;
     private volatile Clock clock;
     private volatile UserService userService;
     private volatile QueryService queryService;
     private volatile EventService eventService;
-    private volatile OrmService ormService;
-    private volatile MeteringService meteringService;
 
     public UsagePointConfigurationServiceImpl() {
     }
 
     @Inject
-    public UsagePointConfigurationServiceImpl(Clock clock, OrmService ormService, QueryService queryService, UserService userService, EventService eventService, ThreadPrincipalService threadPrincipalService,
+    public UsagePointConfigurationServiceImpl(Clock clock, OrmService ormService, QueryService queryService, UserService userService, EventService eventService, 
             MeteringService meteringService) {
         setClock(clock);
         setOrmService(ormService);
         setQueryService(queryService);
         setUserService(userService);
         setEventService(eventService);
-        setThreadPrincipalService(threadPrincipalService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -76,10 +70,6 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     @Activate
     public void activate() {
         dataModel.register(getModule());
-    }
-
-    private Principal getPrincipal() {
-        return threadPrincipalService.getPrincipal();
     }
 
     public QueryService getQueryService() {
@@ -108,7 +98,6 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
 
     @Reference
     public void setOrmService(OrmService ormService) {
-        this.ormService = ormService;
         dataModel = ormService.newDataModel(COMPONENTNAME, "Usage Point Configuration");
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
@@ -121,18 +110,8 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     }
 
     @Reference
-    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
-        this.threadPrincipalService = threadPrincipalService;
-    }
-
-    @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
-    }
-
-    @Reference
-    public void setMeteringService(MeteringService meteringService) {
-        this.meteringService = meteringService;
     }
     
     DataModel getDataModel() {
