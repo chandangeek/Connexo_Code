@@ -7,7 +7,6 @@ import com.elster.jupiter.users.rest.GroupInfo;
 import com.elster.jupiter.users.rest.PrivilegeInfo;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
@@ -25,7 +24,7 @@ public class UpdateMembership {
         boolean updated = updateMemberships(applicationName, group);
         updated |= info.update(group);
         if (updated) {
-            group.save();
+            group.update();
         }
         return group;
     }

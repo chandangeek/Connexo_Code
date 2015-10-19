@@ -38,7 +38,7 @@ public class UserResourceTest extends UsersRestApplicationJerseyTest {
         
         verify(user, VerificationModeFactory.times(0)).setDescription("description");
         verify(user, VerificationModeFactory.times(0)).setLocale(Locale.ENGLISH);
-        verify(user, VerificationModeFactory.times(0)).save();
+        verify(user, VerificationModeFactory.times(0)).update();
     }
 
     @Test
@@ -51,7 +51,7 @@ public class UserResourceTest extends UsersRestApplicationJerseyTest {
         target("/users/1").request().put(Entity.json(info));
         
         verify(user).setLocale(Locale.US);
-        verify(user).save();
+        verify(user).update();
     }
     
     @Test
@@ -63,7 +63,7 @@ public class UserResourceTest extends UsersRestApplicationJerseyTest {
         target("/users/1").request().put(Entity.json(info));
         
         verify(user).setLocale(null);
-        verify(user).save();
+        verify(user).update();
     }
     
     @Test
@@ -75,7 +75,7 @@ public class UserResourceTest extends UsersRestApplicationJerseyTest {
         target("/users/1").request().put(Entity.json(info));
         
         verify(user).setDescription("new description");
-        verify(user).save();
+        verify(user).update();
     }
 
     private User mockUser(long id) {

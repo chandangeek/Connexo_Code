@@ -35,7 +35,7 @@ public class UpdateUserTransaction implements Transaction<User> {
         boolean updated = updateMemberships(user);
         updated |= info.update(user);
         if(updated){
-            user.save();
+            user.update();
         }
         return user;
     }

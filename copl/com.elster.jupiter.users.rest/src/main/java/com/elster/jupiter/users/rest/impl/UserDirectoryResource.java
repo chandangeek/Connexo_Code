@@ -8,22 +8,18 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.*;
 import com.elster.jupiter.users.impl.AbstractLdapDirectoryImpl;
-import com.elster.jupiter.users.impl.UserImpl;
 import com.elster.jupiter.users.rest.LdapUsersInfo;
 import com.elster.jupiter.users.rest.LdapUsersInfos;
 import com.elster.jupiter.users.rest.UserDirectoryInfo;
 import com.elster.jupiter.users.rest.UserDirectoryInfos;
 import com.elster.jupiter.users.security.Privileges;
 import com.elster.jupiter.util.conditions.Order;
-import org.json.JSONObject;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.util.*;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -97,7 +93,7 @@ public class UserDirectoryResource {
             ldapUserDirectory.setBackupUrl(info.backupUrl);
             ldapUserDirectory.setDefault(info.isDefault);
             ldapUserDirectory.setManageGroupsInternal(true);
-            ldapUserDirectory.save();
+            ldapUserDirectory.update();
             context.commit();
             return info;
         }
@@ -115,13 +111,13 @@ public class UserDirectoryResource {
                 if(info.isDefault){
                     UserDirectory fi = userService.findDefaultUserDirectory();
                     fi.setDefault(false);
-                    fi.save();
+                    fi.update();
                 }
                 if(info.name.equals("Local")){
                     Optional<UserDirectory> userDirectory = userService.findUserDirectory(info.name);
                     if(userDirectory.isPresent()){
                         userDirectory.get().setDefault(true);
-                        userDirectory.get().save();
+                        userDirectory.get().update();
                     }
                 }else {
                     LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
@@ -135,7 +131,7 @@ public class UserDirectoryResource {
                     ldapUserDirectory.setBaseUser(info.baseUser);
                     ldapUserDirectory.setDefault(info.isDefault);
                     ldapUserDirectory.setType(info.type);
-                    ldapUserDirectory.save();
+                    ldapUserDirectory.update();
                 }
             }
         });

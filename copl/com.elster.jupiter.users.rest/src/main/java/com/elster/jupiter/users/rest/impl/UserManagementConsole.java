@@ -49,7 +49,7 @@ public class UserManagementConsole {
     		threadPrincipalService.set(user.get());
     		try (TransactionContext context = txService.getContext()) {
     			user.get().setPassword(password);
-    			user.get().save();
+    			user.get().update();
     			context.commit();
     		} 
     	} finally {
