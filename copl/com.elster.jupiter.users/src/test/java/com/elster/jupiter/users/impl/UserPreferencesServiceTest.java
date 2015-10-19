@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.Locale;
 import java.util.Optional;
 
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -67,7 +68,8 @@ public class UserPreferencesServiceTest {
                     new ThreadSecurityModule(), 
                     new PubSubModule(), 
                     new TransactionModule(true),
-                    new NlsModule());
+                    new NlsModule(),
+                    new DataVaultModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
             userPrefsService = injector.getInstance(UserService.class).getUserPreferencesService(); 
             ctx.commit();

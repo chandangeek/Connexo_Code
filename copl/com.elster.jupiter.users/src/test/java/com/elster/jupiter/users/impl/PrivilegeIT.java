@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Optional;
 
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.users.ResourceDefinition;
 import org.junit.After;
 import org.junit.Before;
@@ -69,7 +70,8 @@ public class PrivilegeIT {
                 new PubSubModule(),
                 new TransactionModule(),
                 new UserModule(),
-                new NlsModule());
+                new NlsModule(),
+                new DataVaultModule());
         injector.getInstance(TransactionService.class).execute(() -> {
             injector.getInstance(UserService.class);
             return null;
