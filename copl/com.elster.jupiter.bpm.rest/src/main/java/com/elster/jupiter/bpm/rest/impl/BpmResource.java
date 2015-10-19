@@ -96,7 +96,7 @@ public class BpmResource {
                 }
             } catch (JSONException e) {
                 // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
-            } catch (IOException e) {
+            } catch (RuntimeException e) {
                 // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
             }
         }
@@ -119,7 +119,7 @@ public class BpmResource {
             }
         } catch (JSONException e) {
             // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
-        } catch (IOException e) {
+        } catch (RuntimeException e) {
             // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
         }
         return new ProcessInstanceInfo(obj);
@@ -140,7 +140,7 @@ public class BpmResource {
             }
         } catch (JSONException e) {
             // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
-        } catch (IOException e) {
+        } catch (RuntimeException e) {
             // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
         }
         return new NodeInfos(arr);
@@ -161,7 +161,7 @@ public class BpmResource {
             }
         } catch (JSONException e) {
             // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
-        } catch (IOException e) {
+        } catch (RuntimeException e) {
             // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
         }
         return new VariableInfos(arr);
@@ -177,7 +177,7 @@ public class BpmResource {
             }
         } catch (JSONException e) {
             // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
-        } catch (IOException e) {
+        } catch (RuntimeException e) {
             // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
         }
         return new DeploymentInfos(arr);
@@ -204,9 +204,9 @@ public class BpmResource {
                 total = Integer.valueOf(obj.get("total").toString());
                 arr = obj.getJSONArray("tasks");
             }
-        }catch (JSONException e) {
+        } catch (JSONException e) {
             // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
-        } catch (IOException e) {
+        } catch (RuntimeException e) {
             // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
         }
         TaskInfos infos = new TaskInfos(arr);
@@ -232,8 +232,8 @@ public class BpmResource {
                 taskInfo = new TaskInfo(obj);
             }
 
-        }catch (JSONException e) {
-        } catch (IOException e) {
+        } catch (JSONException e) {
+        } catch (RuntimeException e) {
         }
         return taskInfo;
     }
@@ -254,7 +254,7 @@ public class BpmResource {
 
         }catch (JSONException e) {
             // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
-        } catch (IOException e) {
+        } catch (RuntimeException e) {
             // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
         }
         return new ProcessDefinitionInfos(arr);
@@ -288,7 +288,10 @@ public class BpmResource {
         if(userName != null && !userName.isEmpty()) {
             rest += "/assign?username=" + userName;
             rest += "&currentuser=" + securityContext.getUserPrincipal().getName();
-            bpmService.getBpmServer().doPost(rest);
+            try {
+                bpmService.getBpmServer().doPost(rest);
+            }catch (RuntimeException e){
+            }
             return Response.ok().build();
         }
 
@@ -338,7 +341,11 @@ public class BpmResource {
             }else{
                 rest += "?duedate=" + date;
             }
-            bpmService.getBpmServer().doPost(rest);
+            try {
+                bpmService.getBpmServer().doPost(rest);
+            } catch (RuntimeException e){
+
+            }
             return Response.ok().build();
         }
         return Response.notModified().build();
