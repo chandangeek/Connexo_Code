@@ -1,5 +1,5 @@
 Ext.define('Fwc.model.FirmwareManagementOptions', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.Version',
     alternateClassName: 'FirmwareManagementOptions',
     fields: [
         {

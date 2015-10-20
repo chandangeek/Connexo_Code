@@ -1,5 +1,5 @@
 Ext.define('Fwc.firmwarecampaigns.model.FirmwareCampaign', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.Version',
     requires: [
         'Uni.property.model.Property',
         'Fwc.model.DeviceType',

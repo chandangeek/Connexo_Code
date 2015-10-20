@@ -1,5 +1,5 @@
 Ext.define('Fwc.model.Firmware', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.Version',
     fields: [
         {name: 'id', type: 'number', useNull: true},
         {name: 'firmwareVersion', type: 'string', useNull: true},
@@ -58,16 +58,21 @@ Ext.define('Fwc.model.Firmware', {
     },
 
     doSave: function (callback, form) {
-        Ext.Ajax.request({
+        var request = {
             method: 'POST',
             headers: {'Content-type': 'multipart/form-data'},
             url: this.proxy.url + (this.hasId() ? '/' + this.getId() : ''),
             form: form.getEl().dom,
             isUpload: true,
-            hasUpload: true,
-            callback: callback
+            hasUpload: true
+        };
 
-        });
+        if (Ext.isFunction(callback)) {
+            request.callback = callback;
+            Ext.Ajax.request(request);
+        } else {
+            Ext.Ajax.request(Ext.merge(request, callback));
+        }
     },
 
     setFinal: function (callback) {

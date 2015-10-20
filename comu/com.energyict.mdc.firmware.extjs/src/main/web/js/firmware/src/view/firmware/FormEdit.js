@@ -43,6 +43,10 @@ Ext.define('Fwc.view.firmware.FormEdit', {
             itemId: 'disp-firmware-status',
             fieldLabel: Uni.I18n.translate('firmware.field.status', 'FWC', 'Firmware status'),
             name: 'status'
+        },
+        {
+            xtype: 'hiddenfield',
+            name: 'version'
         }
     ]
 });

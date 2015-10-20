@@ -75,6 +75,7 @@ Ext.define('Fwc.controller.Firmware', {
         container.setLoading();
         firmware.getProxy().setUrl(router.arguments.deviceTypeId);
         firmware.setFinal({
+            isNotEdit: true,
             success: function () {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.final.success', 'FWC', 'Firmware version set as final'));
                 router.getRoute().forward();
@@ -102,6 +103,7 @@ Ext.define('Fwc.controller.Firmware', {
                     container.setLoading();
                     firmware.getProxy().setUrl(router.arguments.deviceTypeId);
                     firmware.deprecate({
+                        isNotEdit: true,
                         success: function () {
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.deprecate.success', 'FWC', 'Firmware version deprecated'));
                             router.getRoute().forward();
@@ -254,6 +256,7 @@ Ext.define('Fwc.controller.Firmware', {
         record = form.updateRecord().getRecord();
         var input = form.down('firmware-field-file').button.fileInputEl.dom,
             file = input.files[0],
+            backUrl = form.router.getRoute('administration/devicetypes/view/firmwareversions').buildUrl(),
             precallback = function (options, success, response) {
                 if (success) {
                     if (form.xtype == 'firmware-form-edit-ghost') {
@@ -277,20 +280,28 @@ Ext.define('Fwc.controller.Firmware', {
             },
             callback = function (options, success, response) {
                 if (success) {
-                    record.doSave(savecallback, form);
+                    record.doSave(saveOptions, form);
                 } else {
                     me.setFormErrors(response, form);
                     form.setLoading(false);
                 }
             },
-            savecallback = function (options, success, response) {
-                form.setLoading(false);
-                if (success) {
-                    form.router.getRoute('administration/devicetypes/view/firmwareversions').forward();
+            saveOptions = {
+                backUrl: backUrl,
+                callback: function (options, success, response) {
+                    var responseObject = Ext.decode(response.responseText, true);
 
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.edit.updated.success', 'FWC', 'Firmware version saved'));
-                } else {
-                    me.setFormErrors(response, form);
+                    form.setLoading(false);
+                    if (responseObject) {
+                        if (!Ext.isEmpty(responseObject.error)) {
+                            me.getController('Uni.controller.Error').concurrentErrorHandler(options, responseObject);
+                        } else if (!Ext.isEmpty(responseObject.errors)) {
+                            me.setFormErrors(response, form);
+                        }
+                    } else {
+                        window.location.href = backUrl;
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.edit.updated.success', 'FWC', 'Firmware version saved'));
+                    }
                 }
             };
 
@@ -427,19 +438,21 @@ Ext.define('Fwc.controller.Firmware', {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
             form = me.getFirmwareOptionsEditForm(),
-            allowedOptionsError = form.down('#allowedOptionsError');
+            allowedOptionsError = form.down('#allowedOptionsError'),
+            backUrl = router.getRoute('administration/devicetypes/view/firmwareoptions').buildUrl();
 
         form.updateRecord();
         allowedOptionsError.removeAll();
         form.getRecord().save({
+            backUrl: backUrl,
             success: function () {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.options.save.success', 'FWC', 'Firmware management options saved'));
-                router.getRoute('administration/devicetypes/view/firmwareoptions').forward();
+                window.location.href = backUrl;
             },
             failure: function (record, operation) {
-                form.down('uni-form-error-message').show();
                 var json = Ext.decode(operation.response.responseText);
                 if (json && json.errors) {
+                    form.down('uni-form-error-message').show();
                     form.getForm().markInvalid(json.errors);
                     Ext.each(json.errors, function(error) {
                         if (error.id === "allowedOptions") {

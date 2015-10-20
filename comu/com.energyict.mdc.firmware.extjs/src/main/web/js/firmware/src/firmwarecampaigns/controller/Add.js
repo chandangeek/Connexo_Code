@@ -82,25 +82,27 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
         form.updateRecord();
         page.setLoading();
         form.getRecord().save({
-            callback: function (record, operation, success) {
+            backUrl: page.returnLink,
+            success: function (record, operation) {
+                me.getApplication().fireEvent('acknowledge', operation.action === 'create'
+                    ? Uni.I18n.translate('firmware.campaigns.addSuccess', 'FWC', 'Firmware campaign added')
+                    : Uni.I18n.translate('firmware.campaigns.saveSuccess', 'FWC', 'Firmware campaign saved'));
+                if (page.rendered) {
+                    window.location.href = page.returnLink;
+                }
+            },
+            failure: function (record, operation) {
                 var responseText = Ext.decode(operation.response.responseText, true);
 
-                page.setLoading(false);
-                if (success) {
-                    me.getApplication().fireEvent('acknowledge', operation.action === 'create'
-                        ? Uni.I18n.translate('firmware.campaigns.addSuccess', 'FWC', 'Firmware campaign added')
-                        : Uni.I18n.translate('firmware.campaigns.saveSuccess', 'FWC', 'Firmware campaign saved'));
-                    if (page.rendered) {
-                        window.location.href = page.returnLink;
-                    }
-                } else {
-                    if (page.rendered && responseText && responseText.errors) {
-                        Ext.suspendLayouts();
-                        baseForm.markInvalid(responseText.errors);
-                        errorMessage.show();
-                        Ext.resumeLayouts(true);
-                    }
+                if (page.rendered && responseText && responseText.errors) {
+                    Ext.suspendLayouts();
+                    baseForm.markInvalid(responseText.errors);
+                    errorMessage.show();
+                    Ext.resumeLayouts(true);
                 }
+            },
+            callback: function () {
+                page.setLoading(false);
             }
         });
     }

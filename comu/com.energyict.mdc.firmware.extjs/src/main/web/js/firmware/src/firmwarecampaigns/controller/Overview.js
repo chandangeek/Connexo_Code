@@ -85,12 +85,16 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
         store.getProxy().url = '/api/fwc/campaigns/' + record.id;
         record.set('status', {id: "CANCELLED", localizedValue: "Cancelled"});
         record.save({
-            callback: function (model, operation) {
+            isNotEdit: true,
+            success: function () {
+                form.loadRecord(model);
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.campaigns.cancelled', 'FWC', 'Firmware campaign cancelled'));
+            },
+            callback: function () {
                 store.getProxy().url = '/api/fwc/campaigns/';
-                if (operation.success) {
-                    form.loadRecord(model);
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.campaigns.cancelled', 'FWC', 'Firmware campaign cancelled'));
-                }
+            },
+            failure: function () {
+                record.reject();
             }
         });
     }
