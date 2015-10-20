@@ -17,8 +17,8 @@ public class TcpInboundComPortInfo extends InboundComPortInfo<TCPBasedInboundCom
         this.portNumber = comPort.getPortNumber();
     }
 
-    protected void writeTo(TCPBasedInboundComPort source,EngineConfigurationService engineConfigurationService) {
-        super.writeTo(source, engineConfigurationService);
+    protected void writeTo(TCPBasedInboundComPort source, EngineConfigurationService engineConfigurationService, ResourceHelper resourceHelper) {
+        super.writeTo(source, engineConfigurationService, resourceHelper);
         Optional<Integer> portNumber = Optional.ofNullable(this.portNumber);
         if(portNumber.isPresent()) {
             source.setPortNumber(portNumber.get());

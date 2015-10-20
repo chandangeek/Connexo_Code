@@ -19,8 +19,8 @@ public class UdpInboundComPortInfo extends InboundComPortInfo<UDPBasedInboundCom
     }
 
     @Override
-    protected void writeTo(UDPBasedInboundComPort source,EngineConfigurationService engineConfigurationService) {
-        super.writeTo(source, engineConfigurationService);
+    protected void writeTo(UDPBasedInboundComPort source, EngineConfigurationService engineConfigurationService, ResourceHelper resourceHelper) {
+        super.writeTo(source, engineConfigurationService, resourceHelper);
         Optional<Integer> portNumber = Optional.ofNullable(this.portNumber);
         if(portNumber.isPresent()) {
             source.setPortNumber(portNumber.get());

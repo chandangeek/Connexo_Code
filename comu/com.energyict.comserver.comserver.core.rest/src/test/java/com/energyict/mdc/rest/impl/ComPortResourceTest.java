@@ -111,12 +111,12 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
                 MapEntry.entry("comPortType", "TCP"),
                 MapEntry.entry("description", "this is a test port"),
                 MapEntry.entry("comServer_id", comServer_id),
-                MapEntry.entry("comPortPool_id", comPortPool_id),
                 MapEntry.entry("numberOfSimultaneousConnections", 7),
                 MapEntry.entry("portNumber", 8),
 
                 MapEntry.entry("direction", "inbound")
         );
+        assertThat(response).containsKey("comPortPool_id");
     }
 
     @Test
@@ -155,7 +155,6 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
                 MapEntry.entry("comPortType", "SERVLET"),
                 MapEntry.entry("description", "this is a test port"),
                 MapEntry.entry("comServer_id", comServer_id),
-                MapEntry.entry("comPortPool_id", comPortPool_id),
                 MapEntry.entry("numberOfSimultaneousConnections", 7),
                 MapEntry.entry("useHttps", true),
                 MapEntry.entry("keyStoreFilePath", "/path/to/key/store"),
@@ -166,6 +165,7 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
                 MapEntry.entry("contextPath", "/context/path"),
                 MapEntry.entry("direction", "inbound")
         );
+        assertThat(response).containsKey("comPortPool_id");
     }
 
     @Test
@@ -199,13 +199,13 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
                 MapEntry.entry("comPortType", "UDP"),
                 MapEntry.entry("description", "this is a test port"),
                 MapEntry.entry("comServer_id", comServer_id),
-                MapEntry.entry("comPortPool_id", comPortPool_id),
                 MapEntry.entry("numberOfSimultaneousConnections", 7),
                 MapEntry.entry("portNumber", 8),
                 MapEntry.entry("bufferSize", 9),
 
                 MapEntry.entry("direction", "inbound")
         );
+        assertThat(response).containsKey("comPortPool_id");
     }
 
     @Test
@@ -272,7 +272,6 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
                 MapEntry.entry("comPortType", "SERIAL"),
                 MapEntry.entry("description", "this is a test port"),
                 MapEntry.entry("comServer_id", comServer_id),
-                MapEntry.entry("comPortPool_id", comPortPool_id),
                 MapEntry.entry("numberOfSimultaneousConnections", 7),
                 MapEntry.entry("addressSelector", "allo allo"),
                 MapEntry.entry("atCommandTry", 123),
@@ -290,9 +289,9 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
                 MapEntry.entry("nrOfStopBits", "2"),
                 MapEntry.entry("parity", "Even parity"),
                 MapEntry.entry("flowControl", "Xon/Xoff"),
-
                 MapEntry.entry("direction", "inbound")
         );
+        assertThat(response).containsKey("comPortPool_id");
     }
 
     @Test

@@ -1,5 +1,7 @@
 package com.energyict.mdc.rest.impl;
 
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -9,6 +11,8 @@ import com.energyict.mdc.rest.impl.comserver.ComPortPoolResource;
 import com.energyict.mdc.rest.impl.comserver.ComPortResource;
 import com.energyict.mdc.rest.impl.comserver.ComServerComPortResource;
 import com.energyict.mdc.rest.impl.comserver.ComServerResource;
+import com.energyict.mdc.rest.impl.comserver.MessageSeeds;
+import com.energyict.mdc.rest.impl.comserver.ResourceHelper;
 import com.energyict.mdc.rest.impl.comserver.TimeDurationUnitTranslationKeys;
 
 import com.elster.jupiter.license.License;
@@ -32,7 +36,7 @@ import java.util.List;
 import java.util.Set;
 
 @Component(name = "com.energyict.mdc.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/mdc", "app=MDC", "name=" + MdcApplication.COMPONENT_NAME})
-public class MdcApplication extends Application implements TranslationKeyProvider {
+public class MdcApplication extends Application implements TranslationKeyProvider, MessageSeedProvider {
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "CCR";
 
@@ -91,6 +95,11 @@ public class MdcApplication extends Application implements TranslationKeyProvide
     }
 
     @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
+    }
+
+    @Override
     public List<TranslationKey> getKeys() {
         return Arrays.asList(TimeDurationUnitTranslationKeys.values());
     }
@@ -121,6 +130,7 @@ public class MdcApplication extends Application implements TranslationKeyProvide
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(nlsService).to(NlsService.class);
             bind(thesaurus).to(Thesaurus.class);
+            bind(ResourceHelper.class).to(ResourceHelper.class);
         }
     }
 

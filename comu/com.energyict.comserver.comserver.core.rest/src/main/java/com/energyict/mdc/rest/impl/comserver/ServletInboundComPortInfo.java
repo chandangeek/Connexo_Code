@@ -23,8 +23,8 @@ public class ServletInboundComPortInfo extends InboundComPortInfo<ServletBasedIn
         this.contextPath = comPort.getContextPath();
     }
 
-    protected void writeTo(ServletBasedInboundComPort source,EngineConfigurationService engineConfigurationService) {
-        super.writeTo(source, engineConfigurationService);
+    protected void writeTo(ServletBasedInboundComPort source, EngineConfigurationService engineConfigurationService, ResourceHelper resourceHelper) {
+        super.writeTo(source, engineConfigurationService, resourceHelper);
         Optional<Boolean> useHttps = Optional.ofNullable(this.useHttps);
         if(useHttps.isPresent()) {
             source.setHttps(useHttps.get());

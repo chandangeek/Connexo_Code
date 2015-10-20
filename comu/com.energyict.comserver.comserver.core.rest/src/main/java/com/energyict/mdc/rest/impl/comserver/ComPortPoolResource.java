@@ -52,13 +52,15 @@ public class ComPortPoolResource {
     private final DeviceConfigurationService deviceConfigurationService;
     private final ProtocolPluggableService protocolPluggableService;
     private final Provider<ComPortPoolComPortResource> comPortPoolComPortResourceProvider;
+    private final ResourceHelper resourceHelper;
 
     @Inject
-    public ComPortPoolResource(EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, Provider<ComPortPoolComPortResource> comPortPoolComPortResourceProvider, DeviceConfigurationService deviceConfigurationService) {
+    public ComPortPoolResource(EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, Provider<ComPortPoolComPortResource> comPortPoolComPortResourceProvider, DeviceConfigurationService deviceConfigurationService, ResourceHelper resourceHelper) {
         this.engineConfigurationService = engineConfigurationService;
         this.protocolPluggableService = protocolPluggableService;
         this.comPortPoolComPortResourceProvider = comPortPoolComPortResourceProvider;
         this.deviceConfigurationService = deviceConfigurationService;
+        this.resourceHelper = resourceHelper;
     }
 
     @GET
@@ -137,12 +139,8 @@ public class ComPortPoolResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public Response deleteComPortPool(@PathParam("id") long id) {
-        Optional<? extends ComPortPool> comPortPool = engineConfigurationService.findComPortPool(id);
-        if (!comPortPool.isPresent()) {
-            return Response.status(Response.Status.NOT_FOUND).entity("No ComPortPool with id " + id).build();
-        }
-        comPortPool.get().makeObsolete();
+    public Response deleteComPortPool(@PathParam("id") long id, ComPortPoolInfo info) {
+        resourceHelper.lockComPortPoolOrThrowException(info).makeObsolete();
         return Response.noContent().build();
     }
 
@@ -165,20 +163,17 @@ public class ComPortPoolResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
-    public ComPortPoolInfo<?> updateComPortPool(@PathParam("id") long id, ComPortPoolInfo<ComPortPool> comPortPoolInfo, @Context UriInfo uriInfo) {
-        Optional<? extends ComPortPool> comPortPool = engineConfigurationService.findComPortPool(id);
-        if (!comPortPool.isPresent()) {
-            throw new WebApplicationException("No ComPortPool with id " + id, Response.status(Response.Status.NOT_FOUND).entity("No ComPortPool with id " + id).build());
+    public ComPortPoolInfo<?> updateComPortPool(@PathParam("id") long id, ComPortPoolInfo<ComPortPool> info, @Context UriInfo uriInfo) {
+        ComPortPool comPortPool = resourceHelper.lockComPortPoolOrThrowException(info);
+        info.writeTo(comPortPool, protocolPluggableService);
+        if (comPortPool instanceof OutboundComPortPool) {
+            handlePools(info, (OutboundComPortPool) comPortPool, engineConfigurationService, getBoolean(uriInfo, ALL));
         }
-        comPortPoolInfo.writeTo(comPortPool.get(), protocolPluggableService);
-        if (comPortPool.get() instanceof OutboundComPortPool) {
-            handlePools(comPortPoolInfo, (OutboundComPortPool) comPortPool.get(), engineConfigurationService, getBoolean(uriInfo, ALL));
+        if (InboundComPortPool.class.isAssignableFrom(comPortPool.getClass())) {
+            handleInboundPoolPorts((InboundComPortPool)comPortPool, Optional.ofNullable(info.inboundComPorts));
         }
-        if (InboundComPortPool.class.isAssignableFrom(comPortPool.get().getClass())) {
-            handleInboundPoolPorts((InboundComPortPool)comPortPool.get(), Optional.ofNullable(comPortPoolInfo.inboundComPorts));
-        }
-        comPortPool.get().update();
-        return ComPortPoolInfoFactory.asInfo(comPortPool.get(), engineConfigurationService);
+        comPortPool.update();
+        return ComPortPoolInfoFactory.asInfo(comPortPool, engineConfigurationService);
     }
 
     @Path("/{comPortPoolId}/comports")

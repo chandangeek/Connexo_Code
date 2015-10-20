@@ -1,19 +1,22 @@
 package com.energyict.mdc.rest.impl.comserver;
 
+import com.elster.jupiter.rest.util.VersionInfo;
+import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ComPortType;
-import java.util.Optional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 public abstract class OutboundComPortInfo extends ComPortInfo<OutboundComPort, OutboundComPort.OutboundComPortBuilder> {
 
-    public List<Long> outboundComPortPoolIds = new ArrayList<>();;
+    public List<VersionInfo<Long>> outboundComPortPoolIds = new ArrayList<>();;
 
     public OutboundComPortInfo() {
         this.direction = "outbound";
@@ -24,7 +27,10 @@ public abstract class OutboundComPortInfo extends ComPortInfo<OutboundComPort, O
         super(comPort);
         this.direction = "outbound";
         List<OutboundComPortPool> outboundComPortPools = engineConfigurationService.findContainingComPortPoolsForComPort(comPort);
-        outboundComPortPoolIds.addAll(createHasIdList(outboundComPortPools));
+        outboundComPortPoolIds.addAll(engineConfigurationService.findContainingComPortPoolsForComPort(comPort)
+                .stream()
+                .map(pool -> new VersionInfo<Long>(pool.getId(), pool.getVersion()))
+                .collect(Collectors.toList()));
     }
 
     private List<Long> createHasIdList(List<OutboundComPortPool> outboundComPortPools) {
@@ -36,23 +42,26 @@ public abstract class OutboundComPortInfo extends ComPortInfo<OutboundComPort, O
     }
 
     @Override
-    protected void writeTo(OutboundComPort source,EngineConfigurationService engineConfigurationService) {
-        super.writeTo(source, engineConfigurationService);
-        updateComPortPools(source, engineConfigurationService);
+    protected void writeTo(OutboundComPort source, EngineConfigurationService engineConfigurationService, ResourceHelper resourceHelper) {
+        super.writeTo(source, engineConfigurationService, resourceHelper);
+        updateComPortPools(source, engineConfigurationService, resourceHelper);
     }
 
-    private void updateComPortPools(OutboundComPort comPort, EngineConfigurationService engineConfigurationService) {
+    private void updateComPortPools(OutboundComPort comPort, EngineConfigurationService engineConfigurationService, ResourceHelper resourceHelper) {
         List<OutboundComPortPool> currentOutboundPools = engineConfigurationService.findContainingComPortPoolsForComPort(comPort);
         List<Long> currentIdList = createHasIdList(currentOutboundPools);
-        for (Long outboundComPortPoolId : outboundComPortPoolIds) {
-            if (!currentIdList.contains(outboundComPortPoolId)) {
-                engineConfigurationService
-                        .findOutboundComPortPool(outboundComPortPoolId)
-                        .ifPresent(cpp -> cpp.addOutboundComPort(comPort));
+        for (VersionInfo<Long> outboundComPortPool : outboundComPortPoolIds) {
+            if (!currentIdList.contains(outboundComPortPool)) {
+                ComPortPool comPortPool = resourceHelper.getLockedComPortPool(outboundComPortPool.id, outboundComPortPool.version)
+                        .orElseThrow(resourceHelper.getConcurrentExSupplier(this.name, () -> resourceHelper.getCurrentComPortVersion(this.id)));
+                ((OutboundComPortPool) comPortPool).addOutboundComPort(comPort);
+                comPortPool.update();
             }
         }
         for (OutboundComPortPool oldOutboundPool : currentOutboundPools) {
             if(!outboundComPortPoolIds.contains(oldOutboundPool.getId())){
+                resourceHelper.getLockedComPortPool(oldOutboundPool.getId(), oldOutboundPool.getVersion())
+                        .orElseThrow(resourceHelper.getConcurrentExSupplier(this.name, () -> resourceHelper.getCurrentComPortVersion(this.id)));
                 oldOutboundPool.removeOutboundComPort(comPort);
             }
         }
@@ -66,8 +75,8 @@ public abstract class OutboundComPortInfo extends ComPortInfo<OutboundComPort, O
     @Override
     protected OutboundComPort createNew(ComServer comServer, EngineConfigurationService engineConfigurationService) {
         OutboundComPort outboundComPort = build(comServer.newOutboundComPort(this.name, this.numberOfSimultaneousConnections), engineConfigurationService).add();
-        for (Long outboundComPortPoolId : outboundComPortPoolIds) {
-            Optional<OutboundComPortPool> outboundComPortPool = engineConfigurationService.findOutboundComPortPool(outboundComPortPoolId);
+        for (VersionInfo<Long> outboundComPortPoolInfo : outboundComPortPoolIds) {
+            Optional<OutboundComPortPool> outboundComPortPool = engineConfigurationService.findOutboundComPortPool(outboundComPortPoolInfo.id);
             if (outboundComPortPool.isPresent()) {
                 outboundComPortPool.get().addOutboundComPort(outboundComPort);
             }

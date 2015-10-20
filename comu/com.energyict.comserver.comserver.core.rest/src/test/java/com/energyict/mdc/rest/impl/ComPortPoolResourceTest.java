@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import org.assertj.core.data.MapEntry;
@@ -159,6 +160,7 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
         tcpOutboundComPortInfo2.id=comPort2_id_to_be_added;
         tcpOutboundComPortInfo2.comPortType=ComPortType.TCP;
         outboundComPortPoolInfo.outboundComPorts= new ArrayList<>(Arrays.asList(tcpOutboundComPortInfo1, tcpOutboundComPortInfo2));
+        outboundComPortPoolInfo.version = 1L;
 
         OutboundComPortPool mockOutboundComPortPool = mock(OutboundComPortPool.class);
         OutboundComPort mockTcpPort1 = mock(OutboundComPort.class);
@@ -176,6 +178,7 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
 
         when(mockOutboundComPortPool.getComPorts()).thenReturn(Arrays.<OutboundComPort>asList(mockTcpPort1, mockTcpPort3));
         doReturn(Optional.of(mockOutboundComPortPool)).when(engineConfigurationService).findComPortPool(comPortPool_id);
+        doReturn(Optional.of(mockOutboundComPortPool)).when(engineConfigurationService).findAndLockComPortPoolByIdAndVersion(comPortPool_id, 1L);
         doReturn(Optional.of(mockTcpPort2)).when(engineConfigurationService).findComPort(comPort2_id_to_be_added);
 
         Entity<OutboundComPortPoolInfo> json = Entity.json(outboundComPortPoolInfo);
@@ -269,21 +272,29 @@ public class ComPortPoolResourceTest extends ComserverCoreApplicationJerseyTest 
     @Test
     public void testDeleteComPortPool() throws Exception {
         int comPortPool_id = 5;
+        InboundComPortPoolInfo info = new InboundComPortPoolInfo();
+        info.id=comPortPool_id;
+        info.version = 1L;
 
         InboundComPortPool mock = mock(InboundComPortPool.class);
         doReturn(Optional.of(mock)).when(engineConfigurationService).findComPortPool(comPortPool_id);
+        doReturn(Optional.of(mock)).when(engineConfigurationService).findAndLockComPortPoolByIdAndVersion(comPortPool_id, info.version);
 
-        final Response response = target("/comportpools/5").request().delete();
+        final Response response = target("/comportpools/5").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
 
         verify(mock).makeObsolete();
     }
 
     @Test
-    public void testDeleteNonExistingComPortPoolThrows404() throws Exception {
+    public void testDeleteNonExistingComPortPoolThrows409() throws Exception {
+        InboundComPortPoolInfo info = new InboundComPortPoolInfo();
+        info.id=5;
+        info.version = 1L;
         when(this.engineConfigurationService.findComPortPool(anyLong())).thenReturn(Optional.empty());
-        final Response response = target("/comportpools/5").request().delete();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+        when(this.engineConfigurationService.findAndLockComPortPoolByIdAndVersion(anyLong(), anyLong())).thenReturn(Optional.empty());
+        final Response response = target("/comportpools/5").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
 }

@@ -45,6 +45,7 @@ public abstract class ComServerInfo<B extends ComServer.ComServerBuilder,C exten
     public Integer storeTaskQueueSize;
     public Integer numberOfStoreTaskThreads;
     public Integer storeTaskThreadPriority;
+    public long version;
 
     public ComServerInfo() {
     }
@@ -60,6 +61,7 @@ public abstract class ComServerInfo<B extends ComServer.ComServerBuilder,C exten
         this.communicationLogLevel = comServer.getCommunicationLogLevel();
         this.changesInterPollDelay = TimeDurationInfo.of(comServer.getChangesInterPollDelay());
         this.schedulingInterPollDelay = TimeDurationInfo.of(comServer.getSchedulingInterPollDelay());
+        this.version = comServer.getVersion();
     }
 
     /**
