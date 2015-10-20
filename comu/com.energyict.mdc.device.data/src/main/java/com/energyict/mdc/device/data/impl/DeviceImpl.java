@@ -380,7 +380,7 @@ public class DeviceImpl implements Device, CanLock {
             // No need to call the getComTaskExecutionImpls getter because if they have not been loaded before, they cannot be dirty
             this.comTaskExecutions
                     .stream()
-                    .forEach(ComTaskExecutionImpl::updateAndDoNotTouchParent);
+                    .forEach(ComTaskExecutionImpl::save);
         }
     }
 

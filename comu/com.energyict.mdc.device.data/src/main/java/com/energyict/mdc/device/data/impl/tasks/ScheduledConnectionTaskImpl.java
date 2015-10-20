@@ -281,6 +281,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     @Override
     public void scheduledComTaskRescheduled(ComTaskExecution comTask) {
         if (ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(this.getConnectionStrategy())) {
+            doNotTouchParentDevice();
             this.schedule(comTask.getNextExecutionTimestamp());
         }
     }
@@ -288,6 +289,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     @Override
     public void scheduledComTaskChangedPriority(ComTaskExecution comTask) {
         if (this.needToSynchronizePriorityChanges()) {
+            doNotTouchParentDevice();
             EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimeStampAndPriority = this.getEarliestNextExecutionTimeStampAndPriority();
 
             /* earliestNextExecutionTimeStampAndPriority is only null when there are

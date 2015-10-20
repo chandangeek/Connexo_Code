@@ -708,24 +708,6 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         }
     }
 
-    @Override
-    public void save() {
-        super.save();
-        if(getId() > 0) {
-            getDataModel().touch(device.get());
-        }
-    }
-
-    public void updateAndDoNotTouchParent(){
-        super.save();
-    }
-
-    @Override
-    protected void update() {
-        super.update();
-        getDataModel().touch(device.get());
-    }
-
     public abstract static class AbstractComTaskExecutionBuilder<C extends ComTaskExecution, CI extends ComTaskExecutionImpl> implements ComTaskExecutionBuilder<C> {
 
         private final CI comTaskExecution;
