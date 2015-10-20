@@ -145,11 +145,16 @@ public class FirmwareVersionResource {
                 @FormDataParam("firmwareVersion") InputStream versionInputStream,
                 @FormDataParam("firmwareVersion") FormDataContentDisposition versionContentDispositionHeader,
                 @FormDataParam("firmwareStatus") InputStream statusInputStream,
-                @FormDataParam("firmwareStatus") FormDataContentDisposition statusContentDispositionHeader)
+                @FormDataParam("firmwareStatus") FormDataContentDisposition statusContentDispositionHeader,
+                @FormDataParam("version") InputStream entityVersionStream)
     {
-        FirmwareVersion firmwareVersion = resourceHelper.findFirmwareVersionByIdOrThrowException(id);
+        FirmwareVersionInfo info = new FirmwareVersionInfo();
+        info.id = id;
+        info.firmwareVersion = getStringValueFromStream(versionInputStream);
+        info.version = parseEntityVersion(entityVersionStream);
 
-        firmwareVersion.setFirmwareVersion(getStringValueFromStream(versionInputStream));
+        FirmwareVersion firmwareVersion = resourceHelper.lockFirmwareVersionOrThrowException(info);
+        firmwareVersion.setFirmwareVersion(info.firmwareVersion);
         parseFirmwareStatusField(statusInputStream).ifPresent(firmwareVersion::setFirmwareStatus);
         setFirmwareFile(firmwareVersion, fileInputStream);
         firmwareVersion.update();
@@ -162,10 +167,11 @@ public class FirmwareVersionResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE})
-    public Response updateStatusOfFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, FirmwareVersionInfo firmwareVersionInfo) {
-        FirmwareVersion firmwareVersion = resourceHelper.findFirmwareVersionByIdOrThrowException(id);
+    public Response updateStatusOfFirmwareVersion(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("id") long id, FirmwareVersionInfo info) {
+        info.id = id;
+        FirmwareVersion firmwareVersion = resourceHelper.lockFirmwareVersionOrThrowException(info);
 
-        switch (firmwareVersionInfo.firmwareStatus.id) {
+        switch (info.firmwareStatus.id) {
         case DEPRECATED:
             firmwareVersion.deprecate();
             break;
@@ -262,6 +268,15 @@ public class FirmwareVersionResource {
             return Optional.empty();
         }
         return Optional.of(FirmwareTypeInfo.FIRMWARE_TYPE_ADAPTER.unmarshal(firmwareType));
+    }
+
+    private long parseEntityVersion(InputStream is) {
+        String versionAsString = getStringValueFromStream(is);
+        try {
+            return Long.parseLong(versionAsString);
+        } catch (NumberFormatException ex){
+        }
+        return 0;
     }
 
     private String getStringValueFromStream(InputStream is) {

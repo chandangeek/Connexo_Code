@@ -75,9 +75,9 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
                 DeviceFirmwareVersionResource.class,
                 DeviceFirmwareMessagesResource.class,
                 FirmwareTypesResource.class,
+                FirmwareComTaskResource.class,
                 TransactionWrapper.class,
                 MultiPartFeature.class,
-                FirmwareComTaskResource.class,
                 RestValidationExceptionMapper.class,
                 DeviceStateAccessFeature.class
         );

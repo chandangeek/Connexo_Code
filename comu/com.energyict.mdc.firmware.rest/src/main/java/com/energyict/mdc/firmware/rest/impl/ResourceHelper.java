@@ -1,5 +1,6 @@
 package com.energyict.mdc.firmware.rest.impl;
 
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -22,14 +23,16 @@ public class ResourceHelper {
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final DeviceService deviceService;
     private final FirmwareService firmwareService;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public ResourceHelper(ExceptionFactory exceptionFactory, DeviceConfigurationService deviceConfigurationService, DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceService deviceService, FirmwareService firmwareService) {
+    public ResourceHelper(ExceptionFactory exceptionFactory, DeviceConfigurationService deviceConfigurationService, DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceService deviceService, FirmwareService firmwareService, ConcurrentModificationExceptionFactory conflictFactory) {
         this.exceptionFactory = exceptionFactory;
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.deviceService = deviceService;
         this.firmwareService = firmwareService;
+        this.conflictFactory = conflictFactory;
     }
 
     public DeviceType findDeviceTypeOrElseThrowException(long deviceTypeId) {
@@ -42,15 +45,50 @@ public class ResourceHelper {
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.DEVICE_NOT_FOUND, mRID));
     }
 
+    public Optional<Device> getLockedDevice(String mRID, long version) {
+        return deviceService.findAndLockDeviceBymRIDAndVersion(mRID, version);
+    }
+
     public FirmwareVersion findFirmwareVersionByIdOrThrowException(Long id) {
         return firmwareService.getFirmwareVersionById(id)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.FIRMWARE_VERSION_NOT_FOUND, id));
+    }
+
+    public Long getCurrentFirmwareVersionVersion(long id){
+        return firmwareService.getFirmwareVersionById(id).map(FirmwareVersion::getVersion).orElse(null);
+    }
+
+    public Optional<FirmwareVersion> getLockedFirmwareVersionById(long id, long version) {
+        return firmwareService.findAndLockFirmwareVersionByIdAndVersion(id, version);
+    }
+
+    public FirmwareVersion lockFirmwareVersionOrThrowException(FirmwareVersionInfo info) {
+        return getLockedFirmwareVersionById(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.firmwareVersion)
+                        .withActualVersion(() -> getCurrentFirmwareVersionVersion(info.id))
+                        .supplier());
     }
 
     public FirmwareCampaign findFirmwareCampaignOrThrowException(long id){
         return firmwareService.getFirmwareCampaignById(id)
                     .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.FIRMWARE_CAMPAIGN_NOT_FOUND, id));
     }
+
+    public Long getCurrentFirmwareCampaignVersion(long id){
+        return firmwareService.getFirmwareCampaignById(id).map(FirmwareCampaign::getVersion).orElse(null);
+    }
+
+    public Optional<FirmwareCampaign> getLockedFirmwareCampaign(long id, long version){
+        return firmwareService.findAndLockFirmwareCampaignByIdAndVersion(id, version);
+    }
+
+    public FirmwareCampaign lockFirmwareCampaign(FirmwareCampaignInfo info) {
+        return getLockedFirmwareCampaign(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> getCurrentFirmwareCampaignVersion(info.id))
+                        .supplier());
+    }
+
     public ProtocolSupportedFirmwareOptions findProtocolSupportedFirmwareOptionsOrThrowException(String uploadOption) {
         return ProtocolSupportedFirmwareOptions.from(uploadOption)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.SUPPORTED_FIRMWARE_UPGRADE_OPTIONS_NOT_FOUND));

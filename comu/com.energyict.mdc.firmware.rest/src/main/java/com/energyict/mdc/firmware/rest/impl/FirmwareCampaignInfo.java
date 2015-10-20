@@ -24,6 +24,7 @@ public class FirmwareCampaignInfo {
     public Instant finishedOn;
     public List<PropertyInfo> properties;
     public List<DeviceInFirmwareCampaignStatusInfo> devicesStatus;
+    public long version;
 
     public FirmwareCampaignInfo() {}
 

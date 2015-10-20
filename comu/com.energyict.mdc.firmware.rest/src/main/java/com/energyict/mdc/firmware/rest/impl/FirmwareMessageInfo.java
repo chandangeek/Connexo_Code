@@ -12,6 +12,7 @@ public class FirmwareMessageInfo {
     public String localizedValue;
     public List<PropertyInfo> properties;
     public Instant releaseDate;
+    public long version; // device version here!
 
     public FirmwareMessageInfo() {}
 }

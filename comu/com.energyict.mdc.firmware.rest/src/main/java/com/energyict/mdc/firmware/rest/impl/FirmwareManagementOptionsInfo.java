@@ -11,6 +11,7 @@ public class FirmwareManagementOptionsInfo {
     public boolean isAllowed = false;
     public List<ManagementOptionInfo> supportedOptions;
     public List<ManagementOptionInfo> allowedOptions;
+    public long version;
 
     public FirmwareManagementOptionsInfo() {
         supportedOptions = new ArrayList<>();

@@ -28,6 +28,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -54,6 +55,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
         Finder<FirmwareVersion> firmwareVersionFinder = mockFinder(Arrays.asList(firmwareVersion));
         when(firmwareService.findAllFirmwareVersions(any(FirmwareVersionFilter.class))).thenReturn(firmwareVersionFinder);
         when(firmwareVersionBuilder.create()).thenReturn(firmwareVersion);
+        when(firmwareService.findAndLockFirmwareVersionByIdAndVersion(anyLong(), anyLong())).thenReturn(Optional.of(firmwareVersion));
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
@@ -168,6 +170,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
         FirmwareVersionInfo info = new FirmwareVersionInfo();
         info.firmwareStatus = new FirmwareStatusInfo();
         info.firmwareStatus.id = FirmwareStatus.DEPRECATED;
+        info.version = 1L;
         
         Response response = target("devicetypes/1/firmwares/1").request().put(Entity.json(info));
         
@@ -180,6 +183,7 @@ public class FirmwareVersionResourceTest extends BaseFirmwareTest {
         FirmwareVersionInfo info = new FirmwareVersionInfo();
         info.firmwareStatus = new FirmwareStatusInfo();
         info.firmwareStatus.id = FirmwareStatus.FINAL;
+        info.version = 1L;
         
         Response response = target("devicetypes/1/firmwares/1").request().put(Entity.json(info));
         

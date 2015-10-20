@@ -74,8 +74,9 @@ public class FirmwareCampaignResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.ADMINISTRATE_FIRMWARE_CAMPAIGN})
-    public Response editFirmwareCampaign(FirmwareCampaignInfo info){
-        FirmwareCampaign firmwareCampaign = resourceHelper.findFirmwareCampaignOrThrowException(info.id);
+    public Response editFirmwareCampaign(@PathParam("id") long firmwareCampaignId, FirmwareCampaignInfo info){
+        info.id = firmwareCampaignId;
+        FirmwareCampaign firmwareCampaign = resourceHelper.lockFirmwareCampaign(info);
         if(info.status.id.equals(FirmwareCampaignStatus.CANCELLED.name())){
             this.firmwareService.cancelFirmwareCampaign(firmwareCampaign);
         } else {
@@ -90,8 +91,9 @@ public class FirmwareCampaignResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.ADMINISTRATE_FIRMWARE_CAMPAIGN})
-    public Response deleteFirmwareCampaign(@PathParam("id") long firmwareCampaignId){
-        FirmwareCampaign firmwareCampaign = resourceHelper.findFirmwareCampaignOrThrowException(firmwareCampaignId);
+    public Response deleteFirmwareCampaign(@PathParam("id") long firmwareCampaignId, FirmwareCampaignInfo info){
+        info.id = firmwareCampaignId;
+        FirmwareCampaign firmwareCampaign = resourceHelper.lockFirmwareCampaign(info);
         firmwareCampaign.delete();
         return Response.ok(campaignInfoFactory.from(firmwareCampaign)).build();
     }
