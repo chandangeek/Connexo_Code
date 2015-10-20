@@ -193,6 +193,11 @@ public class EventServiceImpl implements EventService, InstallService, MessageSe
         return eventTypeFactory().getOptional(topic);
     }
 
+    @Override
+    public Optional<EventType> findAndLockEventTypeByNameAndVersion(String topic, long version) {
+        return eventTypeFactory().lockObjectIfVersion(version, topic);
+    }
+
     private DataMapper<EventType> eventTypeFactory() {
         return dataModel.mapper(EventType.class);
     }

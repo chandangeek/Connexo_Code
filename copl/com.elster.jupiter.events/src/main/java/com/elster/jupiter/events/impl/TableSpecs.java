@@ -15,19 +15,23 @@ public enum TableSpecs {
     EVT_EVENTTYPE {
         @Override
         void addTo(DataModel dataModel) {
-        	Table<EventType> table = dataModel.addTable(name(),EventType.class);
+        	Table<EventType> table = dataModel.addTable(name(), EventType.class);
         	table.map(EventTypeImpl.class);
         	table.cache();
             Column topicColumn = table.column("TOPIC").varChar(NAME_LENGTH).notNull().map("topic").add();
             table.column("COMPONENT").varChar(3).notNull().map("component").add();
             table.column("SCOPE").varChar(NAME_LENGTH).notNull().map("scope").add();
             table.column("CATEGORY").varChar(NAME_LENGTH).notNull().map("category").add();
-            table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
+            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.column("PUBLISH").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("publish").add();
             table.column("FSMENABLED").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("fsmEnabled").add();
+            table.addAuditColumns();
+
             table.primaryKey("EVT_PK_EVENTTYPE").on(topicColumn).add();
+            table.unique("EBT_UQ_TYPE_NAME").on(nameColumn).add();
         }
     },
+
     EVT_EVENTPROPERTYTYPE {
         @Override
         void addTo(DataModel dataModel) {

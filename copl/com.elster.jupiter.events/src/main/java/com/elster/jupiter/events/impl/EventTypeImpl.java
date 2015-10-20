@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableList;
 
 import javax.inject.Inject;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -35,6 +36,12 @@ public final class EventTypeImpl implements EventType, PersistenceAware {
     private final MessageService messageService;
     private final BeanService beanService;
     private final Thesaurus thesaurus;
+
+    //audit columns
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
+    private String userName;
 
     @Inject
     EventTypeImpl(DataModel dataModel, Clock clock, JsonService jsonService, EventConfiguration eventConfiguration, MessageService messageService, BeanService beanService, Thesaurus thesaurus) {
@@ -178,5 +185,10 @@ public final class EventTypeImpl implements EventType, PersistenceAware {
     @Override
     public int hashCode() {
         return Objects.hash(topic);
+    }
+    
+    @Override
+    public long getVersion() {
+        return this.version;
     }
 }

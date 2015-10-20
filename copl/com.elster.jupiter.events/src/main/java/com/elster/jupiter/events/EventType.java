@@ -36,4 +36,6 @@ public interface EventType {
     void removePropertyType(EventPropertyType eventPropertyType);
 
     void update();
+
+    long getVersion();
 }
