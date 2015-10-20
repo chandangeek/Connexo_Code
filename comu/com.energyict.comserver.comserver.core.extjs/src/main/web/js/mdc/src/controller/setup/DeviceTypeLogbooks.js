@@ -67,6 +67,7 @@ Ext.define('Mdc.controller.setup.DeviceTypeLogbooks', {
                     Ext.Ajax.request({
                         url: url,
                         method: 'DELETE',
+                        jsonData: _.pick(record.getRecordData(), 'id', 'version', 'name', 'parent', 'deviceProtocolPluggableClass'),
                         success: function () {
                             self.getApplication().fireEvent('acknowledge', 'Logbook type removed');
                             grid.getStore().load({

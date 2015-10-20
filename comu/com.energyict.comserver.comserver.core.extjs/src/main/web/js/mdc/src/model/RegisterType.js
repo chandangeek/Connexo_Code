@@ -1,5 +1,5 @@
 Ext.define('Mdc.model.RegisterType', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.Version',
     requires: [
         'Mdc.model.ReadingType'
     ],

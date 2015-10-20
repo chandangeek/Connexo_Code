@@ -1,5 +1,5 @@
 Ext.define('Mdc.model.DeviceMessageSpec', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.ParentVersion',
     requires: [
         'Uni.property.model.Property'
     ],

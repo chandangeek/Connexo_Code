@@ -2,7 +2,8 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
     extend: 'Ext.container.Container',
     alias: 'widget.serialForm',
     requires: [
-      'Mdc.store.TimeUnits'
+        'Mdc.store.TimeUnits',
+        'Mdc.view.setup.comservercomports.InboundComPortPoolCombo'
     ],
     defaults: {
         labelWidth: 250,
@@ -38,7 +39,7 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
             name: 'addressSelector'
         },
         {
-            xtype: 'combobox',
+            xtype: 'inbound-com-port-pool-combo',
             fieldLabel: Uni.I18n.translate('general.comPortPool', 'MDC', 'Communication port pool'),
             required: false,
             store: 'Mdc.store.InboundComPortPools',

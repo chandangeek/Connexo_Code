@@ -1,14 +1,28 @@
 Ext.define('Mdc.model.RegisterTypeOnDeviceType', {
-    extend: 'Mdc.model.RegisterType',
+    extend: 'Uni.model.ParentVersion',
     requires: [
-        'Mdc.model.RegisterType'
+        'Mdc.model.ReadingType'
     ],
     fields: [
         {name: 'id', type: 'number', useNull: true},
-        {name: 'obisCode', type: 'string'},
-        {name: 'customPropertySet', type: 'auto'},
+        {name: 'obisCode', type: 'string', useNull: true},
+        {name: 'isLinkedByDeviceType', type: 'boolean', useNull: true},
+        {name: 'isLinkedByActiveRegisterConfig', type: 'boolean', useNull: true},
+        {name: 'isLinkedByInactiveRegisterConfig', type: 'boolean', useNull: true},
         'readingType',
-        {name: 'name', type: 'string', persist: false, mapping: 'readingType.fullAliasName'}
+        {name: 'name', type: 'string', persist: false, mapping: 'readingType.fullAliasName'},
+        {name: 'customPropertySet', type: 'auto'}
+    ],
+    associations: [
+        {
+            name: 'readingType',
+            associationKey: 'readingType',
+            type: 'hasOne',
+            model: 'Mdc.model.ReadingType',
+            getterName: 'getReadingType',
+            setterName: 'setReadingType',
+            foreignKey: 'readingType'
+        }
     ],
 
     proxy: {

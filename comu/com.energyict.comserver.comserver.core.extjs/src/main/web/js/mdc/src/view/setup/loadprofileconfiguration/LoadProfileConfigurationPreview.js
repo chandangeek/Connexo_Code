@@ -43,15 +43,19 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPrev
                     },
                     items: [
                         {
-                            fieldLabel: 'Load profile type',
+                            fieldLabel: Uni.I18n.translate('general.loadProfileType', 'MDC', 'Load profile type'),
                             name: 'name',
                             renderer: function (value) {
                                 var record = this.up('form').getRecord(),
-                                    config = Ext.ComponentQuery.query('loadProfileConfigurationSetup')[0].config;
+                                    result = '';
 
-                                if (!Ext.isEmpty(record)) {
-                                    return Ext.String.format('<a href="#/administration/devicetypes/{0}/deviceconfigurations/{1}/loadprofiles/{2}/channels">{3}</a>', config.deviceTypeId, config.deviceConfigurationId, record.getId(), Ext.String.htmlEncode(value));
+                                if (me.router && record) {
+                                    result = '<a href="'
+                                        + me.router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').buildUrl(Ext.merge(me.router.arguments, {loadProfileConfigurationId: record.getId()}))
+                                        + '">' + value + '</a>';
                                 }
+
+                                return result;
                             }
                         },
                         {
@@ -76,18 +80,15 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPrev
                     labelWidth: 200,
                     renderer: function (value) {
                         var typesString = '',
-                            record = this.up('form').getRecord(),
-                            arguments;
+                            record = this.up('form').getRecord();
 
                         if (!Ext.isEmpty(value)) {
                             Ext.each(value, function (type) {
                                 typesString += Ext.String.htmlEncode(type.name) + '<br />';
                             });
                         } else if (record && me.router) {
-                            arguments = Ext.clone(me.router.arguments);
-                            arguments.loadProfileConfigurationId = record.getId();
                             typesString = '<a href="'
-                            + me.router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').buildUrl(arguments) + '">'
+                            + me.router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').buildUrl(Ext.merge(me.router.arguments, {loadProfileConfigurationId: record.getId()})) + '">'
                             + Uni.I18n.translatePlural('general.nrOfChannelConfigurations', 0, 'MDC', 'No channel configurations', '{0} channel configuration', '{0} channel configurations') + '</a>';
                         }
                         return typesString;

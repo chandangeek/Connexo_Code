@@ -1,5 +1,5 @@
 Ext.define('Mdc.model.Device', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.ParentVersion',
     requires: [
         'Mdc.model.DeviceLabel',
         'Mdc.model.DeviceConnection',

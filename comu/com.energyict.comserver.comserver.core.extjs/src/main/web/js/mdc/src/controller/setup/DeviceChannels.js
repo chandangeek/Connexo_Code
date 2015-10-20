@@ -245,19 +245,15 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
                 url: '../../api/ddr/devices/' + encodeURIComponent(mRID) + '/channels/' + record.get('id') + '/validate',
                 method: 'PUT',
                 timeout: 1800000,
-                jsonData: {
+                isNotEdit: true,
+                jsonData: Ext.merge({
                     lastChecked: lastChecked
-                },
+                }, _.pick(record.getRecordData(), 'id', 'name', 'version', 'parent')),
                 success: function () {
                     clearTimeout(timeout);
                     me.getApplication().fireEvent('acknowledge',
                         Uni.I18n.translate('deviceloadprofiles.channels.activation.completed', 'MDC', 'Data validation completed'));
-                    if (Ext.ComponentQuery.query('#deviceLoadProfileChannelsGrid')[0]) {
-                        Ext.ComponentQuery.query('#deviceLoadProfileChannelsGrid')[0].fireEvent('select', Ext.ComponentQuery.query('#deviceLoadProfileChannelsGrid')[0].getSelectionModel(), record);
-                    }
-                    if (me.getDeviceLoadProfileChannelsPreviewForm() || me.getDeviceLoadProfileChannelsOverviewForm()) {
-                        me.updateDeviceChannelDetails(mRID, record.get('id'));
-                    }
+                    router.getRoute().forward();
                 },
                 callback: function () {
                     viewport.setLoading(false);

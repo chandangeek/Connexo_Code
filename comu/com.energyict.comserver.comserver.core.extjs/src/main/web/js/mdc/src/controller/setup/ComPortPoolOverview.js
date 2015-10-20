@@ -101,9 +101,9 @@ Ext.define('Mdc.controller.setup.ComPortPoolOverview', {
         }
 
         if (activeChange != 'notChange') {
-            record.set('active', activeChange);
             record.save({
-                callback: function (model) {
+                isNotEdit: true,
+                success: function (model) {
                     var msg = activeChange ? Uni.I18n.translate('general.activated', 'MDC', 'activated') :
                         Uni.I18n.translate('general.deactivated', 'MDC', 'deactivated');
                     form.loadRecord(model);
@@ -126,7 +126,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolOverview', {
         record.destroy({
             callback: function (model, operation) {
                 page.setLoading(false);
-                if (operation.wasSuccessful()) {
+                if (!arguments.length || operation.wasSuccessful()) {
                     var router = me.getController('Uni.controller.history.Router');
                     router.getRoute('administration/comportpools').forward();
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comPortPool.deleteSuccess.msg', 'MDC', 'Communication port pool removed'));

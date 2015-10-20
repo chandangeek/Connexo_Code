@@ -1,5 +1,5 @@
 Ext.define('Mdc.usagepointmanagement.model.UsagePoint', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.Version',
     requires: [],
     fields: [
         {name: 'id', type: 'number', useNull: true},

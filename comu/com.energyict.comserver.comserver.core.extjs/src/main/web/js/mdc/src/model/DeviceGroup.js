@@ -1,5 +1,5 @@
 Ext.define('Mdc.model.DeviceGroup', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.Version',
     requires: [
         'Mdc.model.SearchCriteria'
     ],
@@ -7,8 +7,8 @@ Ext.define('Mdc.model.DeviceGroup', {
         {name: 'name', type: 'string', useNull: true},
         {name: 'mRID', type: 'string', useNull: true},
         {name: 'dynamic', type: 'boolean', useNull: true},
-        {name: 'filter', type: 'auto', useNull: true},
-        {name: 'devices', type: 'auto', useNull: true},
+        {name: 'filter', type: 'auto', useNull: true, defaultValue: null},
+        {name: 'devices', type: 'auto', useNull: true, defaultValue: null},
         {name: 'deviceTypeIds', persist: false},
         {name: 'deviceConfigurationIds', persist: false},
         {name: 'selectedDevices', persist: false}

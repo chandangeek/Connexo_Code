@@ -1,5 +1,6 @@
 Ext.define('Mdc.model.DeviceGeneralAttributes', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.ParentVersion',
+    fields: ['name'],
     requires: [
         'Uni.property.model.Property'
     ],

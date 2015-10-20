@@ -4,7 +4,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
     requires: [],
     deviceTypeId: null,
     deviceConfigurationId: null,
-    deviceConfigurationVersion: null,
     views: [
         'setup.deviceconfiguration.DeviceConfigurationsSetup',
         'setup.deviceconfiguration.DeviceConfigurationsGrid',
@@ -58,7 +57,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         {ref: 'changeDeviceConfigurationView', selector: '#change-device-configuration-view'},
         {ref: 'changeDeviceConfigurationForm', selector: '#change-device-configuration-form'},
         {ref: 'changeDeviceConfigurationFormErrors', selector: '#change-device-configuration-form #form-errors'},
-        {ref: 'saveChangeDeviceConfigurationBtn', selector: '#save-change-device-configuration'}
+        {ref: 'saveChangeDeviceConfigurationBtn', selector: '#save-change-device-configuration'},
+        {ref: 'deviceConfigurationClonePage', selector: 'deviceConfigurationClone'}
     ],
 
     init: function () {
@@ -319,38 +319,20 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
 
             var recordId = record.get('id');
             var deviceTypeId = router.arguments['deviceTypeId'];
+            record.set('active', activeChange);
             Ext.Ajax.request({
                 url: '/api/dtc/devicetypes/' + deviceTypeId + '/deviceconfigurations/' + recordId + '/status',
                 method: 'PUT',
-                jsonData: {active: activeChange},
-                success: function () {
-                    var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
-                    model.getProxy().setExtraParam('deviceType', deviceTypeId);
-
-                    model.load(recordId, {
-                        callback: function (model) {
-                            if (grid) {
-                                record.set('active', activeChange);
-                                record.commit();
-                                gridView.refresh();
-                                me.getPreviewActionMenu().record = model;
-                            } else {
-                                menu.record = model;
-                            }
-
-                            form.loadRecord(model);
-                            Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
-                                success: function (deviceType) {
-                                    if(viewport.down('deviceTypeSideMenu')) {
-                                        viewport.down('deviceTypeSideMenu #conflictingMappingLink').setText(Uni.I18n.translate('deviceConflictingMappings.ConflictingMappingCount', 'MDC', 'Conflicting mappings ({0})', [deviceType.get('deviceConflictsCount')]));
-                                    }
-                                    me.getApplication().fireEvent('acknowledge', activeChange ? Uni.I18n.translate('deviceconfiguration.activated', 'MDC', 'Device configuration activated') :
-                                        Uni.I18n.translate('deviceconfiguration.deactivated', 'MDC', 'Device configuration deactivated'));
-                                    viewport.setLoading(false);
-                                }
-                            });
-                        }
-                    });
+                jsonData: record.getRecordData(),
+                isNotEdit: true,
+                success: function (response) {
+                    router.getRoute().forward();
+                    me.getApplication().fireEvent('acknowledge', activeChange ? Uni.I18n.translate('deviceconfiguration.activated', 'MDC', 'Device configuration activated') :
+                        Uni.I18n.translate('deviceconfiguration.deactivated', 'MDC', 'Device configuration deactivated'));
+                },
+                failure: function () {
+                    viewport.setLoading(false);
+                    record.reject();
                 }
             });
         }
@@ -521,10 +503,10 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         model.load(deviceConfigurationId, {
             success: function (deviceConfiguration) {
                 me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
-                me.deviceConfigurationVersion = deviceConfiguration.get('version');
                 Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
                     success: function (deviceType) {
                         widget = Ext.widget('deviceConfigurationClone', {
+                            primaryDeviceConfiguration: deviceConfiguration,
                             router: router,
                             deviceConfigurationName: deviceConfiguration.get('name')
                         });
@@ -546,12 +528,15 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             record = Ext.create(Mdc.model.DeviceConfiguration);
 
         me.getDeviceConfigurationCloneForm().getForm().clearInvalid();
-        record.set('version', me.deviceConfigurationVersion);
+        record.beginEdit();
+        record.set(_.pick(me.getDeviceConfigurationClonePage().primaryDeviceConfiguration.getRecordData(), 'parent', 'version'));
         record.set(name);
+        record.endEdit();
         pageMainContent.setLoading(true);
 
         record.save({
             url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId,
+            backUrl: router.getRoute('administration/devicetypes/view/deviceconfigurations').buildUrl(),
             success: function () {
                 router.getRoute('administration/devicetypes/view/deviceconfigurations').forward();
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconfiguration.acknowledgment.cloned', 'MDC', 'Device configuration cloned'));
@@ -591,6 +576,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             }
             record.getProxy().setExtraParam('deviceType', this.deviceTypeId);
             record.save({
+                backUrl: me.getDeviceConfigurationEdit().returnLink,
                 success: function (record) {
                     window.location.href = me.getDeviceConfigurationEdit().returnLink;
                     if (btn.action === 'createDeviceConfiguration') {

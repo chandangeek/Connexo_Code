@@ -215,9 +215,6 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
             case 'deactivate':
                 activeChange = false;
                 break;
-            case 'edit':
-                me.showEdit(record);
-                break;
         }
         if (activeChange != 'notChange') {
             Ext.Ajax.request({
@@ -228,6 +225,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                     jsonObject['active'] = activeChange;
                     Ext.Ajax.request({
                         url: storeUrl + '/' + record.getData().id,
+                        isNotEdit: true,
                         method: 'PUT',
                         jsonData: jsonObject,
                         success: function () {

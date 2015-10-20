@@ -17,14 +17,13 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.store.RegisterTypesOfDevicetype',
         'Mdc.view.setup.register.RegisterMappingActionMenu',
         'Uni.grid.column.Obis',
         'Uni.grid.column.ReadingType',
         'Ext.grid.plugin.BufferedRenderer'
     ],
 
-    store: 'RegisterTypesOfDevicetype',
+    store: 'Mdc.store.RegisterTypesOfDevicetype',
 
     initComponent: function () {
         var me = this;
@@ -43,7 +42,10 @@ Ext.define('Mdc.view.setup.register.RegisterMappingsGrid', {
             {
                 xtype: 'uni-actioncolumn',
                 privileges: Mdc.privileges.DeviceType.admin,
-                items: 'Mdc.view.setup.register.RegisterMappingActionMenu'
+                menu: {
+                    xtype: 'register-mapping-action-menu',
+                    itemId: 'register-mapping-action-menu'
+                }
             }
         ];
 

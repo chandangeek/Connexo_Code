@@ -218,7 +218,9 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
     createEditRegisterType: function (btn) {
         var me = this,
             editView = me.getRegisterTypeEditView(),
-            values = this.getRegisterTypeEditForm().getValues(),
+            values = me.getRegisterTypeEditForm().getValues(),
+            router = me.getController('Uni.controller.history.Router'),
+            backUrl = router.getRoute('administration/registertypes').buildUrl(),
             record;
 
         if (Ext.isEmpty(values.readingType)) values.readingType = null;
@@ -241,24 +243,25 @@ Ext.define('Mdc.controller.setup.RegisterTypes', {
                 record.setReadingType(Ext.create(Mdc.model.ReadingType, me.getReadingTypeCombo().valueModels[0].getData()));
             }
             record.save({
+                backUrl: backUrl,
                 success: function () {
                     if (me.mode == 'create') {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registertype.acknowlegment.added', 'MDC', 'Register type added'));
                     } else {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registertype.acknowlegment.saved', 'MDC', 'Register type saved'));
                     }
-                    editView.setLoading(false);
-                    location.href = '#/administration/registertypes/';
+                    location.href = backUrl;
                 },
                 failure: function (rec, operation) {
                     var json = Ext.decode(operation.response.responseText);
                     if (json && json.errors) {
                         me.getRegisterTypeEditForm().getForm().markInvalid(json.errors);
+                        me.showErrorPanel();
                     }
-                    me.showErrorPanel();
+                },
+                callback: function () {
                     editView.setLoading(false);
                 }
-
             });
         }
     },

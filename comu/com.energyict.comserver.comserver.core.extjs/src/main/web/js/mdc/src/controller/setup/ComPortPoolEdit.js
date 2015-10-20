@@ -140,6 +140,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
         page.setLoading(Uni.I18n.translate('general.saving', 'MDC', 'Saving...'));
 
         record.save({
+            backUrl: me.getController('Uni.controller.history.Router').getRoute('administration/comportpools').buildUrl(),
             callback: function (model, operation, success) {
                 page.setLoading(false);
                 button.setDisabled(false);

@@ -3,6 +3,12 @@ Ext.define('Mdc.model.GeneralAttributes', {
     requires: [
         'Uni.property.model.Property'
     ],
+    fields: [
+        {
+            name: 'deviceConfiguration',
+            defaultValue: null
+        }
+    ],
     associations: [
         {name: 'properties', type: 'hasMany', model: 'Uni.property.model.Property', associationKey: 'properties', foreignKey: 'properties',
             getTypeDiscriminator: function (node) {

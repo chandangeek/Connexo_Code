@@ -1,5 +1,5 @@
 Ext.define('Mdc.model.ComServerComPort', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.ParentVersion',
     requires: [
         'Ext.data.proxy.Rest',
         'Mdc.store.ComPortPools',
@@ -84,7 +84,8 @@ Ext.define('Mdc.model.ComServerComPort', {
         },
         {
             name: 'comPortPool_id',
-            type: 'int'
+            type: 'auto',
+            defaultValue: null
         },
         {
             name: 'portNumber',
@@ -192,6 +193,8 @@ Ext.define('Mdc.model.ComServerComPort', {
         {
             name: 'outboundComPortPoolIds',
             type: 'string',
+            useNull: true,
+            defaultValue: null,
             mapping: function (data) {
                 var comPortPools = data.outboundComPortPoolIds,
                     portPoolsStore = Ext.getStore('Mdc.store.ComPortPools'),
@@ -199,8 +202,8 @@ Ext.define('Mdc.model.ComServerComPort', {
                 if (Ext.isArray(comPortPools) && comPortPools.length && portPoolsStore.getCount()) {
                     result = '';
                     Ext.Array.each(comPortPools, function (item) {
-                        var comPortPool = portPoolsStore.getById(item);
-                        comPortPool && (result += '<a href="#/administration/comportpools/' + item + '">' + Ext.String.htmlEncode(comPortPool.get('name')) + '</a><br>');
+                        var comPortPool = portPoolsStore.getById(item.id);
+                        comPortPool && (result += '<a href="#/administration/comportpools/' + item.id + '">' + Ext.String.htmlEncode(comPortPool.get('name')) + '</a><br>');
                     });
                 }
                 return result;
@@ -299,7 +302,7 @@ Ext.define('Mdc.model.ComServerComPort', {
             name: 'inboundComPortPools',
             type: 'string',
             mapping: function (data) {
-                var id = data.comPortPool_id,
+                var id = data.comPortPool_id ? data.comPortPool_id.id : null,
                     result = '',
                     portPoolsStore,
                     comPortPool;
@@ -314,6 +317,8 @@ Ext.define('Mdc.model.ComServerComPort', {
         {
             name: 'modemInitStrings',
             type: 'string',
+            defaultValue: null,
+            useNull: true,
             mapping: function (data) {
                 var val = data.modemInitStrings,
                     result = undefined;
@@ -331,6 +336,8 @@ Ext.define('Mdc.model.ComServerComPort', {
         {
             name: 'globalModemInitStrings',
             type: 'string',
+            defaultValue: null,
+            useNull: true,
             mapping: function (data) {
                 var val = data.globalModemInitStrings,
                     result = undefined;

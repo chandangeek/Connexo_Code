@@ -1,5 +1,5 @@
 Ext.define('Mdc.model.DeviceSecuritySetting', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.ParentVersion',
     requires: [
         'Uni.property.model.Property'
     ],

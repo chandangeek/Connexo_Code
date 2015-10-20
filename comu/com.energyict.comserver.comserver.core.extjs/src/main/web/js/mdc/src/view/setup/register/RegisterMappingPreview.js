@@ -12,11 +12,6 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
         'Uni.form.field.CustomAttributeSetDisplay'
     ],
 
-    layout: {
-        type: 'card',
-        align: 'stretch'
-    },
-
     title: Uni.I18n.translate('general.details','MDC','Details'),
 
     tools: [
@@ -26,7 +21,8 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
             privileges: Mdc.privileges.DeviceType.admin,
             iconCls: 'x-uni-action-iconD',
             menu: {
-                xtype: 'register-mapping-action-menu'
+                xtype: 'register-mapping-action-menu',
+                itemId: 'register-mapping-action-menu'
             }
         }
     ],
@@ -36,25 +32,7 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
     initComponent: function () {
         var me = this;
 
-        this.items = [
-            {
-                xtype: 'panel',
-                border: false,
-                tbar: [
-                    {
-                        xtype: 'component',
-                        html: '<h4>' + Uni.I18n.translate('registerMapping.noRegisterMappingSelected', 'MDC', 'No register type selected') + '</h4>'
-                    }
-                ],
-                items: [
-                    {
-                        xtype: 'component',
-                        height: '100px',
-                        html: '<h5>' + Uni.I18n.translate('registerMapping.selectRegisterMapping', 'MDC', 'Select a register type to see its details') + '</h5>'
-                    }
-                ]
-            },
-
+        me.items = [
             {
                 xtype: 'form',
                 border: false,
@@ -99,6 +77,6 @@ Ext.define('Mdc.view.setup.register.RegisterMappingPreview', {
             }
         ];
 
-        this.callParent(arguments);
+        me.callParent(arguments);
     }
 });

@@ -67,11 +67,11 @@ Ext.define('Mdc.controller.setup.DeviceConfigurationLogbooks', {
     },
 
     deleteLogbookType: function () {
-        var self = this,
-            logbooksView = self.getDeviceConfigurationLogbooks(),
+        var me = this,
+            logbooksView = me.getDeviceConfigurationLogbooks(),
             grid = logbooksView.down('grid'),
-            record = grid.getSelectionModel().getLastSelected(),
-            url = '/api/dtc/devicetypes/' + logbooksView.deviceTypeId + '/deviceconfigurations/' + logbooksView.deviceConfigurationId + '/logbookconfigurations/' + record.data.id;
+            record = grid.getSelectionModel().getLastSelected();
+
         Ext.create('Uni.view.window.Confirmation').show({
             msg: 'The logbook configuration will no longer be available on this device configuration.',
             title: Uni.I18n.translate('general.removeConfirmation', 'MDC', 'Remove \'{0}\'?', [record.get('name')]),
@@ -79,11 +79,9 @@ Ext.define('Mdc.controller.setup.DeviceConfigurationLogbooks', {
             },
             fn: function (state) {
                 if (state === 'confirm') {
-                    Ext.Ajax.request({
-                        url: url,
-                        method: 'DELETE',
+                    record.destroy({
                         success: function () {
-                            self.getApplication().fireEvent('acknowledge', 'Logbook configuration removed');
+                            me.getApplication().fireEvent('acknowledge', 'Logbook configuration removed');
                             grid.getStore().load({
                                     callback: function () {
                                         var gridView = grid.getView(),

@@ -1,5 +1,5 @@
 Ext.define('Mdc.model.DataCollectionKpi', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.Version',
     requires: [
         'Uni.property.model.Property'
     ],

@@ -3,7 +3,7 @@ Ext.define('Mdc.model.InboundComPort', {
     fields: [
         {name:'portNumber',type: 'int',useNull: true},
         {name:'bufferSize',type: 'int',useNull: true},
-        {name:'comPortPool_id',type: 'int',useNull: true},
+        {name:'comPortPool_id',type: 'auto',useNull: true, defaultValue: null},
         {name:'ringCount',type: 'int',useNull: true},
         {name:'maximumNumberOfDialErrors',type: 'int',useNull: true},
         {name:'atCommandTry',type: 'string',useNull: true},

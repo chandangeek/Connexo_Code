@@ -149,15 +149,19 @@ Ext.define('Mdc.controller.setup.DeviceSecuritySettings', {
     },
 
     saveRecord: function (record, values, propertyForm) {
-        var me = this;
-        record.getProxy().extraParams = ({mrid: me.mrid});
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            backUrl = router.getRoute('devices/device/securitysettings').buildUrl({device: encodeURIComponent(me.mrid)});
+
+        record.getProxy().extraParams = ({mrid: encodeURIComponent(me.mrid)});
         if (propertyForm) {
             propertyForm.updateRecord(record);
             record.propertiesStore = propertyForm.getRecord().properties();
         }
         record.save({
-            success: function (record) {
-                location.href = '#/devices/' + encodeURIComponent(me.mrid) + '/securitysettings/';
+            backUrl: backUrl,
+            success: function () {
+                location.href = backUrl;
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicesecuritysetting.saveSuccess.msg.edit', 'MDC', 'Security setting saved'));
             },
             failure: function (record, operation) {

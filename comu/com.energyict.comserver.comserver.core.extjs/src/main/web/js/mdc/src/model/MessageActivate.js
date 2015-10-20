@@ -3,7 +3,8 @@ Ext.define('Mdc.model.MessageActivate', {
     extend: 'Ext.data.Model',
     fields: [
         {name: 'messageIds', type: 'auto'},
-        {name: 'privileges', type: 'auto'}
+        {name: 'privileges', type: 'auto'},
+        {name: 'deviceConfiguration', type: 'auto', defaultValue: null}
     ],
     proxy: {
         type: 'rest',

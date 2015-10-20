@@ -1,6 +1,9 @@
 Ext.define('Mdc.view.setup.comservercomports.TCPForm', {
     extend: 'Ext.container.Container',
     alias: 'widget.tcpForm',
+    requires: [
+        'Mdc.view.setup.comservercomports.InboundComPortPoolCombo'
+    ],
     defaults: {
         labelWidth: 250,
         width: 600,
@@ -60,7 +63,7 @@ Ext.define('Mdc.view.setup.comservercomports.TCPForm', {
             width: 370
         },
         {
-            xtype: 'combobox',
+            xtype: 'inbound-com-port-pool-combo',
             fieldLabel: Uni.I18n.translate('general.comPortPool', 'MDC', 'Communication port pool'),
             required: false,
             store: 'Mdc.store.InboundComPortPools',

@@ -387,6 +387,8 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
             Ext.Ajax.request({
                 url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/comtaskenablements/' + lastSelected.getData().id + '/' + action,
                 method: 'PUT',
+                isNotEdit: true,
+                jsonData: lastSelected.getRecordData(),
                 success: function () {
                     var messageKey = ((suspended == true) ? 'communicationtasks.activated' : 'communicationtasks.deactivated');
                     var messageText = ((suspended == true) ? 'Communication task configuration activated' : 'Communication task configuration deactivated');
@@ -454,25 +456,25 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 deviceConfig: me.deviceConfigurationId
             });
             communicationTaskToDelete.destroy({
-                callback: function (record, operation) {
-                    if (operation.wasSuccessful()) {
-                        location.href = '#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(me.deviceConfigurationId) + '/comtaskenablements';
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationtasks.removed', 'MDC', 'Communication task configuration successfully removed'));
-                        me.loadCommunicationTasksStore();
-                    }
+                success: function () {
+                    me.getController('Uni.controller.history.Router').getRoute().forward();
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationtasks.removed', 'MDC', 'Communication task configuration successfully removed'));
                 }
             });
         }
     },
 
     updateRecord: function (record, values, cfg) {
-        var me = this;
+        var me = this,
+            backUrl = me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/deviceconfigurations/view/comtaskenablements').buildUrl();
+
         if (record) {
             me.setRecordValues(record, values);
             record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
             record.save({
+                backUrl: backUrl,
                 success: function (record) {
-                    location.href = '#/administration/devicetypes/' + encodeURIComponent(me.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(me.deviceConfigurationId) + '/comtaskenablements';
+                    location.href = backUrl;
                     me.getApplication().fireEvent('acknowledge', cfg.successMessage);
                 },
                 failure: function (record, operation) {
@@ -511,7 +513,10 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
     },
 
     setRecordValues: function (record, values) {
-        record.set("comTask", {id: values.comTaskId});
+        record.set("comTask", {
+            id: values.comTaskId,
+            name: Ext.isEmpty(values.comTaskName) ? undefined : values.comTaskName
+        });
         record.set("securityPropertySet", {id: values.securityPropertySetId});
         if (!Ext.isEmpty(values.partialConnectionTaskId)) {
             record.set("partialConnectionTask", {id: values.partialConnectionTaskId});

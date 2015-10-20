@@ -1,5 +1,5 @@
 Ext.define('Mdc.model.Channel', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.ParentVersion',
     requires: [
         'Mdc.model.RegisterType'
     ],

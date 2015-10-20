@@ -9,7 +9,8 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
         'Mdc.store.Parities',
         'Mdc.store.BaudRates',
         'Mdc.view.setup.comport.ModemInitStrings',
-        'Mdc.view.setup.comport.GlobalModemInitStrings'
+        'Mdc.view.setup.comport.GlobalModemInitStrings',
+        'Mdc.view.setup.comservercomports.InboundComPortPoolCombo'
     ],
     alias: 'widget.inboundComPortEdit',
     autoScroll: true,
@@ -94,7 +95,7 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                                 fieldLabel: 'portNumber'
                             },
                             {
-                                xtype: 'combobox',
+                                xtype: 'inbound-com-port-pool-combo',
                                 name: 'comPortPool_id',
                                 fieldLabel: 'Communication port pool',
                                 store: comportpools,
@@ -287,4 +288,3 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
         this.callParent(arguments);
     }
 });
-

@@ -1,5 +1,5 @@
 Ext.define('Mdc.model.LoadProfileOfDevice', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.ParentVersion',
     requires: [
         'Mdc.store.TimeUnits'
     ],

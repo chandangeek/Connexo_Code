@@ -28,7 +28,7 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectEdit', {
 
     initComponent: function () {
         var me = this;
-        this.side = [
+        me.side = [
             {
                 xtype: 'panel',
                 ui: 'medium',
@@ -42,7 +42,7 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectEdit', {
                 ]
             }
         ];
-        this.content = [
+        me.content = [
             {
                 xtype: 'panel',
                 ui: 'large',
@@ -64,7 +64,9 @@ Ext.define('Mdc.view.setup.deviceprotocol.DeviceProtocolDialectEdit', {
                             labelWidth: 250
                         },
                         items: [
-                        ]
+                        ],
+                        returnLink: me.returnLink,
+                        device: me.device
                     },
                     {
                         xtype: 'form',

@@ -1,5 +1,5 @@
 Ext.define('Mdc.model.CommunicationSchedule',{
-      extend: 'Ext.data.Model',
+      extend: 'Uni.model.Version',
       fields: [
           {name: 'id', type: 'int', useNull: true},
           {name: 'name', type: 'string', useNull: true},

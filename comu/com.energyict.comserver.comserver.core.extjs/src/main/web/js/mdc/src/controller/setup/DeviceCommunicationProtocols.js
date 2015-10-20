@@ -107,10 +107,12 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
     },
 
     editDeviceCommunicationProtocol: function () {
-        var record = this.getDeviceCommunicationProtocolEditForm().getRecord(),
-            values = this.getDeviceCommunicationProtocolEditForm().getValues(),
-            propertyForm = this.getDeviceCommunicationProtocolEditView().down('property-form'),
-            me = this;
+        var me = this,
+            record = me.getDeviceCommunicationProtocolEditForm().getRecord(),
+            values = me.getDeviceCommunicationProtocolEditForm().getValues(),
+            propertyForm = me.getDeviceCommunicationProtocolEditView().down('property-form'),
+            router = me.getController('Uni.controller.history.Router'),
+            backUrl = router.getRoute('administration/devicecommunicationprotocols').buildUrl();
 
         if (record) {
             record.set(values);
@@ -118,8 +120,9 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationProtocols', {
             record.propertiesStore = propertyForm.getRecord().properties();
 
             record.save({
+                backUrl: backUrl,
                 success: function (record) {
-                    location.href = '#/administration/devicecommunicationprotocols/';
+                    location.href = backUrl;
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicecommunicationprotocol.acknowlegment', 'MDC', 'Protocol saved') );
                 },
                 failure: function (record, operation) {

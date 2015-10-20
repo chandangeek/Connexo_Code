@@ -165,9 +165,10 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         })
     },
 
-    revokeCommand: function (record, device) {
+    revokeCommand: function (record) {
         var me = this,
-            mRID = device.get('mRID'),
+            router = me.getController('Uni.controller.history.Router'),
+            mRID = router.arguments.mRID,
             title = Uni.I18n.translate('deviceCommand.overview.revokex', 'MDC', "Revoke '{0}'?",[record.get('command').name]);
         Ext.create('Uni.view.window.Confirmation', {
             confirmText: Uni.I18n.translate('deviceCommand.overview.revoke', 'MDC', 'Revoke')
@@ -178,10 +179,14 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                     if (btnId == 'confirm') {
                         record.set('status', {value: 'CommandRevoked'});
                         record.save({
-                            url: '/api/ddr/devices/' + encodeURIComponent(mRID) + '/devicemessages/',
+                            isNotEdit: true,
+                            url: '/api/ddr/devices/' + mRID + '/devicemessages/',
                             success: function () {
                                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.overview.revokeSuccess', 'MDC', 'Command revoked'));
-                                me.getDeviceCommandsGrid().getStore().load()
+                                router.getRoute().forward();
+                            },
+                            failure: function () {
+                                record.reject();
                             }
                         });
                     }
@@ -192,25 +197,25 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
 
     changeReleaseDate: function (record, device) {
         var me = this,
-            title = Uni.I18n.translate('deviceCommand.overview.changeReleaseDateHeader', 'MDC', "Change release date of command '{0}'",[record.get('command').name]);
+            title = Uni.I18n.translate('deviceCommand.overview.changeReleaseDateHeader', 'MDC', "Change release date of command '{0}'",[record.get('command').name]),
+            router = me.getController('Uni.controller.history.Router');
+
         Ext.widget('device-command-change-release-date', {
             title: title,
             record: record,
             listeners: {
                 save: {
                     fn: function (newDate, record, oldDate) {
-                        record.data.releaseDate = newDate;
+                        record.set('releaseDate', newDate);
                         record.save({
                             url: me.getStore('Mdc.store.DeviceCommands').getProxy().url,
-                            callback: function (records, operation, success) {
-                                if (success) {
-                                    var store = me.getStore('Mdc.store.DeviceCommands');
-                                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.changeReleaseDate.success', 'MDC', 'Release date changed'));
-                                    me.getDeviceCommandsGrid().getStore().load()
-                                } else {
-                                    record.set('releaseDate', oldDate);
-                                    me.getDeviceCommandsGrid().refresh();
-                                }
+                            isNotEdit: true,
+                            success: function () {
+                                router.getRoute().forward();
+                                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.changeReleaseDate.success', 'MDC', 'Release date changed'));
+                            },
+                            failure: function () {
+                                record.reject();
                             }
                         });
                     }
