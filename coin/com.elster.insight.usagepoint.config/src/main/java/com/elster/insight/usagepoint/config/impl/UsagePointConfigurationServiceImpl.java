@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 import javax.inject.Inject;
-
+import static com.elster.jupiter.util.conditions.Where.where;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -155,7 +155,11 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
 
     @Override
     public Optional<UsagePointMetrologyConfiguration> findMetrologyConfigurationForUsagePoint(UsagePoint up, Instant time) {
-        // TODO: query
+        //TODO: Remove time from parameters, or find a way to search in query for it.
+        List<UsagePointMetrologyConfiguration> list = this.getDataModel().query(UsagePointMetrologyConfiguration.class).select(where("usagePoint.id").isEqualTo(up.getId()));
+        if (list.size() > 0) {
+            return Optional.of(list.get(0));           
+        }
         return Optional.empty();
     }
 
