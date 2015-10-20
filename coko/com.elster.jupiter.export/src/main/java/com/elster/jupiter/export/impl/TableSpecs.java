@@ -149,7 +149,7 @@ enum TableSpecs {
             table.addIntervalColumns("exportedDataInterval");
             table.column("INTERVALENDPTBEHAVIOUR").number().conversion(ColumnConversion.NUMBER2ENUM).map("exportedDataBoundaryType").add();
             table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map("status").add();
-            table.column("MESSAGE").varChar(Table.SHORT_DESCRIPTION_LENGTH).map("failureReason").add();
+            table.column("MESSAGE").varChar(Table.DESCRIPTION_LENGTH).map("failureReason").add();
             table.column("SUMMARY").type("CLOB").conversion(CLOB2STRING).map("summary").add();
 
             table.primaryKey("DES_PK_EXPOCC").on(taskOccurrence).add();
