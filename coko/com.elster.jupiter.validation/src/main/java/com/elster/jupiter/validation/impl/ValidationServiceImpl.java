@@ -38,8 +38,10 @@ import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
 import com.elster.jupiter.validation.ValidationEvaluator;
+import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetResolver;
+import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.Validator;
 import com.elster.jupiter.validation.ValidatorFactory;
@@ -335,6 +337,11 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     }
 
     @Override
+    public Optional<? extends ValidationRuleSet> findAndLockValidationRuleSetByIdAndVersion(long id, long version) {
+        return dataModel.mapper(IValidationRuleSet.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public Optional<ValidationRuleSet> getValidationRuleSet(String name) {
         Condition condition = where("name").isEqualTo(name).and(where(ValidationRuleSetImpl.OBSOLETE_TIME_FIELD).isNull());
         return getRuleSetQuery().select(condition).stream().findFirst();
@@ -620,6 +627,11 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     }
 
     @Override
+    public Optional<DataValidationTask> findAndLockValidationTaskByIdAndVersion(long id, long version) {
+        return dataModel.mapper(DataValidationTask.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public Optional<DataValidationTask> findValidationTaskByName(String name) {
         Condition condition = where("name").isEqualTo(name);
         return findValidationTasksQuery().select(condition).stream().findFirst();
@@ -689,6 +701,26 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
 
         }
         return Optional.empty();
+    }
+
+    @Override
+    public Optional<? extends ValidationRuleSetVersion> findValidationRuleSetVersion(long id) {
+        return dataModel.mapper(IValidationRuleSetVersion.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<? extends ValidationRuleSetVersion> findAndLockValidationRuleSetVersionByIdAndVersion(long id, long version) {
+        return dataModel.mapper(IValidationRuleSetVersion.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
+    public Optional<? extends ValidationRule> findValidationRule(long id) {
+        return dataModel.mapper(IValidationRule.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<? extends ValidationRule> findAndLockValidationRuleByIdAndVersion(long id, long version) {
+        return dataModel.mapper(IValidationRule.class).lockObjectIfVersion(version, id);
     }
 
     private Optional<DataValidationTask> getDataValidationTaskForRecurrentTask(RecurrentTask recurrentTask) {

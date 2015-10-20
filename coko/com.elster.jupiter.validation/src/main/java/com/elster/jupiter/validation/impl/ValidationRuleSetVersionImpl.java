@@ -281,6 +281,7 @@ public final class ValidationRuleSetVersionImpl implements IValidationRuleSetVer
         IValidationRule iRule = (IValidationRule) rule;
         if (doGetRules().anyMatch( candidate -> candidate.equals(iRule))) {
             iRule.delete();
+            dataModel.touch(this);
         } else {
             throw new IllegalArgumentException("The rulset version" + this.getId() + " doesn't contain provided ruleId: " + rule.getId());
         }
