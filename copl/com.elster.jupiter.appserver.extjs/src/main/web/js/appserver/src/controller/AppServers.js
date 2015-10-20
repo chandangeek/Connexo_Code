@@ -128,7 +128,8 @@ Ext.define('Apr.controller.AppServers', {
             previewForm = page.down('appservers-preview-form');
 
         preview.setTitle(appServerName);
-        previewForm.updateAppServerPreview(record, me.getController('Uni.controller.history.Router'));
+        previewForm.updateAppServerPreview(record);
+        debugger;
         if(preview.down('appservers-action-menu')) {
             preview.down('appservers-action-menu').record = record;
             me.setupMenuItems(record);
@@ -146,8 +147,9 @@ Ext.define('Apr.controller.AppServers', {
         me.comingFromOverview = true;
         me.getModel('Apr.model.AppServer').load(appServerName, {
             success: function (record) {
+                debugger;
                 me.appServer = record;
-                view.down('appservers-preview-form').updateAppServerPreview(record, router);
+                view.down('appservers-preview-form').updateAppServerPreview(record);
                 if (view.down('appservers-action-menu')) {
                     view.down('appservers-action-menu').record = record;
                     me.setupMenuItems(record);
