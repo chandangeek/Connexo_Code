@@ -14,6 +14,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -56,9 +57,10 @@ public class FileImportScheduleResource {
     private final PropertyUtils propertyUtils;
     private final FileSystem fileSystem;
     private final FileImportScheduleInfoFactory fileImportScheduleInfoFactory;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public FileImportScheduleResource(FileImportService fileImportService, Thesaurus thesaurus, TransactionService transactionService, CronExpressionParser cronExpressionParser, PropertyUtils propertyUtils, FileSystem fileSystem, AppService appService, FileImportScheduleInfoFactory fileImportScheduleInfoFactory) {
+    public FileImportScheduleResource(FileImportService fileImportService, Thesaurus thesaurus, TransactionService transactionService, CronExpressionParser cronExpressionParser, PropertyUtils propertyUtils, FileSystem fileSystem, AppService appService, FileImportScheduleInfoFactory fileImportScheduleInfoFactory, ConcurrentModificationExceptionFactory conflictFactory) {
         this.fileImportService = fileImportService;
         this.thesaurus = thesaurus;
         this.transactionService = transactionService;
@@ -66,6 +68,7 @@ public class FileImportScheduleResource {
         this.propertyUtils = propertyUtils;
         this.fileSystem = fileSystem;
         this.fileImportScheduleInfoFactory = fileImportScheduleInfoFactory;
+        this.conflictFactory = conflictFactory;
     }
 
     @GET
@@ -140,15 +143,21 @@ public class FileImportScheduleResource {
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_IMPORT_SERVICES})
-    public Response removeImportSchedule(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        ImportSchedule importSchedule = fetchImportSchedule(id);
+    public Response removeImportSchedule(@PathParam("id") long id, FileImportScheduleInfo info) {
+        info.id = id;
+        String scheduleName = info.name;
         try (TransactionContext context = transactionService.getContext()) {
-            importSchedule.delete();
-            context.commit();
+            ImportSchedule importSchedule = fetchAndLockImportSchedule(info);
+            if (!importSchedule.isDeleted()) {
+                importSchedule.delete();
+                scheduleName = importSchedule.getName();
+                context.commit();
+            }
+
+            return Response.status(Response.Status.OK).build();
         } catch (UnderlyingSQLFailedException | CommitException ex) {
-            throw new LocalizedFieldValidationException(MessageSeeds.DELETE_IMPORT_SCHEDULE_SQL_EXCEPTION, "status", importSchedule.getName());
+            throw new LocalizedFieldValidationException(MessageSeeds.DELETE_IMPORT_SCHEDULE_SQL_EXCEPTION, "status", scheduleName);
         }
-        return Response.status(Response.Status.OK).build();
     }
 
     @PUT
@@ -159,12 +168,12 @@ public class FileImportScheduleResource {
         if (info.scanFrequency < 0) {
             info.scanFrequency = 1;
         }
-        ImportSchedule importSchedule = fetchImportSchedule(info.id);
-        if (!importSchedule.isImporterAvailable()) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
-
         try (TransactionContext context = transactionService.getContext()) {
+            ImportSchedule importSchedule = fetchAndLockImportSchedule(info);
+            if (!importSchedule.isImporterAvailable()) {
+                throw new WebApplicationException(Response.Status.NOT_FOUND);
+            }
+
             importSchedule.setName(info.name);
             importSchedule.setActive(info.active);
             importSchedule.setImportDirectory(fileSystem.getPath(info.importDirectory));
@@ -178,8 +187,8 @@ public class FileImportScheduleResource {
 
             importSchedule.update();
             context.commit();
+            return Response.status(Response.Status.OK).entity(fileImportScheduleInfoFactory.asInfo(importSchedule)).build();
         }
-        return Response.status(Response.Status.OK).entity(fileImportScheduleInfoFactory.asInfo(importSchedule)).build();
     }
 
     @GET
@@ -283,6 +292,12 @@ public class FileImportScheduleResource {
                 });
     }
 
+    private ImportSchedule fetchAndLockImportSchedule(FileImportScheduleInfo info){
+        return fileImportService.findAndLockImportScheduleByIdAndVersion(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> fileImportService.getImportSchedule(info.id).map(ImportSchedule::getVersion).orElse(null))
+                        .supplier());
+    }
 
     private ImportSchedule fetchImportSchedule(long id) {
         return fileImportService.getImportSchedule(id)
