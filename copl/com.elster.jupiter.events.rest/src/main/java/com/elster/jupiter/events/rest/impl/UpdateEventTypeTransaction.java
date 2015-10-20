@@ -2,26 +2,24 @@ package com.elster.jupiter.events.rest.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.EventType;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.transaction.Transaction;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-import java.util.Optional;
 
 public class UpdateEventTypeTransaction implements Transaction<EventType> {
 	
 	private final EventTypeInfo info;
     private final EventService eventService;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
-    public UpdateEventTypeTransaction(EventTypeInfo info, EventService eventService) {
+    public UpdateEventTypeTransaction(EventTypeInfo info, EventService eventService, ConcurrentModificationExceptionFactory conflictFactory) {
         this.info = info;
         this.eventService = eventService;
+        this.conflictFactory = conflictFactory;
     }
 
     @Override
     public EventType perform() {
     	EventType eventType = fetchEventType();
-        validateUpdate(eventType);
         return doUpdate(eventType);
     }
 
@@ -30,18 +28,11 @@ public class UpdateEventTypeTransaction implements Transaction<EventType> {
         eventType.update();
         return eventType;
     }
-    
-    private void validateUpdate(EventType eventType) {
-
-    }
 
     private EventType fetchEventType() {
-        Optional<EventType> eventType = eventService.getEventType(info.topic);
-        if (eventType.isPresent()) {
-            return eventType.get();
-        }
-        throw new WebApplicationException(Response.Status.NOT_FOUND);
+        return eventService.findAndLockEventTypeByNameAndVersion(info.topic, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> eventService.getEventType(info.topic).map(EventType::getVersion).orElse(null))
+                        .supplier());
     }
-
-
 }

@@ -1,70 +1,68 @@
 package com.elster.jupiter.events.rest.impl;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.rest.util.BinderProvider;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
-import org.glassfish.hk2.utilities.Binder;
+import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
 import java.util.HashSet;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.event.rest" , service=Application.class , immediate = true , property = {"alias=/evt", "app=SYS", "name=" + EventApplication.COMPONENT_NAME} )
-public class EventApplication extends Application implements BinderProvider {
-
+@Component(name = "com.elster.jupiter.event.rest", service = Application.class, immediate = true, property = {"alias=/evt", "app=SYS", "name=" + EventApplication.COMPONENT_NAME})
+public class EventApplication extends Application {
     public static final String COMPONENT_NAME = "EVT";
 
-	private final Set<Class<?>> classes = new HashSet<>();
-	private volatile EventService eventService;
-	private volatile TransactionService transactionService;
-	private volatile RestQueryService restQueryService;
-	
-	public EventApplication() {
-		classes.add(EventTypeResource.class);		
-	}
+    private volatile EventService eventService;
+    private volatile TransactionService transactionService;
+    private volatile RestQueryService restQueryService;
+    private volatile Thesaurus thesaurus;
 
-	public Set<Class<?>> getClasses() {
-		return classes;
-	}
+    public Set<Class<?>> getClasses() {
+        return ImmutableSet.of(EventTypeResource.class);
+    }
 
-	@Reference
-	public void setEventService(EventService eventService) {
-		this.eventService = eventService;
-	}
-	
-	@Reference
-	public void setTransactionService(TransactionService transactionService) {
-		this.transactionService = transactionService;
-	}
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
+    }
 
-	@Reference
-	public void setRestQueryService(RestQueryService restQueryService) {
-		this.restQueryService = restQueryService;
-	}
-	
-	@Activate
-	public void activate() {
-	}
-	
-	@Deactivate
-	public void deactivate() {
-	}
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setRestQueryService(RestQueryService restQueryService) {
+        this.restQueryService = restQueryService;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
+    }
 
     @Override
-    public Binder getBinder() {
-        return new AbstractBinder() {
-            @Override
-            protected void configure() {
-                bind(restQueryService).to(RestQueryService.class);
-                bind(transactionService).to(TransactionService.class);
-                bind(eventService).to(EventService.class);
-            }
-        };
+    public Set<Object> getSingletons() {
+        Set<Object> singletons = new HashSet<>();
+        singletons.addAll(super.getSingletons());
+        singletons.add(new HK2Binder());
+        return singletons;
+    }
+
+    class HK2Binder extends AbstractBinder {
+        @Override
+        protected void configure() {
+            bind(restQueryService).to(RestQueryService.class);
+            bind(transactionService).to(TransactionService.class);
+            bind(eventService).to(EventService.class);
+            bind(thesaurus).to(Thesaurus.class);
+        }
     }
 }
