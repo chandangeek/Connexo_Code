@@ -167,6 +167,7 @@ Ext.define('Apr.controller.AppServers', {
         Ext.Ajax.request({
             url: '/api/apr/appserver/' + record.data.name + '/' + action,
             method: 'PUT',
+            jsonData: Ext.encode(record.raw),
             success: function () {
                 var messageKey = ((suspended == true) ? 'appServers.deactivateSuccessMsg' : 'appServers.activateSuccessMsg');
                 var messageText = ((suspended == true) ? 'Application server deactivated' : 'Application server activated');
@@ -540,6 +541,7 @@ Ext.define('Apr.controller.AppServers', {
                 me.exportPath.save({
                     success: function () {
                         record.save({
+                            backUrl: me.getController('Uni.controller.history.Router').getRoute('administration/appservers').buildUrl(),
                             success: function () {
                                 me.getController('Uni.controller.history.Router').getRoute('administration/appservers').forward();
                                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('appServers.editSuccessMsg', 'APR', 'Application server edited'));
