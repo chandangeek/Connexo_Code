@@ -1,14 +1,12 @@
 package com.elster.jupiter.appserver;
 
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.util.cron.CronExpression;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import java.util.List;
 
 public interface AppService {
 
