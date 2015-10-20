@@ -1,5 +1,6 @@
 package com.energyict.mdc.issue.datavalidation.rest.impl;
 
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
@@ -71,11 +72,12 @@ public class IssueResource {
 
     private final IssueResourceHelper issueResourceHelper;
     private final DataValidationIssueInfoFactory issueInfoFactory;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
     public IssueResource(IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService,
                          UserService userService, TransactionService transactionService, DataValidationIssueInfoFactory dataCollectionIssuesInfoFactory,
-                         IssueResourceHelper issueResourceHelperFactory, Thesaurus thesaurus) {
+                         IssueResourceHelper issueResourceHelperFactory, Thesaurus thesaurus, ConcurrentModificationExceptionFactory conflictFactory) {
         this.issueService = issueService;
         this.issueDataValidationService = issueDataValidationService;
         this.meteringService = meteringService;
@@ -84,6 +86,7 @@ public class IssueResource {
         this.issueInfoFactory = dataCollectionIssuesInfoFactory;
         this.issueResourceHelper = issueResourceHelperFactory;
         this.thesaurus = thesaurus;
+        this.conflictFactory = conflictFactory;
     }
 
     @GET
@@ -152,7 +155,12 @@ public class IssueResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ACTION_ISSUE)
     public Response performAction(@PathParam("id") long id, @PathParam("actionId") long actionId, PerformActionRequest request) {
-        IssueDataValidation issue = issueDataValidationService.findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        IssueDataValidation issue = issueDataValidationService.findAndLockIssueDataValidationByIdAndVersion(id, request.issue.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(request.issue.title)
+                        .withActualVersion(() -> issueDataValidationService.findIssue(request.id)
+                                .map(IssueDataValidation::getVersion)
+                                .orElse(null))
+                        .supplier());
         request.id = actionId;
         return Response.ok(issueResourceHelper.performIssueAction(issue, request)).build();
     }
