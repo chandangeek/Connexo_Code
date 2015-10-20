@@ -397,6 +397,7 @@ Ext.define('Fim.controller.ImportServices', {
             importServiceRecord.endEdit();
 
             importServiceRecord.save({
+                backUrl: me.getAddPage().returnLink,
                 success: function () {
                     me.getController('Uni.controller.history.Router').getRoute('administration/importservices/importservice').forward({importServiceId: importServiceRecord.getId()});
 
@@ -407,11 +408,12 @@ Ext.define('Fim.controller.ImportServices', {
                     }
                 },
                 failure: function (record, operation) {
-                    var json = Ext.decode(operation.response.responseText, true);
-                    if (json && json.errors) {
-                        addImportServiceForm.getForm().markInvalid(json.errors);
+                    if (operation.response.status == 400) {
+                        var json = Ext.decode(operation.response.responseText, true);
+                        if (json && json.errors) {
+                            addImportServiceForm.getForm().markInvalid(json.errors);
+                        }
                     }
-                    formErrorsPanel.show();
                 }
             })
         }
