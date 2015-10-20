@@ -132,11 +132,40 @@ Ext.define('Apr.controller.AppServers', {
 
     showAppServerOverview: function(appServerName) {
         var me = this,
+            exportPathsStore = me.getStore('Apr.store.ExportPaths'),
+            importPathsStore = me.getStore('Apr.store.ImportPaths'),
             view = Ext.widget('appserver-overview', {
                 router: me.getController('Uni.controller.history.Router'),
                 appServerName: appServerName
             });
         //me.fromDetails = false;
+        me.getModel('Apr.model.AppServer').load(appServerName, {
+            success: function (record) {
+                me.appServer = record;
+                view.down('appservers-preview-form').updateAppServerPreview(record);
+                exportPathsStore.load(function (exportPaths) {
+                    Ext.Array.each(exportPaths, function (dir) {
+                        if (dir.get('appServerName') === appServerName) {
+                            me.exportPath = dir;
+                            view.down('#txt-export-path').setValue(dir.get('directory'));
+                        } else {
+                            me.exportPath = Ext.create('Apr.model.ExportPath');
+                        }
+                    });
+                });
+                importPathsStore.load(function (importPaths) {
+                    Ext.Array.each(importPaths, function (dir) {
+                        if (dir.get('appServerName') === appServerName) {
+                            me.importPath = dir;
+                            view.down('#txt-import-path').setValue(dir.get('directory'));
+                        } else {
+                            me.importPath = Ext.create('Apr.model.ImportPath');
+                        }
+                    });
+                });
+            }
+        });
+
         me.getApplication().fireEvent('changecontentevent', view);
         me.getApplication().fireEvent('appserverload', appServerName);
     },

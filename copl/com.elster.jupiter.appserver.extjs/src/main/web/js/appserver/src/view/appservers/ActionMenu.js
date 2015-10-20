@@ -12,16 +12,16 @@ Ext.define('Apr.view.appservers.ActionMenu', {
             action: 'editAppServer'
         },
         {
-            itemId: 'remove-appserver',
-            text: Uni.I18n.translate('general.remove', 'APR', 'Remove'),
-            privileges: Apr.privileges.AppServer.admin,
-            action: 'removeAppServer'
-        },
-        {
             itemId: 'activate-appserver',
             text: Uni.I18n.translate('general.activate', 'APR', 'Activate'),
             privileges: Apr.privileges.AppServer.admin,
             action: 'activateAppServer'
+        },
+        {
+            itemId: 'remove-appserver',
+            text: Uni.I18n.translate('general.remove', 'APR', 'Remove'),
+            privileges: Apr.privileges.AppServer.admin,
+            action: 'removeAppServer'
         }
     ]
 });
