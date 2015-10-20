@@ -134,17 +134,17 @@ Ext.define('Apr.controller.AppServers', {
 
     showAppServerOverview: function(appServerName) {
         var me = this,
-            exportPathsStore = me.getStore('Apr.store.ExportPaths'),
-            importPathsStore = me.getStore('Apr.store.ImportPaths'),
+            router = me.getController('Uni.controller.history.Router'),
             view = Ext.widget('appserver-overview', {
-                router: me.getController('Uni.controller.history.Router'),
+                router: router,
                 appServerName: appServerName
             });
+
         me.comingFromOverview = true;
         me.getModel('Apr.model.AppServer').load(appServerName, {
             success: function (record) {
                 me.appServer = record;
-                view.down('appservers-preview-form').updateAppServerPreview(record);
+                view.down('appservers-preview-form').updateAppServerPreview(record, router);
                 if (view.down('appservers-action-menu')) {
                     view.down('appservers-action-menu').record = record;
                     me.setupMenuItems(record);
