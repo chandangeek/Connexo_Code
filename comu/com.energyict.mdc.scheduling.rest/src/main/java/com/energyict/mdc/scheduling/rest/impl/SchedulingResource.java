@@ -57,14 +57,16 @@ public class SchedulingResource {
     private final Clock clock;
     private final DeviceConfigurationService deviceConfigurationService;
     private final TaskService taskService;
+    private final ResourceHelper resourceHelper;
 
     @Inject
-    public SchedulingResource(SchedulingService schedulingService, DeviceService deviceService, Clock clock, DeviceConfigurationService deviceConfigurationService, TaskService taskService) {
+    public SchedulingResource(SchedulingService schedulingService, DeviceService deviceService, Clock clock, DeviceConfigurationService deviceConfigurationService, TaskService taskService, ResourceHelper resourceHelper) {
         this.schedulingService = schedulingService;
         this.deviceService = deviceService;
         this.clock = clock;
         this.deviceConfigurationService = deviceConfigurationService;
         this.taskService = taskService;
+        this.resourceHelper = resourceHelper;
     }
 
     @GET
@@ -214,17 +216,11 @@ public class SchedulingResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE, Privileges.VIEW_SHARED_COMMUNICATION_SCHEDULE})
     public ComScheduleInfo getSchedules(@PathParam("id") long id) {
-        ComSchedule comSchedule = findComScheduleOrThrowException(id);
+        ComSchedule comSchedule = resourceHelper.findComScheduleOrThrowException(id);
         return ComScheduleInfo.from(comSchedule, isInUse(comSchedule));
     }
 
-    private ComSchedule findComScheduleOrThrowException(long id) {
-        Optional<ComSchedule> comSchedule = schedulingService.findSchedule(id);
-        if (!comSchedule.isPresent()) {
-            throw new WebApplicationException("No such schedule", Response.Status.NOT_FOUND);
-        }
-        return comSchedule.get();
-    }
+
 
     @POST
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -245,8 +241,9 @@ public class SchedulingResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE)
-    public Response deleteSchedules(@PathParam("id") long id) {
-        ComSchedule comSchedule = findComScheduleOrThrowException(id);
+    public Response deleteSchedules(@PathParam("id") long id, ComScheduleInfo info) {
+        info.id = id;
+        ComSchedule comSchedule = resourceHelper.lockComScheduleOrThrowException(info);
         if (this.isInUse(comSchedule)) {
             comSchedule.makeObsolete();
         } else {
@@ -260,7 +257,7 @@ public class SchedulingResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE)
     public ComScheduleInfo updateSchedules(@PathParam("id") long id, ComScheduleInfo comScheduleInfo) {
-        ComSchedule comSchedule = findComScheduleOrThrowException(id);
+        ComSchedule comSchedule = resourceHelper.lockComScheduleOrThrowException(comScheduleInfo);
         comSchedule.setName(comScheduleInfo.name);
         comSchedule.setTemporalExpression(comScheduleInfo.temporalExpression == null ? null : comScheduleInfo.temporalExpression.asTemporalExpression());
         comSchedule.setStartDate(comScheduleInfo.startDate == null ? null : comScheduleInfo.startDate);
@@ -269,7 +266,7 @@ public class SchedulingResource {
             updateTasks(comSchedule, comScheduleInfo.comTaskUsages);
         }
         comSchedule.update();
-        return ComScheduleInfo.from(findComScheduleOrThrowException(id), isInUse(comSchedule));
+        return ComScheduleInfo.from(comSchedule, isInUse(comSchedule));
     }
 
     private List<ComTask> getComTasks(Collection<ComTaskInfo> comTaskUsages) {
@@ -307,7 +304,7 @@ public class SchedulingResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE, Privileges.VIEW_SHARED_COMMUNICATION_SCHEDULE})
     public Response getComTasks(@PathParam("id") long id, @BeanParam JsonQueryFilter queryFilter) {
-        ComSchedule comSchedule = findComScheduleOrThrowException(id);
+        ComSchedule comSchedule = resourceHelper.findComScheduleOrThrowException(id);
         if (queryFilter.hasProperty("available") && queryFilter.getBoolean("available")) {
             return Response.ok().entity(ComTaskInfo.from(getAvailableComTasksExcludingAlreadyAssigned(comSchedule))).build();
         } else {

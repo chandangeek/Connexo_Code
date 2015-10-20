@@ -140,6 +140,7 @@ public class MasterSchedulingApplication extends Application implements MessageS
             bind(jsonService).to(JsonService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(clock).to(Clock.class);
+            bind(ResourceHelper.class).to(ResourceHelper.class);
         }
     }
 

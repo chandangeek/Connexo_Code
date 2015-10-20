@@ -1,18 +1,16 @@
 package com.energyict.mdc.scheduling.rest.impl;
 
+import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
-
-import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.util.json.JsonService;
+import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
-
-import org.mockito.Mock;
 
 /**
  * Created by bvn on 9/19/14.

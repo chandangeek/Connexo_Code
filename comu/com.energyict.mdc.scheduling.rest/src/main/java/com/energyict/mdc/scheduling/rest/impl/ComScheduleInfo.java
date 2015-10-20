@@ -1,16 +1,16 @@
 package com.energyict.mdc.scheduling.rest.impl;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Optional;
-
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.rest.ComTaskInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.deser.std.NullifyingDeserializer;
+
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Optional;
 
 public class ComScheduleInfo {
 
@@ -23,6 +23,7 @@ public class ComScheduleInfo {
     public List<ComTaskInfo> comTaskUsages;
     public Instant startDate;
     public String mRID;
+    public long version;
 
     public ComScheduleInfo() {
     }
@@ -38,7 +39,7 @@ public class ComScheduleInfo {
         comScheduleInfo.isInUse = inUse;
         comScheduleInfo.comTaskUsages = ComTaskInfo.from(comSchedule.getComTasks());
         comScheduleInfo.mRID = comSchedule.getmRID().orElse(null);
+        comScheduleInfo.version = comSchedule.getVersion();
         return comScheduleInfo;
     }
-
 }
