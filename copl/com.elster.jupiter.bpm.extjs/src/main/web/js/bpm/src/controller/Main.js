@@ -6,13 +6,19 @@ Ext.define('Bpm.controller.Main', {
         'Uni.controller.Navigation',
         'Uni.store.MenuItems',
         'Bpm.controller.Task',
+        'Bpm.controller.Process',
         'Bpm.controller.history.BpmManagement',
         'Bpm.privileges.BpmManagement'
     ],
 
     controllers: [
         'Bpm.controller.history.BpmManagement',
-        'Bpm.controller.Task'
+        'Bpm.controller.Task',
+        'Bpm.controller.Process'
+    ],
+
+    stores: [
+        'Bpm.store.process.Processes'
     ],
 
     refs: [
@@ -28,9 +34,16 @@ Ext.define('Bpm.controller.Main', {
 
     init: function () {
         var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            dataCollection = null,
             historian = me.getController('Bpm.controller.history.BpmManagement'); // Forces route registration.
+
+        me.addTaskManagement();
+        me.addProcessManagement();
+    },
+
+    addTaskManagement: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            dataCollection = null;
 
         if (Bpm.privileges.BpmManagement.all()) {
             Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
@@ -66,6 +79,39 @@ Ext.define('Bpm.controller.Main', {
                         text: Uni.I18n.translate('general.taksmanagement.overduetasks', 'BPM', 'Overdue tasks'),
                         itemId: 'overdue-tasks',
                         href: router.getRoute('workspace/taksmanagementtasks').buildUrl({}, {param: 'dueDate'})
+                    }
+                ]
+            });
+        }
+
+        if (dataCollection !== null) {
+            Uni.store.PortalItems.add(dataCollection);
+        }
+    },
+    addProcessManagement: function () {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            dataCollection = null;
+
+        if (Bpm.privileges.BpmManagement.allProcesses()) {
+            Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
+                text: Uni.I18n.translate('general.administration', 'BPM', 'Administration'),
+                glyph: 'settings',
+                portal: 'administration',
+                index: 30
+            }));
+        }
+
+        if (Bpm.privileges.BpmManagement.allProcesses()) {
+            dataCollection = Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.processManagement', 'BPM', 'Process management'),
+                portal: 'administration',
+                route: 'managementprocesses',
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.managementprocesses.processes', 'BPM', 'Processes'),
+                        itemId: 'processes',
+                        href: router.getRoute('administration/managementprocesses').buildUrl()
                     }
                 ]
             });

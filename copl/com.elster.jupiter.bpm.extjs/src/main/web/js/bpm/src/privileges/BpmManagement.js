@@ -15,6 +15,10 @@ Ext.define('Bpm.privileges.BpmManagement', {
     execute: ['privilege.execute.task'],
     assignAndExecute: ['privilege.assign.task', 'privilege.execute.task'],
 
+    allProcesses: ['privilege.view.task'],
+    viewProcesses: ['privilege.view.task'],
+    administrateProcesses: ['privilege.view.task'],
+
 
     all: function () {
         return Ext.Array.merge(Bpm.privileges.BpmManagement.all);
@@ -27,5 +31,8 @@ Ext.define('Bpm.privileges.BpmManagement', {
     },
     canExecute: function () {
         return Uni.Auth.checkPrivileges(Bpm.privileges.BpmManagement.execute);
-    }
+    },
+    allProcesses: function () {
+        return Ext.Array.merge(Bpm.privileges.BpmManagement.allProcesses);
+    },
 });
