@@ -90,7 +90,6 @@ public enum TableSpecs {
 			table.addAuditColumns();
 			table.primaryKey("PTR_PK_PARTY").on(idColumn).add();
 			table.unique("PTR_U_PARTY").on(mRIDColumn).add();
-			table.index("PTR_IX_PARTY_NAME").on(nameColumn).add();
 			table.unique("PTR_UQ_PARTY_NAME").on(nameColumn).add();
 		}
 	},
