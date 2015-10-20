@@ -1,13 +1,11 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.security.Privileges;
-
-import com.elster.jupiter.users.UserService;
 import com.google.common.base.Joiner;
 
 import javax.annotation.security.RolesAllowed;
@@ -38,36 +36,36 @@ public class ExecutionLevelResource {
     private final UserService userService;
     private final ExceptionFactory exceptionFactory;
     private final ExecutionLevelInfoFactory executionLevelInfoFactory;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public ExecutionLevelResource(ResourceHelper resourceHelper, UserService userService, ExceptionFactory exceptionFactory, ExecutionLevelInfoFactory executionLevelInfoFactory) {
+    public ExecutionLevelResource(ResourceHelper resourceHelper, UserService userService, ExceptionFactory exceptionFactory, ExecutionLevelInfoFactory executionLevelInfoFactory, ConcurrentModificationExceptionFactory conflictFactory) {
         this.resourceHelper = resourceHelper;
         this.userService = userService;
         this.exceptionFactory = exceptionFactory;
         this.executionLevelInfoFactory = executionLevelInfoFactory;
+        this.conflictFactory = conflictFactory;
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
-    public Response getPrivileges(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("securityPropertySetId") long securityPropertySetId, @QueryParam("available") Boolean filterAvailable){
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        SecurityPropertySet securityPropertySet = resourceHelper.findSecurityPropertySetByIdOrThrowException(deviceConfiguration, securityPropertySetId);
+    public Response getPrivileges(@PathParam("securityPropertySetId") long securityPropertySetId, @QueryParam("available") Boolean filterAvailable) {
+        SecurityPropertySet securityPropertySet = resourceHelper.findSecurityPropertySetByIdOrThrowException(securityPropertySetId);
 
         Set<DeviceSecurityUserAction> userActions;
         Set<DeviceSecurityUserAction> existingUserActions = securityPropertySet.getUserActions();
-        if (filterAvailable!=null && filterAvailable) {
+        if (filterAvailable != null && filterAvailable) {
             Set<DeviceSecurityUserAction> allUserActions =
-                EnumSet.of(
-                    DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES3, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES4,
-                    DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES3, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES4);
+                    EnumSet.of(
+                            DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES3, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES4,
+                            DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES3, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES4);
             allUserActions.removeAll(existingUserActions);
-            userActions=allUserActions;
+            userActions = allUserActions;
         } else {
-            userActions=existingUserActions;
+            userActions = existingUserActions;
         }
-        List<ExecutionLevelInfo> userActionInfos = executionLevelInfoFactory.from(userActions, this.userService.getGroups());
+        List<ExecutionLevelInfo> userActionInfos = executionLevelInfoFactory.from(userActions, this.userService.getGroups(), securityPropertySet);
         Map<String, Object> map = new HashMap<>();
         map.put("executionLevels", userActionInfos);
         return Response.ok(map).build();
@@ -75,14 +73,12 @@ public class ExecutionLevelResource {
 
 
     @POST
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
-    public Response linkDeviceConfigToPrivilege(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("securityPropertySetId") long securityPropertySetId, List<String> privilegeIds){
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        SecurityPropertySet securityPropertySet = resourceHelper.findSecurityPropertySetByIdOrThrowException(deviceConfiguration, securityPropertySetId);
+    public Response linkDeviceConfigToPrivilege(@PathParam("securityPropertySetId") long securityPropertySetId, List<String> privilegeIds) {
+        SecurityPropertySet securityPropertySet = resourceHelper.findSecurityPropertySetByIdOrThrowException(securityPropertySetId);
         List<String> unknownPrivileges = new ArrayList<>();
-        privilegeIds.stream().filter(p->!DeviceSecurityUserAction.forPrivilege(p).isPresent()).forEach(unknownPrivileges::add);
+        privilegeIds.stream().filter(p -> !DeviceSecurityUserAction.forPrivilege(p).isPresent()).forEach(unknownPrivileges::add);
         if (!unknownPrivileges.isEmpty()) {
             throw exceptionFactory.newException(MessageSeeds.UNKNOWN_PRIVILEGE_ID, Joiner.on(",").join(unknownPrivileges));
         }
@@ -93,12 +89,13 @@ public class ExecutionLevelResource {
 
     @DELETE
     @Path("/{executionLevelId}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
-    public Response unlinkDeviceConfigFromPrivilege(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("securityPropertySetId") long securityPropertySetId, @PathParam("executionLevelId") String privilegeId){
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        SecurityPropertySet securityPropertySet = resourceHelper.findSecurityPropertySetByIdOrThrowException(deviceConfiguration, securityPropertySetId);
+    public Response unlinkDeviceConfigFromPrivilege(@PathParam("securityPropertySetId") long securityPropertySetId, @PathParam("executionLevelId") String privilegeId, ExecutionLevelInfo info) {
+        SecurityPropertySet securityPropertySet = resourceHelper.getLockedSecurityPropertySet(info.parent.id, info.parent.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualParent(() -> resourceHelper.getCurrentSecurityPropertySetVersion(info.parent.id), info.parent.id)
+                        .supplier());
         DeviceSecurityUserAction userAction = DeviceSecurityUserAction.forPrivilege(privilegeId).orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.UNKNOWN_PRIVILEGE_ID, privilegeId));
         securityPropertySet.removeUserAction(userAction);
         return Response.noContent().build();

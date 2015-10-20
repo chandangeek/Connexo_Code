@@ -58,11 +58,9 @@ public class LoadProfileConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
     public Response getLoadProfileSpecsForDeviceConfiguration(
-            @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @BeanParam JsonQueryParameters queryParameters) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         List<LoadProfileSpec> loadProfileSpecs = new ArrayList<>(deviceConfiguration.getLoadProfileSpecs());
         Collections.sort(loadProfileSpecs, new LoadProfileSpecComparator());
         List<LoadProfileSpecInfo> loadProfileSpecInfos = new ArrayList<>(loadProfileSpecs.size());
@@ -81,7 +79,7 @@ public class LoadProfileConfigurationResource {
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         Collection<LoadProfileType> loadProfileTypes = findAvailableLoadProfileTypesForDeviceConfiguration(deviceType, deviceConfiguration);
         return Response.ok(PagedInfoList.fromPagedList("data", LoadProfileTypeInfo.from(loadProfileTypes), queryParameters)).build();
     }
@@ -95,8 +93,8 @@ public class LoadProfileConfigurationResource {
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @PathParam("loadProfileSpecId") long loadProfileSpecId,
             @BeanParam JsonQueryParameters queryParameters) {
-        LoadProfileSpec loadProfileSpec = findLoadProfileSpecByIdOrThrowEception(loadProfileSpecId);
-        return Response.ok(PagedInfoList.fromPagedList("data", LoadProfileSpecInfo.from(Collections.singletonList(loadProfileSpec), mdcReadingTypeUtilService), queryParameters)).build();
+        LoadProfileSpec loadProfileSpec = resourceHelper.findLoadProfileSpecOrThrowException(loadProfileSpecId);
+        return Response.ok(LoadProfileSpecInfo.from(loadProfileSpec, loadProfileSpec.getChannelSpecs(), mdcReadingTypeUtilService)).build();
     }
 
     @POST
@@ -110,9 +108,8 @@ public class LoadProfileConfigurationResource {
         if (request.id == 0) {
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_LOAD_PROFILE_TYPE_ID_FOR_ADDING);
         }
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        LoadProfileType loadProfileType = findLoadProfileTypeByIdOrThrowException(request.id);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
+        LoadProfileType loadProfileType = resourceHelper.findLoadProfileTypeByIdOrThrowException(request.id);
 
         LoadProfileSpec.LoadProfileSpecBuilder specBuilder = deviceConfiguration.createLoadProfileSpec(loadProfileType);
         if (request.overruledObisCode != null){
@@ -127,17 +124,11 @@ public class LoadProfileConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
-    public Response editLoadProfileSpecOnDeviceConfiguration(
-            @PathParam("deviceTypeId") long deviceTypeId,
-            @PathParam("deviceConfigurationId") long deviceConfigurationId,
-            @PathParam("loadProfileSpecId") long loadProfileSpecId,
-            @BeanParam JsonQueryParameters queryParameters,
-            LoadProfileSpecInfo request) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        LoadProfileSpec loadProfileSpec = findLoadProfileSpecByIdOrThrowEception(loadProfileSpecId);
-        LoadProfileSpec.LoadProfileSpecUpdater specUpdater = deviceConfiguration.getLoadProfileSpecUpdaterFor(loadProfileSpec);
-        specUpdater.setOverruledObisCode(request.overruledObisCode).update();
+    public Response editLoadProfileSpecOnDeviceConfiguration(@PathParam("loadProfileSpecId") long loadProfileSpecId, LoadProfileSpecInfo info) {
+        info.id = loadProfileSpecId;
+        LoadProfileSpec loadProfileSpec = resourceHelper.lockLoadProfileSpecOrThrowException(info);
+        LoadProfileSpec.LoadProfileSpecUpdater specUpdater = loadProfileSpec.getDeviceConfiguration().getLoadProfileSpecUpdaterFor(loadProfileSpec);
+        specUpdater.setOverruledObisCode(info.overruledObisCode).update();
         return Response.ok(LoadProfileSpecInfo.from(loadProfileSpec, null, mdcReadingTypeUtilService)).build();
     }
 
@@ -146,14 +137,11 @@ public class LoadProfileConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
     public Response deleteLoadProfileSpecFromDeviceConfiguration(
-            @PathParam("deviceTypeId") long deviceTypeId,
-            @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @PathParam("loadProfileSpecId") long loadProfileSpecId,
-            @BeanParam JsonQueryParameters queryParameters) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        LoadProfileSpec loadProfileSpec = findLoadProfileSpecByIdOrThrowEception(loadProfileSpecId);
-        deviceConfiguration.deleteLoadProfileSpec(loadProfileSpec);
+            @BeanParam JsonQueryParameters queryParameters, LoadProfileSpecInfo info) {
+        info.id = loadProfileSpecId;
+        LoadProfileSpec loadProfileSpec = resourceHelper.lockLoadProfileSpecOrThrowException(info);
+        loadProfileSpec.getDeviceConfiguration().deleteLoadProfileSpec(loadProfileSpec);
         return Response.ok().build();
     }
 
@@ -166,7 +154,7 @@ public class LoadProfileConfigurationResource {
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @PathParam("loadProfileSpecId") long loadProfileSpecId,
             @BeanParam JsonQueryParameters queryParameters) {
-        LoadProfileSpec loadProfileSpec = findLoadProfileSpecByIdOrThrowEception(loadProfileSpecId);
+        LoadProfileSpec loadProfileSpec = resourceHelper.findLoadProfileSpecOrThrowException(loadProfileSpecId);
         List<ChannelSpec> channelSpecs = loadProfileSpec.getChannelSpecs().stream().sorted(new LoadProfileChannelComparator()).collect(Collectors.toList());
         return Response.ok(PagedInfoList.fromPagedList("data", ChannelSpecFullInfo.from(channelSpecs), queryParameters)).build();
     }
@@ -176,16 +164,14 @@ public class LoadProfileConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
     public Response getChannelForDeviceConfiguration(
-            @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @PathParam("loadProfileSpecId") long loadProfileSpecId,
             @PathParam("channelId") long channelId,
             @BeanParam JsonQueryParameters queryParameters) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        ChannelSpec channelSpec = findChannelSpecByIdOrThrowException(channelId);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
+        ChannelSpec channelSpec = resourceHelper.findChannelSpecOrThrowException(channelId);
 
-        return Response.ok(PagedInfoList.fromPagedList("data", Collections.singletonList(ChannelSpecFullInfo.from(channelSpec, deviceConfiguration.isActive())), queryParameters)).build();
+        return Response.ok(ChannelSpecFullInfo.from(channelSpec, deviceConfiguration.isActive())).build();
     }
 
     @POST
@@ -197,17 +183,16 @@ public class LoadProfileConfigurationResource {
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @PathParam("loadProfileSpecId") long loadProfileSpecId,
-            ChannelSpecFullInfo request) {
+            ChannelSpecFullInfo info) {
 
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        ChannelType channelType = resourceHelper.findChannelTypeByIdOrThrowException(request.registerTypeInfo.id);
-        LoadProfileSpec loadProfileSpec = findLoadProfileSpecByIdOrThrowEception(loadProfileSpecId);
+        ChannelType channelType = resourceHelper.findChannelTypeByIdOrThrowException(info.registerTypeInfo.id);
+        LoadProfileSpec loadProfileSpec = resourceHelper.findLoadProfileSpecOrThrowException(loadProfileSpecId);
+        DeviceConfiguration deviceConfiguration = loadProfileSpec.getDeviceConfiguration();
 
         ChannelSpec.ChannelSpecBuilder channelBuilder = deviceConfiguration.createChannelSpec(channelType, loadProfileSpec);
-        channelBuilder.setOverflow(request.overflowValue);
-        channelBuilder.setOverruledObisCode(request.overruledObisCode);
-        channelBuilder.setNbrOfFractionDigits(request.nbrOfFractionDigits);
+        channelBuilder.setOverflow(info.overflowValue);
+        channelBuilder.setOverruledObisCode(info.overruledObisCode);
+        channelBuilder.setNbrOfFractionDigits(info.nbrOfFractionDigits);
 
         ChannelSpec newChannelSpec = channelBuilder.add();
         return Response.ok(ChannelSpecFullInfo.from(newChannelSpec, deviceConfiguration.isActive())).build();
@@ -219,22 +204,20 @@ public class LoadProfileConfigurationResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
     public Response editChannelSpecOnDeviceConfiguration(
-            @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
-            @PathParam("loadProfileSpecId") long loadProfileSpecId,
             @PathParam("channelId") long channelId,
-            @BeanParam JsonQueryParameters queryParameters,
-            ChannelSpecFullInfo request) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        ChannelSpec channelSpec = findChannelSpecByIdOrThrowException(channelId);
-        if (request.registerTypeInfo != null && request.registerTypeInfo.id > 0) {
-            channelSpec.setChannelType(resourceHelper.findChannelTypeByIdOrThrowException(request.registerTypeInfo.id));
+            ChannelSpecFullInfo info) {
+        info.id = channelId;
+        ChannelSpec channelSpec = resourceHelper.lockChannelSpecOrThrowException(info);
+        DeviceConfiguration deviceConfiguration = channelSpec.getLoadProfileSpec().getDeviceConfiguration();
+
+        if (info.registerTypeInfo != null && info.registerTypeInfo.id > 0) {
+            channelSpec.setChannelType(resourceHelper.findChannelTypeByIdOrThrowException(info.registerTypeInfo.id));
         }
         ChannelSpec.ChannelSpecUpdater specUpdater = deviceConfiguration.getChannelSpecUpdaterFor(channelSpec);
-        specUpdater.setOverruledObisCode(request.overruledObisCode);
-        specUpdater.setOverflow(request.overflowValue);
-        specUpdater.setNbrOfFractionDigits(request.nbrOfFractionDigits);
+        specUpdater.setOverruledObisCode(info.overruledObisCode);
+        specUpdater.setOverflow(info.overflowValue);
+        specUpdater.setNbrOfFractionDigits(info.nbrOfFractionDigits);
         specUpdater.update();
         return Response.ok(ChannelSpecFullInfo.from(channelSpec, deviceConfiguration.isActive())).build();
     }
@@ -244,15 +227,12 @@ public class LoadProfileConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
     public Response deleteChannelSpecFromDeviceConfiguration(
-            @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @PathParam("loadProfileSpecId") long loadProfileSpecId,
             @PathParam("channelId") long channelId,
-            @BeanParam JsonQueryParameters queryParameters) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        ChannelSpec channelSpec = findChannelSpecByIdOrThrowException(channelId);
-        deviceConfiguration.removeChannelSpec(channelSpec);
+            ChannelSpecFullInfo info) {
+        ChannelSpec channelSpec = resourceHelper.lockChannelSpecOrThrowException(info);
+        channelSpec.getLoadProfileSpec().getDeviceConfiguration().removeChannelSpec(channelSpec);
         return Response.ok().build();
     }
 
@@ -261,11 +241,9 @@ public class LoadProfileConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE,Privileges.VIEW_DEVICE_TYPE})
     public Response getAvailableMeasurementTypesForChannel(
-            @PathParam("deviceTypeId") long deviceTypeId,
-            @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @PathParam("loadProfileSpecId") long loadProfileSpecId,
             @BeanParam JsonQueryParameters queryParameters) {
-        LoadProfileSpec loadProfileSpec = findLoadProfileSpecByIdOrThrowEception(loadProfileSpecId);
+        LoadProfileSpec loadProfileSpec = resourceHelper.findLoadProfileSpecOrThrowException(loadProfileSpecId);
         Map<Long, ChannelType> channelTypes = new HashMap<>();
         for (ChannelType measurementType : loadProfileSpec.getLoadProfileType().getChannelTypes()) {
             channelTypes.put(measurementType.getId(), measurementType);
@@ -290,23 +268,5 @@ public class LoadProfileConfigurationResource {
             availableLoadProfileTypesForDeviceConfiguartion.remove(loadProfileSpec.getLoadProfileType().getId());
         }
         return availableLoadProfileTypesForDeviceConfiguartion.values();
-    }
-
-    private LoadProfileType findLoadProfileTypeByIdOrThrowException(long loadProfileTypeId) {
-        return masterDataService
-                .findLoadProfileType(loadProfileTypeId)
-                .orElseThrow(() -> new TranslatableApplicationException(thesaurus, MessageSeeds.NO_LOAD_PROFILE_TYPE_FOUND));
-    }
-
-    private LoadProfileSpec findLoadProfileSpecByIdOrThrowEception(long loadProfileSpecId) {
-        return deviceConfigurationService
-                .findLoadProfileSpec(loadProfileSpecId)
-                .orElseThrow(() -> new TranslatableApplicationException(thesaurus, MessageSeeds.NO_LOAD_PROFILE_TYPE_FOUND, loadProfileSpecId));
-    }
-
-    private ChannelSpec findChannelSpecByIdOrThrowException(long channelId) {
-        return deviceConfigurationService
-                .findChannelSpec(channelId)
-                .orElseThrow(() -> new TranslatableApplicationException(thesaurus, MessageSeeds.NO_CHANNEL_SPEC_FOUND, channelId));
     }
 }

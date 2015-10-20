@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.masterdata.LogBookType;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -16,6 +18,8 @@ public class LogBookTypeInfo {
     public String name;
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode obisCode;
+    public long version;
+    public VersionInfo<Long> parent;
 
     public LogBookTypeInfo() {
     }
@@ -25,13 +29,22 @@ public class LogBookTypeInfo {
         logBookTypeInfo.id = logBookType.getId();
         logBookTypeInfo.name = logBookType.getName();
         logBookTypeInfo.obisCode = logBookType.getObisCode();
+        logBookTypeInfo.version = logBookType.getVersion();
         return logBookTypeInfo;
     }
 
     public static List<LogBookTypeInfo> from(List<LogBookType> logBookTypes) {
+        return from(logBookTypes, null);
+    }
+
+    public static List<LogBookTypeInfo> from(List<LogBookType> logBookTypes, DeviceType deviceType) {
         List<LogBookTypeInfo> infos = new ArrayList<>(logBookTypes.size());
         for (LogBookType logBookType : logBookTypes) {
-            infos.add(LogBookTypeInfo.from(logBookType));
+            LogBookTypeInfo info = LogBookTypeInfo.from(logBookType);
+            if (deviceType != null) {
+                info.parent = new VersionInfo<>(deviceType.getId(), deviceType.getVersion());
+            }
+            infos.add(info);
         }
         return infos;
     }

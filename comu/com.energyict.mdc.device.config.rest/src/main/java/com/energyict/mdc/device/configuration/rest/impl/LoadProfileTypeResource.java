@@ -9,9 +9,6 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
-import com.google.common.base.Function;
-import com.google.common.collect.Iterables;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -25,17 +22,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class LoadProfileTypeResource {
 
@@ -62,20 +54,20 @@ public class LoadProfileTypeResource {
         List<LoadProfileTypeOnDeviceTypeInfo> loadProfileTypeOnDeviceTypeInfos = new ArrayList<>();
         loadProfileTypes = ListPager.of(loadProfileTypes, new LoadProfileTypeComparator()).from(queryParameters).find();
         for (LoadProfileType loadProfileType : loadProfileTypes) {
-            loadProfileTypeOnDeviceTypeInfos.add(new LoadProfileTypeOnDeviceTypeInfo(loadProfileType, deviceType.getLoadProfileTypeCustomPropertySet(loadProfileType)));
+            loadProfileTypeOnDeviceTypeInfos.add(new LoadProfileTypeOnDeviceTypeInfo(loadProfileType, deviceType));
         }
         return Response.ok(PagedInfoList.fromPagedList("data", loadProfileTypeOnDeviceTypeInfos, queryParameters)).build();
     }
 
     @GET
-         @Path("/{loadProfileTypeId}")
-         @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-         @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
-         public LoadProfileTypeOnDeviceTypeInfo getLoadProfileForDeviceType(@PathParam("id") long deviceTypeId,
-                                                                            @PathParam("loadProfileTypeId") long loadProfileTypeId) {
+    @Path("/{loadProfileTypeId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
+    public LoadProfileTypeOnDeviceTypeInfo getLoadProfileForDeviceType(@PathParam("id") long deviceTypeId,
+                                                                       @PathParam("loadProfileTypeId") long loadProfileTypeId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         LoadProfileType loadProfileType = resourceHelper.findLoadProfileTypeByIdOrThrowException(loadProfileTypeId);
-        return new LoadProfileTypeOnDeviceTypeInfo(loadProfileType, deviceType.getLoadProfileTypeCustomPropertySet(loadProfileType));
+        return new LoadProfileTypeOnDeviceTypeInfo(loadProfileType, deviceType);
     }
 
     @PUT
@@ -101,27 +93,21 @@ public class LoadProfileTypeResource {
         return Response.ok(DeviceTypeCustomPropertySetInfo.from(resourceHelper.findCustomPropertySets(LoadProfileType.class.getName()))).build();
     }
 
-    private List<LoadProfileType> findAllAvailableLoadProfileTypesForDeviceType(List<LoadProfileType> loadProfileTypes) {
-        List<LoadProfileType> allLogBookTypes = masterDataService.findAllLoadProfileTypes();
-        Set<Long> registeredLoadProfileTypeIds = new HashSet<>(loadProfileTypes.size());
-        for (LoadProfileType loadProfileType : loadProfileTypes) {
-            registeredLoadProfileTypeIds.add(loadProfileType.getId());
-        }
-        Iterator<LoadProfileType> loadProfileTypeIterator = allLogBookTypes.iterator();
-        while (loadProfileTypeIterator.hasNext()) {
-            LoadProfileType loadProfileType = loadProfileTypeIterator.next();
-            if (registeredLoadProfileTypeIds.contains(loadProfileType.getId())) {
-                loadProfileTypeIterator.remove();
-            }
-        }
-        return allLogBookTypes;
+    private List<LoadProfileType> findAllAvailableLoadProfileTypesForDeviceType(List<LoadProfileType> loadProfilesOnDeviceType) {
+        Set<Long> alreadyAssignedLoadProfileTypes = loadProfilesOnDeviceType
+                .stream()
+                .map(LoadProfileType::getId)
+                .collect(Collectors.toSet());
+        return masterDataService.findAllLoadProfileTypes()
+                .stream()
+                .filter(candidate -> !alreadyAssignedLoadProfileTypes.contains(candidate.getId()))
+                .collect(Collectors.toList());
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
-    public Response addLoadProfileTypesForDeviceType(@PathParam("id") long id, List<Long> ids, @Context UriInfo uriInfo) {
-        boolean all = getBoolean(uriInfo, "all");
+    public Response addLoadProfileTypesForDeviceType(@PathParam("id") long id, List<Long> ids, @QueryParam("all") boolean all) {
         if (!all && ids.isEmpty()) {
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_LOAD_PROFILE_TYPE_ID_FOR_ADDING);
         }
@@ -130,7 +116,7 @@ public class LoadProfileTypeResource {
         for (LoadProfileType loadProfileType : toAdd) {
             deviceType.addLoadProfileType(loadProfileType);
         }
-        return Response.ok(LoadProfileTypeInfo.from(toAdd)).build();
+        return Response.ok(LoadProfileTypeOnDeviceTypeInfo.from(toAdd, deviceType)).build();
     }
 
     private Iterable<? extends LoadProfileType> allLoadProfileTypes() {
@@ -138,21 +124,9 @@ public class LoadProfileTypeResource {
     }
 
     private Iterable<? extends LoadProfileType> loadProfileTypesFor(List<Long> ids) {
-        return Iterables.transform(ids, new Function<Long, LoadProfileType>() {
-            @Override
-            public LoadProfileType apply(Long id) {
-                Optional<LoadProfileType> loadProfileType = masterDataService.findLoadProfileType(id);
-                if (loadProfileType.isPresent()) {
-                    return loadProfileType.get();
-                }
-                throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_LOAD_PROFILE_TYPE_FOUND, id);
-            }
-        });
-    }
-
-    private boolean getBoolean(UriInfo uriInfo, String key) {
-        MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
-        return queryParameters.containsKey(key) && Boolean.parseBoolean(queryParameters.getFirst(key));
+        return ids.stream()
+                .map(id -> resourceHelper.findLoadProfileTypeByIdOrThrowException(id))
+                .collect(Collectors.toList());
     }
 
     @DELETE
@@ -162,9 +136,11 @@ public class LoadProfileTypeResource {
     public Response deleteLoadProfileTypeFromDeviceType(
             @PathParam("id") long id,
             @PathParam("loadProfileTypeId") long loadProfileTypeId,
-            @BeanParam JsonQueryParameters queryParameters) {
+            @BeanParam JsonQueryParameters queryParameters,
+            LoadProfileTypeOnDeviceTypeInfo info) {
+        info.id = loadProfileTypeId;
+        LoadProfileType loadProfileType = resourceHelper.lockDeviceTypeLoadProfileTypeOrThrowException(info);
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        LoadProfileType loadProfileType = resourceHelper.findLoadProfileTypeByIdOrThrowException(loadProfileTypeId);
         deviceType.removeLoadProfileType(loadProfileType);
         return Response.ok().build();
     }

@@ -34,7 +34,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -117,13 +116,7 @@ public class DeviceConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
     public DeviceConfigurationInfo getDeviceConfigurationsById(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        for (DeviceConfiguration deviceConfiguration : deviceType.getConfigurations()) {
-            if (deviceConfiguration.getId() == deviceConfigurationId) {
-                return new DeviceConfigurationInfo(deviceConfiguration);
-            }
-        }
-        throw new WebApplicationException("No such device configuration for the device type", Response.status(Response.Status.NOT_FOUND).entity("No such device configuration for the device type").build());
+        return new DeviceConfigurationInfo(resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId));
     }
 
     @GET
@@ -135,12 +128,11 @@ public class DeviceConfigurationResource {
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @BeanParam JsonQueryParameters queryParameters,
             @QueryParam("available") String available) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         List<LogBookSpec> logBookSpecs = deviceConfiguration.getLogBookSpecs();
         List<LogBookTypeInfo> logBookTypes = new ArrayList<>(logBookSpecs.size());
         if (available != null && Boolean.parseBoolean(available)) {
-            logBookTypes = LogBookTypeInfo.from(findAllAvailableLogBookTypesForDeviceConfiguration(deviceType, deviceConfiguration));
+            logBookTypes = LogBookTypeInfo.from(findAllAvailableLogBookTypesForDeviceConfiguration(deviceConfiguration.getDeviceType(), deviceConfiguration));
         } else {
             for (LogBookSpec logBookSpec : logBookSpecs) {
                 logBookTypes.add(LogBookSpecInfo.from(logBookSpec));
@@ -169,13 +161,12 @@ public class DeviceConfigurationResource {
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             List<Long> ids) {
-        if (ids == null || ids.size() == 0) {
+        if (ids == null || ids.isEmpty()) {
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_LOGBOOK_TYPE_ID_FOR_ADDING);
         }
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         List<LogBookTypeInfo> addedLogBookSpecs = new ArrayList<>(ids.size());
-        for (LogBookType logBookType : deviceType.getLogBookTypes()) {
+        for (LogBookType logBookType : deviceConfiguration.getDeviceType().getLogBookTypes()) {
             if (ids.contains(logBookType.getId())) {
                 LogBookSpec newLogBookSpec = deviceConfiguration.createLogBookSpec(logBookType).add();
                 addedLogBookSpecs.add(LogBookSpecInfo.from(newLogBookSpec));
@@ -188,23 +179,10 @@ public class DeviceConfigurationResource {
     @Path("/{deviceConfigurationId}/logbookconfigurations/{logBookSpecId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
-    public Response deleteLogBooksSpecFromDeviceConfiguartion(
-            @PathParam("deviceTypeId") long deviceTypeId,
-            @PathParam("deviceConfigurationId") long deviceConfigurationId,
-            @PathParam("logBookSpecId") long logBookSpecId) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        LogBookSpec logBookSpec = null;
-        for (LogBookSpec spec : deviceConfiguration.getLogBookSpecs()) {
-            if (spec.getId() == logBookSpecId) {
-                logBookSpec = spec;
-                break;
-            }
-        }
-        if (logBookSpec == null) {
-            throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_LOGBOOK_TYPE_FOUND, logBookSpecId);
-        }
-        deviceConfiguration.removeLogBookSpec(logBookSpec);
+    public Response deleteLogBooksSpecFromDeviceConfiguration(@PathParam("logBookSpecId") long logBookSpecId, LogBookSpecInfo info) {
+        info.id = logBookSpecId;
+        LogBookSpec logBookSpec = resourceHelper.lockLogBookSpecOrThrowException(info);
+        logBookSpec.getDeviceConfiguration().removeLogBookSpec(logBookSpec);
         return Response.ok().build();
     }
 
@@ -213,31 +191,21 @@ public class DeviceConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
-    public Response editLogBookSpecForDeviceConfiguration(
-            @PathParam("deviceTypeId") long deviceTypeId,
-            @PathParam("deviceConfigurationId") long deviceConfigurationId,
-            @PathParam("logBookSpecId") long logBookSpecId,
-            LogBookSpecInfo logBookRequest) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        List<LogBookSpec> logBookSpecs = new ArrayList<>(deviceConfiguration.getLogBookSpecs());
-        for (LogBookSpec logBookSpec : logBookSpecs) {
-            if (logBookSpec.getId() == logBookSpecId) {
-                deviceConfiguration.getLogBookSpecUpdaterFor(logBookSpec).setOverruledObisCode(logBookRequest.overruledObisCode).update();
-                return Response.ok(LogBookSpecInfo.from(logBookSpec)).build();
-            }
-        }
-        throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_LOGBOOK_TYPE_FOUND, logBookRequest.id);
+    public Response editLogBookSpecForDeviceConfiguration(@PathParam("logBookSpecId") long logBookSpecId, LogBookSpecInfo info) {
+        info.id = logBookSpecId;
+        LogBookSpec logBookSpec = resourceHelper.lockLogBookSpecOrThrowException(info);
+        logBookSpec.getDeviceConfiguration().getLogBookSpecUpdaterFor(logBookSpec).setOverruledObisCode(info.overruledObisCode).update();
+        return Response.ok(LogBookSpecInfo.from(logBookSpec)).build();
     }
 
     @DELETE
     @Path("/{deviceConfigurationId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
-    public Response deleteDeviceConfigurations(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        deviceType.removeConfiguration(deviceConfiguration);
+    public Response deleteDeviceConfigurations(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, DeviceConfigurationInfo info) {
+        info.id = deviceConfigurationId;
+        DeviceConfiguration deviceConfiguration = resourceHelper.lockDeviceConfigurationOrThrowException(info);
+        deviceConfiguration.getDeviceType().removeConfiguration(deviceConfiguration);
         return Response.ok().build();
     }
 
@@ -245,10 +213,10 @@ public class DeviceConfigurationResource {
     @Path("/{deviceConfigurationId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
-    public DeviceConfigurationInfo updateDeviceConfigurations(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, DeviceConfigurationInfo deviceConfigurationInfo) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        deviceConfigurationInfo.writeTo(deviceConfiguration);
+    public DeviceConfigurationInfo updateDeviceConfigurations(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, DeviceConfigurationInfo info) {
+        info.id = deviceConfigurationId;
+        DeviceConfiguration deviceConfiguration = resourceHelper.lockDeviceConfigurationOrThrowException(info);
+        info.writeTo(deviceConfiguration);
         deviceConfiguration.save();
         return new DeviceConfigurationInfo(deviceConfiguration);
     }
@@ -257,10 +225,10 @@ public class DeviceConfigurationResource {
     @Path("/{deviceConfigurationId}/status")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
-    public DeviceConfigurationInfo updateDeviceConfigurationsStatus(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, DeviceConfigurationInfo deviceConfigurationInfo) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        if (deviceConfigurationInfo.active != null && deviceConfigurationInfo.active) {
+    public DeviceConfigurationInfo updateDeviceConfigurationsStatus(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, DeviceConfigurationInfo info) {
+        info.id = deviceConfigurationId;
+        DeviceConfiguration deviceConfiguration = resourceHelper.lockDeviceConfigurationOrThrowException(info);
+        if (info.active != null && info.active) {
             if (!deviceConfiguration.isActive()) {
                 deviceConfiguration.activate();
             }
@@ -294,10 +262,10 @@ public class DeviceConfigurationResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
-    public DeviceConfigurationInfo cloneDeviceConfiguration(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, DeviceConfigurationInfo deviceConfigurationInfo) {
-        DeviceConfiguration deviceConfiguration = deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(deviceConfigurationId, deviceConfigurationInfo.version)
-                .orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
-        return new DeviceConfigurationInfo(deviceConfigurationService.cloneDeviceConfiguration(deviceConfiguration, deviceConfigurationInfo.name));
+    public DeviceConfigurationInfo cloneDeviceConfiguration(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, DeviceConfigurationInfo info) {
+        info.id = deviceConfigurationId;
+        DeviceConfiguration deviceConfiguration = resourceHelper.lockDeviceConfigurationOrThrowException(info);
+        return new DeviceConfigurationInfo(deviceConfigurationService.cloneDeviceConfiguration(deviceConfiguration, info.name));
     }
 
     @Path("/{deviceConfigurationId}/registerconfigurations")
@@ -348,7 +316,7 @@ public class DeviceConfigurationResource {
             @PathParam("registerId") long registerId,
             @BeanParam JsonQueryParameters queryParameters) {
 
-        List<ValidationRule> rules = resourceHelper.findRegisterSpec(registerId).getValidationRules();
+        List<ValidationRule> rules = resourceHelper.findRegisterSpecByIdOrThrowException(registerId).getValidationRules();
         List<ValidationRule> rulesPage = ListPager.of(rules).from(queryParameters).find();
         List<ValidationRuleInfo> infos = rulesPage.stream().map(validationRuleInfoFactory::createValidationRuleInfo).collect(Collectors.toList());
         return Response.ok(PagedInfoList.fromPagedList("validationRules", infos, queryParameters)).build();
@@ -364,7 +332,7 @@ public class DeviceConfigurationResource {
             @PathParam("channelId") long channelId,
             @BeanParam JsonQueryParameters queryParameters) {
 
-        List<ValidationRule> rules = resourceHelper.findChannelSpec(channelId).getValidationRules();
+        List<ValidationRule> rules = resourceHelper.findChannelSpecOrThrowException(channelId).getValidationRules();
         List<ValidationRule> rulesPage = ListPager.of(rules).from(queryParameters).find();
         List<ValidationRuleInfo> infos = rulesPage.stream().map(validationRuleInfoFactory::createValidationRuleInfo).collect(Collectors.toList());
         return Response.ok(PagedInfoList.fromPagedList("validationRules", infos, queryParameters)).build();
@@ -380,7 +348,7 @@ public class DeviceConfigurationResource {
             @PathParam("loadProfileId") long loadProfileId,
             @BeanParam JsonQueryParameters queryParameters) {
 
-        List<ValidationRule> rules = resourceHelper.findLoadProfileSpec(loadProfileId).getValidationRules();
+        List<ValidationRule> rules = resourceHelper.findLoadProfileSpecOrThrowException(loadProfileId).getValidationRules();
         List<ValidationRule> rulesPage = ListPager.of(rules).from(queryParameters).find();
         List<ValidationRuleInfo> infos = rulesPage.stream().map(validationRuleInfoFactory::createValidationRuleInfo).collect(Collectors.toList());
         return Response.ok(PagedInfoList.fromPagedList("validationRules", infos, queryParameters)).build();
@@ -388,10 +356,8 @@ public class DeviceConfigurationResource {
 
     @Path("/{deviceConfigurationId}/protocols")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public ProtocolPropertiesResource getDeviceProtocolPropertiesResource(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        return deviceProtocolPropertiesResourceProvider.get().with(deviceConfiguration);
+    public ProtocolPropertiesResource getDeviceProtocolPropertiesResource() {
+        return deviceProtocolPropertiesResourceProvider.get();
     }
 
     @Path("/{deviceConfigurationId}/validationrulesets")
@@ -414,12 +380,10 @@ public class DeviceConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.elster.jupiter.validation.security.Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response getLinkableValidationsRuleSets(
-            @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @BeanParam JsonQueryParameters queryParameters) {
         ValidationRuleSetInfos validationRuleSetInfos = new ValidationRuleSetInfos();
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         List<ValidationRuleSet> linkedRuleSets = deviceConfiguration.getValidationRuleSets();
         List<ReadingType> readingTypes = deviceConfigurationService.getReadingTypesRelatedToConfiguration(deviceConfiguration);
         List<ValidationRuleSet> validationRuleSets = validationService.getValidationRuleSets();

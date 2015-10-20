@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.device.config.DeviceType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -18,6 +20,8 @@ public class DeviceConfigSolutionMappingInfo {
     public List<DeviceConfigSolutionConfigurationInfo> connectionMethodSolutions = new ArrayList<>();
     public List<DeviceConfigConflictConfigurationInfo> securitySets = new ArrayList<>();
     public List<DeviceConfigSolutionConfigurationInfo> securitySetSolutions = new ArrayList<>();
+    public long version;
+    public VersionInfo<Long> parent;
 
     public DeviceConfigSolutionMappingInfo() {
     }
@@ -88,5 +92,8 @@ public class DeviceConfigSolutionMappingInfo {
                             break;
                     }
                 });
+        this.version = deviceConfigConflictMapping.getVersion();
+        DeviceType deviceType = deviceConfigConflictMapping.getDeviceType();
+        this.parent = new VersionInfo<>(deviceType.getId(), deviceType.getVersion());
     }
 }

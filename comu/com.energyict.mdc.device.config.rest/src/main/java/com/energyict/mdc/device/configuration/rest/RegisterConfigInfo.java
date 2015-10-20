@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.configuration.rest;
 
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
@@ -43,6 +44,8 @@ public class RegisterConfigInfo {
     public Integer timeOfUse;
     @JsonProperty("asText")
     public boolean asText;
+    public long version;
+    public VersionInfo<Long> parent;
 
     public RegisterConfigInfo() {
     }
@@ -61,6 +64,8 @@ public class RegisterConfigInfo {
         this.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
         this.overflow = registerSpec.getOverflowValue();
         this.asText = registerSpec.isTextual();
+        this.version = registerSpec.getVersion();
+        this.parent = new VersionInfo<>(registerSpec.getDeviceConfiguration().getId(), registerSpec.getDeviceConfiguration().getVersion());
     }
 
     public RegisterConfigInfo(TextualRegisterSpec registerSpec) {
@@ -77,6 +82,8 @@ public class RegisterConfigInfo {
         this.numberOfFractionDigits = null;
         this.overflow = null;
         this.asText = registerSpec.isTextual();
+        this.version = registerSpec.getVersion();
+        this.parent = new VersionInfo<>(registerSpec.getDeviceConfiguration().getId(), registerSpec.getDeviceConfiguration().getVersion());
     }
 
     public static RegisterConfigInfo from(RegisterSpec registerSpec) {

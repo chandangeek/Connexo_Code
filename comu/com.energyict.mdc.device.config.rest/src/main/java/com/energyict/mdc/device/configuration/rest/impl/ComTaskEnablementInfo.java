@@ -1,12 +1,13 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.nls.Thesaurus;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
@@ -29,6 +30,8 @@ public class ComTaskEnablementInfo {
     public Boolean suspended;
     @JsonProperty("ignoreNextExecutionSpecsForInbound")
     public Boolean ignoreNextExecutionSpecsForInbound;
+    public long version;
+    public VersionInfo<Long> parent;
 
     public ComTaskEnablementInfo() {}
 
@@ -46,6 +49,9 @@ public class ComTaskEnablementInfo {
         comTaskEnablementInfo.priority = comTaskEnablement.getPriority();
         comTaskEnablementInfo.suspended = comTaskEnablement.isSuspended();
         comTaskEnablementInfo.ignoreNextExecutionSpecsForInbound = comTaskEnablement.isIgnoreNextExecutionSpecsForInbound();
+        comTaskEnablementInfo.version = comTaskEnablement.getVersion();
+        DeviceConfiguration deviceConfiguration = comTaskEnablement.getDeviceConfiguration();
+        comTaskEnablementInfo.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
         return comTaskEnablementInfo;
     }
 

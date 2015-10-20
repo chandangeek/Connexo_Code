@@ -1,39 +1,41 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.rest.PropertyUtils;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import java.util.Optional;
-import java.util.Arrays;
-import java.util.Collections;
+import org.junit.Test;
+import org.mockito.Mock;
+
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.core.Response;
-import org.junit.Test;
-import org.mockito.Mock;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyMap;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.doReturn;
 
 public class ValidationRuleSetResourceTest extends DeviceConfigurationApplicationJerseyTest {
 
+    public static final long OK_VERSION = 24L;
+    public static final long BAD_VERSION = 17L;
     public static final long DEVICE_TYPE_ID = 564L;
     public static final long DEVICE_CONFIGURATION_ID = 211L;
     public static final long RULESET_ID_1 = 1L;
     public static final long RULESET_ID_2 = 2L;
     @Mock
     private ValidationRuleSet validationRuleSet1, validationRuleSet2;
-    @Mock
-    private DeviceType deviceType;
     @Mock
     private DeviceConfiguration deviceConfiguration;
     @Mock
@@ -47,9 +49,10 @@ public class ValidationRuleSetResourceTest extends DeviceConfigurationApplicatio
     public void testAddRuleSetsToDeviceConfiguration() throws Exception {
     	doReturn(Optional.of(validationRuleSet1)).when(validationService).getValidationRuleSet(RULESET_ID_1);
     	doReturn(Optional.of(validationRuleSet2)).when(validationService).getValidationRuleSet(RULESET_ID_2);
-        when(deviceConfigurationService.findDeviceType(DEVICE_TYPE_ID)).thenReturn(Optional.of(deviceType));
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
         when(deviceConfiguration.getId()).thenReturn(DEVICE_CONFIGURATION_ID);
+        when(deviceConfiguration.getVersion()).thenReturn(OK_VERSION);
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(DEVICE_CONFIGURATION_ID, OK_VERSION)).thenReturn(Optional.of(deviceConfiguration));
+        when(deviceConfigurationService.findDeviceConfiguration(DEVICE_CONFIGURATION_ID)).thenReturn(Optional.of(deviceConfiguration));
         when(propertyUtils.convertPropertySpecsToPropertyInfos(anyList(), anyMap())).thenReturn(Collections.<PropertyInfo>emptyList());
 
         Invocation.Builder all = target("/devicetypes/" + DEVICE_TYPE_ID + "/deviceconfigurations/" + DEVICE_CONFIGURATION_ID + "/validationrulesets/").queryParam("all", Boolean.FALSE).request();
@@ -66,9 +69,10 @@ public class ValidationRuleSetResourceTest extends DeviceConfigurationApplicatio
         when(deviceConfigurationService.getReadingTypesRelatedToConfiguration(deviceConfiguration)).thenReturn(Arrays.asList(readingType1, readingType2));
         when(validationRuleSet1.getRules(Arrays.asList(readingType1, readingType2))).thenReturn(Arrays.asList(rule1));
         when(validationRuleSet2.getRules(Arrays.asList(readingType1, readingType2))).thenReturn(Arrays.asList(rule2));
-        when(deviceConfigurationService.findDeviceType(DEVICE_TYPE_ID)).thenReturn(Optional.of(deviceType));
         when(deviceConfiguration.getId()).thenReturn(DEVICE_CONFIGURATION_ID);
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
+        when(deviceConfiguration.getVersion()).thenReturn(OK_VERSION);
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(DEVICE_CONFIGURATION_ID, OK_VERSION)).thenReturn(Optional.of(deviceConfiguration));
+        when(deviceConfigurationService.findDeviceConfiguration(DEVICE_CONFIGURATION_ID)).thenReturn(Optional.of(deviceConfiguration));
 
         Invocation.Builder all = target("/devicetypes/" + DEVICE_TYPE_ID + "/deviceconfigurations/" + DEVICE_CONFIGURATION_ID + "/validationrulesets/").queryParam("all", Boolean.TRUE).request();
         Response response = all.post(Entity.json(Collections.emptyList()));
@@ -80,9 +84,10 @@ public class ValidationRuleSetResourceTest extends DeviceConfigurationApplicatio
 
     @Test
     public void testAddAllRuleSetsToDeviceConfigurationWithoutNonMatching() throws Exception {
-        when(deviceConfigurationService.findDeviceType(DEVICE_TYPE_ID)).thenReturn(Optional.of(deviceType));
         when(deviceConfiguration.getId()).thenReturn(DEVICE_CONFIGURATION_ID);
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
+        when(deviceConfiguration.getVersion()).thenReturn(OK_VERSION);
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(DEVICE_CONFIGURATION_ID, OK_VERSION)).thenReturn(Optional.of(deviceConfiguration));
+        when(deviceConfigurationService.findDeviceConfiguration(DEVICE_CONFIGURATION_ID)).thenReturn(Optional.of(deviceConfiguration));
 
         when(validationService.getValidationRuleSets()).thenReturn(Arrays.asList(validationRuleSet1, validationRuleSet2));
         when(deviceConfigurationService.getReadingTypesRelatedToConfiguration(deviceConfiguration)).thenReturn(Arrays.asList(readingType1, readingType2));
@@ -97,5 +102,46 @@ public class ValidationRuleSetResourceTest extends DeviceConfigurationApplicatio
         verify(deviceConfiguration).addValidationRuleSet(validationRuleSet2);
     }
 
+    @Test
+    public void testDeleteValidationRuleSetOkVersion() throws Exception {
+        when(deviceConfiguration.getId()).thenReturn(DEVICE_CONFIGURATION_ID);
+        when(deviceConfiguration.getVersion()).thenReturn(OK_VERSION);
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(DEVICE_CONFIGURATION_ID, OK_VERSION)).thenReturn(Optional.of(deviceConfiguration));
+        when(deviceConfigurationService.findDeviceConfiguration(DEVICE_CONFIGURATION_ID)).thenReturn(Optional.of(deviceConfiguration));
+
+        when(validationRuleSet1.getId()).thenReturn(RULESET_ID_1);
+        when(validationRuleSet1.getVersion()).thenReturn(OK_VERSION);
+        doReturn(Optional.of(validationRuleSet1)).when(validationService).getValidationRuleSet(RULESET_ID_1);
+        doReturn(Optional.of(validationRuleSet1)).when(validationService).findAndLockValidationRuleSetByIdAndVersion(RULESET_ID_1, OK_VERSION);
+
+        ValidationRuleSetInfo info = new ValidationRuleSetInfo();
+        info.version = OK_VERSION;
+        info.parent = new VersionInfo<>(DEVICE_CONFIGURATION_ID, OK_VERSION);
+
+        Response response = target("/devicetypes/" + DEVICE_TYPE_ID + "/deviceconfigurations/" + DEVICE_CONFIGURATION_ID + "/validationrulesets/" + RULESET_ID_1).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(deviceConfiguration).removeValidationRuleSet(validationRuleSet1);
+    }
+
+    @Test
+    public void testDeleteValidationRuleSetBadVersion() throws Exception {
+        when(deviceConfiguration.getId()).thenReturn(DEVICE_CONFIGURATION_ID);
+        when(deviceConfiguration.getVersion()).thenReturn(BAD_VERSION);
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(DEVICE_CONFIGURATION_ID, BAD_VERSION)).thenReturn(Optional.empty());
+        when(deviceConfigurationService.findDeviceConfiguration(DEVICE_CONFIGURATION_ID)).thenReturn(Optional.of(deviceConfiguration));
+
+        when(validationRuleSet1.getId()).thenReturn(RULESET_ID_1);
+        when(validationRuleSet1.getVersion()).thenReturn(OK_VERSION);
+        doReturn(Optional.of(validationRuleSet1)).when(validationService).getValidationRuleSet(RULESET_ID_1);
+        doReturn(Optional.of(validationRuleSet1)).when(validationService).findAndLockValidationRuleSetByIdAndVersion(RULESET_ID_1, OK_VERSION);
+
+        ValidationRuleSetInfo info = new ValidationRuleSetInfo();
+        info.version = OK_VERSION;
+        info.parent = new VersionInfo<>(DEVICE_CONFIGURATION_ID, BAD_VERSION);
+
+        Response response = target("/devicetypes/" + DEVICE_TYPE_ID + "/deviceconfigurations/" + DEVICE_CONFIGURATION_ID + "/validationrulesets/" + RULESET_ID_1).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+        verify(deviceConfiguration, never()).removeValidationRuleSet(validationRuleSet1);
+    }
 
 }

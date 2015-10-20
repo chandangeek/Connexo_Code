@@ -1,9 +1,8 @@
 package com.energyict.mdc.device.configuration.rest;
 
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
-
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 
 import java.util.stream.Stream;
 

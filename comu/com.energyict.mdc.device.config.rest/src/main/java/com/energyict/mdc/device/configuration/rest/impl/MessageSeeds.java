@@ -1,8 +1,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.energyict.mdc.device.config.security.Privileges;
-
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.config.security.Privileges;
 
 import java.util.logging.Level;
 
@@ -121,7 +120,12 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_DEVICE_LIFE_CYCLE(206, "NoSuchDeviceLifeCycle", "There is no device life cycle with id = {0}"),
     UNABLE_TO_CHANGE_DEVICE_LIFE_CYCLE(207, "UnableToChangeDeviceLifeCycle", "Unable to change device life cycle to \"{0}\""),
     HAS_SOLVED(208, Keys.SOLVED, "Solved"),
-    HAS_UNSOLVED(209, Keys.UNSOLVED, "Unsolved"),;
+    HAS_UNSOLVED(209, Keys.UNSOLVED, "Unsolved"),
+    CONCURRENT_FAIL_ACTIVATE_TITLE(210, "ConcurrentFailActivateTitle", "Failed to activate ''{0}''"),
+    CONCURRENT_FAIL_DEACTIVATE_TITLE(211, "ConcurrentFailDeActivateTitle", "Failed to deactivate ''{0}''"),
+    CONCURRENT_FAIL_ACTIVATE_BODY(212, "ConcurrentFailActivateBody", "{0} has changed since the page was last updated."),
+    CONCURRENT_FAIL_DEACTIVATE_BODY(213, "ConcurrentFailDeActivateBody", "{0} has changed since the page was last updated."),
+    ;
 
     private final int number;
     private final String key;

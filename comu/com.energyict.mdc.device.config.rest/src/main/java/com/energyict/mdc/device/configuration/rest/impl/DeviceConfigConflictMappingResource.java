@@ -6,7 +6,6 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
 import com.energyict.mdc.device.config.ConflictingSecuritySetSolution;
 import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -31,20 +30,19 @@ import java.util.stream.Collectors;
 public class DeviceConfigConflictMappingResource {
 
     private final Thesaurus thesaurus;
-    private final DeviceConfigurationService deviceConfigurationService;
+    private final ResourceHelper resourceHelper;
 
     @Inject
-    public DeviceConfigConflictMappingResource(Thesaurus thesaurus, DeviceConfigurationService deviceConfigurationService) {
+    public DeviceConfigConflictMappingResource(Thesaurus thesaurus, ResourceHelper resourceHelper) {
         this.thesaurus = thesaurus;
-        this.deviceConfigurationService = deviceConfigurationService;
+        this.resourceHelper = resourceHelper;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
     public PagedInfoList getDeviceConfigConflictMappingsForDeviceType(@PathParam("deviceTypeId") long id, @QueryParam("all") boolean hasAll, @BeanParam JsonQueryParameters queryParameters) {
-        DeviceType deviceType = deviceConfigurationService.findDeviceType(id)
-                .orElseThrow(() -> new WebApplicationException("No device with id " + id, Response.Status.NOT_FOUND));
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<DeviceConfigConflictMappingInfo> deviceConfigConflictMappingInfos = DeviceConfigConflictMappingInfo.from(deviceType.getDeviceConfigConflictMappings(), thesaurus);
         return PagedInfoList.fromCompleteList("conflictMapping",
                 hasAll ? deviceConfigConflictMappingInfos : deviceConfigConflictMappingInfos.stream().filter(solve -> !solve.isSolved).collect(Collectors.toList()),
@@ -56,7 +54,7 @@ public class DeviceConfigConflictMappingResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
     public DeviceConfigSolutionMappingInfo getDeviceConfigConflictById(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("conflictId") long conflictId) {
-        return new DeviceConfigSolutionMappingInfo(getDeviceConfigConflictById(conflictId));
+        return new DeviceConfigSolutionMappingInfo(resourceHelper.findDeviceConfigConflictMappingById(conflictId));
     }
 
     @PUT
@@ -68,7 +66,7 @@ public class DeviceConfigConflictMappingResource {
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("conflictId") long conflictId,
             DeviceConfigSolutionMappingInfo deviceConfigConflictInfo) {
-        DeviceConfigConflictMapping deviceConfigConflictMapping = getDeviceConfigConflictById(conflictId);
+        DeviceConfigConflictMapping deviceConfigConflictMapping = resourceHelper.lockDeviceConfigConflictMappingOrThrowException(deviceConfigConflictInfo);
         deviceConfigConflictInfo.connectionMethodSolutions.forEach(deviceConfigConnectionMethodSolution -> {
             ConflictingConnectionMethodSolution from = deviceConfigConflictMapping.getConflictingConnectionMethodSolutions()
                     .stream()
@@ -104,10 +102,5 @@ public class DeviceConfigConflictMappingResource {
             }
         });
         return Response.ok().build();
-    }
-
-    private DeviceConfigConflictMapping getDeviceConfigConflictById(long id) {
-        return deviceConfigurationService.findDeviceConfigConflictMapping(id)
-                .orElseThrow(() -> new WebApplicationException("No device configuration conflict with id " + id, Response.Status.NOT_FOUND));
     }
 }

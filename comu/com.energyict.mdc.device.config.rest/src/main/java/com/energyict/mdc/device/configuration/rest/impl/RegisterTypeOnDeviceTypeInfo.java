@@ -3,6 +3,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.masterdata.ChannelType;
@@ -25,6 +26,8 @@ public class RegisterTypeOnDeviceTypeInfo {
     public ReadingTypeInfo readingType;
     public ReadingTypeInfo calculatedReadingType;
     public DeviceTypeCustomPropertySetInfo customPropertySet;
+    public long version;
+    public VersionInfo<Long> parent;
 
     public RegisterTypeOnDeviceTypeInfo() {
     }
@@ -46,6 +49,7 @@ public class RegisterTypeOnDeviceTypeInfo {
         if (measurementType.getUnit() != null) {
             this.unitOfMeasure = measurementType.getUnit().toString();
         }
+        this.version = measurementType.getVersion();
     }
 
     public RegisterTypeOnDeviceTypeInfo(MeasurementType measurementType,

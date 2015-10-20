@@ -1,12 +1,13 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.energyict.mdc.common.rest.IdWithNameInfo;
-import com.energyict.mdc.device.config.DeviceSecurityUserAction;
-import com.energyict.mdc.device.configuration.rest.SecurityPropertySetPrivilegeTranslationKeys;
-
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
+import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.energyict.mdc.device.config.DeviceSecurityUserAction;
+import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.configuration.rest.SecurityPropertySetPrivilegeTranslationKeys;
 
 import javax.inject.Inject;
 import java.util.Collection;
@@ -26,18 +27,23 @@ public class ExecutionLevelInfoFactory {
         this.thesaurus = thesaurus;
     }
 
-    public List<ExecutionLevelInfo> from(Collection<DeviceSecurityUserAction> userActions, List<Group> allGroups) {
-        return userActions.stream().
-                        map(userAction -> new ExecutionLevelInfo(
-                                userAction.getPrivilege(),
-                                SecurityPropertySetPrivilegeTranslationKeys.translationFor(userAction.getPrivilege(), thesaurus),
-                                allGroups.stream()
-                                        .filter(group -> group.hasPrivilege("MDC", userAction.getPrivilege()))
-                                        .sorted((group1, group2) -> group1.getName().compareToIgnoreCase(group2.getName()))
-                                        .map(group -> new IdWithNameInfo(group.getId(), group.getName()))
-                                        .collect(toList())))
-                        .sorted((l1, l2) -> l1.name.compareToIgnoreCase(l2.name))
-                        .collect(toList());
+    public List<ExecutionLevelInfo> from(Collection<DeviceSecurityUserAction> userActions, List<Group> allGroups, SecurityPropertySet securityPropertySet) {
+        return userActions.stream()
+                .map(userAction -> from(userAction, allGroups, securityPropertySet))
+                .sorted((l1, l2) -> l1.name.compareToIgnoreCase(l2.name))
+                .collect(toList());
     }
 
+    public ExecutionLevelInfo from(DeviceSecurityUserAction userAction, List<Group> allGroups, SecurityPropertySet securityPropertySet) {
+        ExecutionLevelInfo info = new ExecutionLevelInfo();
+        info.id = userAction.getPrivilege();
+        info.name = SecurityPropertySetPrivilegeTranslationKeys.translationFor(userAction.getPrivilege(), thesaurus);
+        info.userRoles = allGroups.stream()
+                .filter(group -> group.hasPrivilege("MDC", userAction.getPrivilege()))
+                .sorted((group1, group2) -> group1.getName().compareToIgnoreCase(group2.getName()))
+                .map(group -> new IdWithNameInfo(group.getId(), group.getName()))
+                .collect(toList());
+        info.parent = new VersionInfo<>(securityPropertySet.getId(), securityPropertySet.getVersion());
+        return info;
+    }
 }

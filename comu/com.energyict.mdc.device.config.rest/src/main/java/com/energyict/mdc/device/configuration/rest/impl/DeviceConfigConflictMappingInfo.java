@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.device.config.DeviceType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -17,6 +19,8 @@ public class DeviceConfigConflictMappingInfo {
     public String fromConfiguration;
     public String toConfiguration;
     public String solved;
+    public long version;
+    public VersionInfo<Long> parent;
 
     public DeviceConfigConflictMappingInfo() {
     }
@@ -29,6 +33,9 @@ public class DeviceConfigConflictMappingInfo {
         this.solved = deviceConfigConflictMapping.isSolved() ?
                 thesaurus.getString(MessageSeeds.HAS_SOLVED.getKey(), "Solved") :
                 thesaurus.getString(MessageSeeds.HAS_UNSOLVED.getKey(), "Unsolved");
+        this.version = deviceConfigConflictMapping.getVersion();
+        DeviceType deviceType = deviceConfigConflictMapping.getDeviceType();
+        this.parent = new VersionInfo<>(deviceType.getId(), deviceType.getVersion());
     }
 
     public static List<DeviceConfigConflictMappingInfo> from(List<DeviceConfigConflictMapping> deviceConfigConflictMappings, Thesaurus thesaurus) {

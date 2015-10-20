@@ -4,13 +4,11 @@ import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.security.Privileges;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.rest.util.KorePagedInfoList;
-import com.elster.jupiter.rest.util.ListPager;
-import com.elster.jupiter.rest.util.QueryParameters;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.util.collections.KPermutation;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.configuration.rest.EstimationRuleSetRefInfo;
 
 import javax.annotation.security.RolesAllowed;
@@ -49,16 +47,14 @@ public class EstimationRuleSetResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
-    public KorePagedInfoList getEstimationRuleSets(@PathParam("deviceTypeId") long deviceTypeId,
+    public PagedInfoList getEstimationRuleSets(
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @QueryParam("linkable") boolean includeOnlyLinkableEstimationRuleSets,
-            @BeanParam QueryParameters queryParameters) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+            @BeanParam JsonQueryParameters queryParameters) {
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         List<EstimationRuleSet> ruleSets = includeOnlyLinkableEstimationRuleSets ? getLinkableEstimationRuleSets(deviceConfiguration) : deviceConfiguration.getEstimationRuleSets();
-        List<EstimationRuleSet> pagedRuleSets = ListPager.of(ruleSets).from(queryParameters).find();
-        List<EstimationRuleSetRefInfo> infos = pagedRuleSets.stream().map(ruleSet -> new EstimationRuleSetRefInfo(ruleSet, deviceConfiguration)).collect(Collectors.toList());
-        return KorePagedInfoList.asJson("estimationRuleSets", infos, queryParameters);
+        List<EstimationRuleSetRefInfo> infos = ruleSets.stream().map(ruleSet -> new EstimationRuleSetRefInfo(ruleSet, deviceConfiguration)).collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("estimationRuleSets", infos, queryParameters);
     }
     
     @POST
@@ -68,21 +64,18 @@ public class EstimationRuleSetResource {
     public Response addEstimationRuleSetsToDeviceConfiguration(@PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @QueryParam("all") boolean includeAll, List<EstimationRuleSetRefInfo> ruleSets) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         if (includeAll) {
-            DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
             for (EstimationRuleSet ruleSet : getLinkableEstimationRuleSets(deviceConfiguration)) {
                 deviceConfiguration.addEstimationRuleSet(ruleSet);
             }
-            deviceConfiguration.save();
         } else if (!ruleSets.isEmpty()) {
-            DeviceConfiguration deviceConfiguration = deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(ruleSets.get(0).parent.id, ruleSets.get(0).parent.version).orElseThrow(() -> new WebApplicationException(Status.CONFLICT));
             for (EstimationRuleSetRefInfo info : ruleSets) {
-                EstimationRuleSet ruleSet = estimationService.getEstimationRuleSet(info.id).orElseThrow(() -> new WebApplicationException(Status.NOT_FOUND));
+                EstimationRuleSet ruleSet = resourceHelper.findEstimationRuleSetOrThrowException(info.id);
                 deviceConfiguration.addEstimationRuleSet(ruleSet);
             }
-            deviceConfiguration.save();
         }
+        deviceConfiguration.save();
         return Response.status(Status.CREATED).build();
     }
     
@@ -92,17 +85,13 @@ public class EstimationRuleSetResource {
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response deleteEstimationRuleSetFromDeviceConfiguration(
-            @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @PathParam("estimationRuleSetId") long estimationRuleSetId,
-            EstimationRuleSetRefInfo estimationRuleSetRefInfo) {
-        resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(deviceConfigurationId, estimationRuleSetRefInfo.parent.version)
-                .orElseThrow(() -> new WebApplicationException(Status.CONFLICT));
-        EstimationRuleSet estimationRuleSet = estimationService.getEstimationRuleSet(estimationRuleSetId)
-                .orElseThrow(() -> new WebApplicationException(Status.NOT_FOUND));
+            EstimationRuleSetRefInfo info) {
+        info.id = estimationRuleSetId;
+        EstimationRuleSet estimationRuleSet = resourceHelper.lockEstimationRuleSetOrThrowException(info);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         deviceConfiguration.removeEstimationRuleSet(estimationRuleSet);
-        deviceConfiguration.save();
         return Response.status(Status.NO_CONTENT).build();
     }
     
@@ -113,16 +102,14 @@ public class EstimationRuleSetResource {
     public Response reorderEstimationRuleSetOnDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
-            List<EstimationRuleSetRefInfo> estimationRuleSetRefInfos) {
-        resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        if (estimationRuleSetRefInfos.isEmpty()) {
+            EstimationRuleSetReorderInfo info) {
+        if (info.ruleSets == null || info.ruleSets.isEmpty()) {
             throw new WebApplicationException(Status.BAD_REQUEST);
         }
-        DeviceConfiguration deviceConfiguration = deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(deviceConfigurationId, estimationRuleSetRefInfos.get(0).parent.version)
-                .orElseThrow(() -> new WebApplicationException(Status.CONFLICT));
+        DeviceConfiguration deviceConfiguration = resourceHelper.lockDeviceConfigurationOrThrowException(info.parent);
 
         long[] current = deviceConfiguration.getEstimationRuleSets().stream().mapToLong(EstimationRuleSet::getId).toArray();
-        long[] target = estimationRuleSetRefInfos.stream().mapToLong(ruleSetRefInfo -> ruleSetRefInfo.id).toArray();
+        long[] target = info.ruleSets.stream().mapToLong(ruleSetRefInfo -> ruleSetRefInfo.id).toArray();
         KPermutation kPermutation = KPermutation.of(current, target);
         if (!kPermutation.isNeutral(deviceConfiguration.getEstimationRuleSets())) {
             deviceConfiguration.reorderEstimationRuleSets(kPermutation);

@@ -21,7 +21,10 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -38,7 +41,7 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
 
     @Before
     public void initBefore() {
-        when(firmwareService.findFirmwareManagementOptionsByDeviceType(any(DeviceType.class))).thenReturn(Optional.<FirmwareManagementOptions>empty());
+        when(firmwareService.findFirmwareManagementOptions(any(DeviceType.class))).thenReturn(Optional.<FirmwareManagementOptions>empty());
     }
 
     @Test
@@ -221,7 +224,7 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
     private DeviceType mockDeviceTypeWithConfigWhichAllowsFirmwareUpgrade() {
         DeviceType deviceType = mockSimpleDeviceTypeAndConfig();
         FirmwareManagementOptions firmwareUpgradeOption = mock(FirmwareManagementOptions.class);
-        when(firmwareService.findFirmwareManagementOptionsByDeviceType(deviceType)).thenReturn(Optional.of(firmwareUpgradeOption));
+        when(firmwareService.findFirmwareManagementOptions(deviceType)).thenReturn(Optional.of(firmwareUpgradeOption));
         return deviceType;
     }
 
@@ -230,6 +233,7 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration("config", 1, deviceType);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
         when(deviceConfigurationService.findDeviceType(1)).thenReturn(Optional.of(deviceType));
+
         return deviceType;
     }
 
@@ -259,6 +263,9 @@ public class ComTaskEnablementResourceTest extends DeviceConfigurationApplicatio
         when(deviceConfiguration.getName()).thenReturn(name);
         when(deviceConfiguration.getId()).thenReturn(id);
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
+
+        doReturn(Optional.of(deviceConfiguration)).when(deviceConfigurationService).findDeviceConfiguration(id);
+        doReturn(Optional.of(deviceConfiguration)).when(deviceConfigurationService).findAndLockDeviceConfigurationByIdAndVersion(eq(id), anyLong());
         return deviceConfiguration;
     }
 

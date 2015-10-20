@@ -22,8 +22,9 @@ import com.energyict.mdc.common.rest.PhaseAdapter;
 import com.energyict.mdc.common.rest.ReadingTypeUnitAdapter;
 import com.energyict.mdc.common.rest.TimeAttributeAdapter;
 import com.energyict.mdc.protocol.api.DeviceFunction;
-import javax.xml.bind.annotation.adapters.XmlAdapter;
 import org.junit.Test;
+
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

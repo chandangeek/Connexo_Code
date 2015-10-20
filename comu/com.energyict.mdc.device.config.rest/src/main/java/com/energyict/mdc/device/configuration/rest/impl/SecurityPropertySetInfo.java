@@ -1,9 +1,9 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.configuration.rest.SecurityLevelInfo;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
@@ -22,6 +22,8 @@ public class SecurityPropertySetInfo {
     public SecurityLevelInfo encryptionLevel;
 
     public List<ExecutionLevelInfo> executionLevels;
+    public long version;
+    public VersionInfo<Long> parent;
 
     public SecurityPropertySetInfo() {
     }

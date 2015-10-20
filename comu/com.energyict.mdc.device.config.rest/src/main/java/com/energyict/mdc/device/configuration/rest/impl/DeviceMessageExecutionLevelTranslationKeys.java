@@ -1,8 +1,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.energyict.mdc.device.config.DeviceMessageUserAction;
-
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.device.config.DeviceMessageUserAction;
 
 import java.util.stream.Stream;
 
