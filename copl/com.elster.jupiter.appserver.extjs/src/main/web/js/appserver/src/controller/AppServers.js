@@ -42,7 +42,6 @@ Ext.define('Apr.controller.AppServers', {
     appServer: null,
     exportPath: null,
     importPath: null,
-    comingFromOverview: false,
 
     init: function () {
         this.control({
@@ -90,7 +89,6 @@ Ext.define('Apr.controller.AppServers', {
         me.appServer = null;
         me.exportPath = null;
         me.importPath = null;
-        me.comingFromOverview = false;
 
         store.on('load', function () {
             exportPathsStore.load(function (records) {
@@ -143,7 +141,6 @@ Ext.define('Apr.controller.AppServers', {
                 appServerName: appServerName
             });
 
-        me.comingFromOverview = true;
         me.getModel('Apr.model.AppServer').load(appServerName, {
             success: function (record) {
                 me.appServer = record;
@@ -200,12 +197,14 @@ Ext.define('Apr.controller.AppServers', {
 
         switch (item.action) {
             case 'editAppServer':
+                router.setState(router.getRoute()); // store the current url
                 route = 'administration/appservers/edit';
                 break;
             case 'removeAppServer':
                 me.removeAppServer(menu.record);
                 break;
             case 'activateAppServer':
+                router.setState(router.getRoute()); // store the current url
                 me.activateAppServer(menu.record);
                 break;
         }
@@ -216,6 +215,7 @@ Ext.define('Apr.controller.AppServers', {
 
     activateAppServer: function (record) {
         var me = this,
+            router = me.getController('Uni.controller.history.Router'),
             suspended = record.data.active;
 
         var action = ((suspended == true) ? 'deactivate' : 'activate');
@@ -224,10 +224,11 @@ Ext.define('Apr.controller.AppServers', {
             url: '/api/apr/appserver/' + record.data.name + '/' + action,
             method: 'PUT',
             success: function () {
-                var messageKey = ((suspended == true) ? 'appServers.deactivateSuccessMsg' : 'appServers.activateSuccessMsg');
-                var messageText = ((suspended == true) ? 'Application server deactivated' : 'Application server activated');
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate(messageKey, 'APR', messageText));
-                me.showAppServers();
+                var messageText = suspended
+                    ? Uni.I18n.translate('appServers.deactivateSuccessMsg', 'APR', 'Application server deactivated')
+                    : Uni.I18n.translate('appServers.activateSuccessMsg', 'APR', 'Application server activated');
+                me.getApplication().fireEvent('acknowledge', messageText);
+                router.getState().forward(); // navigate to the previously stored url
             },
             failure: function (response, request) {
                 if (response.status == 400) {
@@ -243,11 +244,11 @@ Ext.define('Apr.controller.AppServers', {
                         }
                     }
 
-                    var titleKey = ((suspended == true) ? 'appServers.deactivate.operation.failed' : 'appServers.activate.operation.failed'),
-                        titleValue = ((suspended == true) ? 'Deactivate operation failed' : 'Activate operation failed');
+                    var titleText = suspended
+                        ? Uni.I18n.translate('appServers.deactivate.operation.failed', 'APR', 'Deactivate operation failed')
+                        : Uni.I18n.translate('appServers.activate.operation.failed', 'APR', 'Activate operation failed');
 
-
-                    me.getApplication().getController('Uni.controller.Error').showError(Uni.I18n.translate(titleKey, 'APR', titleValue), errorText);
+                    me.getApplication().getController('Uni.controller.Error').showError(titleText, errorText);
                 }
             }
         });
@@ -287,6 +288,7 @@ Ext.define('Apr.controller.AppServers', {
 
     showAddEditAppServer: function (appServerName) {
         var me = this,
+            router = me.getController('Uni.controller.history.Router'),
             view,
             servedMessageServicesStore = me.getStore('Apr.store.ServedMessageServices'),
             servedImportStore = me.getStore('Apr.store.ServedImportServices'),
@@ -311,7 +313,8 @@ Ext.define('Apr.controller.AppServers', {
                                     view = Ext.widget('appservers-add', {
                                         edit: edit,
                                         store: servedMessageServicesStore,
-                                        importStore: servedImportStore
+                                        importStore: servedImportStore,
+                                        returnLink: router.getState().buildUrl() // = the previously stored url
                                     });
                                     me.getApplication().fireEvent('changecontentevent', view);
                                     view.down('#add-appserver-form').setTitle(Uni.I18n.translate('general.editx', 'APR', "Edit '{0}'",[appServerName]));
