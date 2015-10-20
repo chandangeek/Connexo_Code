@@ -11,7 +11,9 @@ Ext.define('Uni.controller.Error', {
         'Uni.view.error.Window',
         'Ext.ux.window.Notification',
         'Uni.view.error.NotFound',
-        'Uni.view.error.Launch'
+        'Uni.view.error.Launch',
+        'Uni.controller.history.Router',
+        'Uni.controller.history.EventBus'
     ],
 
     config: {
@@ -74,7 +76,8 @@ Ext.define('Uni.controller.Error', {
     },
 
     handleRequestError: function (conn, response, options) {
-        var title = Uni.I18n.translate('error.requestFailed', 'UNI', 'Request failed'),
+        var me = this,
+            title = Uni.I18n.translate('error.requestFailed', 'UNI', 'Request failed'),
             message = response.responseText || response.statusText,
             decoded = Ext.decode(message, true);
 
@@ -132,7 +135,7 @@ Ext.define('Uni.controller.Error', {
                         'UNI',
                         'Request failed'
                     );
-                    this.showError(title, message);
+                    me.showError(title, message);
                 }
                 break;
             case 500: // Internal server error.
@@ -146,7 +149,7 @@ Ext.define('Uni.controller.Error', {
                     'UNI',
                     'Please contact your system administrator.'
                 );
-                this.showError(title, message);
+                me.showError(title, message);
                 break;
             case 404: // Not found.
                 title = Uni.I18n.translate(
@@ -159,10 +162,10 @@ Ext.define('Uni.controller.Error', {
                     'UNI',
                     'Please contact your system administrator.'
                 );
-                options.method !== 'HEAD' && this.showError(title, message);
+                options.method !== 'HEAD' && me.showError(title, message);
                 break;
             case 401: // Unauthorized.
-                this.getApplication().fireEvent('sessionexpired');
+                me.getApplication().fireEvent('sessionexpired');
                 break;
             case 403: // Forbidden.
                 title = Uni.I18n.translate(
@@ -175,11 +178,116 @@ Ext.define('Uni.controller.Error', {
                     'UNI',
                     'Please contact your system administrator.'
                 );
+                break;
+            case 409:
+                me.concurrentErrorHandler(options, decoded);
+                break;
             case 418: // I'm a teapot.
             // Fallthrough.
             default:
-                this.showError(title, message);
+                me.showError(title, message);
                 break;
+        }
+    },
+
+    concurrentErrorHandler: function (requestOptions, responseText) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            title = Ext.htmlEncode(responseText.message),
+            message = responseText.error,
+            buttons,
+            repeatRequest = function () {
+                requestOptions.jsonData.version = responseText.version;
+                requestOptions.jsonData.parent = responseText.parent;
+                Ext.Ajax.request(requestOptions);
+            },
+            refreshPage = function () {
+                router.getRoute().forward(router.arguments, router.queryParams);
+            };
+
+        if (requestOptions.isNotEdit || (requestOptions.operation && requestOptions.operation.isNotEdit)) {
+            buttons = [
+                {
+                    xtype: 'button',
+                    text: Uni.I18n.translate('general.refresh', 'UNI', 'Refresh'),
+                    itemId: 'refresh-button',
+                    ui: 'remove',
+                    handler: function (button) {
+                        refreshPage();
+                        button.up('messagebox').close();
+                    }
+                }
+            ];
+            me.showError(title, message, undefined, buttons, 'concurrent-use-error-msg');
+        } else {
+            if (requestOptions.method === 'PUT' || requestOptions.method === 'POST') {
+                buttons = [
+                    {
+                        xtype: 'button',
+                        text: Uni.I18n.translate('general.tryAgain', 'UNI', 'Try again'),
+                        itemId: 'try-again-button',
+                        ui: 'remove',
+                        handler: function (button) {
+                            if (!Ext.isEmpty(responseText.version)) {
+                                refreshPage();
+                            } else {
+                                me.showPageNotFound();
+                            }
+                            button.up('messagebox').close();
+                        }
+                    },
+                    {
+                        xtype: 'button',
+                        text: Uni.I18n.translate('general.cancel', 'UNI', 'Cancel'),
+                        ui: 'link',
+                        itemId: 'concurrent-cancel',
+                        handler: function (button) {
+                            if (requestOptions.backUrl || requestOptions.operation && requestOptions.operation.backUrl) {
+                                window.location.href = requestOptions.backUrl || requestOptions.operation.backUrl;
+                            }
+                            button.up('messagebox').close();
+                        }
+                    }
+                ];
+                me.showError(title, message, undefined, buttons, 'concurrent-use-error-msg');
+            } else if (requestOptions.method === 'DELETE') {
+                if (!Ext.isEmpty(responseText.version)) {
+                    buttons = [
+                        {
+                            xtype: 'button',
+                            text: Uni.I18n.translate('general.tryAgain', 'UNI', 'Try again'),
+                            itemId: 'try-again-button',
+                            ui: 'remove',
+                            handler: function (button) {
+                                repeatRequest();
+                                button.up('messagebox').close();
+                            }
+                        },
+                        {
+                            xtype: 'button',
+                            text: Uni.I18n.translate('general.cancel', 'UNI', 'Cancel'),
+                            itemId: 'concurrent-cancel',
+                            ui: 'link',
+                            handler: function (button) {
+                                refreshPage();
+                                button.up('messagebox').close();
+                            }
+                        }
+                    ];
+                    me.showError(title, message, undefined, buttons, 'concurrent-use-error-msg');
+                } else {
+                    if (requestOptions.operation && Ext.isFunction(requestOptions.operation.callback)) {
+                        requestOptions.operation.callback.call();
+                    } else if (!requestOptions.operation && Ext.isFunction(requestOptions.callback)) {
+                        requestOptions.callback.call();
+                    }
+                    if (requestOptions.operation && Ext.isFunction(requestOptions.operation.success)) {
+                        requestOptions.operation.success.call();
+                    } else if (!requestOptions.operation && Ext.isFunction(requestOptions.success)) {
+                        requestOptions.success.call();
+                    }
+                }
+            }
         }
     },
 
@@ -190,7 +298,7 @@ Ext.define('Uni.controller.Error', {
      * @param {String} message Error message to show
      * @param {String} [config={}] Optional {@link Ext.window.MessageBox} configuration if tweaks are required
      */
-    showError: function (title, message, config) {
+    showError: function (title, message, config, buttons, itemId) {
         config = config ? config : {};
         Ext.apply(config, {
             title: title,
@@ -202,7 +310,8 @@ Ext.define('Uni.controller.Error', {
         });
 
         var box = Ext.create('Ext.window.MessageBox', {
-            buttons: [
+            itemId: itemId,
+            buttons: buttons || [
                 {
                     xtype: 'button',
                     text: Uni.I18n.translate('general.close', 'UNI', 'Close'),
