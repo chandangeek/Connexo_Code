@@ -22,6 +22,7 @@ import org.mockito.stubbing.Answer;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -95,7 +96,7 @@ public class AppServerResourceTest extends AppServerApplicationTest {
         when(cronExpressionParser.parse(any(String.class))).thenReturn(Optional.of(cronExpression));
         when(appService.createAppServer(eq("NEW-APP-SERVER"), eq(cronExpression))).thenReturn(newAppServer);
 
-        AppServerInfo info = new AppServerInfo(newAppServer, thesaurus);
+        AppServerInfo info = new AppServerInfo(newAppServer, null, null, thesaurus);
         Entity<AppServerInfo> json = Entity.json(info);
 
         Response response = target("/appserver").request().post(json);
@@ -105,7 +106,7 @@ public class AppServerResourceTest extends AppServerApplicationTest {
     @Test
     public void testUpdateAppServer() {
         AppServer appServer = mockAppServer();
-        AppServerInfo info = new AppServerInfo(appServer, thesaurus);
+        AppServerInfo info = new AppServerInfo(appServer, null, null, thesaurus);
         ImportScheduleInfo updateImportInfo = new ImportScheduleInfo();
         updateImportInfo.id = 2;
         updateImportInfo.name = "UPDATE-IMPORT";
@@ -235,6 +236,8 @@ public class AppServerResourceTest extends AppServerApplicationTest {
         when(appService.getAppServerQuery()).thenReturn(query);
         when(restQueryService.wrap(query)).thenReturn(restQuery);
         when(restQuery.select(any(QueryParameters.class), any(Order.class))).thenReturn(Arrays.asList(appServer));
+        when(appServer.getImportDirectory()).thenReturn(Optional.<Path>empty());
+        when(dataExportService.getExportDirectory(appServer)).thenReturn(Optional.<Path>empty());
 
         return appServer;
     }

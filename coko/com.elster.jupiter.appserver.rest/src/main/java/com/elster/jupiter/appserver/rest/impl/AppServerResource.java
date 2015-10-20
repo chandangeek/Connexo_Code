@@ -6,6 +6,7 @@ import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.appserver.security.Privileges;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.MessageService;
@@ -37,10 +38,13 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.nio.file.FileSystem;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Path("/appserver")
@@ -54,8 +58,11 @@ public class AppServerResource {
     private final TransactionService transactionService;
     private final CronExpressionParser cronExpressionParser;
 
+    private final DataExportService dataExportService;
+    private final FileSystem fileSystem;
+
     @Inject
-    public AppServerResource(RestQueryService queryService, AppService appService, MessageService messageService, FileImportService fileImportService, TransactionService transactionService, CronExpressionParser cronExpressionParser, Thesaurus thesaurus) {
+    public AppServerResource(RestQueryService queryService, AppService appService, MessageService messageService, FileImportService fileImportService, TransactionService transactionService, CronExpressionParser cronExpressionParser, Thesaurus thesaurus, DataExportService dataExportService, FileSystem fileSystem) {
         this.queryService = queryService;
         this.appService = appService;
         this.messageService = messageService;
@@ -63,25 +70,39 @@ public class AppServerResource {
         this.transactionService = transactionService;
         this.cronExpressionParser = cronExpressionParser;
         this.thesaurus = thesaurus;
+        this.dataExportService = dataExportService;
+        this.fileSystem = fileSystem;
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_APPSEVER, Privileges.ADMINISTRATE_APPSEVER})
     public AppServerInfos getAppservers(@Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<AppServer> appServers = queryAppServers(params);
-        AppServerInfos infos = new AppServerInfos(params.clipToLimit(appServers), thesaurus);
+        AppServerInfos infos = new AppServerInfos();
+
+        infos.appServers = appServers.stream()
+                .map(appServer -> {
+                    String exportDir = dataExportService.getExportDirectory(appServer).map(Object::toString).orElse(null);
+                    String importDir = appServer.getImportDirectory().map(Object::toString).orElse(null);
+                    return AppServerInfo.of(appServer, importDir, exportDir, thesaurus);
+                })
+                .collect(Collectors.toCollection(ArrayList::new));
+
         infos.total = params.determineTotal(appServers.size());
         return infos;
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{appserverName}")
     @RolesAllowed({Privileges.VIEW_APPSEVER, Privileges.ADMINISTRATE_APPSEVER})
     public AppServerInfo getAppServer(@PathParam("appserverName") String appServerName) {
-        return AppServerInfo.of(fetchAppServer(appServerName), thesaurus);
+        AppServer appServer = fetchAppServer(appServerName);
+        String importPath = appServer.getImportDirectory().map(Object::toString).orElse(null);
+        String exportPath = dataExportService.getExportDirectory(appServer).map(Object::toString).orElse(null);
+        return AppServerInfo.of(appServer, importPath, exportPath, thesaurus);
     }
 
     private AppServer fetchAppServer(String appServerName) {
@@ -89,12 +110,12 @@ public class AppServerResource {
     }
 
     @POST
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.ADMINISTRATE_APPSEVER})
     public Response addAppServer(AppServerInfo info) {
         AppServer appServer = null;
-        try(TransactionContext context = transactionService.getContext()) {
+        try (TransactionContext context = transactionService.getContext()) {
             AppServer underConstruction = appService.createAppServer(info.name, cronExpressionParser.parse("0 0 * * * ? *").get());
             try (AppServer.BatchUpdate batchUpdate = underConstruction.forBatchUpdate()) {
                 if (info.executionSpecs != null) {
@@ -110,7 +131,6 @@ public class AppServerResource {
                             .map(fileImportService::getImportSchedule)
                             .flatMap(Functions.asStream())
                             .forEach(batchUpdate::addImportScheduleOnAppServer);
-
                 }
                 if (info.active) {
                     batchUpdate.activate();
@@ -119,32 +139,52 @@ public class AppServerResource {
                 }
             }
             appServer = underConstruction;
+            if (info.exportDirectory != null) {
+                dataExportService.setExportDirectory(appServer, fileSystem.getPath(info.exportDirectory));
+            }
+            if (info.importDirectory != null) {
+                appServer.setImportDirectory(fileSystem.getPath(info.importDirectory));
+            }
             context.commit();
         }
-        return Response.status(Response.Status.CREATED).entity(AppServerInfo.of(appServer, thesaurus)).build();
+        return Response.status(Response.Status.CREATED).entity(AppServerInfo.of(appServer, info.importDirectory, info.exportDirectory, thesaurus)).build();
     }
 
     @PUT
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{appserverName}")
     @RolesAllowed({Privileges.ADMINISTRATE_APPSEVER})
     public Response updateAppServer(@PathParam("appserverName") String appServerName, AppServerInfo info) {
         AppServer appServer = fetchAppServer(appServerName);
-        try(TransactionContext context = transactionService.getContext()) {
+        try (TransactionContext context = transactionService.getContext()) {
             doUpdateAppServer(info, appServer);
+
+            String currentExportDir = dataExportService.getExportDirectory(appServer)
+                    .map(Object::toString)
+                    .orElse(null);
+            if (!Objects.equals(currentExportDir, info.exportDirectory)) {
+                dataExportService.setExportDirectory(appServer, fileSystem.getPath(info.exportDirectory));
+            }
+            String currentImportDir = appServer.getImportDirectory()
+                    .map(Object::toString)
+                    .orElse(null);
+            if (!Objects.equals(currentImportDir, info.importDirectory)) {
+                appServer.setImportDirectory(fileSystem.getPath(info.importDirectory));
+            }
+
             context.commit();
         }
-        return Response.status(Response.Status.CREATED).entity(AppServerInfo.of(appServer, thesaurus)).build();
+        return Response.status(Response.Status.CREATED).entity(AppServerInfo.of(appServer, info.importDirectory, info.exportDirectory, thesaurus)).build();
     }
 
     @DELETE
     @Path("/{appserverName}/")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_APPSEVER})
     public Response removeAppServer(@PathParam("appserverName") String appServerName) {
         AppServer appServer = fetchAppServer(appServerName);
-        try(TransactionContext context = transactionService.getContext()) {
+        try (TransactionContext context = transactionService.getContext()) {
             appServer.delete();
             context.commit();
         }
@@ -154,12 +194,12 @@ public class AppServerResource {
     @PUT
     @Path("/{appserverName}/activate")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_APPSEVER})
     public Response activateAppServer(@PathParam("appserverName") String appServerName) {
         AppServer appServer = fetchAppServer(appServerName);
         if (!appServer.isActive()) {
-            try(TransactionContext context = transactionService.getContext()) {
+            try (TransactionContext context = transactionService.getContext()) {
                 appServer.activate();
                 context.commit();
             }
@@ -170,7 +210,7 @@ public class AppServerResource {
     @PUT
     @Path("/{appserverName}/deactivate")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_APPSEVER})
     public Response deactivateAppServer(@PathParam("appserverName") String appServerName) {
         AppServer appServer = fetchAppServer(appServerName);
@@ -256,7 +296,7 @@ public class AppServerResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{appserverName}/unserved")
     @RolesAllowed({Privileges.VIEW_APPSEVER, Privileges.ADMINISTRATE_APPSEVER})
     public SubscriberSpecInfos getSubscribers(@PathParam("appserverName") String appServerName) {
@@ -268,9 +308,9 @@ public class AppServerResource {
                 .collect(Collectors.toList());
         List<SubscriberSpec> subscribers = messageService.getNonSystemManagedSubscribers().stream()
                 .filter(sub -> served.stream()
-                        .filter(s -> sub.getName().equals(s.getName()))
-                        .map(SubscriberSpec::getDestination)
-                        .noneMatch(d -> sub.getDestination().getName().equals(d.getName()))
+                                .filter(s -> sub.getName().equals(s.getName()))
+                                .map(SubscriberSpec::getDestination)
+                                .noneMatch(d -> sub.getDestination().getName().equals(d.getName()))
                 )
                 .collect(Collectors.toList());
         SubscriberSpecInfos subscriberSpecInfos = new SubscriberSpecInfos(subscribers, thesaurus);
@@ -284,7 +324,7 @@ public class AppServerResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{appserverName}/servedimport")
     @RolesAllowed({Privileges.VIEW_APPSEVER, Privileges.ADMINISTRATE_APPSEVER})
     public ImportScheduleInfos getServedImportSchedules(@PathParam("appserverName") String appServerName) {
@@ -301,7 +341,7 @@ public class AppServerResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{appserverName}/unservedimport")
     @RolesAllowed({Privileges.VIEW_APPSEVER, Privileges.ADMINISTRATE_APPSEVER})
     public ImportScheduleInfos getUnservedImportSchedules(@PathParam("appserverName") String appServerName) {
@@ -339,7 +379,6 @@ public class AppServerResource {
                 .flatMap(Functions.asStream())
                 .collect(Collectors.toList());
     }
-
 
 
 }

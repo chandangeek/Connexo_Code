@@ -1,30 +1,26 @@
 package com.elster.jupiter.appserver.rest.impl;
 
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.google.common.collect.ImmutableSet;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
+import javax.ws.rs.core.Application;
 import java.nio.file.FileSystem;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import javax.ws.rs.core.Application;
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
 
 @Component(
         name = "com.elster.jupiter.appserver.rest",
@@ -41,6 +37,7 @@ public class AppServerApplication extends Application {
     private volatile FileImportService fileImportService;
     private volatile CronExpressionParser cronExpressionParser;
     private volatile FileSystem fileSystem;
+    private volatile DataExportService dataExportService;
 
     private NlsService nlsService;
     private volatile Thesaurus thesaurus;
@@ -50,6 +47,7 @@ public class AppServerApplication extends Application {
                 AppServerResource.class,
                 ImportDirectoryResource.class);
     }
+
     @Reference
     public void setAppService(AppService appService) {
         this.appService = appService;
@@ -79,6 +77,7 @@ public class AppServerApplication extends Application {
     public void setCronExpressionParser(CronExpressionParser cronExpressionParser) {
         this.cronExpressionParser = cronExpressionParser;
     }
+
     @Reference
     public void setFileSystem(FileSystem fileSystem) {
         this.fileSystem = fileSystem;
@@ -90,6 +89,11 @@ public class AppServerApplication extends Application {
         Thesaurus domainThesaurus = nlsService.getThesaurus(AppService.COMPONENT_NAME, Layer.DOMAIN);
         Thesaurus restThesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
         this.thesaurus = domainThesaurus.join(restThesaurus);
+    }
+
+    @Reference
+    public void setDataExportService(DataExportService dataExportService) {
+        this.dataExportService = dataExportService;
     }
 
     @Override
@@ -109,6 +113,7 @@ public class AppServerApplication extends Application {
                 bind(thesaurus).to(Thesaurus.class);
                 bind(fileImportService).to(FileImportService.class);
                 bind(fileSystem).to(FileSystem.class);
+                bind(dataExportService).to(DataExportService.class);
             }
         });
         return Collections.unmodifiableSet(hashSet);
