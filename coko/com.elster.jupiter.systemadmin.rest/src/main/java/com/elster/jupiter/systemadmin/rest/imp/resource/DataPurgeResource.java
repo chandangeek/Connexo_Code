@@ -5,6 +5,7 @@ import com.elster.jupiter.data.lifecycle.LifeCycleCategoryKind;
 import com.elster.jupiter.data.lifecycle.LifeCycleService;
 import com.elster.jupiter.data.lifecycle.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.systemadmin.rest.imp.response.LifeCycleCategoryInfo;
 import com.elster.jupiter.systemadmin.rest.imp.response.ListInfo;
@@ -32,7 +33,6 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -40,32 +40,23 @@ import java.util.stream.Collectors;
 @Path("/data")
 public class DataPurgeResource {
 
-    private LifeCycleService lifeCycleService;
-    private TaskService taskService;
-    private TransactionService transactionService;
-    private Thesaurus thesaurus;
-
-    public DataPurgeResource() {
-    }
+    private final LifeCycleService lifeCycleService;
+    private final TaskService taskService;
+    private final TransactionService transactionService;
+    private final Thesaurus thesaurus;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public void setLifeCycleService(LifeCycleService lifeCycleService) {
+    public DataPurgeResource(LifeCycleService lifeCycleService,
+                             TaskService taskService,
+                             TransactionService transactionService,
+                             Thesaurus thesaurus,
+                             ConcurrentModificationExceptionFactory conflictFactory) {
         this.lifeCycleService = lifeCycleService;
-    }
-
-    @Inject
-    public void setTaskService(TaskService taskService) {
         this.taskService = taskService;
-    }
-
-    @Inject
-    public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
-    }
-
-    @Inject
-    public void setThesaurus(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
+        this.conflictFactory = conflictFactory;
     }
 
     @GET
@@ -82,12 +73,8 @@ public class DataPurgeResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response updateLifeCycleCategories(ListInfo<LifeCycleCategoryInfo> updatedCategories) {
         if (updatedCategories != null) {
-            Map<LifeCycleCategoryKind, LifeCycleCategoryInfo> categoriesMap = updatedCategories.data.stream()
-                    .collect(Collectors.toMap(info -> LifeCycleCategoryKind.valueOf(info.kind), Function.identity()));
             try (TransactionContext context = transactionService.getContext()) {
-                lifeCycleService.getCategories().stream()
-                        .filter(c -> categoriesMap.keySet().contains(c.getKind()))
-                        .forEach(c -> c.setRetentionDays(categoriesMap.get(c.getKind()).retention));
+                updatedCategories.data.stream().forEach(info -> findAndLockLifeCycleCategory(info).setRetentionDays(info.retention));
                 context.commit();
             }
         }
@@ -99,14 +86,11 @@ public class DataPurgeResource {
     @RolesAllowed(Privileges.ADMINISTRATE_DATA_PURGE)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response updateLifeCycleCategory(LifeCycleCategoryInfo updatedCategory) {
-        try (TransactionContext context = transactionService.getContext()) {
-            if (updatedCategory != null) {
-                lifeCycleService.getCategories().stream()
-                        .filter(category -> category.getKind().name().equalsIgnoreCase(updatedCategory.kind))
-                        .findFirst()
-                        .ifPresent(category -> category.setRetentionDays(updatedCategory.retention));
+        if (updatedCategory != null) {
+            try (TransactionContext context = transactionService.getContext()) {
+                findAndLockLifeCycleCategory(updatedCategory).setRetentionDays(updatedCategory.retention);
+                context.commit();
             }
-            context.commit();
         }
         return Response.ok(ListInfo.from(lifeCycleService.getCategories(), getCategoryInfoMapper())).build();
     }
@@ -136,7 +120,7 @@ public class DataPurgeResource {
     @RolesAllowed({Privileges.ADMINISTRATE_DATA_PURGE, Privileges.VIEW_DATA_PURGE})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getPurgeHistoryRecord(@PathParam("id") long id) {
-        TaskOccurrence occurrence = getTaskOccurenceOrThrowException(id);
+        TaskOccurrence occurrence = getTaskOccurrenceOrThrowException(id);
         return Response.ok(new PurgeHistoryInfo(occurrence)).build();
     }
 
@@ -145,7 +129,7 @@ public class DataPurgeResource {
     @RolesAllowed({Privileges.ADMINISTRATE_DATA_PURGE, Privileges.VIEW_DATA_PURGE})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getPurgeHistory(@PathParam("id") long id) {
-        Instant triggerTime = getTaskOccurenceOrThrowException(id).getTriggerTime();
+        Instant triggerTime = getTaskOccurrenceOrThrowException(id).getTriggerTime();
         return Response.ok(ListInfo.from(lifeCycleService.getCategoriesAsOf(triggerTime), getCategoryInfoMapper())).build();
     }
 
@@ -155,12 +139,12 @@ public class DataPurgeResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getPurgeLogForOccurence(@PathParam("id") long id, @Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        TaskOccurrence occurrence = getTaskOccurenceOrThrowException(id);
+        TaskOccurrence occurrence = getTaskOccurrenceOrThrowException(id);
         List<? extends LogEntry> logEntries = occurrence.getLogsFinder().setStart(queryParameters.getStartInt()).setLimit(queryParameters.getLimit()).find();
         return Response.ok(ListInfo.from(logEntries, PurgeHistoryLogInfo::new).paged(queryParameters)).build();
     }
 
-    private TaskOccurrence getTaskOccurenceOrThrowException(long id) {
+    private TaskOccurrence getTaskOccurrenceOrThrowException(long id) {
         Optional<TaskOccurrence> occurrenceRef = taskService.getOccurrence(id);
         if (!occurrenceRef.isPresent()) {
             throw new EntityNotFound(thesaurus, MessageSeeds.PURGE_HISTORY_DOES_NOT_EXIST, id);
@@ -170,5 +154,16 @@ public class DataPurgeResource {
 
     private Function<LifeCycleCategory, LifeCycleCategoryInfo> getCategoryInfoMapper(){
         return c -> new LifeCycleCategoryInfo(c, thesaurus);
+    }
+
+    private LifeCycleCategory findAndLockLifeCycleCategory(LifeCycleCategoryInfo info) {
+        return this.lifeCycleService.findAndLockCategoryByKeyAndVersion(LifeCycleCategoryKind.valueOf(info.kind), info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> lifeCycleService.getCategories()
+                                .stream()
+                                .filter(category -> category.getKind().name().equalsIgnoreCase(info.kind))
+                                .findFirst()
+                                .map(LifeCycleCategory::getVersion).orElse(null))
+                        .supplier());
     }
 }
