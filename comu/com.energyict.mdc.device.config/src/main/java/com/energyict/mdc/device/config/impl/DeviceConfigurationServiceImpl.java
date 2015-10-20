@@ -228,13 +228,28 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
+    public Optional<DeviceConfigConflictMapping> findAndLockDeviceConfigConflictMappingByIdAndVersion(long id, long version) {
+        return this.getDataModel().mapper(DeviceConfigConflictMapping.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public Optional<ChannelSpec> findChannelSpec(long channelSpecId) {
         return this.getDataModel().mapper((ChannelSpec.class)).getUnique("id", channelSpecId);
     }
 
     @Override
+    public Optional<ChannelSpec> findAndLockChannelSpecByIdAndVersion(long id, long version) {
+        return this.getDataModel().mapper(ChannelSpec.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public Optional<RegisterSpec> findRegisterSpec(long id) {
         return this.getDataModel().mapper((RegisterSpec.class)).getUnique("id", id);
+    }
+
+    @Override
+    public Optional<RegisterSpec> findAndLockRegisterSpecByIdAndVersion(long id, long version) {
+        return this.getDataModel().mapper((RegisterSpec.class)).lockObjectIfVersion(version, id);
     }
 
     @Override
@@ -274,6 +289,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
+    public Optional<LoadProfileSpec> findAndLockLoadProfileSpecByIdAndVersion(long id, long version) {
+        return this.getDataModel().mapper(LoadProfileSpec.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public Optional<LoadProfileSpec> findLoadProfileSpecByDeviceConfigAndLoadProfileType(DeviceConfiguration deviceConfig, LoadProfileType loadProfileType) {
         return this.getDataModel().mapper(LoadProfileSpec.class).getUnique("deviceConfiguration", deviceConfig, "loadProfileType", loadProfileType);
     }
@@ -286,6 +306,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public Optional<LogBookSpec> findLogBookSpec(long logBookSpecId) {
         return this.getDataModel().mapper(LogBookSpec.class).getUnique("id", logBookSpecId);
+    }
+
+    @Override
+    public Optional<LogBookSpec> findAndLockLogBookSpecByIdAndVersion(long id, long version) {
+        return this.getDataModel().mapper(LogBookSpec.class).lockObjectIfVersion(version, id);
     }
 
     @Override
@@ -390,6 +415,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
+    public Optional<PartialConnectionTask> findAndLockPartialConnectionTaskByIdAndVersion(long id, long version) {
+        return dataModel.mapper(PartialConnectionTask.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public List<PartialConnectionTask> findByConnectionTypePluggableClass(ConnectionTypePluggableClass connectionTypePluggableClass) {
         return dataModel.query(PartialConnectionTask.class).select(where("pluggableClass").isEqualTo(connectionTypePluggableClass));
     }
@@ -405,8 +435,18 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     }
 
     @Override
+    public Optional<ProtocolDialectConfigurationProperties> findAndLockProtocolDialectConfigurationPropertiesByIdAndVersion(long id, long version) {
+        return dataModel.mapper(ProtocolDialectConfigurationProperties.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public Optional<ComTaskEnablement> findComTaskEnablement(long id) {
         return dataModel.mapper(ComTaskEnablement.class).getUnique("id", id);
+    }
+
+    @Override
+    public Optional<ComTaskEnablement> findAndLockComTaskEnablementByIdAndVersion(long id, long version) {
+        return dataModel.mapper(ComTaskEnablement.class).lockObjectIfVersion(version, id);
     }
 
     @Reference
@@ -590,6 +630,11 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public Optional<SecurityPropertySet> findSecurityPropertySet(long id) {
         return dataModel.mapper(SecurityPropertySet.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<SecurityPropertySet> findAndLockSecurityPropertySetByIdAndVersion(long id, long version) {
+        return dataModel.mapper(SecurityPropertySet.class).lockObjectIfVersion(version, id);
     }
 
     @Override

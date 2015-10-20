@@ -665,6 +665,7 @@ public enum TableSpecs {
             Column originDeviceConfig = table.column("ORIGINDEVCONFIG").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
             Column destinationDeviceConfig = table.column("DESTINATIONDEVCONFIG").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("SOLVED").type("char(1)").notNull().map(DeviceConfigConflictMappingImpl.Fields.SOLVED.fieldName()).conversion(ColumnConversion.CHAR2BOOLEAN).add();
+            table.addAuditColumns();
             table.primaryKey("PK_DTC_CONFLMAP").on(id).add();
             table.foreignKey("FK_DTC_CONFLMAPDEVTYPE")
                     .references(DTC_DEVICETYPE.name())

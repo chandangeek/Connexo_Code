@@ -88,4 +88,6 @@ public interface RegisterSpec extends HasId {
     public List<ValidationRule> getValidationRules();
 
     ReadingType getReadingType();
+
+    long getVersion();
 }

@@ -177,13 +177,24 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
     }
 
     @Override
+    public long getVersion() {
+        return this.version;
+    }
+
+    @Override
     public void addChannelSpec(ChannelSpec channelSpec) {
         this.channelSpecs.add(channelSpec);
+        if (getId() > 0) {
+            getDataModel().touch(this);
+        }
     }
 
     @Override
     public void removeChannelSpec(ChannelSpec channelSpec) {
         removeFromHasIdList(channelSpecs, channelSpec);
+        if (getId() > 0) {
+            getDataModel().touch(this);
+        }
     }
 
     @Override

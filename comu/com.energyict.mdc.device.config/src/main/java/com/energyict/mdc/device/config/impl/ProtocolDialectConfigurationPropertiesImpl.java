@@ -156,6 +156,11 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
     }
 
     @Override
+    public long getVersion() {
+        return this.version;
+    }
+
+    @Override
     protected final CreateEventType createEventType() {
         return CreateEventType.PROTOCOLCONFIGPROPS;
     }
@@ -263,4 +268,12 @@ class ProtocolDialectConfigurationPropertiesImpl extends PersistentNamedObject<P
         return true;
     }
 
+    @Override
+    public void save() {
+        boolean update = getId() > 0;
+        super.save();
+        if (update) {
+            dataModel.touch(deviceConfiguration.get());
+        }
+    }
 }

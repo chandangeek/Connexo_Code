@@ -450,6 +450,9 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         DeviceTypeLoadProfileTypeUsage loadProfileTypeOnDeviceTypeUsage = getDataModel().getInstance(DeviceTypeLoadProfileTypeUsage.class).initialize(this, loadProfileType);
         Save.UPDATE.validate(getDataModel(), loadProfileTypeOnDeviceTypeUsage);
         this.loadProfileTypeUsages.add(loadProfileTypeOnDeviceTypeUsage);
+        if (getId() > 0) {
+            getDataModel().touch(this);
+        }
     }
 
     @Override
@@ -473,6 +476,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
             if (loadProfileTypeUsage.sameLoadProfileType(loadProfileType)) {
                 this.validateLoadProfileTypeNotUsedByLoadProfileSpec(loadProfileType);
                 loadProfileTypeUsageIterator.remove();
+                getDataModel().touch(this);
             }
         }
     }
@@ -520,6 +524,9 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
             }
         }
         this.logBookTypeUsages.add(new DeviceTypeLogBookTypeUsage(this, logBookType));
+        if (getId() > 0) {
+            getDataModel().touch(this);
+        }
     }
 
     @Override
@@ -532,6 +539,9 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         DeviceTypeRegisterTypeUsage registerTypeOnDeviceTypeUsage = getDataModel().getInstance(DeviceTypeRegisterTypeUsage.class).initialize(this, registerType);
         Save.UPDATE.validate(getDataModel(), registerTypeOnDeviceTypeUsage);
         this.registerTypeUsages.add(registerTypeOnDeviceTypeUsage);
+        if (getId() > 0) {
+            getDataModel().touch(this);
+        }
     }
 
     public void addRegisterTypeCustomPropertySet(RegisterType registerType, RegisteredCustomPropertySet registeredCustomPropertySet) {
@@ -554,6 +564,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
                 this.validateRegisterTypeNotUsedByRegisterSpec(registerType);
                 this.validateRegisterTypeNotUsedByChannelSpec(registerType);
                 iterator.remove();
+                getDataModel().touch(this);
+                break;
             }
         }
     }
@@ -622,6 +634,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
             if (logBookTypeUsage.sameLogBookType(logBookType)) {
                 this.validateLogBookTypeNotUsedByLogBookSpec(logBookType);
                 logBookTypeUsageIterator.remove();
+                getDataModel().touch(this);
+                break;
             }
         }
     }
@@ -695,6 +709,8 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
                 configuration.notifyDelete();
                 configuration.prepareDelete();
                 iterator.remove();
+                getDataModel().touch(this);
+                break;
             }
         }
     }

@@ -146,6 +146,9 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
     public void save() {
         validate();
         super.save();
+        if (this.loadProfileSpec.isPresent()){
+            getDataModel().touch(this.loadProfileSpec.get());
+        }
     }
 
     @Override
@@ -157,6 +160,11 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
             readingType.getCalculatedReadingType().ifPresent(result::add);
         }
         return getDeviceConfiguration().getValidationRules(result);
+    }
+
+    @Override
+    public long getVersion() {
+        return this.version;
     }
 
     @Override

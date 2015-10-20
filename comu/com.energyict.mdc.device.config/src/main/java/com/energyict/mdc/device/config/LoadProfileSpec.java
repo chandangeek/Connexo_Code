@@ -44,6 +44,8 @@ public interface LoadProfileSpec extends HasId {
 
     public List<ChannelSpec> getChannelSpecs();
 
+    long getVersion();
+
     /**
      * Defines a Builder interface to construct a {@link LoadProfileSpec}.
      */
