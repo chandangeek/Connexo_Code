@@ -83,7 +83,7 @@ class EmailDestinationImpl extends AbstractDataExportDestination implements Emai
                 mailBuilder.build().send();
             } catch (Exception e) {
                 throw new DestinationFailedException(
-                        thesaurus, MessageSeeds.MAIL_DESTINATION_FAILED, e, fileNames, e.getMessage());
+                        thesaurus, MessageSeeds.MAIL_DESTINATION_FAILED, e, EmailDestinationImpl.this.recipients, e.toString() + " " + e.getMessage());
             }
             try (TransactionContext context = getTransactionService().getContext()) {
                 MessageSeeds.DATA_MAILED_TO.log(logger, thesaurus, EmailDestinationImpl.this.recipients, fileNames);
