@@ -6,12 +6,16 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionMapper;
+import com.elster.jupiter.rest.util.ConcurrentModificationInfo;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.rest.util.PROPFIND;
+import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -33,13 +37,11 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Application;
-import java.io.IOException;
 import java.util.List;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 import static junit.framework.Assert.fail;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
@@ -144,10 +146,14 @@ public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
         resourceConfig.register(LocalizedExceptionMapper.class);
         resourceConfig.register(ConstraintViolationExceptionMapper.class);
         resourceConfig.register(JsonMappingExceptionMapper.class);
+        resourceConfig.register(RestValidationExceptionMapper.class);
+        resourceConfig.register(ConcurrentModificationExceptionMapper.class);
         resourceConfig.register(new AbstractBinder() {
             @Override
             protected void configure() {
                 bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
+                bind(ConcurrentModificationInfo.class).to(ConcurrentModificationInfo.class);
+                bind(ConcurrentModificationExceptionFactory.class).to(ConcurrentModificationExceptionFactory.class);
             }
         });
         application.getSingletons().stream().filter(s -> s instanceof AbstractBinder).forEach(resourceConfig::register);
