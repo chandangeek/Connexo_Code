@@ -8,6 +8,7 @@ Ext.define('Apr.view.appservers.Add', {
         'Ext.toolbar.Spacer'
     ],
     edit: false,
+    returnLink: null,
     setEdit: function (edit) {
         if (edit) {
             this.edit = edit;
@@ -17,6 +18,9 @@ Ext.define('Apr.view.appservers.Add', {
             this.edit = edit;
             this.down('#add-edit-button').setText(Uni.I18n.translate('general.add', 'APR', 'Add'));
             this.down('#add-edit-button').action = 'addAppServer';
+        }
+        if (this.returnLink) {
+            this.down('#cancel-link').href = this.returnLink;
         }
     },
     initComponent: function () {
