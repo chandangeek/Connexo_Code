@@ -1,13 +1,13 @@
 Ext.define('Est.estimationtasks.model.EstimationTask', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.Version',
     fields: [
         {name: 'id', type: 'number', useNull: true},
         {name: 'active', type: 'boolean'},
         {name: 'name', type: 'string'},
-        {name: 'schedule', type: 'auto'},
-        {name: 'period', type: 'auto'},
-        {name: 'deviceGroup', type: 'auto'},
-        {name: 'lastEstimationOccurrence', type: 'auto'},
+        {name: 'schedule', type: 'auto', defaultValue: null},
+        {name: 'period', type: 'auto', defaultValue: null},
+        {name: 'deviceGroup', type: 'auto', defaultValue: null},
+        {name: 'lastEstimationOccurrence', type: 'auto', defaultValue: null},
         {name: 'nextRun', type: 'number', useNull: true},
         {name: 'lastRun', type: 'number', useNull: true},
         {

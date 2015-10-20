@@ -68,8 +68,11 @@ Ext.define('Est.estimationrules.controller.Edit', {
             rule;
 
         if (router.queryParams.previousRoute) {
-            Uni.util.History.suspendEventsForNextCall();
-            window.location.replace(router.getRoute().buildUrl(router.arguments, null));
+            setTimeout(function () { // make redirect after executing this method
+                Uni.util.History.setParsePath(false);
+                Uni.util.History.suspendEventsForNextCall();
+                window.location.replace(router.getRoute().buildUrl(router.arguments, null));
+            }, 0);
         }
 
         me.getApplication().fireEvent('changecontentevent', widget);
@@ -114,6 +117,7 @@ Ext.define('Est.estimationrules.controller.Edit', {
         form.updateRecord();
         page.setLoading(true);
         form.getRecord().save({
+            backUrl: page.returnLink,
             callback: function (record, operation, success) {
                 var responseText = Ext.decode(operation.response.responseText, true);
 

@@ -1,12 +1,11 @@
 Ext.define('Est.estimationrulesets.model.EstimationRuleSet', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.Version',
     requires: [
         'Est.estimationrules.model.Rule'
     ],
     fields: [
         {
-            name: 'id',
-            persist: false
+            name: 'id'
         },
         {
             name: 'name', type: 'string',

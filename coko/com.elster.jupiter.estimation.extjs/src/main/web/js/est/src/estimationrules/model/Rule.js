@@ -1,5 +1,5 @@
 Ext.define('Est.estimationrules.model.Rule', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.ParentVersion',
     requires: [
         'Uni.property.model.Property',
         'Est.main.model.ReadingType'

@@ -66,8 +66,11 @@ Ext.define('Est.estimationrules.controller.AddReadingTypes', {
             });
 
         if (router.queryParams.previousRoute) {
-            Uni.util.History.suspendEventsForNextCall();
-            router.getRoute().forward(router.arguments, null);
+            setTimeout(function () { // make redirect after executing this method
+                Uni.util.History.setParsePath(false);
+                Uni.util.History.suspendEventsForNextCall();
+                window.location.replace(router.getRoute().buildUrl(router.arguments, null));
+            }, 0);
         }
 
         me.getApplication().fireEvent('changecontentevent', widget);

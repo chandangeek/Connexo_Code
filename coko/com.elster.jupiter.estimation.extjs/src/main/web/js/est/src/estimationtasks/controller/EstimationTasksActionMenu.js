@@ -98,16 +98,22 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksActionMenu', {
         pageMainContent.setLoading(true);
         Ext.Ajax.request({
             url: '/api/est/estimation/tasks/' + id + '/trigger',
-            method: 'POST',
+            method: 'PUT',
+            jsonData: record.getRecordData(),
+            isNotEdit: true,
             success: function () {
                 confWindow.destroy();
                 router.getRoute().forward();
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('estimationtasks.run', 'EST', 'Estimation task run'));
             },
             failure: function (response) {
-                var res = Ext.JSON.decode(response.responseText);
-                confWindow.update(res.errors[0].msg);
-                confWindow.setVisible(true);
+                var res = Ext.JSON.decode(response.responseText, true);
+                if (response.status === 400) {
+                    confWindow.update(res.errors[0].msg);
+                    confWindow.setVisible(true);
+                } else {
+                    confWindow.destroy();
+                }
             },
             callback: function () {
                 pageMainContent.setLoading(false);
@@ -150,6 +156,9 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksActionMenu', {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('estimationtasks.general.remove.confirm.msg', 'EST', 'Estimation task removed'));
             },
             failure: function (object, operation) {
+                if (operation.response.status === 409) {
+                    return
+                }
                 var json = Ext.decode(operation.response.responseText, true);
                 var errorText = Uni.I18n.translate('estimationtasks.error.unknown', 'EST', 'Unknown error occurred');
                 if (json && json.errors) {

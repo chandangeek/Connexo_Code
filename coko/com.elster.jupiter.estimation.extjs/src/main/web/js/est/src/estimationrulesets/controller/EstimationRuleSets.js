@@ -164,8 +164,11 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
             model = new Est.estimationrulesets.model.EstimationRuleSet;
 
         if (router.queryParams.previousRoute) {
-            Uni.util.History.suspendEventsForNextCall();
-            window.location.replace(router.getRoute().buildUrl(router.arguments, null));
+            setTimeout(function () { // make redirect after executing this method
+                Uni.util.History.setParsePath(false);
+                Uni.util.History.suspendEventsForNextCall();
+                window.location.replace(router.getRoute().buildUrl(router.arguments, null));
+            }, 0);
         }
 
         me.getApplication().fireEvent('changecontentevent', widget);
@@ -184,8 +187,11 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
             model = me.getModel('Est.estimationrulesets.model.EstimationRuleSet');
 
         if (router.queryParams.previousRoute) {
-            Uni.util.History.suspendEventsForNextCall();
-            window.location.replace(router.getRoute().buildUrl(router.arguments, null));
+            setTimeout(function () { // make redirect after executing this method
+                Uni.util.History.setParsePath(false);
+                Uni.util.History.suspendEventsForNextCall();
+                window.location.replace(router.getRoute().buildUrl(router.arguments, null));
+            }, 0);
         }
 
         me.getApplication().fireEvent('changecontentevent', widget);
@@ -248,6 +254,7 @@ Ext.define('Est.estimationrulesets.controller.EstimationRuleSets', {
         editPage.setLoading();
         record.save({
             action: action,
+            backUrl: me.getRuleSetEditPage().returnLink,
             failure: function (record, operation) {
                 if (operation.response.status == 400) {
                     me.showErrorPanel(true);

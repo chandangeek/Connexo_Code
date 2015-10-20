@@ -56,7 +56,8 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
     },
 
     createEstimationTask: function (button) {
-        var me = this, newEstimationTaskDto = me.getAddEditEstimationtaskForm().getValues();
+        var me = this, newEstimationTaskDto = me.getAddEditEstimationtaskForm().getValues(),
+            previousPath = me.getController('Uni.controller.history.EventBus').getPreviousPath();
 
         me.getAddEditEstimationtaskForm().down('#form-errors').hide();
 
@@ -156,6 +157,9 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
             me.getAddEditEstimationtaskPage().setLoading(true);
 
             newEstimationTask.save({
+                backUrl: previousPath
+                    ? '#' + previousPath
+                    : me.getController('Uni.controller.history.Router').getRoute('administration/estimationtasks/estimationtask').buildUrl({taskId: newEstimationTask.getId()}),
                 success: function () {
                     if (button.action === 'editTask' && me.fromDetails) {
                         me.getController('Uni.controller.history.Router').getRoute('administration/estimationtasks/estimationtask').forward({taskId: newEstimationTask.getId()});
