@@ -279,6 +279,7 @@ public class EictRtuVdew extends PluggableMeterProtocol implements HHUEnabler, P
         result.add("HalfDuplex");
         result.add("ForcedDelay");
         result.add("Software7E1");
+        result.add(MeterProtocol.PROFILEINTERVAL);
         return result;
     }
 
