@@ -20,6 +20,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -81,9 +82,10 @@ public class EstimationResource {
     private final TimeService timeService;
     private final MeteringGroupsService meteringGroupsService;
     private final PropertyUtils propertyUtils;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public EstimationResource(RestQueryService queryService, EstimationService estimationService, TransactionService transactionService, Thesaurus thesaurus, TimeService timeService, MeteringGroupsService meteringGroupsService, PropertyUtils propertyUtils) {
+    public EstimationResource(RestQueryService queryService, EstimationService estimationService, TransactionService transactionService, Thesaurus thesaurus, TimeService timeService, MeteringGroupsService meteringGroupsService, PropertyUtils propertyUtils, ConcurrentModificationExceptionFactory conflictFactory) {
         this.queryService = queryService;
         this.estimationService = estimationService;
         this.transactionService = transactionService;
@@ -91,6 +93,7 @@ public class EstimationResource {
         this.timeService = timeService;
         this.meteringGroupsService = meteringGroupsService;
         this.propertyUtils = propertyUtils;
+        this.conflictFactory = conflictFactory;
     }
 
 
@@ -165,42 +168,41 @@ public class EstimationResource {
     @Path("/{ruleSetId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
-    public EstimationRuleSetInfo updateEstimationRuleSet(@PathParam("ruleSetId") long ruleSetId, final EstimationRuleSetInfo info, @Context SecurityContext securityContext) {
+    public EstimationRuleSetInfo updateEstimationRuleSet(@PathParam("ruleSetId") long ruleSetId, final EstimationRuleSetInfo info) {
         transactionService.execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                estimationService.getEstimationRuleSet(ruleSetId).ifPresent(set -> {
-                    set.setName(info.name);
-                    set.setDescription(info.description);
-                    set.save();
-                    if ((info.rules != null) && (!info.rules.isEmpty())) {
-                        long[] current = set.getRules().stream()
-                                .mapToLong(EstimationRule::getId)
-                                .toArray();
-                        long[] target = info.rules.stream()
-                                .mapToLong(ruleInfo -> ruleInfo.id)
-                                .toArray();
-                        KPermutation kPermutation = KPermutation.of(current, target);
-                        if (!kPermutation.isNeutral(set.getRules())) {
-                            set.reorderRules(kPermutation);
-                        }
+                EstimationRuleSet set = findAndLockRuleSet(info);
+                set.setName(info.name);
+                set.setDescription(info.description);
+                set.save();
+                if ((info.rules != null) && (!info.rules.isEmpty())) {
+                    long[] current = set.getRules().stream()
+                            .mapToLong(EstimationRule::getId)
+                            .toArray();
+                    long[] target = info.rules.stream()
+                            .mapToLong(ruleInfo -> ruleInfo.id)
+                            .toArray();
+                    KPermutation kPermutation = KPermutation.of(current, target);
+                    if (!kPermutation.isNeutral(set.getRules())) {
+                        set.reorderRules(kPermutation);
                     }
-                });
+                }
             }
         });
-        return getEstimationRuleSet(ruleSetId, securityContext);
+        return getEstimationRuleSet(ruleSetId);
     }
 
     @GET
     @Path("/{ruleSetId}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION})
-    public EstimationRuleSetInfo getEstimationRuleSet(@PathParam("ruleSetId") long ruleSetId, @Context SecurityContext securityContext) {
-        EstimationRuleSet estimationRuleSet = fetchEstimationRuleSet(ruleSetId, securityContext);
+    public EstimationRuleSetInfo getEstimationRuleSet(@PathParam("ruleSetId") long ruleSetId) {
+        EstimationRuleSet estimationRuleSet = fetchEstimationRuleSet(ruleSetId);
         return EstimationRuleSetInfo.withRules(estimationRuleSet, propertyUtils);
     }
 
-    private EstimationRuleSet fetchEstimationRuleSet(long id, SecurityContext securityContext) {
+    private EstimationRuleSet fetchEstimationRuleSet(long id) {
         return estimationService.getEstimationRuleSet(id)
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
@@ -209,9 +211,9 @@ public class EstimationResource {
     @Path("/{ruleSetId}/rule/{ruleId}/readingtypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION})
-    public ReadingTypeInfos getReadingTypesForRule(@PathParam("ruleSetId") long ruleSetId, @PathParam("ruleId") long ruleId, @Context SecurityContext securityContext) {
+    public ReadingTypeInfos getReadingTypesForRule(@PathParam("ruleSetId") long ruleSetId, @PathParam("ruleId") long ruleId) {
         ReadingTypeInfos infos = new ReadingTypeInfos();
-        EstimationRuleSet estimationRuleSet = fetchEstimationRuleSet(ruleSetId, securityContext);
+        EstimationRuleSet estimationRuleSet = fetchEstimationRuleSet(ruleSetId);
         EstimationRule estimationRule = getEstimationRuleFromSetOrThrowException(estimationRuleSet, ruleId);
         Set<ReadingType> readingTypes = estimationRule.getReadingTypes();
         for (ReadingType readingType : readingTypes) {
@@ -244,8 +246,8 @@ public class EstimationResource {
     @Path("/{ruleSetId}/usage")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION})
-    public Response getValidationRuleSetUsage(@PathParam("ruleSetId") final long ruleSetId, @Context final SecurityContext securityContext) {
-        EstimationRuleSet estimationRuleSet = fetchEstimationRuleSet(ruleSetId, securityContext);
+    public Response getValidationRuleSetUsage(@PathParam("ruleSetId") final long ruleSetId) {
+        EstimationRuleSet estimationRuleSet = fetchEstimationRuleSet(ruleSetId);
         RuleSetUsageInfo info = new RuleSetUsageInfo();
         info.isInUse = estimationService.isEstimationRuleSetInUse(estimationRuleSet);
         return Response.status(Response.Status.OK).entity(info).build();
@@ -255,13 +257,11 @@ public class EstimationResource {
     @Path("/{ruleSetId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
-    public Response deleteEstimationRuleSet(@PathParam("ruleSetId") final long ruleSetId, @Context final SecurityContext securityContext) {
+    public Response deleteEstimationRuleSet(@PathParam("ruleSetId") final long ruleSetId, EstimationRuleSetInfo info) {
         transactionService.execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
-                estimationService.getEstimationRuleSet(ruleSetId).
-                        orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND)).
-                        delete();
+                findAndLockRuleSet(info).delete();
             }
         });
         return Response.status(Response.Status.NO_CONTENT).build();
@@ -298,13 +298,10 @@ public class EstimationResource {
     @Path("/{ruleSetId}/rules/{ruleId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
-    public EstimationRuleInfos editRule(@PathParam("ruleSetId") final long ruleSetId, @PathParam("ruleId") final long ruleId, final EstimationRuleInfo info, @Context SecurityContext securityContext) {
+    public EstimationRuleInfos editRule(final EstimationRuleInfo info, @Context SecurityContext securityContext) {
         EstimationRuleInfos result = new EstimationRuleInfos(propertyUtils);
         result.add(transactionService.execute(() -> {
-            EstimationRuleSet ruleSet = estimationService.getEstimationRuleSet(ruleSetId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-
-            EstimationRule rule = getEstimationRuleFromSetOrThrowException(ruleSet, ruleId);
-
+            EstimationRule rule = findAndLockRule(info);
             List<String> mRIDs = info.readingTypes.stream().map(readingTypeInfo -> readingTypeInfo.mRID).collect(Collectors.toList());
             Map<String, Object> propertyMap = new HashMap<>();
             try {
@@ -314,7 +311,7 @@ public class EstimationResource {
                 }
             } catch (EstimatorNotFoundException ex) {
             } finally {
-                rule = ruleSet.updateRule(ruleId, info.name, info.active, mRIDs, propertyMap);
+                rule = rule.getRuleSet().updateRule(info.id, info.name, info.active, mRIDs, propertyMap);
             }
 
             return rule;
@@ -340,22 +337,11 @@ public class EstimationResource {
     @Path("/{ruleSetId}/rules/{ruleId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
-    public Response removeRule(@PathParam("ruleSetId") final long ruleSetId, @PathParam("ruleId") final long ruleId) {
-        transactionService.execute(new Transaction<EstimationRule>() {
-            @Override
-            public EstimationRule perform() {
-                Optional<? extends EstimationRuleSet> ruleSetRef = estimationService.getEstimationRuleSet(ruleSetId);
-                if (!ruleSetRef.isPresent() || ruleSetRef.get().getObsoleteDate() != null) {
-                    throw new WebApplicationException(Response.Status.NOT_FOUND);
-                }
-                Optional<? extends EstimationRule> ruleRef = estimationService.getEstimationRule(ruleId);
-                if (!ruleRef.isPresent() || ruleRef.get().getObsoleteDate() != null) {
-                    throw new WebApplicationException(Response.Status.NOT_FOUND);
-                }
-
-                ruleSetRef.get().deleteRule(ruleRef.get());
-                return null;
-            }
+    public Response removeRule(EstimationRuleInfo info) {
+        transactionService.execute(() -> {
+            EstimationRule estimationRule = findAndLockRule(info);
+            estimationRule.getRuleSet().deleteRule(estimationRule);
+            return null;
         });
         return Response.status(Response.Status.NO_CONTENT).build();
     }
@@ -368,13 +354,6 @@ public class EstimationResource {
         public int compare(Estimator o1, Estimator o2) {
             return o1.getDisplayName().compareTo(o2.getDisplayName());
         }
-    }
-
-    private EstimationRule getEstimationRuleFromSetOrThrowException(EstimationRuleSet ruleSet, long ruleId) {
-        return ruleSet.getRules().stream()
-                .filter(input -> input.getId() == ruleId)
-                .findAny()
-                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     @GET
@@ -406,12 +385,18 @@ public class EstimationResource {
         return new EstimationTaskInfo(fetchEstimationTask(id), thesaurus);
     }
 
-    @POST
+    @PUT
     @Path("/tasks/{id}/trigger")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK, Privileges.Constants.RUN_ESTIMATION_TASK})
-    public Response triggerEstimationTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        transactionService.execute(VoidTransaction.of(() -> fetchEstimationTask(id).triggerNow()));
+    public Response triggerEstimationTask(EstimationTaskInfo info) {
+        transactionService.execute(VoidTransaction.of(() -> estimationService.findAndLockEstimationTask(info.id, info.version)
+                .orElseThrow(conflictFactory.conflict()
+                        .withMessageTitle(MessageSeeds.RUN_TASK_CONCURRENT_TITLE, info.name)
+                        .withMessageBody(MessageSeeds.RUN_TASK_CONCURRENT_BODY, info.name)
+                        .withActualVersion(() -> estimationService.findEstimationTask(info.id).map(EstimationTask::getVersion).orElse(null))
+                        .supplier())
+                .triggerNow()));
         return Response.status(Response.Status.OK).build();
     }
 
@@ -421,7 +406,6 @@ public class EstimationResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
     public Response addEstimationTask(EstimationTaskInfo info) {
-
         EstimationTask dataExportTask = estimationService.newBuilder()
                 .setName(info.name)
                 .setScheduleExpression(getScheduleExpression(info))
@@ -439,19 +423,20 @@ public class EstimationResource {
     @Path("/tasks/{id}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION)
-    public Response removeEstimationTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        EstimationTask task = fetchEstimationTask(id);
-
-        if (!task.canBeDeleted()) {
-            throw new LocalizedFieldValidationException(MessageSeeds.DELETE_TASK_STATUS_BUSY, "status");
-        }
+    public Response removeEstimationTask(@PathParam("id") long id, EstimationTaskInfo info) {
+        String taskName = "id = " + id;
         try (TransactionContext context = transactionService.getContext()) {
+            EstimationTask task = findAndLockTask(info);
+            taskName = task.getName();
+            if (!task.canBeDeleted()) {
+                throw new LocalizedFieldValidationException(MessageSeeds.DELETE_TASK_STATUS_BUSY, "status");
+            }
             task.delete();
             context.commit();
+            return Response.status(Response.Status.OK).build();
         } catch (UnderlyingSQLFailedException | CommitException ex) {
-            throw new LocalizedFieldValidationException(MessageSeeds.DELETE_TASK_SQL_EXCEPTION, "status", task.getName());
+            throw new LocalizedFieldValidationException(MessageSeeds.DELETE_TASK_SQL_EXCEPTION, "status", taskName);
         }
-        return Response.status(Response.Status.OK).build();
     }
 
     @PUT
@@ -459,10 +444,8 @@ public class EstimationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK})
     public Response updateEstimationTask(@PathParam("id") long id, EstimationTaskInfo info) {
-
-        EstimationTask task = findTaskOrThrowException(id);
-
         try (TransactionContext context = transactionService.getContext()) {
+            EstimationTask task = findAndLockTask(info);
             task.setName(info.name);
             task.setScheduleExpression(getScheduleExpression(info));
             if (Never.NEVER.equals(task.getScheduleExpression())) {
@@ -475,8 +458,8 @@ public class EstimationResource {
 
             task.save();
             context.commit();
+            return Response.status(Response.Status.CREATED).entity(new EstimationTaskInfo(task, thesaurus)).build();
         }
-        return Response.status(Response.Status.CREATED).entity(new EstimationTaskInfo(task, thesaurus)).build();
     }
 
     @GET
@@ -515,10 +498,12 @@ public class EstimationResource {
     @Path("/tasks/{id}/history/{occurrenceId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK, Privileges.Constants.RUN_ESTIMATION_TASK, Privileges.Constants.VIEW_ESTIMATION_TASK, Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK})
+    @RolesAllowed({Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION,
+            Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION, Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK,
+            Privileges.Constants.RUN_ESTIMATION_TASK, Privileges.Constants.VIEW_ESTIMATION_TASK,
+            Privileges.Constants.ADMINISTRATE_ESTIMATION_TASK})
     public PagedInfoList getEstimationTaskHistory(@PathParam("id") long id, @PathParam("occurrenceId") long occurrenceId,
-                                                  @Context SecurityContext securityContext, @BeanParam JsonQueryParameters parameters) {
-
+                                                  @BeanParam JsonQueryParameters parameters) {
         EstimationTask task = fetchEstimationTask(id);
         TaskOccurrence occurrence = fetchTaskOccurrence(occurrenceId, task);
         LogEntryFinder finder = occurrence.getLogsFinder().setStart(parameters.getStart().orElse(0)).setLimit(parameters.getLimit().orElse(10) + 1);
@@ -531,14 +516,69 @@ public class EstimationResource {
         return PagedInfoList.fromPagedList("data", taskOccurrenceLogsList, parameters);
     }
 
-    private EstimationTask findTaskOrThrowException(long id) {
-        return estimationService.findEstimationTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    private EstimationTask findAndLockTask(EstimationTaskInfo info) {
+        return estimationService.findAndLockEstimationTask(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> estimationService.findEstimationTask(info.id).map(EstimationTask::getVersion).orElse(null))
+                        .supplier());
+    }
+
+    private EstimationRuleSet findAndLockRuleSet(EstimationRuleSetInfo info) {
+        return estimationService.findAndLockEstimationRuleSet(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> estimationService.getEstimationRuleSet(info.id)
+                                .filter(candidate -> candidate.getObsoleteDate() == null)
+                                .map(EstimationRuleSet::getVersion)
+                                .orElse(null))
+                        .supplier());
+    }
+
+    private EstimationRule findAndLockRule(EstimationRuleInfo info) {
+        Optional<? extends EstimationRuleSet> ruleSet = estimationService.findAndLockEstimationRuleSet(info.parent.id, info.parent.version);
+        Long actualRuleVersion = null;
+        Long actualParentVersion = null;
+        if (!ruleSet.isPresent()) { // parent was changed or deleted
+            Optional<? extends EstimationRuleSet> unlockedRuleSet = estimationService.getEstimationRuleSet(info.parent.id);
+            // if rule set was deleted, the rule should be deleted as well, so both should have the 'null' version
+            if (unlockedRuleSet.isPresent() && unlockedRuleSet.get().getObsoleteDate() == null) {
+                actualParentVersion = unlockedRuleSet.get().getVersion();
+                actualRuleVersion = getCurrentEstimationRuleVersion(info, unlockedRuleSet);
+            }
+        } else { // no changes in parent
+            actualParentVersion = ruleSet.get().getVersion();
+            Optional<? extends EstimationRule> estimationRule = estimationService.findAndLockEstimationRule(info.id, info.version);
+            if (!estimationRule.isPresent()){ // but rule itself was changed
+                actualRuleVersion = getCurrentEstimationRuleVersion(info, ruleSet);
+            } else { // no changes in rule
+                return estimationRule.get();
+            }
+        }
+        Long ruleVersion = actualRuleVersion;
+        Long parentVersion = actualParentVersion;
+        throw conflictFactory.contextDependentConflictOn(info.name)
+                .withActualVersion(() -> ruleVersion)
+                .withActualParent(() -> parentVersion, info.parent.id)
+                .build();
+    }
+
+    private Long getCurrentEstimationRuleVersion(EstimationRuleInfo info, Optional<? extends EstimationRuleSet> ruleSet) {
+        return ruleSet.get().getRules().stream()
+                .filter(input -> input.getId() == info.id && !input.isObsolete())
+                .findAny()
+                .map(EstimationRule::getVersion)
+                .orElse(null);
+    }
+
+    private EstimationRule getEstimationRuleFromSetOrThrowException(EstimationRuleSet ruleSet, long ruleId) {
+        return ruleSet.getRules().stream()
+                .filter(input -> input.getId() == ruleId)
+                .findAny()
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     private ScheduleExpression getScheduleExpression(EstimationTaskInfo info) {
         return info.schedule == null ? Never.NEVER : info.schedule.toExpression();
     }
-
 
     private EndDeviceGroup endDeviceGroup(long endDeviceGroupId) {
         return meteringGroupsService.findEndDeviceGroup(endDeviceGroupId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
@@ -558,5 +598,4 @@ public class EstimationResource {
     private TaskOccurrence fetchTaskOccurrence(long occurrenceId, EstimationTask task) {
         return task.getOccurrence(occurrenceId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
-
 }

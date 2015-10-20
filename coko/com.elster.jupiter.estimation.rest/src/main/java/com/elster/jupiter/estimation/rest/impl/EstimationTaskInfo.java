@@ -23,6 +23,7 @@ public class EstimationTaskInfo {
     public EstimationTaskHistoryInfo lastEstimationOccurrence;
     public Long nextRun;
     public Long lastRun;
+    public long version;
 
     public EstimationTaskInfo() {
     }
@@ -57,6 +58,7 @@ public class EstimationTaskInfo {
         if (lastRunOptional.isPresent()) {
             lastRun = lastRunOptional.get().toEpochMilli();
         }
+        version = estimationTask.getVersion();
     }
 
 }

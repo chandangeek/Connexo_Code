@@ -18,6 +18,7 @@ public class EstimationRuleSetInfo {
     public int numberOfInactiveRules;
     public int numberOfRules;
     public List<EstimationRuleInfo> rules;
+    public long version;
 
 	public EstimationRuleSetInfo(EstimationRuleSet estimationRuleSet) {
         id = estimationRuleSet.getId();
@@ -30,6 +31,7 @@ public class EstimationRuleSetInfo {
                 numberOfInactiveRules++;
             }
         }
+        version = estimationRuleSet.getVersion();
     }
 
     public static EstimationRuleSetInfo withRules(EstimationRuleSet estimationRuleSet, PropertyUtils propertyUtils) {

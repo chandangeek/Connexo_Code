@@ -36,11 +36,11 @@ import com.elster.jupiter.time.RelativeField;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.time.Never;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.Mockito;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -61,7 +61,10 @@ import java.util.Set;
 import java.util.function.Supplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.AdditionalMatchers.aryEq;
+import static org.mockito.AdditionalMatchers.not;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -113,19 +116,22 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
         when(meteringGroupsService.findEndDeviceGroup(5)).thenReturn(Optional.of(endDeviceGroup));
         when(estimationTask.getScheduleExpression()).thenReturn(Never.NEVER);
         when(estimationService.newBuilder()).thenReturn(builder);
-//        when(estimationTask.getOccurrencesFinder()).thenReturn(finder);
         when(estimationTask.getName()).thenReturn("Name");
         when(estimationTask.getLastOccurrence()).thenReturn(Optional.empty());
         when(estimationTask.getLastRun()).thenReturn(Optional.<Instant>empty());
 
         doReturn(Optional.of(estimationTask)).when(estimationService).findEstimationTask(TASK_ID);
-//        setUpStubs();
+        doReturn(Optional.of(estimationTask)).when(estimationService).findAndLockEstimationTask(TASK_ID, 1L);
+        doReturn(Optional.empty()).when(estimationService).findAndLockEstimationTask(TASK_ID, 2L);
+    }
+
+    @After
+    public void after(){
+        Mockito.validateMockitoUsage();
     }
 
     @Test
     public void getTasksTest() {
-        EstimationTaskInfo info = new EstimationTaskInfo();
-
         Response response1 = target("/estimation/tasks").request().get();
         assertThat(response1.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
@@ -137,8 +143,13 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
     @Test
     public void triggerTaskTest() {
         EstimationTaskInfo info = new EstimationTaskInfo();
+        info.id = TASK_ID;
+        info.deviceGroup = new MeterGroupInfo();
+        info.deviceGroup.id = 5;
+        info.version = 1L;
+        Entity<EstimationTaskInfo> json = Entity.json(info);
 
-        Response response1 = target("/estimation/tasks/"+TASK_ID+"/trigger").request().post(Entity.json(null));
+        Response response1 = target("/estimation/tasks/"+TASK_ID+"/trigger").request().put(json);
         assertThat(response1.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         verify(estimationTask).triggerNow();
@@ -152,11 +163,9 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
         info.nextRun = 250L;
         info.deviceGroup = new MeterGroupInfo();
         info.deviceGroup.id = 5;
-
         Entity<EstimationTaskInfo> json = Entity.json(info);
 
         Response response = target("/estimation/tasks").request().post(json);
-
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
 
@@ -166,14 +175,25 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
         info.id = TASK_ID;
         info.deviceGroup = new MeterGroupInfo();
         info.deviceGroup.id = 5;
-
+        info.version = 1L;
         Entity<EstimationTaskInfo> json = Entity.json(info);
 
         Response response = target("/estimation/tasks/" + TASK_ID).request().put(json);
-
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
 
+    @Test
+    public void testUpdateTaskConcurrentModification() {
+        EstimationTaskInfo info = new EstimationTaskInfo();
+        info.id = TASK_ID;
+        info.deviceGroup = new MeterGroupInfo();
+        info.deviceGroup.id = 5;
+        info.version = 2L;
+        Entity<EstimationTaskInfo> json = Entity.json(info);
+
+        Response response = target("/estimation/tasks/" + TASK_ID).request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
 
     private void mockEstimationRuleSets(EstimationRuleSet... estimationRuleSets) {
         Query<EstimationRuleSet> query = mock(Query.class);
@@ -195,7 +215,6 @@ public class EstimationTaskResourceTest extends EstimationApplicationJerseyTest 
         }
 
         doReturn(Optional.of(ruleSet)).when(estimationService).getEstimationRuleSet(id);
-
         return ruleSet;
     }
 
