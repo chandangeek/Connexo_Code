@@ -1,49 +1,31 @@
 package com.elster.jupiter.parties.rest.impl;
 
-import com.elster.jupiter.parties.Party;
-import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.parties.Person;
 import com.elster.jupiter.transaction.VoidTransaction;
-import java.util.Optional;
 
 import javax.inject.Inject;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 
 class DeletePersonTransaction extends VoidTransaction {
 
     private final PersonInfo info;
-    private final PartyService partyService;
+    private final Fetcher fetcher;
 
     @Inject
-    public DeletePersonTransaction(PersonInfo info, PartyService partyService) {
+    public DeletePersonTransaction(PersonInfo info, Fetcher fetcher) {
         this.info = info;
-        this.partyService = partyService;
+        this.fetcher = fetcher;
     }
 
     @Override
     protected void doPerform() {
-        Person person = fetchPerson();
-        validateDelete(person);
-        doDelete(person);
+        doDelete(fetchPerson());
     }
 
     private void doDelete(Person person) {
         person.delete();
     }
 
-    private void validateDelete(Person person) {
-        if (person.getVersion() != info.version) {
-            throw new WebApplicationException(Response.Status.CONFLICT);
-        }
-    }
-
     private Person fetchPerson() {
-        Optional<Party> party = partyService.findParty(info.id);
-        if (!party.isPresent() || !(party.get() instanceof Person)) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
-        return (Person) party.get();
+        return (Person) fetcher.findAndLockParty(info);
     }
-
 }

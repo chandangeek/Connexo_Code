@@ -35,12 +35,14 @@ public class PersonsResource {
     private final TransactionService transactionService;
     private final PartyService partyService;
     private final RestQueryService restQueryService;
+    private final Fetcher fetcher;
 
     @Inject
-    public PersonsResource(TransactionService transactionService, PartyService partyService, RestQueryService restQueryService) {
+    public PersonsResource(TransactionService transactionService, PartyService partyService, RestQueryService restQueryService, Fetcher fetcher) {
         this.transactionService = transactionService;
         this.partyService = partyService;
         this.restQueryService = restQueryService;
+        this.fetcher = fetcher;
     }
 
     @POST
@@ -55,9 +57,9 @@ public class PersonsResource {
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public PersonInfos deletePerson(PersonInfo info, @PathParam("id") long id) {
+    public PersonInfos deletePerson(@PathParam("id") long id, PersonInfo info) {
         info.id = id;
-        transactionService.execute(new DeletePersonTransaction(info, partyService));
+        transactionService.execute(new DeletePersonTransaction(info, fetcher));
         return new PersonInfos();
     }
 
@@ -93,7 +95,7 @@ public class PersonsResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public PersonInfos updatePerson(PersonInfo info, @PathParam("id") long id) {
         info.id = id;
-        transactionService.execute(new UpdatePersonTransaction(info, partyService));
+        transactionService.execute(new UpdatePersonTransaction(info, fetcher));
         return getPerson(info.id);
     }
 

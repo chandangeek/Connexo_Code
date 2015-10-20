@@ -12,38 +12,22 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 public class UpdatePartyRepresentationTransaction implements Transaction<PartyRepresentation> {
-
-    private final UserService userService;
-    private final PartyService partyService;
-    private PartyRepresentationInfo info;
+    private final PartyRepresentationInfo info;
     private final Fetcher fetcher;
 
     @Inject
-    public UpdatePartyRepresentationTransaction(UserService userService, PartyService partyService, PartyRepresentationInfo info) {
-        this.userService = userService;
-        this.partyService = partyService;
+    public UpdatePartyRepresentationTransaction(PartyRepresentationInfo info, Fetcher fetcher) {
         this.info = info;
-        fetcher = new Fetcher(this.partyService, this.userService);
+        this.fetcher = fetcher;
     }
 
     @Override
     public PartyRepresentation perform() {
-        Party party = fetcher.fetchParty(info.partyId);
-        PartyRepresentation representation = getRepresentation(party);
-        if (representation == null) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
+        Party party = fetcher.findAndLockParty(info.parent);
+        PartyRepresentation representation = fetcher.findAndLockPartyRepresentation(info);
         party.adjustRepresentation(representation, Range.closedOpen(info.start, info.end));
-        partyService.updateRepresentation(representation);
         return representation;
     }
 
-    private PartyRepresentation getRepresentation(Party party) {
-        for (PartyRepresentation representation : party.getCurrentDelegates()) {
-            if (representation.getDelegate().getName().equals(info.userInfo.authenticationName)) {
-                return representation;
-            }
-        }
-        return null;
-    }
+
 }

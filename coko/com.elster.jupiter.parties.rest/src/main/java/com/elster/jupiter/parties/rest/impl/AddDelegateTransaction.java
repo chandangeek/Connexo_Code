@@ -14,16 +14,11 @@ public class AddDelegateTransaction implements Transaction<PartyRepresentation> 
     private final long partyId;
     private final PartyRepresentationInfo info;
     private final Fetcher fetcher;
-    private final UserService userService;
-    private final PartyService partyService;
 
-    @Inject
-    public AddDelegateTransaction(long partyId, PartyRepresentationInfo info, UserService userService, PartyService partyService) {
+    public AddDelegateTransaction(long partyId, PartyRepresentationInfo info, Fetcher fetcher) {
         this.partyId = partyId;
         this.info = info;
-        this.userService = userService;
-        this.partyService = partyService;
-        this.fetcher = new Fetcher(this.partyService, this.userService);
+        this.fetcher = fetcher;
     }
 
     @Override

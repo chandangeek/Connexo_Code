@@ -3,6 +3,7 @@ package com.elster.jupiter.parties.rest.impl;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.transaction.Transaction;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import java.util.Optional;
 
@@ -24,11 +25,13 @@ public class RolesResource {
 
     private final TransactionService transactionService;
     private final PartyService partyService;
+    private final Fetcher fetcher;
 
     @Inject
-    public RolesResource(TransactionService transactionService, PartyService partyService) {
+    public RolesResource(TransactionService transactionService, PartyService partyService, Fetcher fetcher) {
         this.transactionService = transactionService;
         this.partyService = partyService;
+        this.fetcher = fetcher;
     }
 
     @POST
@@ -50,7 +53,10 @@ public class RolesResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public PartyRoleInfos deletePartyRole(PartyRoleInfo info, @PathParam("id") String id) {
         info.mRID = id;
-        transactionService.execute(new DeletePartyRoleTransaction(info, partyService));
+        try (TransactionContext context = transactionService.getContext()){
+            transactionService.execute(new DeletePartyRoleTransaction(info, partyService, fetcher));
+            context.commit();
+        }
         return new PartyRoleInfos();
     }
 
@@ -77,9 +83,10 @@ public class RolesResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public PartyRoleInfos updatePartyRole(PartyRoleInfo info, @PathParam("id") String id) {
         info.mRID = id;
-        transactionService.execute(new UpdatePartyRoleTransaction(info, partyService));
+        try (TransactionContext context = transactionService.getContext()) {
+            transactionService.execute(new UpdatePartyRoleTransaction(info, partyService, fetcher));
+            context.commit();
+        }
         return getPartyRole(info.mRID);
     }
-
-
 }

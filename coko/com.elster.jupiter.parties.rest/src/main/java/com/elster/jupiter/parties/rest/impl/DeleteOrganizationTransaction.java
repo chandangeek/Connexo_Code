@@ -2,9 +2,7 @@ package com.elster.jupiter.parties.rest.impl;
 
 import com.elster.jupiter.parties.Organization;
 import com.elster.jupiter.parties.Party;
-import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.transaction.VoidTransaction;
-import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
@@ -15,36 +13,28 @@ import javax.ws.rs.core.Response;
 public class DeleteOrganizationTransaction extends VoidTransaction {
 
     private final OrganizationInfo info;
-    private final PartyService partyService;
+    private final Fetcher fetcher;
 
     @Inject
-    public DeleteOrganizationTransaction(OrganizationInfo info, PartyService partyService) {
+    public DeleteOrganizationTransaction(OrganizationInfo info, Fetcher fetcher) {
         this.info = info;
-        this.partyService = partyService;
+        this.fetcher = fetcher;
     }
 
     @Override
     protected void doPerform() {
-        Organization organization = fetchOrganization();
-        validateDelete(organization);
-        doDelete(organization);
+        doDelete(fetchOrganization());
     }
 
     private void doDelete(Organization organization) {
         organization.delete();
     }
 
-    private void validateDelete(Organization organization) {
-        if (organization.getVersion() != info.version) {
-            throw new WebApplicationException(Response.Status.CONFLICT);
-        }
-    }
-
     private Organization fetchOrganization() {
-        Optional<Party> party = partyService.findParty(info.id);
-        if (party.isPresent() || !(party.get() instanceof Organization)) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        Party party = fetcher.findAndLockParty(this.info);
+        if (party instanceof Organization) {
+            return (Organization) party;
         }
-        return (Organization) party.get();
+        throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
 }

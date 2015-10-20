@@ -15,16 +15,12 @@ public class AddRoleTransaction implements Transaction<PartyInRole> {
     private final PartyInRoleInfo info;
     private final long partyId;
     private final Fetcher fetcher;
-    private final UserService userService;
-    private final PartyService partyService;
 
     @Inject
-    public AddRoleTransaction(long partyId, PartyInRoleInfo info, UserService userService, PartyService partyService) {
+    public AddRoleTransaction(long partyId, PartyInRoleInfo info, Fetcher fetcher) {
         this.partyId = partyId;
         this.info = info;
-        this.userService = userService;
-        this.partyService = partyService;
-        fetcher = new Fetcher(this.partyService, this.userService);
+        this.fetcher = fetcher;
     }
 
     @Override

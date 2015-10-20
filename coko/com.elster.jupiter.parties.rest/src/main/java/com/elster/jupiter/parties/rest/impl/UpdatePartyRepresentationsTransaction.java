@@ -4,16 +4,12 @@ import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.users.UserService;
 
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Objects;
-import java.util.Optional;
 
 import javax.inject.Inject;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -23,26 +19,22 @@ public class UpdatePartyRepresentationsTransaction implements Transaction<List<?
 
     private final PartyRepresentationInfos infos;
     private final long id;
-    private final PartyService partyService;
     private final Clock clock;
-    private final UserService userService;
+    private final Fetcher fetcher;
+    private final PartyService partyService;
 
     @Inject
-    public UpdatePartyRepresentationsTransaction(long id, PartyRepresentationInfos infos, PartyService partyService, Clock clock, UserService userService) {
+    public UpdatePartyRepresentationsTransaction(long id, PartyRepresentationInfos infos, PartyService partyService, Clock clock, Fetcher fetcher) {
         this.id = id;
         this.infos = infos;
-        this.partyService = partyService;
         this.clock = clock;
-        this.userService = userService;
+        this.fetcher = fetcher;
+        this.partyService = partyService;
     }
 
     @Override
     public List<? extends PartyRepresentation> perform() {
-        Optional<Party> found = partyService.findParty(id);
-        if (!found.isPresent()) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-        }
-        Party party = found.get();
+        Party party = fetcher.fetchParty(id);
 
         List<PartyRepresentation> preEdit = new ArrayList<>(party.getCurrentDelegates());
         handleAdditionAndUpdates(preEdit);
@@ -55,7 +47,7 @@ public class UpdatePartyRepresentationsTransaction implements Transaction<List<?
         for (PartyRepresentation partyRepresentation : preEdit) {
             PartyRepresentationInfo delegate = new PartyRepresentationInfo(partyRepresentation);
             delegate.end = now;
-            new UpdatePartyRepresentationTransaction(userService, partyService, delegate).perform();
+            new UpdatePartyRepresentationTransaction(delegate, fetcher).perform();
         }
     }
 
@@ -63,10 +55,10 @@ public class UpdatePartyRepresentationsTransaction implements Transaction<List<?
         for (PartyRepresentationInfo delegate : infos.delegates) {
             PartyRepresentation match = pickOriginal(preEdit, delegate);
             if (match == null) { // addition
-                new AddDelegateTransaction(id, delegate, userService, partyService).perform(); // perform directly since already within transaction context
+                new AddDelegateTransaction(id, delegate, fetcher).perform(); // perform directly since already within transaction context
             } else {
                 if (!Objects.equals(delegate.end, match.getInterval().getEnd())) {
-                    new UpdatePartyRepresentationTransaction(userService, partyService, delegate).perform();
+                    new UpdatePartyRepresentationTransaction(delegate, fetcher).perform();
                 }
             }
         }

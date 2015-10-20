@@ -3,43 +3,29 @@ package com.elster.jupiter.parties.rest.impl;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.transaction.Transaction;
-import java.util.Optional;
 
 import javax.inject.Inject;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 
 public class UpdatePartyRoleTransaction implements Transaction<PartyRole> {
 
     private final PartyRoleInfo info;
-
     private final PartyService partyService;
+    private final Fetcher fetcher;
 
     @Inject
-    public UpdatePartyRoleTransaction(PartyRoleInfo info, PartyService partyService) {
+    public UpdatePartyRoleTransaction(PartyRoleInfo info, PartyService partyService, Fetcher fetcher) {
         this.info = info;
         this.partyService = partyService;
+        this.fetcher = fetcher;
     }
 
     @Override
     public PartyRole perform() {
-        PartyRole partyRole = fetchRole();
-        validateUpdate(partyRole);
-        return doUpdate(partyRole);
+        return doUpdate(fetchRole());
     }
 
     private PartyRole fetchRole() {
-        Optional<PartyRole> role = partyService.findPartyRoleByMRID(info.mRID);
-        if (role.isPresent()) {
-            return role.get();
-        }
-        throw new WebApplicationException(Response.Status.NOT_FOUND);
-    }
-
-    private void validateUpdate(PartyRole role) {
-        if (role.getVersion() != info.version) {
-            throw new WebApplicationException(Response.Status.CONFLICT);
-        }
+        return fetcher.findAndLockPartyRole(this.info);
     }
 
     private PartyRole doUpdate(PartyRole partyRole) {

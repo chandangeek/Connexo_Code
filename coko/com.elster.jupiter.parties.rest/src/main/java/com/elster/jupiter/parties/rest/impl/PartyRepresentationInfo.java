@@ -13,6 +13,8 @@ public class PartyRepresentationInfo {
     public Instant start;
     public Instant end;
     public UserInfo userInfo;
+    public PartyInfo parent;
+    public long version;
 
     PartyRepresentationInfo() {
 
@@ -23,5 +25,7 @@ public class PartyRepresentationInfo {
         start = partyRepresentation.getInterval().getStart();
         end = partyRepresentation.getInterval().getEnd();
         userInfo = new UserInfo(partyRepresentation.getDelegate());
+        parent = new PartyInfo(partyRepresentation.getParty());
+        version = partyRepresentation.getVersion();
     }
 }

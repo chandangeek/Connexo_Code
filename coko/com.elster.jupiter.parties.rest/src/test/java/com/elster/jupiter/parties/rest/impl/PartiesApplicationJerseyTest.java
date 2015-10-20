@@ -32,6 +32,7 @@ public class PartiesApplicationJerseyTest extends FelixRestApplicationJerseyTest
         application.setPartyService(partyService);
         application.setUserService(userService);
         application.setClock(clock);
+        application.setNlsService(nlsService);
         return application;
     }
 

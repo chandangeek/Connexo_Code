@@ -16,6 +16,7 @@ public class PartyInRoleInfo {
     public Instant end;
     public PartyRoleInfo partyRoleInfo;
     public long version;
+    public PartyInfo parent;
 
     PartyInRoleInfo() {
     }
@@ -27,6 +28,7 @@ public class PartyInRoleInfo {
         start = partyInRole.getInterval().getStart();
         end = partyInRole.getInterval().getEnd();
         version = partyInRole.getVersion();
+        parent = new PartyInfo(partyInRole.getParty());
     }
 
 }

@@ -1,5 +1,8 @@
 package com.elster.jupiter.parties.rest.impl;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -31,7 +34,7 @@ public class PartiesApplication extends Application {
     private volatile PartyService partyService;
     private volatile UserService userService;
     private volatile Clock clock;
-
+    private volatile Thesaurus thesaurus;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -79,6 +82,11 @@ public class PartiesApplication extends Application {
         this.clock = clock;
     }
 
+    @Reference
+    public void setNlsService(NlsService nlsService){
+        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
+    }
+
     class HK2Binder extends AbstractBinder {
         @Override
         protected void configure() {
@@ -87,6 +95,8 @@ public class PartiesApplication extends Application {
             bind(clock).to(Clock.class);
             bind(transactionService).to(TransactionService.class);
             bind(restQueryService).to(RestQueryService.class);
+            bind(thesaurus).to(Thesaurus.class);
+            bind(Fetcher.class).to(Fetcher.class);
         }
     }
 }

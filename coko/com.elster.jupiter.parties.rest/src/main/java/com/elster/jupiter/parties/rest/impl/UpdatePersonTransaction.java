@@ -13,20 +13,18 @@ import javax.ws.rs.core.Response;
 class UpdatePersonTransaction implements Transaction<Person> {
 
     private final PersonInfo info;
-    private final PartyService partyService;
+    private final Fetcher fetcher;
 
     @Inject
-    public UpdatePersonTransaction(PersonInfo info, PartyService partyService) {
-        this.partyService = partyService;
+    public UpdatePersonTransaction(PersonInfo info, Fetcher fetcher) {
         assert info != null;
         this.info = info;
+        this.fetcher = fetcher;
     }
 
     @Override
     public Person perform() {
-        Person person = fetchPerson();
-        validateUpdate(person);
-        return doUpdate(person);
+        return doUpdate(fetchPerson());
     }
 
     private Person doUpdate(Person person) {
@@ -35,16 +33,10 @@ class UpdatePersonTransaction implements Transaction<Person> {
         return person;
     }
 
-    private void validateUpdate(Person person) {
-        if (person.getVersion() != info.version) {
-            throw new WebApplicationException(Response.Status.CONFLICT);
-        }
-    }
-
     private Person fetchPerson() {
-        Optional<Party> party = partyService.findParty(info.id);
-        if (party.isPresent() && party.get() instanceof Person) {
-            return (Person) party.get();
+        Party party = fetcher.findAndLockParty(this.info);
+        if (party instanceof Person) {
+            return (Person) party;
         }
         throw new WebApplicationException(Response.Status.NOT_FOUND);
     }

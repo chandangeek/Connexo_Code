@@ -1,7 +1,14 @@
 package com.elster.jupiter.parties.rest.impl;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.parties.Organization;
+import com.elster.jupiter.parties.Party;
+import com.elster.jupiter.parties.PartyService;
+import com.elster.jupiter.rest.util.QueryParameters;
+import com.elster.jupiter.rest.util.RestQuery;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.conditions.Where;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -17,16 +24,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.parties.Organization;
-import com.elster.jupiter.parties.Party;
-import com.elster.jupiter.parties.PartyService;
-import com.elster.jupiter.rest.util.QueryParameters;
-import com.elster.jupiter.rest.util.RestQuery;
-import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.conditions.Where;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Path("/organizations")
@@ -34,17 +33,20 @@ public class OrganizationsResource {
 
     private final TransactionService transactionService;
     private final PartyService partyService;
-    private RestQueryService restQueryService;
+    private final RestQueryService restQueryService;
+    private final Fetcher fetcher;
 
     @Inject
-    public OrganizationsResource(TransactionService transactionService, PartyService partyService) {
+    public OrganizationsResource(TransactionService transactionService, PartyService partyService, Fetcher fetcher, RestQueryService restQueryService) {
         this.transactionService = transactionService;
         this.partyService = partyService;
+        this.restQueryService = restQueryService;
+        this.fetcher = fetcher;
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public OrganizationInfos createOrganization(OrganizationInfo info) {
         OrganizationInfos result = new OrganizationInfos();
         result.add(transactionService.execute(new CreateOrganizationTransaction(info, partyService)));
@@ -53,16 +55,16 @@ public class OrganizationsResource {
 
     @DELETE
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public OrganizationInfos deleteOrganization(OrganizationInfo info, @PathParam("id") long id) {
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public OrganizationInfos deleteOrganization(@PathParam("id") long id, OrganizationInfo info) {
         info.id = id;
-        transactionService.execute(new DeleteOrganizationTransaction(info, partyService));
+        transactionService.execute(new DeleteOrganizationTransaction(info, fetcher));
         return new OrganizationInfos();
     }
 
     @GET
     @Path("/{id}/")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public OrganizationInfos getOrganization(@PathParam("id") long id) {
         Optional<Party> party = partyService.findParty(id);
         if (party.isPresent() && party.get() instanceof Organization) {
@@ -73,7 +75,7 @@ public class OrganizationsResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public OrganizationInfos getOrganizations(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<Party> list = getPartyRestQuery().select(queryParameters);
@@ -88,11 +90,11 @@ public class OrganizationsResource {
 
     @PUT
     @Path("/{id}/")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     public OrganizationInfos updateOrganization(OrganizationInfo info, @PathParam("id") long id) {
         info.id = id;
-        transactionService.execute(new UpdateOrganizationTransaction(info, partyService));
+        transactionService.execute(new UpdateOrganizationTransaction(info, fetcher));
         return getOrganization(info.id);
     }
 
@@ -101,5 +103,4 @@ public class OrganizationsResource {
         query.setRestriction(Where.where("class").isEqualTo(Organization.TYPE_IDENTIFIER));
         return restQueryService.wrap(query);
     }
-
 }
