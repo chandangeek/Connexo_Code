@@ -146,6 +146,11 @@ public abstract class ComTaskImpl implements ComTask {
         this.storeData = storeData;
     }
 
+    @Override
+    public long getVersion() {
+        return version;
+    }
+
     public List<ProtocolTask> getProtocolTasks() {
         return Collections.unmodifiableList(this.protocolTasks);
     }

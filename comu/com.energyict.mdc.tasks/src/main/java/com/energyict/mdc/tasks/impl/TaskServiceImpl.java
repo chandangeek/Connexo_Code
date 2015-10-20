@@ -203,6 +203,11 @@ public class TaskServiceImpl implements ServerTaskService, InstallService, Messa
     }
 
     @Override
+    public Optional<ComTask> findAndLockComTaskByIdAndVersion(long id, long version) {
+        return dataModel.mapper(ComTask.class).lockObjectIfVersion(version, id);
+    };
+
+    @Override
     public Optional<ProtocolTask> findProtocolTask(long id) {
         return dataModel.mapper(ProtocolTask.class).getUnique("id", id);
     }

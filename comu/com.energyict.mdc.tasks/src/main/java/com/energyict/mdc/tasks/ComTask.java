@@ -112,4 +112,6 @@ public interface ComTask extends HasId, HasName {
      * @return true if this is a System defined ComTask, false otherwise
      */
     boolean isSystemComTask();
+
+    long getVersion();
 }
