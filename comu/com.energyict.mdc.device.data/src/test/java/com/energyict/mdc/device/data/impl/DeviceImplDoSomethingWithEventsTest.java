@@ -473,6 +473,11 @@ public class DeviceImplDoSomethingWithEventsTest {
                 return eventService.getEventType(topic);
             }
 
+            @Override
+            public Optional<EventType> findAndLockEventTypeByNameAndVersion(String topic, long version) {
+                return eventService.findAndLockEventTypeByNameAndVersion(topic, version);
+            }
+
         }
 
     }

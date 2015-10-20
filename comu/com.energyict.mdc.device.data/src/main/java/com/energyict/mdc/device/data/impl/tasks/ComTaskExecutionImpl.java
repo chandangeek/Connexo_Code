@@ -640,6 +640,11 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     }
 
     @Override
+    public long getVersion() {
+        return this.version;
+    }
+
+    @Override
     public void executionStarted(ComPort comPort) {
         this.doExecutionStarted(comPort);
         this.update();
@@ -701,6 +706,24 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         if (this.obsoleteDate != null) {
             throw new CannotUpdateObsoleteComTaskExecutionException(this, this.getThesaurus(), MessageSeeds.COM_TASK_IS_OBSOLETE_AND_CAN_NOT_BE_UPDATED);
         }
+    }
+
+    @Override
+    public void save() {
+        super.save();
+        if(getId() > 0) {
+            getDataModel().touch(device.get());
+        }
+    }
+
+    public void updateAndDoNotTouchParent(){
+        super.save();
+    }
+
+    @Override
+    protected void update() {
+        super.update();
+        getDataModel().touch(device.get());
     }
 
     public abstract static class AbstractComTaskExecutionBuilder<C extends ComTaskExecution, CI extends ComTaskExecutionImpl> implements ComTaskExecutionBuilder<C> {

@@ -264,6 +264,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.validateNotObsolete();
         super.save();
         this.saveAllProperties();
+        getDataModel().touch(device.get());
     }
 
     protected void saveAllProperties() {
@@ -866,6 +867,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
             this.loadPluggableClass();
         }
         super.update();
+        getDataModel().touch(device.get());
     }
 
     @Override
@@ -918,6 +920,11 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
             return false;
         }
         return true;
+    }
+
+    @Override
+    public long getVersion() {
+        return this.version;
     }
 
     /**

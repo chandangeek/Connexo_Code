@@ -331,4 +331,5 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
 
     public void save();
 
+    long getVersion();
 }

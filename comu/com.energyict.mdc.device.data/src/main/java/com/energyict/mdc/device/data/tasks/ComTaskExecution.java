@@ -370,4 +370,5 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
      */
     boolean isLastExecutionFailed();
 
+    long getVersion();
 }

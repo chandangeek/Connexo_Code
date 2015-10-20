@@ -692,6 +692,11 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
+    public Optional<ComTaskExecution> findAndLockComTaskExecutionByIdAndVersion(long id, long version) {
+        return this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public List<ComTaskExecution> findComTaskExecutionsByDevice(Device device) {
         Condition condition = where(ComTaskExecutionFields.DEVICE.name()).isEqualTo(device.getId()).and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
         return this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class).select(condition);

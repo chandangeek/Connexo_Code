@@ -77,6 +77,7 @@ public interface CommunicationTaskService {
      */
     public Optional<ComTaskExecution> findComTaskExecution(long id);
 
+    Optional<ComTaskExecution> findAndLockComTaskExecutionByIdAndVersion(long id, long version);
     /**
      * Counts all {@link ComTaskExecution}s in the system,
      * grouping them by their respective {@link TaskStatus}.

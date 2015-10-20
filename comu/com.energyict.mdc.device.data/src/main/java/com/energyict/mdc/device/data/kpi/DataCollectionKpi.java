@@ -136,4 +136,5 @@ public interface DataCollectionKpi extends HasId {
      */
     public void dropConnectionSetupKpi();
 
+    long getVersion();
 }
