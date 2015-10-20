@@ -7,12 +7,11 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.SecurityContext;
 import java.nio.file.FileSystem;
-
-import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;

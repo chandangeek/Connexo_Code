@@ -6,7 +6,6 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.streams.Functions;
 
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class AppServerInfo {
@@ -15,6 +14,7 @@ public class AppServerInfo {
     public boolean active;
     public List<SubscriberExecutionSpecInfo> executionSpecs;
     public List<ImportScheduleInfo> importServices;
+    public long version;
 
     public AppServerInfo() {}
 
@@ -25,6 +25,7 @@ public class AppServerInfo {
     public AppServerInfo(AppServer appServer, Thesaurus thesaurus) {
         name = appServer.getName();
         active = appServer.isActive();
+        version = appServer.getVersion();
         executionSpecs = appServer.getSubscriberExecutionSpecs().stream()
                 .map(spec -> SubscriberExecutionSpecInfo.of(spec, thesaurus))
                 .collect(Collectors.toList());

@@ -4,9 +4,6 @@ package com.elster.jupiter.appserver.rest.impl;
  * Created by mandr on 5/25/2015.
  */
 
-import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
-import com.elster.jupiter.nls.Thesaurus;
-
 public class ImportScheduleOnAppServerInfo {
 
     public ImportScheduleInfo importSchedule;
