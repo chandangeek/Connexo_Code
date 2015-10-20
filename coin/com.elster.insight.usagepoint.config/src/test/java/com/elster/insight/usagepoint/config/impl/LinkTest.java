@@ -4,9 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.sql.SQLException;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.AfterClass;
@@ -43,15 +41,12 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.time.Interval;
-import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 @RunWith(MockitoJUnitRunner.class)
 public class LinkTest {
-    private static final Instant START = ZonedDateTime.of(2013, 4, 14, 17, 20, 4, 0,ZoneId.systemDefault()).toInstant();
     private static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
 
@@ -134,7 +129,7 @@ public class LinkTest {
         	assertThat(mc).isPresent();
         	assertThat(mc.get().getName()).isEqualTo("Residential");
         	assertThat(up.get().getMRID()).isEqualTo("mrID");
-        	UsagePointMetrologyConfiguration upmc = upcService.link(up.get(),  mc.get(), Interval.of(Range.atLeast(START)));
+        	UsagePointMetrologyConfiguration upmc = upcService.link(up.get(),  mc.get());
             assertThat(upmc).isNotNull();            
             assertThat(upmc.getMetrologyConfiguration().getName()).isEqualTo("Residential");
             assertThat(upmc.getUsagePoint().getMRID()).isEqualTo("mrID");
@@ -142,27 +137,58 @@ public class LinkTest {
         }
     }
     
-    @Test(expected = IllegalArgumentException.class)
-    public void testConflict() {
+    public void testUpdate() {
         UsagePoint up;
+        MetrologyConfiguration mc1;
+        MetrologyConfiguration mc2;
+
+        try (TransactionContext context = getTransactionService().getContext()) {
+            MeteringService mtrService = getMeteringService();
+            UsagePointConfigurationService upcService = getUsagePointConfigurationService();
+            ServiceCategory serviceCategory = mtrService.getServiceCategory(ServiceKind.ELECTRICITY).get();
+            up = serviceCategory.newUsagePoint("UpdateMe").create();
+            mc1 = upcService.newMetrologyConfiguration("First");
+            mc2 = upcService.newMetrologyConfiguration("Second");
+            context.commit();
+        }
+        try (TransactionContext context = getTransactionService().getContext()) {
+            UsagePointConfigurationService upcService = getUsagePointConfigurationService();
+            upcService.link(up,  mc1);
+            context.commit();
+            Optional<MetrologyConfiguration> mcx = upcService.findMetrologyConfigurationForUsagePoint(up);
+            assertThat(mcx).isPresent();
+            assertThat(mcx.get().getName()).isEqualTo("First");
+        }
+        try (TransactionContext context = getTransactionService().getContext()) {
+            UsagePointConfigurationService upcService = getUsagePointConfigurationService();
+            upcService.link(up,  mc2);
+            context.commit();
+            Optional<MetrologyConfiguration> mcx = upcService.findMetrologyConfigurationForUsagePoint(up);
+            assertThat(mcx).isPresent();
+            assertThat(mcx.get().getName()).isEqualTo("Second");            
+        }
+    }
+    
+    public void testReverseMap() {
+        UsagePoint up1;
+        UsagePoint up2;
         MetrologyConfiguration mc;
 
         try (TransactionContext context = getTransactionService().getContext()) {
             MeteringService mtrService = getMeteringService();
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
             ServiceCategory serviceCategory = mtrService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-            up = serviceCategory.newUsagePoint("Duplicate").create();
-            mc = upcService.newMetrologyConfiguration("Duplicate");
+            up1 = serviceCategory.newUsagePoint("First").create();
+            up2 = serviceCategory.newUsagePoint("Second").create();
+            mc = upcService.newMetrologyConfiguration("HasTwo");
             context.commit();
         }
         try (TransactionContext context = getTransactionService().getContext()) {
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
-            upcService.link(up,  mc, Interval.of(Range.atLeast(START)));
-            context.commit();
-        }
-        try (TransactionContext context = getTransactionService().getContext()) {
-            UsagePointConfigurationService upcService = getUsagePointConfigurationService();
-            upcService.link(up,  mc, Interval.of(Range.atLeast(START)));
+            List<UsagePoint> upList = upcService.findUsagePointsForMetrologyConfiguration(mc);
+            assertThat(upList.size()).isEqualTo(2);
+            assertThat(upList.get(0)).isEqualTo(up1);
+            assertThat(upList.get(1)).isEqualTo(up2);
             context.commit();
         }
     }

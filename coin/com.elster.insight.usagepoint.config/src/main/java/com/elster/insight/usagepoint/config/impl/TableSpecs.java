@@ -26,12 +26,10 @@ public enum TableSpecs {
 	    void addTo(DataModel dataModel) {
 	        Table<UsagePointMetrologyConfiguration> table = dataModel.addTable(name(), UsagePointMetrologyConfiguration.class);
 	        table.map(UsagePointMetrologyConfigurationImpl.class);
-            Column idColumn = table.addAutoIdColumn();
             Column usagePointIdColumn = table.column("USAGEPOINTID").number().notNull().conversion(NUMBER2LONG).add();
             Column metrologyConfigIdColumn = table.column("METROLOGYCONFIGID").number().notNull().conversion(NUMBER2LONG).add();
-            table.addIntervalColumns("interval");
             table.addAuditColumns();
-	        table.primaryKey("UPC_PK_USGPNTMETROLOGYCONFIG").on(idColumn).add();
+	        table.primaryKey("UPC_PK_USGPNTMETROLOGYCONFIG").on(usagePointIdColumn).add();
 	        table.foreignKey("UPC_FK_USGPNTMETROLOGYCONFIGUP").on(usagePointIdColumn).references(UsagePoint.class).onDelete(DeleteRule.RESTRICT).map("usagePoint").add();
 	        table.foreignKey("UPC_FK_USGPNTMETROLOGYCONFIGMC").on(metrologyConfigIdColumn).references(UPC_METROLOGYCONFIG.name()).onDelete(DeleteRule.RESTRICT).map("metrologyConfiguration").add();
 	    }

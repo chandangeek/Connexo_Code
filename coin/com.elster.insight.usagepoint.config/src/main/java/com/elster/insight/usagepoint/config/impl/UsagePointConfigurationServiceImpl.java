@@ -1,14 +1,15 @@
 package com.elster.insight.usagepoint.config.impl;
 
+import static com.elster.jupiter.util.conditions.Where.where;
+
 import java.time.Clock;
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
-import static com.elster.jupiter.util.conditions.Where.where;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -25,7 +26,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.time.Interval;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 
@@ -136,36 +136,26 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     }
 
     @Override
-    public UsagePointMetrologyConfiguration link(UsagePoint up, MetrologyConfiguration mc, Interval interval) {
-        UsagePointMetrologyConfigurationImpl candidate = new UsagePointMetrologyConfigurationImpl(clock, dataModel, eventService);
-        candidate.init(up, mc, interval);
-        validateAddingLink(candidate);
+    public UsagePointMetrologyConfiguration link(UsagePoint up, MetrologyConfiguration mc) {
+        UsagePointMetrologyConfigurationImpl candidate = new UsagePointMetrologyConfigurationImpl(dataModel, eventService);
+        candidate.init(up, mc);
         candidate.update();
         return candidate;        
     }
-    
-    private void validateAddingLink(UsagePointMetrologyConfigurationImpl candidate) {
-        List<UsagePointMetrologyConfiguration> existing = dataModel.mapper(UsagePointMetrologyConfiguration.class).find();
-        for (UsagePointMetrologyConfiguration other : existing) {
-            if (candidate.conflictsWith(other)) {
-                throw new IllegalArgumentException("Conflicts with existing association : " + other);
-            }
+   
+
+    @Override
+    public Optional<MetrologyConfiguration> findMetrologyConfigurationForUsagePoint(UsagePoint up) {
+        Optional<UsagePointMetrologyConfiguration> obj = this.getDataModel().query(UsagePointMetrologyConfiguration.class).getOptional(up.getId());
+        if (!obj.isPresent()) {
+            return Optional.empty();
         }
+        return Optional.of(obj.get().getMetrologyConfiguration());
     }
 
     @Override
-    public Optional<UsagePointMetrologyConfiguration> findMetrologyConfigurationForUsagePoint(UsagePoint up, Instant time) {
-        //TODO: Remove time from parameters, or find a way to search in query for it.
-        List<UsagePointMetrologyConfiguration> list = this.getDataModel().query(UsagePointMetrologyConfiguration.class).select(where("usagePoint.id").isEqualTo(up.getId()));
-        if (list.size() > 0) {
-            return Optional.of(list.get(0));           
-        }
-        return Optional.empty();
-    }
-
-    @Override
-    public List<UsagePoint> findUsagePointsForMetrologyConfiguration(MetrologyConfiguration mc, Instant time) {
-        // TODO: query
-        return new ArrayList<UsagePoint>();
+    public List<UsagePoint> findUsagePointsForMetrologyConfiguration(MetrologyConfiguration mc) {
+        List<UsagePointMetrologyConfiguration> list = this.getDataModel().query(UsagePointMetrologyConfiguration.class).select(where("metrologyConfiguration.id").isEqualTo(mc.getId()));
+        return list.stream().map(each -> each.getUsagePoint()).collect(Collectors.toList());
     }
 }
