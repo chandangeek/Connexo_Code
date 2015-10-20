@@ -74,6 +74,10 @@ public abstract class PersistentIdObject<T> {
         this.notifyDeleted();
     }
 
+    public long getVersion() {
+        return version;
+    }
+
     private void notifyCreated() {
         this.eventService.postEvent(this.createEventType().topic(), this);
     }

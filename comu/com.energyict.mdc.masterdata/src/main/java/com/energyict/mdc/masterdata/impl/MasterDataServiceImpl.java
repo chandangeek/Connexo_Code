@@ -101,6 +101,11 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     }
 
     @Override
+    public Optional<LogBookType> findAndLockLogBookTypeByIdAndVersion(long id, long version) {
+        return this.getDataModel().mapper(LogBookType.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public Optional<LogBookType> findLogBookTypeByName(String name) {
         return this.getDataModel().mapper(LogBookType.class).getUnique("name", name);
     }
@@ -113,6 +118,11 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     @Override
     public Optional<RegisterGroup> findRegisterGroup(long id) {
         return this.getDataModel().mapper(RegisterGroup.class).getUnique("id", id);
+    }
+
+    @Override
+    public Optional<RegisterGroup> findAndLockRegisterGroupByIdAndVersion(long id, long version) {
+        return this.getDataModel().mapper(RegisterGroup.class).lockObjectIfVersion(version, id);
     }
 
     @Override
@@ -145,6 +155,11 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     @Override
     public Optional<RegisterType> findRegisterType(long id) {
         return this.getDataModel().mapper(RegisterType.class).getUnique("id", id);
+    }
+
+    @Override
+    public Optional<RegisterType> findAndLockRegisterTypeByIdAndVersion(long id, long version) {
+        return this.getDataModel().mapper(RegisterType.class).lockObjectIfVersion(version, id);
     }
 
     @Override
@@ -190,6 +205,11 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     @Override
     public Optional<LoadProfileType> findLoadProfileType(long loadProfileTypeId) {
         return this.getDataModel().mapper(LoadProfileType.class).getUnique("id", loadProfileTypeId);
+    }
+
+    @Override
+    public Optional<LoadProfileType> findAndLockLoadProfileTypeByIdAndVersion(long id, long version) {
+        return this.getDataModel().mapper(LoadProfileType.class).lockObjectIfVersion(version, id);
     }
 
     @Override

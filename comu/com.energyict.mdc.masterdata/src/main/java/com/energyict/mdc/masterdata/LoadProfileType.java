@@ -73,4 +73,5 @@ public interface LoadProfileType extends HasId, HasName {
 
     Optional<ChannelType> findChannelType(RegisterType measurementTypeWithoutInterval);
 
+    long getVersion();
 }

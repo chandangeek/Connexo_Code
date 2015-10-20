@@ -29,4 +29,5 @@ public interface RegisterGroup extends HasId, HasName {
 
     public void updateRegisterTypes(List<RegisterType> registerTypes);
 
+    long getVersion();
 }

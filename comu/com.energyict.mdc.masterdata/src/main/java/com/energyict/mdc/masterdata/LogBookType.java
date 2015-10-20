@@ -28,4 +28,6 @@ public interface LogBookType extends HasId, HasName {
 
     public void delete ();
 
+    long getVersion();
+
 }

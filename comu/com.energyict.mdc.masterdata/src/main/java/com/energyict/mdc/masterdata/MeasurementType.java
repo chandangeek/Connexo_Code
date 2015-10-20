@@ -72,4 +72,5 @@ public interface MeasurementType extends HasId {
 
     public void delete ();
 
+    long getVersion();
 }
