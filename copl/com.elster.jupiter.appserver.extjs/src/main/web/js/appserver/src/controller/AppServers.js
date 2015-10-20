@@ -263,18 +263,15 @@ Ext.define('Apr.controller.AppServers', {
             success: function (exportPath) {
                 confirmationWindow.show({
                     msg: Uni.I18n.translate('appServers.remove.msg', 'APR', 'This application server will no longer be available.'),
-                    title: Uni.I18n.translate('general.removeX', 'APR', "Remove '{0}'?",[record.data.name]),
+                    title: Uni.I18n.translate('general.removeX', 'APR', "Remove '{0}'?", record.data.name),
                     fn: function (state) {
                         if (state === 'confirm') {
                             exportPath.destroy({
                                 success: function () {
                                     record.destroy({
                                         success: function () {
-                                            var grid = me.getPage().down('appservers-grid');
-                                            grid.down('pagingtoolbartop').totalCount = 0;
-                                            grid.down('pagingtoolbarbottom').resetPaging();
-                                            grid.getStore().load();
                                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('appServers.remove.success.msg', 'APR', 'Application server removed'));
+                                            me.showAppServers();
                                         }
                                     });
                                 }
@@ -317,7 +314,7 @@ Ext.define('Apr.controller.AppServers', {
                                         returnLink: router.getState().buildUrl() // = the previously stored url
                                     });
                                     me.getApplication().fireEvent('changecontentevent', view);
-                                    view.down('#add-appserver-form').setTitle(Uni.I18n.translate('general.editx', 'APR', "Edit '{0}'",[appServerName]));
+                                    view.down('#add-appserver-form').setTitle(Uni.I18n.translate('general.editx', 'APR', "Edit '{0}'", appServerName));
                                     view.down('#add-appserver-form').loadRecord(rec);
                                     view.down('#txt-appserver-name').disable();
                                 }

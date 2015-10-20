@@ -27,8 +27,7 @@ Ext.define('Apr.view.appservers.PreviewForm', {
                                 },
 
                                 defaults: {
-
-                                    labelWidth: 350
+                                    labelWidth: 250
                                 },
                                 items: [
                                     {
