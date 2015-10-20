@@ -114,6 +114,11 @@ public final class ComScheduleImpl implements ComSchedule {
         this.name = Checks.is(name).emptyOrOnlyWhiteSpace() ? null : name.trim();
     }
 
+    @Override
+    public long getVersion() {
+        return version;
+    }
+
     @Valid
     @Override
     public NextExecutionSpecs getNextExecutionSpecs() {

@@ -19,6 +19,8 @@ public interface ComSchedule extends HasId, HasName, DataCollectionConfiguration
 
     public void setName(String name);
 
+    public long getVersion();
+
     public SchedulingStatus getSchedulingStatus();
 
     public void setSchedulingStatus(SchedulingStatus status);

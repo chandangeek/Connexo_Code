@@ -173,6 +173,13 @@ public class SchedulingServiceImpl implements ServerSchedulingService, InstallSe
         return this.findUniqueSchedule("id", id);
     }
 
+
+    @Override
+    public Optional<ComSchedule> findAndLockComScheduleByIdAndVersion(long id, long version) {
+        return this.dataModel.mapper(ComSchedule.class).lockObjectIfVersion(version, id);
+    }
+
+
     private Optional<ComSchedule> findUniqueSchedule(String fieldName, Object value) {
         Condition condition = where(fieldName).isEqualTo(value).and(where(ComScheduleImpl.Fields.OBSOLETE_DATE.fieldName()).isNull());
         return this.dataModel.query(ComSchedule.class).select(condition).stream().findFirst();
