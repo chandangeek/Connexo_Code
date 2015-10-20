@@ -1,5 +1,5 @@
 Ext.define('Dsh.model.DeviceGroup', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.ParentVersion',
     proxy: 'memory',
     fields: [
         { name: 'id', type: 'int'},

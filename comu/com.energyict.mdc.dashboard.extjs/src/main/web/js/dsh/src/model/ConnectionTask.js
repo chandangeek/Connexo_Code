@@ -1,8 +1,8 @@
 Ext.define('Dsh.model.ConnectionTask', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.Version',
     fields: [
         { name: 'id', type: 'auto'},
-        { name: 'device', type: 'auto' },
+        { name: 'device', type: 'auto', defaultValue: null},
         { name: 'deviceConfiguration', type: 'auto' },
         { name: 'deviceType', type: 'auto' },
         {
@@ -42,8 +42,12 @@ Ext.define('Dsh.model.ConnectionTask', {
     ],
 
     run: function(callback) {
+        var me = this;
+
         Ext.Ajax.request({
+            isNotEdit: true,
             method: 'PUT',
+            jsonData: _.pick(me.getRecordData(), 'id', 'device', 'version'),
             url: this.proxy.url + '/{id}/run'.replace('{id}', this.getId()),
             success: callback
         });

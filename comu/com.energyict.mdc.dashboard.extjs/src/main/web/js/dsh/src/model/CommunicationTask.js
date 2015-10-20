@@ -1,5 +1,5 @@
 Ext.define('Dsh.model.CommunicationTask', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.Version',
     fields: [
         "name",
         "device",
@@ -44,16 +44,24 @@ Ext.define('Dsh.model.CommunicationTask', {
     },
 
     run: function(callback) {
+        var me = this;
+
         Ext.Ajax.request({
+            isNotEdit: true,
             method: 'PUT',
+            jsonData: _.pick(me.getRecordData(), 'id', 'name', 'version'),
             url: this.proxy.url + '/{id}/run'.replace('{id}', this.getId()),
             success: callback
         });
     },
 
     runNow: function(callback) {
+        var me = this;
+
         Ext.Ajax.request({
+            isNotEdit: true,
             method: 'PUT',
+            jsonData: _.pick(me.getRecordData(), 'id', 'name', 'version'),
             url: this.proxy.url + '/{id}/runnow'.replace('{id}', this.getId()),
             success: callback
         });
@@ -68,8 +76,6 @@ Ext.define('Dsh.model.CommunicationTask', {
             totalProperty: 'total'
         }
     }
-
-
 });
 
 

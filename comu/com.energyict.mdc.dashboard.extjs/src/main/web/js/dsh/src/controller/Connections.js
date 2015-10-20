@@ -201,10 +201,8 @@ Ext.define('Dsh.controller.Connections', {
 
     initConnectionMenu: function (menu) {
         if (menu && menu.record) {
-            if (menu.record.get('comSessionId') !== 0) {
+            if (menu.record.get('comSessionId') !== 0 && menu.down('menuitem[action=viewLog]')!== null) {
                 menu.down('menuitem[action=viewLog]').show()
-            } else {
-                menu.down('menuitem[action=viewLog]').hide()
             }
         }
     },

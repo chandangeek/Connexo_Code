@@ -101,17 +101,15 @@ Ext.define('Dsh.controller.OperatorDashboard', {
     saveFavoriteGroups: function () {
         var me = this, ids = [],
             router = me.getController('Uni.controller.history.Router'),
-            store = me.getFavoriteDeviceGroupsGrid().getStore(),
-            selectedGroups = store.queryBy(function (record) {
-                return record.get('favorite') === true;
-            });
+            store = me.getFavoriteDeviceGroupsGrid().getStore();
 
-        selectedGroups.each(function (group) {
-            ids.push(group.get('id'));
+        Ext.Array.each(store.getRange(), function (group) {
+            ids.push(group.getRecordData());
         });
 
         me.getFavoriteDeviceGroups().setLoading(true);
         Ext.Ajax.request({
+            backUrl: router.getRoute('dashboard').buildUrl(),
             url: store.proxy.url,
             method: 'PUT',
             jsonData: {ids: ids},
