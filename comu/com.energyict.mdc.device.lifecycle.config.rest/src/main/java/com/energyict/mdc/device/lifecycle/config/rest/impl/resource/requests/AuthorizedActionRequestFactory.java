@@ -55,20 +55,14 @@ public class AuthorizedActionRequestFactory {
         Objects.requireNonNull(info);
         Objects.requireNonNull(operation);
         if (info.id > 0){
-            this.authorizedAction = this.resourceHelper.findAuthorizedActionByIdOrThrowException(deviceLifeCycle, info.id);
+            this.authorizedAction = this.resourceHelper.lockAuthorizedActionOrThrowException(info);
         }
         this.deviceLifeCycle = deviceLifeCycle;
         this.info = info;
         return operation.getRequest(this);
     }
 
-    public AuthorizedActionChangeRequest from(DeviceLifeCycle deviceLifeCycle, long authorizedActionId, Operation operation){
-        AuthorizedActionInfo info = new AuthorizedActionInfo();
-        info.id = authorizedActionId;
-        return from(deviceLifeCycle, info, operation);
-    }
-
-    public static enum Operation {
+    public enum Operation {
         CREATE {
             @Override
             AuthorizedActionChangeRequest getRequest(AuthorizedActionRequestFactory factory) {

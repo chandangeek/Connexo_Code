@@ -57,9 +57,10 @@ public class DeviceLifeCycleStateResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLE})
     public PagedInfoList getStatesForDeviceLifecycle(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @BeanParam JsonQueryParameters queryParams) {
-        List<DeviceLifeCycleStateInfo> states = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId).getFiniteStateMachine().getStates()
+        DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
+        List<DeviceLifeCycleStateInfo> states = (List<DeviceLifeCycleStateInfo>) deviceLifeCycle.getFiniteStateMachine().getStates()
                 .stream()
-                .map(deviceLifeCycleStateFactory::from)
+                .map(state -> deviceLifeCycleStateFactory.from(deviceLifeCycle, state))
                 .sorted((st1, st2) -> st1.name.compareToIgnoreCase(st2.name)) // alphabetical sort
                 .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("deviceLifeCycleStates", ListPager.of(states).from(queryParams).find(), queryParams);
@@ -70,8 +71,9 @@ public class DeviceLifeCycleStateResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLE})
     public Response getStateById(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("stateId") Long stateId, @BeanParam JsonQueryParameters queryParams) {
-        State state = resourceHelper.findStateByIdOrThrowException(resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId), stateId);
-        return Response.ok(deviceLifeCycleStateFactory.from(state)).build();
+        DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
+        State state = resourceHelper.findStateByIdOrThrowException(deviceLifeCycle, stateId);
+        return Response.ok(deviceLifeCycleStateFactory.from(deviceLifeCycle, state)).build();
     }
 
 
@@ -85,7 +87,7 @@ public class DeviceLifeCycleStateResource {
         State newState = fsmUpdater.newCustomState(stateInfo.name).complete();
         boolean firstState = deviceLifeCycle.getFiniteStateMachine().getStates().isEmpty();
         FiniteStateMachine fsm = firstState ? fsmUpdater.complete(newState) : fsmUpdater.complete();
-        return Response.status(Response.Status.CREATED).entity(deviceLifeCycleStateFactory.from(newState)).build();
+        return Response.status(Response.Status.CREATED).entity(deviceLifeCycleStateFactory.from(deviceLifeCycle, newState)).build();
     }
 
     @PUT
@@ -93,34 +95,34 @@ public class DeviceLifeCycleStateResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLE})
-    public Response editDeviceLifeCycleState(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("stateId") Long stateId, DeviceLifeCycleStateInfo stateInfo) {
+    public Response editDeviceLifeCycleState(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("stateId") Long stateId, DeviceLifeCycleStateInfo info) {
+        info.id = stateId;
+        State stateForEdit = resourceHelper.lockStateOrThrowException(info);
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
-        State stateForEdit = resourceHelper.findStateByIdOrThrowException(deviceLifeCycle, stateId);
-
-
 
         FiniteStateMachineUpdater fsmUpdater = deviceLifeCycle.getFiniteStateMachine().startUpdate();
         FiniteStateMachineUpdater.StateUpdater stateUpdater = fsmUpdater.state(stateId);
         if (stateForEdit.isCustom()) {
-            stateUpdater.setName(stateInfo.name);
+            stateUpdater.setName(info.name);
         }
 
-        stateInfo.onEntry.stream().map(this::findStateChangeBusinessProcess).forEach(stateUpdater::onEntry);
-        stateInfo.onExit.stream().map(this::findStateChangeBusinessProcess).forEach(stateUpdater::onExit);
+        info.onEntry.stream().map(this::findStateChangeBusinessProcess).forEach(stateUpdater::onEntry);
+        info.onExit.stream().map(this::findStateChangeBusinessProcess).forEach(stateUpdater::onExit);
         // remove 'obsolete' onEntry processes:
         stateForEdit.getOnEntryProcesses().stream()
                 .map(ProcessReference::getStateChangeBusinessProcess)
-                .filter(x -> isObsoleteStateChageBusinessProcess(stateInfo.onEntry, x))
+                .filter(x -> isObsoleteStateChangeBusinessProcess(info.onEntry, x))
                 .forEach(stateUpdater::removeOnEntry);
         //remove 'obsolete' onExit processes
         stateForEdit.getOnExitProcesses().stream()
                 .map(ProcessReference::getStateChangeBusinessProcess)
-                .filter(x -> isObsoleteStateChageBusinessProcess(stateInfo.onExit, x))
+                .filter(x -> isObsoleteStateChangeBusinessProcess(info.onExit, x))
                 .forEach(stateUpdater::removeOnExit);
 
         State stateAfterEdit = stateUpdater.complete();
         fsmUpdater.complete();
-        return Response.ok(deviceLifeCycleStateFactory.from(stateAfterEdit)).build();
+        deviceLifeCycle.save(); // increase parent version
+        return Response.ok(deviceLifeCycleStateFactory.from(deviceLifeCycle, stateAfterEdit)).build();
     }
 
     private StateChangeBusinessProcess findStateChangeBusinessProcess(TransitionBusinessProcessInfo businessProcessInfo){
@@ -131,7 +133,7 @@ public class DeviceLifeCycleStateResource {
         return process.get();
     }
 
-    private boolean isObsoleteStateChageBusinessProcess(List<TransitionBusinessProcessInfo> transitionBussinessProcessInfos, StateChangeBusinessProcess stateChangeBusinessProcess){
+    private boolean isObsoleteStateChangeBusinessProcess(List<TransitionBusinessProcessInfo> transitionBussinessProcessInfos, StateChangeBusinessProcess stateChangeBusinessProcess){
         return transitionBussinessProcessInfos.stream().noneMatch(x -> x.id == stateChangeBusinessProcess.getId());
     }
 
@@ -140,30 +142,32 @@ public class DeviceLifeCycleStateResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLE})
-    public Response setInitialDeviceLifeCycleState(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("stateId") Long stateId) {
+    public Response setInitialDeviceLifeCycleState(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("stateId") Long stateId, DeviceLifeCycleStateInfo info) {
+        info.id = stateId;
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
-        State stateForEdit = resourceHelper.findStateByIdOrThrowException(deviceLifeCycle, stateId);
+        State stateForEdit = resourceHelper.lockStateOrThrowException(info);
         FiniteStateMachine finiteStateMachine = deviceLifeCycle.getFiniteStateMachine();
         FiniteStateMachineUpdater fsmUpdater = finiteStateMachine.startUpdate();
         fsmUpdater.complete(stateForEdit);
-
-        return Response.ok(deviceLifeCycleStateFactory.from(stateForEdit)).build();
+        deviceLifeCycle.save(); // increase parent version
+        return Response.ok(deviceLifeCycleStateFactory.from(deviceLifeCycle, stateForEdit)).build();
     }
 
     @DELETE
     @Path("/{stateId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLE})
-    public Response deleteDeviceLifeCycleState(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("stateId") Long stateId) {
+    public Response deleteDeviceLifeCycleState(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("stateId") Long stateId, DeviceLifeCycleStateInfo info) {
+        State stateForDeletion = resourceHelper.lockStateOrThrowException(info);
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
-        State stateForDeletion = resourceHelper.findStateByIdOrThrowException(deviceLifeCycle, stateId);
         resourceHelper.checkDeviceLifeCycleUsages(deviceLifeCycle);
         checkStateHasTransitions(deviceLifeCycle, stateForDeletion);
         checkStateIsTheLatest(deviceLifeCycle);
         checkStateIsInitial(stateForDeletion);
         FiniteStateMachineUpdater fsmUpdater = deviceLifeCycle.getFiniteStateMachine().startUpdate();
         fsmUpdater.removeState(stateForDeletion).complete();
-        return Response.ok(deviceLifeCycleStateFactory.from(stateForDeletion)).build();
+        deviceLifeCycle.save(); // increase parent version
+        return Response.ok(deviceLifeCycleStateFactory.from(deviceLifeCycle, stateForDeletion)).build();
     }
 
     private void checkStateHasTransitions(DeviceLifeCycle deviceLifeCycle, State stateForDeletion) {

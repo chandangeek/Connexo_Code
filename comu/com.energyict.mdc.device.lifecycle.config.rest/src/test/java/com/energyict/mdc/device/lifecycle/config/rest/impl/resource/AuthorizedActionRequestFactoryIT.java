@@ -10,9 +10,11 @@ import com.elster.jupiter.fsm.FiniteStateMachineBuilder;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
@@ -139,7 +141,8 @@ public class AuthorizedActionRequestFactoryIT {
                         deviceConfigurationService,
                         inMemoryPersistence.getService(FiniteStateMachineService.class),
                         new ExceptionFactory(this.thesaurus),
-                        inMemoryPersistence.getService(EventService.class));
+                        inMemoryPersistence.getService(EventService.class),
+                        new ConcurrentModificationExceptionFactory(this.thesaurus));
         microActionAndCheckInfoFactory = new MicroActionAndCheckInfoFactory(deviceLifeCycleService, thesaurus);
         authorizedActionInfoFactory = new AuthorizedActionInfoFactory(thesaurus, microActionAndCheckInfoFactory);
     }
@@ -333,7 +336,13 @@ public class AuthorizedActionRequestFactoryIT {
         try (TransactionContext context = getTransactionService().getContext()) {
             DeviceLifeCycle deviceLifeCycle = getDeviceLifeCycleConfigurationService().findDeviceLifeCycleByName("ABC").get();
 
-            AuthorizedActionChangeRequest request = this.getTestInstance().from(deviceLifeCycle, deviceLifeCycle.getAuthorizedActions().get(0).getId(), AuthorizedActionRequestFactory.Operation.DELETE);
+            AuthorizedActionInfo info = new AuthorizedActionInfo();
+            AuthorizedAction authorizedAction = deviceLifeCycle.getAuthorizedActions().get(0);
+            info.id = authorizedAction.getId();
+            info.version = authorizedAction.getVersion();
+            info.parent = new VersionInfo<>(deviceLifeCycle.getId(), deviceLifeCycle.getVersion());
+
+            AuthorizedActionChangeRequest request = this.getTestInstance().from(deviceLifeCycle, info, AuthorizedActionRequestFactory.Operation.DELETE);
             request.perform();
 
             assertThat(request).isInstanceOf(AuthorizedTransitionActionDeleteRequest.class);

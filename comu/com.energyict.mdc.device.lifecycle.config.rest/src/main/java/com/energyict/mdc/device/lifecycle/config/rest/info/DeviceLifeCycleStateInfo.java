@@ -3,7 +3,9 @@ package com.energyict.mdc.device.lifecycle.config.rest.info;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.*;
@@ -18,10 +20,11 @@ public class DeviceLifeCycleStateInfo {
     public long version;
     public List<TransitionBusinessProcessInfo> onEntry = new ArrayList<>();
     public List<TransitionBusinessProcessInfo> onExit = new ArrayList<>();
+    public VersionInfo<Long> parent;
 
     public DeviceLifeCycleStateInfo() {}
 
-    public DeviceLifeCycleStateInfo(Thesaurus thesaurus, State state) {
+    public DeviceLifeCycleStateInfo(Thesaurus thesaurus, DeviceLifeCycle deviceLifeCycle, State state) {
         super();
         this.id = state.getId();
         this.isCustom = state.isCustom();
@@ -35,6 +38,9 @@ public class DeviceLifeCycleStateInfo {
             }
         } else {
             this.name = state.getName();
+        }
+        if (deviceLifeCycle != null) {
+            this.parent = new VersionInfo<>(deviceLifeCycle.getId(), deviceLifeCycle.getVersion());
         }
         addAllBusinessProcessInfos(onEntry, state.getOnEntryProcesses());
         addAllBusinessProcessInfos(onExit, state.getOnExitProcesses());

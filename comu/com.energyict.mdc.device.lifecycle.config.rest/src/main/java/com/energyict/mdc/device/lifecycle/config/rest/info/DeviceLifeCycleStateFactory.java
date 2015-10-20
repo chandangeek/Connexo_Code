@@ -2,6 +2,7 @@ package com.energyict.mdc.device.lifecycle.config.rest.info;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 
 import javax.inject.Inject;
 import java.util.Objects;
@@ -15,8 +16,9 @@ public class DeviceLifeCycleStateFactory {
         this.thesaurus = thesaurus;
     }
 
-    public DeviceLifeCycleStateInfo from(State state){
+    public DeviceLifeCycleStateInfo from(DeviceLifeCycle deviceLifeCycle, State state) {
+        Objects.requireNonNull(deviceLifeCycle);
         Objects.requireNonNull(state);
-        return new DeviceLifeCycleStateInfo(thesaurus, state);
+        return new DeviceLifeCycleStateInfo(thesaurus, deviceLifeCycle, state);
     }
 }

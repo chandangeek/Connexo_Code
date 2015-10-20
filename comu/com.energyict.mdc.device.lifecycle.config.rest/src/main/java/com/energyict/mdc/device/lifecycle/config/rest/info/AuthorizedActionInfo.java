@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.lifecycle.config.rest.info;
 
 import com.elster.jupiter.fsm.StateTransition;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
@@ -23,6 +24,7 @@ public class AuthorizedActionInfo {
     public Set<MicroActionAndCheckInfo> microActions;
     public Set<MicroActionAndCheckInfo> microChecks;
     public long version;
+    public VersionInfo<Long> parent;
 
     public AuthorizedActionInfo() {}
 

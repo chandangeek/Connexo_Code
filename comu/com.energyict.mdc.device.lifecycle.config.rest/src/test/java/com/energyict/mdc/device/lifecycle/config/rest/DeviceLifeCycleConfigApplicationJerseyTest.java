@@ -34,6 +34,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
+import org.mockito.Matchers;
 import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
@@ -42,6 +43,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplicationJerseyTest {
+
+    public static final long OK_VERSION = 6L;
 
     @Mock
     protected RestQueryService restQueryService;
@@ -106,6 +109,9 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         DeviceLifeCycle dlc = mock(DeviceLifeCycle.class);
         when(dlc.getId()).thenReturn(id);
         when(dlc.getName()).thenReturn(name);
+        when(dlc.getVersion()).thenReturn(OK_VERSION);
+        when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(id)).thenReturn(Optional.of(dlc));
+        when(deviceLifeCycleConfigurationService.findAndLockDeviceLifeCycleByIdAndVersion(id, OK_VERSION)).thenReturn(Optional.of(dlc));
         return  dlc;
     }
 
@@ -115,6 +121,9 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         when(state.getName()).thenReturn(name);
         when(state.isCustom()).thenReturn(false);
         when(state.isInitial()).thenReturn(false);
+        when(state.getVersion()).thenReturn(OK_VERSION);
+        when(finiteStateMachineService.findFiniteStateById(id)).thenReturn(Optional.of(state));
+        when(finiteStateMachineService.findAndLockStateByIdAndVersion(id, OK_VERSION)).thenReturn(Optional.of(state));
         return state;
     }
 
