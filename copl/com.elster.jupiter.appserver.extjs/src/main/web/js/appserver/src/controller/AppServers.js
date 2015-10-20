@@ -142,7 +142,7 @@ Ext.define('Apr.controller.AppServers', {
         me.getModel('Apr.model.AppServer').load(appServerName, {
             success: function (record) {
                 me.appServer = record;
-                view.down('appservers-preview-form').updateAppServerPreview(record);
+                view.down('appservers-preview-form').updateAppServerPreview(record,me.getController('Uni.controller.history.Router'));
                 exportPathsStore.load(function (exportPaths) {
                     Ext.Array.each(exportPaths, function (dir) {
                         if (dir.get('appServerName') === appServerName) {
