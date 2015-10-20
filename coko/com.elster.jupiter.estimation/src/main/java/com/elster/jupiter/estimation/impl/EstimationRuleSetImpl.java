@@ -267,6 +267,7 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
         updateReadingTypes(rule, mRIDs);
         rule.setProperties(properties);
         rule.save();
+        dataModel.touch(this);
 
         return rule;
     }
@@ -288,6 +289,7 @@ class EstimationRuleSetImpl implements IEstimationRuleSet {
         IEstimationRule iRule = (IEstimationRule) rule;
         if (doGetRules().anyMatch( candidate -> candidate.equals(iRule))) {
             iRule.delete();
+            dataModel.touch(this);
         } else {
             throw new IllegalArgumentException("The rulset " + this.getId() + " doesn't contain provided ruleId: " + rule.getId());
         }

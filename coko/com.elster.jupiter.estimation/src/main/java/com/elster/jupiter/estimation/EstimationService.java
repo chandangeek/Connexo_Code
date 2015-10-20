@@ -1,5 +1,6 @@
 package com.elster.jupiter.estimation;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.ReadingQualityType;
@@ -11,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@ProviderType
 public interface EstimationService {
 
     String COMPONENTNAME = "EST";
@@ -39,15 +41,21 @@ public interface EstimationService {
 
     Optional<? extends EstimationRuleSet> getEstimationRuleSet(long id);
 
+    Optional<? extends EstimationRuleSet> findAndLockEstimationRuleSet(long id, long version);
+
     Optional<? extends EstimationRuleSet> getEstimationRuleSet(String name);
 
     boolean isEstimationRuleSetInUse(EstimationRuleSet validationRuleSet);
 
     Optional<? extends EstimationRule> getEstimationRule(long id);
 
+    Optional<? extends EstimationRule> findAndLockEstimationRule(long id, long version);
+
     EstimationTaskBuilder newBuilder();
 
     Optional<? extends EstimationTask> findEstimationTask(long id);
+
+    Optional<? extends EstimationTask> findAndLockEstimationTask(long id, long version);
 
     Query<EstimationRuleSet> getEstimationRuleSetQuery();
 

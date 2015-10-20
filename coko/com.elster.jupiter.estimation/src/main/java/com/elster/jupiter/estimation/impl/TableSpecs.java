@@ -33,13 +33,14 @@ public enum TableSpecs {
             table.setJournalTableName("EST_ESTIMATIONRULESETJRNL");
             Column idColumn = table.addAutoIdColumn();
             Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
-            table.column("NAME").varChar(NAME_LENGTH).map("name").add();
+            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.column("DESCRIPTION").varChar(DESCRIPTION_LENGTH).map("description").add();
-            table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
+            Column obsoleteColumn = table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
             table.addAuditColumns();
             table.primaryKey("EST_PK_ESTIMATIONRULESET").on(idColumn).add();
             table.unique("EST_U_ESTIMATIONRULESET").on(mRIDColumn).add();
+            table.unique("EST_U_RULE_SET_NAME").on(nameColumn, obsoleteColumn).add();
         }
     },
     EST_ESTIMATIONRULE {
@@ -53,12 +54,13 @@ public enum TableSpecs {
             table.column("IMPLEMENTATION").varChar(NAME_LENGTH).map("implementation").add();
             Column ruleSetIdColumn = table.column("RULESETID").number().notNull().conversion(NUMBER2LONG).add();
             table.column("POSITION").number().notNull().conversion(NUMBER2INT).map("position").add();
-            table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
-            table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
+            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
+            Column obsoleteColumn = table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
             table.addAuditColumns();
             table.primaryKey("EST_PK_ESTIMATIONRULE").on(idColumn).add();
             table.foreignKey("EST_FK_RULE").references("EST_ESTIMATIONRULESET").on(ruleSetIdColumn).onDelete(RESTRICT)
                     .map("ruleSet").reverseMap("rules").composition().reverseMapOrder("position").add();
+            table.unique("EST_U_RULE_NAME").on(ruleSetIdColumn, nameColumn, obsoleteColumn).add();
         }
     },
     EST_ESTIMATIONRULEPROPS {
@@ -70,7 +72,6 @@ public enum TableSpecs {
             Column ruleIdColumn = table.column("RULEID").number().notNull().conversion(NUMBER2LONG).add();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.column("ESTUE").varChar(SHORT_DESCRIPTION_LENGTH).map("stringValue").add();
-            //table.addQuantityColumns("ESTUE", true, "value");
             table.primaryKey("EST_PK_ESTRULEPROPS").on(ruleIdColumn, nameColumn).add();
             table.foreignKey("EST_FK_RULEPROPS").references("EST_ESTIMATIONRULE").onDelete(RESTRICT).map("rule").reverseMap("properties").composition().on(ruleIdColumn).add();
         }
@@ -95,7 +96,7 @@ public enum TableSpecs {
             table.map(EstimationTaskImpl.class);
             table.setJournalTableName("EST_ESTIMATIONTASKJRNL");
             Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
+            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             Column endDeviceGroupId = table.column("ENDDEVICEGROUP").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             Column relativePeriod = table.column("PERIOD").number().add();
@@ -119,6 +120,7 @@ public enum TableSpecs {
                     .map("period")
                     .add();
             table.primaryKey("EST_PK_ESTIMATIONTASK").on(idColumn).add();
+            table.unique("EST_U_TASK_NAME").on(nameColumn).add();
         }
     };
 
