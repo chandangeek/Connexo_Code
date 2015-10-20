@@ -243,6 +243,11 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
         return importScheduleFactory().getOptional(id);
     }
 
+    @Override
+    public Optional<ImportSchedule> findAndLockImportScheduleByIdAndVersion(long id, long version) {
+        return importScheduleFactory().lockObjectIfVersion(version, id);
+    }
+
 
     private DataMapper<ImportSchedule> importScheduleFactory() {
         return dataModel.mapper(ImportSchedule.class);

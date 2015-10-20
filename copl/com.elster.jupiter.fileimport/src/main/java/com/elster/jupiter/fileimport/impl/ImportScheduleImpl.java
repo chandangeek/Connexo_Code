@@ -89,12 +89,13 @@ final class ImportScheduleImpl implements ImportSchedule {
 
     private List<FileImporterProperty> properties = new ArrayList<>();
     private boolean active;
+    private Instant obsoleteTime;
 
+    //audit fields
     private long version;
     private Instant createTime;
     private Instant modTime;
     private String userName;
-    private Instant obsoleteTime;
 
 
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
@@ -353,6 +354,11 @@ final class ImportScheduleImpl implements ImportSchedule {
     @Override
     public Optional<FileImportOccurrence> getFileImportOccurrence(long occurrenceId) {
         return dataModel.mapper(FileImportOccurrence.class).getOptional(occurrenceId);
+    }
+
+    @Override
+    public long getVersion() {
+        return this.version;
     }
 
 

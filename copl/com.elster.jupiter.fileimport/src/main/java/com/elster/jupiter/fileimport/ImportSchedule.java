@@ -1,5 +1,6 @@
 package com.elster.jupiter.fileimport;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.properties.PropertySpec;
@@ -15,6 +16,7 @@ import java.util.Optional;
 /**
  * Entity that models when a certain directory should be scanned for files to import and where to move them during different stages of the import cycle.
  */
+@ProviderType
 public interface ImportSchedule {
 
     /**
@@ -142,4 +144,6 @@ public interface ImportSchedule {
     Finder<FileImportOccurrence> getFileImportOccurrences();
 
     Optional<FileImportOccurrence> getFileImportOccurrence(long occurrenceId);
+
+    long getVersion();
 }
