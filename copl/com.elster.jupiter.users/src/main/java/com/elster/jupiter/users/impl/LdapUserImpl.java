@@ -1,13 +1,9 @@
 package com.elster.jupiter.users.impl;
 
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.LdapUser;
-import com.elster.jupiter.users.UserDirectory;
-
-import javax.inject.Inject;
 
 
-public class LdapUserImpl implements LdapUser {
+public final class LdapUserImpl implements LdapUser {
 
     private String username;
     private boolean status;
@@ -35,5 +31,15 @@ public class LdapUserImpl implements LdapUser {
     @Override
     public boolean getStatus() {
         return status;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof LdapUserImpl && getUserName().equals(((LdapUserImpl) obj).getUserName());
+    }
+
+    @Override
+    public int hashCode() {
+        return getUserName().hashCode();
     }
 }

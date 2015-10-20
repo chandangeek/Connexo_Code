@@ -11,7 +11,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.security.Principal;
-import java.util.Locale;
 
 /**
  * Created by albertv on 12/16/2014.
@@ -33,7 +32,7 @@ public class UserConsoleService {
              UserDirectory userDirectory = userService.findDefaultUserDirectory();
              User user = userDirectory.newUser(name, "", false,true);
              user.setPassword(pass);
-             user.save();
+             user.update();
              context.commit();
          }
 
@@ -63,7 +62,7 @@ public class UserConsoleService {
             activeDirectory.setSecurity(security);
             activeDirectory.setPassword(password);
             threadPrincipalService.set(getPrincipal());
-            activeDirectory.save();
+            activeDirectory.update();
             context.commit();
         }
     }
@@ -80,7 +79,7 @@ public class UserConsoleService {
             activeDirectory.setSecurity(security);
             activeDirectory.setPassword(password);
             threadPrincipalService.set(getPrincipal());
-            activeDirectory.save();
+            activeDirectory.update();
             context.commit();
         }
 

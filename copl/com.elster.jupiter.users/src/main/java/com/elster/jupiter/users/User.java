@@ -24,7 +24,7 @@ public interface User extends Principal, HasName {
 
     void setDescription(String description);
 
-    void save();
+    void update();
 
     void delete();
 

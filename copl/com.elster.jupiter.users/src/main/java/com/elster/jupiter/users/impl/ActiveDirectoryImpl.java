@@ -15,7 +15,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
+public final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
 
     static String TYPE_IDENTIFIER = "ACD";
 

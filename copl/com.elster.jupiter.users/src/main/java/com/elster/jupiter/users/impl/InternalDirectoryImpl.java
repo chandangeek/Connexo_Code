@@ -10,9 +10,10 @@ import javax.inject.Inject;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
-public class InternalDirectoryImpl extends AbstractUserDirectoryImpl {
+public final class InternalDirectoryImpl extends AbstractUserDirectoryImpl {
 
     static String TYPE_IDENTIFIER = "INT";
 
@@ -72,5 +73,6 @@ public class InternalDirectoryImpl extends AbstractUserDirectoryImpl {
     public boolean getLdapUserStatus(String user){
         return false;
     }
+
 
 }

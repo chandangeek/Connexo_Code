@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class ResourceImpl implements Resource {
+public final class ResourceImpl implements Resource {
     // persistent fields
     private long id;
     private String componentName;

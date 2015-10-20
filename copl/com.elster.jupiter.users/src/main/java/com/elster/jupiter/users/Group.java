@@ -19,7 +19,7 @@ public interface Group extends HasName {
 
     long getVersion();
 
-    void save();
+    void update();
 
     void delete();
 

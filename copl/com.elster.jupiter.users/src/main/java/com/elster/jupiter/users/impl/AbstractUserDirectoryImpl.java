@@ -16,6 +16,7 @@ import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_USER_DIRECTORY + "}")
@@ -83,7 +84,7 @@ public abstract class AbstractUserDirectoryImpl implements UserDirectory {
         this.prefix = prefix;
     }
 
-    public void save() {
+    public void update() {
         if (getId() == 0) {
             Save.CREATE.save(dataModel, this);
         } else {
@@ -117,5 +118,18 @@ public abstract class AbstractUserDirectoryImpl implements UserDirectory {
         }else {
             return Optional.of(users.get(0));
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AbstractUserDirectoryImpl intDir = (AbstractUserDirectoryImpl) o;
+        return Objects.equals(getId(), intDir.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
     }
 }

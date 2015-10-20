@@ -12,7 +12,7 @@ import javax.naming.ldap.*;
 import java.io.IOException;
 import java.util.*;
 
-public class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
+public final class ApacheDirectoryImpl extends AbstractLdapDirectoryImpl {
     static String TYPE_IDENTIFIER = "APD";
     StartTlsResponse tls = null;
 

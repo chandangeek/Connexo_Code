@@ -223,16 +223,16 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     @Override
     public User createUser(String name, String description) {
         InternalDirectoryImpl directory = (InternalDirectoryImpl) this.findUserDirectory(getRealm()).orElse(null);
-        UserImpl result = directory.newUser(name, description, false, true);
-        result.save();
+        UserImpl result = directory.newUser(name, description, false,true);
+        result.update();
         return result;
     }
 
     @Override
     public User createApacheDirectoryUser(String name, String domain, boolean status) {
         ApacheDirectoryImpl directory = (ApacheDirectoryImpl) this.findUserDirectory(domain).orElse(null);
-        UserImpl result = directory.newUser(name, domain, false, status);
-        result.save();
+        UserImpl result = directory.newUser(name, domain, false,status);
+        result.update();
 
         return result;
     }
@@ -240,8 +240,8 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     @Override
     public User createActiveDirectoryUser(String name, String domain, boolean status) {
         ActiveDirectoryImpl directory = (ActiveDirectoryImpl) this.findUserDirectory(domain).orElse(null);
-        UserImpl result = directory.newUser(name, domain, false, status);
-        result.save();
+        UserImpl result = directory.newUser(name, domain, false,status);
+        result.update();
 
         return result;
     }
@@ -250,7 +250,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     @Override
     public Group createGroup(String name, String description) {
         GroupImpl result = GroupImpl.from(dataModel, name, description);
-        result.save();
+        result.update();
 
         return result;
     }
@@ -322,7 +322,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         if (!users.isEmpty()) {
             if (users.get(0).getStatus() != status) {
                 users.get(0).setStatus(status);
-                users.get(0).save();
+                users.get(0).update();
             }
             return users.get(0);
         } else {

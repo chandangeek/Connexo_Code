@@ -2,7 +2,6 @@ package com.elster.jupiter.users.impl;
 
 import java.lang.reflect.Field;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -57,7 +56,7 @@ public class InstallerImpl {
     private InternalDirectoryImpl createDirectory() {
         InternalDirectoryImpl directory = InternalDirectoryImpl.from(dataModel, defaultDomain);
         directory.setDefault(true);
-        directory.save();
+        directory.update();
         return directory;
     }
 
@@ -66,7 +65,7 @@ public class InstallerImpl {
 
 		user.setPassword("admin");
 		user.setLocale(Locale.ENGLISH);
-		user.save();
+		user.update();
         for(GroupImpl role : roles){
 		    user.join(role);
         }

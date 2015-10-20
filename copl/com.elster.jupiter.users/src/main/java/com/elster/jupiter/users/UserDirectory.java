@@ -35,7 +35,7 @@ public interface UserDirectory {
 
     void setDefault(boolean aDefault);
 
-    void save();
+    void update();
 
     void delete();
 

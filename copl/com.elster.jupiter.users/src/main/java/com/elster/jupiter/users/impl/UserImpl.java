@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Checks.is;
 
-public class UserImpl implements User {
+public final class UserImpl implements User {
 
     private static final int MINIMAL_PASSWORD_STRENGTH = 4;
     // persistent fields
@@ -173,7 +173,7 @@ public class UserImpl implements User {
         return userDirectory.get().getId();
     }
 
-    public void save() {
+    public void update() {
         if (id == 0) {
             dataModel.mapper(User.class).persist(this);
         } else {
