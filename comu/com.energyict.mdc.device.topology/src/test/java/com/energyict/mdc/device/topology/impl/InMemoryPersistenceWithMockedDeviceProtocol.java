@@ -396,6 +396,11 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         }
 
         @Override
+        public Optional<DeviceProtocolPluggableClass> findAndLockDeviceProtocolPluggableClassByIdAndVersion(long id, long version) {
+            return protocolPluggableService.findAndLockDeviceProtocolPluggableClassByIdAndVersion(id, version);
+        }
+
+        @Override
         public Optional<DeviceProtocolPluggableClass> findDeviceProtocolPluggableClassByName(String name) {
             return protocolPluggableService.findDeviceProtocolPluggableClassByName(name);
         }
@@ -428,6 +433,11 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
         @Override
         public Optional<InboundDeviceProtocolPluggableClass> findInboundDeviceProtocolPluggableClass(long id) {
             return protocolPluggableService.findInboundDeviceProtocolPluggableClass(id);
+        }
+
+        @Override
+        public Optional<InboundDeviceProtocolPluggableClass> findAndLockInboundDeviceProtocolPluggableClassByIdAndVersion(long id, long version) {
+            return protocolPluggableService.findAndLockInboundDeviceProtocolPluggableClassByIdAndVersion(id, version);
         }
 
         @Override
