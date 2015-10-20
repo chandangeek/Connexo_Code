@@ -18,10 +18,10 @@ Ext.define('Apr.view.appservers.AppServerOverview', {
                 ui: 'large',
                 title: Uni.I18n.translate('general.overview', 'APR', 'Overview'),
                 flex: 1,
-                items: {
-                    xtype: 'appservers-preview-form',
-                    margin: '0 0 0 100'
-                }
+                //items: {
+                //    xtype: 'appservers-preview-form',
+                //    margin: '0 0 0 100'
+                //}
             },
             {
                 xtype: 'button',

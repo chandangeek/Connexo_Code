@@ -39,6 +39,7 @@ Ext.define('Apr.controller.AppServers', {
     appServer: null,
     exportPath: null,
     importPath: null,
+    comingFromOverview: false,
 
     init: function () {
         this.control({
@@ -86,6 +87,7 @@ Ext.define('Apr.controller.AppServers', {
         me.appServer = null;
         me.exportPath = null;
         me.importPath = null;
+        me.comingFromOverview = false;
 
         store.on('load', function () {
             exportPathsStore.load(function (records) {
@@ -138,31 +140,15 @@ Ext.define('Apr.controller.AppServers', {
                 router: me.getController('Uni.controller.history.Router'),
                 appServerName: appServerName
             });
-        //me.fromDetails = false;
+        me.comingFromOverview = true;
         me.getModel('Apr.model.AppServer').load(appServerName, {
             success: function (record) {
                 me.appServer = record;
-                view.down('appservers-preview-form').updateAppServerPreview(record);
-                exportPathsStore.load(function (exportPaths) {
-                    Ext.Array.each(exportPaths, function (dir) {
-                        if (dir.get('appServerName') === appServerName) {
-                            me.exportPath = dir;
-                            view.down('#txt-export-path').setValue(dir.get('directory'));
-                        } else {
-                            me.exportPath = Ext.create('Apr.model.ExportPath');
-                        }
-                    });
-                });
-                importPathsStore.load(function (importPaths) {
-                    Ext.Array.each(importPaths, function (dir) {
-                        if (dir.get('appServerName') === appServerName) {
-                            me.importPath = dir;
-                            view.down('#txt-import-path').setValue(dir.get('directory'));
-                        } else {
-                            me.importPath = Ext.create('Apr.model.ImportPath');
-                        }
-                    });
-                });
+                //view.down('appservers-preview-form').updateAppServerPreview(record);
+                if (view.down('appservers-action-menu')) {
+                    view.down('appservers-action-menu').record = record;
+                    me.setupMenuItems(record);
+                }
             }
         });
 
@@ -188,15 +174,16 @@ Ext.define('Apr.controller.AppServers', {
         me.getApplication().fireEvent('changecontentevent', view);
     },
 
-    setupMenuItems: function (record) {
+    setupMenuItems: function(record) {
         var me = this,
-            suspended = record.data.active;
-        var textKey = ((suspended == true) ? 'general.deactivate' : 'general.activate'),
-            text = ((suspended == true) ? 'Deactivate' : 'Activate'),
+            suspended = record.data.active,
+            menuText = suspended
+                ? Uni.I18n.translate('general.deactivate', 'APR', 'Deactivate')
+                : Uni.I18n.translate('general.activate', 'APR', 'Activate'),
             menuItems = Ext.ComponentQuery.query('menu menuitem[action=activateAppServer]');
         if (!Ext.isEmpty(menuItems)) {
             Ext.Array.each(menuItems, function (item) {
-                item.setText(Uni.I18n.translate(textKey, 'APR', text));
+                item.setText(menuText);
             });
         }
     },
