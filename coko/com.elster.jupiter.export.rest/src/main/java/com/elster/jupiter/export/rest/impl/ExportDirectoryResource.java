@@ -3,6 +3,9 @@ package com.elster.jupiter.export.rest.impl;
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ConcurrentModificationException;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 
@@ -18,6 +21,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.function.Supplier;
 
 @Path("/exportdirs")
 public class ExportDirectoryResource {
@@ -25,12 +29,14 @@ public class ExportDirectoryResource {
     private final DataExportService dataExportService;
     private final AppService appService;
     private final TransactionService transactionService;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public ExportDirectoryResource(DataExportService dataExportService, AppService appService, TransactionService transactionService) {
+    public ExportDirectoryResource(DataExportService dataExportService, AppService appService, TransactionService transactionService, ConcurrentModificationExceptionFactory conflictFactory) {
         this.dataExportService = dataExportService;
         this.appService = appService;
         this.transactionService = transactionService;
+        this.conflictFactory = conflictFactory;
     }
 
     @GET
@@ -48,6 +54,7 @@ public class ExportDirectoryResource {
         AppServer appServer = findAppServerOrThrowException(appServerName);
         DirectoryForAppServerInfo info = new DirectoryForAppServerInfo();
         info.appServerName = appServerName;
+        info.version = appServer.getVersion();
         dataExportService.getExportDirectory(appServer).ifPresent(path -> info.directory = path.toString());
         return info;
     }
@@ -56,7 +63,8 @@ public class ExportDirectoryResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response addExportPaths(DirectoryForAppServerInfo info) {
-        return updateExportPaths(info.appServerName, info);
+        Supplier<AppServer> appServerProvider = () -> findAppServerOrThrowException(info.appServerName);
+        return doExportPathUpdate(info, appServerProvider);
     }
 
     @PUT
@@ -64,31 +72,43 @@ public class ExportDirectoryResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{appServerName}")
     public Response updateExportPaths(@PathParam("appServerName") String appServerName, DirectoryForAppServerInfo info) {
-        AppServer appServer = findAppServerOrThrowException(appServerName);
-        try (TransactionContext context = transactionService.getContext()) {
-            dataExportService.setExportDirectory(appServer, info.path());
-
-            context.commit();
-        }
-        return Response.status(Response.Status.CREATED).entity(new DirectoryForAppServerInfo(appServer, info.path())).build();
+        info.appServerName = appServerName;
+        Supplier<AppServer> appServerProvider = () -> findAndLockAppServer(info);
+        return doExportPathUpdate(info, appServerProvider);
     }
 
+    private Response doExportPathUpdate(DirectoryForAppServerInfo info, Supplier<AppServer> appServerProvider) {
+        try (TransactionContext context = transactionService.getContext()) {
+            AppServer appServer = appServerProvider.get();
+            dataExportService.setExportDirectory(appServer, info.path());
+            context.commit();
+            return Response.status(Response.Status.CREATED).entity(new DirectoryForAppServerInfo(appServer, info.path())).build();
+        }
+    }
 
     private AppServer findAppServerOrThrowException(String appServerName) {
         return appService.findAppServer(appServerName).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    private AppServer findAndLockAppServer(DirectoryForAppServerInfo info) {
+        return appService.findAndLockAppServerByNameAndVersion(info.appServerName, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.appServerName)
+                        .withActualVersion(() -> appService.findAppServer(info.appServerName).map(AppServer::getVersion).orElse(null))
+                        .supplier());
     }
 
     @DELETE
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{appServerName}")
-    public Response removeExportPaths(@PathParam("appServerName") String appServerName){
-        AppServer appServer = findAppServerOrThrowException(appServerName);
+    public Response removeExportPaths(@PathParam("appServerName") String appServerName, DirectoryForAppServerInfo info) {
+        info.appServerName = appServerName;
         try (TransactionContext context = transactionService.getContext()) {
+            AppServer appServer = findAndLockAppServer(info);
             dataExportService.removeExportDirectory(appServer);
             context.commit();
+            return Response.ok().build();
         }
-        return Response.ok().build();
     }
 
 }
