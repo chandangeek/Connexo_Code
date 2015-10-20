@@ -94,9 +94,14 @@ public final class FirmwareVersionImpl implements FirmwareVersion, PersistenceAw
     }
 
     @Override
+    public long getVersion() {
+        return this.version;
+    }
+    
     public void update() {
         doUpdate();
     }
+    
 
     private FirmwareVersionImpl init(DeviceType deviceType, String firmwareVersion, FirmwareStatus firmwareStatus, FirmwareType firmwareType) {
         this.deviceType.set(deviceType);

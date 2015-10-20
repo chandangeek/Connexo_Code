@@ -83,6 +83,11 @@ public class FirmwareManagementOptionsImpl implements FirmwareManagementOptions 
     }
 
     @Override
+    public long getVersion() {
+        return this.version;
+    }
+
+    @Override
     public void setOptions(Set<ProtocolSupportedFirmwareOptions> allowedOptions) {
         clearOptions();
         allowedOptions.stream().forEach(op -> {

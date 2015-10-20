@@ -45,4 +45,6 @@ public interface FirmwareVersion extends HasId {
         void validate();
     }
 
+    long getVersion();
+
 }
