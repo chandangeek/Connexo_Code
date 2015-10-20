@@ -57,20 +57,20 @@ Ext.define('Apr.view.appservers.Add', {
                     },
                     {
                         xtype: 'textfield',
-                        name: 'exportPath',
+                        name: 'exportDirectory',
                         itemId: 'appserver-export-path',
                         width: 750,
-                        maskRe: /\S/,
+               //         maskRe: /\S/,
                         required: true,
                         fieldLabel: Uni.I18n.translate('general.exportPath', 'APR', 'Export path'),
                         allowBlank: false
                     },
                     {
                         xtype: 'textfield',
-                        name: 'importPath',
+                        name: 'importDirectory',
                         itemId: 'appserver-import-path',
                         width: 750,
-                        maskRe: /\S/,
+                //        maskRe: /\S/,
                         required: true,
                         fieldLabel: Uni.I18n.translate('general.importPath', 'APR', 'Import path'),
                         allowBlank: false
@@ -88,13 +88,13 @@ Ext.define('Apr.view.appservers.Add', {
                                 xtype: 'button',
                                 margin: '0 0 10 0',
                                 text: Uni.I18n.translate('general.addMessageServices', 'APR', 'Add message services'),
-                                menu: {
-                                    itemId: 'add-message-services-menu',
-                                    plain: true,
-                                    border: false,
-                                    shadow: false,
-                                    items: []
-                                }
+                                //menu: {
+                                //    itemId: 'add-message-services-menu',
+                                //    plain: true,
+                                //    border: false,
+                                //    shadow: false,
+                                //    items: []
+                                //}
                             },
                             {
                                 xtype: 'message-services-grid',
@@ -123,13 +123,13 @@ Ext.define('Apr.view.appservers.Add', {
                                 xtype: 'button',
                                 margin: '0 0 10 0',
                                 text: Uni.I18n.translate('general.addImportServices', 'APR', 'Add import services'),
-                                menu: {
-                                    itemId: 'add-import-services-menu',
-                                    plain: true,
-                                    border: false,
-                                    shadow: false,
-                                    items: []
-                                }
+                                //menu: {
+                                //    itemId: 'add-import-services-menu',
+                                //    plain: true,
+                                //    border: false,
+                                //    shadow: false,
+                                //    items: []
+                                //}
                             },
                             {
                                 xtype: 'apr-import-services-grid',
@@ -164,19 +164,12 @@ Ext.define('Apr.view.appservers.Add', {
                                 href: '#/administration/appservers/'
                             }
                         ]
-                    },
+                    }
 
                 ]
             }
         ];
         me.callParent(arguments);
         me.setEdit(me.edit);
-    },
-    recurrenceNumberFieldValidation: function (field) {
-        var value = field.getValue();
-
-        if (Ext.isEmpty(value) || value < field.minValue) {
-            field.setValue(field.minValue);
-        }
     }
 });
