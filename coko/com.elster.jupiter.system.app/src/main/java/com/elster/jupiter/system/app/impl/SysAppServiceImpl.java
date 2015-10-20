@@ -7,10 +7,8 @@ import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.system.app.SysAppService;
 import com.elster.jupiter.users.ApplicationPrivilegesProvider;
-import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.HasName;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
@@ -69,7 +67,7 @@ public class SysAppServiceImpl implements SysAppService, InstallService, Applica
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList(UserService.COMPONENTNAME, "APS", "LIC", "TME", "BPM", "APR", "LFC",  "YFN", "BPM", "FIM");
+        return Arrays.asList(UserService.COMPONENTNAME, "APS", "LIC", "TME", "BPM", "APR", "LFC", "YFN", "BPM", "FIM", "CPS");
     }
 
     @Reference
@@ -101,5 +99,4 @@ public class SysAppServiceImpl implements SysAppService, InstallService, Applica
     public String getApplicationName() {
         return APP_KEY;
     }
-
 }
