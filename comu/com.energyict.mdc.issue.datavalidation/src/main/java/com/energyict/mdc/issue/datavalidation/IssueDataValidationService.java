@@ -16,6 +16,8 @@ public interface IssueDataValidationService {
 
     Optional<? extends IssueDataValidation> findIssue(long id);
 
+    Optional<? extends IssueDataValidation> findAndLockIssueDataValidationByIdAndVersion(long id, long version);
+
     Optional<OpenIssueDataValidation> findOpenIssue(long id);
 
     Optional<HistoricalIssueDataValidation> findHistoricalIssue(long id);
