@@ -1,7 +1,9 @@
 package com.elster.jupiter.validation.rest;
 
 
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationVersionStatus;
 
@@ -21,6 +23,8 @@ public class ValidationRuleSetVersionInfo{
     public int numberOfInactiveRules;
     public int numberOfRules;
     public ValidationRuleSetInfo ruleSet;
+    public VersionInfo<Long> parent;
+    public long version;
 
     public ValidationRuleSetVersionInfo() {
     }
@@ -45,10 +49,13 @@ public class ValidationRuleSetVersionInfo{
         Optional.ofNullable(validationRuleSetVersion.getEndDate()).ifPresent(ed->{
             this.endDate = ed.toEpochMilli();
         });
-        ruleSet = new ValidationRuleSetInfo(validationRuleSetVersion.getRuleSet());
+        ValidationRuleSet validationRuleSet = validationRuleSetVersion.getRuleSet();
+        this.ruleSet = new ValidationRuleSetInfo(validationRuleSet);
+        parent = new VersionInfo<>(validationRuleSet.getId(), validationRuleSet.getVersion());
         List<? extends ValidationRule> rules = validationRuleSetVersion.getRules();
         numberOfRules = rules.size();
         numberOfInactiveRules = (int) rules.stream().filter(r -> !r.isActive()).count();
+        version = validationRuleSetVersion.getVersion();
     }
 
 

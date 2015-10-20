@@ -3,6 +3,7 @@ package com.elster.jupiter.validation.rest.impl;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -12,6 +13,7 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.PropertyUtils;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
@@ -34,7 +36,7 @@ import org.osgi.service.component.annotations.Reference;
         service = {Application.class, TranslationKeyProvider.class},
         immediate = true,
         property = {"alias=/val", "app=SYS", "name=" + ValidationApplication.COMPONENT_NAME})
-public class ValidationApplication extends Application implements TranslationKeyProvider {
+public class ValidationApplication extends Application implements TranslationKeyProvider, MessageSeedProvider {
     public static final String COMPONENT_NAME = "VAL";
 
     private volatile ValidationService validationService;
@@ -116,6 +118,11 @@ public class ValidationApplication extends Application implements TranslationKey
     @Override
     public Layer getLayer() {
         return Layer.REST;
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Override

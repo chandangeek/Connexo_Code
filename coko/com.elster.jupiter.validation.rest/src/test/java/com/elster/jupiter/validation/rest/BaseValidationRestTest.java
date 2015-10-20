@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 
 public class BaseValidationRestTest extends FelixRestApplicationJerseyTest {
 
-    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    @Mock
     protected ValidationService validationService;
     @Mock
     private MeteringGroupsService meteringGroupsService;

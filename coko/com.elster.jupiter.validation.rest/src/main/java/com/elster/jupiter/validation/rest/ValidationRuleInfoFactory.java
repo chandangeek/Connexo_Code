@@ -1,8 +1,10 @@
 package com.elster.jupiter.validation.rest;
 
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleSetVersion;
 
 import javax.inject.Inject;
 import java.util.*;
@@ -31,9 +33,12 @@ public class ValidationRuleInfoFactory {
         validationRuleInfo.action = validationRule.getAction();
         validationRuleInfo.name = validationRule.getName();
         validationRuleInfo.deleted = validationRule.isObsolete();
-        validationRuleInfo.ruleSetVersion = new ValidationRuleSetVersionInfo(validationRule.getRuleSetVersion());
+        ValidationRuleSetVersion ruleSetVersion = validationRule.getRuleSetVersion();
+        validationRuleInfo.ruleSetVersion = new ValidationRuleSetVersionInfo(ruleSetVersion);
         validationRuleInfo.properties = propertyUtils.convertPropertySpecsToPropertyInfos(validationRule.getPropertySpecs(), validationRule.getProps());
         validationRuleInfo.readingTypes.addAll(validationRule.getReadingTypes().stream().map(ReadingTypeInfo::new).collect(Collectors.toList()));
+        validationRuleInfo.version = validationRule.getVersion();
+        validationRuleInfo.parent = new VersionInfo<>(ruleSetVersion.getId(), ruleSetVersion.getVersion());
         return validationRuleInfo;
     }
 

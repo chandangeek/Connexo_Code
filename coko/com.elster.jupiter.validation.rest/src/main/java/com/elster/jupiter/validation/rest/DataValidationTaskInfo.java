@@ -26,6 +26,7 @@ public class DataValidationTaskInfo {
     public DataValidationTaskHistoryInfo lastValidationOccurence;
     public Long nextRun;
     public Long lastRun;
+    public long version;
     
 
     public DataValidationTaskInfo(DataValidationTask dataValidationTask, Thesaurus thesaurus, TimeService timeService) {
@@ -64,8 +65,7 @@ public class DataValidationTaskInfo {
         if (lastRunOptional.isPresent()) {
             lastRun = lastRunOptional.get().toEpochMilli();
         }
-
-
+        version = dataValidationTask.getVersion();
     }
 
     public long getId()
