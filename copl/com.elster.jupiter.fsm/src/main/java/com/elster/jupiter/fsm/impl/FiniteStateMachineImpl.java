@@ -148,9 +148,17 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
                 () -> new IllegalStateException(this.thesaurus.getString(MessageSeeds.Keys.EXACTLY_ONE_INITIAL_STATE, "A finite state machine must have exactly one initial state")));
     }
 
-    void setInitialState(StateImpl state) {
-        this.findInitialState().ifPresent(s -> s.setInitial(false));
-        state.setInitial(true);
+    void setInitialState(State newInitialState) {
+        Optional<StateImpl> oldInitialState = findInitialState();
+        if (oldInitialState.isPresent()) {
+            oldInitialState.get().setInitial(false);
+        }
+        this.states
+                .stream()
+                .filter(Predicates.not(StateImpl::isObsolete))
+                .filter(candidate -> candidate == newInitialState || newInitialState.getId() > 0 && newInitialState.getId() == candidate.getId())
+                .findFirst()
+                .ifPresent(state -> state.setInitial(true));
     }
 
     private Optional<StateImpl> findInitialState() {

@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -57,6 +58,7 @@ public class InMemoryPersistence {
     private EventAdmin eventAdmin;
     private DataModel dataModel;
     private FiniteStateMachineServiceImpl finiteStateMachineService;
+    private ThreadPrincipalService threadPrincipalService;
 
     /**
      * Returns a new InMemoryPersistence that uses all the defaults
@@ -93,6 +95,7 @@ public class InMemoryPersistence {
         this.threadSecurityModule = new ThreadSecurityModule(this.principal);
         this.injector = Guice.createInjector(this.guiceModules());
         this.transactionService = this.injector.getInstance(TransactionService.class);
+        this.threadPrincipalService = this.injector.getInstance(ThreadPrincipalService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.injector.getInstance(OrmService.class);
             this.injector.getInstance(UserService.class);
@@ -125,6 +128,10 @@ public class InMemoryPersistence {
 
     public TransactionService getTransactionService() {
         return this.transactionService;
+    }
+
+    public ThreadPrincipalService getThreadPrincipalService(){
+        return threadPrincipalService;
     }
 
     public FiniteStateMachineServiceImpl getFiniteStateMachineService() {

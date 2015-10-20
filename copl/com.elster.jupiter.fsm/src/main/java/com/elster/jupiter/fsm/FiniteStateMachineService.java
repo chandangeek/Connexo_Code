@@ -163,4 +163,5 @@ public interface FiniteStateMachineService {
      */
     Optional<State> findFiniteStateById(long id);
 
+    Optional<State> findAndLockStateByIdAndVersion(long id, long version);
 }

@@ -162,7 +162,7 @@ public class FiniteStateMachineServiceImplIT {
     @Test
     public void findBySymbolForStandardEventType() {
         TransactionService transactionService = inMemoryPersistence.getService(TransactionService.class);
-        ThreadPrincipalService threadPrincipalService = inMemoryPersistence.getService(ThreadPrincipalService.class);
+        ThreadPrincipalService threadPrincipalService = inMemoryPersistence.getThreadPrincipalService();
         threadPrincipalService.set(() -> "Test");
         try (TransactionContext context = transactionService.getContext()) {
             FiniteStateMachineServiceImpl service = this.getTestService();
@@ -186,6 +186,8 @@ public class FiniteStateMachineServiceImplIT {
     }
 
     private void deleteAllStandardStateTransitionEventTypesIfAny() {
+        ThreadPrincipalService threadPrincipalService = inMemoryPersistence.getThreadPrincipalService();
+        threadPrincipalService.set(() -> "Test");
         try (TransactionContext context = getTransactionService().getContext()) {
             FiniteStateMachineServiceImpl service = this.getTestService();
             inMemoryPersistence.getService(EventService.class)

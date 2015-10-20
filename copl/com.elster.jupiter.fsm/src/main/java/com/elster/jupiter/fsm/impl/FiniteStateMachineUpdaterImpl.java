@@ -132,12 +132,12 @@ public class FiniteStateMachineUpdaterImpl extends FiniteStateMachineBuilderImpl
                         .stream()
                         .filter(State::isInitial)
                         .findFirst();
-        getUnderConstruction().setInitialState((StateImpl) initial);
+        getUnderConstruction().setInitialState(initial);
         if (oldInitialState.isPresent() && !stateWillBeAutoSaved(oldInitialState.get())){
             new StateUpdaterImpl((StateImpl) oldInitialState.get()).complete();
         }
         if (!stateWillBeAutoSaved(initial)){
-            new StateUpdaterImpl((StateImpl) initial).complete();
+            new StateUpdaterImpl((StateImpl) getUnderConstruction().getInitialState()).complete();
         }
         return complete();
     }

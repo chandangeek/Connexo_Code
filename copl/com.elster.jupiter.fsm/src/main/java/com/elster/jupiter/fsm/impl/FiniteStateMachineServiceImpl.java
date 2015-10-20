@@ -432,6 +432,11 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     }
 
     @Override
+    public Optional<State> findAndLockStateByIdAndVersion(long id, long version) {
+        return this.dataModel.mapper(State.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public String getModuleName() {
         return FiniteStateMachineService.COMPONENT_NAME;
     }

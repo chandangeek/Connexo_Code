@@ -66,7 +66,7 @@ public class FiniteStateMachineBuilderImpl implements FiniteStateMachineBuilder 
 
     @Override
     public FiniteStateMachine complete(State initial) {
-        this.underConstruction.setInitialState((StateImpl) initial);
+        this.underConstruction.setInitialState(initial);
         return this.complete();
     }
 
