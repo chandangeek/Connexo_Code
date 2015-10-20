@@ -240,6 +240,7 @@ Ext.define('Usr.controller.GroupEdit', {
             }
 
             record.save({
+                backUrl: me.backUrl,
                 success: function (record) {
                     var message;
                     if (me.mode == 'edit') {
@@ -253,10 +254,12 @@ Ext.define('Usr.controller.GroupEdit', {
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);
-                    if (json && json.errors) {
-                        form.getForm().markInvalid(json.errors);
+                    if (operation.response.status === 400) {
+                        if (json && json.errors) {
+                            form.getForm().markInvalid(json.errors);
+                        }
+                        formErrorsPanel.show();
                     }
-                    formErrorsPanel.show();
                 }
             });
         }

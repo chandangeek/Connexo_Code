@@ -1,5 +1,5 @@
 Ext.define('Usr.model.Group', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.Version',
     requires: [
         'Usr.model.Privilege'
     ],

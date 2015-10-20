@@ -105,74 +105,38 @@ Ext.define('Usr.controller.User', {
 
     userActivation: function (record) {
         var me = this,
-            isActive = record.get('active');
-
-        if (!isActive) {
-            me.activateUser(record);
-        }
-        else {
-            me.deactivateUser(record);
-        }
-    },
-
-    activateUser: function(record)
-    {
-        var me = this,
+            isActive = record.get('active'),
+            form = me.getUserBrowse().down('#userDetailsForm'),
             viewport = Ext.ComponentQuery.query('viewport')[0];
 
         viewport.setLoading();
         Ext.Ajax.request({
-            url: '/api/usr/users/' + record.get('id') + '/activate',
+            url: '/api/usr/users/' + record.get('id') + (isActive ? '/deactivate' : '/activate'),
+            jsonData: record.getRecordData(),
+            isNotEdit: true,
             method: 'PUT',
-            success: function () {
-                me.updateStatusOnActivate(record);
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('users.activateSuccessMsg', 'USR', 'User activated'));
+            success: function (response) {
+                var decoded = response.responseText ? Ext.decode(response.responseText, true) : null,
+                    updatedRecord = decoded && decoded.users && decoded.users.length ? decoded.users[0] : null;
+
+                if (updatedRecord) {
+                    record.beginEdit();
+                    record.set(updatedRecord);
+                    record.set('statusDisplay', isActive
+                        ? Uni.I18n.translate('general.inactive', 'USR', 'Inactive')
+                        : Uni.I18n.translate('general.active', 'USR', 'Active'));
+                    record.endEdit();
+                }
+                if (form.rendered) {
+                    form.loadRecord(record);
+                }
+                me.getApplication().fireEvent('acknowledge', isActive
+                    ? Uni.I18n.translate('users.deactivateSuccessMsg', 'USR', 'User deactivated')
+                    : Uni.I18n.translate('users.activateSuccessMsg', 'USR', 'User activated'));
+            },
+            callback: function () {
+                viewport.setLoading(false);
             }
-
         });
-        viewport.setLoading(false);
-
-    },
-
-    deactivateUser: function(record)
-    {
-        var me = this,
-            viewport = Ext.ComponentQuery.query('viewport')[0];
-
-        viewport.setLoading();
-        Ext.Ajax.request({
-            url: '/api/usr/users/' + record.get('id') + '/deactivate',
-            method: 'PUT',
-            success: function () {
-                me.updateStatusOnDeactivate(record);
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('users.deactivateSuccessMsg', 'USR', 'User deactivated'));
-            }
-
-        });
-        viewport.setLoading(false);
-
-    },
-    updateStatusOnActivate: function(record)
-    {
-        var me = this;
-        record.set('active', true);
-        record.set('statusDisplay', Uni.I18n.translate('general.active', 'USR', 'Active'));
-        me.updateUserStatus(record);
-    },
-    updateStatusOnDeactivate: function(record)
-    {
-        var me = this;
-        record.set('active', false);
-        record.set('statusDisplay', Uni.I18n.translate('general.inactive', 'USR', 'Inactive'));
-        me.updateUserStatus(record);
-    },
-    updateUserStatus: function(record)
-    {
-        var me = this,
-            page = me.getUserBrowse(),
-            form = page.down('#userDetailsForm');
-
-        form.loadRecord(record);
     }
-
 });

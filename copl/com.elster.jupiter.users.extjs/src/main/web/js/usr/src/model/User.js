@@ -1,5 +1,5 @@
 Ext.define('Usr.model.User', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.Version',
     fields: [
         {name: 'id', type: 'int', useNull: true},
         'authenticationName',
