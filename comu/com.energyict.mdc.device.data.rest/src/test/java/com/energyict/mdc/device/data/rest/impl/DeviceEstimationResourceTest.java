@@ -1,29 +1,27 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.rest.util.VersionInfo;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceEstimation;
+import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
+import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
-
-import com.elster.jupiter.estimation.EstimationRuleSet;
-import com.energyict.mdc.device.configuration.rest.EntityRefInfo;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceEstimation;
-import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
-import com.jayway.jsonpath.JsonModel;
 
 public class DeviceEstimationResourceTest extends DeviceDataRestApplicationJerseyTest {
     
@@ -38,9 +36,10 @@ public class DeviceEstimationResourceTest extends DeviceDataRestApplicationJerse
         when(device.getId()).thenReturn(1L);
         when(device.getVersion()).thenReturn(22L);
         when(device.forEstimation()).thenReturn(deviceEstimation);
+        when(device.getmRID()).thenReturn("mrid");
 
         when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
-        when(deviceService.findAndLockDeviceByIdAndVersion(1L, 22l)).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceBymRIDAndVersion("mrid", 22l)).thenReturn(Optional.of(device));
     }
 
     @Test
@@ -56,7 +55,7 @@ public class DeviceEstimationResourceTest extends DeviceDataRestApplicationJerse
         assertThat(model.<List<Number>>get("$.estimationRuleSets[*].id")).containsExactly(1, 123);
         assertThat(model.<List<String>>get("$.estimationRuleSets[*].name")).containsExactly("RS1", "RS2");
         assertThat(model.<List<Boolean>>get("$.estimationRuleSets[*].active")).containsExactly(true, false);
-        assertThat(model.<List<Number>>get("$.estimationRuleSets[*].parent.id")).containsExactly(1, 1);
+        assertThat(model.<List<String>>get("$.estimationRuleSets[*].parent.id")).containsExactly("mrid", "mrid");
         assertThat(model.<List<Number>>get("$.estimationRuleSets[*].parent.version")).containsExactly(22, 22);
     }
     
@@ -64,11 +63,13 @@ public class DeviceEstimationResourceTest extends DeviceDataRestApplicationJerse
     public void testActivateEstimationRuleSetOnDevice() {
         EstimationRuleSet ruleSet = mock(EstimationRuleSet.class); 
         doReturn(Optional.of(ruleSet)).when(estimationService).getEstimationRuleSet(1L);
+        doReturn(Optional.of(ruleSet)).when(estimationService).findAndLockEstimationRuleSet(1L, 1L);
         
         DeviceEstimationRuleSetRefInfo info = new DeviceEstimationRuleSetRefInfo();
         info.id = 1L;
         info.active = true;
-        info.parent = new EntityRefInfo(1L, 22L);
+        info.version = 1L;
+        info.parent = new VersionInfo<>("mrid", 22L);
         
         Response response = target("/devices/mrid/estimationrulesets/1").request().put(Entity.json(info));
         
@@ -80,11 +81,13 @@ public class DeviceEstimationResourceTest extends DeviceDataRestApplicationJerse
     public void testDeactivateEstimationRuleSetOnDevice() {
         EstimationRuleSet ruleSet = mock(EstimationRuleSet.class); 
         doReturn(Optional.of(ruleSet)).when(estimationService).getEstimationRuleSet(1L);
-        
+        doReturn(Optional.of(ruleSet)).when(estimationService).findAndLockEstimationRuleSet(1L, 1L);
+
         DeviceEstimationRuleSetRefInfo info = new DeviceEstimationRuleSetRefInfo();
         info.id = 1L;
         info.active = false;
-        info.parent = new EntityRefInfo(1L, 22L);
+        info.version = 1L;
+        info.parent = new VersionInfo<>("mrid", 22L);
         
         Response response = target("/devices/mrid/estimationrulesets/1").request().put(Entity.json(info));
         
@@ -96,6 +99,7 @@ public class DeviceEstimationResourceTest extends DeviceDataRestApplicationJerse
         EstimationRuleSet ruleSet = mock(EstimationRuleSet.class);
         when(ruleSet.getId()).thenReturn(ruleSetId);
         when(ruleSet.getName()).thenReturn(name);
+        when(ruleSet.getVersion()).thenReturn(1L);
         DeviceEstimationRuleSetActivation rsa = mock(DeviceEstimationRuleSetActivation.class);
         when(rsa.getEstimationRuleSet()).thenReturn(ruleSet);
         when(rsa.isActive()).thenReturn(active);

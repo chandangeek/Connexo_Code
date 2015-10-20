@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-public class TriggerValidationInfo {
+public class RegisterTriggerValidationInfo extends DeviceVersionInfo {
 
     public Long lastChecked;
 }

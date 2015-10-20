@@ -1,11 +1,11 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.energyict.mdc.device.data.Device;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class DeviceGroupMemberInfo {
 

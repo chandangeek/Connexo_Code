@@ -7,10 +7,9 @@ import com.energyict.mdc.device.data.rest.BigDecimalAsStringAdapter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.*;
+import java.util.List;
 
 /**
  * Created by bvn on 8/1/14.

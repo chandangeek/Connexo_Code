@@ -1,15 +1,19 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 
-import java.time.Instant;
 import java.util.List;
 
-public class DeviceLifeCycleActionInfo {
+public class DeviceProtocolInfo {
+
     public long id;
     public String name;
-    public Instant effectiveTimestamp;
-    public boolean transitionNow = true;
     public List<PropertyInfo> properties;
-    public DeviceInfo device;
+    public long version;
+    public VersionInfo<String> parent;
+
+    public DeviceProtocolInfo() {
+    }
+
 }

@@ -1,19 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.common.rest.IntervalInfo;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.ChannelDataUpdater;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.LoadProfileReading;
-import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
-import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
-
 import com.elster.jupiter.cbo.QualityCodeCategory;
-import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.estimation.EstimationRule;
@@ -24,6 +11,7 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -32,9 +20,24 @@ import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.impl.DataValidationStatusImpl;
 import com.elster.jupiter.validation.impl.IValidationRule;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.common.rest.IntervalInfo;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.ChannelDataUpdater;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LoadProfileReading;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
+import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -48,9 +51,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-
-import org.junit.*;
-import org.mockito.Mock;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -99,6 +99,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     private ValidationEvaluator evaluator;
     @Mock
     private IntervalReadingRecord readingRecord, addedReadingRecord, editedReadingRecord, confirmedReadingRecord;
+    @Mock
+    private DeviceConfiguration deviceConfiguration;
 
     private ReadingQualityType readingQualityTypeValidated = new ReadingQualityType("3.0.1"),
                                 readingQualityTypeEdited = new ReadingQualityType("3.7.0"),
@@ -109,7 +111,13 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     @Before
     public void setUpStubs() {
         when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceBymRIDAndVersion("1", 1L)).thenReturn(Optional.of(device));
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile));
+        when(device.getVersion()).thenReturn(1L);
+        when(device.getmRID()).thenReturn("1");
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        LoadProfile.LoadProfileUpdater loadProfileUpdater = mock(LoadProfile.LoadProfileUpdater.class);
+        when(device.getLoadProfileUpdaterFor(loadProfile)).thenReturn(loadProfileUpdater);
         when(loadProfile.getId()).thenReturn(1L);
         when(loadProfile.getChannels()).thenReturn(Arrays.asList(channel));
 
@@ -208,6 +216,16 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channel.getLastDateTime()).thenReturn(Optional.of(NOW));
         when(channel.getUnit()).thenReturn(unit);
         when(deviceValidation.getLastChecked(channel)).thenReturn(Optional.of(NOW));
+
+        when(deviceConfiguration.getId()).thenReturn(1L);
+        when(deviceConfiguration.getVersion()).thenReturn(1L);
+        when(deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId())).thenReturn(Optional.of(deviceConfiguration));
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(deviceConfiguration.getId(), deviceConfiguration.getVersion())).thenReturn(Optional.of(deviceConfiguration));
+
+        when(loadProfile.getVersion()).thenReturn(1L);
+        when(loadProfileService.findById(loadProfile.getId())).thenReturn(Optional.of(loadProfile));
+        when(loadProfileService.findAndLockLoadProfileByIdAndVersion(loadProfile.getId(), loadProfile.getVersion())).thenReturn(Optional.of(loadProfile));
+        when(loadProfile.getDevice()).thenReturn(device);
     }
 
     private ReadingQualityRecord mockReadingQuality(String code) {
@@ -340,9 +358,15 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.forValidation()).thenReturn(deviceValidation);
         when(channel.getLastReading()).thenReturn(Optional.of(LAST_READING));
 
+        LoadProfileTriggerValidationInfo info = new LoadProfileTriggerValidationInfo();
+        info.version = device.getVersion();
+        info.id = CHANNEL_ID1;
+        info.version = loadProfile.getVersion();
+        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+
         Response response = target("devices/1/channels/" + CHANNEL_ID1 + "/validate")
                 .request()
-                .put(Entity.json(new TriggerValidationInfo()));
+                .put(Entity.json(info));
 
         assertThat(response.getEntity()).isNotNull();
         verify(deviceValidation).validateChannel(channel);
@@ -354,11 +378,16 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.forValidation()).thenReturn(deviceValidation);
         when(channel.getLastReading()).thenReturn(Optional.of(LAST_READING));
 
-        TriggerValidationInfo triggerValidationInfo = new TriggerValidationInfo();
-        triggerValidationInfo.lastChecked = LAST_CHECKED.getTime();
+
+        LoadProfileTriggerValidationInfo info = new LoadProfileTriggerValidationInfo();
+        info.version = device.getVersion();
+        info.id = CHANNEL_ID1;
+        info.version = loadProfile.getVersion();
+        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.lastChecked = LAST_CHECKED.getTime();
         Response response = target("devices/1/channels/" + CHANNEL_ID1 + "/validate")
                 .request()
-                .put(Entity.json(triggerValidationInfo));
+                .put(Entity.json(info));
 
         assertThat(response.getEntity()).isNotNull();
         verify(deviceValidation).setLastChecked(channel, LAST_CHECKED.toInstant());

@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.rest.util.VersionInfo;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.scheduling.model.ComSchedule;
@@ -12,6 +14,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -23,17 +26,45 @@ public class DeviceSharedScheduleResourceTest extends DeviceDataRestApplicationJ
         DeviceSharedScheduleResource.ScheduleIdsInfo scheduleIdsInfo = new DeviceSharedScheduleResource.ScheduleIdsInfo();
         Device device = mock(Device.class);
         when(deviceService.findByUniqueMrid("XAF")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceBymRIDAndVersion("XAF", 1L)).thenReturn(Optional.of(device));
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(1L, 1L)).thenReturn(Optional.of(deviceConfiguration));
         ComSchedule schedule33 = mock(ComSchedule.class);
         ComSchedule schedule44 = mock(ComSchedule.class);
         when(schedulingService.findSchedule(33L)).thenReturn(Optional.of(schedule33));
         when(schedulingService.findSchedule(44L)).thenReturn(Optional.of(schedule44));
         scheduleIdsInfo.scheduleIds = Arrays.asList(33L,44L);
+        scheduleIdsInfo.device = new DeviceInfo();
+        scheduleIdsInfo.device.mRID = "XAF";
+        scheduleIdsInfo.device.version = 1L;
+        scheduleIdsInfo.device.parent = new VersionInfo<>(1L, 1L);
+
         ComTaskExecutionBuilder builder = mock(ComTaskExecutionBuilder.class);
         when(device.newScheduledComTaskExecution(schedule33)).thenReturn(builder);
         when(device.newScheduledComTaskExecution(schedule44)).thenReturn(builder);
         Response response = target("/devices/XAF/sharedschedules").request().put(Entity.json(scheduleIdsInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(device).save();
+    }
+
+    @Test
+    public void testAddSharedSchedulesToDeviceBadVersion() throws Exception {
+        DeviceSharedScheduleResource.ScheduleIdsInfo scheduleIdsInfo = new DeviceSharedScheduleResource.ScheduleIdsInfo();
+        Device device = mock(Device.class);
+        when(deviceService.findByUniqueMrid("XAF")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceBymRIDAndVersion("XAF", 1L)).thenReturn(Optional.empty());
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(1L, 1L)).thenReturn(Optional.of(deviceConfiguration));
+        when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfiguration));
+        scheduleIdsInfo.scheduleIds = Arrays.asList(33L,44L);
+        scheduleIdsInfo.device = new DeviceInfo();
+        scheduleIdsInfo.device.mRID = "XAF";
+        scheduleIdsInfo.device.version = 1L;
+        scheduleIdsInfo.device.parent = new VersionInfo<>(1L, 1L);
+
+        Response response = target("/devices/XAF/sharedschedules").request().put(Entity.json(scheduleIdsInfo));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+        verify(device, never()).save();
     }
 
 }

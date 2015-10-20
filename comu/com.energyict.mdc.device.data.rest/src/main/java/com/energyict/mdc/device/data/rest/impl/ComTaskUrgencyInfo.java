@@ -8,4 +8,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class ComTaskUrgencyInfo {
     @JsonProperty("urgency")
     public int urgency;
+
+    public DeviceInfo device;
 }

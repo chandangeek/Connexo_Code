@@ -1,13 +1,12 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.security.Privileges;
-
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -71,7 +70,8 @@ public class RegisterResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({com.elster.jupiter.validation.security.Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-    public Response validateNow(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, TriggerValidationInfo validationInfo) {
+    public Response validateNow(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, RegisterTriggerValidationInfo validationInfo) {
+        Device device = resourceHelper.lockDeviceOrThrowException(validationInfo);
         Register<?> register = doGetRegister(mRID, registerId);
         if (validationInfo.lastChecked == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.NULL_DATE, "lastChecked");
@@ -82,6 +82,7 @@ public class RegisterResource {
             throw new LocalizedFieldValidationException(MessageSeeds.INVALID_DATE, "lastChecked", lastChecked);
         }
         validateRegister(register, newDate);
+        device.save();
         return Response.status(Response.Status.OK).build();
     }
 

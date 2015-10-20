@@ -1,5 +1,12 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.properties.BasicPropertySpec;
+import com.elster.jupiter.rest.util.VersionInfo;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
+import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
@@ -22,14 +29,11 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.ConnectionType.Direction;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
-
-import com.elster.jupiter.properties.BasicPropertySpec;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
-import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -41,10 +45,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
-import org.junit.*;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
@@ -66,13 +66,18 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
     public void setUp() throws Exception {
         super.setUp();
         device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(Optional.of(device));
+        when(device.getmRID()).thenReturn("ZABF0000000");
+        when(device.getVersion()).thenReturn(1L);
+        when(deviceService.findByUniqueMrid(device.getmRID())).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceBymRIDAndVersion(device.getmRID(), device.getVersion())).thenReturn(Optional.of(device));
         connectionTask = mockConnectionTask(9);
         when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         PartialConnectionTask partialConnectionTask = mockPartialConnectionTask(31L, "AS1440");
         when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(connectionTask.getId(), connectionTask.getVersion())).thenReturn(Optional.of(connectionTask));
+        when(connectionTaskService.findConnectionTask(connectionTask.getId())).thenReturn(Optional.of(connectionTask));
     }
 
     @Test
@@ -105,6 +110,8 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         info.nextExecutionSpecs.every= new TimeDurationInfo();
         info.nextExecutionSpecs.every.count= 15;
         info.nextExecutionSpecs.every.timeUnit= "minutes";
+        info.version = connectionTask.getVersion();
+        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
 
         Response response = target("/devices/ZABF0000000/connectionmethods/9").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -123,6 +130,8 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         info.nextExecutionSpecs.every= new TimeDurationInfo();
         info.nextExecutionSpecs.every.count= 15;
         info.nextExecutionSpecs.every.timeUnit= ""; // ILLEGAL
+        info.version = connectionTask.getVersion();
+        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
 
         Response response = target("/devices/ZABF0000000/connectionmethods/9").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -142,6 +151,8 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         info.nextExecutionSpecs.offset= new TimeDurationInfo();
         info.nextExecutionSpecs.offset.count= 13;
         info.nextExecutionSpecs.offset.timeUnit= "illegal"; // ILLEGAL
+        info.version = connectionTask.getVersion();
+        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
 
         Response response = target("/devices/ZABF0000000/connectionmethods/9").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -157,6 +168,8 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         info.properties = new ArrayList<>();
         PropertyInfo propertyInfo = new PropertyInfo("connectionTimeout","connectionTimeout",new PropertyValueInfo<>(new TimeDuration("15 seconds"),null,null,null),new PropertyTypeInfo(SimplePropertyType.TIMEDURATION,null,null,null),false);
         info.properties.add(propertyInfo);
+        info.version = connectionTask.getVersion();
+        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
 
         Response response = target("/devices/ZABF0000000/connectionmethods/9").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -212,6 +225,8 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
                 new PropertyTypeInfo(SimplePropertyType.TIMEDURATION, null, null, null),
                 false);
         info.properties = Arrays.asList(propertyInfo);
+        info.version = connectionTask.getVersion();
+        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
 
         Response response = target("/devices/ZABF0000000/connectionmethods/9").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -228,6 +243,8 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
                 new PropertyTypeInfo(SimplePropertyType.TIMEDURATION, null, null, null),
                 false);
         info.properties = Arrays.asList(propertyInfo);
+        info.version = connectionTask.getVersion();
+        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
 
         Response response = target("/devices/ZABF0000000/connectionmethods/9").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -256,6 +273,8 @@ public class ConnectionMethodResourceTest extends DeviceDataRestApplicationJerse
         when(connectionTask.getNextExecutionTimestamp()).thenReturn(nextExecution);
         OutboundComPortPool comPortPool = mockComPortPool();
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
+        when(connectionTask.getDevice()).thenReturn(device);
+        when(connectionTask.getVersion()).thenReturn(1L);
         return connectionTask;
     }
 

@@ -60,7 +60,9 @@ public enum MessageSeeds implements MessageSeed {
     BAD_ACTION(241, "BadAction", "Expected action to be either 'add' or 'remove'"),
     NO_SUCH_COM_SCHEDULE(242, "NoSuchSchedule", "No communication schedule with id {0}"),
     CANT_ADD_READINGS_FOR_STATE(243, "cantAddReadingForState", "The state of the device at {0,date,long} {0,time,long} does not allow adding readings."),
-    INVALID_ESTIMATOR_PROPERTY_VALUE(244, "invalidEstimatorPropertyValue", "Invalid property value");
+    INVALID_ESTIMATOR_PROPERTY_VALUE(244, "invalidEstimatorPropertyValue", "Invalid property value"),
+    CONCURRENT_RUN_TITLE(245, "ConcurrentRunTitle", "Failed to run ''{0}''"),
+    CONCURRENT_RUN_BODY(246, "ConcurrentRunMessage", "{0} has changed since the page was last updated."),
     ;
     private final int number;
     private final String key;

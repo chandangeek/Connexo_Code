@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -10,7 +9,6 @@ import com.energyict.mdc.scheduling.SchedulingService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.inject.Provider;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.PUT;
@@ -40,7 +38,7 @@ public class DeviceSharedScheduleResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response addComScheduleOnDevice(@PathParam("mRID") String mrid, ScheduleIdsInfo info) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
+        Device device = resourceHelper.lockDeviceOrThrowException(info.device);
         info.scheduleIds.stream()
                 .map(schedulingService::findSchedule)
                 .filter(Optional::isPresent)
@@ -58,6 +56,7 @@ public class DeviceSharedScheduleResource {
 
     static class ScheduleIdsInfo {
         public List<Long> scheduleIds;
+        public DeviceInfo device;
 
         public ScheduleIdsInfo() {
         }

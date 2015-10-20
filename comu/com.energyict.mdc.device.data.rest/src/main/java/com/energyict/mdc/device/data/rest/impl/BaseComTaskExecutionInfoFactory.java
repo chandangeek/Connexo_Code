@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.rest.BaseComTaskExecutionInfo;
 import com.energyict.mdc.device.data.rest.CompletionCodeInfo;
 import com.energyict.mdc.device.data.rest.TaskStatusInfo;
@@ -12,8 +13,6 @@ import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.nls.Thesaurus;
 
 import java.util.Optional;
 import java.util.function.Supplier;

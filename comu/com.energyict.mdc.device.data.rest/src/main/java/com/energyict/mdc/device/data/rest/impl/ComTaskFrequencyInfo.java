@@ -6,4 +6,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public class ComTaskFrequencyInfo {
     @JsonProperty("temporalExpression")
     public TemporalExpressionInfo temporalExpression;
+
+    public DeviceInfo device;
 }

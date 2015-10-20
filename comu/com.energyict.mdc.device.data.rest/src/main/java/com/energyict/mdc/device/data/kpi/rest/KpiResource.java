@@ -3,17 +3,16 @@ package com.energyict.mdc.device.data.kpi.rest;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.impl.MessageSeeds;
-import java.util.Iterator;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.energyict.mdc.device.data.rest.impl.ResourceHelper;
+
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -26,6 +25,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Iterator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -39,13 +41,15 @@ public class KpiResource {
     private final DataCollectionKpiInfoFactory dataCollectionKpiInfoFactory;
     private final ExceptionFactory exceptionFactory;
     private final MeteringGroupsService meteringGroupsService;
+    private final ResourceHelper resourceHelper;
 
     @Inject
-    public KpiResource(DataCollectionKpiService dataCollectionKpiService, DataCollectionKpiInfoFactory dataCollectionKpiInfoFactory, ExceptionFactory exceptionFactory, MeteringGroupsService meteringGroupsService, Thesaurus thesaurus) {
+    public KpiResource(DataCollectionKpiService dataCollectionKpiService, DataCollectionKpiInfoFactory dataCollectionKpiInfoFactory, ExceptionFactory exceptionFactory, MeteringGroupsService meteringGroupsService, Thesaurus thesaurus, ResourceHelper resourceHelper) {
         this.dataCollectionKpiService = dataCollectionKpiService;
         this.dataCollectionKpiInfoFactory = dataCollectionKpiInfoFactory;
         this.exceptionFactory = exceptionFactory;
         this.meteringGroupsService = meteringGroupsService;
+        this.resourceHelper = resourceHelper;
     }
 
     @GET
@@ -83,7 +87,7 @@ public class KpiResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{id}")
     public DataCollectionKpiInfo getKpiById(@PathParam("id") long id) {
-        DataCollectionKpi dataCollectionKpi = dataCollectionKpiService.findDataCollectionKpi(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_KPI, id));
+        DataCollectionKpi dataCollectionKpi = resourceHelper.findDataCollectionKpiByIdOrThrowException(id);
         return dataCollectionKpiInfoFactory.from(dataCollectionKpi);
     }
 
@@ -91,8 +95,9 @@ public class KpiResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{id}")
-    public Response deleteKpi(@PathParam("id") long id) {
-        dataCollectionKpiService.findDataCollectionKpi(id).orElseThrow(()->exceptionFactory.newException(MessageSeeds.NO_SUCH_KPI, id)).delete();
+    public Response deleteKpi(@PathParam("id") long id, DataCollectionKpiInfo info) {
+        info.id = id;
+        resourceHelper.lockDataCollectionKpiOrThrowException(info).delete();
         return Response.ok().build();
     }
 
@@ -126,42 +131,41 @@ public class KpiResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{id}")
-    public Response updateKpi(@PathParam("id") long id, DataCollectionKpiInfo kpiInfo) {
-        DataCollectionKpi kpi = dataCollectionKpiService.findDataCollectionKpi(id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_KPI, id));
+    public Response updateKpi(@PathParam("id") long id, DataCollectionKpiInfo info) {
+        info.id = id;
+        DataCollectionKpi kpi = resourceHelper.lockDataCollectionKpiOrThrowException(info);
 
-        if (kpiInfo.communicationTarget!=null) {
-            if (kpiInfo.frequency !=null && kpiInfo.frequency.every!=null) {
-                if (!kpi.calculatesComTaskExecutionKpi() || (kpi.calculatesComTaskExecutionKpi() && (!kpiInfo.frequency.every.asTimeDuration().asTemporalAmount().equals(kpi.comTaskExecutionKpiCalculationIntervalLength().get()) ||
-                        !kpiInfo.communicationTarget.equals(kpi.getStaticCommunicationKpiTarget().get())))) {
+        if (info.communicationTarget!=null) {
+            if (info.frequency !=null && info.frequency.every!=null) {
+                if (!kpi.calculatesComTaskExecutionKpi() || (kpi.calculatesComTaskExecutionKpi() && (!info.frequency.every.asTimeDuration().asTemporalAmount().equals(kpi.comTaskExecutionKpiCalculationIntervalLength().get()) ||
+                        !info.communicationTarget.equals(kpi.getStaticCommunicationKpiTarget().get())))) {
                     // something changed about communication KPI
-                    kpi.calculateComTaskExecutionKpi(kpiInfo.communicationTarget);
+                    kpi.calculateComTaskExecutionKpi(info.communicationTarget);
                 }
             }
         }
-        if (kpiInfo.connectionTarget!=null) {
-            if (kpiInfo.frequency !=null && kpiInfo.frequency.every!=null) {
-                if (!kpi.calculatesConnectionSetupKpi() || (kpi.calculatesConnectionSetupKpi() && (!kpiInfo.frequency.every.asTimeDuration().asTemporalAmount().equals(kpi.connectionSetupKpiCalculationIntervalLength().get()) ||
-                        !kpiInfo.connectionTarget.equals(kpi.getStaticConnectionKpiTarget().get())))) {
+        if (info.connectionTarget!=null) {
+            if (info.frequency !=null && info.frequency.every!=null) {
+                if (!kpi.calculatesConnectionSetupKpi() || (kpi.calculatesConnectionSetupKpi() && (!info.frequency.every.asTimeDuration().asTemporalAmount().equals(kpi.connectionSetupKpiCalculationIntervalLength().get()) ||
+                        !info.connectionTarget.equals(kpi.getStaticConnectionKpiTarget().get())))) {
                     // something changed about connection KPI
-                    kpi.calculateConnectionKpi(kpiInfo.connectionTarget);
+                    kpi.calculateConnectionKpi(info.connectionTarget);
                 }
             }
         }
-        if (kpiInfo.connectionTarget==null) {
+        if (info.connectionTarget==null) {
             // drop connection kpi
             if (kpi.calculatesConnectionSetupKpi()) {
                 kpi.dropConnectionSetupKpi();
             }
         }
-        if (kpiInfo.communicationTarget==null) {
+        if (info.communicationTarget==null) {
             // remove ComTaskExecutionKpi
             if (kpi.calculatesComTaskExecutionKpi()) {
                 kpi.dropComTaskExecutionKpi();
             }
         }
-        kpi.updateDisplayRange(kpiInfo.displayRange == null ? null : kpiInfo.displayRange.asTimeDuration());
+        kpi.updateDisplayRange(info.displayRange == null ? null : info.displayRange.asTimeDuration());
         return Response.ok(dataCollectionKpiInfoFactory.from(dataCollectionKpiService.findDataCollectionKpi(id).get())).build();
     }
-
-
 }

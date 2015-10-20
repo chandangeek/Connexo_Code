@@ -6,10 +6,11 @@ import com.elster.jupiter.metering.groups.SearchCriteria;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
+
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import javax.inject.Inject;
 
 public class DeviceGroupInfoFactory {
 
@@ -26,6 +27,7 @@ public class DeviceGroupInfoFactory {
         deviceGroupInfo.mRID = endDeviceGroup.getMRID();
         deviceGroupInfo.name = endDeviceGroup.getName();
         deviceGroupInfo.dynamic = endDeviceGroup.isDynamic();
+        deviceGroupInfo.version = endDeviceGroup.getVersion();
         if (endDeviceGroup.isDynamic()) {
             DeviceType deviceType = null;
             List<SearchCriteria> searchCriteria = translateCriteria(((QueryEndDeviceGroup) endDeviceGroup).getSearchCriteria(), deviceConfigurationService);

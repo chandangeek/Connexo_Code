@@ -1,15 +1,5 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceValidation;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.NumericalRegister;
-import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
-import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
-
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
@@ -21,6 +11,15 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.elster.jupiter.validation.security.Privileges;
+import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.NumericalRegister;
+import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
+import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.google.common.collect.Range;
 
 import javax.annotation.security.RolesAllowed;
@@ -68,20 +67,25 @@ public class DeviceValidationResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,Privileges.VIEW_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response getValidationRuleSetsForDevice(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
-        List<DeviceValidationRuleSetInfo> result = new ArrayList<>();
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        List<DeviceValidationRuleSetInfo> result = new ArrayList<>();
         Optional<? extends MeterActivation> activation = device.getCurrentMeterActivation();
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         List<ValidationRuleSet> linkedRuleSets = deviceConfiguration.getValidationRuleSets();
-        fillValidationRuleSetStatus(linkedRuleSets, activation, result);
+        fillValidationRuleSetStatus(linkedRuleSets, activation, result, device);
         Collections.sort(result, ValidationRuleSetInfo.VALIDATION_RULESET_NAME_COMPARATOR);
         return Response.ok(PagedInfoList.fromPagedList("rulesets",
                 ListPager.of(result).from(queryParameters).find(), queryParameters)).build();
     }
 
-    private void fillValidationRuleSetStatus(List<ValidationRuleSet> linkedRuleSets, Optional<? extends MeterActivation> activation, List<DeviceValidationRuleSetInfo> result) {
+    private void fillValidationRuleSetStatus(List<ValidationRuleSet> linkedRuleSets, Optional<? extends MeterActivation> activation, List<DeviceValidationRuleSetInfo> result, Device device) {
         List<? extends ValidationRuleSet> activeRuleSets = activation.map(validationService::activeRuleSets).orElse(Collections.emptyList());
-        linkedRuleSets.forEach(ruleSet -> result.add(new DeviceValidationRuleSetInfo(ruleSet, (!activation.isPresent()) || activeRuleSets.contains(ruleSet))));
+        for (ValidationRuleSet ruleSet : linkedRuleSets) {
+            boolean isActive = (!activation.isPresent()) || activeRuleSets.contains(ruleSet);
+            DeviceValidationRuleSetInfo info = new DeviceValidationRuleSetInfo(ruleSet, isActive);
+            info.device = DeviceInfo.from(device);
+            result.add(info);
+        }
     }
 
     @Path("/{validationRuleSetId}/status")
@@ -89,15 +93,17 @@ public class DeviceValidationResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     @DeviceStatesRestricted({DefaultState.DECOMMISSIONED})
-    public Response setValidationRuleSetStatusOnDevice(@PathParam("mRID") String mRID, @PathParam("validationRuleSetId") long validationRuleSetId, boolean status) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public Response setValidationRuleSetStatusOnDevice(@PathParam("mRID") String mRID, @PathParam("validationRuleSetId") long validationRuleSetId, DeviceValidationRuleSetInfo info) {
+        info.device.mRID = mRID;
+        Device device = resourceHelper.lockDeviceOrThrowException(info.device);
         ValidationRuleSet ruleSet = getValidationRuleSet(validationRuleSetId);
         Optional<? extends MeterActivation> activation = device.getCurrentMeterActivation();
         if (activation.isPresent()) {
-            setValidationRuleSetActivationStatus(activation.get(), ruleSet, status);
+            setValidationRuleSetActivationStatus(activation.get(), ruleSet, info.isActive);
         } else {
             throw exceptionFactory.newException(MessageSeeds.DEACTIVATE_VALIDATION_RULE_SET_NOT_POSSIBLE, ruleSet.getName());
         }
+        device.save();
         return Response.status(Response.Status.OK).build();
     }
 
@@ -258,6 +264,7 @@ public class DeviceValidationResource {
 
         collectRegisterData(device, deviceValidationStatusInfo, end);
         collectLoadProfileData(device, deviceValidationStatusInfo, end);
+        deviceValidationStatusInfo.device = DeviceInfo.from(device);
 
         return deviceValidationStatusInfo;
     }
@@ -311,25 +318,24 @@ public class DeviceValidationResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     @DeviceStatesRestricted({DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED})
-    public Response setValidationFeatureStatus(@PathParam("mRID") String mRID, DeviceValidationStatusInfo deviceValidationStatusInfo) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public Response setValidationFeatureStatus(@PathParam("mRID") String mRID, DeviceValidationStatusInfo info) {
+        info.device.mRID = mRID;
+        Device device = resourceHelper.lockDeviceOrThrowException(info.device);
         try {
-            if (deviceValidationStatusInfo.isActive) {
-                if (deviceValidationStatusInfo.lastChecked == null) {
+            if (info.isActive) {
+                if (info.lastChecked == null) {
                     throw new LocalizedFieldValidationException(MessageSeeds.NULL_DATE, "lastChecked");
                 }
-                if(deviceValidationStatusInfo.isStorage){
-                    device.forValidation().activateValidationOnStorage(Instant.ofEpochMilli(deviceValidationStatusInfo.lastChecked));
+                if(info.isStorage){
+                    device.forValidation().activateValidationOnStorage(Instant.ofEpochMilli(info.lastChecked));
+                } else{
+                    device.forValidation().activateValidation(Instant.ofEpochMilli(info.lastChecked));
                 }
-                else{
-                    device.forValidation().activateValidation(Instant.ofEpochMilli(deviceValidationStatusInfo.lastChecked));
-                }
-            }
-            else {
+            } else {
                 device.forValidation().deactivateValidation();
             }
-        }
-        catch (InvalidLastCheckedException e) {
+            device.save();
+        } catch (InvalidLastCheckedException e) {
             throw new LocalizedFieldValidationException(e.getMessageSeed(), "lastChecked", device.getmRID(), e.getOldLastChecked(), e.getNewLastChecked());
         }
         return Response.status(Response.Status.OK).build();
@@ -340,9 +346,11 @@ public class DeviceValidationResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(com.elster.jupiter.validation.security.Privileges.VALIDATE_MANUAL)
     @DeviceStatesRestricted({DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED})
-    public Response validateDeviceData(@PathParam("mRID") String mRID) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+    public Response validateDeviceData(@PathParam("mRID") String mRID, DeviceInfo info) {
+        info.mRID = mRID;
+        Device device = resourceHelper.lockDeviceOrThrowException(info);
         device.forValidation().validateData();
+        device.save();
         return Response.status(Response.Status.OK).build();
     }
 

@@ -1,14 +1,19 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
-import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.scheduling.rest.ComTaskInfo;
+import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.tasks.ComTask;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class DeviceSchedulesInfo {
@@ -20,6 +25,8 @@ public class DeviceSchedulesInfo {
     public Instant nextCommunication;
     public List<ComTaskInfo> comTaskInfos;
     public ScheduleType type;
+    public long version;
+    public VersionInfo<String> parent;
 
     public DeviceSchedulesInfo() {
     }
@@ -71,6 +78,9 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.comTaskInfos = new ArrayList<>();
         deviceSchedulesInfo.comTaskInfos.addAll(ComTaskInfo.from(comTaskExecution.getComTasks()));
         deviceSchedulesInfo.type = ScheduleType.SCHEDULED;
+        deviceSchedulesInfo.version = comTaskExecution.getVersion();
+        Device device = comTaskExecution.getDevice();
+        deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         return deviceSchedulesInfo;
     }
 
@@ -83,6 +93,9 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
         deviceSchedulesInfo.comTaskInfos = new ArrayList<>();
         deviceSchedulesInfo.comTaskInfos.addAll(ComTaskInfo.from(comTaskExecution.getComTasks()));
+        deviceSchedulesInfo.version = comTaskExecution.getVersion();
+        Device device = comTaskExecution.getDevice();
+        deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         return deviceSchedulesInfo;
     }
 
@@ -94,6 +107,9 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
         deviceSchedulesInfo.comTaskInfos = new ArrayList<>();
         deviceSchedulesInfo.comTaskInfos.addAll(ComTaskInfo.from(comTaskExecution.getComTasks()));
+        deviceSchedulesInfo.version = comTaskExecution.getVersion();
+        Device device = comTaskExecution.getDevice();
+        deviceSchedulesInfo.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         return deviceSchedulesInfo;
     }
 

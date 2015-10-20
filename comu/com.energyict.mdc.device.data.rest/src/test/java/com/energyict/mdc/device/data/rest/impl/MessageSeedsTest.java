@@ -1,9 +1,9 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import org.junit.Test;
+
 import java.util.HashSet;
 import java.util.Set;
-
-import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

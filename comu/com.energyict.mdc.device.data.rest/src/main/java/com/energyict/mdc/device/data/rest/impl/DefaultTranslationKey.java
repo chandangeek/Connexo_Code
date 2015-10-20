@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-import com.energyict.mdc.protocol.api.ConnectionType;
-
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.protocol.api.ConnectionType;
 
 public enum DefaultTranslationKey implements TranslationKey {
     PRE_TRANSITION_CHECKS_FAILED("PreTransitionChecksFailed" , "Pretransition checks failed"),
