@@ -185,6 +185,7 @@ public class AppServerResource {
     public Response removeAppServer(@PathParam("appserverName") String appServerName) {
         AppServer appServer = fetchAppServer(appServerName);
         try (TransactionContext context = transactionService.getContext()) {
+            dataExportService.removeExportDirectory(appServer);
             appServer.delete();
             context.commit();
         }
