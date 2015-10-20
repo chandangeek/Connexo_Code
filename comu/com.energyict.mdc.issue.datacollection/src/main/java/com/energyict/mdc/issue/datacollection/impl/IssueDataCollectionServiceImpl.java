@@ -186,6 +186,15 @@ public class IssueDataCollectionServiceImpl implements InstallService, Translati
     }
 
     @Override
+    public Optional<? extends IssueDataCollection> findAndLockIssueDataCollectionByIdAndVersion(long id, long version) {
+        Optional<OpenIssueDataCollection> issue = findOpenIssue(id);
+        if (issue.isPresent()) {
+            return dataModel.mapper(OpenIssueDataCollection.class).lockObjectIfVersion(version, id);
+        }
+        return dataModel.mapper(HistoricalIssueDataCollection.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public Optional<OpenIssueDataCollection> findOpenIssue(long id) {
         return find(OpenIssueDataCollection.class, id, OpenIssue.class);
     }

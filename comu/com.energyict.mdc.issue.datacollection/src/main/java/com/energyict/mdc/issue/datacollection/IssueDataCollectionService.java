@@ -18,6 +18,8 @@ public interface IssueDataCollectionService {
 
     Optional<? extends IssueDataCollection> findIssue(long id);
 
+    Optional<? extends  IssueDataCollection> findAndLockIssueDataCollectionByIdAndVersion(long id, long version);
+
     Optional<OpenIssueDataCollection> findOpenIssue(long id);
 
     Optional<HistoricalIssueDataCollection> findHistoricalIssue(long id);
