@@ -350,6 +350,11 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     }
 
     @Override
+    public Optional<Group> findAndLockGroupByIdAndVersion(long id, long version) {
+        return dataModel.mapper(Group.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public List<Group> getGroups() {
         return dataModel
                 .query(Group.class, PrivilegeInGroup.class)
@@ -429,6 +434,11 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     @Override
     public Optional<User> getUser(long id) {
         return userFactory().getOptional(id);
+    }
+
+    @Override
+    public Optional<User> findAndLockUserByIdAndVersion(long id, long version) {
+        return userFactory().lockObjectIfVersion(version, id);
     }
 
     @Override
