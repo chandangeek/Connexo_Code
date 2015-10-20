@@ -48,6 +48,7 @@ Ext.define('Isu.controller.IssuesOverview', {
 
         preview.setLoading(true);
 
+        Ext.getStore('Isu.store.Clipboard').set('issue', record);
         this.getModel(record.$className).load(record.getId(), {
             success: function (record) {
                 if (!preview.isDestroyed) {

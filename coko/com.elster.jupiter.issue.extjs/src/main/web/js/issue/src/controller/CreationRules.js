@@ -109,14 +109,14 @@ Ext.define('Isu.controller.CreationRules', {
 
         page.setLoading('Removing...');
         rule.destroy({
-            callback: function (model, operation) {
+            success: function () {
+                page.down('#creation-rules-list pagingtoolbartop').totalCount = 0;
+                page.down('#creation-rules-list pagingtoolbarbottom').resetPaging();
+                store.loadPage(1);
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('administration.issueCreationRules.deleteSuccess.msg', 'ISU', 'Issue creation rule removed'));
+            },
+            callback: function () {
                 page.setLoading(false);
-                if (operation.response.status == 204) {
-                    page.down('#creation-rules-list pagingtoolbartop').totalCount = 0;
-                    page.down('#creation-rules-list pagingtoolbarbottom').resetPaging();
-                    store.loadPage(1);
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('administration.issueCreationRules.deleteSuccess.msg', 'ISU', 'Issue creation rule removed'));
-                }
             }
         });
     }

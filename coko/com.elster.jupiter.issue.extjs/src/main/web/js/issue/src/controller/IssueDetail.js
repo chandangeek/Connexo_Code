@@ -23,6 +23,7 @@ Ext.define('Isu.controller.IssueDetail', {
             },
             success: function (record) {
                 if (!widget.isDestroyed) {
+                    Ext.getStore('Isu.store.Clipboard').set('issue', record);
                     me.getApplication().fireEvent('issueLoad', record);
                     Ext.suspendLayouts();
                     widget.down('#issue-detail-top-title').setTitle(record.get('title'));

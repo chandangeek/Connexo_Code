@@ -1,5 +1,5 @@
 Ext.define('Isu.model.CreationRule', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.Version',
     requires: [
         'Isu.model.CreationRuleAction',
         'Uni.property.model.Property',

@@ -1,5 +1,5 @@
 Ext.define('Isu.model.Issue', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.Version',
     requires: [
         'Isu.model.IssueReason',
         'Isu.model.IssueStatus',

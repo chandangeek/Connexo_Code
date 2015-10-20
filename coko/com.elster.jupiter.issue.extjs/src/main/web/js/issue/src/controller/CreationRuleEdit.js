@@ -120,6 +120,7 @@ Ext.define('Isu.controller.CreationRuleEdit', {
         page.setLoading();
         form.updateRecord();
         form.getRecord().save({
+            backUrl: me.getController('Uni.controller.history.Router').getRoute('administration/creationrules').buildUrl(),
             callback: function (record, operation, success) {
                 var messageText,
                     json;
