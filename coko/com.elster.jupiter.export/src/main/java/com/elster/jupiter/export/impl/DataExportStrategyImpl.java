@@ -71,14 +71,16 @@ class DataExportStrategyImpl implements DataExportStrategy, EventDataExportStrat
         CONTINUOUS {
             @Override
             Range<Instant> adjustedExportPeriod(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
+                Range<Instant> exportedDataInterval = ((DefaultSelectorOccurrence) occurrence).getExportedDataInterval();
                 return item.getLastExportedDate()
-                        .filter(instant -> {
-                            Range<Instant> exportedDataInterval = ((DefaultSelectorOccurrence) occurrence).getExportedDataInterval();
-                            return exportedDataInterval.hasLowerBound() && exportedDataInterval.lowerEndpoint().isAfter(instant);
-                        })
-                        .map(instant -> copy(((DefaultSelectorOccurrence) occurrence).getExportedDataInterval()).withOpenLowerBound(instant))
-                        .orElse(((DefaultSelectorOccurrence) occurrence).getExportedDataInterval());
+                        .map(lastExport -> getRangeSinceLastExport(exportedDataInterval, lastExport))
+                        .orElse(exportedDataInterval);
+            }
 
+            private Range<Instant> getRangeSinceLastExport(Range<Instant> exportedDataInterval, Instant lastExport) {
+                return (exportedDataInterval.hasUpperBound() && lastExport.isAfter(exportedDataInterval.upperEndpoint())) ?
+                        Range.openClosed(lastExport, lastExport) :
+                        copy(exportedDataInterval).withOpenLowerBound(lastExport);
             }
         }, REQUESTED {
             @Override
