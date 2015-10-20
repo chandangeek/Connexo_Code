@@ -1,28 +1,25 @@
 package com.elster.jupiter.users.rest.actions;
 
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.GroupInfo;
-import java.util.Optional;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
 
 public class DeleteGroupTransaction extends VoidTransaction {
-
     private final GroupInfo info;
     private final UserService userService;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
-    public DeleteGroupTransaction(GroupInfo info, UserService userService) {
+    public DeleteGroupTransaction(GroupInfo info, UserService userService, ConcurrentModificationExceptionFactory conflictFactory) {
         this.info = info;
         this.userService = userService;
+        this.conflictFactory = conflictFactory;
     }
 
     @Override
     protected void doPerform() {
-        Group group = fetchGroup();
-        validateDelete(group);
+        Group group = findAndLockGroupByIdAndVersion(info);
         doDelete(group);
     }
 
@@ -30,18 +27,10 @@ public class DeleteGroupTransaction extends VoidTransaction {
         group.delete();
     }
 
-    private void validateDelete(Group group) {
-        if (group.getVersion() != info.version) {
-            throw new WebApplicationException(Response.Status.CONFLICT);
-        }
+    private Group findAndLockGroupByIdAndVersion(GroupInfo info) {
+        return userService.findAndLockGroupByIdAndVersion(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> userService.getGroup(info.id).map(Group::getVersion).orElse(null))
+                        .supplier());
     }
-
-    private Group fetchGroup() {
-        Optional<Group> group = userService.getGroup(info.id);
-        if (group.isPresent()) {
-            return group.get();
-        }
-        throw new WebApplicationException(Response.Status.NOT_FOUND);
-    }
-
 }

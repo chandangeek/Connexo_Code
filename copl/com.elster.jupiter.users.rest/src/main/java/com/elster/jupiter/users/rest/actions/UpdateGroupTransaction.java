@@ -1,30 +1,27 @@
 package com.elster.jupiter.users.rest.actions;
 
-import java.util.Optional;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.rest.GroupInfo;
 
-public class UpdateGroupTransaction extends UpdateMembership implements Transaction<Group> {
+import java.util.stream.Collectors;
 
-    public UpdateGroupTransaction(GroupInfo info, UserService userService) {
+public class UpdateGroupTransaction extends UpdateMembership implements Transaction<Group> {
+    private final ConcurrentModificationExceptionFactory conflictFactory;
+
+    public UpdateGroupTransaction(GroupInfo info, UserService userService, ConcurrentModificationExceptionFactory conflictFactory) {
         super(info, userService);
+        this.conflictFactory = conflictFactory;
     }
 
     @Override
     public Group perform() {
-        final Group group = fetchGroup();
-        validateUpdate(group);
+        final Group group = findAndLockGroupByIdAndVersion(info);
         if(info.privileges.isEmpty()){
-            Group groupNoRights = group;
-            groupNoRights = doUpdateEmpty(group);
+            Group groupNoRights = doUpdateEmpty(group);
+            groupNoRights.update();
             return groupNoRights;
         }else {
             final Group removedGroup = doUpdateEmpty(group, info.privileges);
@@ -32,21 +29,15 @@ public class UpdateGroupTransaction extends UpdateMembership implements Transact
                     .entrySet()
                     .stream()
                     .forEach(p -> doUpdate(p.getKey(), removedGroup));
+            removedGroup.update();
             return removedGroup;
         }
     }
 
-    private void validateUpdate(Group group) {
-        if (group.getVersion() != info.version) {
-            throw new WebApplicationException(Response.Status.CONFLICT);
-        }
-    }
-
-    private Group fetchGroup() {
-        Optional<Group> group = userService.getGroup(info.id);
-        if (group.isPresent()) {
-            return group.get();
-        }
-        throw new WebApplicationException(Response.Status.NOT_FOUND);
+    private Group findAndLockGroupByIdAndVersion(GroupInfo info) {
+        return userService.findAndLockGroupByIdAndVersion(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> userService.getGroup(info.id).map(Group::getVersion).orElse(null))
+                        .supplier());
     }
 }

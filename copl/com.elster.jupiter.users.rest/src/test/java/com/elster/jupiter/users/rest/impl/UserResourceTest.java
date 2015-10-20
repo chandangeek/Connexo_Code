@@ -1,6 +1,8 @@
 package com.elster.jupiter.users.rest.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -9,6 +11,7 @@ import java.util.Locale;
 import java.util.Optional;
 
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -22,13 +25,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.rest.UserInfo;
 
 public class UserResourceTest extends UsersRestApplicationJerseyTest {
-    
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-        mockTransaction();
-    }
-    
+
     @Test
     public void testNothingToUpdate() {
         User user = mockUser(1L);
@@ -78,26 +75,29 @@ public class UserResourceTest extends UsersRestApplicationJerseyTest {
         verify(user).update();
     }
 
+    @Test
+    public void testUpdateWithConcurrentModification() {
+        User user = mockUser(1L);
+        reset(userService);
+        when(userService.findAndLockUserByIdAndVersion(1L, 1L)).thenReturn(Optional.empty());
+        when(userService.getUser(1L)).thenReturn(Optional.empty());
+        UserInfo info = new UserInfo(user);
+
+        Response response = target("/users/1").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
     private User mockUser(long id) {
         User user = mock(User.class);
         when(userService.getUser(id)).thenReturn(Optional.of(user));
+        when(userService.findAndLockUserByIdAndVersion(id, 1L)).thenReturn(Optional.of(user));
         when(user.getLocale()).thenReturn(Optional.of(Locale.ENGLISH));
         when(user.getLanguage()).thenReturn("en");
         when(user.getCreationDate()).thenReturn(Instant.now());
         when(user.getModifiedDate()).thenReturn(Instant.now());
         when(user.getDescription()).thenReturn("description");
+        when(user.getId()).thenReturn(id);
+        when(user.getVersion()).thenReturn(1L);
         return user;
-    }
-
-    @SuppressWarnings("unchecked")
-    private void mockTransaction() {
-        when(transactionService.<Object>execute(Matchers.any(Transaction.class))).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-                @SuppressWarnings("rawtypes")
-                Transaction transaction = (Transaction) invocation.getArguments()[0];
-                return transaction.perform();
-            }
-        });
     }
 }

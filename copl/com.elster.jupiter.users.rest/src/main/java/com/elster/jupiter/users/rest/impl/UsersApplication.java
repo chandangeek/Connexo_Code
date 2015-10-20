@@ -17,10 +17,11 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
+import java.util.HashSet;
 import java.util.Set;
 
 @Component(name = "com.elster.jupiter.users.rest" , service=Application.class , immediate = true , property = {"alias=/usr", "app=SYS", "name=" + UsersApplication.COMPONENT_NAME} )
-public class UsersApplication extends Application implements BinderProvider {
+public class UsersApplication extends Application {
     public static final String COMPONENT_NAME = "USR";
 
     private volatile TransactionService transactionService;
@@ -71,19 +72,24 @@ public class UsersApplication extends Application implements BinderProvider {
     }
 
     @Override
-    public Binder getBinder() {
-        return new AbstractBinder() {
-            @Override
-            protected void configure() {
-                bind(userService).to(UserService.class);
-                bind(userPreferencesService).to(UserPreferencesService.class);
-                bind(transactionService).to(TransactionService.class);
-                bind(restQueryService).to(RestQueryService.class);
-                bind(threadPrincipalService).to(ThreadPrincipalService.class);
-                bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
-                bind(nlsService).to(NlsService.class);
-                bind(thesaurus).to(Thesaurus.class);
-            }
-        };
+    public Set<Object> getSingletons() {
+        Set<Object> sglt = new HashSet<>();
+        sglt.addAll(super.getSingletons());
+        sglt.add(new HK2Binder());
+        return sglt;
+    }
+
+    class HK2Binder extends AbstractBinder {
+        @Override
+        protected void configure() {
+            bind(userService).to(UserService.class);
+            bind(userPreferencesService).to(UserPreferencesService.class);
+            bind(transactionService).to(TransactionService.class);
+            bind(restQueryService).to(RestQueryService.class);
+            bind(threadPrincipalService).to(ThreadPrincipalService.class);
+            bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
+            bind(nlsService).to(NlsService.class);
+            bind(thesaurus).to(Thesaurus.class);
+        }
     }
 }

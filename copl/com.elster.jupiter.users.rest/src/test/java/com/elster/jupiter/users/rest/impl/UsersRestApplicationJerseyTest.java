@@ -6,6 +6,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
 
@@ -39,10 +40,7 @@ public class UsersRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
     ThreadPrincipalService threadPrincipalService;
     @Mock
     static SecurityContext securityContext;
-    @Mock
-    NlsService nlsService;
-    @Mock
-    Thesaurus thesaurus;
+
 
     @Provider
     @Priority(Priorities.AUTHORIZATION)
@@ -64,23 +62,20 @@ public class UsersRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
                 classes.add(SecurityRequestFilter.class);
                 return classes;
             }
-
-            @Override
-            public Set<Object> getSingletons() {
-                Set<Object> hashSet = new HashSet<>();
-                hashSet.addAll(super.getSingletons());
-                hashSet.add(this.getBinder());
-                return Collections.unmodifiableSet(hashSet);
-            }
         };
         application.setRestQueryService(restQueryService);
         application.setTransactionService(transactionService);
         when(userService.getUserPreferencesService()).thenReturn(userPreferencesService);
         application.setUserService(userService);
         application.setThreadPrincipalService(threadPrincipalService);
-        when(nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(thesaurus);
         application.setNlsService(nlsService);
         return application;
     }
 
+    @Override
+    public void setupMocks() {
+        super.setupMocks();
+        when(transactionService.execute(any(Transaction.class))).thenAnswer(
+                invocation -> ((Transaction)invocation.getArguments()[0]).perform());
+    }
 }
