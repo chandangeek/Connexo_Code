@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.UsagePointFilter;
 import com.elster.jupiter.metering.rest.ReadingTypeInfos;
 import com.elster.jupiter.metering.rest.UsagePointInfo;
 import com.elster.jupiter.metering.security.Privileges;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.transaction.TransactionService;
@@ -52,12 +53,14 @@ public class UsagePointResource {
     private final MeteringService meteringService;
     private final TransactionService transactionService;
     private final Clock clock;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public UsagePointResource(MeteringService meteringService, TransactionService transactionService, Clock clock) {
+    public UsagePointResource(MeteringService meteringService, TransactionService transactionService, Clock clock, ConcurrentModificationExceptionFactory conflictFactory) {
         this.meteringService = meteringService;
         this.transactionService = transactionService;
         this.clock = clock;
+        this.conflictFactory = conflictFactory;
     }
 
     @GET
@@ -88,7 +91,7 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public UsagePointInfos updateUsagePoint(@PathParam("id") long id, UsagePointInfo info, @Context SecurityContext securityContext) {
         info.id = id;
-        transactionService.execute(new UpdateUsagePointTransaction(info, securityContext.getUserPrincipal(), meteringService, clock));
+        transactionService.execute(new UpdateUsagePointTransaction(info, securityContext.getUserPrincipal(), meteringService, clock, conflictFactory));
         return getUsagePoint(info.id, securityContext);
     }
 
