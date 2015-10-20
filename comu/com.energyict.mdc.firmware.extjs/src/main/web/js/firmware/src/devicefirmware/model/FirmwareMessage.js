@@ -1,5 +1,5 @@
 Ext.define('Fwc.devicefirmware.model.FirmwareMessage', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.Version',
     requires: [
         'Uni.property.model.Property'
     ],

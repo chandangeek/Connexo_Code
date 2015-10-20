@@ -155,17 +155,18 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
 
         container.setLoading();
         Ext.Ajax.request({
+            isNotEdit: true,
             method: 'PUT',
             url: '/api/fwc/device/{mrid}/status/{action}'
                 .replace('{action}', action)
                 .replace('{mrid}', encodeURIComponent(router.arguments.mRID))
                 .replace('{id}', record.get('comTaskId')),
-            callback: function (operation, success) {
-                if (success) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade', 'FWC', 'The firmware version is being read. Actual firmware version information will be available as soon as the action has completed.'));
-                    router.getRoute().forward();
-                }
-
+            jsonData: _.pick(container.device.getData(), 'version'),
+            success: function () {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade', 'FWC', 'The firmware version is being read. Actual firmware version information will be available as soon as the action has completed.'));
+                router.getRoute().forward();
+            },
+            callback: function () {
                 container.setLoading(false);
             }
         });
@@ -191,6 +192,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         var me = this,
             form = btn.up('form'),
             record = form.down('#message-pending').record,
+            container = me.getContainer(),
             router = me.getController('Uni.controller.history.Router'),
             Model = Ext.ModelManager.getModel('Fwc.devicefirmware.model.FirmwareMessage'),
             devicemessageId = record.get('firmwareDeviceMessageId'),
@@ -199,10 +201,15 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         form.setLoading();
         message.getProxy().setUrl(encodeURIComponent(router.arguments.mRID));
         message.setId(devicemessageId);
+        message.set('version', container.entityVersion);
         message.destroy({
+            isNotEdit: true,
             success: function () {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.cancelled', 'FWC', 'Firmware upload cancelled.'));
                 router.getRoute().forward();
+            },
+            failure: function () {
+                message.reject();
             },
             callback: function () {
                 form.setLoading(false);
@@ -213,12 +220,13 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
     loadDevice: function (deviceId, callback) {
         var me = this,
             model = Ext.ModelManager.getModel('Mdc.model.Device'),
-            container = this.getContainer();
+            container = me.getContainer();
 
         container.setLoading();
         model.load(deviceId, {
             success: function (device) {
                 me.getApplication().fireEvent('loadDevice', device);
+                container.device = device;
                 if (callback) {
                     callback(device);
                 }
@@ -252,6 +260,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
             store.load({
                 callback: function (records, operation, success) {
                     if (success) {
+                        me.getContainer().entityVersion = Ext.decode(operation.response.responseText).version;
                         Ext.suspendLayouts();
                         container.removeAll();
                         container.add(records.map(function (record) {
