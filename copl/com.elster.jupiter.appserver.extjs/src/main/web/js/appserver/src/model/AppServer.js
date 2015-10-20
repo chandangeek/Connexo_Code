@@ -10,12 +10,10 @@ Ext.define('Apr.model.AppServer', {
             }
         },
         {
-            name: 'exportPath',
-            persist: false
+            name: 'exportDirectory'
         },
         {
-            name: 'importPath',
-            persist: false
+            name: 'importDirectory'
         },
         {
             name: 'status',
