@@ -10,10 +10,9 @@ Ext.define('Apr.view.appservers.AppServerOverview', {
     router: null,
     appServerName: null,
 
-
-
     initComponent: function () {
         var me = this;
+
         me.side = [
             {
                 xtype: 'panel',
@@ -39,8 +38,8 @@ Ext.define('Apr.view.appservers.AppServerOverview', {
                     flex: 1,
                     items: {
                         xtype: 'appservers-preview-form',
-                        margin: '0 0 0 100',
-                        router: me.router
+                        router: me.router,
+                        margin: '0 0 0 100'
                     }
                 },
                 {
@@ -53,8 +52,7 @@ Ext.define('Apr.view.appservers.AppServerOverview', {
                     }
                 }
             ]
-        },
-
+        };
         this.callParent(arguments);
     }
 });
