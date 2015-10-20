@@ -1,9 +1,10 @@
 Ext.define('Apr.view.appservers.PreviewForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.appservers-preview-form',
-
+    router: null,
     initComponent: function () {
-        var me = this;
+        var me = this,
+            record;
         me.items = [
             {
                 xtype: 'panel',
@@ -32,7 +33,6 @@ Ext.define('Apr.view.appservers.PreviewForm', {
                                 items: [
                                     {
                                         xtype: 'displayfield',
-
                                         fieldLabel: Uni.I18n.translate('general.name', 'APR', 'Name'),
                                         name: 'name'
                                     },
@@ -54,11 +54,40 @@ Ext.define('Apr.view.appservers.PreviewForm', {
                                         name: 'importPath'
                                     },
                                     {
-
-                                        xtype: 'fieldcontainer',
+                                        xtype: 'displayfield',
                                         fieldLabel: Uni.I18n.translate('general.messageServices', 'APR', 'Message services'),
-                                        itemId: 'messageServicesArea'
+                                        itemId: 'messageServices',
+                                        name: 'messageServicesCount',
+                                        renderer: function (value) {
+                                            var result;
+                                            if(value===''){
+                                                result = value;
+                                            }
+                                            else {
+                                                result = Uni.I18n.translatePlural('devicetype.messageServicesCount', value, 'APR', 'No message services', '{0} message service', '{0} message services');
+                                                var url = me.router.getRoute('administration/appservers/overview/messageservices').buildUrl({appServerName: me.record.get('name')});
+                                                result = '<a href="' + url + '">' + Ext.String.htmlEncode(result) + '</a>';
+                                            }
+                                            return result;
+                                        }
                                     },
+                                    {
+                                        xtype: 'displayfield',
+                                        fieldLabel: Uni.I18n.translate('general.importServices', 'APR', 'Import services'),
+                                        itemId: 'importServices',
+                                        name: 'importServicesCount',
+                                        renderer: function (value) {
+                                            var result;
+                                            if (value===''){
+                                                result = value;
+                                            } else {
+                                                result = Uni.I18n.translatePlural('devicetype.messageServicesCount', value, 'APR', 'No import services', '{0} import service', '{0} import services');
+                                                var url = me.router.getRoute('administration/appservers/overview/importservices').buildUrl({appServerName: me.record.get('name')});
+                                                result = '<a href="' + url + '">' + Ext.String.htmlEncode(result) + '</a>';
+                                            }
+                                            return result;
+                                        }
+                                    }
 
 
                                 ]
@@ -68,21 +97,6 @@ Ext.define('Apr.view.appservers.PreviewForm', {
 
                         ]
                     },
-
-                    {
-                        xtype: 'container',
-                        layout: {
-                            type: 'column'
-                        },
-                        items: [
-                            {
-                                xtype: 'fieldcontainer',
-                                labelWidth: 350,
-                                fieldLabel: Uni.I18n.translate('general.importServices', 'APR', 'Import services'),
-                                itemId: 'importSchedulesArea'
-                            }
-                        ]
-                    }
                 ]
             }
 
@@ -90,8 +104,10 @@ Ext.define('Apr.view.appservers.PreviewForm', {
         me.callParent(arguments);
     },
 
-    updateAppServerPreview: function (appServerRecord) {
+    updateAppServerPreview: function (appServerRecord, router) {
         var me = this;
+        me.router = router;
+        me.record = appServerRecord;
 
         if (!Ext.isDefined(appServerRecord)) {
             return;
@@ -101,45 +117,9 @@ Ext.define('Apr.view.appservers.PreviewForm', {
         }
 
         me.loadRecord(appServerRecord);
-        me.addMessageServices(appServerRecord);
-        me.addImportServices(appServerRecord);
         if (me.rendered) {
             Ext.resumeLayouts(true);
         }
-    },
-    addImportServices: function (appServerRecord) {
-        Ext.suspendLayouts();
-        this.down('#importSchedulesArea').removeAll();
-        for (var i = 0; i < appServerRecord.data.importServices.length; i++) {
-            var importService = appServerRecord.data.importServices[i];
-            this.down('#importSchedulesArea').add(
-                {
-                    xtype: 'displayfield',
-                    fieldLabel: undefined,
-                    value: importService.name + ' (' + (importService.deleted ? Uni.I18n.translate('general.removed', 'APR', 'Removed') :
-                        !importService.importerAvailable ? Uni.I18n.translate('general.notAvailable', 'APR', 'Not available') :
-                            importService.active ? Uni.I18n.translate('general.active', 'APR', 'Active') :
-                                Uni.I18n.translate('general.inactive', 'APR', 'Inactive')) + ')'
-                }
-            );
-        }
-        Ext.resumeLayouts(true);
-    },
-
-    addMessageServices: function (appServerRecord) {
-        Ext.suspendLayouts();
-        this.down('#messageServicesArea').removeAll();
-        for (var i = 0; i < appServerRecord.data.executionSpecs.length; i++) {
-            var messageService = appServerRecord.data.executionSpecs[i];
-            this.down('#messageServicesArea').add(
-                {
-                    xtype: 'displayfield',
-                    width: 800,
-                    fieldLabel: undefined,
-                    value: messageService.subscriberSpec.displayName + ' (' + Uni.I18n.translate('general.xthreads', 'APR', '{0} thread(s)',[messageService.numberOfThreads]) + ')'
-                }
-            );
-        }
-        Ext.resumeLayouts(true);
     }
+
 });
