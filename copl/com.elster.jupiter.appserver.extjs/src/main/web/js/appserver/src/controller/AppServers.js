@@ -123,7 +123,7 @@ Ext.define('Apr.controller.AppServers', {
             previewForm = page.down('appservers-preview-form');
 
         preview.setTitle(appServerName);
-        previewForm.updateAppServerPreview(record);
+        previewForm.updateAppServerPreview(record, me.getController('Uni.controller.history.Router'));
         if(preview.down('appservers-action-menu')) {
             preview.down('appservers-action-menu').record = record;
             me.setupMenuItems(record);

@@ -1,9 +1,10 @@
 Ext.define('Apr.view.appservers.PreviewForm', {
     extend: 'Ext.form.Panel',
     alias: 'widget.appservers-preview-form',
-
+    router: null,
     initComponent: function () {
-        var me = this;
+        var me = this,
+            record;
         me.items = [
             {
                 xtype: 'panel',
@@ -32,7 +33,6 @@ Ext.define('Apr.view.appservers.PreviewForm', {
                                 items: [
                                     {
                                         xtype: 'displayfield',
-
                                         fieldLabel: Uni.I18n.translate('general.name', 'APR', 'Name'),
                                         name: 'name'
                                     },
@@ -52,13 +52,7 @@ Ext.define('Apr.view.appservers.PreviewForm', {
                                         fieldLabel: Uni.I18n.translate('general.importPath', 'APR', 'Import path'),
                                         itemId: 'txt-import-path',
                                         name: 'importPath'
-                                    },/*
-                                   {
-
-                                        xtype: 'fieldcontainer',
-                                        fieldLabel: Uni.I18n.translate('general.messageServices', 'APR', 'Message services'),
-                                        itemId: 'messageServicesArea'
-                                    },*/
+                                    },
                                     {
                                         xtype: 'displayfield',
                                         fieldLabel: Uni.I18n.translate('general.messageServices', 'APR', 'Message services'),
@@ -69,10 +63,10 @@ Ext.define('Apr.view.appservers.PreviewForm', {
                                             if(value===''){
                                                 result = value;
                                             }
-                                            else if (value===1){
-                                                result = Uni.I18n.translate('general.messageServicesCountOne', 'APR', '{0} message service', [value]);
-                                            }else if (value<1 || value>1) {
-                                                result = Uni.I18n.translate('general.messageServicesCount', 'APR', '{0} message services', [value]);
+                                            else {
+                                                result = Uni.I18n.translatePlural('devicetype.messageServicesCount', value, 'APR', 'No message services', '{0} message service', '{0} message services');
+                                                var url = me.router.getRoute('administration/appservers/overview/messageservices').buildUrl({appServerName: me.record.get('name')});
+                                                result = '<a href="' + url + '">' + Ext.String.htmlEncode(result) + '</a>';
                                             }
                                             return result;
                                         }
@@ -86,10 +80,10 @@ Ext.define('Apr.view.appservers.PreviewForm', {
                                             var result;
                                             if (value===''){
                                                 result = value;
-                                            } else if (value===1){
-                                                result = Uni.I18n.translate('general.importServicesCountOne', 'APR', '{0} import service', [value]);
-                                            } else if (value<1 || value>1) {
-                                                result = Uni.I18n.translate('general.importServicesCount', 'APR', '{0} import services', [value]);
+                                            } else {
+                                                result = Uni.I18n.translatePlural('devicetype.messageServicesCount', value, 'APR', 'No import services', '{0} import service', '{0} import services');
+                                                var url = me.router.getRoute('administration/appservers/overview/importservices').buildUrl({appServerName: me.record.get('name')});
+                                                result = '<a href="' + url + '">' + Ext.String.htmlEncode(result) + '</a>';
                                             }
                                             return result;
                                         }
@@ -110,8 +104,10 @@ Ext.define('Apr.view.appservers.PreviewForm', {
         me.callParent(arguments);
     },
 
-    updateAppServerPreview: function (appServerRecord) {
+    updateAppServerPreview: function (appServerRecord, router) {
         var me = this;
+        me.router = router;
+        me.record = appServerRecord;
 
         if (!Ext.isDefined(appServerRecord)) {
             return;
