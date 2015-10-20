@@ -4,11 +4,11 @@
     "creator": "Elster Jupiter Project",
     "summary": "Short summary",
     "detailedDescription": "Long description of package",
-    "version": "1.0.0",
-    "compatVersion": "1.0.0",
+    "version": "1.1.0",
+    "compatVersion": "1.1.0",
     "format": "1",
     "local": true,
     "requires": [
-	"com.elster.jupiter.unifyingjs"
+	    "com.elster.jupiter.unifyingjs"
 	]
 }
