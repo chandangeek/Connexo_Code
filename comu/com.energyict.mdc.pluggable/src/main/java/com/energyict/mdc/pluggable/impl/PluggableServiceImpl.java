@@ -83,6 +83,12 @@ public class PluggableServiceImpl implements PluggableService, InstallService, M
     }
 
     @Override
+    public Optional<PluggableClass> findAndLockPluggableClassByIdAndVersion(PluggableClassType type, long id, long version) {
+        Optional<PluggableClass> pluggableClass = this.dataModel.mapper(PluggableClass.class).lockObjectIfVersion(version, id);
+        return pluggableClass.filter(pc -> pc.getPluggableClassType().equals(type));
+    }
+
+    @Override
     public Finder<PluggableClass> findAllByType(PluggableClassType type) {
         return DefaultFinder.of(PluggableClass.class, Where.where("pluggableType").isEqualTo(PersistentPluggableClassType.forActualType(type)), this.dataModel).defaultSortColumn("name");
     }

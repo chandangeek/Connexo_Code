@@ -37,7 +37,9 @@ public interface PluggableService {
 
     public Optional<PluggableClass> findByTypeAndName (PluggableClassType type, String name);
 
-    public Optional<PluggableClass> findByTypeAndId (PluggableClassType type, long id);
+    Optional<PluggableClass> findByTypeAndId (PluggableClassType type, long id);
+
+    Optional<PluggableClass> findAndLockPluggableClassByIdAndVersion(PluggableClassType type, long id, long version);
 
     public Finder<PluggableClass> findAllByType(PluggableClassType type);
 

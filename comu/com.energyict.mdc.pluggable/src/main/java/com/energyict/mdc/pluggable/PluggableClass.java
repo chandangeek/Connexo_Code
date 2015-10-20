@@ -69,4 +69,5 @@ public interface PluggableClass extends HasId, HasName {
      */
     public void delete();
 
+    long getEntityVersion();
 }

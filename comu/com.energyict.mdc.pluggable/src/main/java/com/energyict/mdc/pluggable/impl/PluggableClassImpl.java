@@ -41,7 +41,12 @@ public class PluggableClassImpl implements PluggableClass {
     @NotNull
     private PersistentPluggableClassType pluggableType;
     private List<PluggableClassProperty> properties = new ArrayList<>();
+
+    // Audit fields
+    private long version;
+    private Instant createTime;
     private Instant modTime;
+    private String userName;
 
     private DataModel dataModel;
     private EventService eventService;
@@ -139,6 +144,11 @@ public class PluggableClassImpl implements PluggableClass {
         this.properties.clear();
         this.notifyDependents();
         this.getDataMapper().remove(this);
+    }
+
+    @Override
+    public long getEntityVersion() {
+        return this.version;
     }
 
     private void notifyDependents() {
