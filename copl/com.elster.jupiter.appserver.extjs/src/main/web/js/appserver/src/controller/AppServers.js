@@ -100,6 +100,7 @@ Ext.define('Apr.controller.AppServers', {
 
     showAppServerOverview: function (appServerName) {
         var me = this,
+            router = me.getController('Uni.controller.history.Router'),
             view = Ext.widget('appserver-overview', {
                 router: router,
                 appServerName: appServerName
