@@ -137,6 +137,7 @@ public class MdcPluggableRestApplication extends Application implements MessageS
             bind(deviceConfigurationService).to(DeviceConfigurationService.class);
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
             bind(firmwareService).to(FirmwareService.class);
+            bind(ResourceHelper.class).to(ResourceHelper.class);
         }
     }
 
