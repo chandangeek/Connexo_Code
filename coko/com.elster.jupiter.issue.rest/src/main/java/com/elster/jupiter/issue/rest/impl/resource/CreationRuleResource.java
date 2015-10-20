@@ -12,6 +12,8 @@ import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleA
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleBuilder;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleUpdater;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.ConcurrentModificationException;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -36,11 +38,13 @@ public class CreationRuleResource extends BaseResource {
     
     private final CreationRuleInfoFactory ruleInfoFactory;
     private final PropertyUtils propertyUtils;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public CreationRuleResource(CreationRuleInfoFactory ruleInfoFactory, PropertyUtils propertyUtils) {
+    public CreationRuleResource(CreationRuleInfoFactory ruleInfoFactory, PropertyUtils propertyUtils, ConcurrentModificationExceptionFactory conflictFactory) {
         this.ruleInfoFactory = ruleInfoFactory;
         this.propertyUtils = propertyUtils;
+        this.conflictFactory = conflictFactory;
     }
 
     @GET
@@ -75,14 +79,21 @@ public class CreationRuleResource extends BaseResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_CREATION_RULE)
-    public Response deleteCreationRule(@PathParam("id") long id, CreationRuleInfo ruleInfo) {
+    public Response deleteCreationRule(@PathParam("id") long id, CreationRuleInfo info) {
+        info.id = id;
         try (TransactionContext context = getTransactionService().getContext()) {
-            CreationRule rule = getIssueCreationService().findAndLockCreationRuleByIdAndVersion(id, ruleInfo.version)
-                    .orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
+            CreationRule rule = findAndLockCreationRule(info);
             rule.delete();
             context.commit();
         }
         return Response.status(Response.Status.NO_CONTENT).build();
+    }
+
+    public CreationRule findAndLockCreationRule(CreationRuleInfo info) {
+        return getIssueCreationService().findAndLockCreationRuleByIdAndVersion(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> getIssueCreationService().findCreationRuleById(info.id).map(CreationRule::getVersion).orElse(null))
+                        .supplier());
     }
 
     @POST
@@ -108,8 +119,7 @@ public class CreationRuleResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response editCreationRule(@PathParam("id") long id, CreationRuleInfo rule){
         try (TransactionContext context = getTransactionService().getContext()) {
-            CreationRule creationRule = getIssueCreationService().findAndLockCreationRuleByIdAndVersion(id, rule.version)
-                    .orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
+            CreationRule creationRule =  findAndLockCreationRule(rule);
             CreationRuleUpdater updater = creationRule.startUpdate();
             setBaseFields(rule, updater);
             updater.removeActions();

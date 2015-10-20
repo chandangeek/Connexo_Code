@@ -41,11 +41,6 @@ public class RuleResource extends BaseResource {
         this.templateInfoFactory = templateInfoFactory;
     }
 
-    @Inject
-    public void setIssueAssignmentService() {
-
-    }
-
     @GET
     @Path("/assign")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")

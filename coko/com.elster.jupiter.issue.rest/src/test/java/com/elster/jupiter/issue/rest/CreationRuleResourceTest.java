@@ -232,6 +232,7 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
         CreationRuleUpdater updater = mock(CreationRuleUpdater.class);
         when(rule.startUpdate()).thenReturn(updater);
         when(issueCreationService.findAndLockCreationRuleByIdAndVersion(13L, 5L)).thenReturn(Optional.of(rule));
+        when(issueCreationService.findCreationRuleById(13L)).thenReturn(Optional.of(rule));
         when(updater.setName("rule name")).thenReturn(updater);
         when(updater.setComment("comment")).thenReturn(updater);
         when(updater.setDueInTime(DueInType.DAY, 5L)).thenReturn(updater);
@@ -292,6 +293,20 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
     }
 
     @Test
+    public void testEditCreationRuleBadVersion() {
+        TransactionContext context = mock(TransactionContext.class);
+        when(transactionService.getContext()).thenReturn(context);
+        when(issueCreationService.findAndLockCreationRuleByIdAndVersion(13L, 5L)).thenReturn(Optional.empty());
+        when(issueCreationService.findCreationRuleById(13L)).thenReturn(Optional.empty());
+        CreationRuleInfo info = new CreationRuleInfo();
+        info.id = 13L;
+        info.version = 5L;
+        Response response = target("/creationrules/13").request().put(Entity.json(info));
+
+        assertThat(response.getStatus()).isEqualTo(Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
     public void testDeleteCreationRule() {
         TransactionContext context = mock(TransactionContext.class);
         when(transactionService.getContext()).thenReturn(context);
@@ -308,6 +323,20 @@ public class CreationRuleResourceTest extends IssueRestApplicationJerseyTest {
 
         verify(rule).delete();
         verify(context).commit();
+    }
+
+    @Test
+    public void testDeleteCreationRuleBadVersion() {
+        TransactionContext context = mock(TransactionContext.class);
+        when(transactionService.getContext()).thenReturn(context);
+        when(issueCreationService.findAndLockCreationRuleByIdAndVersion(13L, 5L)).thenReturn(Optional.empty());
+        when(issueCreationService.findCreationRuleById(13L)).thenReturn(Optional.empty());
+        CreationRuleInfo info = new CreationRuleInfo();
+        info.id = 13L;
+        info.version = 5L;
+        Response response = target("/creationrules/13").request().method("DELETE", Entity.json(info));
+
+        assertThat(response.getStatus()).isEqualTo(Status.CONFLICT.getStatusCode());
     }
 
     @Test
