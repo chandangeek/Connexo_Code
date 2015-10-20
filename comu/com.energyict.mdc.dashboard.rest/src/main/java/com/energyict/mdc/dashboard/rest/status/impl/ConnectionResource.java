@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -85,9 +86,11 @@ public class ConnectionResource {
     private final AppService appService;
     private final MdcPropertyUtils mdcPropertyUtils;
     private final FilterFactory filterFactory;
+    private final ResourceHelper resourceHelper;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public ConnectionResource(ConnectionTaskService connectionTaskService, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, ConnectionTaskInfoFactory connectionTaskInfoFactory, ExceptionFactory exceptionFactory, MeteringGroupsService meteringGroupsService, ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory, MessageService messageService, JsonService jsonService, AppService appService, MdcPropertyUtils mdcPropertyUtils, FilterFactory filterFactory) {
+    public ConnectionResource(ConnectionTaskService connectionTaskService, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, ConnectionTaskInfoFactory connectionTaskInfoFactory, ExceptionFactory exceptionFactory, MeteringGroupsService meteringGroupsService, ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory, MessageService messageService, JsonService jsonService, AppService appService, MdcPropertyUtils mdcPropertyUtils, FilterFactory filterFactory, ResourceHelper resourceHelper, ConcurrentModificationExceptionFactory conflictFactory) {
         super();
         this.connectionTaskService = connectionTaskService;
         this.engineConfigurationService = engineConfigurationService;
@@ -102,6 +105,8 @@ public class ConnectionResource {
         this.appService = appService;
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.filterFactory = filterFactory;
+        this.resourceHelper = resourceHelper;
+        this.conflictFactory = conflictFactory;
     }
 
     @GET
@@ -277,11 +282,14 @@ public class ConnectionResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     // TODO Would be better if this method moved to ConnectionResource in device.data.rest
-    public Response runConnectionTask(@PathParam("connectionId") long connectionId, @Context UriInfo uriInfo) {
-        ConnectionTask connectionTask =
-                connectionTaskService
-                        .findConnectionTask(connectionId)
-                        .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CONNECTION_TASK, connectionId));
+    public Response runConnectionTask(@PathParam("connectionId") long connectionId, ConnectionTaskInfo info) {
+        info.id = connectionId;
+        ConnectionTask connectionTask = resourceHelper.getLockedConnectionTask(info.id, info.version)
+                .orElseThrow(conflictFactory.conflict()
+                        .withActualVersion(() -> resourceHelper.getCurrentConnectionTaskVersion(info.id))
+                        .withMessageTitle(MessageSeeds.CONCURRENT_RUN_TITLE, info.device.name)
+                        .withMessageBody(MessageSeeds.CONCURRENT_RUN_BODY, info.device.name)
+                        .supplier());
 
         if (connectionTask instanceof ScheduledConnectionTask) {
             ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTask;

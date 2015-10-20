@@ -29,6 +29,7 @@ import com.energyict.mdc.dashboard.rest.status.impl.KpiScoreFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.LabeledDeviceResource;
 import com.energyict.mdc.dashboard.rest.status.impl.MessageSeeds;
 import com.energyict.mdc.dashboard.rest.status.impl.OverviewFactory;
+import com.energyict.mdc.dashboard.rest.status.impl.ResourceHelper;
 import com.energyict.mdc.dashboard.rest.status.impl.SummaryInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.TaskStatusTranslationKeys;
 import com.energyict.mdc.dashboard.rest.status.impl.TranslationKeys;
@@ -326,6 +327,7 @@ public class DashboardApplication extends Application implements MessageSeedProv
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
             bind(firmwareService).to(FirmwareService.class);
             bind(FilterFactory.class).to(FilterFactory.class);
+            bind(ResourceHelper.class).to(ResourceHelper.class);
         }
     }
 

@@ -22,5 +22,6 @@ public class BaseComTaskExecutionInfo {
     public Instant startTime;
     public Instant successfulFinishTime;
     public Instant nextCommunication;
+    public long version;
 
 }

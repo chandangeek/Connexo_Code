@@ -1,7 +1,11 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -14,6 +18,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.elster.jupiter.users.User;
 import org.junit.Test;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -22,6 +27,9 @@ import com.energyict.mdc.favorites.FavoriteDeviceGroup;
 import com.jayway.jsonpath.JsonModel;
 
 public class FavoriteDeviceGroupResourceTest extends DashboardApplicationJerseyTest {
+
+    private static final long OK_VERSION = 47L;
+    private static final long BAD_VERSION = 36L;
 
     @Test
     public void testGetFavoriteDeviceGroups() {
@@ -66,28 +74,137 @@ public class FavoriteDeviceGroupResourceTest extends DashboardApplicationJerseyT
         assertThat(model.<List<String>>get("$.favoriteDeviceGroups[*].name")).containsExactly("End device group 1", "End device group 2", "End device group 3");
         assertThat(model.<List<Boolean>>get("$.favoriteDeviceGroups[*].dynamic")).containsExactly(true, false, true);
         assertThat(model.<List<Boolean>>get("$.favoriteDeviceGroups[*].favorite")).containsExactly(true, false, false);
+        int version = ((Number) OK_VERSION).intValue();
+        assertThat(model.<List<Number>>get("$.favoriteDeviceGroups[*].parent.version")).containsExactly(version, version, version);
     }
     
     @Test
     public void testUpdateFavoriteDeviceGroups() {
+        EndDeviceGroup groupToBeAdded = mockEndDeviceGroup(1L, "MDC: 1", "End device group 1", true);
+        EndDeviceGroup favGroupToBeUnchanged = mockEndDeviceGroup(2L, "MDC: 2", "End device group 2", true);
+        EndDeviceGroup favGroupToBeRemoved = mockEndDeviceGroup(3L, "MDC: 3", "End device group 3", true);
+        EndDeviceGroup groupToBeUnchanged = mockEndDeviceGroup(3L, "MDC: 4", "End device group 4", true);
+
+        FavoriteDeviceGroup wrappedFavGroupToBeUnchanged = mockFavoriteDeviceGroup(favGroupToBeUnchanged);
+        FavoriteDeviceGroup wrappedFavGroupToBeRemoved = mockFavoriteDeviceGroup(favGroupToBeRemoved);
+        List<EndDeviceGroup> currentFavGroupList = Arrays.asList(favGroupToBeUnchanged, favGroupToBeRemoved);
+
         SelectionInfo selectionInfo = new SelectionInfo();
-        selectionInfo.ids = Arrays.asList(1L, 3L);
-        EndDeviceGroup endDeviceGroup = mockEndDeviceGroup(1L, "MDC: 1", "End device group 1", true);
-        EndDeviceGroup endDeviceGroup2 = mockEndDeviceGroup(2L, "MDC: 2", "End device group 2", true);
-        EndDeviceGroup endDeviceGroup3 = mockEndDeviceGroup(3L, "MDC: 3", "End device group 3", true);
-        FavoriteDeviceGroup favoriteDeviceGroup2 = mockFavoriteDeviceGroup(endDeviceGroup2);
-        FavoriteDeviceGroup favoriteDeviceGroup3 = mockFavoriteDeviceGroup(endDeviceGroup3);
-        when(favoritesService.getFavoriteDeviceGroups(null)).thenReturn(Arrays.asList(favoriteDeviceGroup2, favoriteDeviceGroup3));
-        when(meteringGroupsService.findEndDeviceGroup(1L)).thenReturn(Optional.of(endDeviceGroup));
-        
+        selectionInfo.ids = Arrays.asList(
+                FavoriteDeviceGroupInfo.asInfo(groupToBeAdded, currentFavGroupList),
+                FavoriteDeviceGroupInfo.asInfo(favGroupToBeUnchanged, currentFavGroupList),
+                FavoriteDeviceGroupInfo.asInfo(favGroupToBeRemoved, currentFavGroupList),
+                FavoriteDeviceGroupInfo.asInfo(groupToBeUnchanged, currentFavGroupList)
+        );
+        selectionInfo.ids.get(0).favorite = true;
+        selectionInfo.ids.get(2).favorite = false;
+        when(favoritesService.getFavoriteDeviceGroups(any(User.class))).thenReturn(Arrays.asList(wrappedFavGroupToBeUnchanged, wrappedFavGroupToBeRemoved));
+
         Response response = target("/favoritedevicegroups").request().put(Entity.entity(selectionInfo, MediaType.APPLICATION_JSON));
-        
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         
-        verify(favoritesService).findOrCreateFavoriteDeviceGroup(endDeviceGroup, null);
-        verify(favoritesService).removeFavoriteDeviceGroup(favoriteDeviceGroup2);
+        verify(favoritesService).findOrCreateFavoriteDeviceGroup(eq(groupToBeAdded), any(User.class));
+        verify(favoritesService, never()).findOrCreateFavoriteDeviceGroup(eq(groupToBeUnchanged), any(User.class));
+        verify(favoritesService).removeFavoriteDeviceGroup(wrappedFavGroupToBeRemoved);
+        verify(favoritesService, never()).removeFavoriteDeviceGroup(wrappedFavGroupToBeUnchanged);
     }
-    
+
+    @Test
+    public void testUpdateFavoriteDeviceGroupsButSomebodyAlreadyAddedGroup() {
+        EndDeviceGroup groupToBeAdded = mockEndDeviceGroup(1L, "MDC: 1", "End device group 1", true);
+        EndDeviceGroup favGroupToBeUnchanged = mockEndDeviceGroup(2L, "MDC: 2", "End device group 2", true);
+        EndDeviceGroup favGroupToBeRemoved = mockEndDeviceGroup(3L, "MDC: 3", "End device group 3", true);
+        EndDeviceGroup groupToBeUnchanged = mockEndDeviceGroup(4L, "MDC: 4", "End device group 4", true);
+
+        FavoriteDeviceGroup wrappedFavGroupToBeUnchanged = mockFavoriteDeviceGroup(favGroupToBeUnchanged);
+        FavoriteDeviceGroup wrappedFavGroupToBeRemoved = mockFavoriteDeviceGroup(favGroupToBeRemoved);
+        FavoriteDeviceGroup wrappedGroupToBeUnchanged = mockFavoriteDeviceGroup(groupToBeUnchanged);
+        List<EndDeviceGroup> currentFavGroupList = Arrays.asList(favGroupToBeUnchanged, favGroupToBeRemoved);
+
+        SelectionInfo selectionInfo = new SelectionInfo();
+        selectionInfo.ids = Arrays.asList(
+                FavoriteDeviceGroupInfo.asInfo(groupToBeAdded, currentFavGroupList),
+                FavoriteDeviceGroupInfo.asInfo(favGroupToBeUnchanged, currentFavGroupList),
+                FavoriteDeviceGroupInfo.asInfo(favGroupToBeRemoved, currentFavGroupList),
+                FavoriteDeviceGroupInfo.asInfo(groupToBeUnchanged, currentFavGroupList)
+        );
+        selectionInfo.ids.get(0).favorite = true;
+        selectionInfo.ids.get(2).favorite = false;
+        when(favoritesService.getFavoriteDeviceGroups(any(User.class))).thenReturn(Arrays.asList(wrappedFavGroupToBeUnchanged, wrappedFavGroupToBeRemoved, wrappedGroupToBeUnchanged));
+
+        Response response = target("/favoritedevicegroups").request().put(Entity.entity(selectionInfo, MediaType.APPLICATION_JSON));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+
+        verify(favoritesService).findOrCreateFavoriteDeviceGroup(eq(groupToBeAdded), any(User.class));
+        verify(favoritesService, never()).findOrCreateFavoriteDeviceGroup(eq(groupToBeUnchanged), any(User.class));
+        verify(favoritesService).removeFavoriteDeviceGroup(wrappedFavGroupToBeRemoved);
+        verify(favoritesService, never()).removeFavoriteDeviceGroup(wrappedFavGroupToBeUnchanged);
+    }
+
+    @Test
+    public void testUpdateFavoriteDeviceGroupsButSomebodyAlreadyRemovedGroup() {
+        EndDeviceGroup groupToBeAdded = mockEndDeviceGroup(1L, "MDC: 1", "End device group 1", true);
+        EndDeviceGroup favGroupToBeUnchanged = mockEndDeviceGroup(2L, "MDC: 2", "End device group 2", true);
+        EndDeviceGroup favGroupToBeRemoved = mockEndDeviceGroup(3L, "MDC: 3", "End device group 3", true);
+        EndDeviceGroup groupToBeUnchanged = mockEndDeviceGroup(4L, "MDC: 4", "End device group 4", true);
+
+        FavoriteDeviceGroup wrappedFavGroupToBeUnchanged = mockFavoriteDeviceGroup(favGroupToBeUnchanged);
+        FavoriteDeviceGroup wrappedFavGroupToBeRemoved = mockFavoriteDeviceGroup(favGroupToBeRemoved);
+        List<EndDeviceGroup> currentFavGroupList = Arrays.asList(favGroupToBeUnchanged, favGroupToBeRemoved);
+
+        SelectionInfo selectionInfo = new SelectionInfo();
+        selectionInfo.ids = Arrays.asList(
+                FavoriteDeviceGroupInfo.asInfo(groupToBeAdded, currentFavGroupList),
+                FavoriteDeviceGroupInfo.asInfo(favGroupToBeUnchanged, currentFavGroupList),
+                FavoriteDeviceGroupInfo.asInfo(favGroupToBeRemoved, currentFavGroupList),
+                FavoriteDeviceGroupInfo.asInfo(groupToBeUnchanged, currentFavGroupList)
+        );
+        selectionInfo.ids.get(0).favorite = true;
+        selectionInfo.ids.get(2).favorite = false;
+        when(favoritesService.getFavoriteDeviceGroups(any(User.class))).thenReturn(Arrays.asList(wrappedFavGroupToBeRemoved));
+
+        Response response = target("/favoritedevicegroups").request().put(Entity.entity(selectionInfo, MediaType.APPLICATION_JSON));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+
+        verify(favoritesService).findOrCreateFavoriteDeviceGroup(eq(groupToBeAdded), any(User.class));
+        verify(favoritesService, never()).findOrCreateFavoriteDeviceGroup(eq(groupToBeUnchanged), any(User.class));
+        verify(favoritesService, never()).removeFavoriteDeviceGroup(wrappedFavGroupToBeRemoved);
+        verify(favoritesService, never()).removeFavoriteDeviceGroup(wrappedFavGroupToBeUnchanged);
+    }
+
+
+    @Test
+    public void testUpdateFavoriteDeviceGroupsButGroupWasChanged() {
+        EndDeviceGroup groupToBeAdded = mockEndDeviceGroup(1L, "MDC: 1", "End device group 1", true);
+        EndDeviceGroup favGroupToBeUnchanged = mockEndDeviceGroup(2L, "MDC: 2", "End device group 2", true);
+        EndDeviceGroup favGroupToBeRemoved = mockEndDeviceGroup(3L, "MDC: 3", "End device group 3", true);
+        EndDeviceGroup groupToBeUnchanged = mockEndDeviceGroup(4L, "MDC: 4", "End device group 4", true);
+
+        FavoriteDeviceGroup wrappedFavGroupToBeUnchanged = mockFavoriteDeviceGroup(favGroupToBeUnchanged);
+        FavoriteDeviceGroup wrappedFavGroupToBeRemoved = mockFavoriteDeviceGroup(favGroupToBeRemoved);
+        List<EndDeviceGroup> currentFavGroupList = Arrays.asList(favGroupToBeUnchanged, favGroupToBeRemoved);
+
+        SelectionInfo selectionInfo = new SelectionInfo();
+        selectionInfo.ids = Arrays.asList(
+                FavoriteDeviceGroupInfo.asInfo(groupToBeAdded, currentFavGroupList),
+                FavoriteDeviceGroupInfo.asInfo(favGroupToBeUnchanged, currentFavGroupList),
+                FavoriteDeviceGroupInfo.asInfo(favGroupToBeRemoved, currentFavGroupList),
+                FavoriteDeviceGroupInfo.asInfo(groupToBeUnchanged, currentFavGroupList)
+        );
+        selectionInfo.ids.get(0).parent.version = BAD_VERSION;
+        selectionInfo.ids.get(0).favorite = true;
+        selectionInfo.ids.get(2).favorite = false;
+        when(favoritesService.getFavoriteDeviceGroups(any(User.class))).thenReturn(Arrays.asList(wrappedFavGroupToBeRemoved, wrappedFavGroupToBeUnchanged));
+
+        Response response = target("/favoritedevicegroups").request().put(Entity.entity(selectionInfo, MediaType.APPLICATION_JSON));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+
+        verify(favoritesService, never()).findOrCreateFavoriteDeviceGroup(eq(groupToBeAdded), any(User.class));
+        verify(favoritesService, never()).findOrCreateFavoriteDeviceGroup(eq(groupToBeUnchanged), any(User.class));
+        verify(favoritesService, never()).removeFavoriteDeviceGroup(wrappedFavGroupToBeRemoved);
+        verify(favoritesService, never()).removeFavoriteDeviceGroup(wrappedFavGroupToBeUnchanged);
+    }
+
     private FavoriteDeviceGroup mockFavoriteDeviceGroup(EndDeviceGroup endDeviceGroup) {
         FavoriteDeviceGroup favoriteDeviceGroup = mock(FavoriteDeviceGroup.class);
         when(favoriteDeviceGroup.getEndDeviceGroup()).thenReturn(endDeviceGroup);
@@ -100,6 +217,11 @@ public class FavoriteDeviceGroupResourceTest extends DashboardApplicationJerseyT
         when(endDeviceGroup.getMRID()).thenReturn(mRID);
         when(endDeviceGroup.getName()).thenReturn(name);
         when(endDeviceGroup.isDynamic()).thenReturn(isDynamic);
+        when(endDeviceGroup.getVersion()).thenReturn(OK_VERSION);
+
+        doReturn(Optional.of(endDeviceGroup)).when(meteringGroupsService).findEndDeviceGroup(id);
+        doReturn(Optional.of(endDeviceGroup)).when(meteringGroupsService).findAndLockEndDeviceGroupByIdAndVersion(id, OK_VERSION);
+        doReturn(Optional.empty()).when(meteringGroupsService).findAndLockEndDeviceGroupByIdAndVersion(id, BAD_VERSION);
         return endDeviceGroup;
     }
     

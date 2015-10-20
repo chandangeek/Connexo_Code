@@ -3,6 +3,7 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.interval.PartialTime;
+import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -667,6 +668,24 @@ public class ConnectionResourceTest extends DashboardApplicationJerseyTest {
         assertThat(jsonModel.<Long>get("$.communications[0].nextCommunication")).isEqualTo(plannedNext.toEpochMilli());
         assertThat(jsonModel.<Boolean>get("$.communications[0].alwaysExecuteOnInbound")).isEqualTo(false);
         assertThat(jsonModel.<Object>get("$.communications[0].connectionTask")).isNull();
+    }
+
+    @Test
+    public void testRunConnectionBadVersion(){
+        ConnectionTask connectionTask = mock(ConnectionTask.class);
+        when(connectionTask.getId()).thenReturn(1L);
+        when(connectionTask.getVersion()).thenReturn(11L);
+        when(connectionTask.getName()).thenReturn("Connection task 1");
+
+        when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(1L, 10L)).thenReturn(Optional.<ConnectionTask>empty());
+        when(connectionTaskService.findConnectionTask(1L)).thenReturn(Optional.of(connectionTask));
+
+        ConnectionTaskInfo info = new ConnectionTaskInfo();
+        info.id = 1L;
+        info.version = 10L;
+        info.device = new IdWithNameInfo(158L, "Device MRID");
+        Response response = target("/connections/1/run").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
     private ScheduledComTaskExecution mockScheduledComTaskExecution(Instant lastExecStart, Instant lastSuccess, Instant plannedNext, ConnectionTask connectionTask, ComSchedule comSchedule, List<ComTask> comTasks) {

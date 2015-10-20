@@ -87,6 +87,7 @@ public class ConnectionTaskInfoFactory {
         if (connectionTask.isDefault()) {
             info.connectionMethod.name += " (" + thesaurus.getFormat(TranslationKeys.DEFAULT).format() + ")";
         }
+        info.version = connectionTask.getVersion();
         return info;
     }
 

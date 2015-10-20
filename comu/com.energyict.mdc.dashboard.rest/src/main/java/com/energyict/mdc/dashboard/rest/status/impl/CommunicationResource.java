@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.QueueMessage;
@@ -63,9 +64,11 @@ public class CommunicationResource {
     private final JsonService jsonService;
     private final AppService appService;
     private final MessageService messageService;
+    private final ResourceHelper resourceHelper;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public CommunicationResource(CommunicationTaskService communicationTaskService, SchedulingService schedulingService, DeviceConfigurationService deviceConfigurationService, TaskService taskService, ComTaskExecutionInfoFactory comTaskExecutionInfoFactory, MeteringGroupsService meteringGroupsService, ExceptionFactory exceptionFactory, JsonService jsonService, AppService appService, MessageService messageService) {
+    public CommunicationResource(CommunicationTaskService communicationTaskService, SchedulingService schedulingService, DeviceConfigurationService deviceConfigurationService, TaskService taskService, ComTaskExecutionInfoFactory comTaskExecutionInfoFactory, MeteringGroupsService meteringGroupsService, ExceptionFactory exceptionFactory, JsonService jsonService, AppService appService, MessageService messageService, ResourceHelper resourceHelper, ConcurrentModificationExceptionFactory conflictFactory) {
         this.communicationTaskService = communicationTaskService;
         this.schedulingService = schedulingService;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -76,6 +79,8 @@ public class CommunicationResource {
         this.jsonService = jsonService;
         this.appService = appService;
         this.messageService = messageService;
+        this.resourceHelper = resourceHelper;
+        this.conflictFactory = conflictFactory;
     }
 
     @GET
@@ -107,11 +112,16 @@ public class CommunicationResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response runCommunication(@PathParam("comTaskExecId") long comTaskExecId) {
-        ComTaskExecution comTaskExecution = communicationTaskService.findComTaskExecution(comTaskExecId)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_COMMUNICATION_TASK, comTaskExecId));
-            comTaskExecution.scheduleNow();
-                return Response.status(Response.Status.OK).build();
+    public Response runCommunication(@PathParam("comTaskExecId") long comTaskExecId, ComTaskExecutionInfo info) {
+        info.id = comTaskExecId;
+        ComTaskExecution comTaskExecution = resourceHelper.getLockedComTaskExecution(info.id, info.version)
+                .orElseThrow(conflictFactory.conflict()
+                        .withActualVersion(() -> resourceHelper.getCurrentComTaskExecutionVersion(info.id))
+                        .withMessageTitle(MessageSeeds.CONCURRENT_RUN_TITLE, info.name)
+                        .withMessageBody(MessageSeeds.CONCURRENT_RUN_BODY, info.name)
+                        .supplier());
+        comTaskExecution.scheduleNow();
+        return Response.status(Response.Status.OK).build();
     }
 
     @PUT
@@ -119,10 +129,15 @@ public class CommunicationResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response runCommunicationNow(@PathParam("comTaskExecId") long comTaskExecId) {
-        ComTaskExecution comTaskExecution = communicationTaskService.findComTaskExecution(comTaskExecId)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_COMMUNICATION_TASK, comTaskExecId));
-            comTaskExecution.runNow();
+    public Response runCommunicationNow(@PathParam("comTaskExecId") long comTaskExecId, ComTaskExecutionInfo info) {
+        info.id = comTaskExecId;
+        ComTaskExecution comTaskExecution = resourceHelper.getLockedComTaskExecution(info.id, info.version)
+                .orElseThrow(conflictFactory.conflict()
+                        .withActualVersion(() -> resourceHelper.getCurrentComTaskExecutionVersion(info.id))
+                        .withMessageTitle(MessageSeeds.CONCURRENT_RUN_TITLE, info.name)
+                        .withMessageBody(MessageSeeds.CONCURRENT_RUN_BODY, info.name)
+                        .supplier());
+        comTaskExecution.runNow();
         return Response.status(Response.Status.OK).build();
     }
 

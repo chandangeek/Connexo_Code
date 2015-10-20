@@ -64,6 +64,7 @@ public abstract class BaseComTaskExecutionInfoFactory <T extends BaseComTaskExec
         info.startTime = comTaskExecution.getLastExecutionStartTimestamp();
         info.successfulFinishTime = comTaskExecution.getLastSuccessfulCompletionTimestamp();
         info.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
+        info.version = comTaskExecution.getVersion();
 
         initExtraFields(info, comTaskExecution, comTaskExecutionSession);
         return info;

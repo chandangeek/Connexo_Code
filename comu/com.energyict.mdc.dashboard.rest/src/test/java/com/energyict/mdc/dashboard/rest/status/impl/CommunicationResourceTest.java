@@ -329,7 +329,8 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
                 .containsKey("alwaysExecuteOnInbound")
                 .containsKey("connectionTask")
                 .containsKey("id")
-                .hasSize(17);
+                .containsKey("version")
+                .hasSize(18);
 
 
     }
@@ -441,6 +442,39 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         assertThat(itemizeConnectionFilterQueueMessage.action).isEqualTo("scheduleNow");
     }
 
+    @Test
+    public void testRunComTaskkExecutionBadVersion(){
+        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
+        when(comTaskExecution.getId()).thenReturn(1L);
+        when(comTaskExecution.getVersion()).thenReturn(11L);
+
+        when(communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(1L, 10L)).thenReturn(Optional.<ComTaskExecution>empty());
+        when(communicationTaskService.findComTaskExecution(1L)).thenReturn(Optional.of(comTaskExecution));
+
+        ComTaskExecutionInfo info = new ComTaskExecutionInfo();
+        info.id = 1L;
+        info.version = 10L;
+        info.name = "Com Task Execution 1";
+        Response response = target("/communications/1/run").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
+    public void testRunNowComTaskkExecutionBadVersion(){
+        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
+        when(comTaskExecution.getId()).thenReturn(1L);
+        when(comTaskExecution.getVersion()).thenReturn(11L);
+
+        when(communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(1L, 10L)).thenReturn(Optional.<ComTaskExecution>empty());
+        when(communicationTaskService.findComTaskExecution(1L)).thenReturn(Optional.of(comTaskExecution));
+
+        ComTaskExecutionInfo info = new ComTaskExecutionInfo();
+        info.id = 1L;
+        info.version = 10L;
+        info.name = "Com Task Execution 1";
+        Response response = target("/communications/1/runnow").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
 
     private <T> Finder<T> mockFinder(List<T> list) {
         Finder<T> finder = mock(Finder.class);
