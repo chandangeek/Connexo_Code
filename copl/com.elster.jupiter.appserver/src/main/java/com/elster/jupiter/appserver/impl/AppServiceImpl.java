@@ -342,6 +342,11 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
         List<AppServer> appServers = dataModel.mapper(AppServer.class).select(where("name").isEqualToIgnoreCase(name));
         return appServers.isEmpty() ? Optional.<AppServer>empty() : Optional.of(appServers.get(0));
     }
+    
+    @Override
+    public Optional<AppServer> findAndLockAppServerByNameAndVersion(String name, long version) {
+        return dataModel.mapper(AppServer.class).lockObjectIfVersion(version, name);
+    }
 
     @Reference
     public void setJsonService(JsonService jsonService) {

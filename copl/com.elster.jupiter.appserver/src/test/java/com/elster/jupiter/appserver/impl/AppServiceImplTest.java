@@ -495,7 +495,5 @@ public class AppServiceImplTest {
     @Test
     public void testGetHostName() throws UnknownHostException {
         System.out.println(InetAddress.getLocalHost().getHostName());
-
     }
-
 }
