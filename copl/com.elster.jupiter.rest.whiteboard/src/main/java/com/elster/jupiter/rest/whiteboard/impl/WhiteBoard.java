@@ -3,7 +3,11 @@ package com.elster.jupiter.rest.whiteboard.impl;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.rest.util.BinderProvider;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionMapper;
+import com.elster.jupiter.rest.util.ConcurrentModificationInfo;
 import com.elster.jupiter.rest.util.ConstraintViolationExceptionMapper;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
@@ -22,6 +26,8 @@ import java.util.logging.Logger;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.Application;
+
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.filter.LoggingFilter;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.message.GZipEncoder;
@@ -150,6 +156,15 @@ public class WhiteBoard {
         secureConfig.register(ConstraintViolationExceptionMapper.class);
         secureConfig.register(JsonMappingExceptionMapper.class);
         secureConfig.register(OptimisticLockExceptionMapper.class);
+        secureConfig.register(ConcurrentModificationExceptionMapper.class);
+		secureConfig.register(new AbstractBinder() {
+			@Override
+			protected void configure() {
+				bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
+				bind(ConcurrentModificationInfo.class).to(ConcurrentModificationInfo.class);
+				bind(ConcurrentModificationExceptionFactory.class).to(ConcurrentModificationExceptionFactory.class);
+			}
+		});
         if (application instanceof BinderProvider) {
             secureConfig.register(((BinderProvider) application).getBinder());
         }
