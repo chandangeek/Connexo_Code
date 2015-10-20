@@ -2,6 +2,7 @@ package com.elster.jupiter.ids;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Optional;
 
 public interface TimeSeriesEntry {
 
@@ -24,4 +25,6 @@ public interface TimeSeriesEntry {
     String getString(int offset);
     
     Object[] getValues();
+
+    Optional<TimeSeriesEntry> getVersion(Instant at);
 }
