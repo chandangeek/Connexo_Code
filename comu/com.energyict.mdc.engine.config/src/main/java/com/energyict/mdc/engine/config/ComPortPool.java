@@ -78,5 +78,7 @@ public interface ComPortPool extends HasId, HasName {
 
     public void delete();
 
+    long getVersion();
+    
     void update();
 }

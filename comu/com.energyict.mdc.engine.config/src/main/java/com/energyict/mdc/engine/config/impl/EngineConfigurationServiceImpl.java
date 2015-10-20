@@ -185,6 +185,11 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     @Override
+    public Optional<ComServer> findAndLockComServerByIdAndVersion(long id, long version) {
+        return getComServerDataMapper().lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public Finder<ComServer> findAllComServers() {
         return DefaultFinder.of(ComServer.class, where("obsoleteDate").isNull(), dataModel);
     }
@@ -275,6 +280,11 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     @Override
+    public Optional<? extends ComPort> findAndLockComPortByIdAndVersion(long id, long version) {
+        return getComPortDataMapper().lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public List<ComPort> findComPortsByComServer(ComServer comServer) {
         return getComPortDataMapper().find("comServer", comServer);
     }
@@ -309,6 +319,11 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     @Override
     public Optional<? extends ComPortPool> findComPortPool(long id) {
         return getComPortPoolDataMapper().getOptional(id);
+    }
+
+    @Override
+    public Optional<? extends ComPortPool> findAndLockComPortPoolByIdAndVersion(long id, long version) {
+        return getComPortPoolDataMapper().lockObjectIfVersion(version, id);
     }
 
     @Override

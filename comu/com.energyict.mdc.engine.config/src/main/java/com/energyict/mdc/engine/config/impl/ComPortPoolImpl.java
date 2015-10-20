@@ -180,9 +180,16 @@ public abstract class ComPortPoolImpl implements ComPortPool {
     }
 
     @Override
+    public long getVersion() {
+        return this.version;
+    }
+    
+    @Override
     public void update() {
         Save.action(getId()).save(dataModel, this);
     }
+    
+    
 
     @Override
     public boolean equals(Object o) {

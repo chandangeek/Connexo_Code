@@ -332,6 +332,7 @@ public abstract class ComServerImpl implements ComServer {
             if (next.getId() == id) {
                 if (!next.isObsolete()) {
                     next.makeObsolete();
+                    this.dataModel.touch(this);
                 }
             }
         }

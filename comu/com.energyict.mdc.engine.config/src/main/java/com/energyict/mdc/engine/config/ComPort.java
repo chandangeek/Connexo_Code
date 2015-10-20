@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.config;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.protocol.api.ComPortType;
@@ -35,6 +36,7 @@ import java.time.Instant;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-03-27 (16:26)
  */
+@ProviderType
 public interface ComPort extends HasId, HasName  {
 
     /**
@@ -42,15 +44,14 @@ public interface ComPort extends HasId, HasName  {
      *
      * @return The timestamp of the last modification
      */
-    public Instant getModificationDate();
+    Instant getModificationDate();
 
     /**
      * Gets the {@link ComServer} to which this ComPort belongs.
      *
      * @return The ComServer that owns this ComPort
      */
-    public ComServer getComServer ();
-
+    ComServer getComServer ();
 
     /**
      * Tests if this ComPort is active.
@@ -58,19 +59,19 @@ public interface ComPort extends HasId, HasName  {
      *
      * @return A flag that indicates if this ComPort is active (<code>true</code>) or inactive (<code>false</code>).
      */
-    public boolean isActive ();
+    boolean isActive ();
 
     /**
      * Sets the active status of this ComPort.
      */
-    public void setActive(boolean activate);
+    void setActive(boolean activate);
 
     /**
      * Gets the description of this ComPort.
      *
      * @return The description
      */
-    public String getDescription ();
+    String getDescription ();
 
     /**
      * Indicates if this ComPort is dedicated to inbound communication.
@@ -79,7 +80,7 @@ public interface ComPort extends HasId, HasName  {
      *         to inbound communication (<code>true</code>
      *         or outbound communication (<code>false</code>)
      */
-    public boolean isInbound ();
+    boolean isInbound ();
 
     /**
      * Gets the number of simultaneous connections that this ComPort will allow.
@@ -88,26 +89,26 @@ public interface ComPort extends HasId, HasName  {
      *
      * @return The number of simultaneous connections
      */
-    public int getNumberOfSimultaneousConnections ();
-    public void setNumberOfSimultaneousConnections(int numberOfSimultaneousConnections);
+    int getNumberOfSimultaneousConnections ();
+    void setNumberOfSimultaneousConnections(int numberOfSimultaneousConnections);
 
     /**
      * Gets the {@link ComPortType type} of this OutboundComPort.
      *
      * @return The ComPortType
      */
-    public ComPortType getComPortType();
-    public void setComPortType(ComPortType type);
+    ComPortType getComPortType();
+    void setComPortType(ComPortType type);
 
 
-    public String getName();
-    public void setName(String name);
+    String getName();
+    void setName(String name);
 
-    public void setDescription(String description);
+    void setDescription(String description);
 
-    public void update();
+    void update();
 
-    public interface Builder<B extends Builder<B,C>, C extends ComPort> {
+    interface Builder<B extends Builder<B,C>, C extends ComPort> {
         B active(boolean active);
         B description(String description);
         C add();
@@ -121,14 +122,14 @@ public interface ComPort extends HasId, HasName  {
      * it belongs to.
      *
      */
-    public void makeObsolete ();
+    void makeObsolete ();
 
     /**
      * Indicates if this ComPort is obsolete.
      *
      * @return A flag that indicates if this ComPort is obsolete
      */
-    public boolean isObsolete ();
+    boolean isObsolete ();
 
     /**
      * Gets the date on which this ComPort was made obsolete.
@@ -136,6 +137,7 @@ public interface ComPort extends HasId, HasName  {
      * @return The date when this ComPort was made obsolete
      *         or <code>null</code> when this ComPort is not obsolete at all.
      */
-    public Instant getObsoleteDate();
+    Instant getObsoleteDate();
 
+    long getVersion();
 }

@@ -208,6 +208,11 @@ public abstract class ComPortImpl implements ComPort {
         dataModel.update(this);
     }
 
+    @Override
+    public long getVersion() {
+        return this.version;
+    }
+
     private void removeFromComPortPools() {
         DataMapper<ComPortPoolMember> comPortPoolMemberDataMapper = this.dataModel.mapper(ComPortPoolMember.class);
         List<ComPortPoolMember> comPortPoolMembers = comPortPoolMemberDataMapper.find("comPort", this);
