@@ -27,6 +27,28 @@ Ext.define('Apr.model.AppServer', {
                     return Uni.I18n.translate('general.inactive', 'APR', 'Inactive');
                 }
             }
+        },
+        {
+            name: 'importServicesCount',
+            persist: false,
+            mapping: function(data){
+                if (data.importServices !== undefined || data.importServices != null) {
+                    return data.importServices.length;
+                } else {
+                    return '';
+                }
+            }
+        },
+        {
+            name: 'messageServicesCount',
+            persist: false,
+            mapping: function(data){
+                if (data.executionSpecs !== undefined || data.executionSpecs != null) {
+                    return data.executionSpecs.length;
+                } else {
+                    return '';
+                }
+            }
         }
     ],
 
