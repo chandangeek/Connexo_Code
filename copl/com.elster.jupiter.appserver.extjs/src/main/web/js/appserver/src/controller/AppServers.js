@@ -40,8 +40,6 @@ Ext.define('Apr.controller.AppServers', {
         }
     ],
     appServer: null,
-    exportPath: null,
-    importPath: null,
 
     init: function () {
         this.control({
@@ -80,42 +78,9 @@ Ext.define('Apr.controller.AppServers', {
         var me = this,
             view = Ext.widget('appservers-setup', {
                 router: me.getController('Uni.controller.history.Router')
-            }),
-            store = view.down('appservers-grid').getStore(),
-            exportPathsStore = me.getStore('Apr.store.ExportPaths'),
-            importPathsStore = me.getStore('Apr.store.ImportPaths');
-
+            });
         me.getApplication().fireEvent('changecontentevent', view);
-        me.appServer = null;
-        me.exportPath = null;
-        me.importPath = null;
 
-        store.on('load', function () {
-            exportPathsStore.load(function (records) {
-                Ext.Array.each(store.getRange(), function (item) {
-                    Ext.Array.each(records, function (dir) {
-                        if (dir.get('appServerName') === item.get('name')) {
-                            item.set('exportPath', dir.get('directory'));
-                            if (view.down('appservers-grid') && (item.getId() === view.down('appservers-grid').getSelectionModel().getLastSelected().getId())) {
-                                view.down('#txt-export-path').setValue(dir.get('directory'));
-                            }
-                        }
-                    });
-                });
-            });
-            importPathsStore.load(function (records) {
-                Ext.Array.each(store.getRange(), function (item) {
-                    Ext.Array.each(records, function (dir) {
-                        if (dir.get('appServerName') === item.get('name')) {
-                            item.set('importPath', dir.get('directory'));
-                            if (view.down('appservers-grid') && (item.getId() === view.down('appservers-grid').getSelectionModel().getLastSelected().getId())) {
-                                view.down('#txt-import-path').setValue(dir.get('directory'));
-                            }
-                        }
-                    });
-                });
-            });
-        });
     },
 
     showPreview: function (selectionModel, record) {
@@ -238,7 +203,6 @@ Ext.define('Apr.controller.AppServers', {
                     }
                     if (!Ext.isEmpty(response.responseText)) {
                         var json = Ext.decode(response.responseText, true);
-
                         if (json && json.error) {
                             errorText = json.error;
                         }
@@ -256,31 +220,22 @@ Ext.define('Apr.controller.AppServers', {
 
     removeAppServer: function (record) {
         var me = this,
-            confirmationWindow = Ext.create('Uni.view.window.Confirmation'),
-            exportPathModel = me.getModel('Apr.model.ExportPath');
-
-        exportPathModel.load(record.data.name, {
-            success: function (exportPath) {
-                confirmationWindow.show({
-                    msg: Uni.I18n.translate('appServers.remove.msg', 'APR', 'This application server will no longer be available.'),
-                    title: Uni.I18n.translate('general.removeX', 'APR', "Remove '{0}'?", record.data.name),
-                    fn: function (state) {
-                        if (state === 'confirm') {
-                            exportPath.destroy({
-                                success: function () {
-                                    record.destroy({
-                                        success: function () {
-                                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('appServers.remove.success.msg', 'APR', 'Application server removed'));
-                                            me.showAppServers();
-                                        }
-                                    });
-                                }
-                            });
-                        }
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation');
+        confirmationWindow.show(
+            {
+                msg: Uni.I18n.translate('appServers.remove.msg', 'APR', 'This application server will no longer be available.'),
+                title: Uni.I18n.translate('general.removeX', 'APR', "Remove '{0}'?", [record.data.name]),
+                fn: function (state) {
+                    if (state === 'confirm') {
+                        record.destroy({
+                            success: function () {
+                                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('appServers.remove.success.msg', 'APR', 'Application server removed'));
+                                me.showAppServers();
+                            }
+                        });
                     }
-                });
-            }
-        });
+                }
+            });
     },
 
     showAddEditAppServer: function (appServerName) {
@@ -301,10 +256,10 @@ Ext.define('Apr.controller.AppServers', {
             edit = true;
             me.getApplication().fireEvent('appserverload', appServerName);
 
-            unservedMessageServicesStore.load(function (messageServices){
-                unservedImportStore.load(function (importServices){
-                    servedMessageServicesStore.load(function (servedMessageServices){
-                        servedImportStore.load(function (servedImportServices){
+            unservedMessageServicesStore.load(function (messageServices) {
+                unservedImportStore.load(function (importServices) {
+                    servedMessageServicesStore.load(function (servedMessageServices) {
+                        servedImportStore.load(function (servedImportServices) {
                             me.getModel('Apr.model.AppServer').load(appServerName, {
                                 success: function (rec) {
                                     view = Ext.widget('appservers-add', {
@@ -331,12 +286,12 @@ Ext.define('Apr.controller.AppServers', {
             unservedMessageServicesStore.getProxy().setUrl(null);
             unservedImportStore.getProxy().setUrl(null);
             edit = false;
-            unservedMessageServicesStore.load(function (messageServices){
-                unservedImportStore.load(function (importServices){
-                    Ext.each(messageServices,function(messageService){
+            unservedMessageServicesStore.load(function (messageServices) {
+                unservedImportStore.load(function (importServices) {
+                    Ext.each(messageServices, function (messageService) {
                         servedMessageServicesStore.add(messageService);
                     });
-                    Ext.each(importServices,function(importService){
+                    Ext.each(importServices, function (importService) {
                         servedImportStore.add(importService);
                     });
                     view = Ext.widget('appservers-add', {
@@ -344,6 +299,8 @@ Ext.define('Apr.controller.AppServers', {
                         store: unservedMessageServicesStore,
                         importStore: servedImportStore
                     });
+                    var rec = Ext.create('Apr.model.AppServer');
+                    view.down('#add-appserver-form').loadRecord(rec);
                     me.getApplication().fireEvent('changecontentevent', view);
                 });
 
@@ -351,7 +308,7 @@ Ext.define('Apr.controller.AppServers', {
         }
     },
 
-    showAddMessageServiceView: function(){
+    showAddMessageServiceView: function () {
         console.log('show the add message service page');
         var me = this;
         var view = Ext.widget('add-message-services-grid');
@@ -359,7 +316,7 @@ Ext.define('Apr.controller.AppServers', {
 
     },
 
-    showAddImportServiceView: function(){
+    showAddImportServiceView: function () {
         console.log('show tha add import service page');
         var me = this,
             servedImportServices = me.getStore('Apr.store.ServedImportServices'),
@@ -404,9 +361,6 @@ Ext.define('Apr.controller.AppServers', {
     addEditAppServer: function () {
         var me = this,
             form = me.getAddPage().down('#add-appserver-form'),
-            appServerName = form.down('#txt-appserver-name').getValue(),
-            exportPath = form.down('#appserver-export-path').getValue(),
-            importPath = form.down('#appserver-import-path').getValue(),
             grid = me.getAddPage().down('message-services-grid'),
             importGrid = me.getAddPage().down('apr-import-services-grid'),
             formErrorsPanel = form.down('#form-errors'),
@@ -451,79 +405,31 @@ Ext.define('Apr.controller.AppServers', {
                 }
                 importServices.push(importService);
             });
-
-            record = me.appServer || Ext.create('Apr.model.AppServer');
+            form.updateRecord();
+            record = form.getRecord();
             record.beginEdit();
             if (!isEdit) {
-                record.set('name', appServerName);
                 record.set('active', false);
             }
             record.set('executionSpecs', executionSpecs);
             record.set('importServices', importServices);
             record.endEdit();
             me.getAddPage().setLoading();
-            if (!isEdit) {
-                record.save({
-                    action: 'create',
-                    success: function () {
-                        var newExportPath = Ext.create('Apr.model.ExportPath');
-                        newExportPath.set('appServerName', appServerName);
-                        newExportPath.set('directory', exportPath);
-                        newExportPath.save({
-                            action: 'create',
-                            success: function () {
-                                me.getController('Uni.controller.history.Router').getRoute('administration/appservers').forward();
-                                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('appServers.addSuccessMsg', 'APR', 'Application server added'));
-                            }
-                        });
-                        var newImportPath = Ext.create('Apr.model.ImportPath');
-                        newImportPath.set('appServerName', appServerName);
-                        newImportPath.set('directory', importPath);
-                        newImportPath.save();
-                    },
-                    failure: function (record, operation) {
-                        me.getAddPage().setLoading(false);
-                        formErrorsPanel.show();
-                        var json = Ext.decode(operation.response.responseText);
-                        if (json && json.errors) {
-                            form.getForm().markInvalid(json.errors);
-                        }
+            record.save({
+                success: function () {
+                    me.getAddPage().setLoading(false);
+                    me.getController('Uni.controller.history.Router').getRoute('administration/appservers').forward();
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('appServers.addSuccessMsg', 'APR', 'Application server added'));
+                },
+                failure: function (record, operation) {
+                    me.getAddPage().setLoading(false);
+                    formErrorsPanel.show();
+                    var json = Ext.decode(operation.response.responseText);
+                    if (json && json.errors) {
+                        form.getForm().markInvalid(json.errors);
                     }
-                });
-            } else {
-                if (me.importPath == null){
-                    me.importPath = Ext.create('Apr.model.ImportPath');
                 }
-
-                if (!me.importPath.get('appServerName')) {
-                    me.importPath.set('appServerName', appServerName);
-                }
-
-                me.importPath.set('directory', importPath);
-                me.importPath.save();
-
-                if (!me.exportPath.get('appServerName')) {
-                    me.exportPath.set('appServerName', appServerName);
-                }
-
-                me.exportPath.set('directory', exportPath);
-                me.exportPath.save({
-                    success: function () {
-                        record.save({
-                            success: function () {
-                                me.getController('Uni.controller.history.Router').getRoute('administration/appservers').forward();
-                                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('appServers.editSuccessMsg', 'APR', 'Application server edited'));
-                            },
-                            failure: function () {
-                                me.getAddPage().setLoading(false);
-                            }
-                        });
-                    },
-                    failure: function () {
-                        me.getAddPage().setLoading(false);
-                    }
-                });
-            }
+            });
         } else {
             formErrorsPanel.show();
         }
