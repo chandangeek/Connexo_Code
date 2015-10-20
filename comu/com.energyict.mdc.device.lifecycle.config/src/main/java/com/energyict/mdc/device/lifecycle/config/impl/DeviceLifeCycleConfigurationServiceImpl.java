@@ -269,6 +269,11 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     }
 
     @Override
+    public Optional<DeviceLifeCycle> findAndLockDeviceLifeCycleByIdAndVersion(long id, long version) {
+        return this.dataModel.mapper(DeviceLifeCycle.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public Optional<DeviceLifeCycle> findDeviceLifeCycleByName(String name) {
         Condition condition =       where(DeviceLifeCycleImpl.Fields.NAME.fieldName()).isEqualTo(name)
                                .and(where(DeviceLifeCycleImpl.Fields.OBSOLETE_TIMESTAMP.fieldName()).isNull());
@@ -371,6 +376,16 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
                 throw new TransitionBusinessProcessInUseException(this.thesaurus, MessageSeeds.TRANSITION_PROCESS_IN_USE, businessProcesses.get(0));
             }
         }
+    }
+
+    @Override
+    public Optional<AuthorizedAction> findAuthorizedActionById(long id) {
+        return this.dataModel.mapper(AuthorizedAction.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<AuthorizedAction> findAndLockAuthorizedActionByIdAndVersion(long id, long version) {
+        return this.dataModel.mapper(AuthorizedAction.class).lockObjectIfVersion(version, id);
     }
 
     @Override
