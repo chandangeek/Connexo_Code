@@ -1,5 +1,5 @@
 Ext.define('Cfg.model.ValidationRuleSet', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.Version',
     fields: [
         'id',
         'name',

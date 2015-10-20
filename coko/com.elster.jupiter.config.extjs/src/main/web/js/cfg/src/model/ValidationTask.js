@@ -1,7 +1,11 @@
 Ext.define('Cfg.model.ValidationTask', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.Version',
     fields: [
 			'id', 'name', 'deviceGroup', 'schedule', 'nextRun', 'lastRun',
+        {
+            name: 'schedule',
+            defaultValue: null
+        },
         {
             name: 'lastValidationOccurence',
             persist: false

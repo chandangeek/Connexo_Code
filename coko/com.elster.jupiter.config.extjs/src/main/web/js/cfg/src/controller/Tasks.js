@@ -376,7 +376,9 @@ Ext.define('Cfg.controller.Tasks', {
 
         Ext.Ajax.request({			
             url: '/api/val/validationtasks/' + id + '/trigger',
-            method: 'POST',
+            method: 'PUT',
+            jsonData: record.getRecordData(),
+            isNotEdit: true,
             success: function () {
                 confWindow.destroy();
                 if (me.getPage()) {
@@ -406,6 +408,10 @@ Ext.define('Cfg.controller.Tasks', {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.run', 'CFG', 'Data validation task run'));
             },
             failure: function (response) {
+                if (response.status === 409) {
+                    confWindow.destroy();
+                    return
+                }
                 var res = Ext.JSON.decode(response.responseText);
                 confWindow.update(res.errors[0].msg);
                 confWindow.setVisible(true);
@@ -444,7 +450,10 @@ Ext.define('Cfg.controller.Tasks', {
                 }
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.general.remove.confirm.msg', 'CFG', 'Validation task removed'));
             },
-            failure: function (object, operation) {
+            failure: function (record, operation) {
+                if (operation.response.status === 409) {
+                    return
+                }
                 var json = Ext.decode(operation.response.responseText, true);
                 var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'CFG', 'Unknown error occurred');
                 if (json && json.errors) {
@@ -580,6 +589,9 @@ Ext.define('Cfg.controller.Tasks', {
 
             record.endEdit();
             record.save({
+                backUrl: button.action === 'editTask' && me.fromDetails
+                    ? me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks/validationtask').buildUrl({taskId: record.getId()})
+                    : me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks').buildUrl(),
                 success: function () {
                     if (button.action === 'editTask' && me.fromDetails) {
                         me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks/validationtask').forward({taskId: record.getId()});

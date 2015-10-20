@@ -169,12 +169,7 @@ Ext.define('Cfg.controller.Validation', {
             'versions-action-menu': {
                 click: this.chooseRuleSetVersionAction,
                 show: this.onVersionMenuShow
-            },
-            'version-action-menu': {
-                click: this.chooseRuleSetVersionAction,
-                show: this.onVersionMenuShow
             }
-
         });
     },
 
@@ -271,6 +266,9 @@ Ext.define('Cfg.controller.Validation', {
         me.getAddRule().setLoading(Uni.I18n.translate('general.loading', 'CFG', 'Loading...'));
         record.getProxy().setUrl(router.arguments.ruleSetId, router.arguments.versionId);
         record.save({
+            backUrl: me.fromRulePreview
+                ? router.getRoute('administration/rulesets/overview/versions/overview/rules').buildUrl({ruleSetId: router.arguments.ruleSetId, versionId: router.arguments.versionId})
+                : router.getRoute('administration/rulesets/overview/versions').buildUrl({ruleSetId: router.arguments.ruleSetId}),
             success: function (record) {
                 var messageText;
                 if (button.action === 'editRuleAction') {
@@ -522,6 +520,7 @@ Ext.define('Cfg.controller.Validation', {
         createEditRuleSetPanel.setLoading(Uni.I18n.translate('general.loading', 'CFG', 'Loading...'));
 
         record.save({
+            backUrl: me.fromRuleSetOverview ? '#/administration/validation/rulesets/' + record.get('id') : '#/administration/validation/rulesets',
             success: function (record, operation) {
                 var messageText;
                 if (button.text === 'Save') {
@@ -725,6 +724,7 @@ Ext.define('Cfg.controller.Validation', {
 
                 if (me.validationRuleRecord) {
                     me.modelToForm(null, null, null, me.validationRuleRecord, true);
+                    me.validationRuleRecord = null;
                 } else {
                     me.modelToForm(ruleSetId, versionId, ruleId, null, true);
                 }
@@ -874,6 +874,7 @@ Ext.define('Cfg.controller.Validation', {
             params: {
                 ruleId: record.get('id')
             },
+            isNotEdit: true,
             success: function (record, operation) {
                 var ruleSet;
                 if (versionsGrid) {
@@ -926,6 +927,7 @@ Ext.define('Cfg.controller.Validation', {
         view.setLoading(Uni.I18n.translate('general.loading', 'CFG', 'Loading...'));
 
         rule.getProxy().setUrl(rule.get('ruleSetVersion').ruleSet.id, rule.get('ruleSetVersionId'));
+        rule.readingTypes().loadData([], false);
         rule.destroy({
             callback: function (records, operation) {
                 if (operation.success) {
@@ -1016,25 +1018,27 @@ Ext.define('Cfg.controller.Validation', {
 			
         view.setLoading(Uni.I18n.translate('general.removing', 'CFG', 'Removing...'));
         ruleSet.destroy({
-            callback: function () {
+            callback: function (record, operation) {
                 view.setLoading(false);
-                if (me.getRuleSetOverview()) {
-                    location.href = '#/administration/validation/rulesets';
-                } else {
-                    view.down('pagingtoolbartop').totalCount = 0;
-                    if (grid.getStore().getCount() != 0) {
-                        grid.getStore().load({
-                                callback: function () {
-                                    var gridView = grid.getView(),
-                                        selectionModel = gridView.getSelectionModel();
-                                    selectionModel.select(0);
-                                    grid.fireEvent('select', gridView, selectionModel.getLastSelected());
+                if (!operation || operation.success) {
+                    if (me.getRuleSetOverview()) {
+                        location.href = '#/administration/validation/rulesets';
+                    } else {
+                        view.down('pagingtoolbartop').totalCount = 0;
+                        if (grid.getStore().getCount() != 0) {
+                            grid.getStore().load({
+                                    callback: function () {
+                                        var gridView = grid.getView(),
+                                            selectionModel = gridView.getSelectionModel();
+                                        selectionModel.select(0);
+                                        grid.fireEvent('select', gridView, selectionModel.getLastSelected());
+                                    }
                                 }
-                            }
-                        );
+                            );
+                        }
                     }
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.removeRuleSetSuccess.msg', 'CFG', 'Validation rule set removed'));
                 }
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validation.removeRuleSetSuccess.msg', 'CFG', 'Validation rule set removed'));
             }
         });
     },
@@ -1360,6 +1364,7 @@ Ext.define('Cfg.controller.Validation', {
         record.getProxy().setUrl(router.arguments.ruleSetId, router.arguments.versionId, record.get('isClone'));
 
         record.save({
+            backUrl: router.getRoute('administration/rulesets/overview/versions').buildUrl(),
             success: function (record) {
                 var messageText;
                 if (button.action === 'editVersionAction') {
