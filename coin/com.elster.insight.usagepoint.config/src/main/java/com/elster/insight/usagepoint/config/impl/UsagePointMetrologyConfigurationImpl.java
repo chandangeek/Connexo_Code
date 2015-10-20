@@ -53,13 +53,13 @@ public class UsagePointMetrologyConfigurationImpl implements UsagePointMetrology
 
     @Override
     public void update() {
+        boolean update = false;
         Optional<UsagePointMetrologyConfiguration> existing = dataModel.query(UsagePointMetrologyConfiguration.class).getOptional(getUsagePoint().getId());
-        Save s = Save.CREATE;
         if (existing.isPresent()) {
-            s = Save.UPDATE;
-        }            
-        s.save(dataModel, this);
-        if (s == Save.CREATE) {
+            update = true;
+        }
+        dataModel.persist(this);
+        if (!update) {
             eventService.postEvent(EventType.USAGEPOINTMETROLOGYCONFIGURATION_CREATED.topic(), this);
         } else {
             eventService.postEvent(EventType.USAGEPOINTMETROLOGYCONFIGURATION_UPDATED.topic(), this);            
