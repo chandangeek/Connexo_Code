@@ -13,13 +13,8 @@ import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.rest.Categories;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import com.energyict.mdc.tasks.rest.impl.util.ResourceHelper;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -37,24 +32,33 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Path("/comtasks")
 public class ComTaskResource {
     private TaskService taskService;
     private MasterDataService masterDataService;
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private final ResourceHelper resourceHelper;
     private final Thesaurus thesaurus;
 
     @Inject
-    public ComTaskResource(TaskService taskService, MasterDataService masterDataService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
+    public ComTaskResource(TaskService taskService, MasterDataService masterDataService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus, ResourceHelper resourceHelper) {
         this.taskService = taskService;
         this.masterDataService = masterDataService;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.thesaurus = thesaurus;
+        this.resourceHelper = resourceHelper;
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
     public PagedInfoList getComTasks(@BeanParam JsonQueryParameters queryParameters) {
         List<ComTaskInfo> comTaskInfos =
@@ -64,7 +68,7 @@ public class ComTaskResource {
 
     @GET
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
     public Response getComTask(@PathParam("id") long id) {
         ComTask comTask = taskService.findComTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
@@ -73,7 +77,7 @@ public class ComTaskResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public Response addComTask(ComTaskInfo comTaskInfo) {
         ComTask newComTask = taskService.newComTask(comTaskInfo.name);
@@ -105,10 +109,11 @@ public class ComTaskResource {
     @PUT
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public Response updateComTask(@PathParam("id") long id, ComTaskInfo comTaskInfo) {
-        ComTask comTask = taskService.findComTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
+
+        ComTask comTask = resourceHelper.lockComTaskOrThrowException(comTaskInfo);
         comTask.setName(comTaskInfo.name);
         List<ProtocolTask> currentProtocolTasks = new ArrayList<>(comTask.getProtocolTasks());
         Set<Long> protocolTasksIds = new HashSet<>();
@@ -135,17 +140,17 @@ public class ComTaskResource {
 
     @DELETE
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
-    public Response deleteComTask(@PathParam("id") long id) {
-        ComTask comTask = taskService.findComTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
-        comTask.delete();
+    public Response deleteComTask(@PathParam("id") long id, ComTaskInfo info) {
+        info.id = id;
+        resourceHelper.lockComTaskOrThrowException(info).delete();
         return Response.status(Response.Status.OK).build();
     }
 
     @GET
     @Path("/categories")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
     public PagedInfoList getCategories(@BeanParam JsonQueryParameters queryParameters) {
         List<CategoryInfo> categoryInfos = CategoryInfo.from(ListPager.of(Arrays.asList(Categories.values())).from(queryParameters).find(), thesaurus);
@@ -154,14 +159,14 @@ public class ComTaskResource {
 
     @GET
     @Path("/actions")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
     public PagedInfoList getActions(@QueryParam("category") String categoryParameter, @BeanParam JsonQueryParameters queryParameters) {
         if (categoryParameter != null) {
             Categories categories = null;
             try {
                 categories = Categories.valueOf(categoryParameter.toUpperCase());
-            } catch(IllegalArgumentException x) {
+            } catch (IllegalArgumentException x) {
                 String errorMsg = "The category '" + categoryParameter.toUpperCase() + "' is unknown";
                 throw new WebApplicationException(errorMsg, Response.status(Response.Status.BAD_REQUEST).entity(errorMsg).build());
             }
@@ -174,7 +179,7 @@ public class ComTaskResource {
 
     @GET
     @Path("/messages")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
     public Response getMessageCategories(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
         Stream<DeviceMessageCategory> messageCategoriesStream = deviceMessageSpecificationService.filteredCategoriesForUserSelection().stream();

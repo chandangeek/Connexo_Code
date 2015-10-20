@@ -28,12 +28,14 @@ public class ComTaskInfo {
     public boolean inUse;
     public List<ProtocolTaskInfo> commands;
     public List<MessageCategoryInfo> messages;
+    public long version;
 
     public static ComTaskInfo from(ComTask comTask) {
         ComTaskInfo comTaskInfo = new ComTaskInfo();
         comTaskInfo.id = comTask.getId();
         comTaskInfo.name = comTask.getName();
         comTaskInfo.inUse = false; //TODO: Real Implementation
+        comTaskInfo.version = comTask.getVersion();
         return comTaskInfo;
     }
 

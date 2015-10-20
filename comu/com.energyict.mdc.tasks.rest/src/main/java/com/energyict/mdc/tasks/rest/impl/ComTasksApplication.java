@@ -13,6 +13,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.tasks.rest.impl.util.ResourceHelper;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -63,6 +64,7 @@ public class ComTasksApplication extends Application implements MessageSeedProvi
             bind(nlsService).to(NlsService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(deviceMessageSpecificationService).to(DeviceMessageSpecificationService.class);
+            bind(ResourceHelper.class).to(ResourceHelper.class);
         }
     };
 
