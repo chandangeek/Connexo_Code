@@ -24,6 +24,7 @@ public abstract class MockComPort implements ComPort, Cloneable {
     private long id;
     private AtomicBoolean dirty = new AtomicBoolean(false);
     private AtomicReference<Instant> obsoleteDate = new AtomicReference();
+    private long version;
 
     protected MockComPort (ComServer comServer, String name) {
         this.setName(name) ;
@@ -179,4 +180,12 @@ public abstract class MockComPort implements ComPort, Cloneable {
         return (int) (id ^ (id >>> 32));
     }
 
+    @Override
+    public long getVersion() {
+        return version;
+    }
+
+    public void setVersion(long version) {
+        this.version = version;
+    }
 }
