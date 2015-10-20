@@ -18,7 +18,7 @@ Ext.define('MdcApp.Application', {
         'Dlc.privileges.DeviceLifeCycle',
         'Fim.privileges.DataImport',
         'Fwc.privileges.FirmwareCampaign',
-        'Cps.privileges.CustomAttributeSets'
+        'Bpm.privileges.BpmManagement'
     ],
     controllers: [
         'MdcApp.controller.Main'

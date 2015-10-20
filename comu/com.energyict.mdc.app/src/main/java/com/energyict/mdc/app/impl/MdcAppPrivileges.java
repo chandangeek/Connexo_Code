@@ -132,9 +132,10 @@ class MdcAppPrivileges {
                 com.elster.jupiter.time.security.Privileges.ADMINISTRATE_RELATIVE_PERIOD,
                 com.elster.jupiter.time.security.Privileges.VIEW_RELATIVE_PERIOD,
 
-                //com.elster.jupiter.cps - Custom property sets
-                com.elster.jupiter.cps.Privileges.ADMINISTER_PRIVILEGES,
-                com.elster.jupiter.cps.Privileges.VIEW_PRIVILEGES
-        );
+//                com.elster.jupiter.bpm.security
+                com.elster.jupiter.bpm.security.Privileges.EXECUTE_TASK,
+                com.elster.jupiter.bpm.security.Privileges.VIEW_TASK,
+                com.elster.jupiter.bpm.security.Privileges.ASSIGN_TASK);
+
     }
 }

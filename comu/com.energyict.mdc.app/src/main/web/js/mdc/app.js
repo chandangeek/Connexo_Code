@@ -60,9 +60,9 @@ Ext.onReady(function () {
             path: '../../apps/fim/src'
         },
         {
-            name: 'Cps',
-            path: '../../apps/cps/src'
-        },
+            name: 'Bpm',
+            path: '../../apps/bpm/src'
+        }
 //        {
 //            name: 'PlaygroundApp',
 //            path: '../../apps/playground/app'
