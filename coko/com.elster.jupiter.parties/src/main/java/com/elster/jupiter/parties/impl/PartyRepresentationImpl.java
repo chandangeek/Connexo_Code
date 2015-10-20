@@ -77,4 +77,9 @@ final class PartyRepresentationImpl implements PartyRepresentation {
         this.interval = Interval.of(range);
     }
 
+	@Override
+	public long getVersion() {
+		return this.version;
+	}
+
 }

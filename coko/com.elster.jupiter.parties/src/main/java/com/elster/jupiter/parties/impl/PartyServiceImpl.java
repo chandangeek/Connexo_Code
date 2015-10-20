@@ -3,6 +3,9 @@ package com.elster.jupiter.parties.impl;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -25,6 +28,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 
 import java.security.Principal;
 import java.util.Arrays;
@@ -33,7 +37,6 @@ import java.util.Optional;
 
 @Component(name = "com.elster.jupiter.parties", service = {PartyService.class, InstallService.class}, property = "name=" + PartyService.COMPONENTNAME)
 public class PartyServiceImpl implements PartyService, InstallService {
-
     private volatile DataModel dataModel;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile Clock clock;
@@ -41,18 +44,20 @@ public class PartyServiceImpl implements PartyService, InstallService {
     private volatile QueryService queryService;
     private volatile EventService eventService;
     private volatile OrmService ormService;
+    private volatile Thesaurus thesaurus;
 
     public PartyServiceImpl() {
     }
 
     @Inject
-    public PartyServiceImpl(Clock clock, OrmService ormService, QueryService queryService, UserService userService, EventService eventService, ThreadPrincipalService threadPrincipalService) {
+    public PartyServiceImpl(Clock clock, OrmService ormService, QueryService queryService, UserService userService, EventService eventService, ThreadPrincipalService threadPrincipalService, NlsService nlsService) {
         setClock(clock);
         setOrmService(ormService);
         setQueryService(queryService);
         setUserService(userService);
         setEventService(eventService);
         setThreadPrincipalService(threadPrincipalService);
+        setNlsService(nlsService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -67,6 +72,8 @@ public class PartyServiceImpl implements PartyService, InstallService {
                 bind(EventService.class).toInstance(eventService);
                 bind(Clock.class).toInstance(clock);
                 bind(UserService.class).toInstance(userService);
+                bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
             }
         };
     }
@@ -93,6 +100,26 @@ public class PartyServiceImpl implements PartyService, InstallService {
     }
 
     @Override
+    public Optional<PartyRole> findAndLockRoleByMridAndVersion(String mRID, long version) {
+        return dataModel.mapper(PartyRole.class).lockObjectIfVersion(version, mRID);
+    }
+
+    @Override
+    public Optional<PartyInRole> getPartyInRole(long id) {
+        return dataModel.mapper(PartyInRole.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<PartyInRole> findAndLockPartyInRoleByIdAndVersion(long id, long version) {
+        return dataModel.mapper(PartyInRole.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
+    public Optional<PartyRepresentation> findAndLockPartyRepresentationByVersionAndKey(long version, Object... key) {
+        return dataModel.mapper(PartyRepresentation.class).lockObjectIfVersion(version, key);
+    }
+
+    @Override
     public void deletePartyRole(PartyRole partyRole) {
         dataModel.remove(partyRole);
     }
@@ -100,6 +127,11 @@ public class PartyServiceImpl implements PartyService, InstallService {
     @Override
     public Optional<Party> findParty(long id) {
         return dataModel.mapper(Party.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<Party> findAndLockPartyByIdAndVersion(long id, long version) {
+        return dataModel.mapper(Party.class).lockObjectIfVersion(version, id);
     }
 
     public Optional<PartyRole> findPartyRoleByMRID(String mRID) {
@@ -206,9 +238,15 @@ public class PartyServiceImpl implements PartyService, InstallService {
         this.userService = userService;
     }
 
+    @Reference
+    public void setNlsService(NlsService nlsService){
+        this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
+    }
+
     @Override
     public void updateRepresentation(PartyRepresentation representation) {
         dataModel.update(representation);
+        dataModel.touch(representation.getParty());
     }
 
     @Override

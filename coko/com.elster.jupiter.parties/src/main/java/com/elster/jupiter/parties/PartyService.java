@@ -1,18 +1,22 @@
 package com.elster.jupiter.parties;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.parties.impl.PartyInRoleImpl;
 
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface PartyService {
-	static String COMPONENTNAME = "PRT";
+	String COMPONENTNAME = "PRT";
     Optional<Party> getParty(String mRID);
     List<Party> getParties();
     Query<Party> getPartyQuery();
     Person newPerson(String firstName, String lastName);
 	Optional<Party> getParty(long id);
     Optional<Party> findParty(long id);
+    Optional<Party> findAndLockPartyByIdAndVersion(long id, long version);
     Organization newOrganization(String mRID);
     PartyRole createRole(String componentName, String mRID, String name, String aliasName, String description);
     List<PartyRole> getPartyRoles();
@@ -21,4 +25,8 @@ public interface PartyService {
     void updateRole(PartyRole partyRole);
     void updateRepresentation(PartyRepresentation representation);
 	Optional<PartyRole> getRole(String mRID);
+	Optional<PartyRole> findAndLockRoleByMridAndVersion(String mRID, long version);
+    Optional<PartyInRole> getPartyInRole(long id);
+	Optional<PartyInRole> findAndLockPartyInRoleByIdAndVersion(long id, long version);
+	Optional<PartyRepresentation> findAndLockPartyRepresentationByVersionAndKey(long version, Object... key);
 }

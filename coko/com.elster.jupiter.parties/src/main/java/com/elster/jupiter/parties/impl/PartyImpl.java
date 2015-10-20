@@ -203,7 +203,7 @@ abstract class PartyImpl implements Party {
         if (!representations.contains(representation)) {
             throw new IllegalArgumentException();
         }
-        ((PartyRepresentationImpl) representation).setRange(newRange);
+        representation.setRange(newRange);
         dataModel.update(representation);
         touch();
     }
