@@ -11,7 +11,12 @@ public enum MessageSeeds implements MessageSeed {
     FIELD_SHOULD_HAVE_BEEN_ARRAY(3, "RUT.ExpectedArray", "Expected list of values", Level.SEVERE),
     OPTIMISTIC_LOCK_FAILED(4, "OptimisticLockFailed", "Another user or process modified this resource at the same time, please try again later", Level.SEVERE),
     INVALID_RANGE_FROM_AFTER_TO(5, "FromAfterTo", "Invalid range: from-date should be before to-date", Level.SEVERE),
-    INVALID_RANGE(6, "InvalidRange", "Invalid range", Level.SEVERE),
+    CONCURRENT_EDIT_TITLE(5, "ConcurrentModificationEditTitle", "Failed to save ''{0}''", Level.SEVERE),
+    CONCURRENT_EDIT_BODY(6, "ConcurrentModificationEditMessage", "{0} has changed since the page was last updated.", Level.SEVERE),
+    CONCURRENT_DELETE_TITLE(7, "ConcurrentModificationRemoveTitle", "Failed to remove ''{0}''", Level.SEVERE),
+    CONCURRENT_DELETE_BODY(8, "ConcurrentModificationRemoveMessage", "{0} has changed since the page was last updated.", Level.SEVERE),
+    INVALID_RANGE(9, "InvalidRange", "Invalid range", Level.SEVERE),
+
     ;
 
     public static final String COMPONENT_NAME = "RUT";
