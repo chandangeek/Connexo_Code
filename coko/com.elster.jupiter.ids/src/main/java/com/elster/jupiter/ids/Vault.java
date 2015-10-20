@@ -1,9 +1,12 @@
 package com.elster.jupiter.ids;
 
+import com.elster.jupiter.ids.impl.TimeSeriesImpl;
+
 import java.time.Instant;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAmount;
+import java.util.Optional;
 import java.util.TimeZone;
 import java.util.logging.Logger;
 
@@ -32,6 +35,9 @@ public interface Vault {
 	TimeSeries createRegularTimeSeries(RecordSpec spec , ZoneId zoneId , TemporalAmount interval , int hourOffset);
 	TimeSeries createIrregularTimeSeries(RecordSpec spec, ZoneId zoneId);
 	boolean isValidInstant(Instant instant);
+
+	Optional<TimeSeriesEntry> getJournaledEntry(TimeSeriesImpl timeSeries, Instant when, Instant at);
+
 	void purge(Logger logger);
 	Period getRetention();
 	void setRetentionDays(int numberOfDays);
