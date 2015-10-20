@@ -129,7 +129,6 @@ Ext.define('Apr.controller.AppServers', {
 
         preview.setTitle(appServerName);
         previewForm.updateAppServerPreview(record);
-        debugger;
         if(preview.down('appservers-action-menu')) {
             preview.down('appservers-action-menu').record = record;
             me.setupMenuItems(record);
@@ -147,7 +146,6 @@ Ext.define('Apr.controller.AppServers', {
         me.comingFromOverview = true;
         me.getModel('Apr.model.AppServer').load(appServerName, {
             success: function (record) {
-                debugger;
                 me.appServer = record;
                 view.down('appservers-preview-form').updateAppServerPreview(record);
                 if (view.down('appservers-action-menu')) {
