@@ -1,5 +1,5 @@
 Ext.define('Dxp.model.DataExportTask', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.Version',
     requires: [
         'Uni.property.model.Property',
         'Dxp.model.DataSelector',
@@ -7,7 +7,23 @@ Ext.define('Dxp.model.DataExportTask', {
         'Dxp.model.Destination'
     ],
     fields: [
-        'id', 'name', 'dataProcessor', 'dataSelector', 'standardDataSelector', 'schedule', 'destinations', 'nextRun', 'lastRun','exportComplete','validatedDataOption',
+        'id', 'name', 'dataProcessor', 'dataSelector', 'properties', 'destinations', 'exportComplete','validatedDataOption',
+        {
+            name: 'standardDataSelector',
+            defaultValue: null
+        },
+        {
+            name: 'schedule',
+            defaultValue: null
+        },
+        {
+            name: 'nextRun',
+            defaultValue: null
+        },
+        {
+            name: 'lastRun',
+            defaultValue: null
+        },
         {
             name: 'lastExportOccurrence',
             persist: false
