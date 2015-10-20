@@ -38,9 +38,13 @@ public class SioCaseModemConnectionType extends SioSerialConnectionType {
         ComChannel comChannel = super.connect(comPort, properties);
         try {
             caseModemComponent.connect(comPort.getName(), (SerialComChannel) comChannel);
-        } catch (ModemException e) {
+        } catch (Throwable e) {
             comChannel.close(); // need to properly close the comChannel, otherwise the port will always be occupied
-            throw new ConnectionException(e);
+            if (e instanceof ModemException) {
+                throw new ConnectionException(e);
+            } else {
+                throw e;
+            }
         }
         return comChannel;
     }
