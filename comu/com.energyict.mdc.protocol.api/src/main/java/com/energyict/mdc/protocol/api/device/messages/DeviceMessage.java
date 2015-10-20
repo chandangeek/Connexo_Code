@@ -141,4 +141,6 @@ public interface DeviceMessage<D extends BaseDevice> extends HasId {
     void updateDeviceMessageStatus(DeviceMessageStatus newDeviceMessageStatus);
 
     Instant getModTime();
+
+    long getVersion();
 }
