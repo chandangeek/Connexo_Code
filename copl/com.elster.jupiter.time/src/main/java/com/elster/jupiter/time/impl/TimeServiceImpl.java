@@ -72,6 +72,11 @@ public class TimeServiceImpl implements TimeService, InstallService, PrivilegesP
     }
 
     @Override
+    public Optional<RelativePeriod> findAndLockRelativePeriodByIdAndVersion(long id, long version) {
+        return this.getDataModel().mapper((RelativePeriod.class)).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public Optional<RelativePeriod> findRelativePeriodByName(String name) {
         return this.getDataModel().mapper((RelativePeriod.class)).getUnique("name", name);
     }

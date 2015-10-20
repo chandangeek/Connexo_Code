@@ -12,6 +12,7 @@ public interface TimeService {
 
     List<RelativePeriod> getRelativePeriods();
     Optional<RelativePeriod> findRelativePeriod(long relativePeriodId);
+    Optional<RelativePeriod> findAndLockRelativePeriodByIdAndVersion(long id, long version);
     Optional<RelativePeriod> findRelativePeriodByName(String name);
     RelativePeriod createRelativePeriod(String name, RelativeDate from, RelativeDate to, List<RelativePeriodCategory> categories);
     RelativePeriod updateRelativePeriod(Long id, String name, RelativeDate from, RelativeDate to, List<RelativePeriodCategory> categories);
