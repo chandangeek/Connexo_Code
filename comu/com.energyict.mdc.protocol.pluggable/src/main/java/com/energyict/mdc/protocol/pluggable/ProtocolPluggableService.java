@@ -107,7 +107,9 @@ public interface ProtocolPluggableService {
 
     public LicensedProtocol findLicensedProtocolFor(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
 
-    public Optional<DeviceProtocolPluggableClass> findDeviceProtocolPluggableClass(long id);
+    Optional<DeviceProtocolPluggableClass> findDeviceProtocolPluggableClass(long id);
+
+    Optional<DeviceProtocolPluggableClass> findAndLockDeviceProtocolPluggableClassByIdAndVersion(long id, long version);
 
     public Optional<DeviceProtocolPluggableClass> findDeviceProtocolPluggableClassByName(String name);
 
@@ -144,7 +146,9 @@ public interface ProtocolPluggableService {
 
     public List<InboundDeviceProtocolPluggableClass> findInboundDeviceProtocolPluggableClassByClassName(String javaClassName);
 
-    public Optional<InboundDeviceProtocolPluggableClass> findInboundDeviceProtocolPluggableClass(long id);
+    Optional<InboundDeviceProtocolPluggableClass> findInboundDeviceProtocolPluggableClass(long id);
+
+    Optional<InboundDeviceProtocolPluggableClass> findAndLockInboundDeviceProtocolPluggableClassByIdAndVersion(long id, long version);
 
     public List<InboundDeviceProtocolPluggableClass> findAllInboundDeviceProtocolPluggableClass();
 

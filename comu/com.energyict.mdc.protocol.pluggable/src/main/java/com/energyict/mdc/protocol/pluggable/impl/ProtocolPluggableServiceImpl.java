@@ -342,6 +342,12 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     @Override
+    public Optional<DeviceProtocolPluggableClass> findAndLockDeviceProtocolPluggableClassByIdAndVersion(long id, long version) {
+        Optional<PluggableClass> pluggableClass = this.pluggableService.findAndLockPluggableClassByIdAndVersion(PluggableClassType.DeviceProtocol, id, version);
+        return pluggableClass.map(pc -> DeviceProtocolPluggableClassImpl.from(this.dataModel, pc));
+    }
+
+    @Override
     public Optional<DeviceProtocolPluggableClass> findDeviceProtocolPluggableClassByName(String name) {
         Optional<PluggableClass> pluggableClass = this.pluggableService.findByTypeAndName(PluggableClassType.DeviceProtocol, name);
         if (pluggableClass.isPresent()) {
@@ -399,6 +405,12 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @Override
     public Optional<InboundDeviceProtocolPluggableClass> findInboundDeviceProtocolPluggableClass(long id) {
         Optional<PluggableClass> pluggableClass = this.pluggableService.findByTypeAndId(PluggableClassType.DiscoveryProtocol, id);
+        return pluggableClass.map(pc -> InboundDeviceProtocolPluggableClassImpl.from(this.dataModel, pc));
+    }
+
+    @Override
+    public Optional<InboundDeviceProtocolPluggableClass> findAndLockInboundDeviceProtocolPluggableClassByIdAndVersion(long id, long version) {
+        Optional<PluggableClass> pluggableClass = this.pluggableService.findAndLockPluggableClassByIdAndVersion(PluggableClassType.DiscoveryProtocol, id, version);
         return pluggableClass.map(pc -> InboundDeviceProtocolPluggableClassImpl.from(this.dataModel, pc));
     }
 

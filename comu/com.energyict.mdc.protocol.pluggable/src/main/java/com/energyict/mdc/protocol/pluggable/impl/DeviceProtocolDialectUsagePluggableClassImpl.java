@@ -297,6 +297,11 @@ public class DeviceProtocolDialectUsagePluggableClassImpl implements DeviceProto
     }
 
     @Override
+    public long getEntityVersion() {
+        return this.deviceProtocolPluggableClass.getEntityVersion();
+    }
+
+    @Override
     public DeviceProtocolDialect getDeviceProtocolDialect() {
         return this.deviceProtocolDialect;
     }

@@ -219,4 +219,7 @@ public abstract class PluggableClassWrapper<T extends Pluggable> {
         return url;
     }
 
+    public long getEntityVersion() {
+        return this.pluggableClass.getEntityVersion();
+    }
 }
