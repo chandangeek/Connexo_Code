@@ -235,6 +235,11 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     }
 
     @Override
+    public Optional<EndDeviceGroup> findAndLockEndDeviceGroupByIdAndVersion(long id, long version) {
+        return dataModel.mapper(EndDeviceGroup.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public Optional<EndDeviceGroup> findEndDeviceGroupByName(String name) {
         return dataModel.mapper(EndDeviceGroup.class).select(Operator.EQUALIGNORECASE.compare("name", name)).stream().findFirst();
     }

@@ -45,4 +45,6 @@ public interface EndDeviceGroup extends HasId {
 
     void delete();
 
+    long getVersion();
+
 }

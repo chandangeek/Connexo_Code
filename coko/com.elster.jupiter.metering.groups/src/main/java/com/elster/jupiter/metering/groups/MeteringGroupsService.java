@@ -48,6 +48,8 @@ public interface MeteringGroupsService {
 
     Optional<EndDeviceGroup> findEndDeviceGroup(long id);
 
+    Optional<EndDeviceGroup> findAndLockEndDeviceGroupByIdAndVersion(long id, long version);
+
     Optional<EndDeviceGroup> findEndDeviceGroupByName(String name);
 
     void addEndDeviceQueryProvider(EndDeviceQueryProvider endDeviceQueryProvider);

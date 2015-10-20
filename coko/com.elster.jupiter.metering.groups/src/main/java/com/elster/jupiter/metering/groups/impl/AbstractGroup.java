@@ -58,4 +58,8 @@ public class AbstractGroup {
     public void setType(String type) {
         this.type = type;
     }
+
+    public long getVersion() {
+        return this.version;
+    }
 }
