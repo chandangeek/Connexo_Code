@@ -139,6 +139,7 @@ public class MasterDataApplication extends Application implements TranslationKey
             bind(jsonService).to(JsonService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(mdcReadingTypeUtilService).to(MdcReadingTypeUtilService.class);
+            bind(ResourceHelper.class).to(ResourceHelper.class);
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.energyict.mdc.masterdata.rest;
 
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.ObisCode;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
@@ -26,6 +27,8 @@ public class LoadProfileTypeInfo {
     public TimeDuration timeDuration;
     public List<RegisterTypeInfo> registerTypes;
     public Boolean isLinkedToActiveDeviceConf;
+    public long version;
+    public VersionInfo<Long> parent;
 
     public LoadProfileTypeInfo() {
     }
@@ -51,6 +54,8 @@ public class LoadProfileTypeInfo {
         }
 
         info.isLinkedToActiveDeviceConf = isInUse;
+        info.version = loadProfileType.getVersion();
+
         return info;
     }
 }

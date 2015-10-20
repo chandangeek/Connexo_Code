@@ -1,17 +1,14 @@
 package com.energyict.mdc.masterdata.rest.impl;
 
-import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.rest.LogBookTypeInfo;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -26,17 +23,23 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 @Path("/logbooktypes")
 public class LogBookTypeResource {
 
     private final MasterDataService masterDataService;
     private final DeviceConfigurationService deviceConfigurationService;
+    private final ResourceHelper resourceHelper;
 
     @Inject
-    public LogBookTypeResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService) {
+    public LogBookTypeResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService,ResourceHelper resourceHelper) {
         this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
+        this.resourceHelper = resourceHelper;
     }
 
     @GET
@@ -85,27 +88,20 @@ public class LogBookTypeResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
     public Response updateLogBookType(@PathParam("id") long id, LogBookTypeInfo logbook) {
-        Optional<LogBookType> logBookRef = masterDataService.findLogBookType(id);
-        if (!logBookRef.isPresent()) {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
-        }
-        LogBookType editLogbook = logBookRef.get();
-        editLogbook.setName(logbook.name);
-        editLogbook.setObisCode(logbook.obisCode);
-        editLogbook.save();
-        return Response.ok(LogBookTypeInfo.from(editLogbook)).build();
+        LogBookType logBookRef = resourceHelper.lockLogBookTypeOrThrowException(logbook);
+        logBookRef.setName(logbook.name);
+        logBookRef.setObisCode(logbook.obisCode);
+        logBookRef.save();
+        return Response.ok(LogBookTypeInfo.from(logBookRef)).build();
     }
 
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
-    public Response deleteLogBookType(@PathParam("id") long id) {
-        Optional<LogBookType> logBookRef = masterDataService.findLogBookType(id);
-        if (!logBookRef.isPresent()) {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
-        }
-        logBookRef.get().delete();
+    public Response deleteLogBookType(@PathParam("id") long id, LogBookTypeInfo logbook) {
+        logbook.id = id;
+        resourceHelper.lockLogBookTypeOrThrowException(logbook).delete();
         return Response.status(Response.Status.OK).build();
-    }
+}
 }

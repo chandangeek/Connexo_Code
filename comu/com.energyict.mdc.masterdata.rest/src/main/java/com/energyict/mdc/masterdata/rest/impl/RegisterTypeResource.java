@@ -23,7 +23,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -37,13 +36,15 @@ public class RegisterTypeResource {
     private final MasterDataService masterDataService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final MeteringService meteringService;
+    private final ResourceHelper resourceHelper;
 
     @Inject
-    public RegisterTypeResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService) {
+    public RegisterTypeResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, ResourceHelper resourceHelper) {
         super();
         this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.meteringService = meteringService;
+        this.resourceHelper = resourceHelper;
     }
 
     /**
@@ -76,7 +77,7 @@ public class RegisterTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_MASTER_DATA, Privileges.VIEW_MASTER_DATA})
     public RegisterTypeInfo getRegisterType(@PathParam("id") long id) {
-        RegisterType registerType = this.findRegisterTypeByIdOrThrowException(id);
+        RegisterType registerType = resourceHelper.findRegisterTypeOrThrowException(id);
         return new RegisterTypeInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false);
     }
 
@@ -84,8 +85,8 @@ public class RegisterTypeResource {
     @Path("/{id}")
     @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public Response deleteRegisterType(@PathParam("id") long id) {
-        MeasurementType measurementType = this.findRegisterTypeByIdOrThrowException(id);
+    public Response deleteRegisterType(@PathParam("id") long id, RegisterTypeInfo info) {
+        MeasurementType measurementType = resourceHelper.lockRegisterTypeOrThrowException(info);
         measurementType.delete();
         return Response.ok().build();
     }
@@ -108,7 +109,7 @@ public class RegisterTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
     public RegisterTypeInfo updateRegisterType(@PathParam("id") long id, RegisterTypeInfo registerTypeInfo) {
-        RegisterType registerType = this.findRegisterTypeByIdOrThrowException(id);
+        RegisterType registerType = resourceHelper.lockRegisterTypeOrThrowException(registerTypeInfo);
         registerTypeInfo.writeTo(registerType, findReadingType(registerTypeInfo));
         registerType.save();
         return new RegisterTypeInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false);
@@ -116,11 +117,5 @@ public class RegisterTypeResource {
 
     private ReadingType findReadingType(RegisterTypeInfo registerTypeInfo) {
         return registerTypeInfo.readingType != null ? meteringService.getReadingType(registerTypeInfo.readingType.mRID).orElse(null) : null;
-    }
-
-    private RegisterType findRegisterTypeByIdOrThrowException(long id) {
-        return masterDataService
-            .findRegisterType(id)
-            .orElseThrow(() -> new WebApplicationException("No register type with id " + id, Response.Status.NOT_FOUND));
     }
 }
