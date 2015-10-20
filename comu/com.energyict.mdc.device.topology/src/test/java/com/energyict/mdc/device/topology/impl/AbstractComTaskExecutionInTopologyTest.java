@@ -156,7 +156,6 @@ public abstract class AbstractComTaskExecutionInTopologyTest extends Persistence
                 .setComPortPool(outboundTcpipComPortPool)
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .add();
-        device.save();
         return scheduledConnectionTask;
     }
 
