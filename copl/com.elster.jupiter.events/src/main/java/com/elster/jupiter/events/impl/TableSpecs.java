@@ -28,7 +28,7 @@ public enum TableSpecs {
             table.addAuditColumns();
 
             table.primaryKey("EVT_PK_EVENTTYPE").on(topicColumn).add();
-            table.unique("EBT_UQ_TYPE_NAME").on(nameColumn).add();
+            //table.unique("EBT_UQ_TYPE_NAME").on(nameColumn).add();
         }
     },
 
