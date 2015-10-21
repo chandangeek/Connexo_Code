@@ -160,7 +160,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     }
 
     @Override
-    public List<MetrologyConfiguration> findDeviceConfigurationsForValidationRuleSet(long id) {
+    public List<MetrologyConfiguration> findMetrologyConfigurationsForValidationRuleSet(long id) {
         // TODO Needs implementation similar to below
 
         //        return this.getDataModel().

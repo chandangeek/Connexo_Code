@@ -20,6 +20,6 @@ public interface UsagePointConfigurationService {
 
     List<UsagePoint> findUsagePointsForMetrologyConfiguration(MetrologyConfiguration mc);
 
-    List<MetrologyConfiguration> findDeviceConfigurationsForValidationRuleSet(long id);
+    List<MetrologyConfiguration> findMetrologyConfigurationsForValidationRuleSet(long id);
 
 }
