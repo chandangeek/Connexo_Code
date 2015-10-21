@@ -1,4 +1,4 @@
-Ext.define('Apr.model.ServedImportService', {
+Ext.define('Apr.model.ImportService', {
     extend: 'Ext.data.Model',
     fields: [
         'id', 'name',

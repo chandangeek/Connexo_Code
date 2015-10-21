@@ -1,6 +1,6 @@
 Ext.define('Apr.store.ServedImportServices', {
     extend: 'Ext.data.Store',
-    model: 'Apr.model.ServedImportService',
+    model: 'Apr.model.ImportService',
     autoLoad: false,
 
     proxy: {
