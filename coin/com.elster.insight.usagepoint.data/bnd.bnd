@@ -1,0 +1,6 @@
+-classpath: target/classes
+-dsannotations: *
+Private-Package:  \
+	com.elster.insight.usagepoint.data.impl.*
+Export-Package:  \
+	com.elster.insight.usagepoint.data
