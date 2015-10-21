@@ -25,6 +25,7 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -84,11 +85,13 @@ class EventSelector implements DataSelector {
     }
 
     private Stream<ExportData> getExportDataStream(Range<Instant> range) {
-        return selector.getEndDeviceGroup()
+        Stream<ExportData> stream = selector.getEndDeviceGroup()
                 .getMembers(range)
                 .stream()
                 .map(EndDeviceMembership::getEndDevice)
                 .map(endDevice -> buildEventData(endDevice, range));
+        List<ExportData> result = stream.collect(Collectors.toList());
+        return result.stream();
     }
 
     private MeterEventData buildEventData(EndDevice endDevice, Range<Instant> range) {
