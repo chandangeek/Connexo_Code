@@ -1,19 +1,26 @@
 Ext.define('Apr.view.appservers.AddMessageServicesGrid', {
-    extend: 'Ext.grid.Panel',
-//    extend: 'Ext.Component',
+    extend: 'Uni.view.grid.SelectionGrid',
     alias: 'widget.add-message-services-grid',
-    requires: [
-    ],
-    width: '100%',
-    maxHeight: 300,
-    store: 'Apr.store.AddableMessageServices',
+
     plugins: [
+        {
+            ptype: 'bufferedrenderer'
+        },
         {
             ptype: 'cellediting',
             clicksToEdit: 1,
             pluginId: 'cellplugin'
         }
     ],
+
+    counterTextFn: function (count) {
+        return Uni.I18n.translatePlural('general.nrOfMessageServices.selected', count, 'APR',
+            'No message services selected', '{0} message services selected', '{0} message services selected'
+        );
+    },
+
+    bottomToolbarHidden: true,
+
 
     columns: [
         {

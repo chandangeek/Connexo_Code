@@ -7,7 +7,8 @@ Ext.define('Apr.controller.AppServers', {
         'Apr.view.appservers.AppServerMessageServices',
         'Apr.view.appservers.AppServerImportServices',
         'Apr.view.appservers.AddMessageServicesGrid',
-        'Apr.view.appservers.AddImportServicesGrid'
+        'Apr.view.appservers.AddImportServicesGrid',
+        'Apr.view.appservers.AddMessageServicesSetup'
     ],
     stores: [
         'Apr.store.AppServers',
@@ -37,9 +38,18 @@ Ext.define('Apr.controller.AppServers', {
         {
             ref: 'overviewPage',
             selector: 'appserver-overview'
+        },
+        {
+            ref: 'addMessageServicesGrid',
+            selector: 'add-message-services-grid'
+        },
+        {
+            ref: 'addAppServerForm',
+            selector: '#add-appserver-form'
         }
     ],
     appServer: null,
+    edit: null,
 
     init: function () {
         this.control({
@@ -69,6 +79,9 @@ Ext.define('Apr.controller.AppServers', {
             },
             'appservers-add apr-import-services-grid': {
                 edit: this.onCellEdit
+            },
+            '#btn-add-message-services': {
+                click: this.addMessageServices
             }
 
         });
@@ -245,7 +258,6 @@ Ext.define('Apr.controller.AppServers', {
             servedMessageServicesStore = me.getStore('Apr.store.ServedMessageServices'),
             servedImportStore = me.getStore('Apr.store.ServedImportServices'),
             unservedImportStore = me.getStore('Apr.store.UnservedImportServices'),
-            edit,
             unservedMessageServicesStore = me.getStore('Apr.store.UnservedMessageServices');
 
         if (appServerName) {
@@ -253,7 +265,7 @@ Ext.define('Apr.controller.AppServers', {
             servedImportStore.getProxy().setUrl(appServerName);
             unservedMessageServicesStore.getProxy().setUrl(appServerName);
             unservedImportStore.getProxy().setUrl(appServerName);
-            edit = true;
+            me.edit = true;
             me.getApplication().fireEvent('appserverload', appServerName);
 
             unservedMessageServicesStore.load(function (messageServices) {
@@ -263,7 +275,7 @@ Ext.define('Apr.controller.AppServers', {
                             me.getModel('Apr.model.AppServer').load(appServerName, {
                                 success: function (rec) {
                                     view = Ext.widget('appservers-add', {
-                                        edit: edit,
+                                        edit: me.edit,
                                         store: servedMessageServicesStore,
                                         importStore: servedImportStore,
                                         returnLink: router.getState().buildUrl() // = the previously stored url
@@ -285,18 +297,24 @@ Ext.define('Apr.controller.AppServers', {
             servedImportStore.getProxy().setUrl(null);
             unservedMessageServicesStore.getProxy().setUrl(null);
             unservedImportStore.getProxy().setUrl(null);
-            edit = false;
+            me.edit = false;
             unservedMessageServicesStore.load(function (messageServices) {
                 unservedImportStore.load(function (importServices) {
                     Ext.each(messageServices, function (messageService) {
-                        servedMessageServicesStore.add(messageService);
+                        var model = Ext.create('Apr.model.ServedMessageService',{
+                            numberOfThreads: 1,
+                            subscriberSpec: messageService.data,
+                            messageService: messageService.data.displayName
+                        });
+                        servedMessageServicesStore.add(model);
                     });
+                    unservedMessageServicesStore.removeAll();
                     Ext.each(importServices, function (importService) {
                         servedImportStore.add(importService);
                     });
                     view = Ext.widget('appservers-add', {
-                        edit: edit,
-                        store: unservedMessageServicesStore,
+                        edit: me.edit,
+                        store: servedMessageServicesStore,
                         importStore: servedImportStore
                     });
                     var rec = Ext.create('Apr.model.AppServer');
@@ -309,31 +327,84 @@ Ext.define('Apr.controller.AppServers', {
     },
 
     showAddMessageServiceView: function () {
-        console.log('show the add message service page');
-        var me = this;
-        var view = Ext.widget('add-message-services-grid');
+        var view = Ext.widget('add-message-services-setup');
+        this.storeCurrentValues();
         this.getApplication().fireEvent('changecontentevent', view);
+    },
 
+    addMessageServices: function(){
+        var me = this,
+            grid = this.getAddMessageServicesGrid();
+        Ext.each(grid.getSelectionModel().getSelection(),function(messageServiceToAdd){
+            grid.getStore().remove(messageServiceToAdd);
+            var served = me.convertToServedMessageServiceModel(messageServiceToAdd);
+            me.getStore('Apr.store.ServedMessageServices').add(served);
+        });
+        this.returnToAddEditViewWithoutRouter();
+    },
+
+    returnToAddEditViewWithoutRouter: function(){
+        var me = this,
+            servedMessageServicesStore = this.getStore('Apr.store.ServedMessageServices'),
+            servedImportStore = this.getStore('Apr.store.ServedImportServices'),
+            view = Ext.widget('appservers-add', {
+                edit: me.edit, //to be refined
+                store: servedMessageServicesStore,
+                importStore: servedImportStore
+            });
+        this.restoreValues();
+        this.getApplication().fireEvent('changecontentevent', view);
+    },
+
+    storeCurrentValues: function(){
+        var clipboard = this.getStore('Apr.store.Clipboard');
+        this.getAddAppServerForm().updateRecord();
+        clipboard.set('model',this.getAddAppServerForm().getRecord());
+    },
+
+    restoreValues: function(){
+        var clipboard = this.getStore('Apr.store.Clipboard');
+        this.getAddAppServerForm().loadRecord(clipboard.get('model'));
     },
 
     showAddImportServiceView: function () {
         console.log('show tha add import service page');
         var me = this,
-            servedImportServices = me.getStore('Apr.store.ServedImportServices'),
-            unservedImportServices = me.getStore('Apr.store.UnservedImportServices');
-        var view = Ext.widget('add-import-services-grid');
+            view = Ext.widget('add-import-services-grid');
         this.getApplication().fireEvent('changecontentevent', view);
     },
 
     removeMessageService: function (menu) {
         var me = this,
             grid = me.getAddPage().down('message-services-grid');
-
         grid.getStore().remove(menu.record);
+        var unserved = this.convertToUnservedMessageServiceModel(menu.record);
+        me.getStore('Apr.store.UnservedMessageServices').add(unserved);
         if (Ext.isEmpty(grid.getStore().getRange())) {
             me.getAddPage().down('message-services-grid').hide();
             me.getAddPage().down('#empty-text-grid').show();
         }
+    },
+
+    convertToUnservedMessageServiceModel: function(record){
+        var converted = Ext.create('Apr.model.UnservedMessageService');
+        converted.set('destination',record.get('subscriberSpec').destination);
+        converted.set('subscriber',record.get('subscriberSpec').subscriber);
+        converted.set('displayName',record.get('subscriberSpec').displayName);
+        converted.set('messageService',record.get('subscriberSpec').displayName);
+        return converted;
+    },
+
+    convertToServedMessageServiceModel: function(record){
+        var converted = Ext.create('Apr.model.ServedMessageService');
+        converted.set('numberOfThreads',1);
+        converted.set('messageService',record.get('displayName'));
+        converted.set('subscriberSpec',{
+            destination: record.get('destination'),
+            displayName: record.get('displayName'),
+            subscriber: record.get('destination')
+        });
+        return converted;
     },
 
     addImportServiceItemToMenu: function (service) {
@@ -380,10 +451,6 @@ Ext.define('Apr.controller.AppServers', {
                     subscriberSpec.destination = item.data.subscriberSpec.destination;
                     subscriberSpec.subscriber = item.data.subscriberSpec.subscriber;
                     subscriberSpec.displayName = item.data.subscriberSpec.displayName;
-                } else {
-                    subscriberSpec.destination = item.get('destination');
-                    subscriberSpec.subscriber = item.get('subscriber');
-                    subscriberSpec.displayName = item.get('displayName');
                 }
                 service.subscriberSpec = subscriberSpec;
                 if (item.get('numberOfThreads')) {
