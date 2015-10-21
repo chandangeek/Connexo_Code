@@ -29,13 +29,19 @@ Ext.define('Fwc.devicefirmware.model.FirmwareVersion', {
     ],
 
     retry: function (mrid, callback) {
-        Ext.Ajax.request({
+        var request = {
             method: 'PUT',
             url: '/api/fwc/devices/{mrid}/comtasks/{id}/retry'
                 .replace('{mrid}', mrid)
-                .replace('{id}', this.get('firmwareComTaskId')),
-            callback: callback
-        });
+                .replace('{id}', this.get('firmwareComTaskId'))
+        };
+
+        if (Ext.isFunction(callback)) {
+            request.callback = callback;
+            Ext.Ajax.request(request);
+        } else {
+            Ext.Ajax.request(Ext.merge(request, callback));
+        }
     },
 
     requires: [

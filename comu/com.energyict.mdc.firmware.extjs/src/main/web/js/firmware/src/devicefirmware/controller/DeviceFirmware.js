@@ -150,8 +150,8 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
 
     doRun: function (record, action) {
         var me = this,
-            container = this.getContainer(),
-            router = this.getController('Uni.controller.history.Router');
+            container = me.getContainer(),
+            router = me.getController('Uni.controller.history.Router');
 
         container.setLoading();
         Ext.Ajax.request({
@@ -176,15 +176,20 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         var me = this,
             form = btn.up('form'),
             record = form.down('#message-failed').record,
-            router = this.getController('Uni.controller.history.Router');
+            container = me.getContainer(),
+            router = me.getController('Uni.controller.history.Router');
 
         form.setLoading();
-        record.retry(encodeURIComponent(router.arguments.mRID), function (operation, success) {
-            if (success) {
+        record.retry(encodeURIComponent(router.arguments.mRID), {
+            isNotEdit: true,
+            jsonData: _.pick(container.device.getData(), 'version'),
+            success: function () {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.retried', 'FWC', 'Firmware upload retried.'));
                 router.getRoute().forward();
+            },
+            callback: function () {
+                form.setLoading(false);
             }
-            form.setLoading(false);
         });
     },
 
@@ -201,7 +206,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         form.setLoading();
         message.getProxy().setUrl(encodeURIComponent(router.arguments.mRID));
         message.setId(devicemessageId);
-        message.set('version', container.entityVersion);
+        message.set('version', container.device.get('version'));
         message.destroy({
             isNotEdit: true,
             success: function () {
@@ -260,7 +265,6 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
             store.load({
                 callback: function (records, operation, success) {
                     if (success) {
-                        me.getContainer().entityVersion = Ext.decode(operation.response.responseText).version;
                         Ext.suspendLayouts();
                         container.removeAll();
                         container.add(records.map(function (record) {
@@ -313,6 +317,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         var me = this,
             form = btn.up('form'),
             record = form.down('#message-pending').record,
+            container = me.getContainer(),
             router = me.getController('Uni.controller.history.Router'),
             Model = Ext.ModelManager.getModel('Fwc.devicefirmware.model.FirmwareMessage'),
             devicemessageId = record.get('firmwareDeviceMessageId'),
@@ -325,15 +330,22 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
 
                     form.setLoading();
                     message.getProxy().setUrl(encodeURIComponent(router.arguments.mRID));
+                    message.beginEdit();
                     message.setId(devicemessageId);
                     message.set('releaseDate', releaseDate ? releaseDate.getTime() : new Date().getTime());
+                    message.set('version', container.device.get('version'));
+                    message.endEdit();
                     Ext.Ajax.request({
                         url: message.getProxy().url + '/' + devicemessageId + '/activate',
+                        isNotEdit: true,
                         method: 'PUT',
                         jsonData: Ext.encode(message.getData()),
                         success: function () {
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.activation.success', 'FWC', 'Firmware activation has started.'));
                             router.getRoute().forward();
+                        },
+                        failure: function () {
+                            message.reject();
                         },
                         callback: function () {
                             form.setLoading(false);
