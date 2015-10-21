@@ -80,13 +80,6 @@ Ext.define('Bpm.controller.history.BpmManagement', {
 
                                 return this;
                             }
-                        },
-                        addprocesses:{
-                            title: Uni.I18n.translate('bpm.process.title', 'BPM', 'Processes'),
-                            route: 'addprocesses',
-                            controller: 'Bpm.controller.Process',
-                            action: 'addProcesses',
-                            privileges: Bpm.privileges.BpmManagement.administrateProcesses
                         }
                     }			
 				}

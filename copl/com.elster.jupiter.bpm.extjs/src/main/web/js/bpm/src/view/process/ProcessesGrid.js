@@ -55,16 +55,7 @@ Ext.define('Bpm.view.process.ProcessesGrid', {
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('bpm.process.pagingtoolbartop.displayMsg', 'BPM', '{0} - {1} of {2} processes'),
                 displayMoreMsg: Uni.I18n.translate('bpm.process.pagingtoolbartop.displayMoreMsg', 'BPM', '{0} - {1} of more than {2} processes'),
-                emptyMsg: Uni.I18n.translate('bpm.process.pagingtoolbartop.emptyMsg', 'BPM', 'There are no process to display'),
-                items: [
-                    {
-                        xtype: 'button',
-                        text: Uni.I18n.translate('general.process', 'BPM', 'Add processes'),
-                        privileges: Bpm.privileges.BpmManagement.administrateProcesses,
-                        href: '#/administration/managementprocesses/addprocesses'
-                    }
-                ]
-
+                emptyMsg: Uni.I18n.translate('bpm.process.pagingtoolbartop.emptyMsg', 'BPM', 'There are no process to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',

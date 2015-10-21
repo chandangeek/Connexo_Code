@@ -2,20 +2,16 @@ Ext.define('Bpm.controller.Process', {
     extend: 'Ext.app.Controller',
     requires: [
         'Bpm.privileges.BpmManagement',
-        'Bpm.store.process.Processes',
-        'Bpm.view.process.AddProcessesGrid'
+        'Bpm.store.process.Processes'
     ],
     views: [
-        'Bpm.view.process.Processes',
-        'Bpm.view.process.AddProcessesSetup'
+        'Bpm.view.process.Processes'
     ],
     models: [
-        'Bpm.model.process.Process',
-        'Bpm.model.process.BpmProcesses'
+        'Bpm.model.process.Process'
     ],
     stores: [
-        'Bpm.store.process.Processes',
-        'Bpm.store.process.BpmProcesses'
+        'Bpm.store.process.Processes'
     ],
 
     refs: [
@@ -30,10 +26,6 @@ Ext.define('Bpm.controller.Process', {
         {
             ref: 'processesForm',
             selector: 'bpm-processes #bpm-processes-form'
-        },
-        {
-            ref: 'addProcessesGrid',
-            selector: 'usr-add-processes-setup #grd-add-processes'
         }
     ],
 
@@ -45,9 +37,6 @@ Ext.define('Bpm.controller.Process', {
             'bpm-process-action-menu': {
                 show: this.onMenuShow,
                 click: this.chooseAction
-            },
-            '#btn-add-processes': {
-                click: this.saveAddedProcesses
             }
         });
     },
@@ -105,67 +94,6 @@ Ext.define('Bpm.controller.Process', {
 
     editProcess: function (processId) {
         alert(processId);
-    },
-
-    addProcesses: function () {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            bpmProcessesStore = me.getStore('Bpm.store.process.BpmProcesses'),
-            processesStore = me.getStore('Bpm.store.process.Processes'),
-            addProcessesView = Ext.create('Bpm.view.process.AddProcessesSetup');
-
-        bpmProcessesStore.loadData([], false);
-        me.getApplication().fireEvent('changecontentevent', addProcessesView);
-
-        bpmProcessesStore.load({
-            callback: function (records, operation, success) {
-
-                processesStore.load({
-                    callback: function (records, operation, success) {
-                        records.forEach(function (record) {
-                            var rowIndex = bpmProcessesStore.findExact('name', record.get('name'));
-
-                            // remove
-                            if (rowIndex < 2) {
-                                return;
-                            }
-                            if (rowIndex != -1) {
-                                bpmProcessesStore.removeAt(rowIndex);
-                            }
-                        });
-                        addProcessesView.setLoading(false);
-                    }
-                });
-            }
-        });
-    },
-
-    saveAddedProcesses: function (button) {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            bpmProcessesStore = me.getStore('Bpm.store.process.BpmProcesses'),
-            processList = [];
-
-        var processes = Ext.create(Bpm.model.process.BpmProcesses);
-        var addProcessesGrid = me.getAddProcessesGrid();
-
-        bpmProcessesStore.each(function (record) {
-            if (addProcessesGrid.getSelectionModel().isSelected(record)) {
-
-                var user = Ext.create(Bpm.model.process.Process);
-                user.set('name', record.get('name'));
-                processList.push(user);
-            }
-        });
-        processes.processes().add(processList);
-        processes.save({
-            success: function (record) {
-                router.getRoute('administration/managementprocesses').forward();
-            },
-            failure: function (record, operation) {
-
-            }
-        });
     },
 
     onMenuShow: function (menu) {

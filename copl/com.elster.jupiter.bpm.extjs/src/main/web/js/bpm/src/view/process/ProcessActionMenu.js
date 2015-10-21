@@ -5,12 +5,12 @@ Ext.define('Bpm.view.process.ProcessActionMenu', {
     border: false,
     shadow: false,
     items: [
-        {
+        /*{
             itemId: 'menu-edit-process',
             text: Uni.I18n.translate('bpm.menu.editProcess', 'BPM', 'Edit process'),
             action: 'editProcess',
             privileges: Bpm.privileges.BpmManagement.administrateProcesses
-        },
+        },*/
         {
             itemId: 'menu-activate-process',
             text: Uni.I18n.translate('bpm.menu.activateProcess', 'BPM', 'Activate'),
