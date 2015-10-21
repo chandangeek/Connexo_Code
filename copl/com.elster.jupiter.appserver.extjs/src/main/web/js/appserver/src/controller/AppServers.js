@@ -331,9 +331,14 @@ Ext.define('Apr.controller.AppServers', {
 
         grid.getStore().remove(menu.record);
         if (Ext.isEmpty(grid.getStore().getRange())) {
-            me.getAddPage().down('message-services-grid').hide();
-            me.getAddPage().down('#empty-text-grid').show();
+            me.changeMessageGridVisibility(false);
         }
+    },
+
+    changeMessageGridVisibility: function(visibility){
+        var me = this;
+        me.getAddPage.down('message-servicese-grid').setVisibile(visibility);
+        me.getAddPage().down('#empty-text-grid').setVisible(!visibility);
     },
 
     addImportServiceItemToMenu: function (service) {
@@ -353,11 +358,17 @@ Ext.define('Apr.controller.AppServers', {
 
         grid.getStore().remove(menu.record);
         if (Ext.isEmpty(grid.getStore().getRange())) {
-            me.getAddPage().down('apr-import-services-grid').hide();
-            me.getAddPage().down('#import-empty-text-grid').show();
+            me.changeImportGridVisibility(false);
         }
         me.addImportServiceItemToMenu(menu.record);
     },
+
+    changeImportGridVisibility: function(visibility){
+        var me = this;
+        me.getAddPage.down('apr-import-services-grid').setVisibile(visibility);
+        me.getAddPage().down('#import-empty-text-grid').setVisible(!visibility);
+    },
+
     addEditAppServer: function () {
         var me = this,
             form = me.getAddPage().down('#add-appserver-form'),

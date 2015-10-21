@@ -78,71 +78,91 @@ Ext.define('Apr.view.appservers.Add', {
                     {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('general.messageServices', 'APR', 'Message services'),
-                        layout: {
-                            type:'vbox',
-                            align:'right'
-                        },
+                        itemId: 'messageServicesContainer',
+                        layout: 'vbox',
                         items: [
                             {
-                                itemId: 'add-message-services-button',
-                                xtype: 'button',
-                                margin: '0 0 10 0',
-                                text: Uni.I18n.translate('general.addMessageServices', 'APR', 'Add message services'),
-                                //menu: {
-                                //    itemId: 'add-message-services-menu',
-                                //    plain: true,
-                                //    border: false,
-                                //    shadow: false,
-                                //    items: []
-                                //}
+                                xtype: 'container',
+                                width: '100%',
+                                layout: {
+                                    type: 'hbox',
+                                    align: 'stretch'
+                                },
+                                items: [
+                                    {
+                                        xtype: 'component',
+                                        html: Uni.I18n.translate('general.noMessageServices','APR','No message services have been added'),
+                                        itemId: 'empty-text-grid',
+                                        style: {
+                                            'font': 'italic 13px/17px Lato',
+                                            'color': '#686868',
+                                            'margin-top': '6px',
+                                            'margin-right': '10px'
+                                        },
+                                        hidden: true
+                                    },
+                                    {
+                                        xtype: 'component',
+                                        flex: 1
+                                    },
+                                    {
+                                        itemId: 'add-message-services-button',
+                                        xtype: 'button',
+                                        margin: '0 0 10 0',
+                                        text: Uni.I18n.translate('general.addMessageServices', 'APR', 'Add message services')
+                                    }
+                                ]
                             },
                             {
                                 xtype: 'message-services-grid',
                                 itemId: 'message-services-grid',
                                 store: me.store
-                            },
-                            {
-                                xtype: 'displayfield',
-                                itemId: 'empty-text-grid',
-                                hidden: true,
-                                value: Uni.I18n.translate('appServers.noMessageServices', 'APR', "This application server doesn't have any message service")
                             }
-
                         ]
                     },
                     {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('general.importServices', 'APR', 'Import services'),
-                        layout: {
-                            type:'vbox',
-                            align:'right'
-                        },
+                        itemId: 'importServicesContainer',
+                        layout: 'vbox',
                         items: [
                             {
-                                itemId: 'add-import-services-button',
-                                xtype: 'button',
-                                margin: '0 0 10 0',
-                                text: Uni.I18n.translate('general.addImportServices', 'APR', 'Add import services'),
-                                //menu: {
-                                //    itemId: 'add-import-services-menu',
-                                //    plain: true,
-                                //    border: false,
-                                //    shadow: false,
-                                //    items: []
-                                //}
+                                xtype: 'container',
+                                width: '100%',
+                                layout: {
+                                    type: 'hbox',
+                                    align: 'stretch'
+                                },
+                                items: [
+                                    {
+                                        xtype: 'component',
+                                        itemId: 'import-empty-text-grid',
+                                        html: Uni.I18n.translate('appServers.noImportServices', 'APR', "No import services have been added"),
+                                        style: {
+                                            'font': 'italic 13px/17px Lato',
+                                            'color': '#686868',
+                                            'margin-top': '6px',
+                                            'margin-right': '10px'
+                                        },
+                                        hidden: true
+                                    },
+                                    {
+                                        xtype: 'component',
+                                        flex: 1
+                                    },
+                                    {
+                                        itemId: 'add-import-services-button',
+                                        xtype: 'button',
+                                        margin: '0 0 10 0',
+                                        text: Uni.I18n.translate('general.addImportServices', 'APR', 'Add import services'),
+                                    }
+                                ]
                             },
                             {
                                 xtype: 'apr-import-services-grid',
                                 itemId: 'apr-import-services-grid',
                                 store: me.importStore
-                            },
-                            {
-                                xtype: 'displayfield',
-                                itemId: 'import-empty-text-grid',
-                                hidden: true,
-                                value: Uni.I18n.translate('appServers.noImportServices', 'APR', "This application server doesn't have any import service")
                             }
-
                         ]
                     },
                     {
