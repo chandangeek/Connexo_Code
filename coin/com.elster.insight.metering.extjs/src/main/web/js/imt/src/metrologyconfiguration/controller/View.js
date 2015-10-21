@@ -9,12 +9,11 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
         'Imt.metrologyconfiguration.store.MetrologyConfiguration'
     ],
     views: [
-        'Imt.metrologyconfiguration.view.Setup'
+        'Imt.metrologyconfiguration.view.Setup',
+        'Imt.metrologyconfiguration.view.AssociateMetrologyConfiguration'
     ],
     refs: [
-        {ref: 'overviewLink', selector: '#metrology-configuration-overview-link'},
         {ref: 'attributesPanel', selector: '#metrology-configuration-attributes-panel'},
-
     ],
 
     init: function () {
@@ -40,12 +39,11 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
                 actualForm = Ext.create('Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm', {router: router});
                 
                 me.getApplication().fireEvent('changecontentevent', widget);
-                me.getOverviewLink().setText(actualModel.get('name'));
                 me.getAttributesPanel().add(actualForm);
                 actualForm.getForm().loadRecord(actualModel);
                 pageMainContent.setLoading(false);
             }
         });
-    }
+    },
 });
 

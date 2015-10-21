@@ -48,6 +48,20 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm
                         renderer: function (value) {
                             return value ? value : '-';
                         }
+                    },
+                    {
+                        xtype: 'fieldcontainer',
+                        ui: 'actions',
+                        fieldLabel: '&nbsp',
+                        items: [
+                            {
+                                text: Uni.I18n.translate('general.cancel', 'IMT', 'Back'),
+                                xtype: 'button',
+                                ui: 'action',
+                                itemId: 'backLink',
+                                href: me.router.getRoute('metrologyconfiguration/overview').buildUrl(),
+                            }
+                        ]
                     }
                 ]
             }

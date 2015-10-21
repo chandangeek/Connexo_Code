@@ -18,7 +18,10 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         this.control({
             'metrologyConfigurationEdit button[action=saveModel]': {
                 click: this.saveMetrologyConfiguration
-            }
+            },
+            'metrologyConfigurationEdit button[action=cancelButton]': {
+                click: this.saveMetrologyConfiguration
+            },
         });
     },
     createMetrologyConfiguration: function() {
@@ -44,6 +47,26 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         });
     },    
     saveMetrologyConfiguration: function (button) {
+        var me = this,
+        router = me.getController('Uni.controller.history.Router'),
+        route;
+
+        switch (button.action) {
+        	case 'cancelButton':
+        		route = 'metrologyconfiguration/overview';
+        		break;
+        	case 'saveModel':
+        		me.saveModel(button);
+        		break;
+
+        }
+
+        route && (route = router.getRoute(route));
+        route && route.forward(router.arguments, {previousRoute: router.getRoute().buildUrl()});
+    	
+    },
+    saveModel: function(button) {
+
         var me = this,
         page = me.getMetrologyConfigurationEditPage(),
         form = page.down('form'),

@@ -23,20 +23,20 @@ Ext.define('Imt.metrologyconfiguration.view.Setup', {
         var me = this,
             panel = me.content[0];
 //        panel.title = me.router.getRoute().getTitle();
-        me.side = [
-            {
-                xtype: 'panel',
-                ui: 'medium',
-                items: [
-                    {
-                        xtype: 'metrology-configuration-side-menu',
-                        itemId: 'metrology-configuration-side-menu',
-                        router: me.router,
-  //                      id: me.id
-                    }
-                ]
-            }
-        ];
+//        me.side = [
+//            {
+//                xtype: 'panel',
+//                ui: 'medium',
+//                items: [
+//                    {
+//                        xtype: 'metrology-configuration-side-menu',
+//                        itemId: 'metrology-configuration-side-menu',
+//                        router: me.router,
+//  //                      id: me.id
+//                    }
+//                ]
+//            }
+//        ];
         this.callParent(arguments);
 
         me.down('#metrologyConfigurationSetupPanel').add(

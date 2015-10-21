@@ -48,9 +48,12 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationEdit', {
                         {
                             text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
                             xtype: 'button',
-                            ui: 'link',
-                            itemId: 'cancelLink',
-                            href: '#'
+//                            ui: 'link',
+//                            itemId: 'cancelLink',
+//                            href: '#',
+                            ui: 'action',
+                            action: 'cancelButton',
+                            itemId: 'cancelButton'
                         }
                     ]
                 }
@@ -67,15 +70,11 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationEdit', {
             this.edit = edit;
             this.down('form').setTitle(Uni.I18n.translate('metrologyConfiguration.edit.title', 'IMT', 'Edit metrology configuration'));
             this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'IMT', 'Save'));
-//            this.down('textfield[name="mRID"]').setDisabled(true);
             this.down('textfield[name="name"]').setDisabled(false);
         } else {
             this.edit = edit;
             this.down('form').setTitle(Uni.I18n.translate('metrologyConfiguration.add.title', 'IMT', 'Add metrology configuration'));
             this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'IMT', 'Add'));
-//            this.down('textfield[name="mRID"]').setDisabled(false);
-//            this.down('textfield[name="name"]').setDisabled(true);
         }
-        this.down('#cancelLink').href = returnLink;
     }
 });
