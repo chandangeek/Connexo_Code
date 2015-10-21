@@ -4,7 +4,7 @@ Ext.define('Bpm.store.process.Processes', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        url: '/api/bpm/runtime/processes',
+        url: '/api/bpm/runtime/allprocesses',
         reader: {
             type: 'json',
             root: 'processes'

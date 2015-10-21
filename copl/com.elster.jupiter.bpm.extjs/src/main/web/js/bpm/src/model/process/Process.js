@@ -11,35 +11,23 @@ Ext.define('Bpm.model.process.Process', {
         },
         {
             name: 'deploymentId',
-            type: 'string',
-            convert: function (value, record) {
-                return 'deployment ' + record.get('name');
-            }
+            type: 'string'
         },
         {
             name: 'version',
-            type: 'string',
-            convert: function (value, record) {
-                return 'version ' + record.get('name');
-            }
+            type: 'string'
         },
         {
             name: 'associated',
-            type: 'string',
-            convert: function (value, record) {
-                return 'associated ' + record.get('name');
-            }
+            type: 'string'
         },
         {
-            name: 'active',
-            convert: function (value, record) {
-                return record.get('name').indexOf('ss') > 0;
-            }
+            name: 'active'
         }
     ],
     proxy: {
         type: 'rest',
-        url: '/api/bpm/runtime/processes',
+        url: '/api/bpm/runtime/process/activate',
         reader: {
             type: 'json'
         }

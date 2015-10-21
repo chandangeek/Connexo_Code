@@ -78,7 +78,7 @@ Ext.define('Bpm.controller.Process', {
         record.save({
             success: function (record, operation) {
 
-                processesForm.down('bpm-process-preview').loadRecord(record);
+                processesForm.down('#frm-preview-process').loadRecord(record);
                 if (isActive) {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.process.deactivate', 'BPM', 'Process deactivated'));
                 } else {
