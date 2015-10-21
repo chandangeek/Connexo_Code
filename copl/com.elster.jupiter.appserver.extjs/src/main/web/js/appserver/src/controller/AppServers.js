@@ -8,7 +8,8 @@ Ext.define('Apr.controller.AppServers', {
         'Apr.view.appservers.AppServerImportServices',
         'Apr.view.appservers.AddMessageServicesGrid',
         'Apr.view.appservers.AddImportServicesGrid',
-        'Apr.view.appservers.AddMessageServicesSetup'
+        'Apr.view.appservers.AddMessageServicesSetup',
+        'Apr.view.appservers.AddImportServicesSetup',
     ],
     stores: [
         'Apr.store.AppServers',
@@ -42,6 +43,10 @@ Ext.define('Apr.controller.AppServers', {
         {
             ref: 'addMessageServicesGrid',
             selector: 'add-message-services-grid'
+        },
+        {
+            ref: 'addImportServicesGrid',
+            selector: 'add-import-services-grid'
         },
         {
             ref: 'addAppServerForm',
@@ -82,6 +87,9 @@ Ext.define('Apr.controller.AppServers', {
             },
             '#btn-add-message-services': {
                 click: this.addMessageServices
+            },
+            '#btn-add-import-services':{
+                click: this.addImportServices
             }
 
         });
@@ -345,8 +353,8 @@ Ext.define('Apr.controller.AppServers', {
 
     returnToAddEditViewWithoutRouter: function(){
         var me = this,
-            servedMessageServicesStore = this.getStore('Apr.store.ServedMessageServices'),
-            servedImportStore = this.getStore('Apr.store.ServedImportServices'),
+            servedMessageServicesStore = me.getStore('Apr.store.ServedMessageServices'),
+            servedImportStore = me.getStore('Apr.store.ServedImportServices'),
             view = Ext.widget('appservers-add', {
                 edit: me.edit, //to be refined
                 store: servedMessageServicesStore,
@@ -364,14 +372,26 @@ Ext.define('Apr.controller.AppServers', {
 
     restoreValues: function(){
         var clipboard = this.getStore('Apr.store.Clipboard');
+        var model = clipboard.get('model');
         this.getAddAppServerForm().loadRecord(clipboard.get('model'));
     },
 
     showAddImportServiceView: function () {
-        console.log('show tha add import service page');
         var me = this,
-            view = Ext.widget('add-import-services-grid');
-        this.getApplication().fireEvent('changecontentevent', view);
+            view = Ext.widget('add-import-services-setup');
+        me.storeCurrentValues();
+        me.getApplication().fireEvent('changecontentevent', view);
+    },
+
+    addImportServices: function(){
+        var me = this,
+            grid = this.getAddImportServicesGrid();
+        Ext.each(grid.getSelectionModel().getSelection(),function(importServiceToAdd){
+            grid.getStore().remove(importServiceToAdd);
+            var served = me.convertToServedImportServiceModel(importServiceToAdd);
+            me.getStore('Apr.store.ServedImportServices').add(served);
+        });
+        this.returnToAddEditViewWithoutRouter();
     },
 
     removeMessageService: function (menu) {
@@ -406,21 +426,29 @@ Ext.define('Apr.controller.AppServers', {
         return converted;
     },
 
-    changeMessageGridVisibility: function(visibility){
-        var me = this;
-        me.getAddPage.down('message-servicese-grid').setVisibile(visibility);
-        me.getAddPage().down('#empty-text-grid').setVisible(!visibility);
+
+    convertToUnservedImportServiceModel: function(record){
+        var converted = Ext.create('Apr.model.UnservedImportService');
+        converted.set('id', record.get('id'));
+        converted.set('name',record.get('name'));
+        converted.set('status', record.get('status'));
+        converted.set('importService', record.get('importService'));
+        return converted;
     },
 
-    addImportServiceItemToMenu: function (service) {
-        this.getAddPage().down('#add-import-services-menu').add(
-            {
-                xtype: 'menucheckitem',
-                text: service.get('importService'),
-                checked: false,
-                record: service
-            }
-        );
+    convertToServedImportServiceModel: function(record){
+        var converted = Ext.create('Apr.model.ServedImportService');
+        converted.set('id', record.get('id'));
+        converted.set('name',record.get('name'));
+        converted.set('status', record.get('status'));
+        converted.set('importService', record.get('importService'));
+        return converted;
+    },
+
+    changeMessageGridVisibility: function(visibility){
+        var me = this;
+        me.getAddPage().down('message-servicese-grid').setVisible(visibility);
+        me.getAddPage().down('#empty-text-grid').setVisible(!visibility);
     },
 
     removeImportService: function (menu) {
@@ -428,15 +456,16 @@ Ext.define('Apr.controller.AppServers', {
             grid = me.getAddPage().down('apr-import-services-grid');
 
         grid.getStore().remove(menu.record);
+        var unserved = me.convertToUnservedImportServiceModel(menu.record);
+        me.getStore('Apr.store.UnservedImportServices').add(unserved);
         if (Ext.isEmpty(grid.getStore().getRange())) {
             me.changeImportGridVisibility(false);
         }
-        me.addImportServiceItemToMenu(menu.record);
     },
 
     changeImportGridVisibility: function(visibility){
         var me = this;
-        me.getAddPage.down('apr-import-services-grid').setVisibile(visibility);
+        me.getAddPage().down('apr-import-services-grid').setVisible(visibility);
         me.getAddPage().down('#import-empty-text-grid').setVisible(!visibility);
     },
 

@@ -15,7 +15,7 @@ Ext.define('Apr.view.appservers.AddMessageServicesGrid', {
 
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural('general.nrOfMessageServices.selected', count, 'APR',
-            'No message services selected', '{0} message services selected', '{0} message services selected'
+            'No message services selected', '{0} message service selected', '{0} message services selected'
         );
     },
 
