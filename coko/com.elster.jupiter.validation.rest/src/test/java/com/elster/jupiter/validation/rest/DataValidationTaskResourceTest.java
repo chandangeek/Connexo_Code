@@ -54,6 +54,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         dataValidationTask1 = mockDataValidationTask(TASK_ID);
         when(taskBuilder.setName(Matchers.any())).thenReturn(taskBuilder);
         when(taskBuilder.setEndDeviceGroup(Matchers.any())).thenReturn(taskBuilder);
+        when(taskBuilder.setUsagePointGroup(Matchers.any())).thenReturn(taskBuilder);
         when(taskBuilder.setScheduleExpression(Matchers.any())).thenReturn(taskBuilder);
         when(taskBuilder.setNextExecution(Matchers.any())).thenReturn(taskBuilder);
         when(taskBuilder.build()).thenReturn(dataValidationTask1);
@@ -133,9 +134,9 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
                 .request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
-        assertThat(jsonModel.<Boolean>get("$.success")).isEqualTo(false);
-        assertThat(jsonModel.<String>get("$.errors[0].id")).isEqualTo("startedOnFrom");
-        assertThat(jsonModel.<String>get("$.errors[0].msg")).isEqualTo("Invalid range: from-date should be before to-date");
+        assertThat(jsonModel.<Boolean> get("$.success")).isEqualTo(false);
+        assertThat(jsonModel.<String> get("$.errors[0].id")).isEqualTo("startedOnFrom");
+        assertThat(jsonModel.<String> get("$.errors[0].msg")).isEqualTo("Invalid range: from-date should be before to-date");
     }
 
     @Test
@@ -148,9 +149,9 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
                 .request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((InputStream) response.getEntity());
-        assertThat(jsonModel.<Boolean>get("$.success")).isEqualTo(false);
-        assertThat(jsonModel.<String>get("$.errors[0].id")).isEqualTo("finishedOnFrom");
-        assertThat(jsonModel.<String>get("$.errors[0].msg")).isEqualTo("Invalid range: from-date should be before to-date");
+        assertThat(jsonModel.<Boolean> get("$.success")).isEqualTo(false);
+        assertThat(jsonModel.<String> get("$.errors[0].id")).isEqualTo("finishedOnFrom");
+        assertThat(jsonModel.<String> get("$.errors[0].msg")).isEqualTo("Invalid range: from-date should be before to-date");
     }
 
     @Test
@@ -178,13 +179,13 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         when(validationTask.getId()).thenReturn(lid);
         when(validationTask.getScheduleExpression()).thenReturn(Never.NEVER);
         when(validationTask.getName()).thenReturn("Name");
-        when(validationTask.getLastRun()).thenReturn(Optional.<Instant>empty());
+        when(validationTask.getLastRun()).thenReturn(Optional.<Instant> empty());
         when(validationTask.getEndDeviceGroup()).thenReturn(endDeviceGroup);
         DataValidationOccurrenceFinder finder = mock(DataValidationOccurrenceFinder.class);
         when(finder.setLimit(anyInt())).thenReturn(finder);
         when(finder.setStart(anyInt())).thenReturn(finder);
         when(validationTask.getOccurrencesFinder()).thenReturn(finder);
-        when(validationTask.getLastOccurrence()).thenReturn(Optional.<DataValidationOccurrence>empty());
+        when(validationTask.getLastOccurrence()).thenReturn(Optional.<DataValidationOccurrence> empty());
         when(validationTask.getVersion()).thenReturn(OK_VERSION);
 
         doReturn(Optional.of(validationTask)).when(validationService).findValidationTask(lid);

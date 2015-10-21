@@ -49,10 +49,11 @@ public class ValidationApplication extends Application implements TranslationKey
     private volatile TimeService timeService;
 
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.<Class<?>>of(
+        return ImmutableSet.<Class<?>> of(
                 ValidationResource.class,
                 DataValidationTaskResource.class,
-                MeterGroupsResource.class);
+                MeterGroupsResource.class,
+                UsagePointGroupsResource.class);
     }
 
     @Override

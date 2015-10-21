@@ -1,7 +1,5 @@
 package com.elster.jupiter.validation.rest;
 
-
-
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
@@ -22,18 +20,17 @@ public class DataValidationTaskInfo {
     public long id = 0;
     public String name = "blank_name";
     public MeterGroupInfo deviceGroup;
+    public UsagePointGroupInfo usagePointGroup;
     public PeriodicalExpressionInfo schedule;
     public DataValidationTaskHistoryInfo lastValidationOccurence;
     public Long nextRun;
     public Long lastRun;
     public long version;
-    
 
     public DataValidationTaskInfo(DataValidationTask dataValidationTask, Thesaurus thesaurus, TimeService timeService) {
         populate(dataValidationTask);
         lastValidationOccurence = dataValidationTask.getLastOccurrence().map(oc -> new DataValidationTaskHistoryInfo(oc, thesaurus, timeService)).orElse(null);
     }
-
 
     public void populate(DataValidationTask dataValidationTask) {
         doPopulate(dataValidationTask);
@@ -43,7 +40,12 @@ public class DataValidationTaskInfo {
 
         id = dataValidationTask.getId();
         name = dataValidationTask.getName();
-        deviceGroup = new MeterGroupInfo(dataValidationTask.getEndDeviceGroup());
+        if (dataValidationTask.getEndDeviceGroup() != null) {
+            deviceGroup = new MeterGroupInfo(dataValidationTask.getEndDeviceGroup());
+        }
+        if (dataValidationTask.getUsagePointGroup() != null) {
+            usagePointGroup = new UsagePointGroupInfo(dataValidationTask.getUsagePointGroup());
+        }
 
         if (Never.NEVER.equals(dataValidationTask.getScheduleExpression())) {
             schedule = null;
@@ -68,13 +70,11 @@ public class DataValidationTaskInfo {
         version = dataValidationTask.getVersion();
     }
 
-    public long getId()
-    {
+    public long getId() {
         return this.id;
     }
 
-    public String getName()
-    {
+    public String getName() {
         return this.name;
     }
 
