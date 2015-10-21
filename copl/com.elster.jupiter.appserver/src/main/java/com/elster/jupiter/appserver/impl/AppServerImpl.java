@@ -1,6 +1,14 @@
 package com.elster.jupiter.appserver.impl;
 
-import com.elster.jupiter.appserver.*;
+import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.AppServerCommand;
+import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.appserver.Command;
+import com.elster.jupiter.appserver.ImportFolderForAppServer;
+import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
+import com.elster.jupiter.appserver.MessageSeeds;
+import com.elster.jupiter.appserver.ServerMessageQueueMissing;
+import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.domain.util.UniqueCaseInsensitive;
 import com.elster.jupiter.fileimport.FileImportService;
@@ -71,7 +79,7 @@ public class AppServerImpl implements AppServer {
     @Override
 	public SubscriberExecutionSpecImpl createSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount) {
         try(BatchUpdateImpl updater = forBatchUpdate()) {
-            return updater.createSubscriberExecutionSpec(subscriberSpec, threadCount);
+            return updater.createActiveSubscriberExecutionSpec(subscriberSpec, threadCount);
         }
     }
 
@@ -214,8 +222,15 @@ public class AppServerImpl implements AppServer {
         boolean needsUpdate = false;
 
         @Override
-        public SubscriberExecutionSpecImpl createSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount) {
-            SubscriberExecutionSpecImpl subscriberExecutionSpec = SubscriberExecutionSpecImpl.from(dataModel, AppServerImpl.this, subscriberSpec, threadCount);
+        public SubscriberExecutionSpecImpl createActiveSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount) {
+            SubscriberExecutionSpecImpl subscriberExecutionSpec = SubscriberExecutionSpecImpl.newActive(dataModel, AppServerImpl.this, subscriberSpec, threadCount);
+            getSubscriberExecutionSpecFactory().persist(subscriberExecutionSpec);
+            return subscriberExecutionSpec;
+        }
+
+        @Override
+        public SubscriberExecutionSpecImpl createInactiveSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount) {
+            SubscriberExecutionSpecImpl subscriberExecutionSpec = SubscriberExecutionSpecImpl.newInactive(dataModel, AppServerImpl.this, subscriberSpec, threadCount);
             getSubscriberExecutionSpecFactory().persist(subscriberExecutionSpec);
             return subscriberExecutionSpec;
         }
@@ -253,6 +268,20 @@ public class AppServerImpl implements AppServer {
         public void setThreadCount(SubscriberExecutionSpec subscriberExecutionSpec, int threads) {
             SubscriberExecutionSpecImpl executionSpec = getSubscriberExecutionSpec(subscriberExecutionSpec);
             executionSpec.setThreadCount(threads);
+            executionSpec.update();
+        }
+
+        @Override
+        public void activate(SubscriberExecutionSpec subscriberExecutionSpec) {
+            SubscriberExecutionSpecImpl executionSpec = getSubscriberExecutionSpec(subscriberExecutionSpec);
+            executionSpec.setActive(true);
+            executionSpec.update();
+        }
+
+        @Override
+        public void deactivate(SubscriberExecutionSpec subscriberExecutionSpec) {
+            SubscriberExecutionSpecImpl executionSpec = getSubscriberExecutionSpec(subscriberExecutionSpec);
+            executionSpec.setActive(false);
             executionSpec.update();
         }
 

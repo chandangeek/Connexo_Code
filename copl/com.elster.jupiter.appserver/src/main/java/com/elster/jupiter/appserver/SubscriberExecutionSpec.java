@@ -10,4 +10,8 @@ public interface SubscriberExecutionSpec {
 
     AppServer getAppServer();
 
+    void setActive(boolean active);
+
+    boolean isActive();
+
 }
