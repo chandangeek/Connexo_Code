@@ -40,7 +40,7 @@ public class MetrologyConfigurationValidationRuleSetResolver implements Validati
 
     @Override
     public boolean isValidationRuleSetInUse(ValidationRuleSet ruleset) {
-        return !usagePointConfigurationService.findDeviceConfigurationsForValidationRuleSet(ruleset.getId()).isEmpty();
+        return !usagePointConfigurationService.findMetrologyConfigurationsForValidationRuleSet(ruleset.getId()).isEmpty();
     }
 
 }
