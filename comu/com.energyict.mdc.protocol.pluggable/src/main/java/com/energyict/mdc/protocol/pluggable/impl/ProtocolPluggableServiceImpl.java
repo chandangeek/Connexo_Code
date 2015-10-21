@@ -84,6 +84,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -98,6 +99,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
+import java.security.Principal;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -123,6 +125,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     private static final String MDC_APPLICATION_KEY = "MDC";
 
     private volatile DataModel dataModel;
+    private volatile ThreadPrincipalService threadPrincipalService;
     private volatile EventService eventService;
     private volatile Clock clock;
     private volatile Thesaurus thesaurus;
@@ -157,6 +160,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @Inject
     public ProtocolPluggableServiceImpl(
             OrmService ormService,
+            ThreadPrincipalService threadPrincipalService,
             EventService eventService,
             NlsService nlsService,
             IssueService issueService,
@@ -169,6 +173,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
             DataVaultService dataVaultService) {
         this();
         this.setOrmService(ormService);
+        this.setThreadPrincipalService(threadPrincipalService);
         this.setEventService(eventService);
         this.setNlsService(nlsService);
         this.setMeteringService(meteringService);
@@ -602,6 +607,11 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     }
 
     @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
+    @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
     }
@@ -906,9 +916,20 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         }
     }
 
+    private void setPrincipal() {
+        this.threadPrincipalService.set(getPrincipal());
+        this.threadPrincipalService.set(COMPONENTNAME, "PluggableClassRegistration");
+    }
+
+    private Principal getPrincipal() {
+        return () -> "Jupiter Installer";
+    }
+
     private void registerDeviceProtocolPluggableClasses() {
         if (!this.deviceProtocolServices.isEmpty()) {
-            new DeviceProtocolPluggableClassRegistrar(this, this.transactionService).registerAll(this.getAllLicensedProtocols());
+            this.setPrincipal();
+            DeviceProtocolPluggableClassRegistrar registrar = new DeviceProtocolPluggableClassRegistrar(this, this.transactionService);
+            registrar.registerAll(this.getAllLicensedProtocols());
         }
         else {
             LOGGER.fine("No device protocol services have registered yet, makes no sense to attempt to register all device protocol pluggable classes");
@@ -917,8 +938,9 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
 
     private void registerInboundDeviceProtocolPluggableClasses() {
         if (!this.inboundDeviceProtocolServices.isEmpty()) {
-            new InboundDeviceProtocolPluggableClassRegistrar(this, this.transactionService).
-                    registerAll(Collections.unmodifiableList(this.inboundDeviceProtocolServices));
+            this.setPrincipal();
+            InboundDeviceProtocolPluggableClassRegistrar registrar = new InboundDeviceProtocolPluggableClassRegistrar(this, this.transactionService);
+            registrar.registerAll(Collections.unmodifiableList(this.inboundDeviceProtocolServices));
         }
         else {
             LOGGER.fine("No inbound protocol services have registered yet, makes no sense to attempt to register all inboudn device protocol pluggable classes");
@@ -927,8 +949,9 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
 
     private void registerConnectionTypePluggableClasses() {
         if (!this.connectionTypeServices.isEmpty()) {
-            new ConnectionTypePluggableClassRegistrar(this, this.transactionService).
-                    registerAll(Collections.unmodifiableList(this.connectionTypeServices));
+            this.setPrincipal();
+            ConnectionTypePluggableClassRegistrar registrar = new ConnectionTypePluggableClassRegistrar(this, this.transactionService);
+            registrar.registerAll(Collections.unmodifiableList(this.connectionTypeServices));
         }
         else {
             LOGGER.fine("No connection type services have registered yet, makes no sense to attempt to register all connection type pluggable classes");

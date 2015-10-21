@@ -24,6 +24,10 @@
             <artifactId>datavault</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>security.thread</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.common</artifactId>
         </dependency>
@@ -139,11 +143,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>time</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>security.thread</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

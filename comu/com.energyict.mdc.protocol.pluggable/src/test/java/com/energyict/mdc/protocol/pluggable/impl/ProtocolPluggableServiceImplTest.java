@@ -29,6 +29,7 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
@@ -36,7 +37,6 @@ import java.util.Optional;
 
 import org.junit.*;
 import org.junit.runner.*;
-
 import org.mockito.Answers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -63,6 +63,8 @@ public class ProtocolPluggableServiceImplTest {
 
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private OrmService ormService;
+    @Mock
+    private ThreadPrincipalService threadPrincipalService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
     private EventService eventService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -757,7 +759,7 @@ public class ProtocolPluggableServiceImplTest {
     }
 
     private ProtocolPluggableServiceImpl newTestInstance() {
-        return new ProtocolPluggableServiceImpl(this.ormService, this.eventService, this.nlsService, this.issueService, this.userService, this.meteringService, this.propertySpecService, this.pluggableService, this.relationService, this.licenseService, this.dataVaultService);
+        return new ProtocolPluggableServiceImpl(this.ormService, this.threadPrincipalService, this.eventService, this.nlsService, this.issueService, this.userService, this.meteringService, this.propertySpecService, this.pluggableService, this.relationService, this.licenseService, this.dataVaultService);
     }
 
 }

@@ -32,6 +32,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -65,6 +66,7 @@ public class InMemoryPersistence {
     private EventAdmin eventAdmin;
     private TransactionService transactionService;
     private OrmService ormService;
+    private ThreadPrincipalService threadPrincipalService;
     private EventService eventService;
     private NlsService nlsService;
     private DataModel dataModel;
@@ -138,6 +140,7 @@ public class InMemoryPersistence {
     private void initializeMocks(String testName) {
         this.bundleContext = mock(BundleContext.class);
         this.eventAdmin = mock(EventAdmin.class);
+        this.threadPrincipalService = mock(ThreadPrincipalService.class);
         this.principal = mock(Principal.class);
         when(this.principal.getName()).thenReturn(testName);
         this.propertySpecService = mock(PropertySpecService.class);
@@ -160,6 +163,7 @@ public class InMemoryPersistence {
         this.protocolPluggableService =
                 new ProtocolPluggableServiceImpl(
                         this.ormService,
+                        this.threadPrincipalService,
                         this.eventService,
                         this.nlsService,
                         this.issueService,
