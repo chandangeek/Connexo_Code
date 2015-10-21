@@ -46,6 +46,10 @@ Ext.define('Apr.controller.AppServers', {
         {
             ref: 'addAppServerForm',
             selector: '#add-appserver-form'
+        },
+        {
+            ref: 'addMessageServicesButton',
+            selector: '#add-message-services-button'
         }
     ],
     appServer: null,
@@ -59,10 +63,10 @@ Ext.define('Apr.controller.AppServers', {
             'appservers-action-menu': {
                 click: this.chooseAction
             },
-            'appservers-add #add-message-services-button': {
+            '#add-message-services-button': {
                 click: this.showAddMessageServiceView
             },
-            'appservers-add #add-import-services-button': {
+            '#add-import-services-button': {
                 click: this.showAddImportServiceView
             },
             'message-services-action-menu': {
@@ -82,6 +86,9 @@ Ext.define('Apr.controller.AppServers', {
             },
             '#btn-add-message-services': {
                 click: this.addMessageServices
+            },
+            '#lnk-cancel-add-message-services': {
+                click: this.returnToAddEditViewWithoutRouter
             }
 
         });
@@ -284,6 +291,11 @@ Ext.define('Apr.controller.AppServers', {
                                     view.down('#add-appserver-form').setTitle(Uni.I18n.translate('general.editx', 'APR', "Edit '{0}'", appServerName));
                                     view.down('#add-appserver-form').loadRecord(rec);
                                     view.down('#txt-appserver-name').disable();
+                                    if(unservedMessageServicesStore.getCount() === 0){
+                                        me.getAddMessageServicesButton().disable();
+                                    } else {
+                                        me.getAddMessageServicesButton().enable();
+                                    }
                                 }
                             });
 
@@ -320,6 +332,11 @@ Ext.define('Apr.controller.AppServers', {
                     var rec = Ext.create('Apr.model.AppServer');
                     view.down('#add-appserver-form').loadRecord(rec);
                     me.getApplication().fireEvent('changecontentevent', view);
+                    if(unservedMessageServicesStore.getCount() === 0){
+                        me.getAddMessageServicesButton().disable();
+                    }  else {
+                        me.getAddMessageServicesButton().enable();
+                    }
                 });
 
             });
@@ -379,7 +396,13 @@ Ext.define('Apr.controller.AppServers', {
             grid = me.getAddPage().down('message-services-grid');
         grid.getStore().remove(menu.record);
         var unserved = this.convertToUnservedMessageServiceModel(menu.record);
-        me.getStore('Apr.store.UnservedMessageServices').add(unserved);
+        var unservedMessageServicesStore = me.getStore('Apr.store.UnservedMessageServices')
+        unservedMessageServicesStore.add(unserved);
+        if(unservedMessageServicesStore.getCount() === 0){
+            me.getAddMessageServicesButton().disable();
+        } else {
+            me.getAddMessageServicesButton().enable();
+        }
         if (Ext.isEmpty(grid.getStore().getRange())) {
             me.changeMessageGridVisibility(false);
         }
@@ -401,7 +424,7 @@ Ext.define('Apr.controller.AppServers', {
         converted.set('subscriberSpec',{
             destination: record.get('destination'),
             displayName: record.get('displayName'),
-            subscriber: record.get('destination')
+            subscriber: record.get('subscriber')
         });
         return converted;
     },
