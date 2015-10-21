@@ -45,6 +45,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Path("/appserver")
@@ -122,7 +123,11 @@ public class AppServerResource {
                     info.executionSpecs.stream()
                             .forEach(spec -> {
                                 SubscriberSpec subscriberSpec = messageService.getSubscriberSpec(spec.subscriberSpec.destination, spec.subscriberSpec.subscriber).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-                                batchUpdate.createSubscriberExecutionSpec(subscriberSpec, spec.numberOfThreads);
+                                if (spec.active) {
+                                    batchUpdate.createActiveSubscriberExecutionSpec(subscriberSpec, spec.numberOfThreads);
+                                } else {
+                                    batchUpdate.createInactiveSubscriberExecutionSpec(subscriberSpec, spec.numberOfThreads);
+                                }
                             });
                 }
                 if (info.importServices != null) {
@@ -232,7 +237,7 @@ public class AppServerResource {
         List<Pair<ImportScheduleOnAppServer, ImportScheduleInfo>> pairsImportServices = zipperImportServices.zip(appServer.getImportSchedulesOnAppServer().stream().collect(Collectors.toList()), info.importServices);
 
         try (AppServer.BatchUpdate updater = appServer.forBatchUpdate()) {
-            doThreadUpdates(pairsMessageServices, updater);
+            doSubscriberExecutionSpecUpdates(pairsMessageServices, updater);
             doMessageServicesRemovals(pairsMessageServices, updater);
             doMessageServicesAdditions(pairsMessageServices, updater);
 
@@ -257,7 +262,7 @@ public class AppServerResource {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
 
-        toAdd.forEach(pair -> updater.createSubscriberExecutionSpec(pair.getFirst(), pair.getLast().numberOfThreads));
+        toAdd.forEach(pair -> updater.createActiveSubscriberExecutionSpec(pair.getFirst(), pair.getLast().numberOfThreads));
     }
 
     private void doMessageServicesRemovals(List<Pair<SubscriberExecutionSpec, SubscriberExecutionSpecInfo>> pairs, AppServer.BatchUpdate updater) {
@@ -287,13 +292,23 @@ public class AppServerResource {
                 .forEach(updater::removeImportScheduleOnAppServer);
     }
 
-    private void doThreadUpdates(List<Pair<SubscriberExecutionSpec, SubscriberExecutionSpecInfo>> pairs, AppServer.BatchUpdate updater) {
+    private void doSubscriberExecutionSpecUpdates(List<Pair<SubscriberExecutionSpec, SubscriberExecutionSpecInfo>> pairs, AppServer.BatchUpdate updater) {
         pairs.stream()
-                .filter(pair -> pair.getFirst() != null)
-                .filter(pair -> pair.getLast() != null)
+                .filter(Pair::hasFirst)
+                .filter(Pair::hasLast)
                 .filter(pair -> pair.getFirst().getThreadCount() != pair.getLast().numberOfThreads)
                 .map(pair -> pair.withLast((f, l) -> l.numberOfThreads))
                 .forEach(pair -> updater.setThreadCount(pair.getFirst(), pair.getLast()));
+        pairs.stream()
+                .filter(Pair::hasFirst)
+                .filter(Pair::hasLast)
+                .filter(pair -> pair.getFirst().isActive() != pair.getLast().active)
+                .map(pair -> pair.withLast((f, l) -> activatorDeactivator(updater, l.active)))
+                .forEach(pair -> pair.getLast().accept(pair.getFirst()));
+    }
+
+    private Consumer<SubscriberExecutionSpec> activatorDeactivator(AppServer.BatchUpdate updater, boolean active) {
+        return active ? updater::activate : updater::deactivate;
     }
 
     @GET
