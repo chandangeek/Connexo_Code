@@ -71,6 +71,12 @@
             </dependency>
             <dependency>
                 <groupId>com.elster</groupId>
+                <artifactId>insight.usagepoint.data</artifactId>
+                <version>1.0.0-SNAPSHOT</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster</groupId>
                 <artifactId>insight.usagepoint.data.rest</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
                 <scope>provided</scope>
