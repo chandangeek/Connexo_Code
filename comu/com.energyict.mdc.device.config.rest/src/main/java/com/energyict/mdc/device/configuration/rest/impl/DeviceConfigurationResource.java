@@ -227,8 +227,12 @@ public class DeviceConfigurationResource {
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
     public DeviceConfigurationInfo updateDeviceConfigurationsStatus(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, DeviceConfigurationInfo info) {
         info.id = deviceConfigurationId;
-        DeviceConfiguration deviceConfiguration = resourceHelper.lockDeviceConfigurationOrThrowException(info);
-        if (info.active != null && info.active) {
+        boolean activateOperation = info.active != null && info.active;
+        DeviceConfiguration deviceConfiguration = resourceHelper.lockDeviceConfigurationOrThrowException(info,
+                builder -> builder
+                        .withMessageTitle(activateOperation ? MessageSeeds.CONCURRENT_FAIL_ACTIVATE_TITLE : MessageSeeds.CONCURRENT_FAIL_DEACTIVATE_TITLE, info.name)
+                        .withMessageBody(activateOperation ? MessageSeeds.CONCURRENT_FAIL_ACTIVATE_BODY : MessageSeeds.CONCURRENT_FAIL_DEACTIVATE_BODY, info.name));
+        if (activateOperation) {
             if (!deviceConfiguration.isActive()) {
                 deviceConfiguration.activate();
             }

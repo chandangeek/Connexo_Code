@@ -4,6 +4,7 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionBuilder;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.validation.ValidationRuleSet;
@@ -37,6 +38,7 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ResourceHelper {
@@ -151,15 +153,19 @@ public class ResourceHelper {
     }
 
     public DeviceConfiguration lockDeviceConfigurationOrThrowException(DeviceConfigurationInfo info) {
+        return lockDeviceConfigurationOrThrowException(info, Function.identity());
+    }
+
+    public DeviceConfiguration lockDeviceConfigurationOrThrowException(DeviceConfigurationInfo info, Function<ConcurrentModificationExceptionBuilder, ConcurrentModificationExceptionBuilder> customMessageProvider) {
         Optional<DeviceType> deviceType = getLockedDeviceType(info.parent.id, info.parent.version);
         if (deviceType.isPresent()) {
             return getLockedDeviceConfiguration(info.id, info.version)
-                    .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                    .orElseThrow(customMessageProvider.apply(conflictFactory.contextDependentConflictOn(info.name))
                             .withActualParent(() -> getCurrentDeviceTypeVersion(info.parent.id), info.parent.id)
                             .withActualVersion(() -> getCurrentDeviceConfigurationVersion(info.id))
                             .supplier());
         }
-        throw conflictFactory.contextDependentConflictOn(info.name)
+        throw customMessageProvider.apply(conflictFactory.contextDependentConflictOn(info.name))
                 .withActualParent(() -> getCurrentDeviceTypeVersion(info.parent.id), info.parent.id)
                 .withActualVersion(() -> getCurrentDeviceConfigurationVersion(info.id))
                 .build();
