@@ -5,7 +5,9 @@ import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.export.*;
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.readings.*;
+import com.elster.jupiter.nls.Thesaurus;
 
+import javax.inject.Inject;
 import java.time.Instant;
 import java.util.*;
 import java.util.logging.Logger;
@@ -114,17 +116,32 @@ public class ReadingDataFormatter implements com.elster.jupiter.export.ReadingDa
     }
 
     private final static String NEW_LINE = "\n";
-    private final static String SEPARATOR = "\u007C";  // "|"
     private final static String DEFAULT_READING_TYPE = "0.0.2.1.1.12.0.0.0.0.0.0.0.0.072.0";
     private final static String DEFAULT_READING_QUALITY_TYPE =  ReadingQualityType.of(QualityCodeSystem.MDM, QualityCodeCategory.VALID, 0).getCode();
 
+    private final DataExportService dataExportService;
+    private Thesaurus thesaurus;
+    private String fieldSeparator;
+    private String tag;
+    private String updateTag;
     private StructureMarker structureMarker;
     private ReadingContainer readingContainer;
     private Logger logger;
     private Instant latestTimeStamp;
 
-    public ReadingDataFormatter(){
+    @Inject
+    public ReadingDataFormatter(DataExportService dataExportService){
         super();
+        this.dataExportService = dataExportService;
+        this.fieldSeparator = ReadingDataFormatterFactory.FieldSeparator.PIPE.getSymbol();
+    }
+
+    public ReadingDataFormatter(DataExportService dataExportService, Thesaurus thesaurus, Map<String, Object> propertyMap)  {
+        this.dataExportService = dataExportService;
+        this.thesaurus = thesaurus;
+        this.fieldSeparator = ReadingDataFormatterFactory.FieldSeparator.separatorForName(propertyMap.get(FormatterProperties.SEPARATOR.getKey()).toString());
+        this.tag = propertyMap.get(FormatterProperties.TAG.getKey()) != null ? propertyMap.get(FormatterProperties.TAG.getKey()).toString() :  "export";
+        this.updateTag =  propertyMap.get(FormatterProperties.UPDATE_TAG.getKey()) != null ? propertyMap.get(FormatterProperties.TAG.getKey()).toString() :  "update";
     }
 
     @Override
@@ -138,6 +155,7 @@ public class ReadingDataFormatter implements com.elster.jupiter.export.ReadingDa
     @Override
     public void startItem(ReadingTypeDataExportItem item) {
         readingContainer = item.getReadingContainer();
+        this.logger.info("readingContainer:" + readingContainer.getMeter(Instant.now()).get().getMRID());
     }
 
     @Override
@@ -150,12 +168,26 @@ public class ReadingDataFormatter implements com.elster.jupiter.export.ReadingDa
 
     private SimpleFormattedData format(ExportData exportData){
         latestTimeStamp = null;
-        structureMarker = exportData.getStructureMarker();
+        structureMarker = createStructureMarker( exportData,
+                                                 dataExportService.forRoot(tag).withPeriodOf(exportData.getStructureMarker()),
+                                                 dataExportService.forRoot(updateTag).withPeriodOf(exportData.getStructureMarker()));
 
         MeterReading data = ((MeterReadingData) exportData).getMeterReading();
+        List<IntervalBlock> intervalBlocks = data.getIntervalBlocks();
+
+        latestTimeStamp = intervalBlocks.stream().flatMap(i -> i.getIntervals().stream()).map(IntervalReading::getTimeStamp).max(Comparator.naturalOrder()).orElse(null);
+
         return SimpleFormattedData.of(
                 data.getIntervalBlocks().stream().map(Records::new).collect(Collectors.toList()),
                 latestTimeStamp);
+    }
+
+    private StructureMarker createStructureMarker(ExportData exportData, StructureMarker main, StructureMarker update) {
+        StructureMarker structureMarker = exportData.getStructureMarker();
+        if (structureMarker.endsWith("update")) {
+            return update.adopt(structureMarker);
+        }
+        return main.adopt(structureMarker);
     }
 
     private class Records implements FormattedExportData{
@@ -167,6 +199,13 @@ public class ReadingDataFormatter implements com.elster.jupiter.export.ReadingDa
 
         Records(IntervalBlock intervalBlock){
             this.intervalBlock = intervalBlock;
+            Instant start = intervalBlock.getIntervals().get(0).getTimeStamp();
+            meter = readingContainer.getMeter(start).orElse(null);
+            usagePoint = readingContainer.getUsagePoint(start).orElse(null);
+            activation = null;
+            if (meter != null) {
+                activation = meter.getMeterActivation(start).orElse(null);
+            }
         }
 
         @Override
@@ -175,13 +214,13 @@ public class ReadingDataFormatter implements com.elster.jupiter.export.ReadingDa
                 logger.finest(String.format("Nothing to export for meter %s", meter == null ? "" :  meter.getMRID()));
                 return "";
             }
-            Instant start = intervalBlock.getIntervals().get(0).getTimeStamp();
-            meter = readingContainer.getMeter(start).orElse(null);
-            usagePoint = readingContainer.getUsagePoint(start).orElse(null);
-            activation = null;
-            if (meter != null) {
-                activation = meter.getMeterActivation(start).orElse(null);
-            }
+//            Instant start = intervalBlock.getIntervals().get(0).getTimeStamp();
+//            meter = readingContainer.getMeter(start).orElse(null);
+//            usagePoint = readingContainer.getUsagePoint(start).orElse(null);
+//            activation = null;
+//            if (meter != null) {
+//                activation = meter.getMeterActivation(start).orElse(null);
+//            }
             StringBuffer payload = new StringBuffer();
 
             intervalBlock.getIntervals().forEach( x-> append(payload, x));
@@ -204,19 +243,19 @@ public class ReadingDataFormatter implements com.elster.jupiter.export.ReadingDa
             String readingQuality = (reading.getReadingQualities().isEmpty() ? DEFAULT_READING_QUALITY_TYPE : readingQualities.get(0).getTypeCode());
 
             payload.append(RecordType.Detail.toString())
-                   .append(SEPARATOR)
+                   .append(fieldSeparator)
                    .append(meterMRID)
-                   .append(SEPARATOR)
+                   .append(fieldSeparator)
                    .append(usagePointMRID)
-                   .append(SEPARATOR)
+                   .append(fieldSeparator)
                    .append(readingTypeCodeOrDefault)
-                   .append(SEPARATOR)
+                   .append(fieldSeparator)
                    .append(readingQuality)
-                   .append(SEPARATOR)
+                   .append(fieldSeparator)
                    .append(reading.getTimeStamp().getEpochSecond())
-                   .append(SEPARATOR)
+                   .append(fieldSeparator)
                    .append(offset)
-                   .append(SEPARATOR)
+                   .append(fieldSeparator)
                    .append(reading.getValue())
                    .append(NEW_LINE);
             if (latestTimeStamp == null || reading.getTimeStamp().isAfter(latestTimeStamp)){

@@ -30,9 +30,7 @@ public class Translations implements TranslationKeyProvider, MessageSeedProvider
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> translationKeys = new ArrayList<>(Arrays.asList(Labels.values()));
- //       translationKeys.addAll(Arrays.asList(FormatterProperties.values()));
-        return translationKeys;
+        return new ArrayList<>(Arrays.asList(Labels.values()));
     }
 
     @Override
@@ -40,8 +38,9 @@ public class Translations implements TranslationKeyProvider, MessageSeedProvider
         return Collections.emptyList(); //Arrays.asList(MessageSeeds.values());
     }
 
-    static enum Labels implements TranslationKey {
-        CSV_PROCESSSOR(ReadingDataFormatterFactory.NAME, "RedKnee reading formatter");
+    enum Labels implements TranslationKey {
+        CSV_PROCESSSOR(ReadingDataFormatterFactory.NAME, "RedKnee reading formatter"),
+        AND("des.processor.and", "and");
 
         private final String key;
         private final String defaultFormat;
