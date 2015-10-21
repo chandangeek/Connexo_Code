@@ -10,6 +10,7 @@ import com.energyict.mdc.protocol.api.ComPortType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -51,15 +52,19 @@ public abstract class OutboundComPortInfo extends ComPortInfo<OutboundComPort, O
         List<OutboundComPortPool> currentOutboundPools = engineConfigurationService.findContainingComPortPoolsForComPort(comPort);
         List<Long> currentIdList = createHasIdList(currentOutboundPools);
         for (VersionInfo<Long> outboundComPortPool : outboundComPortPoolIds) {
-            if (!currentIdList.contains(outboundComPortPool)) {
+            if (!currentIdList.contains(outboundComPortPool.id)) {
                 ComPortPool comPortPool = resourceHelper.getLockedComPortPool(outboundComPortPool.id, outboundComPortPool.version)
                         .orElseThrow(resourceHelper.getConcurrentExSupplier(this.name, () -> resourceHelper.getCurrentComPortVersion(this.id)));
                 ((OutboundComPortPool) comPortPool).addOutboundComPort(comPort);
                 comPortPool.update();
             }
         }
+        List<Long> userComPortPoolIdsList = outboundComPortPoolIds.stream()
+                .filter(Objects::nonNull)
+                .map(pool -> pool.id)
+                .collect(Collectors.toList());
         for (OutboundComPortPool oldOutboundPool : currentOutboundPools) {
-            if(!outboundComPortPoolIds.contains(oldOutboundPool.getId())){
+            if(!userComPortPoolIdsList.contains(oldOutboundPool.getId())){
                 resourceHelper.getLockedComPortPool(oldOutboundPool.getId(), oldOutboundPool.getVersion())
                         .orElseThrow(resourceHelper.getConcurrentExSupplier(this.name, () -> resourceHelper.getCurrentComPortVersion(this.id)));
                 oldOutboundPool.removeOutboundComPort(comPort);
