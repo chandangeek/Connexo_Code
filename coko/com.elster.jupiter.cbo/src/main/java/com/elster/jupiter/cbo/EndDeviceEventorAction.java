@@ -64,7 +64,7 @@ public enum EndDeviceEventorAction implements HasNumericCode {
     EVENTSTOPPED("EventStopped", 288, "An event to indicate that an event (for example, demand response event) has halted"),
     EXCEEDED("Exceeded", 139, "An event to indicate that the item (identified by the EndDeviceDomain/EndDeviceSubdomain) has gone higher than its expected value."),
     EXECUTE("Execute", 30, "A command to request that the item (identified by the EndDeviceDomain/EndDeviceSubdomain) be performed."),
-    EXPIRED("Expired", 31, "An event to indicate that the item (identified by the EndDeviceDomain/EndDeviceSubdomain) has come to an end, typically by date or time."),
+    EXPIRED("Expired", 64, "An event to indicate that the item (identified by the EndDeviceDomain/EndDeviceSubdomain) has come to an end, typically by date or time."),
     FAILED("Failed", 85, "An event to indicate that the item (identified by the EndDeviceDomain/EndDeviceSubdomain) has not succeeded."),
     FROZEN("Frozen", 88, "An event to indicate that the item (identified by the EndDeviceDomain/EndDeviceSubdomain) is in a static state."),
     FULL("Full", 32, "An event to indicate that the item (identified by the EndDeviceDomain/EndDeviceSubdomain) is at capacity."),
