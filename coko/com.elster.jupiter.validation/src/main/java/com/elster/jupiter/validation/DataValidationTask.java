@@ -1,14 +1,16 @@
 package com.elster.jupiter.validation;
 
-import aQute.bnd.annotation.ProviderType;
+import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
+
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.HasAuditInfo;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
+import aQute.bnd.annotation.ProviderType;
 
 @ProviderType
 public interface DataValidationTask extends HasAuditInfo {
@@ -31,7 +33,11 @@ public interface DataValidationTask extends HasAuditInfo {
 
     public EndDeviceGroup getEndDeviceGroup();
 
+    public UsagePointGroup getUsagePointGroup();
+
     public void setEndDeviceGroup(EndDeviceGroup endDeviceGroup);
+
+    public void setUsagePointGroup(UsagePointGroup usagePointGroup);
 
     public long getId();
 
@@ -49,7 +55,6 @@ public interface DataValidationTask extends HasAuditInfo {
 
     public void triggerNow();
 
-
     public boolean canBeDeleted();
 
     public Optional<DataValidationOccurrence> getLastOccurrence();
@@ -63,4 +68,5 @@ public interface DataValidationTask extends HasAuditInfo {
     History<? extends DataValidationTask> getHistory();
 
     public void updateLastRun(Instant triggerTime);
+
 }

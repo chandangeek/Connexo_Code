@@ -15,7 +15,6 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-
 public class DataValidationTaskExecutor implements TaskExecutor {
 
     private final TransactionService transactionService;
@@ -23,7 +22,7 @@ public class DataValidationTaskExecutor implements TaskExecutor {
     private final ValidationService validationService;
     private final MeteringService meteringService;
 
-    public DataValidationTaskExecutor(ValidationService validationService, MeteringService meteringService, TransactionService transactionService, Thesaurus thesaurus){
+    public DataValidationTaskExecutor(ValidationService validationService, MeteringService meteringService, TransactionService transactionService, Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
         this.validationService = validationService;
         this.transactionService = transactionService;
@@ -63,8 +62,8 @@ public class DataValidationTaskExecutor implements TaskExecutor {
         return logger;
     }
 
-    public DataValidationOccurrence createOccurence(TaskOccurrence taskOccurrence){
-        DataValidationOccurrence dataValidationOccurence= validationService.createValidationOccurrence(taskOccurrence);
+    public DataValidationOccurrence createOccurence(TaskOccurrence taskOccurrence) {
+        DataValidationOccurrence dataValidationOccurence = validationService.createValidationOccurrence(taskOccurrence);
         dataValidationOccurence.persist();
         return dataValidationOccurence;
     }
@@ -76,14 +75,13 @@ public class DataValidationTaskExecutor implements TaskExecutor {
     private void doExecute(DataValidationOccurrence occurrence, Logger logger) {
         DataValidationTask task = occurrence.getTask();
 
-
-
+        if (task.getEndDeviceGroup() != null) {
             List<EndDevice> devices = task.getEndDeviceGroup().getMembers(Instant.now());
-            for(EndDevice device : devices){
+            for (EndDevice device : devices) {
                 Optional<Meter> found = device.getAmrSystem().findMeter(device.getAmrId());
-                if(found.isPresent()){
+                if (found.isPresent()) {
                     List<? extends MeterActivation> activations = found.get().getMeterActivations();
-                    for(MeterActivation activation : activations){
+                    for (MeterActivation activation : activations) {
                         try (TransactionContext transactionContext = transactionService.getContext()) {
                             validationService.validate(activation);
                             transactionContext.commit();
@@ -93,8 +91,20 @@ public class DataValidationTaskExecutor implements TaskExecutor {
 
                 }
             }
+        } else if (task.getUsagePointGroup() != null) {
+            List<UsagePoint> usagePoints = task.getUsagePointGroup().getMembers(Instant.now());
+            for (UsagePoint usagePoint : usagePoints) {
+                List<? extends MeterActivation> activations = usagePoint.getMeterActivations();
+                for (MeterActivation activation : activations) {
+                    try (TransactionContext transactionContext = transactionService.getContext()) {
+                        validationService.validate(activation);
+                        transactionContext.commit();
+                    }
+                    transactionService.execute(VoidTransaction.of(() -> MessageSeeds.TASK_VALIDATED_SUCCESFULLY.log(logger, thesaurus, usagePoint.getMRID(), occurrence.getStartDate().get())));
+                }
 
-
+            }
+        }
 
     }
 
