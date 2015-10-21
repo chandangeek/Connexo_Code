@@ -68,6 +68,14 @@ public final class Pair<F, L> {
         return new StringJoiner(",", "(", ")").add(Objects.toString(first)).add(Objects.toString(last)).toString();
     }
 
+    public boolean hasFirst() {
+        return first != null;
+    }
+
+    public boolean hasLast() {
+        return last != null;
+    }
+
     @Override
     public final int hashCode() {
         return Objects.hash(first,last);
