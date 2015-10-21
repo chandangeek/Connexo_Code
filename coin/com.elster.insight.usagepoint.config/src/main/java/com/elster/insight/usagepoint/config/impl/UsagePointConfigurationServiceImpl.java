@@ -4,6 +4,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 import java.time.Clock;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -42,7 +43,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     }
 
     @Inject
-    public UsagePointConfigurationServiceImpl(Clock clock, OrmService ormService, QueryService queryService, UserService userService, EventService eventService, 
+    public UsagePointConfigurationServiceImpl(Clock clock, OrmService ormService, QueryService queryService, UserService userService, EventService eventService,
             MeteringService meteringService) {
         setClock(clock);
         setOrmService(ormService);
@@ -113,18 +114,18 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
-    
+
     DataModel getDataModel() {
         return dataModel;
     }
 
     @Override
     public MetrologyConfiguration newMetrologyConfiguration(String name) {
-    	MetrologyConfigurationImpl metrologyConfiguration = dataModel.getInstance(MetrologyConfigurationImpl.class).init(name);
-    	metrologyConfiguration.update();
+        MetrologyConfigurationImpl metrologyConfiguration = dataModel.getInstance(MetrologyConfigurationImpl.class).init(name);
+        metrologyConfiguration.update();
         return metrologyConfiguration;
     }
-    
+
     @Override
     public Optional<MetrologyConfiguration> findMetrologyConfiguration(long id) {
         return dataModel.mapper(MetrologyConfiguration.class).getUnique("id", id);
@@ -140,9 +141,8 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
         UsagePointMetrologyConfigurationImpl candidate = new UsagePointMetrologyConfigurationImpl(dataModel, eventService);
         candidate.init(up, mc);
         candidate.update();
-        return candidate;        
+        return candidate;
     }
-   
 
     @Override
     public Optional<MetrologyConfiguration> findMetrologyConfigurationForUsagePoint(UsagePoint up) {
@@ -157,5 +157,16 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     public List<UsagePoint> findUsagePointsForMetrologyConfiguration(MetrologyConfiguration mc) {
         List<UsagePointMetrologyConfiguration> list = this.getDataModel().query(UsagePointMetrologyConfiguration.class).select(where("metrologyConfiguration.id").isEqualTo(mc.getId()));
         return list.stream().map(each -> each.getUsagePoint()).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MetrologyConfiguration> findDeviceConfigurationsForValidationRuleSet(long id) {
+        // TODO Needs implementation similar to below
+
+        //        return this.getDataModel().
+        //        query(DeviceConfiguration.class, DeviceConfValidationRuleSetUsage.class, DeviceType.class).
+        //        select(where("deviceConfValidationRuleSetUsages.validationRuleSetId").isEqualTo(validationRuleSetId), Order.ascending("name"));
+
+        return Collections.emptyList();
     }
 }

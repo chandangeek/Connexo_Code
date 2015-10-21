@@ -4,6 +4,8 @@ import static com.elster.jupiter.domain.util.Save.action;
 import static com.google.common.base.MoreObjects.toStringHelper;
 
 import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 import javax.inject.Inject;
@@ -15,8 +17,9 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.domain.util.Unique;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.validation.ValidationRuleSet;
 
-@Unique(fields="name", groups = Save.Create.class)
+@Unique(fields = "name", groups = Save.Create.class)
 public final class MetrologyConfigurationImpl implements MetrologyConfiguration {
     private long id;
     private long version;
@@ -24,26 +27,26 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
     private Instant modTime;
     private String userName;
 
-    @NotEmpty    
-    @Size(max=80)
+    @NotEmpty
+    @Size(max = 80)
     private String name;
-    
+
     private final DataModel dataModel;
     private final EventService eventService;
-    
+
     @Inject
     MetrologyConfigurationImpl(DataModel dataModel, EventService eventService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
     }
-    
+
     MetrologyConfigurationImpl init(String name) {
         if (name != null) {
             setName(name.trim());
         }
         return this;
     }
-    
+
     @Override
     public long getId() {
         return id;
@@ -57,6 +60,19 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
     @Override
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public List<ValidationRuleSet> getValidationRuleSets() {
+        //TODO Need implementation similar to below
+
+        //        return this.deviceConfValidationRuleSetUsages
+        //                .stream()
+        //                .map(DeviceConfValidationRuleSetUsage::getValidationRuleSet)
+        //                .filter(Objects::nonNull)
+        //                .collect(Collectors.toList());
+
+        return Collections.emptyList();
     }
 
     @Override
@@ -97,14 +113,14 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
         if (s == Save.CREATE) {
             eventService.postEvent(EventType.METROLOGYCONFIGURATION_CREATED.topic(), this);
         } else {
-            eventService.postEvent(EventType.METROLOGYCONFIGURATION_UPDATED.topic(), this);            
+            eventService.postEvent(EventType.METROLOGYCONFIGURATION_UPDATED.topic(), this);
         }
     }
 
     @Override
     public void delete() {
         dataModel.remove(this);
-        eventService.postEvent(EventType.METROLOGYCONFIGURATION_DELETED.topic(), this);  
+        eventService.postEvent(EventType.METROLOGYCONFIGURATION_DELETED.topic(), this);
     }
 
     @Override
@@ -128,9 +144,10 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
     public int hashCode() {
         return Objects.hash(id);
     }
-    
+
     @Override
     public String toString() {
         return toStringHelper(this).omitNullValues().add("id", id).add("name", name).toString();
     }
+
 }
