@@ -98,9 +98,15 @@ Ext.define('InsightApp.controller.History', {
                     controller: 'Imt.metrologyconfiguration.controller.Edit',
                     action: 'createMetrologyConfiguration'
             	},
+            	overview: {
+                	title: Uni.I18n.translate('general.metrologyConfigurationAdd', 'INS', 'List Metrology Configuration'),
+                    route: 'overview',
+                    controller: 'Imt.metrologyconfiguration.controller.ViewList',
+                    action: 'showMetrologyConfigurationList'
+            	},
            		view: {
            			title: Uni.I18n.translate('general.metrologyConfigurationView', 'INS', 'View Metrology Configuration'),
-           			route: '{id}',
+           			route: '{id}/view',
            			controller: 'Imt.metrologyconfiguration.controller.View',
            			action: 'showMetrologyConfiguration',
            			callback: function (route) {
@@ -117,6 +123,12 @@ Ext.define('InsightApp.controller.History', {
                     route: '{id}/edit',
                     controller: 'Imt.metrologyconfiguration.controller.Edit',
                     action: 'editMetrologyConfiguration'               					
+   				},
+   				remove: {
+                	title: Uni.I18n.translate('general.metrologyConfigurationEdit', 'INS', 'Edit Metrology Configuration'),
+                    route: '{id}/delete',
+                    controller: 'Imt.metrologyconfiguration.controller.Edit',
+                    action: 'deleteMetrologyConfiguration'               					
    				}
             }
         },

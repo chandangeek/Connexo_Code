@@ -59,9 +59,9 @@ Ext.define('InsightApp.controller.Main', {
                     itemId: 'add-usagepoints'
                 },
                 {
-                    text: Uni.I18n.translate('general.usagePointAdd', 'IMT', 'Add Metrology Configuration'),
-                    href: '#/metrologyconfiguration/add',
-                    itemId: 'add-metrologyconfiguration'
+                    text: Uni.I18n.translate('general.usagePointAdd', 'IMT', 'Metrology Configurations'),
+                    href: '#/metrologyconfiguration/overview',
+                    itemId: 'overview-metrologyconfiguration'
                 }
             ]
         });
