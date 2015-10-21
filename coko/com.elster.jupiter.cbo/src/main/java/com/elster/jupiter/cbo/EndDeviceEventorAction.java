@@ -36,7 +36,7 @@ public enum EndDeviceEventorAction implements HasNumericCode {
     CORRUPTIONCLEARED("CorruptionCleared", 281, "An event to indicate that a corruption condition has been cleared"),
     CREATE("Create", 82, "A command to request that something be created."),
     CREATED("Created", 83, "An event that indicates that a Create request succeeded."),
-    CREATEFAILED("CreateFailed", 84, "An event that indicates that a Create request failed."),
+    CREATEFAILED("CreateFailed", 297, "An event that indicates that a Create request failed."),
     CROSSPHASECLEARED("CrossPhaseCleared", 70, "An event that indicates that instability due to cross-phase modulation has been corrected."),
     CROSSPHASEDETECTED("CrossPhaseDetected", 45, "An event that indicates instability due to cross-phase modulation."),
     DEACTIVATED("Deactivated", 19, "An event that indicates that the item (identified by the EndDeviceDomain/EndDeviceSubdomain) on the device that had previously been in an active state is no longer active."),
