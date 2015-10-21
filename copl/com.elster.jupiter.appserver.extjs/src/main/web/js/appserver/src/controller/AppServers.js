@@ -55,6 +55,10 @@ Ext.define('Apr.controller.AppServers', {
         {
             ref: 'addMessageServicesButton',
             selector: '#add-message-services-button'
+        },
+        {
+            ref: 'addImportServicesButton',
+            selector: '#add-import-services-button'
         }
     ],
     appServer: null,
@@ -93,6 +97,9 @@ Ext.define('Apr.controller.AppServers', {
                 click: this.addMessageServices
             },
             '#lnk-cancel-add-message-services': {
+                click: this.returnToAddEditViewWithoutRouter
+            },
+            '#lnk-cancel-add-import-services': {
                 click: this.returnToAddEditViewWithoutRouter
             },
             '#btn-add-import-services':{
@@ -304,6 +311,9 @@ Ext.define('Apr.controller.AppServers', {
                                     } else {
                                         me.getAddMessageServicesButton().enable();
                                     }
+                                    me.getAddImportServicesButton().setDisabled(unservedImportStore.getCount() === 0);
+                                    me.changeImportGridVisibility(servedImportStore.getCount() !== 0);
+                                    me.changeMessageGridVisibility(servedMessageServicesStore.getCount() !== 0);
                                 }
                             });
 
@@ -332,6 +342,7 @@ Ext.define('Apr.controller.AppServers', {
                     Ext.each(importServices, function (importService) {
                         servedImportStore.add(importService);
                     });
+                    unservedImportStore.removeAll();
                     view = Ext.widget('appservers-add', {
                         edit: me.edit,
                         store: servedMessageServicesStore,
@@ -345,10 +356,15 @@ Ext.define('Apr.controller.AppServers', {
                     }  else {
                         me.getAddMessageServicesButton().enable();
                     }
+                    me.getAddImportServicesButton().setDisabled(unservedImportStore.getCount() === 0);
+                    me.changeImportGridVisibility(servedImportStore.getCount() !== 0);
+                    me.changeMessageGridVisibility(servedMessageServicesStore.getCount() !== 0);
                 });
 
             });
         }
+
+
     },
 
     showAddMessageServiceView: function () {
@@ -379,6 +395,15 @@ Ext.define('Apr.controller.AppServers', {
             });
         this.restoreValues();
         this.getApplication().fireEvent('changecontentevent', view);
+        var unservedImportStore = me.getStore('Apr.store.UnservedImportServices');
+        var unservedMessageServicesStore = me.getStore('Apr.store.UnservedMessageServices');
+        if(unservedMessageServicesStore.getCount() === 0){
+            me.getAddMessageServicesButton().disable();
+        } else {
+            me.getAddMessageServicesButton().enable();
+        }
+        me.getAddImportServicesButton().setDisabled(unservedImportStore.getCount() === 0);
+
     },
 
     storeCurrentValues: function(){
@@ -469,7 +494,7 @@ Ext.define('Apr.controller.AppServers', {
 
     changeMessageGridVisibility: function(visibility){
         var me = this;
-        me.getAddPage().down('message-servicese-grid').setVisible(visibility);
+        me.getAddPage().down('message-services-grid').setVisible(visibility);
         me.getAddPage().down('#empty-text-grid').setVisible(!visibility);
     },
 
@@ -479,10 +504,12 @@ Ext.define('Apr.controller.AppServers', {
 
         grid.getStore().remove(menu.record);
         var unserved = me.convertToUnservedImportServiceModel(menu.record);
-        me.getStore('Apr.store.UnservedImportServices').add(unserved);
+        var unservedImportStore = me.getStore('Apr.store.UnservedImportServices');
+        unservedImportStore.add(unserved);
         if (Ext.isEmpty(grid.getStore().getRange())) {
             me.changeImportGridVisibility(false);
         }
+        me.getAddImportServicesButton().setDisabled(unservedImportStore.getCount() === 0);
     },
 
     changeImportGridVisibility: function(visibility){

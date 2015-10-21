@@ -14,6 +14,7 @@ Ext.define('Apr.view.appservers.AddImportServicesGrid', {
         );
     },
     bottomToolbarHidden: true,
+    checkAllButtonPresent: true,
 
     columns: [
         {

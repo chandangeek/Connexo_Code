@@ -20,6 +20,7 @@ Ext.define('Apr.view.appservers.AddMessageServicesGrid', {
     },
 
     bottomToolbarHidden: true,
+    checkAllButtonPresent: true,
 
 
     columns: [

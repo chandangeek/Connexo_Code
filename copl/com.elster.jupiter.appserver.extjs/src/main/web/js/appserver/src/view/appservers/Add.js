@@ -137,7 +137,7 @@ Ext.define('Apr.view.appservers.Add', {
                                     {
                                         xtype: 'component',
                                         itemId: 'import-empty-text-grid',
-                                        html: Uni.I18n.translate('appServers.noImportServices', 'APR', "No import services have been added"),
+                                        html: Uni.I18n.translate('appServers.noImportServices', 'APR', "No import services have been added to the application server"),
                                         style: {
                                             'font': 'italic 13px/17px Lato',
                                             'color': '#686868',
