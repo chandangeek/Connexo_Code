@@ -326,7 +326,9 @@ Ext.define('Apr.controller.AppServers', {
                                         edit: me.edit,
                                         store: servedMessageServicesStore,
                                         importStore: servedImportStore,
-                                        returnLink: router.getState().buildUrl() // = the previously stored url
+                                        returnLink: router.getState() && router.getState().hasOwnProperty('buildUrl')
+                                            ? router.getState().buildUrl() // = the previously stored url
+                                            : router.getRoute('administration/appservers/overview').buildUrl({appServerName:appServerName})
                                     });
                                     me.getApplication().fireEvent('changecontentevent', view);
                                     view.down('#add-appserver-form').setTitle(Uni.I18n.translate('general.editx', 'APR', "Edit '{0}'", appServerName));
