@@ -8,6 +8,7 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDate;
 import com.energyict.dlms.axrdencoding.util.AXDRTime;
+import com.energyict.dlms.cosem.G3NetworkManagement;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdw.offline.OfflineRegister;
@@ -52,7 +53,11 @@ public class Dsmr50RegisterFactory extends Dsmr40RegisterFactory {
         //First read out the G3 PLC registers, using the G3 PLC register mapper
         for (OfflineRegister register : allRegisters) {
             ObisCode obisCode = register.getObisCode();
-            if (getPLCRegisterMapper().getG3Mapping(obisCode) != null) {
+
+            if (obisCode.equals(G3NetworkManagement.getDefaultObisCode())) {
+                final CollectedRegister incompatibleRegister = createIncompatibleRegister(register, "Register with obiscode " + obisCode + " cannot be read out, use the path request message for this.");
+                collectedRegisters.add(incompatibleRegister);
+            } else if (getPLCRegisterMapper().getG3Mapping(obisCode) != null) {
                 try {
                     RegisterValue registerValue = getPLCRegisterMapper().readRegister(obisCode);
                     CollectedRegister deviceRegister = MdcManager.getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(register));

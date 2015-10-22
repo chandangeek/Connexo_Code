@@ -39,6 +39,7 @@
                             <exclude>org.aspectj:*</exclude>
                             <exclude>org.perf4j:*</exclude>
                             <exclude>org.json:*</exclude>
+                            <exclude>serialio:serialio:*</exclude>
                         </excludes>
                         <useTransitiveDependencies>true</useTransitiveDependencies>
                         <useTransitiveFiltering>true</useTransitiveFiltering>
