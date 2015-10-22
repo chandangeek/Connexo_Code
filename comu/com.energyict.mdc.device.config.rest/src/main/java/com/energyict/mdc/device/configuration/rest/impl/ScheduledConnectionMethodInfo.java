@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -12,9 +14,6 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
-
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.Checks;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.ws.rs.core.UriInfo;

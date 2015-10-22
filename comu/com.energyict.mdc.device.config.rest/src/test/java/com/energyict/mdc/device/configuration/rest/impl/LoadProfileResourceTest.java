@@ -6,6 +6,7 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import org.junit.Test;
 
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
@@ -57,14 +58,13 @@ public class LoadProfileResourceTest extends BaseLoadProfileTest {
         DeviceType deviceType = mockDeviceType("device", 2);
         TimeDuration interval = getRandomTimeDuration();
         LoadProfileType loadProfileType = mockLoadProfileType(2, "name", interval, new ObisCode(0, 1, 2, 3, 4, 5), getChannelTypes(1, interval));
-        when(deviceConfigurationService.findDeviceType(1)).thenReturn(Optional.empty());
         when(deviceConfigurationService.findDeviceType(2)).thenReturn(Optional.of(deviceType));
-        when(masterDataService.findLoadProfileType(1)).thenReturn(Optional.empty());
+        when(deviceConfigurationService.findAndLockDeviceType(2, OK_VERSION)).thenReturn(Optional.of(deviceType));
+        when(deviceConfigurationService.findAndLockDeviceType(2, BAD_VERSION)).thenReturn(Optional.empty());
         when(masterDataService.findLoadProfileType(2)).thenReturn(Optional.of(loadProfileType));
 
-        Response response = target("/devicetypes/1/loadprofiletypes/1").request().delete();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
-        response = target("/devicetypes/2/loadprofiletypes/2").request().delete();
+        LoadProfileTypeOnDeviceTypeInfo info =  new LoadProfileTypeOnDeviceTypeInfo(loadProfileType, deviceType);
+        Response response = target("/devicetypes/2/loadprofiletypes/2").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
@@ -90,6 +90,6 @@ public class LoadProfileResourceTest extends BaseLoadProfileTest {
 
         ids.add(9999);
         response = target("/devicetypes/1/loadprofiletypes").request().post(json);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 }

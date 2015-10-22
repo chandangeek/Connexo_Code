@@ -1,20 +1,64 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
+import com.energyict.mdc.device.config.ConflictingSecuritySetSolution;
+import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DeviceConfigConflictMappingResourceTest extends DeviceConfigurationApplicationJerseyTest {
 
+    public static final long OK_VERSION = 24L;
+    public static final long BAD_VERSION = 17L;
+
+    private DeviceLifeCycle mockStandardDeviceLifeCycle() {
+        DeviceLifeCycle deviceLifeCycle = mock(DeviceLifeCycle.class);
+        when(deviceLifeCycle.getId()).thenReturn(1L);
+        when(deviceLifeCycle.getName()).thenReturn("Default");
+        return deviceLifeCycle;
+    }
+
+    private DeviceType mockDeviceType(long id) {
+        DeviceType deviceType = mock(DeviceType.class);
+        when(deviceType.getName()).thenReturn("Device type " + id);
+        when(deviceType.getId()).thenReturn(id);
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
+        DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
+        when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        DeviceLifeCycle deviceLifeCycle = mockStandardDeviceLifeCycle();
+        when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
+        List<DeviceConfiguration> deviceConfigurations = new ArrayList<>();
+        when(deviceType.getConfigurations()).thenReturn(deviceConfigurations);
+        when(deviceType.getVersion()).thenReturn(OK_VERSION);
+
+        doReturn(Optional.of(deviceType)).when(deviceConfigurationService).findDeviceType(id);
+        doReturn(Optional.of(deviceType)).when(deviceConfigurationService).findAndLockDeviceType(id, OK_VERSION);
+        doReturn(Optional.empty()).when(deviceConfigurationService).findAndLockDeviceType(id, BAD_VERSION);
+
+        return deviceType;
+    }
+
     @Test
     public void getDeviceConfigConflictMappingsForDeviceTypeTest() throws Exception {
-        DeviceType deviceType = mock(DeviceType.class);
-        when(deviceConfigurationService.findDeviceType(100500L)).thenReturn(Optional.of(deviceType));
+        DeviceType deviceType = mockDeviceType(100500L);
 
         DeviceConfiguration deviceConfigurationOrigin = mock(DeviceConfiguration.class);
         DeviceConfiguration deviceConfigurationDestination = mock(DeviceConfiguration.class);
@@ -26,6 +70,8 @@ public class DeviceConfigConflictMappingResourceTest extends DeviceConfiguration
         when(deviceConfigConflictMapping.getDestinationDeviceConfiguration()).thenReturn(deviceConfigurationDestination);
         when(deviceConfigConflictMapping.getOriginDeviceConfiguration().getName()).thenReturn("origin");
         when(deviceConfigConflictMapping.getDestinationDeviceConfiguration().getName()).thenReturn("destination");
+        when(deviceConfigConflictMapping.getDeviceType()).thenReturn(deviceType);
+        when(deviceConfigConflictMapping.getVersion()).thenReturn(OK_VERSION);
         when(deviceType.getDeviceConfigConflictMappings()).thenReturn(Arrays.asList(deviceConfigConflictMapping));
 
         Map<String, Object> map = target("/devicetypes/100500/conflictmappings").request().get(Map.class);
@@ -36,12 +82,17 @@ public class DeviceConfigConflictMappingResourceTest extends DeviceConfiguration
         assertThat(jsonConflictMapping.get("isSolved")).isEqualTo(false).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonConflictMapping.get("fromConfiguration")).isEqualTo("origin").describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonConflictMapping.get("toConfiguration")).isEqualTo("destination").describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonConflictMapping.get("version")).isEqualTo(((Number) OK_VERSION).intValue());
+        assertThat(jsonConflictMapping.get("parent")).isNotNull();
     }
 
     @Test
     public void getDeviceConfigConflictByIdTest() throws Exception {
+        DeviceType deviceType = mockDeviceType(100500L);
         DeviceConfigConflictMapping deviceConfigConflictMapping = mock(DeviceConfigConflictMapping.class);
         when(deviceConfigurationService.findDeviceConfigConflictMapping(13L)).thenReturn(Optional.of(deviceConfigConflictMapping));
+        when(deviceConfigurationService.findAndLockDeviceConfigConflictMappingByIdAndVersion(13L, OK_VERSION)).thenReturn(Optional.of(deviceConfigConflictMapping));
+        when(deviceConfigurationService.findAndLockDeviceConfigConflictMappingByIdAndVersion(13L, BAD_VERSION)).thenReturn(Optional.empty());
 
         DeviceConfiguration deviceConfigurationOrigin = mock(DeviceConfiguration.class);
         when(deviceConfigConflictMapping.getOriginDeviceConfiguration()).thenReturn(deviceConfigurationOrigin);
@@ -79,6 +130,8 @@ public class DeviceConfigConflictMappingResourceTest extends DeviceConfiguration
         when(deviceConfigConflictMapping.getDestinationDeviceConfiguration().getId()).thenReturn(2L);
         when(deviceConfigConflictMapping.getOriginDeviceConfiguration().getName()).thenReturn("origin");
         when(deviceConfigConflictMapping.getDestinationDeviceConfiguration().getName()).thenReturn("destination");
+        when(deviceConfigConflictMapping.getDeviceType()).thenReturn(deviceType);
+        when(deviceConfigConflictMapping.getVersion()).thenReturn(OK_VERSION);
         when(mappableConnectionleTask.getId()).thenReturn(50L);
         when(mappableConnectionleTask.getName()).thenReturn("fifty");
         when(mappableSecurityTask.getId()).thenReturn(60L);

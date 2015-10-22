@@ -1,12 +1,11 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.masterdata.RegisterType;
-
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -50,7 +49,7 @@ public class RegisterGroupResource {
         List<RegisterGroupInfo> registerGroupInfos =
                 allRegisterGroups
                         .stream()
-                        .map(registerGroup -> new RegisterGroupInfo(registerGroup.getId(), registerGroup.getName()))
+                        .map(registerGroup -> new RegisterGroupInfo(registerGroup.getId(), registerGroup.getName(), registerGroup.getVersion()))
                         .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("registerGroups", registerGroupInfos, queryParameters);
     }
@@ -76,8 +75,9 @@ public class RegisterGroupResource {
     @Path("/{id}")
     @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public Response deleteRegisterGroup(@PathParam("id") long id) {
-        RegisterGroup group = resourceHelper.findRegisterGroupByIdOrThrowException(id);
+    public Response deleteRegisterGroup(@PathParam("id") long id, RegisterGroupInfo info) {
+        info.id = id;
+        RegisterGroup group = resourceHelper.lockRegisterGroupOrThrowException(info);
         group.delete();
         return Response.ok().build();
     }
@@ -98,12 +98,13 @@ public class RegisterGroupResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_MASTER_DATA)
-    public RegisterGroupInfo updateRegisterGroup(@PathParam("id") long id, RegisterGroupInfo registerGroupInfo, @Context UriInfo uriInfo) {
-        RegisterGroup group = resourceHelper.findRegisterGroupByIdOrThrowException(id);
-        if (!group.getName().equals(registerGroupInfo.name)) {
-            group.setName(registerGroupInfo.name);
+    public RegisterGroupInfo updateRegisterGroup(@PathParam("id") long id, RegisterGroupInfo info, @Context UriInfo uriInfo) {
+        info.id = id;
+        RegisterGroup group = resourceHelper.lockRegisterGroupOrThrowException(info);
+        if (!group.getName().equals(info.name)) {
+            group.setName(info.name);
         }
-        return updateRegisterTypeInGroup(group, registerGroupInfo, getBoolean(uriInfo, ALL));
+        return updateRegisterTypeInGroup(group, info, getBoolean(uriInfo, ALL));
     }
 
     private RegisterGroupInfo updateRegisterTypeInGroup(RegisterGroup group, RegisterGroupInfo registerGroupInfo, boolean all) {

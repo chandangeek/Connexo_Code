@@ -1,9 +1,8 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.FieldResource;
 import com.energyict.mdc.device.config.security.Privileges;
-
-import com.elster.jupiter.nls.Thesaurus;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;

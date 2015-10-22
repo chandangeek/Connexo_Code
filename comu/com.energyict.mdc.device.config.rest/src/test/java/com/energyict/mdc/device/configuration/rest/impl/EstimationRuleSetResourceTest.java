@@ -1,32 +1,31 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-
+import com.elster.jupiter.estimation.EstimationRule;
+import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.rest.util.VersionInfo;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.configuration.rest.EstimationRuleSetRefInfo;
+import com.jayway.jsonpath.JsonModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 
-import com.elster.jupiter.estimation.EstimationRule;
-import com.elster.jupiter.estimation.EstimationRuleSet;
-import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.configuration.rest.EntityRefInfo;
-import com.energyict.mdc.device.configuration.rest.EstimationRuleSetRefInfo;
-import com.jayway.jsonpath.JsonModel;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class EstimationRuleSetResourceTest extends DeviceConfigurationApplicationJerseyTest {
     
@@ -39,11 +38,15 @@ public class EstimationRuleSetResourceTest extends DeviceConfigurationApplicatio
     public void setUp() throws Exception {
         super.setUp();
         when(deviceConfigurationService.findDeviceType(1003L)).thenReturn(Optional.of(deviceType));
+        when(deviceConfigurationService.findAndLockDeviceType(1003L, 1L)).thenReturn(Optional.of(deviceType));
         when(deviceConfigurationService.findDeviceConfiguration(1003L)).thenReturn(Optional.of(deviceConfiguration));
         when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(1003L, 1L)).thenReturn(Optional.of(deviceConfiguration));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
         when(deviceConfiguration.getId()).thenReturn(1003L);
         when(deviceConfiguration.getVersion()).thenReturn(1L);
+        when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
+        when(deviceType.getId()).thenReturn(1003L);
+        when(deviceType.getVersion()).thenReturn(1L);
     }
 
     @Test
@@ -91,7 +94,7 @@ public class EstimationRuleSetResourceTest extends DeviceConfigurationApplicatio
         
         EstimationRuleSetRefInfo info = new EstimationRuleSetRefInfo();
         info.id = linkableEstimationRuleSets.get(0).getId();
-        info.parent = new EntityRefInfo(deviceConfiguration.getId(), deviceConfiguration.getVersion());
+        info.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
         
         Response response = target("/devicetypes/1003/deviceconfigurations/1003/estimationrulesets").queryParam("all", false).request().post(Entity.json(Arrays.asList(info)));
         
@@ -119,16 +122,34 @@ public class EstimationRuleSetResourceTest extends DeviceConfigurationApplicatio
     public void testDeleteEstimationRuleSetFromDeviceConfiguration() {
         EstimationRuleSet estimationRuleSet = mock(EstimationRuleSet.class);
         doReturn(Optional.of(estimationRuleSet)).when(estimationService).getEstimationRuleSet(13L);
-        
+        doReturn(Optional.of(estimationRuleSet)).when(estimationService).findAndLockEstimationRuleSet(13L, 1L);
+
         EstimationRuleSetRefInfo info = new EstimationRuleSetRefInfo();
         info.id = 13L;
-        info.parent = new EntityRefInfo(deviceConfiguration.getId(), deviceConfiguration.getVersion());
+        info.version = 1L;
+        info.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
         
         Response response = target("/devicetypes/1003/deviceconfigurations/1003/estimationrulesets/13").request().method("DELETE", Entity.json(info));
 
         assertThat(response.getStatus()).isEqualTo(Status.NO_CONTENT.getStatusCode());
         verify(deviceConfiguration).removeEstimationRuleSet(estimationRuleSet);
-        verify(deviceConfiguration).save();
+    }
+
+    @Test
+    public void testDeleteEstimationRuleSetBadVersion() {
+        EstimationRuleSet estimationRuleSet = mock(EstimationRuleSet.class);
+        doReturn(Optional.of(estimationRuleSet)).when(estimationService).getEstimationRuleSet(13L);
+        doReturn(Optional.empty()).when(estimationService).findAndLockEstimationRuleSet(13L, 1L);
+
+        EstimationRuleSetRefInfo info = new EstimationRuleSetRefInfo();
+        info.id = 13L;
+        info.version = 1L;
+        info.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
+
+        Response response = target("/devicetypes/1003/deviceconfigurations/1003/estimationrulesets/13").request().method("DELETE", Entity.json(info));
+
+        assertThat(response.getStatus()).isEqualTo(Status.CONFLICT.getStatusCode());
+        verify(deviceConfiguration, never()).removeEstimationRuleSet(estimationRuleSet);
     }
     
     @Test
@@ -142,8 +163,11 @@ public class EstimationRuleSetResourceTest extends DeviceConfigurationApplicatio
         
         EstimationRuleSetRefInfo ruleSetInfo1 = new EstimationRuleSetRefInfo(ruleSet1, deviceConfiguration);
         EstimationRuleSetRefInfo ruleSetInfo2 = new EstimationRuleSetRefInfo(ruleSet2, deviceConfiguration);
+        EstimationRuleSetReorderInfo info = new EstimationRuleSetReorderInfo();
+        info.ruleSets = Arrays.asList(ruleSetInfo2, ruleSetInfo1);
+        info.parent = new DeviceConfigurationInfo(deviceConfiguration);
         
-        Response response = target("/devicetypes/1003/deviceconfigurations/1003/estimationrulesets").request().put(Entity.json(Arrays.asList(ruleSetInfo2, ruleSetInfo1)));
+        Response response = target("/devicetypes/1003/deviceconfigurations/1003/estimationrulesets").request().put(Entity.json(info));
         
         assertThat(response.getStatus()).isEqualTo(Status.OK.getStatusCode());
         verify(deviceConfiguration).reorderEstimationRuleSets(Matchers.any());

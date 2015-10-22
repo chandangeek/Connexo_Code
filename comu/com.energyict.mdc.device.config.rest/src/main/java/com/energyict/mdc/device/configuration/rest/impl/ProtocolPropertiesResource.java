@@ -24,42 +24,42 @@ import java.util.List;
 public class ProtocolPropertiesResource {
 
     private final MdcPropertyUtils mdcPropertyUtils;
-
-    private DeviceConfiguration deviceConfiguration;
+    private final ResourceHelper resourceHelper;
 
     @Inject
-    public ProtocolPropertiesResource(MdcPropertyUtils mdcPropertyUtils) {
+    public ProtocolPropertiesResource(MdcPropertyUtils mdcPropertyUtils, ResourceHelper resourceHelper) {
         this.mdcPropertyUtils = mdcPropertyUtils;
-    }
-
-    ProtocolPropertiesResource with(DeviceConfiguration deviceConfiguration) {
-        this.deviceConfiguration = deviceConfiguration;
-        return this;
+        this.resourceHelper = resourceHelper;
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public Response getDeviceProperties() {
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response getDeviceProperties(@PathParam("deviceConfigurationId") long deviceConfigurationId) {
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         DeviceProtocolConfigurationProperties deviceProperties = deviceConfiguration.getDeviceProtocolProperties();
-        List<PropertyInfo> propertyInfos = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs() ,deviceProperties.getTypedProperties());
+        List<PropertyInfo> propertyInfos = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
+                deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs(),
+                deviceProperties.getTypedProperties());
         ProtocolInfo protocolInfo = new ProtocolInfo();
-        protocolInfo.properties=propertyInfos;
-        protocolInfo.id=this.deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass().getId();
-        protocolInfo.name=this.deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass().getName();
+        protocolInfo.properties = propertyInfos;
+        protocolInfo.id = deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass().getId();
+        protocolInfo.name = deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass().getName();
+        protocolInfo.deviceConfiguration = new DeviceConfigurationInfo(deviceConfiguration);
         return Response.ok(protocolInfo).build();
     }
-    
+
     @GET
     @Path("/{protocolId}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public Response getDeviceProperties(@PathParam("protocolId") Long protocolId) {
-        return this.getDeviceProperties();
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response getDeviceProperties(@PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("protocolId") Long protocolId) {
+        return this.getDeviceProperties(deviceConfigurationId);
     }
 
     @PUT
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response updateDeviceProperties(ProtocolInfo protocolInfo) {
+    public Response updateDeviceProperties(@PathParam("deviceConfigurationId") long deviceConfigurationId, ProtocolInfo protocolInfo) {
+        DeviceConfiguration deviceConfiguration = resourceHelper.lockDeviceConfigurationOrThrowException(protocolInfo.deviceConfiguration);
         List<PropertySpec> propertySpecs = deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass().getDeviceProtocol().getPropertySpecs();
         DeviceProtocolConfigurationProperties deviceProtocolProperties = deviceConfiguration.getDeviceProtocolProperties();
         for (PropertySpec propertySpec : propertySpecs) {
@@ -75,11 +75,11 @@ public class ProtocolPropertiesResource {
     }
 
     @PUT
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{protocolId}")
-    public Response updateDeviceProperties(ProtocolInfo protocolInfo, @PathParam("protocolId") Long protocolId) {
-        return this.updateDeviceProperties(protocolInfo);
+    public Response updateDevicePropertiesForProtocol(@PathParam("deviceConfigurationId") long deviceConfigurationId, ProtocolInfo protocolInfo) {
+        return this.updateDeviceProperties(deviceConfigurationId, protocolInfo);
     }
 
 }

@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.energyict.mdc.common.services.ListPager;
@@ -40,21 +41,22 @@ public class ComTaskEnablementResource {
     private final TaskService taskService;
     private final Thesaurus thesaurus;
     private final FirmwareService firmwareService;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public ComTaskEnablementResource(ResourceHelper resourceHelper, TaskService taskService, Thesaurus thesaurus, FirmwareService firmwareService) {
+    public ComTaskEnablementResource(ResourceHelper resourceHelper, TaskService taskService, Thesaurus thesaurus, FirmwareService firmwareService, ConcurrentModificationExceptionFactory conflictFactory) {
         this.resourceHelper = resourceHelper;
         this.taskService = taskService;
         this.thesaurus = thesaurus;
         this.firmwareService = firmwareService;
+        this.conflictFactory = conflictFactory;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
-    public PagedInfoList getComTaskEnablements(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam JsonQueryParameters queryParameters) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+    public PagedInfoList getComTaskEnablements(@PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam JsonQueryParameters queryParameters) {
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         List<ComTaskEnablementInfo> comTaskEnablements = ComTaskEnablementInfo.from(ListPager.of(deviceConfiguration.getComTaskEnablements(), new ComTaskEnablementComparator()).find(), thesaurus);
 
         return PagedInfoList.fromPagedList("data", comTaskEnablements, queryParameters);
@@ -64,11 +66,8 @@ public class ComTaskEnablementResource {
     @Path("/{comTaskEnablementId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
-    public Response getComTaskEnablement(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("comTaskEnablementId") long comTaskEnablementId) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        ComTaskEnablement comTaskEnablement = findComTaskEnablementOrThrowException(deviceConfiguration, comTaskEnablementId);
-
+    public Response getComTaskEnablement(@PathParam("comTaskEnablementId") long comTaskEnablementId) {
+        ComTaskEnablement comTaskEnablement = resourceHelper.findComTaskEnablementByIdOrThrowException(comTaskEnablementId);
         return Response.ok(ComTaskEnablementInfo.from(comTaskEnablement, thesaurus)).build();
     }
 
@@ -76,27 +75,26 @@ public class ComTaskEnablementResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
-    public Response createComTaskEnablement(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, ComTaskEnablementInfo comTaskEnablementInfo) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+    public Response createComTaskEnablement(@PathParam("deviceConfigurationId") long deviceConfigurationId, ComTaskEnablementInfo info) {
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
 
-        ComTask comTask = comTaskEnablementInfo.comTask != null && comTaskEnablementInfo.comTask.id != null ?
-                this.findComTaskOrThrowException(comTaskEnablementInfo.comTask.id) : null;
-        SecurityPropertySet securityPropertySet = comTaskEnablementInfo.securityPropertySet != null && comTaskEnablementInfo.securityPropertySet.id != null ?
-                resourceHelper.findAnySecurityPropertySetByIdOrThrowException(comTaskEnablementInfo.securityPropertySet.id) : null;
+        ComTask comTask = info.comTask != null && info.comTask.id != null ?
+                findComTaskOrThrowException(info.comTask.id) : null;
+        SecurityPropertySet securityPropertySet = info.securityPropertySet != null && info.securityPropertySet.id != null ?
+                resourceHelper.findSecurityPropertySetByIdOrThrowException(info.securityPropertySet.id) : null;
 
-        ComTaskEnablementInfo.PartialConnectionTaskInfo partialConnectionTaskInfoParameter = comTaskEnablementInfo.partialConnectionTask;
+        ComTaskEnablementInfo.PartialConnectionTaskInfo partialConnectionTaskInfoParameter = info.partialConnectionTask;
 
-        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = comTaskEnablementInfo.protocolDialectConfigurationProperties != null
-                && comTaskEnablementInfo.protocolDialectConfigurationProperties.id != null ?
-                resourceHelper.findAnyProtocolDialectConfigurationPropertiesByIdOrThrowException(comTaskEnablementInfo.protocolDialectConfigurationProperties.id) : null;
+        ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = info.protocolDialectConfigurationProperties != null
+                && info.protocolDialectConfigurationProperties.id != null ?
+                resourceHelper.findProtocolDialectConfigurationPropertiesByIdOrThrowException(info.protocolDialectConfigurationProperties.id) : null;
 
         ComTaskEnablementBuilder comTaskEnablementBuilder = deviceConfiguration.enableComTask(comTask, securityPropertySet, protocolDialectConfigurationProperties)
-                .setPriority(comTaskEnablementInfo.priority)
-                .setIgnoreNextExecutionSpecsForInbound(comTaskEnablementInfo.ignoreNextExecutionSpecsForInbound);
+                .setPriority(info.priority)
+                .setIgnoreNextExecutionSpecsForInbound(info.ignoreNextExecutionSpecsForInbound);
 
-        if (partialConnectionTaskInfoParameter != null && !comTaskEnablementInfo.partialConnectionTask.id.equals(ComTaskEnablementInfo.PartialConnectionTaskInfo.DEFAULT_PARTIAL_CONNECTION_TASK_ID)) {
-            PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(deviceConfiguration, comTaskEnablementInfo.partialConnectionTask.id);
+        if (partialConnectionTaskInfoParameter != null && !info.partialConnectionTask.id.equals(ComTaskEnablementInfo.PartialConnectionTaskInfo.DEFAULT_PARTIAL_CONNECTION_TASK_ID)) {
+            PartialConnectionTask partialConnectionTask = resourceHelper.findPartialConnectionTaskByIdOrThrowException(info.partialConnectionTask.id);
             comTaskEnablementBuilder.setPartialConnectionTask(partialConnectionTask).useDefaultConnectionTask(Boolean.FALSE);
         }
 
@@ -109,19 +107,18 @@ public class ComTaskEnablementResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
-    public Response updateComTaskEnablement(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("comTaskEnablementId") long comTaskEnablementId, ComTaskEnablementInfo comTaskEnablementInfo) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+    public Response updateComTaskEnablement(@PathParam("comTaskEnablementId") long comTaskEnablementId, ComTaskEnablementInfo info) {
+        info.id = comTaskEnablementId;
+        ComTaskEnablement comTaskEnablement = resourceHelper.lockComTaskEnablementOrThrowException(info);
 
-        ComTaskEnablementInfo.PartialConnectionTaskInfo partialConnectionTaskInfoParameter = comTaskEnablementInfo.partialConnectionTask;
+        ComTaskEnablementInfo.PartialConnectionTaskInfo partialConnectionTaskInfoParameter = info.partialConnectionTask;
 
-        ComTaskEnablement comTaskEnablement = findComTaskEnablementOrThrowException(deviceConfiguration, comTaskEnablementId);
-        SecurityPropertySet securityPropertySet = comTaskEnablementInfo.securityPropertySet != null ?
-                resourceHelper.findAnySecurityPropertySetByIdOrThrowException(comTaskEnablementInfo.securityPropertySet.id) : null;
-        comTaskEnablementInfo.writeTo(comTaskEnablement);
+        SecurityPropertySet securityPropertySet = info.securityPropertySet != null ?
+                resourceHelper.findSecurityPropertySetByIdOrThrowException(info.securityPropertySet.id) : null;
+        info.writeTo(comTaskEnablement);
         comTaskEnablement.setSecurityPropertySet(securityPropertySet);
-        if (partialConnectionTaskInfoParameter != null && !comTaskEnablementInfo.partialConnectionTask.id.equals(ComTaskEnablementInfo.PartialConnectionTaskInfo.DEFAULT_PARTIAL_CONNECTION_TASK_ID)) {
-            PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(deviceConfiguration, comTaskEnablementInfo.partialConnectionTask.id);
+        if (partialConnectionTaskInfoParameter != null && !info.partialConnectionTask.id.equals(ComTaskEnablementInfo.PartialConnectionTaskInfo.DEFAULT_PARTIAL_CONNECTION_TASK_ID)) {
+            PartialConnectionTask partialConnectionTask = resourceHelper.findPartialConnectionTaskByIdOrThrowException(info.partialConnectionTask.id);
             comTaskEnablement.setPartialConnectionTask(partialConnectionTask);
             comTaskEnablement.useDefaultConnectionTask(Boolean.FALSE);
         } else {
@@ -138,8 +135,15 @@ public class ComTaskEnablementResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
-    public Response activateComTaskEnablement(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("comTaskEnablementId") long comTaskEnablementId) {
-        this.setComTaskEnablementActive(deviceTypeId, deviceConfigurationId, comTaskEnablementId, true);
+    public Response activateComTaskEnablement(@PathParam("comTaskEnablementId") long comTaskEnablementId, ComTaskEnablementInfo info) {
+        info.id = comTaskEnablementId;
+        ComTaskEnablement comTaskEnablement = resourceHelper.getLockedComTaskEnablement(info.id, info.version)
+                .orElseThrow(conflictFactory.conflict()
+                        .withMessageTitle(MessageSeeds.CONCURRENT_FAIL_ACTIVATE_TITLE, info.comTask.name)
+                        .withMessageBody(MessageSeeds.CONCURRENT_FAIL_ACTIVATE_BODY, info.comTask.name)
+                        .withActualVersion(() -> resourceHelper.getCurrentComTaskEnablementVersion(info.id))
+                        .supplier());
+        this.setComTaskEnablementActive(comTaskEnablement, true);
         return Response.status(Response.Status.OK).build();
     }
 
@@ -148,8 +152,15 @@ public class ComTaskEnablementResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
-    public Response deactivateComTaskEnablement(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("comTaskEnablementId") long comTaskEnablementId) {
-        this.setComTaskEnablementActive(deviceTypeId, deviceConfigurationId, comTaskEnablementId, false);
+    public Response deactivateComTaskEnablement(@PathParam("comTaskEnablementId") long comTaskEnablementId, ComTaskEnablementInfo info) {
+        info.id = comTaskEnablementId;
+        ComTaskEnablement comTaskEnablement = resourceHelper.getLockedComTaskEnablement(info.id, info.version)
+                .orElseThrow(conflictFactory.conflict()
+                        .withMessageTitle(MessageSeeds.CONCURRENT_FAIL_DEACTIVATE_TITLE, info.comTask.name)
+                        .withMessageBody(MessageSeeds.CONCURRENT_FAIL_DEACTIVATE_BODY, info.comTask.name)
+                        .withActualVersion(() -> resourceHelper.getCurrentComTaskEnablementVersion(info.id))
+                        .supplier());
+        this.setComTaskEnablementActive(comTaskEnablement, false);
         return Response.status(Response.Status.OK).build();
     }
 
@@ -157,11 +168,9 @@ public class ComTaskEnablementResource {
     @Path("/{comTaskEnablementId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
-    public Response deleteComTaskEnablement(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("comTaskEnablementId") long comTaskEnablementId) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        ComTaskEnablement comTaskEnablement = findComTaskEnablementOrThrowException(deviceConfiguration, comTaskEnablementId);
-        deviceConfiguration.disableComTask(comTaskEnablement.getComTask());
+    public Response deleteComTaskEnablement(@PathParam("comTaskEnablementId") long comTaskEnablementId, ComTaskEnablementInfo info) {
+        ComTaskEnablement comTaskEnablement = resourceHelper.lockComTaskEnablementOrThrowException(info);
+        comTaskEnablement.getDeviceConfiguration().disableComTask(comTaskEnablement.getComTask());
 
         return Response.status(Response.Status.OK).build();
     }
@@ -172,7 +181,7 @@ public class ComTaskEnablementResource {
      */
     public PagedInfoList getAllowedComTasksWhichAreNotDefinedYetFor(long deviceTypeId, long deviceConfigurationId, JsonQueryParameters queryParameters, UriInfo uriInfo) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         List<ComTaskEnablementInfo.ComTaskInfo> deviceConfigurationComTaskInfos = getAllowedComTaskInfos(deviceType, deviceConfiguration);
         return PagedInfoList.fromPagedList("data", deviceConfigurationComTaskInfos, queryParameters);
     }
@@ -203,15 +212,11 @@ public class ComTaskEnablementResource {
     }
 
     private boolean deviceTypeAllowsFirmwareManagement(DeviceType deviceType) {
-        return this.firmwareService.findFirmwareManagementOptionsByDeviceType(deviceType).isPresent();
+        return this.firmwareService.findFirmwareManagementOptions(deviceType).isPresent();
     }
 
-    private void setComTaskEnablementActive(long deviceTypeId, long deviceConfigurationId, long comTaskEnablementId, boolean setActive) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        ComTaskEnablement comTaskEnablement = findComTaskEnablementOrThrowException(deviceConfiguration, comTaskEnablementId);
-
-        if (setActive) {
+    private void setComTaskEnablementActive(ComTaskEnablement comTaskEnablement, boolean active) {
+        if (active) {
             if(comTaskEnablement.isSuspended()) {
                 comTaskEnablement.resume();
             }
@@ -222,50 +227,9 @@ public class ComTaskEnablementResource {
         }
     }
 
-    private SecurityPropertySet findSecurityPropertySetByIdOrThrowException(DeviceConfiguration deviceConfiguration, long securityPropertySetId) {
-        for (SecurityPropertySet securityPropertySet : deviceConfiguration.getSecurityPropertySets()) {
-            if (securityPropertySet.getId() == securityPropertySetId) {
-                return securityPropertySet;
-            }
-        }
-
-        throw new WebApplicationException("No such security property set for the device configuration", Response.status(Response.Status.NOT_FOUND).entity("No such security property set for the device configuration").build());
-    }
-
-    private ProtocolDialectConfigurationProperties findProtocolDialectOrThrowException(DeviceConfiguration deviceConfiguration, long protocolDialectId) {
-        for (ProtocolDialectConfigurationProperties protocolDialectConfigurationProperty : deviceConfiguration.getProtocolDialectConfigurationPropertiesList()) {
-            if (protocolDialectConfigurationProperty.getId() == protocolDialectId) {
-                return protocolDialectConfigurationProperty;
-            }
-        }
-
-        throw new WebApplicationException("No such protocol dialect for the device configuration", Response.status(Response.Status.NOT_FOUND).entity("No such protocol dialect for the device configuration").build());
-    }
-
-    private PartialConnectionTask findPartialConnectionTaskOrThrowException(DeviceConfiguration deviceConfiguration, long connectionMethodId) {
-        for (PartialConnectionTask partialConnectionTask : deviceConfiguration.getPartialConnectionTasks()) {
-            if (partialConnectionTask.getId() == connectionMethodId) {
-                return partialConnectionTask;
-            }
-        }
-
-        throw new WebApplicationException("No such connection task for the device configuration", Response.status(Response.Status.NOT_FOUND).entity("No such connection task for the device configuration").build());
-    }
-
     private ComTask findComTaskOrThrowException(long comTaskId) {
         return this.taskService
                 .findComTask(comTaskId)
                 .orElseThrow(() -> new WebApplicationException("No such communication task", Response.status(Response.Status.NOT_FOUND).entity("No such communication task").build()));
     }
-
-    private ComTaskEnablement findComTaskEnablementOrThrowException(DeviceConfiguration deviceConfiguration, long comTaskEnablementId) {
-        for (ComTaskEnablement comTaskEnablement : deviceConfiguration.getComTaskEnablements()) {
-            if (comTaskEnablement.getId() == comTaskEnablementId) {
-                return comTaskEnablement;
-            }
-        }
-
-        throw new WebApplicationException("No such communication task configuration for the device configuration", Response.status(Response.Status.NOT_FOUND).entity("No such communication task configuration for the device configuration").build());
-    }
-
 }

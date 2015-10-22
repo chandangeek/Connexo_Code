@@ -48,6 +48,10 @@ import static org.mockito.Mockito.when;
 
 @Ignore("basic functionality for load profiles")
 public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTest {
+
+    public static final long OK_VERSION = 24L;
+    public static final long BAD_VERSION = 17L;
+
     protected List<LoadProfileType> getLoadProfileTypes(int count) {
         List<LoadProfileType> loadProfileTypes = new ArrayList<>(count);
         for (int i = 1; i <= count; i++) {
@@ -61,7 +65,7 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
     protected List<LoadProfileSpec> getLoadProfileSpecs(int count) {
         List<LoadProfileSpec> loadProfileSpecs = new ArrayList<>(count);
         for (int i = 1; i <= count; i++) {
-            loadProfileSpecs.add(mockLoadProfileSpec(1000 + i, "Name " + i));
+            loadProfileSpecs.add(mockLoadProfileSpec(1000 + i));
         }
         return loadProfileSpecs;
     }
@@ -99,6 +103,7 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        when(deviceType.getVersion()).thenReturn(OK_VERSION);
         return deviceType;
     }
 
@@ -118,15 +123,19 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
         return deviceType;
     }
 
-    protected DeviceConfiguration mockDeviceConfiguration(String name, long id) {
+    protected DeviceConfiguration mockDeviceConfiguration(long id){
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(deviceConfiguration.getName()).thenReturn(name);
+        when(deviceConfiguration.getName()).thenReturn("Device configuration " + id);
         when(deviceConfiguration.getId()).thenReturn(id);
         RegisterSpec registerSpec = mock(RegisterSpec.class);
         RegisterType registerType = mock(RegisterType.class);
         when(registerSpec.getRegisterType()).thenReturn(registerType);
         when(registerType.getId()).thenReturn(101L);
         when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.asList(registerSpec));
+        when(deviceConfiguration.getVersion()).thenReturn(OK_VERSION);
+        when(deviceConfigurationService.findDeviceConfiguration(id)).thenReturn(Optional.of(deviceConfiguration));
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(id, OK_VERSION)).thenReturn(Optional.of(deviceConfiguration));
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(id, BAD_VERSION)).thenReturn(Optional.empty());
         return deviceConfiguration;
     }
 
@@ -137,6 +146,7 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
         when(loadProfileType.getInterval()).thenReturn(interval);
         when(loadProfileType.getObisCode()).thenReturn(obisCode);
         when(loadProfileType.getChannelTypes()).thenReturn(channelTypes);
+        when(loadProfileType.getVersion()).thenReturn(OK_VERSION);
         return loadProfileType;
     }
 
@@ -167,17 +177,21 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
         return channelType;
     }
 
-    protected LoadProfileSpec mockLoadProfileSpec(long id, String name) {
+    protected LoadProfileSpec mockLoadProfileSpec(long id){
         LoadProfileSpec loadProfileSpec = mock(LoadProfileSpec.class);
         ObisCode obisCode = new ObisCode(0, 1, 2, 3, 4, 5);
-        ObisCode overrulledObisCode = new ObisCode(200, 201, 202, 203, 204, 205);
+        ObisCode overruledObisCode = new ObisCode(200,201,202,203,204,205);
         TimeDuration randomTimeDuration = getRandomTimeDuration();
-        LoadProfileType loadProfileType = mockLoadProfileType(id, name, randomTimeDuration, obisCode, getChannelTypes(2, randomTimeDuration));
+        LoadProfileType loadProfileType = mockLoadProfileType(id, "Load profile spec " + id, randomTimeDuration, obisCode, getChannelTypes(2, randomTimeDuration));
         when(loadProfileSpec.getId()).thenReturn(id);
         when(loadProfileSpec.getLoadProfileType()).thenReturn(loadProfileType);
         when(loadProfileSpec.getObisCode()).thenReturn(obisCode);
-        when(loadProfileSpec.getDeviceObisCode()).thenReturn(overrulledObisCode);
+        when(loadProfileSpec.getDeviceObisCode()).thenReturn(overruledObisCode);
         when(loadProfileSpec.getInterval()).thenReturn(getRandomTimeDuration());
+        when(loadProfileSpec.getVersion()).thenReturn(OK_VERSION);
+        when(deviceConfigurationService.findLoadProfileSpec(id)).thenReturn(Optional.of(loadProfileSpec));
+        when(deviceConfigurationService.findAndLockLoadProfileSpecByIdAndVersion(id, OK_VERSION)).thenReturn(Optional.of(loadProfileSpec));
+        when(deviceConfigurationService.findAndLockLoadProfileSpecByIdAndVersion(id, BAD_VERSION)).thenReturn(Optional.empty());
         return loadProfileSpec;
     }
 

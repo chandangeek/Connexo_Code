@@ -1,8 +1,9 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.users.Group;
-
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.configuration.rest.SecurityLevelInfo;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
@@ -25,18 +26,21 @@ public class SecurityPropertySetInfoFactory {
     }
 
     public SecurityPropertySetInfo from(SecurityPropertySet securityPropertySet, List<Group> allGroups) {
-        SecurityPropertySetInfo securityPropertySetInfo = new SecurityPropertySetInfo();
-        securityPropertySetInfo.id = securityPropertySet.getId();
-        securityPropertySetInfo.name = securityPropertySet.getName();
+        SecurityPropertySetInfo info = new SecurityPropertySetInfo();
+        info.id = securityPropertySet.getId();
+        info.name = securityPropertySet.getName();
         AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel = securityPropertySet.getAuthenticationDeviceAccessLevel();
         EncryptionDeviceAccessLevel encryptionDeviceAccessLevel = securityPropertySet.getEncryptionDeviceAccessLevel();
-        securityPropertySetInfo.authenticationLevelId = authenticationDeviceAccessLevel.getId();
-        securityPropertySetInfo.encryptionLevelId = encryptionDeviceAccessLevel.getId();
-        securityPropertySetInfo.authenticationLevel = SecurityLevelInfo.from(authenticationDeviceAccessLevel);
-        securityPropertySetInfo.encryptionLevel = SecurityLevelInfo.from(encryptionDeviceAccessLevel);
+        info.authenticationLevelId = authenticationDeviceAccessLevel.getId();
+        info.encryptionLevelId = encryptionDeviceAccessLevel.getId();
+        info.authenticationLevel = SecurityLevelInfo.from(authenticationDeviceAccessLevel);
+        info.encryptionLevel = SecurityLevelInfo.from(encryptionDeviceAccessLevel);
 
-        securityPropertySetInfo.executionLevels = executionLevelInfoFactory.from(securityPropertySet.getUserActions(), allGroups);
-        return securityPropertySetInfo;
+        info.executionLevels = executionLevelInfoFactory.from(securityPropertySet.getUserActions(), allGroups, securityPropertySet);
+        info.version = securityPropertySet.getVersion();
+        DeviceConfiguration deviceConfiguration = securityPropertySet.getDeviceConfiguration();
+        info.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
+        return info;
     }
 
 }

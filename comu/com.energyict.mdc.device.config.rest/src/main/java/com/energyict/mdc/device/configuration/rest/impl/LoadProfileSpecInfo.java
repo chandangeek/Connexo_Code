@@ -1,9 +1,11 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -27,6 +29,8 @@ public class LoadProfileSpecInfo {
     @XmlJavaTypeAdapter(LocalizedTimeDuration.Adapter.class)
     public TimeDuration timeDuration;
     public List<ChannelSpecInfo> channels;
+    public long version;
+    public VersionInfo<Long> parent;
 
     public LoadProfileSpecInfo() {
     }
@@ -47,6 +51,9 @@ public class LoadProfileSpecInfo {
         info.overruledObisCode = loadProfileSpec.getDeviceObisCode();
         info.timeDuration=loadProfileSpec.getInterval();
         info.channels = ChannelSpecInfo.from(channelSpecs);
+        info.version = loadProfileSpec.getVersion();
+        DeviceConfiguration deviceConfiguration = loadProfileSpec.getDeviceConfiguration();
+        info.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
         return info;
     }
 }

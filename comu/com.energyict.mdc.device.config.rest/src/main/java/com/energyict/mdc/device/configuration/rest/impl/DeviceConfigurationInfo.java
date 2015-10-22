@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
@@ -32,6 +33,7 @@ public class DeviceConfigurationInfo {
     public DeviceProtocolInfo deviceProtocolInfo;
     @XmlJavaTypeAdapter(DeviceFunctionAdapter.class)
     public DeviceFunction deviceFunction;
+    public VersionInfo<Long> parent;
 
     public DeviceConfigurationInfo() {
     }
@@ -48,6 +50,7 @@ public class DeviceConfigurationInfo {
         gatewayType = deviceConfiguration.getGatewayType();
         isDirectlyAddressable = deviceConfiguration.isDirectlyAddressable();
         version = deviceConfiguration.getVersion();
+        parent = new VersionInfo<>(deviceConfiguration.getDeviceType().getId(), deviceConfiguration.getDeviceType().getVersion());
 
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass();
         if (deviceProtocolPluggableClass!=null) {
