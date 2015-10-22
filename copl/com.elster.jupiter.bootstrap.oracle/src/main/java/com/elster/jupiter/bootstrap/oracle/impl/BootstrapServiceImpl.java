@@ -28,17 +28,19 @@ import java.util.Properties;
  * <li><code>com.elster.jupiter.datasource.pool.maxstatements</code> : max statements, will default to 50.</li>
  * </ul>
  */
-@Component(name = "com.elster.jupiter.bootstrap.oracle", property = {"osgi.command.scope=orm", "osgi.command.function=dbConnection"})
+@Component(name = "com.elster.jupiter.bootstrap.oracle",
+        property = {"osgi.command.scope=orm", "osgi.command.function=dbConnection"})
 public final class BootstrapServiceImpl implements BootstrapService {
 
-    private static final String JDBC_DRIVER_URL = "com.elster.jupiter.datasource.jdbcurl";
-    private static final String JDBC_USER = "com.elster.jupiter.datasource.jdbcuser";
+    static final String JDBC_DRIVER_URL = "com.elster.jupiter.datasource.jdbcurl";
+    static final String JDBC_USER = "com.elster.jupiter.datasource.jdbcuser";
     private static final String JDBC_PASSWORD = "com.elster.jupiter.datasource.jdbcpassword";
     private static final String JDBC_POOLMAXLIMIT = "com.elster.jupiter.datasource.pool.maxlimit";
     private static final String JDBC_POOLMAXSTATEMENTS = "com.elster.jupiter.datasource.pool.maxstatements";
     private static final String MAX_LIMIT = "MaxLimit";
     private static final String MAX_STATEMENTS_LIMIT = "MaxStatementsLimit";
     private static final String CONNECTION_WAIT_TIMEOUT = "ConnectionWaitTimeout";
+    static final String ORACLE_CONNECTION_POOL_NAME = "OracleConnectionPool";
 
     private String jdbcUrl;
     private String jdbcUser;
@@ -83,9 +85,11 @@ public final class BootstrapServiceImpl implements BootstrapService {
         source.setPassword(jdbcPassword);
         source.setConnectionCacheProperties(connectionCacheProperties());
         source.setConnectionCachingEnabled(true);
+        source.setConnectionCacheName(ORACLE_CONNECTION_POOL_NAME);
         // for now , no need to set connection properties , but possible interesting keys are
         // defaultRowPrefetch
         // oracle.jdbc.FreeMemoryOnEnterImplicitCache
+
         return source;
     }
 
