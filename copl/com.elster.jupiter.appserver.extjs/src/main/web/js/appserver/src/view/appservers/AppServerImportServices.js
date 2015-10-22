@@ -52,18 +52,24 @@ Ext.define('Apr.view.appservers.AppServerImportServices', {
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('validation.importServices.empty.title', 'APR', 'No import services found.'),
+                        title: Uni.I18n.translate('general.importServices.empty.title', 'APR', 'No import services found.'),
                         reasons: [
-                            Uni.I18n.translate('validation.importServices.empty.list.item1', 'APR', 'No import services have been added to the application server.')
+                            Uni.I18n.translate('general.importServices.empty.list.item1', 'APR', 'No import services have been added to the application server.')
                         ],
                         stepItems: [
                             {
                                 text: Uni.I18n.translate('general.addImportServices', 'APR', 'Add import services'),
-                                itemId: 'add-import-services-button-from-details',
+                                itemId: 'add-import-services-button-from-detail-empty',
                                 privileges: Apr.privileges.AppServer.admin
                             }
                         ]
+                    },
+                    previewComponent: {
+                        xtype: 'import-service-preview',
+                        itemId: 'pnl-import-service-preview',
+                        router: me.router,
                     }
+
                 }
             ]
         };

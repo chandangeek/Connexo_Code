@@ -9,7 +9,8 @@ Ext.define('Apr.controller.AppServers', {
         'Apr.view.appservers.AddMessageServicesGrid',
         'Apr.view.appservers.AddImportServicesGrid',
         'Apr.view.appservers.AddMessageServicesSetup',
-        'Apr.view.appservers.AddImportServicesSetup'
+        'Apr.view.appservers.AddImportServicesSetup',
+        'Apr.view.appservers.ImportServicePreview'
     ],
     stores: [
         'Apr.store.AppServers',
@@ -86,6 +87,10 @@ Ext.define('Apr.controller.AppServers', {
         {
             ref: 'saveImportServicesButton',
             selector: '#save-import-services-settings-button'
+        },
+        {
+            ref: 'importServicesPage',
+            selector: 'appserver-import-services'
         }
     ],
     appServer: null,
@@ -109,6 +114,9 @@ Ext.define('Apr.controller.AppServers', {
                 click: this.showAddImportServiceView
             },
             '#add-import-services-button-from-detail': {
+                click: this.showAddImportServiceViewFromDetails
+            },
+            '#add-import-services-button-from-detail-empty': {
                 click: this.showAddImportServiceViewFromDetails
             },
             'message-services-action-menu': {
@@ -149,7 +157,10 @@ Ext.define('Apr.controller.AppServers', {
             },
             '#save-import-services-settings-button': {
                 click: this.saveImportSettings
-            }
+            },
+            'preview-container apr-import-services-grid': {
+                select: this.showImportServicesPreview
+            },
 
         });
     },
@@ -249,7 +260,7 @@ Ext.define('Apr.controller.AppServers', {
                          me.getApplication().fireEvent('appserverload', appServerName);
                          me.getApplication().fireEvent('changecontentevent', view);
                          var disabled = unservedImportStore.getCount() === 0;
-
+                         view.down('preview-container').updateOnChange(!servedImportStore.getCount())
                          me.getAddImportServicesButtonFromDetails().setDisabled(disabled);
 
                      }
@@ -581,8 +592,24 @@ Ext.define('Apr.controller.AppServers', {
         me.getApplication().fireEvent('appserverload', me.appServer.get('name'));
         me.getApplication().fireEvent('changecontentevent', view);
         var disabled = me.getStore('Apr.store.UnservedImportServices').getCount() === 0;
-        me.getAddImportServicesButtonFromDetails().setDisabled(disabled)
+        me.getAddImportServicesButtonFromDetails().setDisabled(disabled);
+        view.down('preview-container').updateOnChange(!servedImportStore.getCount());
 
+    },
+
+    showImportServicesPreview: function (selectionModel, record) {
+        var me = this,
+            page = me.getImportServicesPage(),
+            preview = page.down('import-service-preview'),
+            importService = record.get('importService'),
+            previewForm = page.down('import-service-preview-form');
+
+        preview.setTitle(importService);
+        previewForm.updateImportServicePreview(record);
+        if (preview.down('apr-import-services-action-menu')) {
+            preview.down('apr-import-services-action-menu').record = record;
+            me.setupMenuItems(record);
+        }
     },
 
     removeMessageService: function (menu) {
@@ -641,11 +668,12 @@ Ext.define('Apr.controller.AppServers', {
 
     removeImportService: function (menu) {
         var me = this,
-            grid = me.getImportServicesGrid();
+            grid = me.getImportServicesGrid(),
+            removedRecord = menu.record;
 
-        grid.getStore().remove(menu.record);
+        grid.getStore().remove(removedRecord);
         var unservedImportStore = me.getStore('Apr.store.UnservedImportServices');
-        unservedImportStore.add(menu.record);
+        unservedImportStore.add(removedRecord);
 
         var disable = unservedImportStore.getCount() === 0;
         if (me.getAddImportServicesButton()) {
@@ -683,7 +711,7 @@ Ext.define('Apr.controller.AppServers', {
         record.save({
             success: function () {
                 me.getImportServicesGrid().setLoading(false);
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('appServers.configureImportServicesSuccess', 'APR', 'Import services successfully saved'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('appServers.configureImportServicesSuccess', 'APR', 'Import services saved'));
                 me.appServer = record;
                 me.getSaveImportServicesButton().disable()
             },
