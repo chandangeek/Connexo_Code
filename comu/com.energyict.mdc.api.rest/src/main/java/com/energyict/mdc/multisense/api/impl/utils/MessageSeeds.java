@@ -33,7 +33,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_ENC_DEVICE_ACCESS_LEVEL(24, "NoSuchEncDevAccessLevel" , "The device protocol does not have an encryption access level with that id"),
     CONFLICT_ON_DEVICE(25, "ConflictOnDevice", "The device you attempted to edit was changed by someone els"),
     NO_SUCH_PROTOCOL_TASK(26, "NoSuchProtocolTask", "Protocol task does not exist"),
-    NO_SUCH_COM_TASK_EXECUTION(27, "NoSuchComTaskExecution", "The device has no communication task execution with that id"),
+    NO_SUCH_COM_TASK_EXECUTION(27, "NoSuchComTaskExecution", "The device has no communication task with that id"),
     TYPE_DOES_NOT_SUPPORT_COM_TASK(28, "ComTaskNotSupporter", "Scheduled communications tasks can not be configured with communication task, only accept schedules"),
     COM_TASK_NOT_ENABLED(29, "ComTaskNotEnabled" , "The communication task has not been enabled on the configuration"),
     COM_TASK_EXPECTED(30, "ComTaskExpected", "Communication task was expected in the request"),
@@ -43,7 +43,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_COM_SCHEDULE(34, "NoSuchComSchedule", "Communication schedule does not exist"),
     NO_SUCH_PROTOCOL_DIALECT_PROPERTIES(35, "NoSuchProtocolDialectProperties", "Protocol dialect properties do not exist"),
     NO_SUCH_COM_TASK_ENABLEMENT(36, "NoSuchComtaskEnablement", "Communication task enablement does not exist"),
-    EXPECTED_CONNECTION_TASK(37, "ExpectedConnectionTask", "A connection task is required to create the commnunication task execution");
+    NOT_POSSIBLE_TO_SUPPLY_BOTH_OR_NONE(37, "EitherDefaultorExplicit", "The communication task execution should either use default connection task or an explicitly set connection task");
 
     private final int number;
     private final String key;
