@@ -1,5 +1,6 @@
 package com.elster.jupiter.bpm.rest.impl;
 
+import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.bpm.BpmServer;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.rest.*;
@@ -8,16 +9,17 @@ import com.elster.jupiter.bpm.security.Privileges;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.QueryParameters;
+import com.elster.jupiter.rest.util.*;
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import com.elster.jupiter.transaction.TransactionService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -25,6 +27,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -38,10 +41,14 @@ public class BpmResource {
     private UserService userService;
     private Thesaurus thesaurus;
     private final BpmService bpmService;
+    private final TransactionService transactionService;
+    private final RestQueryService restQueryService;
 
     @Inject
-    public BpmResource(BpmService bpmService) {
+    public BpmResource(BpmService bpmService, TransactionService transactionService, RestQueryService restQueryService) {
         this.bpmService = bpmService;
+        this.transactionService = transactionService;
+        this.restQueryService = restQueryService;
     }
 
     @Inject
@@ -241,7 +248,7 @@ public class BpmResource {
     @GET
     @Path("/processes")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_TASK, Privileges.ASSIGN_TASK, Privileges.EXECUTE_TASK})
+//    @RolesAllowed({Privileges.VIEW_TASK, Privileges.ASSIGN_TASK, Privileges.EXECUTE_TASK})
     public ProcessDefinitionInfos getProcesses(@Context UriInfo uriInfo) {
         String jsonContent;
         JSONArray arr = null;
@@ -351,6 +358,49 @@ public class BpmResource {
         return Response.notModified().build();
     }
 
+    @PUT
+    @Path("/process/activate/{id}")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    public Response createProcess(ProcessDefinitionInfo info) {
+        try (TransactionContext context = transactionService.getContext()) {
+            BpmProcessDefinition bpmProcessDefinition = bpmService.findOrCreateBpmProcessDefinition(info.name, "Device", info.version, info.active);
+            bpmProcessDefinition.save();
+            context.commit();
+            return Response.ok().build();
+        }
+    }
+
+    @GET
+    @Path("/allprocesses")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    public ProcessDefinitionInfos getBpmProcessDefinition(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters){
+        try (TransactionContext context = transactionService.getContext()) {
+            List<BpmProcessDefinition> connexoProcesses = bpmService.getBpmProcessDefinitions();
+            String jsonContent;
+            JSONArray arr = null;
+            try {
+                jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes");
+                if (!"".equals(jsonContent)) {
+                    JSONObject jsnobject = new JSONObject(jsonContent);
+                    arr = jsnobject.getJSONArray("processDefinitionList");
+                }
+            } catch (JSONException e) {
+            } catch (RuntimeException e) {
+            }
+            ProcessDefinitionInfos bpmProcessDefinition = new ProcessDefinitionInfos(arr);
+            for (BpmProcessDefinition eachConnexo : connexoProcesses) {
+                for (ProcessDefinitionInfo eachBpm : bpmProcessDefinition.processes) {
+                    if (eachConnexo.getProcessName().equals(eachBpm.name) && eachConnexo.getVersion().equals(eachBpm.version)) {
+                        eachBpm.active = eachConnexo.getState();
+                        eachBpm.associated = eachConnexo.getAssociation();
+                    }
+                }
+            }
+            context.commit();
+            return bpmProcessDefinition;
+        }
+    }
+
     private String getQueryParam(QueryParameters queryParam){
         String req = "";
         int i = 0;
@@ -370,6 +420,11 @@ public class BpmResource {
 
     private String getQueryValue(UriInfo uriInfo,String key){
         return uriInfo.getQueryParameters().getFirst(key);
+    }
+
+    private RestQuery<BpmProcessDefinition> getBpmProcessDefinition() {
+        Query<BpmProcessDefinition> query = bpmService.getQueryBpmProcessDefinition();
+        return restQueryService.wrap(query);
     }
 
 }

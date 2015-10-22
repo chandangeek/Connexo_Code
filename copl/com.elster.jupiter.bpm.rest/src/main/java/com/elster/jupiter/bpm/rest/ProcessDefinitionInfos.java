@@ -1,6 +1,7 @@
 package com.elster.jupiter.bpm.rest;
 
 
+import com.elster.jupiter.bpm.BpmProcessDefinition;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,6 +22,10 @@ public class ProcessDefinitionInfos {
         addAll(processes);
     }
 
+    public ProcessDefinitionInfos(Iterable<? extends BpmProcessDefinition> bpmProcessDefinitions){
+        addAll(bpmProcessDefinitions);
+    }
+
     void addAll(JSONArray processList) {
         if (processList != null) {
             for(int i = 0; i < processList.length(); i++) {
@@ -34,6 +39,19 @@ public class ProcessDefinitionInfos {
                 }
             }
         }
+    }
+
+    void addAll(Iterable<? extends BpmProcessDefinition> infos){
+        for(BpmProcessDefinition each: infos){
+            add(each);
+        }
+    }
+
+    public ProcessDefinitionInfo add(BpmProcessDefinition bpmProcessDefinition){
+        ProcessDefinitionInfo processDefinitionInfo = new ProcessDefinitionInfo(bpmProcessDefinition);
+        processes.add(processDefinitionInfo);
+        total++;
+        return processDefinitionInfo;
     }
 
     public List<ProcessDefinitionInfo> getProcesses() {

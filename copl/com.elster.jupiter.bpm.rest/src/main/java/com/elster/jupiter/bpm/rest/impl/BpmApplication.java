@@ -6,6 +6,8 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -28,6 +30,8 @@ public class BpmApplication extends Application {
     public static final String COMPONENT_NAME = "BPM";
 
     private volatile UserService userService;
+    private volatile TransactionService transactionService;
+    private volatile RestQueryService restQueryService;
     private volatile BpmService bpmService;
     private volatile Thesaurus thesaurus;
     private volatile NlsService nlsService;
@@ -43,6 +47,11 @@ public class BpmApplication extends Application {
     }
 
     @Reference
+    public void setRestQueryService(RestQueryService restQueryService) {
+        this.restQueryService = restQueryService;
+    }
+
+    @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
@@ -51,6 +60,11 @@ public class BpmApplication extends Application {
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
+    }
+
+    @Reference
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 
     @Override
@@ -68,6 +82,8 @@ public class BpmApplication extends Application {
             bind(userService).to(UserService.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(nlsService).to(NlsService.class);
+            bind(transactionService).to(TransactionService.class);
+            bind(restQueryService).to(RestQueryService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
         }
     }
