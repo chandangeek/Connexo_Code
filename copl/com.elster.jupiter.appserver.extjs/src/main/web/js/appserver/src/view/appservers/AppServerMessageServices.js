@@ -31,6 +31,20 @@ Ext.define('Apr.view.appservers.AppServerMessageServices', {
                                 items: [
                                     {
                                         xtype: 'button',
+                                        text: Uni.I18n.translate('general.saveMessageServicesSettings', 'APR', 'Save settings'),
+                                        privileges: Apr.privileges.AppServer.admin,
+                                        itemId: 'save-message-services-settings',
+                                        disabled: true
+                                    },
+                                    {
+                                        xtype: 'button',
+                                        text: Uni.I18n.translate('general.undo', 'APR', 'Undo'),
+                                        privileges: Apr.privileges.AppServer.admin,
+                                        itemId: 'undo-message-services-settings',
+                                        disabled: true
+                                    },
+                                    {
+                                        xtype: 'button',
                                         text: Uni.I18n.translate('general.addMessageServices', 'APR', 'Add message services'),
                                         privileges: Apr.privileges.AppServer.admin,
                                         itemId: 'add-message-services-button-from-details'
