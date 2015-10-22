@@ -79,6 +79,7 @@ public class DataExportTaskHistoryInfo {
         ExportTask version = history.getVersionAt(dataExportOccurrence.getStartDate().get())
                 .orElseGet(() -> history.getVersionAt(dataExportOccurrence.getTask().getCreateTime())
                         .orElseGet(dataExportOccurrence::getTask));
+
         dataExportOccurrence.getDefaultSelectorOccurrence()
                 .map(DefaultSelectorOccurrence::getExportedDataInterval)
                 .ifPresent(interval -> {
