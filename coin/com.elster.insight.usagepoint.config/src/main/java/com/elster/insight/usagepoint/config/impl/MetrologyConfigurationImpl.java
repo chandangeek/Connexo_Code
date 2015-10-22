@@ -4,13 +4,15 @@ import static com.elster.jupiter.domain.util.Save.action;
 import static com.google.common.base.MoreObjects.toStringHelper;
 
 import java.time.Instant;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 
+import com.elster.insight.usagepoint.config.MetrologyConfValidationRuleSetUsage;
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
@@ -26,7 +28,8 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
     private Instant createTime;
     private Instant modTime;
     private String userName;
-
+    private List<MetrologyConfValidationRuleSetUsageImpl> metrologyConfValidationRuleSetUsages = new ArrayList<MetrologyConfValidationRuleSetUsageImpl>();
+    
     @NotEmpty
     @Size(max = 80)
     private String name;
@@ -64,15 +67,11 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
 
     @Override
     public List<ValidationRuleSet> getValidationRuleSets() {
-        //TODO Need implementation similar to below
-
-        //        return this.deviceConfValidationRuleSetUsages
-        //                .stream()
-        //                .map(DeviceConfValidationRuleSetUsage::getValidationRuleSet)
-        //                .filter(Objects::nonNull)
-        //                .collect(Collectors.toList());
-
-        return Collections.emptyList();
+        return this.metrologyConfValidationRuleSetUsages
+                .stream()
+                .map(MetrologyConfValidationRuleSetUsage::getValidationRuleSet)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     @Override

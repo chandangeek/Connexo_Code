@@ -2,7 +2,8 @@ package com.elster.insight.usagepoint.config.impl;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 
-import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -25,7 +26,6 @@ public class UsagePointMetrologyConfigurationImpl implements UsagePointMetrology
     
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
 	private Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
-    
     private final DataModel dataModel;
     private final EventService eventService;
     

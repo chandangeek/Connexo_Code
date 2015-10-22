@@ -84,7 +84,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "EVT", "MTR");
+        return Arrays.asList("ORM", "EVT", "MTR", "VAL");
     }
 
     @Reference

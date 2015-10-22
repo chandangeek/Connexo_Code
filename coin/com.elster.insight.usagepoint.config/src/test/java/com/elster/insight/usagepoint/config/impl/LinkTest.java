@@ -45,6 +45,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -93,7 +94,8 @@ public class LinkTest {
                     new NlsModule()
                 );
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
-        	injector.getInstance(UsagePointConfigurationService.class);
+            injector.getInstance(ValidationService.class);
+            injector.getInstance(UsagePointConfigurationService.class);
         	ctx.commit();
         }
     }

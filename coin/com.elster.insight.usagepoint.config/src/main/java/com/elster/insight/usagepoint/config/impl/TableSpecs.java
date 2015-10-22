@@ -11,7 +11,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.ValidationRuleSet;
 
 public enum TableSpecs {
 	UPC_METROLOGYCONFIG () {
@@ -37,20 +37,19 @@ public enum TableSpecs {
 	        table.foreignKey("UPC_FK_USGPNTMETROLOGYCONFIGMC").on(metrologyConfigIdColumn).references(UPC_METROLOGYCONFIG.name()).onDelete(DeleteRule.RESTRICT).map("metrologyConfiguration").add();
 	    }
 	},
-
     UPC_MTRLGYCFGVALRULESETUSAGE() {
         void addTo(DataModel dataModel) {
             Table<MetrologyConfValidationRuleSetUsage> table = dataModel.addTable(name(), MetrologyConfValidationRuleSetUsage.class);
             table.map(MetrologyConfValidationRuleSetUsageImpl.class);
-//            table.setJournalTableName("UPC_METRLGYCFGVALRULESETUSAGEJRNL");
+            table.setJournalTableName("UPC_MCVALRULESETUSAGEJRNL");
             Column validationRuleSetIdColumn =
                     table.column("VALIDATIONRULESETID").type("number").notNull().conversion(NUMBER2LONG).map("validationRuleSetId").add();
             Column metrologyConfigurationIdColumn =
                     table.column("METROLOGYCONFIGID").type("number").notNull().conversion(NUMBER2LONG).map("metrologyConfigurationId").add();
 
-//            table.primaryKey("UPC_PK_SETCONFIGUSAGE").on(validationRuleSetIdColumn, metrologyConfigurationIdColumn).add();
-//            table.foreignKey("UPC_FK_RULESET").references(ValidationService.COMPONENTNAME, "VAL_VALIDATIONRULESET").onDelete(RESTRICT).map("validationRuleSet").on(validationRuleSetIdColumn).add();
-//            table.foreignKey("UPC_FK_METROLOGYCONFIG").references("UPC_METROLOGYCONFIG").reverseMap("metrologyConfValidationRuleSetUsages").composition().map("metrologyConfiguration").on(metrologyConfigurationIdColumn).add();
+            table.primaryKey("UPC_PK_SETCONFIGUSAGE").on(validationRuleSetIdColumn, metrologyConfigurationIdColumn).add();
+            table.foreignKey("UPC_FK_RULESET").references(ValidationRuleSet.class).onDelete(RESTRICT).map("validationRuleSet").on(validationRuleSetIdColumn).add();
+            table.foreignKey("UPC_FK_METROLOGYCONFIG").references("UPC_METROLOGYCONFIG").reverseMap("metrologyConfValidationRuleSetUsages").composition().map("metrologyConfiguration").on(metrologyConfigurationIdColumn).add();
         }
     };
 	
