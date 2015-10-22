@@ -63,8 +63,23 @@ Ext.define('Bpm.view.process.ProcessPreviewForm', {
                             {
                                 xtype: 'displayfield',
                                 fieldLabel: Uni.I18n.translate('bpm.process.status', 'BPM', 'Status'),
-                                name: 'activeDisplay',
-                                itemId: 'bpm-preview-process-status'
+                                name: 'active',
+                                itemId: 'bpm-preview-process-status',
+                                renderer: function (value) {
+                                    switch (value) {
+                                        case 'ACTIVE':
+                                            return Uni.I18n.translate('bpm.process.active', 'BPM', 'Active');
+                                            break;
+                                        case 'INACTIVE':
+                                            return Uni.I18n.translate('bpm.process.inactive', 'BPM', 'Inactive');
+                                            break;
+                                        case 'UNDEPLOYED':
+                                            return Uni.I18n.translate('bpm.process.undeployed', 'BPM', 'Undeployed');
+                                            break;
+                                        default:
+                                            return value;
+                                    }
+                                }
                             }
                         ]
                     }
