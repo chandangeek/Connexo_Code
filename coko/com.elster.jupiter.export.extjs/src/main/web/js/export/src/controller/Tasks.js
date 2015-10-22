@@ -1148,7 +1148,9 @@ Ext.define('Dxp.controller.Tasks', {
 
         Ext.Ajax.request({
             url: '/api/export/dataexporttask/' + id + '/trigger',
-            method: 'POST',
+            method: 'PUT',
+            jsonData: record.getRecordData(),
+            isNotEdit: true,
             success: function () {
                 confWindow.destroy();
                 if (me.getPage()) {
@@ -1178,9 +1180,14 @@ Ext.define('Dxp.controller.Tasks', {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('dataExportTasks.run', 'DES', 'Data export task run'));
             },
             failure: function (response) {
-                var res = Ext.JSON.decode(response.responseText);
-                confWindow.update(res.errors[0].msg);
-                confWindow.setVisible(true);
+                var res = Ext.decode(response.responseText, true);
+
+                if (response.status !== 409 && res && res.errors && res.errors.length) {
+                    confWindow.update(res.errors[0].msg);
+                    confWindow.setVisible(true);
+                } else {
+                    confWindow.destroy();
+                }
             }
         });
     },
@@ -1217,6 +1224,9 @@ Ext.define('Dxp.controller.Tasks', {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.remove.confirm.msg', 'DES', 'Data export task removed'));
             },
             failure: function (object, operation) {
+                if (operation.response.status === 409) {
+                    return
+                }
                 var json = Ext.decode(operation.response.responseText, true);
                 var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'DES', 'Unknown error occurred');
                 if (json && json.errors) {
@@ -1781,6 +1791,9 @@ Ext.define('Dxp.controller.Tasks', {
 
             record.endEdit();
             record.save({
+                backUrl: button.action === 'editTask' && me.fromDetails
+                    ? me.getController('Uni.controller.history.Router').getRoute('administration/dataexporttasks/dataexporttask').buildUrl({taskId: record.getId()})
+                    : me.getController('Uni.controller.history.Router').getRoute('administration/dataexporttasks').buildUrl(),
                 success: function () {
                     if (button.action === 'editTask' && me.fromDetails) {
                         me.getController('Uni.controller.history.Router').getRoute('administration/dataexporttasks/dataexporttask').forward({taskId: record.getId()});

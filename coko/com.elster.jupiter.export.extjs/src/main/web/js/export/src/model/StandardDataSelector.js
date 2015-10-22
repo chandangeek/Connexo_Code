@@ -3,17 +3,17 @@ Ext.define('Dxp.model.StandardDataSelector', {
 
 
     fields: [
-        'deviceGroup',
-        'exportPeriod',
         'exportComplete',
         'exportUpdate',
-        'updateWindow',
-        'updatePeriod',
-        'exportWindow',
-        'validatedDataOption',
-        'readingTypes',
-        'eventTypeCodes',
-        'exportContinuousData'
+        'exportContinuousData',
+        {name: 'updateWindow', defaultValue: null},
+        {name: 'updatePeriod', defaultValue: null},
+        {name: 'deviceGroup', defaultValue: null},
+        {name: 'exportPeriod', defaultValue: null},
+        {name: 'validatedDataOption', defaultValue: null},
+        {name: 'readingTypes', defaultValue: null},
+        {name: 'eventTypeCodes', defaultValue: null},
+        {name: 'exportWindow', persist: false}
     ],
 
     idProperty: 'name',
