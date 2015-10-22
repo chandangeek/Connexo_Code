@@ -18,7 +18,8 @@ Ext.define('Apr.view.appservers.MessageServicePreviewForm', {
             {
                 xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('general.status', 'APR', 'Status'),
-                name: 'status'
+                name: 'active',
+                renderer: me.renderStatus
             },
             {
                 xtype: 'displayfield',
@@ -43,6 +44,10 @@ Ext.define('Apr.view.appservers.MessageServicePreviewForm', {
         if (me.rendered) {
             Ext.resumeLayouts(true);
         }
+    },
+
+    renderStatus: function(value) {
+        return value ? Uni.I18n.translate('general.active', 'APR', 'Active') : Uni.I18n.translate('general.inactive', 'APR', 'Inactive');
     }
 
 });

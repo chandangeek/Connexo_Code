@@ -251,11 +251,15 @@ Ext.define('Apr.controller.AppServers', {
     showMessageServicePreview: function (selectionModel, record) {
         var me = this,
             overview = me.getMessageServicesOverview(),
-            preview = overview.down('msg-service-preview-form'),
+            preview = overview.down('msg-service-preview'),
+            previewForm = overview.down('msg-service-preview-form'),
             menu = overview.down('message-services-action-menu');
 
-        menu.record = record;
-        preview.updatePreview(record);
+        preview.setTitle(record.get('messageService'));
+        previewForm.updatePreview(record);
+        if (menu) {
+            menu.record = record;
+        }
     },
 
     showImportServices: function (appServerName) {
