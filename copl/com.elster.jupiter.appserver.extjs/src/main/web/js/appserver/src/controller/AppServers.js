@@ -886,9 +886,12 @@ Ext.define('Apr.controller.AppServers', {
 
     messageServiceDataChanged: function(){
         var me =this,
-            numberOfDirtyItems = me.getMessageServicesGrid().getStore().getUpdatedRecords().length;
+            store = me.getMessageServicesGrid().getStore(),
+            itemsUpdated = store.getUpdatedRecords().length > 0,
+            itemsAdded = store.getNewRecords().length > 0,
+            itemsRemoved = store.getRemovedRecords().length > 0;
 
-        if (numberOfDirtyItems !== 0) {
+        if (itemsUpdated || itemsAdded || itemsRemoved) {
             me.getSaveSettingsButton().enable();
             me.getUndoSettingsButton().enable();
         }
