@@ -42,6 +42,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.util.streams.Predicates.not;
+
 @Component(name = "com.elster.jupiter.appserver.messagehandlerlauncher", service = MessageHandlerLauncherService.class, immediate = true)
 public class MessageHandlerLauncherService implements IAppService.CommandListener {
 
@@ -241,11 +243,13 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     private void addMessageHandlerFactory(SubscriberKey key, MessageHandlerFactory factory) {
         if (appService.getAppServer().map(AppServer::isActive).orElse(false)) {
             Optional<SubscriberExecutionSpec> subscriberExecutionSpec = findSubscriberExecutionSpec(key);
-            subscriberExecutionSpec.ifPresent(executionSpec -> {
-                synchronized (configureLock) {
-                    launch(factory, executionSpec.getThreadCount(), executionSpec.getSubscriberSpec());
-                }
-            });
+            subscriberExecutionSpec
+                    .filter(SubscriberExecutionSpec::isActive)
+                    .ifPresent(executionSpec -> {
+                        synchronized (configureLock) {
+                            launch(factory, executionSpec.getThreadCount(), executionSpec.getSubscriberSpec());
+                        }
+                    });
         }
     }
 
@@ -313,7 +317,7 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     }
 
     private ThreadFactory getThreadFactory(SubscriberKey key) {
-        return new AppServerThreadFactory(threadGroup, new LoggingUncaughtExceptionHandler(getThesaurus()), appService, () -> key.toString());
+        return new AppServerThreadFactory(threadGroup, new LoggingUncaughtExceptionHandler(getThesaurus()), appService, key::toString);
     }
 
     @Override
@@ -343,7 +347,17 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     }
 
     private void doReconfigure(List<? extends SubscriberExecutionSpec> subscriberExecutionSpec) {
-        subscriberExecutionSpec.forEach(this::doReconfigure);
+        subscriberExecutionSpec
+                .stream()
+                .filter(SubscriberExecutionSpec::isActive)
+                .forEach(this::doReconfigure);
+        subscriberExecutionSpec
+                .stream()
+                .filter(not(SubscriberExecutionSpec::isActive))
+                .map(SubscriberKey::of)
+                .map(handlerFactories::get)
+                .filter(Objects::nonNull)
+                .forEach(this::stopServing);
         Set<MessageHandlerFactory> toRemove = executors.keySet().stream()
                 .filter(factory -> subscriberExecutionSpec.stream()
                         .map(SubscriberKey::of)

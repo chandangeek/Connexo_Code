@@ -14,7 +14,6 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Registration;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InOrder;
@@ -84,6 +83,7 @@ public class MessageHandlerLauncherServiceTest {
         when(factory.newMessageHandler()).thenReturn(handler);
         when(appServer.getName()).thenReturn(NAME);
         when(appService.addCommandListener(any())).thenReturn(registration);
+        when(subscriberExecutionSpec.isActive()).thenReturn(true);
 
         transactionService = new TransactionVerifier(handler);
 
@@ -140,6 +140,33 @@ public class MessageHandlerLauncherServiceTest {
             arrivalLatch.await();
 
             verify(subscriberSpec, atLeastOnce()).receive();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            messageHandlerLauncherService.deactivate();
+        }
+    }
+
+    @Test(timeout = 5000)
+    public void testAddResourceDoNotStartReceivingMessagesIfInactive() throws InterruptedException {
+        when(subscriberExecutionSpec.isActive()).thenReturn(false);
+
+        when(appService.getSubscriberExecutionSpecs()).thenReturn(Arrays.asList(subscriberExecutionSpec));
+        when(appService.getAppServer()).thenReturn(Optional.of(appServer));
+        when(appServer.isActive()).thenReturn(true);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("subscriber", SUBSCRIBER);
+        map.put("destination", DESTINATION);
+
+        try {
+            messageHandlerLauncherService.activate();
+            messageHandlerLauncherService.addResource(factory, map);
+
+            assertThat(messageHandlerLauncherService.futureReport()).isEmpty();
+            assertThat(messageHandlerLauncherService.threadReport()).isEmpty();
+
+            verify(subscriberSpec, never()).receive();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -239,7 +266,6 @@ public class MessageHandlerLauncherServiceTest {
 
 
     @Test
-    @Ignore // fails intermittently -> destabilizes build -> COPL-1020
     public void testCorruptMessageHandlerFactory() throws InterruptedException {
         doThrow(RuntimeException.class).when(factory).newMessageHandler();
 
@@ -256,14 +282,11 @@ public class MessageHandlerLauncherServiceTest {
 
         try {
             messageHandlerLauncherService.activate();
-            threadCount = threadCount();
 
             messageHandlerLauncherService.addResource(factory, map);
 
             assertThat(messageHandlerLauncherService.futureReport()).isEmpty();
             assertThat(messageHandlerLauncherService.threadReport()).isEmpty();
-
-            assertThat(threadCount()).isEqualTo(threadCount);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -272,15 +295,4 @@ public class MessageHandlerLauncherServiceTest {
         }
     }
 
-    private int threadCount() {
-        ThreadGroup threadGroup = Thread.currentThread().getThreadGroup();
-        while (threadGroup.getParent() != threadGroup && threadGroup.getParent() != null) {
-            threadGroup = threadGroup.getParent();
-        }
-        int activeCount = threadGroup.activeCount();
-
-        Thread[] threads = new Thread[activeCount * 2];
-        int count = threadGroup.enumerate(threads, true);
-        return count;
-    }
 }
