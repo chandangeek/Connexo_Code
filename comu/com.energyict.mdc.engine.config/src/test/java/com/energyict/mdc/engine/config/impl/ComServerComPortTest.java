@@ -15,13 +15,13 @@ import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.engine.config.PersistenceTest;
 import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
-import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.io.BaudrateValue;
 import com.energyict.mdc.io.FlowControl;
 import com.energyict.mdc.io.NrOfDataBits;
 import com.energyict.mdc.io.NrOfStopBits;
 import com.energyict.mdc.io.Parities;
 import com.energyict.mdc.io.SerialPortConfiguration;
+import com.energyict.mdc.protocol.api.ComPortType;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -366,6 +366,40 @@ public class ComServerComPortTest extends PersistenceTest {
         // Asserts
         assertThat(comPortPools).hasSize(3);
         assertThat(comPortPoolIds).containsOnly(comPortPool1.getId(), comPortPool2.getId(), comPortPool3.getId());
+    }
+
+    @Test
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_DUPLICATE_COM_PORT+"}", property = "name")
+    @Transactional
+    public void testCreateTwoComPortsWithTheSameNameOnOneComServer(){
+        OnlineComServer comServer = this.createOnlineComServer();
+        comServer.newOutboundComPort("Non-unique name", 2).comPortType(ComPortType.TCP).active(true).add();
+        comServer.newOutboundComPort("Non-unique name", 4).comPortType(ComPortType.TCP).active(true).add();
+
+        // Assert exception
+    }
+
+    @Test
+    @Transactional
+    public void testCreateTwoComPortsWithTheSameNameOnDifferentComServers(){
+        OnlineComServer firstComServer = this.createOnlineComServer();
+        OutboundComPort firstComPort = firstComServer.newOutboundComPort("Unique name per comserver", 2).comPortType(ComPortType.TCP).active(true).add();
+
+        OnlineComServer secondComServer = this.createOnlineComServer();
+        OutboundComPort secondComPort = secondComServer.newOutboundComPort("Unique name per comserver", 4).comPortType(ComPortType.TCP).active(true).add();
+
+        assertThat(firstComPort.getName()).isEqualTo(secondComPort.getName());
+    }
+
+    @Test
+    @Transactional
+    public void testCreateDeleteCreateComPortsWithTheSameNameOnOneComServer(){
+        OnlineComServer comServer = this.createOnlineComServer();
+        OutboundComPort comPort = comServer.newOutboundComPort("Non-unique name", 2).comPortType(ComPortType.TCP).active(true).add();
+        comPort.makeObsolete();
+        comServer.newOutboundComPort("Non-unique name", 4).comPortType(ComPortType.TCP).active(true).add();
+
+        // Assert no exception
     }
 
     private int uniqueComPortId=1;
