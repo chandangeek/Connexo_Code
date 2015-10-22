@@ -57,6 +57,7 @@ Ext.define('Apr.view.appservers.AddMessageServicesSetup', {
                         {
                             name: 'cancel',
                             itemId: 'lnk-cancel-add-message-services',
+                            action: 'test',
                             text: Uni.I18n.translate('general.cancel', 'APR', 'Cancel'),
                             ui: 'link'
                         }

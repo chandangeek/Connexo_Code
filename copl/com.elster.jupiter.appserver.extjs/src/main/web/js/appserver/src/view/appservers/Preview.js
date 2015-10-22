@@ -4,7 +4,8 @@ Ext.define('Apr.view.appservers.Preview', {
     alias: 'widget.appservers-preview',
     router: null,
     requires: [
-        'Apr.view.appservers.PreviewForm'
+        'Apr.view.appservers.PreviewForm',
+        'Apr.view.appservers.Menu'
     ],
 
     initComponent: function () {
