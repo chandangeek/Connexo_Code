@@ -27,16 +27,9 @@ Ext.define('Bpm.view.process.ProcessesGrid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('bpm.process.state', 'BPM', 'State'),
-                dataIndex: 'active',
-                flex: 2,
-                renderer: function (value) {
-                    if (value) {
-                        return Uni.I18n.translate('bpm.process.active', 'BPM', 'Active')
-                    } else {
-                        return Uni.I18n.translate('bpm.process.inactive', 'BPM', 'Inactive')
-                    }
-                }
+                header: Uni.I18n.translate('bpm.process.status', 'BPM', 'Status'),
+                dataIndex: 'activeDisplay',
+                flex: 2
             },
             {
                 xtype: 'uni-actioncolumn',

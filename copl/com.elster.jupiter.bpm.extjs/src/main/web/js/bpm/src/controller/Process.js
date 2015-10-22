@@ -66,11 +66,10 @@ Ext.define('Bpm.controller.Process', {
     changeProcessActivation: function (record) {
         var me = this,
             router = this.getController('Uni.controller.history.Router'),
-            processesForm = me.getProcessesForm(),
-            isActive = record.get('active');
+            processesForm = me.getProcessesForm();
 
         record.beginEdit();
-        record.set('active', !isActive);
+        record.set('active', record.get('active') === 'ACTIVE'? 'INACTIVE': 'ACTIVE');
         record.endEdit(true);
 
         processesForm.setLoading();
@@ -79,7 +78,7 @@ Ext.define('Bpm.controller.Process', {
             success: function (record, operation) {
 
                 processesForm.down('#frm-preview-process').loadRecord(record);
-                if (isActive) {
+                if (record.get('active') === 'INACTIVE') {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.process.deactivate', 'BPM', 'Process deactivated'));
                 } else {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.process.activate', 'BPM', 'Process activated'));
@@ -97,7 +96,7 @@ Ext.define('Bpm.controller.Process', {
     },
 
     onMenuShow: function (menu) {
-        if (menu.record.get('active')) {
+        if (menu.record.get('active') === 'ACTIVE') {
             menu.down('#menu-activate-process').hide();
             menu.down('#menu-deactivate-process').show();
         } else {
