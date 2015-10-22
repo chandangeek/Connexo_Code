@@ -18,7 +18,7 @@ Ext.define('Apr.view.appservers.MessageServicesGrid', {
 
     columns: [
         {
-            header: Uni.I18n.translate('general.name', 'APR', 'Name'),
+            header: Uni.I18n.translate('general.messageService', 'APR', 'Message service'),
             dataIndex: 'messageService',
             flex: 1
         },
