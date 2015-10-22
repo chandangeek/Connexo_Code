@@ -22,6 +22,7 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -37,6 +38,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -65,6 +67,12 @@ public class LinkTest {
     }
 
     private static final boolean printSql = false;
+    
+    
+    
+    
+    
+    
 
     @BeforeClass
     public static void setUp() {
@@ -93,7 +101,10 @@ public class LinkTest {
                     new FiniteStateMachineModule(),
                     new NlsModule()
                 );
+        
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
+            injector.getInstance(ThreadPrincipalService.class);
+            injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(ValidationService.class);
             injector.getInstance(UsagePointConfigurationService.class);
         	ctx.commit();
@@ -119,6 +130,7 @@ public class LinkTest {
     
     @Test
     public void testLinkUPtoMC()  {
+        System.out.println("testLinkUPtoMC");
         long upId;
         long mcId;
 
@@ -147,10 +159,12 @@ public class LinkTest {
             assertThat(upmc.getUsagePoint().getMRID()).isEqualTo("mrID");
             context.commit();
         }
+        System.out.println("DONE testLinkUPtoMC");
     }
     
     @Test
     public void testUpdateUPtoMCLink() {
+        System.out.println("testUpdateUPtoMCLink");
         UsagePoint up;
         MetrologyConfiguration mc1;
         MetrologyConfiguration mc2;
@@ -180,10 +194,12 @@ public class LinkTest {
             assertThat(mcx).isPresent();
             assertThat(mcx.get().getName()).isEqualTo("Second");            
         }
+        System.out.println("DONE testUpdateUPtoMCLink");
     }
     
     @Test
     public void testMutlipleUPforMC() {
+        System.out.println("testMutlipleUPforMC");
         UsagePoint up1;
         UsagePoint up2;
         MetrologyConfiguration mc;
@@ -207,5 +223,6 @@ public class LinkTest {
             assertThat(upList.get(1).getMRID()).isEqualTo("Second");
             context.commit();
         }
+        System.out.println("DONE testMutlipleUPforMC");
     }
 }
