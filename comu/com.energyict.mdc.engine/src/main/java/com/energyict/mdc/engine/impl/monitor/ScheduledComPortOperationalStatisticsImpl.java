@@ -1,13 +1,12 @@
 package com.energyict.mdc.engine.impl.monitor;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.engine.impl.core.ScheduledComPort;
 
-import com.elster.jupiter.nls.Thesaurus;
-import java.time.Clock;
-
 import javax.management.openmbean.OpenType;
 import javax.management.openmbean.SimpleType;
+import java.time.Clock;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -61,7 +60,7 @@ public class ScheduledComPortOperationalStatisticsImpl extends OperationalStatis
     @Override
     protected void addItemTypes (List<OpenType> itemTypes) {
         super.addItemTypes(itemTypes);
-        itemTypes.add(SimpleType.DATE);
+        itemTypes.add(SimpleType.STRING);
     }
 
     @Override

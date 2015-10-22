@@ -1,5 +1,8 @@
 package com.energyict.mdc.engine.impl.monitor;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
@@ -9,26 +12,20 @@ import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComPortListener;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.core.ScheduledComPort;
-
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanRegistrationException;
-import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
-import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
-import java.lang.management.ManagementFactory;
 import java.time.Clock;
+import java.util.Dictionary;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -44,7 +41,13 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
 
     private volatile Clock clock;
     private volatile Thesaurus thesaurus;
-    private final Map<ObjectName, Object> registeredMBeans = new HashMap<>();
+    private final Map<ObjectName, ServiceRegistration> registeredMBeans = new HashMap<>();
+    private volatile BundleContext context;
+
+    @Activate
+    public void activate(BundleContext context) {
+        this.context = context;
+    }
 
     @SuppressWarnings("unused")
     @Reference
@@ -62,14 +65,13 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
     public ComServerMonitorImplMBean findOrCreateFor(RunningComServer runningComServer) {
         synchronized (this.registeredMBeans) {
             ObjectName jmxName = this.nameFor(runningComServer);
-            Object registeredMBean = this.registeredMBeans.get(jmxName);
+            ServiceRegistration registeredMBean = this.registeredMBeans.get(jmxName);
             ComServerMonitorImplMBean comServerMBean;
             if (registeredMBean == null) {
                 comServerMBean = new ComServerMonitorImpl(runningComServer, this.clock, this.thesaurus);
                 this.registerMBean(comServerMBean, jmxName);
-            }
-            else {
-                comServerMBean = (ComServerMonitorImplMBean) registeredMBean;
+            } else {
+                comServerMBean = (ComServerMonitorImplMBean) context.getService(registeredMBean.getReference());
             }
             return comServerMBean;
         }
@@ -82,8 +84,7 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
             Object registeredMBean = this.registeredMBeans.get(oldJmxName);
             if (registeredMBean == null) {
                 LOGGER.severe("Unable to find ComServerMonitorMBean for renamed online comserver " + oldName);
-            }
-            else {
+            } else {
                 this.unRegisterMBean(oldJmxName);
                 ObjectName newJmxName = this.nameFor(runningComServer);
                 this.registerMBean(registeredMBean, newJmxName);
@@ -92,30 +93,25 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
     }
 
     private void registerMBean(Object object, ObjectName objectName) {
-        MBeanServer server = ManagementFactory.getPlatformMBeanServer();
-        if (server != null) {
-            this.registeredMBeans.put(objectName, object);
-            try {
-                server.registerMBean(object, objectName);
-            }
-            catch (InstanceAlreadyExistsException | MBeanRegistrationException | NotCompliantMBeanException e) {
-                LOGGER.severe("Caught exception while registering MBean " + e.getMessage());
-                LOGGER.log(Level.FINE, "Caught exception while registering MBean " + e.getMessage(), e);
-            }
+        Dictionary<String, String> properties = new Hashtable<>();
+        properties.put("jmx.objectname", objectName.toString());
+        ServiceRegistration<?> serviceRegistration = context.registerService(object.getClass().getName(), object, properties);
+        synchronized (this.registeredMBeans) {
+            this.registeredMBeans.put(objectName, serviceRegistration);
         }
+
     }
 
     @Override
     public Optional<ComServerMonitorImplMBean> findFor(ComServer comServer) {
         synchronized (this.registeredMBeans) {
             ObjectName jmxName = this.nameFor(comServer);
-            Object registeredMBean = this.registeredMBeans.get(jmxName);
+            ServiceRegistration registeredMBean = this.registeredMBeans.get(jmxName);
             if (registeredMBean == null) {
                 LOGGER.severe("Unable to find ComServerMonitorMBean for online comserver " + comServer.getName());
                 return Optional.empty();
-            }
-            else {
-                return Optional.of((ComServerMonitorImplMBean) registeredMBean);
+            } else {
+                return Optional.of((ComServerMonitorImplMBean) context.getService(registeredMBean.getReference()));
             }
         }
     }
@@ -132,31 +128,21 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
     }
 
     private void unRegisterMBean(ObjectName objectName) {
-        MBeanServer server = ManagementFactory.getPlatformMBeanServer();
-        if (server != null) {
-            this.registeredMBeans.remove(objectName);
-            try {
-                server.unregisterMBean(objectName);
-            }
-            catch (MBeanRegistrationException | InstanceNotFoundException e) {
-                LOGGER.severe("Caught exception while unregistering MBean " + e.getMessage());
-                LOGGER.log(Level.FINE, "Caught exception while unregistering MBean " + e.getMessage(), e);
-            }
-        }
+        ServiceRegistration remove = this.registeredMBeans.remove(objectName);
+        remove.unregister();
     }
 
     @Override
     public ScheduledComPortMonitorImplMBean findOrCreateFor(ScheduledComPort comPort) {
         synchronized (this.registeredMBeans) {
             ObjectName jmxName = this.nameFor(comPort);
-            Object registeredMBean = this.registeredMBeans.get(jmxName);
+            ServiceRegistration registeredMBean = this.registeredMBeans.get(jmxName);
             ScheduledComPortMonitorImplMBean comPortMBean;
             if (registeredMBean == null) {
                 comPortMBean = new ScheduledComPortMonitorImpl(comPort, this.clock, this.thesaurus);
                 this.registerMBean(comPortMBean, jmxName);
-            }
-            else {
-                comPortMBean = (ScheduledComPortMonitorImpl) registeredMBean;
+            } else {
+                comPortMBean = (ScheduledComPortMonitorImpl) context.getService(registeredMBean.getReference());
             }
             return comPortMBean;
         }
@@ -166,13 +152,12 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
     public Optional<ScheduledComPortMonitorImplMBean> findFor(OutboundComPort comPort) {
         synchronized (this.registeredMBeans) {
             ObjectName jmxName = this.nameFor(comPort);
-            Object registeredMBean = this.registeredMBeans.get(jmxName);
+            ServiceRegistration registeredMBean = this.registeredMBeans.get(jmxName);
             if (registeredMBean == null) {
                 LOGGER.severe("Unable to find ComPortMonitorMBean for outbound comport " + comPort.getName());
                 return Optional.empty();
-            }
-            else {
-                return Optional.of((ScheduledComPortMonitorImplMBean) registeredMBean);
+            } else {
+                return Optional.of((ScheduledComPortMonitorImplMBean) context.getService(registeredMBean.getReference()));
             }
         }
     }
@@ -200,8 +185,7 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
     private ObjectName nameFor(ComServer comServer) {
         try {
             return new ObjectName(this.comServerBaseName(comServer));
-        }
-        catch (MalformedObjectNameException e) {
+        } catch (MalformedObjectNameException e) {
             throw CodingException.malformedObjectName(comServer, e, MessageSeeds.MBEAN_OBJECT_FORMAT);
         }
     }
@@ -209,8 +193,7 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
     private ObjectName toComServerName(String comServerName) {
         try {
             return new ObjectName(this.comServerBaseName(comServerName));
-        }
-        catch (MalformedObjectNameException e) {
+        } catch (MalformedObjectNameException e) {
             throw CodingException.malformedComServerObjectName(comServerName, e, MessageSeeds.MBEAN_OBJECT_FORMAT);
         }
     }
@@ -242,8 +225,7 @@ public class ManagementBeanFactoryImpl implements ManagementBeanFactory {
     private ObjectName nameFor(ComPort comPort) {
         try {
             return new ObjectName(this.comServerBaseName(comPort.getComServer()) + ",process=Outbound communication ports,comPortName=" + comPort.getName());
-        }
-        catch (MalformedObjectNameException e) {
+        } catch (MalformedObjectNameException e) {
             throw CodingException.malformedObjectName(comPort, e, MessageSeeds.MBEAN_OBJECT_FORMAT);
         }
     }
