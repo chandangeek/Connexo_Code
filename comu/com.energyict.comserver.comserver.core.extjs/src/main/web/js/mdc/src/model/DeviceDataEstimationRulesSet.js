@@ -1,5 +1,5 @@
 Ext.define('Mdc.model.DeviceDataEstimationRulesSet', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.ParentVersion',
     fields: [
         {name: 'id', type: 'int', useNull: true},
         {name: 'name', type: 'string'},

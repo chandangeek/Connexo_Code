@@ -1,5 +1,5 @@
 Ext.define('Mdc.model.LogbookConfigurations', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.ParentVersion',
 
     fields: [
         {

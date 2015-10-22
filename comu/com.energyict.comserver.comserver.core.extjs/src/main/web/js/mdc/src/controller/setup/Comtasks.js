@@ -98,7 +98,6 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                 break;
             case 'delete':
                 this.showConfirmationPanel();
-                //this.deleteTask(record.get('id'));
                 break;
         }
     },
@@ -168,7 +167,6 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             widget.setLoading(Uni.I18n.translate('general.removing', 'MDC', 'Removing...'));
             model.destroy({
                 success: function () {
-                    widget.setLoading(false);
                     me.getApplication().fireEvent('acknowledge',Uni.I18n.translate('comtasks.removeSuccessMsg', 'MDC', 'Communciation task removed'));
                 },
                 failure: function(response){
@@ -180,61 +178,12 @@ Ext.define('Mdc.controller.setup.Comtasks', {
                             json.message
                         );
                     }
+                },
+                callback: function () {
+                    widget.setLoading(false);
                 }
             });
         }
-    },
-
-    deleteTask: function (id) {
-        var self = this,
-            tasksView = self.getTasksView(),
-            grid = tasksView.down('grid'),
-            record = grid.getSelectionModel().getLastSelected(),
-            preloader = Ext.create('Ext.LoadMask', {
-                msg: Uni.I18n.translate('general.loading', 'MDC', 'Loading...'),
-                target: self.getTasksView()
-            });
-
-        Ext.create('Uni.view.window.Confirmation').show({
-            title: Uni.I18n.translate('general.removeConfirmation', 'MDC', 'Remove \'{0}\'?', [record.data.name]),
-            msg: Uni.I18n.translate('comtask.remove.confirmation.msg', 'MDC', 'This communication task will no longer be available'),
-            fn: function (state) {
-                if (state === 'confirm') {
-                    preloader.show();
-                    Ext.Ajax.request({
-                        url: '/api/cts/comtasks/' + id,
-                        method: 'DELETE',
-                        success: function () {
-                            self.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comtasks.removeSuccessMsg', 'MDC', 'Communciation task removed'));
-                            self.store.loadPage(1, {
-                                callback: function () {
-                                    grid.getSelectionModel().select(0);
-                                }
-                            });
-                        },
-                        failure: function (response) {
-                            if (response.status == 400) {
-                                var result = Ext.decode(response.responseText, true),
-                                    title = Uni.I18n.translate('general.failedToRemove', 'MDC', 'Failed to remove {0}', [record.data.name]),
-                                    message = Uni.I18n.translate('general.serverError', 'MDC', 'Server error');
-                                if (!Ext.isEmpty(response.statusText)) {
-                                    message = response.statusText;
-                                }
-                                if (result && result.message) {
-                                    message = result.message;
-                                } else if (result && result.error) {
-                                    message = result.error;
-                                }
-                                self.getApplication().getController('Uni.controller.Error').showError(title, message);
-                            }
-                        },
-                        callback: function () {
-                            preloader.destroy();
-                        }
-                    });
-                }
-            }
-        });
     },
 
     showCommunicationTasksCreateEdit: function () {
@@ -292,18 +241,20 @@ Ext.define('Mdc.controller.setup.Comtasks', {
     },
 
     createEdit: function (btn) {
-        var self = this,
-            editView = self.getTaskEdit(),
+        var me = this,
+            editView = me.getTaskEdit(),
             form = editView.down('form').getForm(),
-            formErrorsPanel = self.getTaskEdit().down('#errors'),
+            formErrorsPanel = me.getTaskEdit().down('#errors'),
             model = Ext.create('Mdc.model.CommunicationTask'),
             nameField = editView.down('form').down('textfield[name=name]'),
             selectedMessagesStore = editView.down('#messagesConnectedGrid').getSelectedItemsStore(),
             protocolTasksErrorMessage = editView.down('#protocolTasksErrorMessage'),
-            messages = [];
+            messages = [],
+            router = me.getController('Uni.controller.history.Router'),
+            backUrl = router.getRoute('administration/communicationtasks').buildUrl();
 
         editView.setLoading(true);
-        self.trimFields();
+        me.trimFields();
         if (form.isValid()) {
             var record = form.getRecord();
 
@@ -316,17 +267,18 @@ Ext.define('Mdc.controller.setup.Comtasks', {
             });
             record.beginEdit();
             record.set('name', nameField.getValue());
-            record.set('commands', self.commands);
+            record.set('commands', me.commands);
             record.set('messages', messages);
             record.endEdit();
             formErrorsPanel.hide();
             protocolTasksErrorMessage.removeAll();
             protocolTasksErrorMessage.hide();
             record.save({
+                backUrl: backUrl,
                 success: function () {
-                    window.location.href = '#/administration/communicationtasks';
-                    self.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comtask.saved', 'MDC', 'Communication task configuration saved'));
-                    self.commands = [];
+                    window.location.href = backUrl;
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comtask.saved', 'MDC', 'Communication task configuration saved'));
+                    me.commands = [];
                     editView.setLoading(false);
                 },
                 failure: function (record, requestObject) {

@@ -16,7 +16,7 @@ Ext.define('Mdc.controller.Search', {
             if (column) {
                 if (me.searchDomain.get('id') == 'com.energyict.mdc.device.data.Device') {
                     column.renderer = function (value) {
-                        var url = router.getRoute('devices/device').buildUrl({mRID: value});
+                        var url = router.getRoute('devices/device').buildUrl({mRID: encodeURIComponent(value)});
                         return '<a href="{0}">{1}</a>'.replace('{0}', url).replace('{1}', Ext.String.htmlEncode(value));
                     }
                 } else if (me.searchDomain.get('id') == 'com.elster.jupiter.metering.UsagePoint') {

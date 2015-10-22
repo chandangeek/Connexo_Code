@@ -1,5 +1,5 @@
 Ext.define('Mdc.model.SecuritySetting', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.ParentVersion',
     requires: [
         'Mdc.model.AuthenticationLevel',
         'Mdc.model.EncryptionLevel',

@@ -1,5 +1,5 @@
 Ext.define('Mdc.model.RegisterGroup', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.Version',
     requires: [
         'Mdc.model.RegisterType'
     ],

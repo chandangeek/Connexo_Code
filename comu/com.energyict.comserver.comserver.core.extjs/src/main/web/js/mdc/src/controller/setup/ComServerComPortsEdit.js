@@ -213,11 +213,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
     },
 
     formToModel: function (form, model) {
-        var queryString = Ext.Object.toQueryString(form.getValues()),
-            values = Ext.Object.fromQueryString(queryString, true);
-        model.beginEdit();
-        model.set(values);
-        model.endEdit();
+        form.updateRecord(model);
         return model;
     },
 
@@ -246,7 +242,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             typeModel,
             record,
             actionType,
-            ids;
+            ids = [];
 
         if (form.isValid()) {
             formErrorsPanel.hide();
@@ -256,7 +252,9 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
                     break;
                 case 'outbound':
                     typeModel = Ext.create(Mdc.model.OutboundComPort);
-                    ids = comPortPool.collect('id');
+                    comPortPool.each(function (record) {
+                        ids.push(_.pick(record.getData(), 'id', 'version'));
+                    });
                     break;
             }
             switch (btn.action) {
@@ -288,7 +286,9 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             record.set('modemInitStrings', modemInit);
             record.set('globalModemInitStrings', globalModemInitStrings);
             ids && (record.set('outboundComPortPoolIds', ids));
+            me.portModel = null;
             record.save({
+                backUrl: me.getController('Uni.controller.history.Router').getRoute('administration/comservers/detail/comports').buildUrl(),
                 callback: function (records, operation, success) {
                     if (success) {
                         me.onSuccessSaving(me.portDirection, actionType);
@@ -481,12 +481,12 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
                             outboundComPortPoolsStore.load({
                                 callback: function () {
                                     me.filterStoreByType(outboundComPortPoolsStore, me.portType);
-                                    outboundComPortPoolsStore.each(function (value) {
-                                        if (Ext.Array.contains(recordData.outboundComPortPoolIds, value.getData().id)) {
-                                            addComPortPoolsStore.add(value);
-                                        }
-                                        comPortPoolsGrid.fireEvent('afterrender', comPortPoolsGrid);
+                                    Ext.Array.each(recordData.outboundComPortPoolIds, function (comPortPool) {
+                                        var correspondingComPortPool = outboundComPortPoolsStore.getById(comPortPool.id);
 
+                                        if (correspondingComPortPool) {
+                                            addComPortPoolsStore.add(correspondingComPortPool);
+                                        }
                                     });
                                     preloader.destroy();
                                 }

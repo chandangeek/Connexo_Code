@@ -3,7 +3,7 @@ Ext.define('Mdc.model.DeviceTransition', {
     fields: [
         {name: 'id', type: 'int', useNull: true},
         {name: 'name', type: 'string'},
-        {name: 'deviceVersion', type: 'int'},
+        {name: 'device', defaultValue: null},
         {name: 'transitionNow', type: 'boolean'},
         {name: 'effectiveTimestamp', type: 'long', useNull: true}
     ],

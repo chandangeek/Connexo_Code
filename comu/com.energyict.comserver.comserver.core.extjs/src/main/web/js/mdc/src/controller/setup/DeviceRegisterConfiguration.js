@@ -35,7 +35,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         {ref: 'stepsMenu', selector: '#stepsMenu'},
         {ref: 'editPropertyForm',selector: '#deviceRegisterConfigurationEditCustomAttributes property-form'},
         {ref: 'editCustomAttributesPanel',selector: '#deviceRegisterConfigurationEditCustomAttributes'},
-        {ref: 'editCustomRestoreBtn',selector: '#deviceRegisterCustomRestoreBtn'}
+        {ref: 'editCustomRestoreBtn',selector: '#deviceRegisterCustomRestoreBtn'},
+        {ref: 'deviceRegistersOverview', selector: 'tabbedDeviceRegisterView'}
     ],
 
     fromSpecification: false,
@@ -269,7 +270,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
     },
 
     activateDataValidation: function (record, confWindow) {
-        var me = this;
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
         if (confWindow.down('#validateRegisterFromDate').getValue() > me.dataValidationLastChecked) {
             confWindow.down('#validateRegisterDateErrors').update(Uni.I18n.translate('deviceloadprofiles.activation.error', 'MDC', 'The date should be before or equal to the default date.'));
             confWindow.down('#validateRegisterDateErrors').setVisible(true);
@@ -278,21 +280,21 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
             Ext.Ajax.request({
                 url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/registers/' + me.registerId + '/validate',
                 method: 'PUT',
-                jsonData: {
+                isNotEdit: true,
+                jsonData: Ext.merge({
                     lastChecked: confWindow.down('#validateRegisterFromDate').getValue().getTime()
-                },
+                }, _.pick(record.getRecordData(), 'mRID', 'version', 'parent')),
                 success: function () {
                     confWindow.removeAll(true);
                     confWindow.destroy();
                     me.getApplication().fireEvent('acknowledge',
                         Uni.I18n.translate('registerconfiguration.validation.completed', 'MDC', 'Data validation completed'));
-                    if (Ext.ComponentQuery.query('#deviceRegisterConfigurationGrid')[0]) {
-                        Ext.ComponentQuery.query('#deviceRegisterConfigurationGrid')[0].fireEvent('select', Ext.ComponentQuery.query('#deviceRegisterConfigurationGrid')[0].getSelectionModel(), record);
-                    }
-
-                    me.updateDeviceRegisterConfigurationsDetails(me.mRID, me.registerId);
+                    router.getRoute().forward();
+                },
+                failure: function () {
+                    confWindow.removeAll(true);
+                    confWindow.destroy();
                 }
-
             });
 
         }

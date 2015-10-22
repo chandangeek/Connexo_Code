@@ -405,15 +405,19 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     },
 
     saveRecord: function (record, isNewRecord) {
-        var me = this;
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            backUrl = router.getRoute('devices/device/connectionmethods').buildUrl();
+
         if (me.getDeviceConnectionMethodEditView().down('property-form').down('#connectionTimeoutnumberfield')) {
             me.getDeviceConnectionMethodEditView().down('property-form').down('#connectionTimeoutnumberfield').clearInvalid();
             me.getDeviceConnectionMethodEditView().down('property-form').down('#connectionTimeoutcombobox').clearInvalid();
         }
         record.getProxy().extraParams = ({mrid: me.mrid});
         record.save({
+            backUrl: backUrl,
             success: function (record) {
-                location.href = '#/devices/' + encodeURIComponent(me.mrid) + '/connectionmethods/';
+                location.href = backUrl;
                 if (isNewRecord === true) {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.saveSuccess.msg.add', 'MDC', 'Connection method added'));
                 } else {
@@ -574,10 +578,13 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
     },
 
     toggleDefaultDeviceConnectionMethod: function (connectionMethod) {
-        var me = this;
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
         if (connectionMethod.hasOwnProperty('action')) {
             connectionMethod = this.getDeviceConnectionMethodsGrid().getSelectionModel().getSelection()[0];
         }
+        connectionMethod.beginEdit();
         if (connectionMethod.get('isDefault') === true) {
             connectionMethod.set('isDefault', false);
         } else {
@@ -586,25 +593,29 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         if (connectionMethod.get('connectionStrategy') === 'AS_SOON_AS_POSSIBLE' || connectionMethod.get('direction') === 'Inbound') {
             connectionMethod.set('nextExecutionSpecs', null);
         }
+        connectionMethod.endEdit();
 //        this.getPropertiesController().updatePropertiesWithoutView(connectionMethod);
         connectionMethod.getProxy().extraParams = ({mrid: this.mrid});
         connectionMethod.save({
+            isNotEdit: true,
             success: function () {
                 if (connectionMethod.get('isDefault') === true) {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowlegment.setAsDefault', 'MDC', 'Connection method set as default'));
                 } else {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowlegment.removeDefault', 'MDC', 'Connection method removed as default'));
                 }
+                router.getRoute().forward();
             },
-            callback: function () {
-                me.getConnectionMethodsOfDeviceStore().load();
-                me.previewDeviceConnectionMethod();
+            failure: function () {
+                connectionMethod.reject();
             }
         });
     },
 
     toggleActiveDeviceconnectionMethod: function (connectionMethod) {
-        var me = this;
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
+
         if (connectionMethod.hasOwnProperty('action')) {
             connectionMethod = this.getDeviceConnectionMethodsGrid().getSelectionModel().getSelection()[0];
         }
@@ -620,16 +631,14 @@ Ext.define('Mdc.controller.setup.DeviceConnectionMethods', {
         //connectionMethod.propertiesStore = this.getPropertiesController().updateProperties();
         connectionMethod.getProxy().extraParams = ({mrid: this.mrid});
         connectionMethod.save({
+            isNotEdit: true,
             success: function () {
                 if (connectionMethod.get('status') === 'connectionTaskStatusActive') {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowlegment.activated', 'MDC', 'Connection method activated'));
                 } else {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceconnectionmethod.acknowlegment.deactivated', 'MDC', 'Connection method deactivated'));
                 }
-            },
-            callback: function () {
-                me.getConnectionMethodsOfDeviceStore().load();
-                me.previewDeviceConnectionMethod();
+                router.getRoute().forward();
             }
         });
     },

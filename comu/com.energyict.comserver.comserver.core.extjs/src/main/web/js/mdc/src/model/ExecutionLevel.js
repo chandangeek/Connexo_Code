@@ -1,5 +1,5 @@
 Ext.define('Mdc.model.ExecutionLevel', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.ParentVersion',
     fields: [
         {name: 'id',type:'string',useNull:true},
         {name: 'name', type: 'string', useNull: true},

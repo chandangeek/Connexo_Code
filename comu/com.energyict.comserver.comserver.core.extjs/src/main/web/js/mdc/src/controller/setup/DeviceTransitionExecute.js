@@ -59,6 +59,7 @@ Ext.define('Mdc.controller.setup.DeviceTransitionExecute', {
         }
         var deviceRemoved = record.get('name')==='Remove';
         record.save({
+            backUrl: router.getRoute('devices/device').buildUrl(),
             success: function (record, operation) {
                 step2Page.handleSuccessRequest(Ext.decode(operation.response.responseText), router, deviceRemoved);
             },

@@ -1,17 +1,17 @@
 Ext.define('Mdc.store.LoadProfileConfigurationsOnDeviceConfiguration', {
     extend: 'Ext.data.Store',
-    requires: [
-        'Mdc.model.LoadProfileConfiguration'
-    ],
     autoLoad: false,
     model: 'Mdc.model.LoadProfileConfiguration',
 
     proxy: {
         type: 'rest',
-        url: '/api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/loadprofileconfigurations',
+        urlTpl: '/api/dtc/devicetypes/{0}/deviceconfigurations/{1}/loadprofileconfigurations',
         reader: {
             type: 'json',
             root: 'data'
+        },
+        setUrl: function (deviceTypeId, deviceConfigurationId) {
+            this.url = Ext.String.format(this.urlTpl, deviceTypeId, deviceConfigurationId);
         }
     }
 });

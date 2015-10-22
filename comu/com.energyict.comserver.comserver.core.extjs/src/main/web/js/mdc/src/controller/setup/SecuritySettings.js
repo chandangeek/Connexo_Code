@@ -117,6 +117,8 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/securityproperties/' + securitySettingToDelete.getData().id,
                 method: 'DELETE',
                 waitMsg: Uni.I18n.translate('general.removing', 'MDC', 'Removing...'),
+                jsonData: securitySettingToDelete.getRecordData(),
+                waitMsg: Uni.I18n.translate('general.removing', 'MDC', 'Removing...'),
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicesecuritysetting.saveSuccess.msg.remove', 'MDC', 'Security setting removed'));
                     me.store.load();
@@ -298,7 +300,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
 
     createSecuritySettingModel: function(deviceTypeId, deviceConfigurationId){
         var securitySettingModel = Ext.ModelManager.getModel('Mdc.model.SecuritySetting');
-        securitySettingModel.getProxy().url = '/api/dtc/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/securityproperties/';
+        securitySettingModel.getProxy().url = '/api/dtc/devicetypes/' + deviceTypeId + '/deviceconfigurations/' + deviceConfigurationId + '/securityproperties/';
         return securitySettingModel;
     },
 
@@ -317,6 +319,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             preloader.show();
             form.updateRecord();
             form.getRecord().save({
+                backUrl: me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/deviceconfigurations/view/securitysettings').buildUrl(),
                  success: function (response) {
                      me.handleSuccessRequest(response, Uni.I18n.translate('devicesecuritysetting.saveSuccess.msg.edit', 'MDC', 'Security setting saved'));
                  },
@@ -355,11 +358,13 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
     },
 
     handleSuccessRequest: function (response, headerText) {
-        var data = Ext.JSON.decode(response.responseText, true);
+        var me = this,
+            data = Ext.JSON.decode(response.responseText, true);
+
         if (data && data.id) {
             this.secId = parseInt(data.id);
         }
-        window.location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigurationId + '/securitysettings';
+        me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/deviceconfigurations/view/securitysettings').forward();
         this.getApplication().fireEvent('acknowledge', headerText);
     },
 
@@ -491,6 +496,7 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
             Ext.Ajax.request({
                 url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/securityproperties/' + securitySetting + '/executionlevels/' + executionLevelToDelete.getData().id,
                 method: 'DELETE',
+                jsonData: executionLevelToDelete.getRecordData(),
                 waitMsg: Uni.I18n.translate('general.removing','MDC','Removing...'),
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('executionlevel.acknowlegment.removed', 'MDC', 'Privilege removed'));

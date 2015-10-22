@@ -76,18 +76,22 @@ Ext.define('Mdc.controller.setup.ChangeDeviceLifeCycle', {
         lifeCycleCombo.clearInvalid();
         wizard.down('#form-errors').hide();
         wizard.setLoading();
-        Ext.Ajax.suspendEvent('requestexception');
         Ext.Ajax.request({
             url: '/api/dtc/devicetypes/{id}/devicelifecycle'.replace('{id}', router.arguments.deviceTypeId),
             method: 'PUT',
+            backUrl: cancelBtn.href,
             jsonData: {
                 version: me.deviceType.get('version'),
+                name: me.deviceType.get('name'),
                 targetDeviceLifeCycle: {
                     id: lifeCycleCombo.getValue()
                 }
             },
             callback: function (options, success, response) {
                 wizard.setLoading(false);
+                if (response.status === 409) {
+                    return
+                }
                 var result = Ext.decode(response.responseText, true);
                 if (lifeCycleCombo.getValue()) {
                     nextBtn.hide();
@@ -101,7 +105,6 @@ Ext.define('Mdc.controller.setup.ChangeDeviceLifeCycle', {
                     lifeCycleCombo.markInvalid(result.errors[0].msg);
                     wizard.down('#form-errors').show();
                 }
-                Ext.Ajax.resumeEvent('requestexception');
             }
         });
     }

@@ -1,5 +1,5 @@
 Ext.define('Mdc.model.RegisterConfiguration', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.ParentVersion',
     requires: [
         'Mdc.model.ReadingType'
     ],
@@ -26,6 +26,6 @@ Ext.define('Mdc.model.RegisterConfiguration', {
     ],
     proxy: {
         type: 'rest',
-        url: '../../api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/registerconfigurations'
+        url: '/api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/registerconfigurations'
     }
 });

@@ -475,6 +475,9 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             nameField = me.getNameTextField(),
             nameValue = nameField.getValue(),
             record = me.deviceGroup,
+            backUrl = me.fromDeviceGroupDetails
+                ? router.getRoute('devices/devicegroups/view').buildUrl()
+                : router.getRoute('devices/devicegroups').buildUrl(),
             selection;
 
         if (!me.dynamic) {
@@ -511,12 +514,9 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 record.set('devices', devicesList);
             }
             record.save({
+                backUrl: backUrl,
                 success: function () {
-                    if (me.fromDeviceGroupDetails) {
-                        router.getRoute('devices/devicegroups/view').forward();
-                    } else {
-                        router.getRoute('devices/devicegroups').forward();
-                    }
+                    window.location.href = backUrl;
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceGroup.edit.success.msg', 'MDC', 'Device group saved'));
                 },
                 callback: function () {

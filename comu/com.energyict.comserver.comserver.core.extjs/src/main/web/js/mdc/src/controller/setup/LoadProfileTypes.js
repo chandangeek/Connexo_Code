@@ -88,8 +88,10 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             widget.setLoading(Uni.I18n.translate('general.removing', 'MDC', 'Removing...'));
             model.destroy({
                 success: function () {
-                    widget.setLoading(false);
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('loadProfileTypes.removeSuccessMsg', 'MDC', 'Load profile type removed'));
+                },
+                callback: function () {
+                    widget.setLoading(false);
                 }
             });
         }
@@ -238,7 +240,7 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
                 editPage.getLayout().setActiveItem(0);
                 Ext.resumeLayouts(true);
                 return;
-            } else if (id == editPage.down('#load-profile-type-edit-form').getRecord().getId()) {
+            } else if (id == editPage.down('#load-profile-type-edit-form').getRecord().getId() && editPage.getLayout().getActiveItem().itemId !== 'load-profile-type-edit-form') {
                 me.getModel('Mdc.model.LoadProfileType').load(id, {
                     success: function (record) {
                         Ext.suspendLayouts();
@@ -410,7 +412,8 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
             formErrorsPanel = form.down('uni-form-error-message'),
             model = form.getRecord(),
             proxy = model.getProxy(),
-            all = form.down('#all-register-types-field').getValue();
+            all = form.down('#all-register-types-field').getValue(),
+            backUrl = router.getRoute('administration/loadprofiletypes').buildUrl();
 
         formErrorsPanel.hide();
         basicForm.clearInvalid();
@@ -426,39 +429,40 @@ Ext.define('Mdc.controller.setup.LoadProfileTypes', {
         proxy.setExtraParam('all', all);
 
         model.save({
-            callback: function (model, operation, success) {
-                var messageText,
-                    json;
+            backUrl: backUrl,
+            success: function (record, operation) {
+                var messageText;
 
-                widget.setLoading(false);
-
-                if (success) {
-                    switch (operation.action) {
-                        case 'create':
-                            messageText = Uni.I18n.translate('loadProfileTypes.loadProfileTypeAdded', 'MDC', 'Load profile type added');
-                            break;
-                        case 'update':
-                            messageText = Uni.I18n.translate('loadProfileTypes.loadProfileTypeUpdated', 'MDC', 'Load profile type saved');
-                            break;
-                    }
-                    me.getApplication().fireEvent('acknowledge', messageText);
-                    router.getRoute('administration/loadprofiletypes').forward();
-                } else {
-                    json = Ext.decode(operation.response.responseText, true);
-                    if (json && json.errors) {
-                        Ext.Array.each(json.errors, function (item) {
-                            if (item.id.indexOf("interval") !== -1) {
-                                me.getEditPage().down('#timeDuration').setActiveError(item.msg);
-                            }
-                            if (item.id.indexOf("readingType") !== -1) {
-                                me.getEditPage().down('#register-types-fieldcontainer').setActiveError(item.msg);
-                            }
-                        });
-                        basicForm.markInvalid(json.errors);
-                        me.registerTypesIsValid(json.errors);
-                        formErrorsPanel.show();
-                    }
+                switch (operation.action) {
+                    case 'create':
+                        messageText = Uni.I18n.translate('loadProfileTypes.loadProfileTypeAdded', 'MDC', 'Load profile type added');
+                        break;
+                    case 'update':
+                        messageText = Uni.I18n.translate('loadProfileTypes.loadProfileTypeUpdated', 'MDC', 'Load profile type saved');
+                        break;
                 }
+                me.getApplication().fireEvent('acknowledge', messageText);
+                window.location.href = backUrl;
+            },
+            failure: function (record, operation) {
+                var json = Ext.decode(operation.response.responseText, true);
+
+                if (json && json.errors) {
+                    Ext.Array.each(json.errors, function (item) {
+                        if (item.id.indexOf("interval") !== -1) {
+                            me.getEditPage().down('#timeDuration').setActiveError(item.msg);
+                        }
+                        if (item.id.indexOf("readingType") !== -1) {
+                            me.getEditPage().down('#register-types-fieldcontainer').setActiveError(item.msg);
+                        }
+                    });
+                    basicForm.markInvalid(json.errors);
+                    me.registerTypesIsValid(json.errors);
+                    formErrorsPanel.show();
+                }
+            },
+            callback: function () {
+                widget.setLoading(false);
             }
         });
     },

@@ -107,6 +107,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
             comPortPoolModel.load(id, {
                 success: function (record) {
                     widget.down('comportpoolsidemenu #comportpoolLink').setText(record.get('name'));
+                    widget.comPortPool = record;
                     me.getApplication().fireEvent('comPortPoolOverviewLoad', record);
                     widget.setLoading(false);
                 }
@@ -218,18 +219,25 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
         var me = this,
             page = me.getComPortPoolsComPortsView(),
             grid = me.getComPortsGrid(),
-            gridToolbarTop = grid.down('pagingtoolbartop');
+            gridToolbarTop = grid.down('pagingtoolbartop'),
+            comPortPool = me.getComPortPoolsComPortsView().comPortPool;
 
         page.setLoading(Uni.I18n.translate('general.removing', 'MDC', 'Removing...'));
-        record.destroy({
-            success: function (model, operation) {
+        Ext.Ajax.request({
+            url: record.getProxy().url + '/' + record.getId(),
+            method: 'DELETE',
+            jsonData: _.pick(comPortPool.getData(), 'id', 'name', 'version', 'direction'),
+            success: function () {
                 gridToolbarTop.totalCount = 0;
                 grid.getStore().loadPage(1);
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comServerComPorts.deleteSuccess.msg', 'MDC', 'Communication port removed'));
             },
-            failure: function (model, operation) {
+            failure: function (response) {
+                if (response.status === 409) {
+                    return
+                }
                 var title = Uni.I18n.translate('comPortPoolComPorts.remove.failurex', 'MDC', "Failed to remove '{0}'",[record.get('name')]),
-                    errorsArray = Ext.JSON.decode(operation.response.responseText).errors,
+                    errorsArray = Ext.JSON.decode(response.responseText).errors,
                     message = '';
 
                 Ext.Array.each(errorsArray, function (obj) {
@@ -241,7 +249,6 @@ Ext.define('Mdc.controller.setup.ComPortPoolComPortsView', {
             callback: function () {
                 page.setLoading(false);
             }
-
         });
     }
 });

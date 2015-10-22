@@ -1,5 +1,5 @@
 Ext.define('Mdc.model.CommunicationTaskConfig', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.ParentVersion',
     fields: [
         {name: 'id',type:'number',useNull:true},
         {name: 'comTask', type: 'auto', useNull: true, defaultValue: null},

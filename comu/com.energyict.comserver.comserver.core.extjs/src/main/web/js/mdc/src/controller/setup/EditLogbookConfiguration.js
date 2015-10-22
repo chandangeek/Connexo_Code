@@ -53,49 +53,40 @@ Ext.define('Mdc.controller.setup.EditLogbookConfiguration', {
     },
 
     saveLogbookType: function (btn) {
-        var self = this,
-            editView = self.getEditLogbookConfiguration(),
-            form = editView.down('form').getForm(),
+        var me = this,
+            editView = me.getEditLogbookConfiguration(),
+            form = editView.down('form'),
             formErrorsPanel = editView.down('#form-errors'),
             record = form.getRecord(),
-            jsonValues = Ext.JSON.encode(form.getValues()),
-            url = '/api/dtc/devicetypes/' + editView.deviceTypeId + '/deviceconfigurations/' + editView.deviceConfigurationId + '/logbookconfigurations/' + editView.logbookConfigurationId,
-            header = {
-                style: 'msgHeaderStyle'
-            },
-            bodyItem = {},
-            msges = [],
-            preloader = Ext.create('Ext.LoadMask', {
-                msg: Uni.I18n.translate('general.loading','MDC','Loading...'),
-                target: editView
-            });
-        if (form.isValid()) {
+            page = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
+            backUrl = me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/deviceconfigurations/view/logbookconfigurations').buildUrl();
+
+        if (form.getForm().isValid()) {
             formErrorsPanel.hide();
-            preloader.show();
-            Ext.Ajax.request({
-                url: url,
-                method: 'PUT',
-                jsonData: jsonValues,
+            form.updateRecord(record);
+            page.setLoading();
+            record.save({
+                backUrl: backUrl,
                 success: function () {
-                    window.location.href = '#/administration/devicetypes/' + encodeURIComponent(editView.deviceTypeId) + '/deviceconfigurations/' + encodeURIComponent(editView.deviceConfigurationId) + '/logbookconfigurations';
-                    self.getApplication().fireEvent('acknowledge', 'Logbook configuration saved');
+                    window.location.href = backUrl;
+                    me.getApplication().fireEvent('acknowledge', 'Logbook configuration saved');
                 },
-                failure: function (response) {
-                    if(response.status == 400) {
-                        var result = Ext.decode(response.responseText, true),
-                            errorTitle = Ext.String.format(Uni.I18n.translate('logbookconfiguration.failedToUpdate','MDC','Failed to update {0}'),record.data.name),
-                            errorText = Uni.I18n.translate('logbookconfiguration.configurationCouldNotBeUpdated','MDC','Logbook configuration could not be updated. There was a problem accessing the database');
+                failure: function (record, operation) {
+                    if (operation.response.status == 400) {
+                        var result = Ext.decode(operation.response.responseText, true),
+                            errorTitle = Ext.String.format(Uni.I18n.translate('logbookconfiguration.failedToUpdate', 'MDC', 'Failed to update {0}'), record.data.name),
+                            errorText = Uni.I18n.translate('logbookconfiguration.configurationCouldNotBeUpdated', 'MDC', 'Logbook configuration could not be updated. There was a problem accessing the database');
 
                         if (result !== null) {
                             errorTitle = result.error;
                             errorText = result.message;
                         }
 
-                        self.getApplication().getController('Uni.controller.Error').showError(errorTitle, errorText);
+                        me.getApplication().getController('Uni.controller.Error').showError(errorTitle, errorText);
                     }
                 },
                 callback: function () {
-                    preloader.destroy();
+                    page.setLoading(false);
                 }
             });
         } else {
@@ -103,5 +94,3 @@ Ext.define('Mdc.controller.setup.EditLogbookConfiguration', {
         }
     }
 });
-
-

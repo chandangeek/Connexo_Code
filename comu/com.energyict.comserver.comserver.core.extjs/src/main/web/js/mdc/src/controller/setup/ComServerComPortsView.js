@@ -130,6 +130,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
 
     showPreview: function (selectionModel, record, showComServer) {
         var previewPanel = this.getPreview(),
+            menu = previewPanel.down('menu'),
             model = this.getModel('Mdc.model.ComServerComPort'),
             id = record.getId(),
             currentForm = previewPanel.down('form[hidden=false]'),
@@ -138,6 +139,9 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
 
         previewPanel.setLoading(true);
 
+        if (menu) {
+            menu.record = record;
+        }
         model.load(id, {
             success: function (record) {
                 if (!previewPanel.isDestroyed) {
@@ -196,11 +200,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
 
     chooseAction: function (menu, item) {
         var me = this,
-            gridView = me.getComPortsGrid().getView(),
-            record = gridView.getSelectionModel().getLastSelected(),
-            activeChange = 'notChange',
-            storeUrl = me.getComPortsGrid().getStore().getProxy().url,
-            jsonObject;
+            record = menu.record;
 
         switch (item.action) {
             case 'edit':
@@ -210,49 +210,44 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                 me.showDeleteConfirmation(record);
                 break;
             case 'activate':
-                activeChange = true;
+                me.toggleActivation(record);
                 break;
             case 'deactivate':
-                activeChange = false;
-                break;
-            case 'edit':
-                me.showEdit(record);
+                me.toggleActivation(record);
                 break;
         }
-        if (activeChange != 'notChange') {
-            Ext.Ajax.request({
-                url: storeUrl + '/' + record.getData().id,
-                method: 'GET',
-                success: function (response) {
-                    jsonObject = Ext.JSON.decode(response.responseText);
-                    jsonObject['active'] = activeChange;
-                    Ext.Ajax.request({
-                        url: storeUrl + '/' + record.getData().id,
-                        method: 'PUT',
-                        jsonData: jsonObject,
-                        success: function () {
-                            var msg = activeChange ? Uni.I18n.translate('general.activated', 'MDC', 'activated') :
-                                Uni.I18n.translate('general.deactivated', 'MDC', 'deactivated');
-                            record.set('active', activeChange);
-                            gridView.refresh();
-                            me.getComPortsGrid().fireEvent('select', gridView, record);
-                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comPortOnComServer.changeState.msg', 'MDC', 'Communication port {0}',[msg]));
-                        },
-                        failure: function (response) {
-                            var title = Uni.I18n.translate('comServerComPorts.activation.failurex', 'MDC', "Failed to activate '{0}'",record.get('name')),
-                                errorsArray = Ext.JSON.decode(response.responseText).errors,
-                                message = '';
+    },
 
-                            Ext.Array.each(errorsArray, function (obj) {
-                                message += obj.msg + '.'
-                            });
+    toggleActivation: function (record) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router');
 
-                            me.getApplication().getController('Uni.controller.Error').showError(title, message);
-                        }
+        record.set('active', !record.get('active'));
+        record.save({
+            isNotEdit: true,
+            success: function (record) {
+                router.getRoute().forward();
+                me.getApplication().fireEvent('acknowledge', record.get('active')
+                    ? Uni.I18n.translate('comPortOnComServer.changeState.activated', 'MDC', 'Communication port activated')
+                    : Uni.I18n.translate('comPortOnComServer.changeState.deactivated', 'MDC', 'Communication port deactivated'));
+            },
+            failure: function (record, options) {
+                var title,
+                    errorsArray,
+                    message;
+
+                record.reject();
+                if (options && options.response.status === 400) {
+                    title = Uni.I18n.translate('comServerComPorts.activation.failurex', 'MDC', "Failed to activate '{0}'",record.get('name'));
+                    errorsArray = Ext.decode(options.response.responseText);
+                    message = '';
+                    Ext.Array.each(errorsArray, function (obj) {
+                        message += obj.msg + '.'
                     });
+                    me.getApplication().getController('Uni.controller.Error').showError(title, message);
                 }
-            });
-        }
+            }
+        });
     },
 
     showEdit: function (record) {
@@ -295,19 +290,17 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
 
     deleteComPort: function (record) {
         var me = this,
-            page = me.getComServerComportsView(),
-            grid = me.getComPortsGrid(),
-            gridToolbarTop = grid.down('pagingtoolbartop');
+            router = me.getController('Uni.controller.history.Router'),
+            page = me.getComServerComportsView();
 
         page.setLoading(Uni.I18n.translate('general.removing', 'MDC', 'Removing...'));
         record.destroy({
-            callback: function (model, operation) {
+            success: function () {
+                router.getRoute().forward();
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comServerComPorts.deleteSuccess.msg', 'MDC', 'Communication port removed'));
+            },
+            callback: function () {
                 page.setLoading(false);
-                if (operation.wasSuccessful()) {
-                    gridToolbarTop.totalCount = 0;
-                    grid.getStore().loadPage(1);
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comServerComPorts.deleteSuccess.msg', 'MDC', 'Communication port removed'));
-                }
             }
         });
     }

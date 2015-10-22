@@ -1,5 +1,5 @@
 Ext.define('Mdc.model.DeviceDiscoveryProtocol', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.Version',
     fields: [
         {name: 'id', type: 'int', useNull: true},
         'name',

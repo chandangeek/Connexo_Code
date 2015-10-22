@@ -108,7 +108,8 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
             displayRange = editForm.down('[name=displayRange]').getValue(),
             connectionTarget = editForm.down('#connectionKpiField').getValue(),
             communicationTarget = editForm.down('#communicationKpiField').getValue(),
-            kpiMessageContainer = me.getKpiErrorContainer();
+            kpiMessageContainer = me.getKpiErrorContainer(),
+            backUrl = router.getRoute('administration/datacollectionkpis').buildUrl();;
 
         kpiMessageContainer.hide();
 
@@ -119,7 +120,8 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
             record.set('deviceGroup', deviceGroup);
         } else {
             record.set('deviceGroup', {
-                id: record.get('deviceGroup').id
+                id: record.get('deviceGroup').id,
+                name: record.get('deviceGroup').name
             });
         }
         if (frequency) {
@@ -132,6 +134,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
         record.set('connectionTarget', connectionTarget);
         record.endEdit();
         record.save({
+            backUrl: backUrl,
             success: function (record, operation) {
                 var successMessage = '';
 
@@ -144,7 +147,7 @@ Ext.define('Mdc.controller.setup.DataCollectionKpi', {
                         break;
                 }
 
-                router.getRoute('administration/datacollectionkpis').forward();
+                window.location.href = backUrl;
                 me.getApplication().fireEvent('acknowledge', successMessage);
             },
             failure: function (record, operation) {

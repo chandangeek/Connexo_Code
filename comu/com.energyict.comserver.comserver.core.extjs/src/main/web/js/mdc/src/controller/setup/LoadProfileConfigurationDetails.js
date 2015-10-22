@@ -28,6 +28,10 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         'Mdc.store.ChannelConfigValidationRules'
     ],
 
+    models: [
+        'Mdc.model.LoadProfileConfiguration'
+    ],
+
     refs: [
         {
             ref: 'page',
@@ -89,6 +93,56 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         this.availableMeasurementTypesStore = this.getStore('MeasurementTypesOnLoadProfileConfiguration');
     },
 
+    showDeviceConfigurationLoadProfilesConfigurationDetailsView: function (deviceTypeId, deviceConfigurationId, loadProfileConfigurationId) {
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            proxy = me.store.getProxy(),
+            loadProfilesConfiguration = me.getModel('Mdc.model.LoadProfileConfiguration');
+        me.deviceTypeId = deviceTypeId;
+        me.deviceConfigurationId = deviceConfigurationId;
+        me.loadProfileConfigurationId = loadProfileConfigurationId;
+        me.displayedItemId = null;
+        proxy.extraParams = ({
+            deviceType: deviceTypeId,
+            deviceConfig: deviceConfigurationId,
+            loadProfileConfiguration: loadProfileConfigurationId
+        });
+        proxy.pageParam = false;
+        proxy.limitParam = false;
+        proxy.startParam = false;
+        Uni.util.Common.loadNecessaryStores(['Mdc.store.Intervals'], function () {
+            Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
+                success: function (deviceType) {
+                    me.getApplication().fireEvent('loadDeviceType', deviceType);
+                    var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
+                    model.getProxy().setExtraParam('deviceType', deviceTypeId);
+                    model.load(deviceConfigurationId, {
+                        success: function (deviceConfig) {
+                            me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
+                            loadProfilesConfiguration.getProxy().setUrl(deviceTypeId, deviceConfigurationId);
+                            loadProfilesConfiguration.load(loadProfileConfigurationId, {
+                                success: function (record) {
+                                    var loadProfileConfiguration = record.getData(),
+                                        widget = Ext.widget('loadProfileConfigurationDetailSetup', {router: router});
+                                    me.loadProfileConfiguration = loadProfileConfiguration;
+                                    me.getApplication().fireEvent('loadLoadProfile', loadProfileConfiguration);
+                                    widget.down('#loadProfileConfigurationDetailInfo').setTitle(loadProfileConfiguration.name);
+                                    me.deviceTypeName = deviceType.get('name');
+                                    me.deviceConfigName = deviceConfig.get('name');
+                                    me.getApplication().fireEvent('changecontentevent', widget);
+                                    widget.down('menu').record = record;
+                                    var detailedForm = me.getLoadConfigurationDetailForm();
+                                    detailedForm.getForm().setValues(loadProfileConfiguration);
+                                    detailedForm.down('[name=deviceConfigurationName]').setValue(Ext.String.format('<a href="#/administration/devicetypes/{0}/deviceconfigurations/{1}">{2}</a>', deviceTypeId, deviceConfigurationId, Ext.String.htmlEncode(me.deviceConfigName)));
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }, false);
+    },
+
     editRecord: function () {
         var grid = this.getChannelsGrid(),
             lastSelected = grid.getView().getSelectionModel().getLastSelected();
@@ -102,31 +156,32 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             msg: Uni.I18n.translate('loadProfileConfiguration.confirmWindow.removeChannelConfiguration', 'MDC', 'This channel configuration will be removed from the load profile configuration.'),
             title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?",[lastSelected.get('readingType')['fullAliasName']]),
             config: {me: me},
-            fn: me.confirmationPanelHandler
+            fn: function (action) {
+                if (action === 'confirm') {
+                    me.confirmationPanelHandler(lastSelected);
+                }
+            }
         });
     },
 
-    confirmationPanelHandler: function (state, text, conf) {
-        var me = conf.config.me, lastSelected = me.getChannelsGrid().getSelectionModel().getLastSelected();
+    confirmationPanelHandler: function (record) {
+        var me = this;
 
-        if (state === 'confirm') {
-            Ext.Ajax.request({
-                url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId + '/channels/' + lastSelected.get('id'),
-                method: 'DELETE',
-                waitMsg: 'Removing...',
-                success: function () {
-                    me.handleSuccessRequest(Uni.I18n.translate('channelconfiguration.removeSuccessMsg', 'MDC', 'Channel configuration removed'));
-                    me.store.load(function () {
-                        if (this.getCount() === 0) {
-                            me.getPage().down('#rulesForChannelPreviewContainer').destroy();
-                            me.getPage().down('#rulesForChannelConfig').destroy();
-                        }
-                    });
-                }
-            });
-        }
-
-
+        Ext.Ajax.request({
+            url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId + '/channels/' + record.getId(),
+            method: 'DELETE',
+            jsonData: record.getRecordData(),
+            waitMsg: 'Removing...',
+            success: function () {
+                me.handleSuccessRequest(Uni.I18n.translate('channelconfiguration.removeSuccessMsg', 'MDC', 'Channel configuration removed'));
+                me.store.load(function () {
+                    if (this.getCount() === 0) {
+                        me.getPage().down('#rulesForChannelPreviewContainer').destroy();
+                        me.getPage().down('#rulesForChannelConfig').destroy();
+                    }
+                });
+            }
+        });
     },
 
     getAssociatedMeasurementType: function (readingType) {
@@ -234,7 +289,8 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                     Ext.Ajax.request({
                         url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId + '/channels/' + me.channelId,
                         method: 'PUT',
-                        jsonData: jsonValues,
+                        jsonData: Ext.merge(formPanel.record, formValue),
+                        backUrl: router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').buildUrl(),
                         success: function () {
                             me.handleSuccessRequest(Uni.I18n.translate('channelconfiguration.acknowlegment.saved', 'MDC', 'Channel configuration saved'));
                             router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/channels').forward(router.arguments);
@@ -382,56 +438,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         }
     },
 
-    showDeviceConfigurationLoadProfilesConfigurationDetailsView: function (deviceTypeId, deviceConfigurationId, loadProfileConfigurationId) {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            proxy = me.store.getProxy();
-        me.deviceTypeId = deviceTypeId;
-        me.deviceConfigurationId = deviceConfigurationId;
-        me.loadProfileConfigurationId = loadProfileConfigurationId;
-        me.displayedItemId = null;
-        proxy.extraParams = ({
-            deviceType: deviceTypeId,
-            deviceConfig: deviceConfigurationId,
-            loadProfileConfiguration: loadProfileConfigurationId
-        });
-        proxy.pageParam = false;
-        proxy.limitParam = false;
-        proxy.startParam = false;
-        Uni.util.Common.loadNecessaryStores(['Mdc.store.Intervals'], function () {
-            Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
-                success: function (deviceType) {
-                    me.getApplication().fireEvent('loadDeviceType', deviceType);
-                    var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
-                    model.getProxy().setExtraParam('deviceType', deviceTypeId);
-                    model.load(deviceConfigurationId, {
-                        success: function (deviceConfig) {
-                            me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
-                            Ext.Ajax.request({
-                                url: '/api/dtc/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/loadprofileconfigurations/' + me.loadProfileConfigurationId,
-                                params: {},
-                                method: 'GET',
-                                success: function (response) {
-                                    var loadProfileConfiguration = Ext.JSON.decode(response.responseText).data[0],
-                                        widget = Ext.widget('loadProfileConfigurationDetailSetup', {router: router});
-                                    me.loadProfileConfiguration = loadProfileConfiguration;
-                                    me.getApplication().fireEvent('loadLoadProfile', loadProfileConfiguration);
-                                    widget.down('#loadProfileConfigurationDetailInfo').setTitle(loadProfileConfiguration.name);
-                                    me.deviceTypeName = deviceType.get('name');
-                                    me.deviceConfigName = deviceConfig.get('name');
-                                    me.getApplication().fireEvent('changecontentevent', widget);
-                                    var detailedForm = me.getLoadConfigurationDetailForm();
-                                    detailedForm.getForm().setValues(loadProfileConfiguration);
-                                    detailedForm.down('[name=deviceConfigurationName]').setValue(Ext.String.format('<a href="#/administration/devicetypes/{0}/deviceconfigurations/{1}">{2}</a>', deviceTypeId, deviceConfigurationId, Ext.String.htmlEncode(me.deviceConfigName)));
-                                }
-                            });
-                        }
-                    });
-                }
-            });
-        }, false);
-    },
-
     showDeviceConfigurationLoadProfilesConfigurationChannelsAddView: function (deviceTypeId, deviceConfigurationId, loadProfileConfigurationId) {
         var me = this;
         me.deviceTypeId = deviceTypeId;
@@ -526,7 +532,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                     params: {},
                                     method: 'GET',
                                     success: function (response) {
-                                        var channel = Ext.JSON.decode(response.responseText).data[0],
+                                        var channel = Ext.JSON.decode(response.responseText),
                                             widget = Ext.widget('loadProfileConfigurationDetailForm',
                                                 {
                                                     loadProfileConfigurationChannelAction: 'Save',
@@ -548,6 +554,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                         me.getApplication().fireEvent('changecontentevent', widget);
                                         preloader.show();
                                         widget.down('form').setTitle(title);
+                                        widget.down('form').record = channel;
                                         if (channel.isLinkedByActiveDeviceConfiguration) {
                                             readingTypeCombo.hide();
                                             readingTypeDisplayField.setValue(channel.measurementType.readingType);

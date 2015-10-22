@@ -7,33 +7,41 @@ Ext.define('Mdc.model.DeviceCommunication', {
         'isOnHold'
     ],
 
-    run: function(callback) {
+    run: function(callback, body) {
         Ext.Ajax.request({
             method: 'PUT',
+            isNotEdit: true,
+            jsonData: body,
             url: this.proxy.url + '/{id}/run'.replace('{id}', this.get('comTask').id),
             success: callback
         });
     },
 
-    runNow: function(callback) {
+    runNow: function(callback, body) {
         Ext.Ajax.request({
             method: 'PUT',
+            isNotEdit: true,
+            jsonData: body,
             url: this.proxy.url + '/{id}/runnow'.replace('{id}', this.get('comTask').id),
             success: callback
         });
     },
 
-    activate: function(callback) {
+    activate: function(callback, body) {
         Ext.Ajax.request({
             method: 'PUT',
+            isNotEdit: true,
+            jsonData: body,
             url: this.proxy.url + '/{id}/activate'.replace('{id}', this.get('comTask').id),
             success: callback
         });
     },
 
-    deactivate: function(callback) {
+    deactivate: function(callback, body) {
         Ext.Ajax.request({
             method: 'PUT',
+            isNotEdit: true,
+            jsonData: body,
             url: this.proxy.url + '/{id}/deactivate'.replace('{id}', this.get('comTask').id),
             success: callback
         });

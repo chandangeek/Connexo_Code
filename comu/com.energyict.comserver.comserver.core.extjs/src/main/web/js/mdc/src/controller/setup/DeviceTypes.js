@@ -143,6 +143,8 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             }),
             model = Ext.ModelManager.getModel('Mdc.model.DeviceType');
 
+        me.getApplication().fireEvent('changecontentevent', widget);
+
         model.load(deviceType, {
             success: function (deviceType) {
                 var deviceTypeId = deviceType.get('id'),
@@ -151,8 +153,6 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                     loadProfilesLink = me.getDeviceTypeDetailLoadProfilesLink(),
                     deviceConfigurationsLink = me.getDeviceConfigurationsDetailLink(),
                     deviceLifeCycleLink = widget.down('#details-device-life-cycle-link');
-
-                me.getApplication().fireEvent('changecontentevent', widget);
 
                 Ext.suspendLayouts();
 
@@ -375,16 +375,22 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             page.setLoading(Uni.I18n.translate('general.saving', 'MDC', 'Saving...'));
             record.set(values);
             record.save({
+                backUrl: router.queryParams.fromDetails
+                    ? router.getRoute('administration/devicetypes/view').buildUrl()
+                    : router.getRoute('administration/devicetypes').buildUrl(),
                 success: function (record) {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceType.acknowlegment.saved', 'MDC', 'Device type saved'));
                     router.queryParams.fromDetails ? router.getRoute('administration/devicetypes/view').forward() : router.getRoute('administration/devicetypes').forward();
                 },
                 failure: function (record, operation) {
-                    var json = Ext.decode(operation.response.responseText);
-                    if (json && json.errors) {
-                        me.getDeviceTypeEditForm().getForm().markInvalid(json.errors);
+                    var json = Ext.decode(operation.response.responseText, true);
+
+                    if (operation.response.status === 400) {
+                        if (json && json.errors) {
+                            me.getDeviceTypeEditForm().getForm().markInvalid(json.errors);
+                        }
+                        me.showErrorPanel();
                     }
-                    me.showErrorPanel();
                 },
                 callback: function () {
                     page.setLoading(false);

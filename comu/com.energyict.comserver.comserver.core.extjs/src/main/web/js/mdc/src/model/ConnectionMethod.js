@@ -1,5 +1,5 @@
 Ext.define('Mdc.model.ConnectionMethod', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.ParentVersion',
     requires: [
         'Uni.property.model.Property'
     ],
@@ -13,7 +13,7 @@ Ext.define('Mdc.model.ConnectionMethod', {
         {name: 'connectionTypePluggableClass', type: 'string', useNull: true},
         {name: 'connectionStrategy', type: 'string', useNull: true},
         'rescheduleRetryDelay',
-        {name: 'temporalExpression', useNull: true},
+        {name: 'temporalExpression', useNull: true, defaultValue: null},
         {name: 'comWindowStart',type: 'int',useNull: true},
         {name: 'comWindowEnd',type: 'int',useNull: true},
         {
@@ -34,7 +34,7 @@ Ext.define('Mdc.model.ConnectionMethod', {
     ],
     proxy: {
         type: 'rest',
-        url: '../../api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/connectionmethods',
+        url: '/api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/connectionmethods',
         reader: {
             type: 'json'
         }

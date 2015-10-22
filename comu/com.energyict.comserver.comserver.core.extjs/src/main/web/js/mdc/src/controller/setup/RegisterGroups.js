@@ -210,7 +210,8 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
             record = form.getRecord(),
             values = form.getValues(),
             baseForm = form.getForm(),
-            selected = form.down('#editRegisterGroupGridField').getSelectionModel().getSelection();
+            selected = form.down('#editRegisterGroupGridField').getSelectionModel().getSelection(),
+            backUrl = '#/administration/registergroups/';
 
         record.set(values);
         record.registerTypes().removeAll();
@@ -219,6 +220,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         baseForm.clearInvalid();
         me.hideErrorPanel();
         record.save({
+            backUrl: backUrl,
             success: function (record) {
                 var message;
 
@@ -229,9 +231,12 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
                     message = Uni.I18n.translate('registergroup.added', 'MDC', 'Register group {0} added.', record.get('name'), false);
                 }
                 me.getApplication().fireEvent('acknowledge', message);
-                location.href = '#/administration/registergroups/';
+                location.href = backUrl;
             },
             failure: function (record, operation) {
+                if (operation.response.status === 409) {
+                    return
+                }
                 var json = Ext.decode(operation.response.responseText, true);
 
                 if (json && json.errors) {
@@ -248,11 +253,11 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('registerGroup.deleteRegisterGroup', 'MDC', 'The register group will no longer be available.'),
             title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?",[itemToRemove.get('name')]),
-            config: {
-                registerGroupToDelete: itemToRemove
-            },
-            fn: me.removeRegisterGroupInDatabase,
-            app: me.getApplication()
+            fn: function (action) {
+                if (action === 'confirm') {
+                    me.removeRegisterGroupInDatabase(itemToRemove);
+                }
+            }
         });
     },
 
@@ -260,21 +265,15 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
         this.removeRegisterGroup(this.getRegisterGroupGrid().getSelectionModel().getSelection()[0]);
     },
 
-    removeRegisterGroupInDatabase: function (btn, text, opt) {
+    removeRegisterGroupInDatabase: function (registerTypeToDelete) {
         var me = this;
-        if (btn === 'confirm') {
-            var registerTypeToDelete = opt.config.registerGroupToDelete,
-                name = registerTypeToDelete.get('name'),
-                app = opt.app;
-            registerTypeToDelete.destroy({
-                success: function () {
-                    app.fireEvent('acknowledge', Uni.I18n.translate('registergroup.removed', 'MDC', 'Register group {0} removed.', name, false));
-                },
-                callback: function () {
-                    location.href = '#/administration/registergroups/';
-                }
-            });
-        }
+
+        registerTypeToDelete.destroy({
+            success: function () {
+                me.getController('Uni.controller.history.Router').getRoute().forward();
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registergroup.removed', 'MDC', 'Register group {0} removed.', [registerTypeToDelete.get('name')]));
+            }
+        });
     },
 
     showErrorPanel: function () {

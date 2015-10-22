@@ -156,7 +156,8 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
     editProtocolDialect: function () {
         var record = this.getProtocolDialectEditForm().getRecord(),
             values = this.getProtocolDialectEditForm().getValues(),
-            me = this;
+            me = this,
+            backUrl = me.getProtocolDialectEditView().returnLink;
 
         var propertyForm = me.getProtocolDialectEditView().down('property-form');
         if (record) {
@@ -164,8 +165,9 @@ Ext.define('Mdc.controller.setup.ProtocolDialects', {
             propertyForm.updateRecord();
             record.propertiesStore = propertyForm.getRecord().properties();
             record.save({
+                backUrl: backUrl,
                 success: function (record) {
-                    location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/protocols';
+                    location.href = backUrl;
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('protocolDialect.acknowlegment', 'MDC', 'Protocol dialect saved') );
                 },
                 failure: function (record, operation) {

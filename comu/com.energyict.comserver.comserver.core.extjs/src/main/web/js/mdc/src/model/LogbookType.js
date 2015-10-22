@@ -1,5 +1,5 @@
 Ext.define('Mdc.model.LogbookType', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.Version',
     alias: 'widget.mdc-model',
 
     fields: [

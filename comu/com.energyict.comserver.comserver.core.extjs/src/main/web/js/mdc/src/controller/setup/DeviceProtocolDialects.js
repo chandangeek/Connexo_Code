@@ -145,18 +145,21 @@ Ext.define('Mdc.controller.setup.DeviceProtocolDialects', {
     },
 
     editProtocolDialect: function () {
-        var record = this.getDeviceProtocolDialectEditForm().getRecord(),
-            values = this.getDeviceProtocolDialectEditForm().getValues(),
-            me = this;
+        var me = this,
+            form = me.getDeviceProtocolDialectEditForm(),
+            record = form.getRecord(),
+            values = form.getValues();
 
         var propertyForm = me.getDeviceProtocolDialectEditView().down('property-form');
         if (record) {
             record.set(values);
             propertyForm.updateRecord();
             record.propertiesStore = propertyForm.getRecord().properties();
+            record.set('device', _.pick(form.device.getRecordData(), 'mRID', 'version', 'parent'));
             record.save({
+                backUrl: form.returnLink,
                 success: function (record) {
-                    location.href = '#/devices/' + encodeURIComponent(me.mRID) + '/protocols';
+                    location.href = form.returnLink;
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceProtocolDialect.acknowlegment', 'MDC', 'Protocol dialect saved') );
                 },
                 failure: function (record, operation) {

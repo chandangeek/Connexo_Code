@@ -186,17 +186,21 @@ Ext.define('Mdc.controller.setup.LogbookTypes', {
     },
 
     editLogbookType: function () {
-        var record = this.getLogbookTypeEditForm().getRecord(),
-            values = this.getLogbookTypeEditForm().getValues(),
-            me = this;
-        var formErrorsPanel = me.getLogbookTypeEditForm().down('uni-form-error-message[name=errors]');
+        var me = this,
+            record = me.getLogbookTypeEditForm().getRecord(),
+            values = me.getLogbookTypeEditForm().getValues(),
+            formErrorsPanel = me.getLogbookTypeEditForm().down('uni-form-error-message[name=errors]'),
+            router = me.getController('Uni.controller.history.Router'),
+            backUrl = router.getRoute('administration/logbooktypes').buildUrl();
+
         formErrorsPanel.hide();
         if (record) {
             record.set(values);
             record.save({
+                backUrl: backUrl,
                 success: function (record) {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('logbookType.acknowlegment.saved', 'MDC', 'Logbook type saved') );
-                    location.href = '#/administration/logbooktypes/';
+                    location.href = backUrl;
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);

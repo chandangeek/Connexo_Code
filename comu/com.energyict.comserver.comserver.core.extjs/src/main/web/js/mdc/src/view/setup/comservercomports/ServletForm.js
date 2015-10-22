@@ -8,7 +8,8 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
         validateOnBlur: false
     },
     requires: [
-        'Uni.form.field.Password'
+        'Uni.form.field.Password',
+        'Mdc.view.setup.comservercomports.InboundComPortPoolCombo'
     ],
     items: [
         {
@@ -52,7 +53,7 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
             width: 370
         },
         {
-            xtype: 'combobox',
+            xtype: 'inbound-com-port-pool-combo',
             fieldLabel: Uni.I18n.translate('general.comPortPool', 'MDC', 'Communication port pool'),
             required: false,
             store: 'Mdc.store.InboundComPortPools',

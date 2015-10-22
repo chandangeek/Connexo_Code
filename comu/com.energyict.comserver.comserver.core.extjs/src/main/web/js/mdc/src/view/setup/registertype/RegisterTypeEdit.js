@@ -46,6 +46,13 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeEdit', {
                 },
                 items: [
                     {
+                        xtype: 'component',
+                        html: '',
+                        itemId: 'registerTypeEditCreateInformation',
+                        margin: '0 0 20 0',
+                        hidden: true
+                    },
+                    {
                         name: 'errors',
                         ui: 'form-error-framed',
                         itemId: 'registerTypeEditFormErrors',
