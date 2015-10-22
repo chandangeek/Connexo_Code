@@ -46,6 +46,11 @@ public class LoadProfileServiceImpl implements ServerLoadProfileService, LoadPro
     }
 
     @Override
+    public Optional<LoadProfile> findAndLockLoadProfileByIdAndVersion(long id, long version) {
+        return this.deviceDataModelService.dataModel().mapper(LoadProfile.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public BaseLoadProfile findLoadProfileById(int loadProfileId) {
         return this.findById(loadProfileId).orElse(null);
     }

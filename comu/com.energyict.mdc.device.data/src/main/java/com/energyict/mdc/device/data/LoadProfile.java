@@ -69,6 +69,8 @@ public interface LoadProfile extends BaseLoadProfile<Channel>, HasId {
      */
     LoadProfileSpec getLoadProfileSpec();
 
+    long getVersion();
+
     /**
      * Defines an <i>update</i> component to update a {@link com.energyict.mdc.device.data.LoadProfile} implementation
      */

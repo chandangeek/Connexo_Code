@@ -19,6 +19,7 @@ public interface LoadProfileService {
      * @param id The unique ID of the loadProfile
      * @return The requested LoadProfile
      */
-    public Optional<LoadProfile> findById(long id);
+    Optional<LoadProfile> findById(long id);
 
+    Optional<LoadProfile> findAndLockLoadProfileByIdAndVersion(long id, long version);
 }

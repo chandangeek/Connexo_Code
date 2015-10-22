@@ -213,6 +213,11 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     }
 
     @Override
+    public long getVersion() {
+        return this.version;
+    }
+
+    @Override
     public void updateDisplayRange(TimeDuration displayPeriod) {
         this.displayRange = new TimeDuration(displayPeriod.getCount(), displayPeriod.getTimeUnit());
         this.save();

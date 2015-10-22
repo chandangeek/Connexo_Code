@@ -241,6 +241,19 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
         return this.modTime;
     }
 
+    @Override
+    public long getVersion() {
+        return this.version;
+    }
+
+    @Override
+    public void save() {
+        super.save();
+        if (getId() > 0) {
+            getDataModel().touch(device.get());
+        }
+    }
+
     private ReleaseDateUpdater getReleaseDateUpdater() {
         if (this.releaseDateUpdater == null) {
             this.releaseDateUpdater = new ReleaseDateUpdater(getStatus(), this.releaseDate);

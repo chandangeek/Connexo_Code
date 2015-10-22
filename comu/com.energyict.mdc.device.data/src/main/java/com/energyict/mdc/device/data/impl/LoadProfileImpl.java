@@ -101,6 +101,11 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
     }
 
     @Override
+    public long getVersion() {
+        return this.version;
+    }
+
+    @Override
     public long getId() {
         return id;
     }

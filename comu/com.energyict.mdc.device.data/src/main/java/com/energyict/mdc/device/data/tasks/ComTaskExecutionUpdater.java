@@ -12,6 +12,9 @@ public interface ComTaskExecutionUpdater<U extends ComTaskExecutionUpdater<U, C>
 
     U useDefaultConnectionTask(boolean useDefaultConnectionTask);
 
+    /**
+     * Internal call, should not be in API
+     */
     U useDefaultConnectionTask(ConnectionTask<?, ?> defaultConnectionTask);
 
     /**

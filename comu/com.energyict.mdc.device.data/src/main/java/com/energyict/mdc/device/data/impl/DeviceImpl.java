@@ -371,6 +371,7 @@ public class DeviceImpl implements Device, CanLock, ServerDeviceForConfigChange 
         this.saveAllComTaskExecutions();
         if (alreadyPersistent) {
             this.notifyUpdated();
+            deviceConfiguration.get().touch();
         } else {
             this.notifyCreated();
         }
@@ -806,6 +807,12 @@ public class DeviceImpl implements Device, CanLock, ServerDeviceForConfigChange 
         protected LoadProfileUpdaterForDevice(LoadProfileImpl loadProfile) {
             super(loadProfile);
         }
+
+        @Override
+        public void update() {
+            super.update();
+            dataModel.touch(DeviceImpl.this);
+        }
     }
 
     @Override
@@ -893,6 +900,9 @@ public class DeviceImpl implements Device, CanLock, ServerDeviceForConfigChange 
             if (notUpdated) {
                 addDeviceProperty(name, propertyValue);
             }
+            if (getId() > 0) {
+                dataModel.touch(this);
+            }
         } else {
             throw DeviceProtocolPropertyException.propertyDoesNotExistForDeviceProtocol(name, this.getDeviceProtocolPluggableClass().getDeviceProtocol(), this, thesaurus, MessageSeeds.DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL);
         }
@@ -927,6 +937,7 @@ public class DeviceImpl implements Device, CanLock, ServerDeviceForConfigChange 
         for (DeviceProtocolProperty deviceProtocolProperty : deviceProperties) {
             if (deviceProtocolProperty.getName().equals(name)) {
                 this.deviceProperties.remove(deviceProtocolProperty);
+                dataModel.touch(this);
                 break;
             }
         }
@@ -1773,6 +1784,7 @@ public class DeviceImpl implements Device, CanLock, ServerDeviceForConfigChange 
             if (comTaskExecutionToRemove.getId() == comTaskExecution.getId()) {
                 comTaskExecution.makeObsolete();
                 comTaskExecutionIterator.remove();
+                dataModel.touch(this);
                 return;
             }
         }
@@ -1788,6 +1800,7 @@ public class DeviceImpl implements Device, CanLock, ServerDeviceForConfigChange 
             if (comTaskExecution.executesComSchedule(comSchedule)) {
                 comTaskExecution.makeObsolete();
                 comTaskExecutionIterator.remove();
+                dataModel.touch(this);
                 return;
             }
         }

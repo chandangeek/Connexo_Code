@@ -56,6 +56,7 @@ public abstract class OutboundConnectionTaskImpl<PCTT extends PartialOutboundCon
 
     @Override
     public void executionFailed() {
+        this.doNotTouchParentDevice();
         this.setExecutingComServer(null);
         this.incrementCurrentRetryCount();
         if (doWeNeedToRetryTheConnectionTask()) {
