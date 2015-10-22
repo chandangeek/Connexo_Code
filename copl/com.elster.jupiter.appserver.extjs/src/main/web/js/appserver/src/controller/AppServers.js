@@ -74,6 +74,10 @@ Ext.define('Apr.controller.AppServers', {
         {
             ref: 'undoSettingsButton',
             selector: '#undo-message-services-settings'
+        },
+        {
+            ref: 'messageServicesOverview',
+            selector: 'appserver-message-services'
         }
     ],
     appServer: null,
@@ -133,7 +137,8 @@ Ext.define('Apr.controller.AppServers', {
                 click: this.undoMessageServiceChanges
             },
             '#message-services-grid':{
-                edit: this.messageServiceDataChanged
+                edit: this.messageServiceDataChanged,
+                select: this.showMessageServicePreview
             }
 
         });
@@ -201,6 +206,8 @@ Ext.define('Apr.controller.AppServers', {
             });
             me.getApplication().fireEvent('appserverload', appServerName);
             me.getApplication().fireEvent('changecontentevent', view);
+            view.down('preview-container').updateOnChange(!servedMessageServicesStore.getCount()); // to autoselect the 1st item
+            me.updateMessageServiceCounter();
             unservedMessageServicesStore.load(function (unservedMessages) {
                 if(unservedMessages.length === 0){
                     view.down('#add-message-services-button-from-details').disable();
@@ -212,6 +219,16 @@ Ext.define('Apr.controller.AppServers', {
                 });
             });
         });
+    },
+
+    showMessageServicePreview: function (selectionModel, record) {
+        var me = this,
+            overview = me.getMessageServicesOverview(),
+            preview = overview.down('msg-service-preview-form'),
+            menu = overview.down('message-services-action-menu');
+
+        menu.record = record;
+        preview.updatePreview(record);
     },
 
     showImportServices: function (appServerName) {
@@ -439,9 +456,10 @@ Ext.define('Apr.controller.AppServers', {
             me.getStore('Apr.store.ServedMessageServices').add(served);
         });
         if(this.fromDetail){
-            this.returnToMessageServiceDetailView();
+            me.returnToMessageServiceDetailView();
+            me.messageServiceDataChanged();
         } else {
-            this.returnToAddEditViewWithoutRouter();
+            me.returnToAddEditViewWithoutRouter();
         }
     },
 
@@ -482,6 +500,8 @@ Ext.define('Apr.controller.AppServers', {
         }
         me.getApplication().fireEvent('appserverload', me.appServer.get('name'));
         me.getApplication().fireEvent('changecontentevent', view);
+        view.down('preview-container').updateOnChange(!servedMessageServicesStore.getCount()); // to autoselect the 1st item
+        me.updateMessageServiceCounter();
     },
 
     storeCurrentValues: function () {
@@ -537,6 +557,7 @@ Ext.define('Apr.controller.AppServers', {
         if (Ext.isEmpty(grid.getStore().getRange())) {
             me.changeMessageGridVisibility(false);
         }
+        me.messageServiceDataChanged();
     },
 
     convertToUnservedMessageServiceModel: function (record) {
@@ -714,7 +735,16 @@ Ext.define('Apr.controller.AppServers', {
     },
 
     messageServiceDataChanged: function(){
-        this.getSaveSettingsButton().enable();
-        this.getUndoSettingsButton().enable();
+        var me =this;
+        me.getSaveSettingsButton().enable();
+        me.getUndoSettingsButton().enable();
+        me.updateMessageServiceCounter();
+    },
+
+    updateMessageServiceCounter: function() {
+        var me =this;
+        me.getMessageServicesGrid().down('pagingtoolbartop #displayItem').setText(
+            Uni.I18n.translatePlural('general.messageServicesCount', me.getMessageServicesGrid().getStore().getCount(), 'APR', 'No message services', '{0} message service', '{0} message services')
+        );
     }
 });

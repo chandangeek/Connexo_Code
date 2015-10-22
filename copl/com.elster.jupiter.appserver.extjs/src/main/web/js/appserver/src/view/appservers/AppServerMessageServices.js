@@ -2,7 +2,8 @@ Ext.define('Apr.view.appservers.AppServerMessageServices', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.appserver-message-services',
     requires: [
-        'Apr.view.appservers.Menu'
+        'Apr.view.appservers.Menu',
+        'Apr.view.appservers.MessageServicePreview'
     ],
 
     router: null,
@@ -11,7 +12,6 @@ Ext.define('Apr.view.appservers.AppServerMessageServices', {
     initComponent: function () {
         var me = this;
         me.content = {
-            //xtype: 'panel',
             ui: 'large',
             title: Uni.I18n.translate('general.messageServices', 'APR', 'Message services'),
             items: [
@@ -69,6 +69,10 @@ Ext.define('Apr.view.appservers.AppServerMessageServices', {
                                 href: '#/administration/appservers/add'
                             }
                         ]
+                    },
+                    previewComponent: {
+                        xtype: 'msg-service-preview',
+                        itemId: 'apr-msg-service-preview'
                     }
                 }
             ]

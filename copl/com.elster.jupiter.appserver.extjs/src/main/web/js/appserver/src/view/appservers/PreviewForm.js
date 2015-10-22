@@ -45,7 +45,7 @@ Ext.define('Apr.view.appservers.PreviewForm', {
                         result = value;
                     }
                     else {
-                        result = Uni.I18n.translatePlural('devicetype.messageServicesCount', value, 'APR', 'No message services', '{0} message service', '{0} message services');
+                        result = Uni.I18n.translatePlural('general.messageServicesCount', value, 'APR', 'No message services', '{0} message service', '{0} message services');
                         var url = me.router.getRoute('administration/appservers/overview/messageservices').buildUrl({appServerName: me.appServerName});
                         result = '<a href="' + url + '">' + Ext.String.htmlEncode(result) + '</a>';
                     }
@@ -62,7 +62,7 @@ Ext.define('Apr.view.appservers.PreviewForm', {
                     if (value===''){
                         result = value;
                     } else {
-                        result = Uni.I18n.translatePlural('devicetype.messageServicesCount', value, 'APR', 'No import services', '{0} import service', '{0} import services');
+                        result = Uni.I18n.translatePlural('general.importServicesCount', value, 'APR', 'No import services', '{0} import service', '{0} import services');
                         var url = me.router.getRoute('administration/appservers/overview/importservices').buildUrl({appServerName: me.appServerName});
                         result = '<a href="' + url + '">' + Ext.String.htmlEncode(result) + '</a>';
                     }
