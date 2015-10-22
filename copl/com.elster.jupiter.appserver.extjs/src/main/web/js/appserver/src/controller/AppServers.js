@@ -18,7 +18,8 @@ Ext.define('Apr.controller.AppServers', {
         'Apr.store.ServedImportServices',
         'Apr.store.UnservedImportServices',
         'Apr.store.ExportPaths',
-        'Apr.store.ImportPaths'
+        'Apr.store.ImportPaths',
+        'Apr.store.ActiveService'
     ],
     models: [
         'Apr.model.AppServer',
@@ -383,6 +384,7 @@ Ext.define('Apr.controller.AppServers', {
                     Ext.each(messageServices, function (messageService) {
                         var model = Ext.create('Apr.model.ServedMessageService', {
                             numberOfThreads: 1,
+                            active: true,
                             subscriberSpec: messageService.data,
                             messageService: messageService.data.displayName
                         });
@@ -614,6 +616,7 @@ Ext.define('Apr.controller.AppServers', {
                 } else {
                     service.numberOfThreads = 1;
                 }
+                service.active = item.get('active');
                 executionSpecs.push(service);
             });
 
@@ -676,6 +679,7 @@ Ext.define('Apr.controller.AppServers', {
             } else {
                 service.numberOfThreads = 1;
             }
+            service.active = item.get('active');
             executionSpecs.push(service);
         });
         record.beginEdit();
