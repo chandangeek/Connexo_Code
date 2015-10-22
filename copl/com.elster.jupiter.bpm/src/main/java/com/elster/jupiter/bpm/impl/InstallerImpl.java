@@ -11,7 +11,9 @@ import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.SimpleTranslation;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.ExceptionCatcher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,9 +25,18 @@ public class InstallerImpl {
 
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
     private static final Logger LOGGER = Logger.getLogger(InstallerImpl.class.getName());
+    private final DataModel dataModel;
+
+    InstallerImpl(DataModel dataModel) {
+        this.dataModel = dataModel;
+    }
 
     public void install(MessageService messageService) {
         createBPMQueue(messageService);
+        ExceptionCatcher.executing(
+                this::installDataModel
+        ).andHandleExceptionsWith(Throwable::printStackTrace)
+                .execute();
     }
 
     private void createBPMQueue(MessageService messageService) {
@@ -37,6 +48,10 @@ public class InstallerImpl {
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
+    }
+
+    private void installDataModel() {
+        dataModel.install(true, true);
     }
 
 }

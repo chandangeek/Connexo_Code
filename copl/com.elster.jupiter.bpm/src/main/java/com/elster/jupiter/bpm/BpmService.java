@@ -1,5 +1,9 @@
 package com.elster.jupiter.bpm;
 
+import com.elster.jupiter.bpm.impl.BpmProcessDefinitionImpl;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.QueryService;
+
 import java.util.List;
 import java.util.Map;
 
@@ -16,4 +20,12 @@ public interface BpmService {
     boolean startProcess(String deploymentId, String processId, Map<String, Object> parameters);
 
     BpmServer getBpmServer();
+
+    BpmProcessDefinition findOrCreateBpmProcessDefinition(String processName, String association, String version, boolean state);
+
+    Query<BpmProcessDefinition> getQueryBpmProcessDefinition();
+
+    List<BpmProcessDefinition> getBpmProcessDefinitions();
+
+    QueryService getQueryService();
 }

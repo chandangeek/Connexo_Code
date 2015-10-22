@@ -6,7 +6,9 @@ import java.util.Map;
 public class BpmProcess{
 
     private String deploymentId;
-    private String id;
+    private long id;
+    private String name;
+    private String id2;
     private Map<String, Object> parameters;
 
     @SuppressWarnings("unused")
@@ -14,9 +16,9 @@ public class BpmProcess{
 
     }
 
-    public BpmProcess(String deploymentId, String id, Map<String, Object> parameters){
+    public BpmProcess(String deploymentId, String id2, Map<String, Object> parameters){
         this.deploymentId = deploymentId;
-        this.id = id;
+        this.id2 = id2;
         this.parameters = parameters;
     }
 
@@ -25,7 +27,7 @@ public class BpmProcess{
     }
 
     public String getId() {
-        return this.id;
+        return this.id2;
     }
 
     public Map<String, Object> getParameters() {

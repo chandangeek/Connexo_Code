@@ -1,9 +1,12 @@
 package com.elster.jupiter.bpm.impl;
 
 import com.elster.jupiter.bpm.BpmProcess;
+import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.bpm.BpmServer;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.security.Privileges;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
@@ -19,6 +22,8 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.inject.AbstractModule;
@@ -50,12 +55,13 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
     private volatile Thesaurus thesaurus;
     private volatile UserService userService;
     private volatile BpmServerImpl bpmServer;
+    private volatile QueryService queryService;
 
     public BpmServiceImpl() {
     }
 
     @Inject
-    public BpmServiceImpl(OrmService ormService, MessageService messageService, JsonService jsonService, NlsService nlsService, UserService userService) {
+    public BpmServiceImpl(OrmService ormService, MessageService messageService, JsonService jsonService, NlsService nlsService, UserService userService, QueryService queryService) {
         this();
         setOrmService(ormService);
         setMessageService(messageService);
@@ -78,6 +84,7 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(UserService.class).toInstance(userService);
+                bind(QueryService.class).toInstance(queryService);
                 bind(BpmService.class).toInstance(BpmServiceImpl.this);
             }
         });
@@ -91,7 +98,7 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
 
     @Override
     public void install() {
-        new InstallerImpl().install(messageService);
+        new InstallerImpl(dataModel).install(messageService);
     }
 
     @Override
@@ -102,6 +109,14 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
     @Reference
     public void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(COMPONENTNAME, "BPM");
+        for (TableSpecs each : TableSpecs.values()) {
+            each.addTo(dataModel);
+        }
+    }
+
+    @Reference
+    public void setQueryService(QueryService queryService) {
+        this.queryService = queryService;
     }
 
     @Reference
@@ -191,4 +206,30 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
         return Arrays.asList(MessageSeeds.values());
     }
 
+    @Override
+    public BpmProcessDefinition findOrCreateBpmProcessDefinition(String processName, String association, String version, boolean state){
+        Condition nameCondition = Operator.EQUALIGNORECASE.compare("processName", processName);
+        Condition versionCondition = Operator.EQUALIGNORECASE.compare("version", version);
+        List<BpmProcessDefinition> bpmProcessDefinitions = dataModel.query(BpmProcessDefinition.class).select(nameCondition.and(versionCondition));
+        if(bpmProcessDefinitions.isEmpty()){
+            return BpmProcessDefinitionImpl.from(dataModel, processName, association, version, state);
+        }
+        bpmProcessDefinitions.get(0).setState(state);
+        return bpmProcessDefinitions.get(0);
+    }
+
+    @Override
+    public Query<BpmProcessDefinition> getQueryBpmProcessDefinition(){
+        return getQueryService().wrap(dataModel.query(BpmProcessDefinition.class));
+    }
+
+    @Override
+    public List<BpmProcessDefinition> getBpmProcessDefinitions(){
+        return dataModel.mapper(BpmProcessDefinition.class).find();
+    }
+
+    @Override
+    public QueryService getQueryService() {
+        return queryService;
+    }
 }
