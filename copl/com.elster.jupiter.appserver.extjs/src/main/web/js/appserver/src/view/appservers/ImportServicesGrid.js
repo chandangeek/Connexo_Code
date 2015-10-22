@@ -6,16 +6,6 @@ Ext.define('Apr.view.appservers.ImportServicesGrid', {
     ],
     width: '100%',
     maxHeight: 300,
-    overflowY: 'auto',
-    plugins: [
-        'showConditionalToolTip',
-        {
-            ptype: 'cellediting',
-            clicksToEdit: 1,
-            pluginId: 'cellplugin'
-        }
-    ],
-
     columns: [
         {
             header: Uni.I18n.translate('general.name', 'APR', 'Name'),
