@@ -1,5 +1,6 @@
 package com.elster.jupiter.export;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.properties.PropertySpec;
@@ -10,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@ProviderType
 public interface DataExportService {
 
     String COMPONENTNAME = "DES";
@@ -24,6 +26,8 @@ public interface DataExportService {
     DataExportTaskBuilder newBuilder();
 
     Optional<? extends ExportTask> findExportTask(long id);
+
+    Optional<? extends ExportTask> findAndLockExportTask(long id, long version);
 
     Query<? extends ExportTask> getReadingTypeDataExportTaskQuery();
 

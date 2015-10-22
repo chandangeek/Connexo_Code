@@ -172,6 +172,11 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Override
+    public Optional<? extends ExportTask> findAndLockExportTask(long id, long version) {
+        return dataModel.mapper(IExportTask.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public Query<? extends ExportTask> getReadingTypeDataExportTaskQuery() {
         return queryService.wrap(dataModel.query(IExportTask.class));
     }
