@@ -12,6 +12,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -81,6 +82,7 @@ public class DeviceConfigurationApplication extends Application implements Messa
         return ImmutableSet.of(
                 TransactionWrapper.class,
                 ExceptionLogger.class,
+                RestValidationExceptionMapper.class,
                 DeviceTypeResource.class,
                 DeviceConfigFieldResource.class,
                 DeviceConfigurationResource.class,
