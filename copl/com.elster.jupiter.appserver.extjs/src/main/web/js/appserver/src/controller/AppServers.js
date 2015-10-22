@@ -581,7 +581,6 @@ Ext.define('Apr.controller.AppServers', {
         me.getApplication().fireEvent('appserverload', me.appServer.get('name'));
         me.getApplication().fireEvent('changecontentevent', view);
         var disabled = me.getStore('Apr.store.UnservedImportServices').getCount() === 0;
-        debugger;
         me.getAddImportServicesButtonFromDetails().setDisabled(disabled)
 
     },
