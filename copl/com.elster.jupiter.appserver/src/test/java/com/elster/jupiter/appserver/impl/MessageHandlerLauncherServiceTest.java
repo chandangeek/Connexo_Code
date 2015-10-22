@@ -1,6 +1,8 @@
 package com.elster.jupiter.appserver.impl;
 
 import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.AppServerCommand;
+import com.elster.jupiter.appserver.Command;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.devtools.persistence.test.TransactionVerifier;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -117,6 +119,7 @@ public class MessageHandlerLauncherServiceTest {
     public void testAddResourceStartReceivingMessages() throws InterruptedException {
         final CountDownLatch arrivalLatch = new CountDownLatch(2);
         when(appService.getSubscriberExecutionSpecs()).thenReturn(Arrays.asList(subscriberExecutionSpec));
+        doReturn(Arrays.asList(subscriberExecutionSpec)).when(appServer).getSubscriberExecutionSpecs();
         when(appService.getAppServer()).thenReturn(Optional.of(appServer));
         when(appServer.isActive()).thenReturn(true);
         Answer<Void> methodReached = new Answer<Void>() {
@@ -152,6 +155,7 @@ public class MessageHandlerLauncherServiceTest {
         when(subscriberExecutionSpec.isActive()).thenReturn(false);
 
         when(appService.getSubscriberExecutionSpecs()).thenReturn(Arrays.asList(subscriberExecutionSpec));
+        doReturn(Arrays.asList(subscriberExecutionSpec)).when(appServer).getSubscriberExecutionSpecs();
         when(appService.getAppServer()).thenReturn(Optional.of(appServer));
         when(appServer.isActive()).thenReturn(true);
 
@@ -174,10 +178,140 @@ public class MessageHandlerLauncherServiceTest {
         }
     }
 
+    @Test
+    public void testReconfigureToActive() throws InterruptedException {
+        when(subscriberExecutionSpec.isActive()).thenReturn(false, true);
+
+        when(appService.getSubscriberExecutionSpecs()).thenReturn(Arrays.asList(subscriberExecutionSpec));
+        doReturn(Arrays.asList(subscriberExecutionSpec)).when(appServer).getSubscriberExecutionSpecs();
+        when(appService.getAppServer()).thenReturn(Optional.of(appServer));
+        when(appServer.isActive()).thenReturn(true);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("subscriber", SUBSCRIBER);
+        map.put("destination", DESTINATION);
+
+        try {
+            messageHandlerLauncherService.activate();
+            messageHandlerLauncherService.addResource(factory, map);
+
+            assertThat(messageHandlerLauncherService.futureReport()).isEmpty();
+            assertThat(messageHandlerLauncherService.threadReport()).isEmpty();
+
+            messageHandlerLauncherService.notify(new AppServerCommand(Command.CONFIG_CHANGED));
+
+            assertThat(messageHandlerLauncherService.futureReport()).hasSize(1);
+            assertThat(messageHandlerLauncherService.threadReport()).hasSize(1);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            messageHandlerLauncherService.deactivate();
+        }
+    }
+
+    @Test
+    public void testReconfigureToInactive() throws InterruptedException {
+        when(subscriberExecutionSpec.isActive()).thenReturn(true, false);
+
+        when(appService.getSubscriberExecutionSpecs()).thenReturn(Arrays.asList(subscriberExecutionSpec));
+        doReturn(Arrays.asList(subscriberExecutionSpec)).when(appServer).getSubscriberExecutionSpecs();
+        when(appService.getAppServer()).thenReturn(Optional.of(appServer));
+        when(appServer.isActive()).thenReturn(true);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("subscriber", SUBSCRIBER);
+        map.put("destination", DESTINATION);
+
+        try {
+            messageHandlerLauncherService.activate();
+            messageHandlerLauncherService.addResource(factory, map);
+
+            assertThat(messageHandlerLauncherService.futureReport()).hasSize(1);
+            assertThat(messageHandlerLauncherService.threadReport()).hasSize(1);
+
+            messageHandlerLauncherService.notify(new AppServerCommand(Command.CONFIG_CHANGED));
+
+            assertThat(messageHandlerLauncherService.futureReport()).isEmpty();
+            assertThat(messageHandlerLauncherService.threadReport()).isEmpty();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            messageHandlerLauncherService.deactivate();
+        }
+    }
+
+    @Test
+    public void testReconfigureToAddThreads() throws InterruptedException {
+        when(subscriberExecutionSpec.isActive()).thenReturn(true);
+        when(subscriberExecutionSpec.getThreadCount()).thenReturn(1, 3);
+
+        when(appService.getSubscriberExecutionSpecs()).thenReturn(Arrays.asList(subscriberExecutionSpec));
+        doReturn(Arrays.asList(subscriberExecutionSpec)).when(appServer).getSubscriberExecutionSpecs();
+        when(appService.getAppServer()).thenReturn(Optional.of(appServer));
+        when(appServer.isActive()).thenReturn(true);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("subscriber", SUBSCRIBER);
+        map.put("destination", DESTINATION);
+
+        try {
+            messageHandlerLauncherService.activate();
+            messageHandlerLauncherService.addResource(factory, map);
+
+            assertThat(messageHandlerLauncherService.futureReport().values().stream().mapToInt(Integer::intValue).sum()).isEqualTo(1);
+            assertThat(messageHandlerLauncherService.threadReport().values().stream().mapToInt(Integer::intValue).sum()).isEqualTo(1);
+
+            messageHandlerLauncherService.notify(new AppServerCommand(Command.CONFIG_CHANGED));
+
+            assertThat(messageHandlerLauncherService.futureReport().values().stream().mapToInt(Integer::intValue).sum()).isEqualTo(3);
+            assertThat(messageHandlerLauncherService.threadReport().values().stream().mapToInt(Integer::intValue).sum()).isEqualTo(3);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            messageHandlerLauncherService.deactivate();
+        }
+    }
+
+    @Test
+    public void testReconfigureToReduceThreads() throws InterruptedException {
+        when(subscriberExecutionSpec.isActive()).thenReturn(true);
+        when(subscriberExecutionSpec.getThreadCount()).thenReturn(3, 1);
+
+        when(appService.getSubscriberExecutionSpecs()).thenReturn(Arrays.asList(subscriberExecutionSpec));
+        doReturn(Arrays.asList(subscriberExecutionSpec)).when(appServer).getSubscriberExecutionSpecs();
+        when(appService.getAppServer()).thenReturn(Optional.of(appServer));
+        when(appServer.isActive()).thenReturn(true);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("subscriber", SUBSCRIBER);
+        map.put("destination", DESTINATION);
+
+        try {
+            messageHandlerLauncherService.activate();
+            messageHandlerLauncherService.addResource(factory, map);
+
+            assertThat(messageHandlerLauncherService.futureReport().values().stream().mapToInt(Integer::intValue).sum()).isEqualTo(3);
+            assertThat(messageHandlerLauncherService.threadReport().values().stream().mapToInt(Integer::intValue).sum()).isEqualTo(3);
+
+            messageHandlerLauncherService.notify(new AppServerCommand(Command.CONFIG_CHANGED));
+
+            assertThat(messageHandlerLauncherService.futureReport().values().stream().mapToInt(Integer::intValue).sum()).isEqualTo(1);
+            assertThat(messageHandlerLauncherService.threadReport().values().stream().mapToInt(Integer::intValue).sum()).isEqualTo(1);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            messageHandlerLauncherService.deactivate();
+        }
+    }
+
     @Test(timeout = 5000)
     public void testExceptionInHandlerProcess() throws InterruptedException {
         final CountDownLatch arrivalLatch = new CountDownLatch(1);
         when(appService.getSubscriberExecutionSpecs()).thenReturn(Arrays.asList(subscriberExecutionSpec));
+        doReturn(Arrays.asList(subscriberExecutionSpec)).when(appServer).getSubscriberExecutionSpecs();
         when(appService.getAppServer()).thenReturn(Optional.of(appServer));
         when(appServer.isActive()).thenReturn(true);
         Answer<Void> methodReached = new Answer<Void>() {
@@ -220,6 +354,7 @@ public class MessageHandlerLauncherServiceTest {
         final CountDownLatch arrivalLatch = new CountDownLatch(1);
         final CountDownLatch waitForCancel = new CountDownLatch(1);
         when(appService.getSubscriberExecutionSpecs()).thenReturn(Arrays.asList(subscriberExecutionSpec));
+        doReturn(Arrays.asList(subscriberExecutionSpec)).when(appServer).getSubscriberExecutionSpecs();
         when(appService.getAppServer()).thenReturn(Optional.of(appServer));
         when(appServer.isActive()).thenReturn(true);
         doAnswer(new Answer<Void>() {
@@ -271,14 +406,13 @@ public class MessageHandlerLauncherServiceTest {
 
         final CountDownLatch arrivalLatch = new CountDownLatch(2);
         when(appService.getSubscriberExecutionSpecs()).thenReturn(Arrays.asList(subscriberExecutionSpec));
+        doReturn(Arrays.asList(subscriberExecutionSpec)).when(appServer).getSubscriberExecutionSpecs();
         when(appService.getAppServer()).thenReturn(Optional.of(appServer));
         when(appServer.isActive()).thenReturn(true);
 
         Map<String, Object> map = new HashMap<>();
         map.put("subscriber", SUBSCRIBER);
         map.put("destination", DESTINATION);
-
-        int threadCount = 0;
 
         try {
             messageHandlerLauncherService.activate();
