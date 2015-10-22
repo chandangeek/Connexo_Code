@@ -36,6 +36,7 @@ public class DataExportTaskInfo {
     public Long lastRun;
     public StandardDataSelectorInfo standardDataSelector;
     public List<DestinationInfo> destinations = new ArrayList<>();
+    public long version;
 
 
     public DataExportTaskInfo(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
@@ -99,6 +100,7 @@ public class DataExportTaskInfo {
         if (lastRunOptional.isPresent()) {
             lastRun = lastRunOptional.get().toEpochMilli();
         }
+        version = dataExportTask.getVersion();
     }
 
     private void populateReadingTypeDataExport(ExportTask dataExportTask, Thesaurus thesaurus) {

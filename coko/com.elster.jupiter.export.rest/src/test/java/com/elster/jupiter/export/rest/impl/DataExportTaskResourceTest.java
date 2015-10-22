@@ -1,10 +1,12 @@
 package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.EmailDestination;
+import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.FileDestination;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.time.ZoneId;
@@ -18,6 +20,9 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
 
     public static final ZonedDateTime NEXT_EXECUTION = ZonedDateTime.of(2015, 1, 13, 0, 0, 0, 0, ZoneId.systemDefault());
     public static final int TASK_ID = 750;
+    public static final long OK_VERSION = 41L;
+    public static final long BAD_VERSION = 35L;
+
     @Mock
     private FileDestination newDestination;
 
@@ -36,8 +41,10 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
     @Test
     public void triggerTaskTest() {
         DataExportTaskInfo info = new DataExportTaskInfo();
+        info.id = TASK_ID;
+        info.version = OK_VERSION;
 
-        Response response1 = target("/dataexporttask/"+TASK_ID+"/trigger").request().post(Entity.json(null));
+        Response response1 = target("/dataexporttask/"+TASK_ID+"/trigger").request().put(Entity.json(info));
         assertThat(response1.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         verify(exportTask).triggerNow();
@@ -115,6 +122,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         info.dataProcessor.name = "dataProcessor";
         info.dataSelector = new SelectorInfo();
         info.dataSelector.name = "Standard Data Selector";
+        info.version = OK_VERSION;
         DestinationInfo fileDestinationInfo = new DestinationInfo();
         fileDestinationInfo.id = 0; // new
         fileDestinationInfo.type = DestinationType.FILE;
@@ -146,6 +154,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         info.dataSelector = new SelectorInfo();
         info.dataProcessor = new ProcessorInfo();
         info.dataProcessor.name = "dataProcessor";
+        info.version = OK_VERSION;
         DestinationInfo fileDestinationInfo = new DestinationInfo();
         fileDestinationInfo.id = 0; // new
         fileDestinationInfo.type = DestinationType.FILE;
@@ -179,4 +188,47 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
     }
 
 
+    @Test
+    public void updateTaskBadVersion() {
+        DataExportTaskInfo info = new DataExportTaskInfo();
+        info.id = TASK_ID;
+        info.name = "newName";
+        info.nextRun = 250L;
+        info.dataSelector = new SelectorInfo();
+        info.dataProcessor = new ProcessorInfo();
+        info.dataProcessor.name = "dataProcessor";
+        info.version = BAD_VERSION;
+
+        Entity<DataExportTaskInfo> json = Entity.json(info);
+
+        Response response = target("/dataexporttask/" + TASK_ID).request().put(json);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
+    public void deleteTaskBadVersion() {
+        DataExportTaskInfo info = new DataExportTaskInfo();
+        info.id = TASK_ID;
+        info.name = "newName";
+        info.version = BAD_VERSION;
+        Entity<DataExportTaskInfo> json = Entity.json(info);
+        Response response = target("/dataexporttask/" + TASK_ID).request().build(HttpMethod.DELETE, json).invoke();
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
+    public void triggerNowBadVersion() {
+        ExportTask exportTask = mock(ExportTask.class);
+        DataExportTaskInfo info = new DataExportTaskInfo();
+        info.id = TASK_ID;
+        info.name = "newName";
+        info.version = BAD_VERSION;
+        Entity<DataExportTaskInfo> json = Entity.json(info);
+        Response response = target("/dataexporttask/" + TASK_ID + "/trigger").request().put(json);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+        verify(exportTask, never()).triggerNow();
+    }
 }

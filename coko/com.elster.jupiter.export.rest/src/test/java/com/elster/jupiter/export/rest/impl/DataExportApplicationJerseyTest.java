@@ -131,8 +131,11 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
         when(exportTask.getName()).thenReturn("Name");
         when(exportTask.getLastOccurrence()).thenReturn(Optional.empty());
         when(exportTask.getLastRun()).thenReturn(Optional.empty());
+        when(exportTask.getVersion()).thenReturn(DataExportTaskResourceTest.OK_VERSION);
 
         doReturn(Optional.of(exportTask)).when(dataExportService).findExportTask(DataExportTaskResourceTest.TASK_ID);
+        doReturn(Optional.of(exportTask)).when(dataExportService).findAndLockExportTask(DataExportTaskResourceTest.TASK_ID, DataExportTaskResourceTest.OK_VERSION);
+        doReturn(Optional.empty()).when(dataExportService).findAndLockExportTask(DataExportTaskResourceTest.TASK_ID, DataExportTaskResourceTest.BAD_VERSION);
         setUpStubs();
     }
 

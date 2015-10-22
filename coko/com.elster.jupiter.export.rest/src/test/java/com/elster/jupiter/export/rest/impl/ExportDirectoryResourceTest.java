@@ -4,6 +4,8 @@ import com.elster.jupiter.appserver.AppServer;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Test;
 
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 
 import java.nio.file.Path;
@@ -40,9 +42,42 @@ public class ExportDirectoryResourceTest extends DataExportApplicationJerseyTest
     @Test
     public void testRemoveExportDir(){
         String name = "appServ";
+        DirectoryForAppServerInfo info = new DirectoryForAppServerInfo();
+        info.appServerName = name;
+        info.version = 1L;
+
         AppServer appServer = mock(AppServer.class);
         when(appService.findAppServer(name)).thenReturn(Optional.of(appServer));
-        Response response = target("/exportdirs/appServ").request().delete();
+        when(appService.findAndLockAppServerByNameAndVersion(name, 1L)).thenReturn(Optional.of(appServer));
+        Response response = target("/exportdirs/appServ").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void testRemoveExportDirBadVersion(){
+        String name = "appServ";
+        DirectoryForAppServerInfo info = new DirectoryForAppServerInfo();
+        info.appServerName = name;
+        info.version = 1L;
+
+        AppServer appServer = mock(AppServer.class);
+        when(appService.findAppServer(name)).thenReturn(Optional.of(appServer));
+        when(appService.findAndLockAppServerByNameAndVersion(name, 1L)).thenReturn(Optional.empty());
+        Response response = target("/exportdirs/appServ").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
+    public void testEditExportDirBadVersion(){
+        String name = "appServ";
+        DirectoryForAppServerInfo info = new DirectoryForAppServerInfo();
+        info.appServerName = name;
+        info.version = 1L;
+
+        AppServer appServer = mock(AppServer.class);
+        when(appService.findAppServer(name)).thenReturn(Optional.of(appServer));
+        when(appService.findAndLockAppServerByNameAndVersion(name, 1L)).thenReturn(Optional.empty());
+        Response response = target("/exportdirs/appServ").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 }

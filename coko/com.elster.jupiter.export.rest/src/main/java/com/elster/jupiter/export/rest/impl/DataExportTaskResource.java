@@ -18,6 +18,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.ListPager;
 import com.elster.jupiter.rest.util.QueryParameters;
@@ -71,9 +72,10 @@ public class DataExportTaskResource {
     private final Thesaurus thesaurus;
     private final TransactionService transactionService;
     private final PropertyUtils propertyUtils;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public DataExportTaskResource(RestQueryService queryService, DataExportService dataExportService, TimeService timeService, MeteringGroupsService meteringGroupsService, Thesaurus thesaurus, TransactionService transactionService, PropertyUtils propertyUtils) {
+    public DataExportTaskResource(RestQueryService queryService, DataExportService dataExportService, TimeService timeService, MeteringGroupsService meteringGroupsService, Thesaurus thesaurus, TransactionService transactionService, PropertyUtils propertyUtils, ConcurrentModificationExceptionFactory conflictFactory) {
         this.queryService = queryService;
         this.dataExportService = dataExportService;
         this.timeService = timeService;
@@ -81,6 +83,7 @@ public class DataExportTaskResource {
         this.thesaurus = thesaurus;
         this.transactionService = transactionService;
         this.propertyUtils = propertyUtils;
+        this.conflictFactory = conflictFactory;
     }
 
     @GET
@@ -106,16 +109,22 @@ public class DataExportTaskResource {
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DATA_EXPORT_TASK, Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK})
-    public DataExportTaskInfo getDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
+    public DataExportTaskInfo getDataExportTask(@PathParam("id") long id) {
         return new DataExportTaskInfo(fetchDataExportTask(id), thesaurus, timeService, propertyUtils);
     }
 
-    @POST
+    @PUT
     @Path("/{id}/trigger")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.VIEW_DATA_EXPORT_TASK, Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK})
-    public Response triggerDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        transactionService.execute(VoidTransaction.of(() -> fetchDataExportTask(id).triggerNow()));
+    public Response triggerDataExportTask(@PathParam("id") long id, DataExportTaskInfo info) {
+        info.id = id;
+        transactionService.execute(VoidTransaction.of(() -> dataExportService.findAndLockExportTask(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> dataExportService.findExportTask(info.id).map(ExportTask::getVersion).orElse(null))
+                        .withMessageTitle(MessageSeeds.RUN_TASK_CONCURRENT_TITLE, info.name)
+                        .withMessageBody(MessageSeeds.RUN_TASK_CONCURRENT_BODY, info.name)
+                        .supplier()).triggerNow()));
         return Response.status(Response.Status.OK).build();
     }
 
@@ -199,19 +208,22 @@ public class DataExportTaskResource {
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.ADMINISTRATE_DATA_EXPORT_TASK)
-    public Response removeDataExportTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        ExportTask task = fetchDataExportTask(id);
-
-        if (!task.canBeDeleted()) {
-            throw new LocalizedFieldValidationException(MessageSeeds.DELETE_TASK_STATUS_BUSY, "status");
-        }
+    public Response removeDataExportTask(@PathParam("id") long id, DataExportTaskInfo info) {
+        String taskName = info.name;
         try (TransactionContext context = transactionService.getContext()) {
+            info.id = id;
+            ExportTask task = findAndLockExportTask(info);
+
+            if (!task.canBeDeleted()) {
+                throw new LocalizedFieldValidationException(MessageSeeds.DELETE_TASK_STATUS_BUSY, "status");
+            }
+            taskName = task.getName();
             task.delete();
             context.commit();
+            return Response.status(Response.Status.OK).build();
         } catch (UnderlyingSQLFailedException | CommitException ex) {
-            throw new LocalizedFieldValidationException(MessageSeeds.DELETE_TASK_SQL_EXCEPTION, "status", task.getName());
+            throw new LocalizedFieldValidationException(MessageSeeds.DELETE_TASK_SQL_EXCEPTION, "status", taskName);
         }
-        return Response.status(Response.Status.OK).build();
     }
 
     @PUT
@@ -219,10 +231,10 @@ public class DataExportTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK})
     public Response updateExportTask(@PathParam("id") long id, DataExportTaskInfo info) {
-
-        ExportTask task = findTaskOrThrowException(id);
-
         try (TransactionContext context = transactionService.getContext()) {
+            info.id = id;
+            ExportTask task = findAndLockExportTask(info);
+
             task.setName(info.name);
             task.setScheduleExpression(getScheduleExpression(info));
             task.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
@@ -264,8 +276,8 @@ public class DataExportTaskResource {
 
             task.update();
             context.commit();
+            return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(task, thesaurus, timeService, propertyUtils)).build();
         }
-        return Response.status(Response.Status.CREATED).entity(new DataExportTaskInfo(task, thesaurus, timeService, propertyUtils)).build();
     }
 
     private void updateEvents(DataExportTaskInfo info, ExportTask task) {
@@ -371,6 +383,13 @@ public class DataExportTaskResource {
         return dataExportService.findExportTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
+    private ExportTask findAndLockExportTask(DataExportTaskInfo info) {
+        return dataExportService.findAndLockExportTask(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> dataExportService.findExportTask(info.id).map(ExportTask::getVersion).orElse(null))
+                        .supplier());
+    }
+
     private void updateReadingTypes(DataExportTaskInfo info, ExportTask task) {
         StandardDataSelector selector = task.getReadingTypeDataSelector().orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
         selector.getReadingTypes().stream()
@@ -447,5 +466,4 @@ public class DataExportTaskResource {
     private DataExportOccurrence fetchDataExportOccurrence(long id, ExportTask task) {
         return task.getOccurrence(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
-
 }
