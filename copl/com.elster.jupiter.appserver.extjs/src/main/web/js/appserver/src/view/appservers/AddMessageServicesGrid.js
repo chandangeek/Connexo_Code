@@ -1,6 +1,9 @@
 Ext.define('Apr.view.appservers.AddMessageServicesGrid', {
     extend: 'Uni.view.grid.SelectionGrid',
     alias: 'widget.add-message-services-grid',
+    requires: [
+        'Apr.store.ActiveService'
+    ],
 
     plugins: [
         {
@@ -28,6 +31,22 @@ Ext.define('Apr.view.appservers.AddMessageServicesGrid', {
             header: Uni.I18n.translate('general.name', 'APR', 'Name'),
             dataIndex: 'messageService',
             flex: 1
+        },
+        {
+            header: Uni.I18n.translate('general.status', 'APR', 'Status'),
+            dataIndex: 'active',
+            flex: 1,
+            editor: {
+                xtype: 'combobox',
+                allowBlank: false,
+                displayField:'displayName',
+                valueField:'active',
+                queryMode:'local',
+                store: 'Apr.store.ActiveService'
+            },
+            renderer: function(value){
+                return value?Uni.I18n.translate('general.active', 'APR', 'Active'):Uni.I18n.translate('general.inactive', 'APR', 'Inactive');
+            }
         },
         {
             itemId: 'threads-column',
