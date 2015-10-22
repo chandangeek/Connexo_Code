@@ -183,6 +183,11 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     }
 
     @Override
+    public Optional<UsagePoint> findAndLockUsagePointByIdAndVersion(long id, long version) {
+        return dataModel.mapper(UsagePoint.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public Optional<UsagePoint> findUsagePoint(String mRID) {
         List<UsagePoint> usagePoints = dataModel.mapper(UsagePoint.class).select(Operator.EQUAL.compare("mRID", mRID));
         return usagePoints.isEmpty() ? Optional.empty() : Optional.of(usagePoints.get(0));
