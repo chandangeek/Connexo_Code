@@ -35,8 +35,8 @@ Ext.define('Apr.view.appservers.AddImportServicesSetup', {
                         margin: '15 0 20 0',
                         title: Uni.I18n.translate('validation.importServices.empty.title', 'APR', 'No import services found.'),
                         reasons: [
-                            Uni.I18n.translate('validation.messageServices.empty.list.item1', 'APR', 'No import services exist.'),
-                            Uni.I18n.translate('dataExportTasks.messageServices.empty.list.item3', 'APR', 'All import services have already been added to the application server.')
+                            Uni.I18n.translate('validation.importServices.empty.list.item1', 'APR', 'No import services exist.'),
+                            Uni.I18n.translate('dataExportTasks.importServices.empty.list.item3', 'APR', 'All import services have already been added to the application server.')
                         ]
                     }
                 },
