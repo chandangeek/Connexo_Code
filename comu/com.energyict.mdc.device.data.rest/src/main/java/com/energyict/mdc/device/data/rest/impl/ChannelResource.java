@@ -15,6 +15,7 @@ import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
+import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -332,13 +333,16 @@ public class ChannelResource {
     @Path("{channelid}/validate")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(com.elster.jupiter.validation.security.Privileges.VALIDATE_MANUAL)
-    public Response validateDeviceData(TriggerValidationInfo validationInfo, @PathParam("mRID") String mRID, @PathParam("channelid") long channelId) {
+    public Response validateDeviceData(LoadProfileTriggerValidationInfo info, @PathParam("mRID") String mRID, @PathParam("channelid") long channelId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
-        DeviceValidation deviceValidation = device.forValidation();
-        if (validationInfo.lastChecked != null) {
-            deviceValidation.setLastChecked(channel, Instant.ofEpochMilli(validationInfo.lastChecked));
+        info.id = channel.getLoadProfile().getId();
+        LoadProfile loadProfile = resourceHelper.lockLoadProfileOrThrowException(info);
+        DeviceValidation deviceValidation = loadProfile.getDevice().forValidation();
+        if (info.lastChecked != null) {
+            deviceValidation.setLastChecked(channel, Instant.ofEpochMilli(info.lastChecked));
         }
+        loadProfile.getDevice().getLoadProfileUpdaterFor(loadProfile).update();
         deviceValidation.validateChannel(channel);
         return Response.ok().build();
     }

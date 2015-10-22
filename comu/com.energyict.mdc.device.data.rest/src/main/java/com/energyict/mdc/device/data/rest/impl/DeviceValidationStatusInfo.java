@@ -6,6 +6,7 @@ import java.util.Optional;
 public class DeviceValidationStatusInfo extends ValidationStatusInfo {
     public Long registerSuspectCount;
     public Long loadProfileSuspectCount;
+    public DeviceInfo device;
 
     public DeviceValidationStatusInfo() {
     }

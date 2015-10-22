@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.lifecycle.config.Privileges;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -9,10 +13,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.lifecycle.config.Privileges;
 
 public class DeviceHistoryResource {
 

@@ -3,11 +3,11 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.energyict.mdc.common.TypedProperties;
-import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -18,9 +18,7 @@ import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -35,6 +33,9 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Handles SecurityPropertySets on devices
@@ -90,20 +91,20 @@ public class SecurityPropertySetResource {
     @Path("/{securityPropertySetId}")
     @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.VIEW_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.VIEW_DEVICE_SECURITY_PROPERTIES_2, com.energyict.mdc.device.config.security.Privileges.VIEW_DEVICE_SECURITY_PROPERTIES_3, com.energyict.mdc.device.config.security.Privileges.VIEW_DEVICE_SECURITY_PROPERTIES_4,
             com.energyict.mdc.device.config.security.Privileges.EDIT_DEVICE_SECURITY_PROPERTIES_1, com.energyict.mdc.device.config.security.Privileges.EDIT_DEVICE_SECURITY_PROPERTIES_2,com.energyict.mdc.device.config.security.Privileges.EDIT_DEVICE_SECURITY_PROPERTIES_3,com.energyict.mdc.device.config.security.Privileges.EDIT_DEVICE_SECURITY_PROPERTIES_4,})
-    public Response updateSecurityPropertySet(@PathParam("mRID") String mrid, @Context UriInfo uriInfo, @PathParam("securityPropertySetId") long securityPropertySetId, SecurityPropertySetInfo securityPropertySetInfo) throws InvalidValueException {
+    public Response updateSecurityPropertySet(@PathParam("mRID") String mrid, @Context UriInfo uriInfo, @PathParam("securityPropertySetId") long securityPropertySetId, SecurityPropertySetInfo info) {
+        info.id = securityPropertySetId;
+        SecurityPropertySet securityPropertySet = resourceHelper.lockSecurityPropertySetOrThrowException(info);
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        SecurityPropertySet securityPropertySet = getSecurityPropertySetOrThrowException(securityPropertySetId, device);
-        //TypedProperties typedProperties = TypedProperties.empty();
         if (securityPropertySet.currentUserIsAllowedToEditDeviceProperties()) {
             boolean status = true;
             TypedProperties typedProperties = getTypedPropertiesForSecurityPropertySet(device, securityPropertySet);
             for (PropertySpec propertySpec : securityPropertySet.getPropertySpecs()) {
-                Object newPropertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, securityPropertySetInfo.properties);
+                Object newPropertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, info.properties);
                 if (newPropertyValue != null) {
                     // propertySpec.validateValue(newPropertyValue);
                     typedProperties.setProperty(propertySpec.getName(), newPropertyValue);
                 } else {
-                    if (!propertyHasValue(propertySpec, securityPropertySetInfo.properties)) {
+                    if (!propertyHasValue(propertySpec, info.properties)) {
                         typedProperties.removeProperty(propertySpec.getName());
                         status = false;
                     }
@@ -113,7 +114,7 @@ public class SecurityPropertySetResource {
             if (status) {
                 device.setSecurityProperties(securityPropertySet, typedProperties);
             } else {
-                if (securityPropertySetInfo.saveAsIncomplete) {
+                if (info.saveAsIncomplete) {
                     device.setSecurityProperties(securityPropertySet, typedProperties);
                 } else {
                     throw new LocalizedFieldValidationException(MessageSeeds.INCOMPLETE, "status");
@@ -121,8 +122,7 @@ public class SecurityPropertySetResource {
             }
 
             // Reload
-            device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-            securityPropertySet = getSecurityPropertySetOrThrowException(securityPropertySetId, device);
+            device.save();
             return Response.ok(securityPropertySetInfoFactory.asInfo(device, uriInfo, securityPropertySet)).build();
         }
         else {

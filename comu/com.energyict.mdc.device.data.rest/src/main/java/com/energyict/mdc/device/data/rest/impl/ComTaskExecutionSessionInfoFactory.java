@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
 import com.energyict.mdc.device.data.Device;
@@ -10,8 +11,6 @@ import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
-
-import com.elster.jupiter.nls.Thesaurus;
 
 import javax.inject.Inject;
 import java.time.temporal.ChronoUnit;

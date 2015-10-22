@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.rest.util.VersionInfo;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -17,10 +20,8 @@ import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -28,8 +29,6 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
-import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
@@ -82,9 +81,12 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
     public void testActivateComTask() {
         Device device = mock(Device.class);
         when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceBymRIDAndVersion("mrid", 1L)).thenReturn(Optional.of(device));
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(1L, 1L)).thenReturn(Optional.of(deviceConfiguration));
+        when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfiguration));
 
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
@@ -105,7 +107,12 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
         when(connectionTask.getName()).thenReturn("connectionMethod");
         when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
 
-        Response response = target("/devices/mrid/comtasks/1/activate").request().put(Entity.json(""));
+        ComTaskConnectionMethodInfo info = new ComTaskConnectionMethodInfo();
+        info.device = new DeviceInfo();
+        info.device.mRID = "mrid";
+        info.device.version = 1L;
+        info.device.parent = new VersionInfo<>(1L, 1L);
+        Response response = target("/devices/mrid/comtasks/1/activate").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 

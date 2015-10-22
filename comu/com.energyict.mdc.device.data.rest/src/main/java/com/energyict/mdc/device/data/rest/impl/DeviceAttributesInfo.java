@@ -146,7 +146,7 @@ public class DeviceAttributesInfo {
     public DeviceAttributeInfo<Instant> installationDate;
     public DeviceAttributeInfo<Instant> deactivationDate;
     public DeviceAttributeInfo<Instant> decommissioningDate;
-    public long deviceVersion;
+    public DeviceInfo device;
 
     @JsonIgnore
     public Optional<Instant> getShipmentDate(){

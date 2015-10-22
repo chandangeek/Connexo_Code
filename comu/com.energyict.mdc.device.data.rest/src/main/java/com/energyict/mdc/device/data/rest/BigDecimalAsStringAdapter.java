@@ -1,10 +1,9 @@
 package com.energyict.mdc.device.data.rest;
 
 
-import javax.xml.bind.annotation.adapters.XmlAdapter;
-
 import com.elster.jupiter.util.Checks;
 
+import javax.xml.bind.annotation.adapters.XmlAdapter;
 import java.math.BigDecimal;
 
 public class BigDecimalAsStringAdapter extends XmlAdapter<String, BigDecimal>{

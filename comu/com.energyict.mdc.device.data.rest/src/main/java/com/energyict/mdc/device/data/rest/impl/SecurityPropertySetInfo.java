@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.configuration.rest.SecurityLevelInfo;
@@ -22,6 +23,8 @@ public class SecurityPropertySetInfo {
     public boolean userHasEditPrivilege;
 
     public boolean saveAsIncomplete;
+    public long version;
+    public VersionInfo<String> parent;
 
     public SecurityPropertySetInfo() {
     }

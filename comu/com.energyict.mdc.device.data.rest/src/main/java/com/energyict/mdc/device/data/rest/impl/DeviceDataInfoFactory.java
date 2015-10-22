@@ -3,16 +3,19 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.energyict.mdc.common.rest.IntervalInfo;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.BillingReading;
 import com.energyict.mdc.device.data.BillingRegister;
 import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.FlagsReading;
 import com.energyict.mdc.device.data.FlagsRegister;
@@ -254,6 +257,7 @@ public class DeviceDataInfoFactory {
 
     private void addCommonRegisterInfo(Register register, RegisterInfo registerInfo) {
         RegisterSpec registerSpec = register.getRegisterSpec();
+        Device device = register.getDevice();
         registerInfo.id = registerSpec.getId();
         registerInfo.registerType = registerSpec.getRegisterType().getId();
         registerInfo.readingType = new ReadingTypeInfo(registerSpec.getRegisterType().getReadingType());
@@ -263,6 +267,10 @@ public class DeviceDataInfoFactory {
         registerInfo.obisCodeDescription = registerSpec.getObisCode().getDescription();
         registerInfo.unitOfMeasure = registerSpec.getUnit();
         registerInfo.isCumulative = registerSpec.getReadingType().isCumulative();
+        registerInfo.mRID = device.getmRID();
+        registerInfo.version = device.getVersion();
+        DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
+        registerInfo.parent = new VersionInfo(deviceConfiguration.getId(), deviceConfiguration.getVersion());
         Optional<? extends Reading> lastReading = register.getLastReading();
         lastReading.ifPresent(reading -> registerInfo.lastReading = createReadingInfo(reading, registerSpec, false));
     }

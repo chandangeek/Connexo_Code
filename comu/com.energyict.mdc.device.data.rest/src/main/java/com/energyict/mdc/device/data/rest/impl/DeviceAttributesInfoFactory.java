@@ -32,7 +32,7 @@ public class DeviceAttributesInfoFactory {
 
     public DeviceAttributesInfo from(Device device) {
         DeviceAttributesInfo info = new DeviceAttributesInfo();
-        info.deviceVersion = device.getVersion();
+        info.device = DeviceInfo.from(device);
         State state = device.getState();
 
         info.mrid = new DeviceAttributeInfo();

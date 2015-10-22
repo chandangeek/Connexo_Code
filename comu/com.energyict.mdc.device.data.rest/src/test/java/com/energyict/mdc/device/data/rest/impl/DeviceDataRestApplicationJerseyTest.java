@@ -34,7 +34,9 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
@@ -68,7 +70,9 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by bvn on 9/19/14.
@@ -138,7 +142,11 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     @Mock
     MessageService messageService;
     @Mock
+    LoadProfileService loadProfileService;
+    @Mock
     SearchService searchService;
+    @Mock
+    DeviceMessageService deviceMessageService;
 
     @Before
     public void setup() {
@@ -196,6 +204,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setAppService(appService);
         application.setMessageService(messageService);
         application.setSearchService(searchService);
+        application.setLoadProfileService(loadProfileService);
+        application.setDeviceMessageService(deviceMessageService);
         return application;
     }
 

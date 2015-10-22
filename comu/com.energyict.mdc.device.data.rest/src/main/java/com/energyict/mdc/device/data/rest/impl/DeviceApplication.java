@@ -36,7 +36,9 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.kpi.rest.DataCollectionKpiInfoFactory;
 import com.energyict.mdc.device.data.kpi.rest.KpiResource;
@@ -111,6 +113,8 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile AppService appService;
     private volatile MessageService messageService;
     private volatile SearchService searchService;
+    private volatile LoadProfileService loadProfileService;
+    private volatile DeviceMessageService deviceMessageService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -130,7 +134,6 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 DeviceComTaskResource.class,
                 LogBookResource.class,
                 DeviceFieldResource.class,
-                ChannelResource.class,
                 ChannelResource.class,
                 DeviceGroupResource.class,
                 SecurityPropertySetResource.class,
@@ -219,6 +222,16 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
+    }
+
+    @Reference
+    public void setLoadProfileService(LoadProfileService loadProfileService) {
+        this.loadProfileService = loadProfileService;
+    }
+
+    @Reference
+    public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
+        this.deviceMessageService = deviceMessageService;
     }
 
     @Override
@@ -438,7 +451,9 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(AppServerHelper.class).to(AppServerHelper.class);
             bind(appService).to(AppService.class);
             bind(messageService).to(MessageService.class);
+            bind(loadProfileService).to(LoadProfileService.class);
             bind(searchService).to(SearchService.class);
+            bind(deviceMessageService).to(DeviceMessageService.class);
         }
     }
 }

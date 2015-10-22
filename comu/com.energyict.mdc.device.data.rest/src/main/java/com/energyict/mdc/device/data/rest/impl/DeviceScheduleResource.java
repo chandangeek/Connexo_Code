@@ -1,9 +1,9 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Device;
@@ -15,12 +15,9 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 
-import java.util.List;
-import java.util.Optional;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -34,6 +31,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
+import java.util.Optional;
 
 @DeviceStatesRestricted({DefaultState.DECOMMISSIONED})
 public class DeviceScheduleResource {
@@ -76,7 +75,7 @@ public class DeviceScheduleResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response createComTaskExecution(@PathParam("mRID") String mrid, SchedulingInfo schedulingInfo) {
+    public Response createComTaskExecution(@PathParam("mRID") String mrid, DeviceSchedulesInfo schedulingInfo) {
         checkForNoActionsAllowedOnSystemComTask(schedulingInfo.id);
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
@@ -125,19 +124,14 @@ public class DeviceScheduleResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response updateComTaskExecution(@PathParam("mRID") String mrid, SchedulingInfo schedulingInfo) {
-        checkForNoActionsAllowedOnSystemComTask(schedulingInfo.id);
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
-        for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-            if (comTaskExecution.getId() == schedulingInfo.id && comTaskExecution instanceof ManuallyScheduledComTaskExecution) {
-                if (schedulingInfo.schedule == null) {
-                    device.removeComTaskExecution(comTaskExecution);
-                } else {
-                    ((ManuallyScheduledComTaskExecution) comTaskExecution).getUpdater().scheduleAccordingTo(schedulingInfo.schedule.asTemporalExpression()).update();
-                }
-            }
-            // TODO throw NOT FOUND if not found
+    public Response updateComTaskExecution(@PathParam("mRID") String mrid, DeviceSchedulesInfo info) {
+        checkForNoActionsAllowedOnSystemComTask(info.id);
+        ComTaskExecution comTaskExecution = resourceHelper.lockComTaskExecutionOrThrowException(info);
+        Device device = comTaskExecution.getDevice();
+        if (info.schedule == null) {
+            device.removeComTaskExecution(comTaskExecution);
+        } else {
+            ((ManuallyScheduledComTaskExecution) comTaskExecution).getUpdater().scheduleAccordingTo(info.schedule.asTemporalExpression()).update();
         }
         return Response.status(Response.Status.OK).build();
     }
@@ -147,11 +141,11 @@ public class DeviceScheduleResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     @Path("/{comTaskExecutionId}")
-    public Response deleteComTaskExecution(@PathParam("mRID") String mrid, @PathParam("comTaskExecutionId") long id) {
+    public Response deleteComTaskExecution(@PathParam("mRID") String mrid, @PathParam("comTaskExecutionId") long id, DeviceSchedulesInfo info) {
+        info.id = id;
         checkForNoActionsAllowedOnSystemComTask(id);
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        ComTaskExecution comTaskExecution = findComTaskExecution(device, id).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_COM_TASK_EXEC));
-        device.removeComTaskExecution(comTaskExecution);
+        ComTaskExecution comTaskExecution = resourceHelper.lockComTaskExecutionOrThrowException(info);
+        comTaskExecution.getDevice().removeComTaskExecution(comTaskExecution);
         return Response.ok().build();
     }
 

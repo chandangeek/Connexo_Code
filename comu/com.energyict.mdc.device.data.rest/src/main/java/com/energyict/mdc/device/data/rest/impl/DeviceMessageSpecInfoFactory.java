@@ -6,6 +6,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.tasks.MessagesTask;
+
 import javax.inject.Inject;
 
 /**

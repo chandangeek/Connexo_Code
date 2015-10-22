@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -12,8 +14,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
-
-import com.elster.jupiter.nls.Thesaurus;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -90,8 +90,10 @@ public class DeviceMessageInfoFactory {
                 deviceMessage.getAttributes().stream().map(DeviceMessageAttribute::getSpecification).collect(toList()),
                 typedProperties,
                 info.properties
-                );
+        );
 
+        info.version = deviceMessage.getVersion();
+        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         return info;
     }
 

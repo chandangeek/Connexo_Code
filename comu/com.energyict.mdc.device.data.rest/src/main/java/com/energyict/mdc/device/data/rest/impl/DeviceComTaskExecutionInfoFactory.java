@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.CollectionUtil;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -8,8 +9,6 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.nls.Thesaurus;
 
 import javax.inject.Inject;
 import java.util.List;

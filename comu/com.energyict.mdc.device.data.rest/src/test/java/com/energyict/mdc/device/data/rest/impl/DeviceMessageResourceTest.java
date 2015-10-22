@@ -1,5 +1,14 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.properties.BasicPropertySpec;
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.rest.util.VersionInfo;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
+import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -44,16 +53,10 @@ import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.ProtocolTask;
-
-import com.elster.jupiter.properties.BasicPropertySpec;
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.BooleanFactory;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
-import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -70,9 +73,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.junit.*;
-import org.mockito.ArgumentCaptor;
 
 import static com.energyict.mdc.device.data.rest.impl.DeviceMessageResourceTest.Necessity.Required;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -455,6 +455,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
     public void testDeleteDeviceMessage() throws Exception {
         Device device = mockDevice();
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceBymRIDAndVersion("ZABF010000080004", 1L)).thenReturn(Optional.of(device));
         DeviceMessageSpec deviceMessageSpecification = mock(DeviceMessageSpec.class);
         when(deviceMessageSpecification.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN);
         DeviceMessageCategory deviceMessageCategory = mock(DeviceMessageCategory.class);
@@ -464,6 +465,9 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(msg1.getId()).thenReturn(1L);
         when(msg1.getSpecification()).thenReturn(deviceMessageSpecification);
         DeviceMessage msg2 = mockCommand(device, 2L, DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_TYPE, "spec", "error", DeviceMessageStatus.REVOKED, "tracker", "admin", null, null, null, deviceMessageCategoryActivityCalendar);
+        when(deviceMessageService.findDeviceMessageById(2)).thenReturn(Optional.of(msg2));
+        when(deviceMessageService.findAndLockDeviceMessageByIdAndVersion(2, 1L)).thenReturn(Optional.of(msg2));
+
         DeviceMessage msg3 = mock(DeviceMessage.class);
         when(msg3.getId()).thenReturn(3L);
         when(msg3.getSpecification()).thenReturn(deviceMessageSpecification);
@@ -471,9 +475,15 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getMessages()).thenReturn(Arrays.asList(msg1, msg2, msg3));
         when(device.getComTaskExecutions()).thenReturn(Collections.emptyList());
         when(device.getComTaskExecutions()).thenReturn(Collections.emptyList());
+
         DeviceMessageInfo deviceMessageInfo = new DeviceMessageInfo();
         deviceMessageInfo.status=new DeviceMessageInfo.StatusInfo();
         deviceMessageInfo.status.value = DeviceMessageStatusTranslationKeys.REVOKED.getDeviceMessageStatus().name();
+        deviceMessageInfo.version = 1L;
+        deviceMessageInfo.parent = new VersionInfo<>("ZABF010000080004", 1L);
+        deviceMessageInfo.messageSpecification = new DeviceMessageSpecInfo();
+        deviceMessageInfo.messageSpecification.name = "some";
+
         Response response = target("/devices/ZABF010000080004/devicemessages/2").request().put(Entity.json(deviceMessageInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(msg2, times(1)).revoke();
@@ -484,6 +494,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
     public void testUpdateDeviceMessage() throws Exception {
         Device device = mockDevice();
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceBymRIDAndVersion("ZABF010000080004", 1L)).thenReturn(Optional.of(device));
         DeviceMessage msg1 = mock(DeviceMessage.class);
         when(msg1.getId()).thenReturn(1L);
         DeviceMessage msg2 = mock(DeviceMessage.class);
@@ -492,6 +503,10 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getMessages()).thenReturn(Arrays.asList(msg1, msg2, msg3));
 
         DeviceMessageInfo deviceMessageInfo = new DeviceMessageInfo();
+        deviceMessageInfo.version = 1L;
+        deviceMessageInfo.parent = new VersionInfo<>("ZABF010000080004", 1L);
+        deviceMessageInfo.messageSpecification = new DeviceMessageSpecInfo();
+        deviceMessageInfo.messageSpecification.name = "some";
 
         Response response = target("/devices/ZABF010000080004/devicemessages/3").request().put(Entity.json(deviceMessageInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -501,6 +516,25 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(argumentCaptor.getValue()).isEqualTo(deviceMessageInfo.releaseDate);
 
         verify(msg3, times(1)).save();
+    }
+
+    @Test
+    public void testUpdateDeviceMessageBadVersion() throws Exception {
+        Device device = mockDevice();
+        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceBymRIDAndVersion("ZABF010000080004", 1L)).thenReturn(Optional.of(device));
+
+        DeviceMessage msg3 = mockDeviceMessage(3L, device);
+        when(deviceMessageService.findAndLockDeviceMessageByIdAndVersion(3L, 2L)).thenReturn(Optional.empty());
+
+        DeviceMessageInfo deviceMessageInfo = new DeviceMessageInfo();
+        deviceMessageInfo.version = 2L;
+        deviceMessageInfo.parent = new VersionInfo<>("ZABF010000080004", 1L);
+        deviceMessageInfo.messageSpecification = new DeviceMessageSpecInfo();
+        deviceMessageInfo.messageSpecification.name = "some";
+
+        Response response = target("/devices/ZABF010000080004/devicemessages/3").request().put(Entity.json(deviceMessageInfo));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
     private Device mockDevice() {
@@ -525,6 +559,9 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(deviceMessage.getId()).thenReturn(id);
         when(deviceMessage.getDevice()).thenReturn(device);
         when(deviceMessage.getUser()).thenReturn("username");
+        when(deviceMessage.getVersion()).thenReturn(1L);
+        when(deviceMessageService.findDeviceMessageById(id)).thenReturn(Optional.of(deviceMessage));
+        when(deviceMessageService.findAndLockDeviceMessageByIdAndVersion(id, deviceMessage.getVersion())).thenReturn(Optional.of(deviceMessage));
         return deviceMessage;
     }
 

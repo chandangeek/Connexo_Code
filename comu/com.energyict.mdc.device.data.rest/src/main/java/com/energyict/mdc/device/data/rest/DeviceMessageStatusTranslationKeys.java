@@ -1,9 +1,8 @@
 package com.energyict.mdc.device.data.rest;
 
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
-
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 
 import java.util.stream.Stream;
 

@@ -1,18 +1,17 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
-
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Ranges;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.device.data.LogBook;
+
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class LogBookInfo {
 

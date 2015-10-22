@@ -1,17 +1,16 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.users.User;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceLabelInfo;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.favorites.DeviceLabel;
 import com.energyict.mdc.favorites.FavoritesService;
 import com.energyict.mdc.favorites.LabelCategory;
-
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.users.User;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -73,8 +72,9 @@ public class DeviceLabelResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_DATA, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.OPERATE_DEVICE_COMMUNICATION})
-    public Response deleteDeviceLabel(@PathParam("mRID") String id, @PathParam("categoryId") String categoryId, @Context SecurityContext securityContext) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
+    public Response deleteDeviceLabel(@PathParam("mRID") String id, @PathParam("categoryId") String categoryId, @Context SecurityContext securityContext, DeviceLabelInfo info) {
+        info.mRID = id;
+        Device device = resourceHelper.lockDeviceOrThrowException(info);
         User user = (User) securityContext.getUserPrincipal();
         LabelCategory category = findLabelCategoryOrThrowException(categoryId);
         Optional<DeviceLabel> deviceLabel = favoritesService.findDeviceLabel(device, user, category);
@@ -82,6 +82,7 @@ public class DeviceLabelResource {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_LABEL, thesaurus.getString(category.getName(), category.getName()), device.getmRID());
         }
         favoritesService.removeDeviceLabel(deviceLabel.get());
+        device.save();
         return Response.ok().build();
     }
 

@@ -1,10 +1,9 @@
 package com.energyict.mdc.device.data.rest;
 
 import com.energyict.mdc.engine.config.ComServer;
+import org.junit.Test;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
-
-import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

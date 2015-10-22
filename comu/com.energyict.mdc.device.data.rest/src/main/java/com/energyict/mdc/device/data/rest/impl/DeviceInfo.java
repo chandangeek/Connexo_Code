@@ -10,6 +10,8 @@ import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.VersionInfo;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.configuration.rest.GatewayTypeAdapter;
 import com.energyict.mdc.device.data.Batch;
@@ -29,9 +31,8 @@ import java.util.Optional;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class DeviceInfo {
+public class DeviceInfo extends DeviceVersionInfo {
     public long id;
-    public String mRID;
     public String serialNumber;
     public String deviceTypeName;
     public Long deviceTypeId;
@@ -56,20 +57,20 @@ public class DeviceInfo {
     public String usagePoint;
     public DeviceEstimationStatusInfo estimationStatus;
     public DeviceLifeCycleStateInfo state;
-    public long version;
 
     public DeviceInfo() {
     }
 
     public static DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices, BatchService batchService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService, Thesaurus thesaurus) {
+        DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.id = device.getId();
         deviceInfo.mRID = device.getmRID();
         deviceInfo.serialNumber = device.getSerialNumber();
         deviceInfo.deviceTypeId = device.getDeviceType().getId();
         deviceInfo.deviceTypeName = device.getDeviceType().getName();
-        deviceInfo.deviceConfigurationId = device.getDeviceConfiguration().getId();
-        deviceInfo.deviceConfigurationName = device.getDeviceConfiguration().getName();
+        deviceInfo.deviceConfigurationId = deviceConfiguration.getId();
+        deviceInfo.deviceConfigurationName = deviceConfiguration.getName();
         deviceInfo.deviceProtocolPluggeableClassId = device.getDeviceType().getDeviceProtocolPluggableClass().getId();
         deviceInfo.yearOfCertification = device.getYearOfCertification();
         deviceInfo.batch = batchService.findBatch(device).map(Batch::getName).orElse(null);
@@ -87,8 +88,8 @@ public class DeviceInfo {
         deviceInfo.hasLoadProfiles = !device.getLoadProfiles().isEmpty();
         deviceInfo.hasLogBooks = !device.getLogBooks().isEmpty();
         deviceInfo.hasRegisters = !device.getRegisters().isEmpty();
-        deviceInfo.isDirectlyAddressed = device.getDeviceConfiguration().isDirectlyAddressable();
-        deviceInfo.isGateway = device.getDeviceConfiguration().canActAsGateway();
+        deviceInfo.isDirectlyAddressed = deviceConfiguration.isDirectlyAddressable();
+        deviceInfo.isGateway = deviceConfiguration.canActAsGateway();
         Optional<? extends MeterActivation> meterActivation = device.getCurrentMeterActivation();
         if (meterActivation.isPresent()) {
             meterActivation.map(MeterActivation::getUsagePoint)
@@ -100,8 +101,9 @@ public class DeviceInfo {
         }
         deviceInfo.estimationStatus = new DeviceEstimationStatusInfo(device);
         State deviceState = device.getState();
-        deviceInfo.state = new DeviceLifeCycleStateInfo(thesaurus, deviceState);
+        deviceInfo.state = new DeviceLifeCycleStateInfo(thesaurus, null, deviceState);
         deviceInfo.version = device.getVersion();
+        deviceInfo.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
         return deviceInfo;
     }
 
@@ -115,14 +117,17 @@ public class DeviceInfo {
     }
 
     public static DeviceInfo from(Device device) {
+        DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         DeviceInfo deviceInfo = new DeviceInfo();
         deviceInfo.id = device.getId();
         deviceInfo.mRID = device.getmRID();
         deviceInfo.serialNumber = device.getSerialNumber();
         deviceInfo.deviceTypeId = device.getDeviceType().getId();
         deviceInfo.deviceTypeName = device.getDeviceType().getName();
-        deviceInfo.deviceConfigurationId = device.getDeviceConfiguration().getId();
-        deviceInfo.deviceConfigurationName = device.getDeviceConfiguration().getName();
+        deviceInfo.deviceConfigurationId = deviceConfiguration.getId();
+        deviceInfo.deviceConfigurationName = deviceConfiguration.getName();
+        deviceInfo.version = device.getVersion();
+        deviceInfo.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
         return deviceInfo;
     }
 }
