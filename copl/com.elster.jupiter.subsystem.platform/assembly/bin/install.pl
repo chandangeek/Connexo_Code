@@ -48,6 +48,7 @@ my $TOMCAT_AJP_PORT, my $TOMCAT_SSH_PORT, my $TOMCAT_DAEMON_PORT;
 
 my $CONNEXO_ADMIN_ACCOUNT="admin";
 my $CONNEXO_ADMIN_PASSWORD="admin";
+my $TOMCAT_ADMIN_PASSWORD="D3moAdmin";
 
 
 # Function Definitions
@@ -270,6 +271,12 @@ sub install_tomcat {
 
 		chdir "$TOMCAT_DIR/bin";
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/server.xml","<Connector port=\"8009\" protocol=\"AJP/1.3\" redirectPort=\"8443\" />","<Connector port=\"$TOMCAT_AJP_PORT\" protocol=\"AJP/1.3\" redirectPort=\"8443\" />");
+		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"analyst\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
+		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"admin\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
+		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"developer\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
+		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"user\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
+		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"manager\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
+		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"tomcat\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
 		print "Installing Apache Tomcat For Connexo as service ...\n";
 		if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
 			open(my $FH,"> $TOMCAT_BASE/$TOMCAT_DIR/bin/setenv.bat") or die "Could not open $TOMCAT_DIR/bin/setenv.bat: $!";
@@ -557,7 +564,7 @@ sub start_tomcat {
 			foreach my $file (@files) {
 				$BPM_BUNDLE="$file";
 			}
-			system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD") == 0 or die "Installing Connexo Flow content failed: $?";
+			system("\"$JAVA_HOME/bin/java\" -cp \"bundles/$BPM_BUNDLE\" com.elster.jupiter.bpm.impl.ProcessDeployer http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD") == 0 or die "Installing Connexo Flow content failed: $?";
 		}
 	}
 }
