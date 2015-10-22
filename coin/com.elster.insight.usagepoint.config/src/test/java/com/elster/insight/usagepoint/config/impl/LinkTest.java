@@ -130,7 +130,6 @@ public class LinkTest {
     
     @Test
     public void testLinkUPtoMC()  {
-        System.out.println("testLinkUPtoMC");
         long upId;
         long mcId;
 
@@ -159,12 +158,10 @@ public class LinkTest {
             assertThat(upmc.getUsagePoint().getMRID()).isEqualTo("mrID");
             context.commit();
         }
-        System.out.println("DONE testLinkUPtoMC");
     }
     
     @Test
     public void testUpdateUPtoMCLink() {
-        System.out.println("testUpdateUPtoMCLink");
         UsagePoint up;
         MetrologyConfiguration mc1;
         MetrologyConfiguration mc2;
@@ -194,12 +191,10 @@ public class LinkTest {
             assertThat(mcx).isPresent();
             assertThat(mcx.get().getName()).isEqualTo("Second");            
         }
-        System.out.println("DONE testUpdateUPtoMCLink");
     }
     
     @Test
     public void testMutlipleUPforMC() {
-        System.out.println("testMutlipleUPforMC");
         UsagePoint up1;
         UsagePoint up2;
         MetrologyConfiguration mc;
@@ -223,6 +218,5 @@ public class LinkTest {
             assertThat(upList.get(1).getMRID()).isEqualTo("Second");
             context.commit();
         }
-        System.out.println("DONE testMutlipleUPforMC");
     }
 }
