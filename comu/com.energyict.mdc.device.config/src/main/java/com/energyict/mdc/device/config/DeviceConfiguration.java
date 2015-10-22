@@ -85,6 +85,8 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
 
     void save();
 
+    void touch();
+
     Set<DeviceCommunicationFunction> getCommunicationFunctions();
 
     void addCommunicationFunction(DeviceCommunicationFunction function);

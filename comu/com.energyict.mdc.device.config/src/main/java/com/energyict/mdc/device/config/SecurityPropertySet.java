@@ -71,4 +71,6 @@ public interface SecurityPropertySet extends HasName, HasId, RelationParticipant
     void setEncryptionLevelId(int encryptionLevelId);
 
     void update();
+
+    long getVersion();
 }

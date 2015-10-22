@@ -58,4 +58,5 @@ public interface ProtocolDialectConfigurationProperties extends HasName, HasId, 
      */
     boolean isComplete();
 
+    long getVersion();
 }

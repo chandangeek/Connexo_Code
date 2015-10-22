@@ -162,14 +162,16 @@ public abstract class PersistentIdObject<T> {
      * @param hasIdList the list containing the HasId objects
      * @param idObject the hasId object to remove from the list
      */
-    protected void removeFromHasIdList(List<? extends HasId> hasIdList, HasId idObject){
+    protected boolean removeFromHasIdList(List<? extends HasId> hasIdList, HasId idObject){
         Iterator<? extends HasId> hasIdIterator = hasIdList.iterator();
         while (hasIdIterator.hasNext()){
             HasId hasId = hasIdIterator.next();
             if (isSameIdObject(hasId, idObject)) {
                 hasIdIterator.remove();
+                return true;
             }
         }
+        return false;
     }
 
 }

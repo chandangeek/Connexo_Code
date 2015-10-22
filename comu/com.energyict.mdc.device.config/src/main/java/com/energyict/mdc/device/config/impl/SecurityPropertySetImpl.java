@@ -328,6 +328,8 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
             for (Iterator<UserActionRecord> iterator = userActionRecords.iterator(); iterator.hasNext(); ) {
                 if (iterator.next().userAction.equals(userAction)) {
                     iterator.remove();
+                    getDataModel().touch(this);
+                    break;
                 }
             }
         }
@@ -439,6 +441,12 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     @Override
     public void update() {
         save();
+        getDataModel().touch(deviceConfiguration.get());
+    }
+
+    @Override
+    public long getVersion() {
+        return version;
     }
 
     public static class LevelsAreSupportedValidator implements ConstraintValidator<LevelMustBeProvidedIfSupportedByDevice, SecurityPropertySetImpl> {

@@ -186,4 +186,17 @@ public abstract class RegisterSpecImpl<T extends RegisterSpec> extends Persisten
         return getRegisterType().getReadingType();
     }
 
+    @Override
+    public long getVersion() {
+        return this.version;
+    }
+
+    @Override
+    public void save() {
+        boolean update = getId() > 0;
+        super.save();
+        if (update) {
+            getDataModel().touch(deviceConfig.get());
+        }
+    }
 }

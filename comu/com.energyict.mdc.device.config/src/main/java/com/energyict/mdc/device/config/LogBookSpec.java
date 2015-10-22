@@ -43,6 +43,8 @@ public interface LogBookSpec extends HasId {
 
     void save();
 
+    long getVersion();
+
     /**
      * Defines a Builder interface to construct a {@link LogBookSpec}.
      */

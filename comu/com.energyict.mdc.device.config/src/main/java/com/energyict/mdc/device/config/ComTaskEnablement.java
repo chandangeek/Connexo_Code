@@ -136,4 +136,5 @@ public interface ComTaskEnablement extends HasId {
      */
     public void save();
 
+    long getVersion();
 }

@@ -63,6 +63,7 @@ public interface ChannelSpec extends HasId {
 
     List<ValidationRule> getValidationRules();
 
+    long getVersion();
     /**
      * Defines a Builder interface to construct a {@link ChannelSpec}.
      */

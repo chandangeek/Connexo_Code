@@ -12,6 +12,7 @@ import com.energyict.mdc.device.config.impl.DeviceTypeImpl;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
@@ -59,6 +60,13 @@ public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapp
 
     private long id;
 
+    // audit fields
+    private String userName;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
+
+
     @Inject
     public DeviceConfigConflictMappingImpl(DataModel dataModel, EventService eventService) {
         this.dataModel = dataModel;
@@ -99,8 +107,18 @@ public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapp
     }
 
     @Override
+    public DeviceType getDeviceType() {
+        return deviceType.get();
+    }
+
+    @Override
     public boolean isSolved() {
         return solved;
+    }
+
+    @Override
+    public long getVersion() {
+        return this.version;
     }
 
     public void recalculateSolvedState(AbstractConflictSolution conflictingSolution) {
@@ -115,6 +133,7 @@ public class DeviceConfigConflictMappingImpl implements DeviceConfigConflictMapp
     private void update() {
         updateSolvedState();
         Save.UPDATE.save(dataModel, this);
+        dataModel.touch(deviceType.get());
     }
 
     private boolean allSecuritySetsHaveASolution() {

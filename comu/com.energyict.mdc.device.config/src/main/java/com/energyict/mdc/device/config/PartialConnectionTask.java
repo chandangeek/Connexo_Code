@@ -99,4 +99,6 @@ public interface PartialConnectionTask extends HasName, HasId {
     void removeProperty(String key);
 
     void setName(String name);
+
+    long getVersion();
 }
