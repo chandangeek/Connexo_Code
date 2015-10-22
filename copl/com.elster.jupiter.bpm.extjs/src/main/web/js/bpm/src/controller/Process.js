@@ -75,10 +75,14 @@ Ext.define('Bpm.controller.Process', {
         processesForm.setLoading();
 
         record.save({
-            success: function (record, operation) {
+            success: function (rec, operation) {
+                
+                record.beginEdit();
+                record.set('associated', rec.get('associated'));
+                record.endEdit(true);
+                processesForm.down('#frm-preview-process').loadRecord(rec);
 
-                processesForm.down('#frm-preview-process').loadRecord(record);
-                if (record.get('active') === 'INACTIVE') {
+                if (rec.get('active') === 'INACTIVE') {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.process.deactivate', 'BPM', 'Process deactivated'));
                 } else {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.process.activate', 'BPM', 'Process activated'));
