@@ -155,7 +155,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
 
     @Override
     public List<UsagePoint> findUsagePointsForMetrologyConfiguration(MetrologyConfiguration mc) {
-        List<UsagePointMetrologyConfiguration> list = this.getDataModel().query(UsagePointMetrologyConfiguration.class).select(where("metrologyConfiguration.id").isEqualTo(mc.getId()));
+        List<UsagePointMetrologyConfiguration> list = this.getDataModel().query(UsagePointMetrologyConfiguration.class).select(where("metrologyConfiguration").isEqualTo(mc));
         return list.stream().map(each -> each.getUsagePoint()).collect(Collectors.toList());
     }
 

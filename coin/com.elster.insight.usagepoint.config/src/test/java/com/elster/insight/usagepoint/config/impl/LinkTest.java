@@ -29,18 +29,23 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
+import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -78,6 +83,11 @@ public class LinkTest {
         			new ThreadSecurityModule(),
         			new DataVaultModule(),
         			new PubSubModule(),
+        			new ValidationModule(),
+        			new MeteringGroupsModule(),
+        			new TaskModule(),
+        			new BasicPropertiesModule(),
+        			new TimeModule(),
         			new TransactionModule(printSql),
                     new FiniteStateMachineModule(),
                     new NlsModule()
@@ -106,7 +116,7 @@ public class LinkTest {
     }
     
     @Test
-    public void testLink()  {
+    public void testLinkUPtoMC()  {
         long upId;
         long mcId;
 
@@ -137,7 +147,8 @@ public class LinkTest {
         }
     }
     
-    public void testUpdate() {
+    @Test
+    public void testUpdateUPtoMCLink() {
         UsagePoint up;
         MetrologyConfiguration mc1;
         MetrologyConfiguration mc2;
@@ -169,7 +180,8 @@ public class LinkTest {
         }
     }
     
-    public void testReverseMap() {
+    @Test
+    public void testMutlipleUPforMC() {
         UsagePoint up1;
         UsagePoint up2;
         MetrologyConfiguration mc;
@@ -181,14 +193,16 @@ public class LinkTest {
             up1 = serviceCategory.newUsagePoint("First").create();
             up2 = serviceCategory.newUsagePoint("Second").create();
             mc = upcService.newMetrologyConfiguration("HasTwo");
+            upcService.link(up1, mc);
+            upcService.link(up2, mc);
             context.commit();
         }
         try (TransactionContext context = getTransactionService().getContext()) {
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
             List<UsagePoint> upList = upcService.findUsagePointsForMetrologyConfiguration(mc);
             assertThat(upList.size()).isEqualTo(2);
-            assertThat(upList.get(0)).isEqualTo(up1);
-            assertThat(upList.get(1)).isEqualTo(up2);
+            assertThat(upList.get(0).getMRID()).isEqualTo("First");
+            assertThat(upList.get(1).getMRID()).isEqualTo("Second");
             context.commit();
         }
     }

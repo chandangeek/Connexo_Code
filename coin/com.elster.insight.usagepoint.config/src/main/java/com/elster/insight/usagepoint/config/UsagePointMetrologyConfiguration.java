@@ -10,8 +10,8 @@ public interface UsagePointMetrologyConfiguration {
 	public void update();
 	public void delete();
 
-    long getVersion();
-    Instant getCreateTime();
-    Instant getModTime();
-    String getUserName();
+//    long getVersion();
+//    Instant getCreateTime();
+//    Instant getModTime();
+//    String getUserName();
 }

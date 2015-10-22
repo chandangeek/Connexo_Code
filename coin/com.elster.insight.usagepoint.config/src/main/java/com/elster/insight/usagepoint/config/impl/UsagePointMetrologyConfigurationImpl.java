@@ -10,6 +10,7 @@ import javax.inject.Inject;
 
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.insight.usagepoint.config.UsagePointMetrologyConfiguration;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
@@ -17,10 +18,10 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 public class UsagePointMetrologyConfigurationImpl implements UsagePointMetrologyConfiguration {	
-    private long version;
-    private Instant createTime;
-    private Instant modTime;
-    private String userName;
+//    private long version;
+//    private Instant createTime;
+//    private Instant modTime;
+//    private String userName;
     
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
 	private Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
@@ -52,13 +53,13 @@ public class UsagePointMetrologyConfigurationImpl implements UsagePointMetrology
 
     @Override
     public void update() {
-        boolean update = false;
+        Save s = Save.CREATE;
         Optional<UsagePointMetrologyConfiguration> existing = dataModel.query(UsagePointMetrologyConfiguration.class).getOptional(getUsagePoint().getId());
         if (existing.isPresent()) {
-            update = true;
+            s = Save.UPDATE;
         }
-        dataModel.persist(this);
-        if (!update) {
+        s.save(dataModel, this);
+        if (s == Save.CREATE) {
             eventService.postEvent(EventType.USAGEPOINTMETROLOGYCONFIGURATION_CREATED.topic(), this);
         } else {
             eventService.postEvent(EventType.USAGEPOINTMETROLOGYCONFIGURATION_UPDATED.topic(), this);            
@@ -76,22 +77,22 @@ public class UsagePointMetrologyConfigurationImpl implements UsagePointMetrology
     	return toStringHelper(this).add("UsagePoint", usagePoint).add("metrologyConfiguration", metrologyConfiguration).toString();
     }
 
-    @Override
-    public long getVersion() {
-        return version;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public Instant getCreateTime() {
-        return createTime;
-    }
-
-    public Instant getModTime() {
-        return modTime;
-    }
+//    @Override
+//    public long getVersion() {
+//        return version;
+//    }
+//
+//    public String getUserName() {
+//        return userName;
+//    }
+//
+//    public Instant getCreateTime() {
+//        return createTime;
+//    }
+//
+//    public Instant getModTime() {
+//        return modTime;
+//    }
 
     @Override
     public boolean equals(Object o) {
