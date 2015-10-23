@@ -1,5 +1,5 @@
 Ext.define('Dlc.devicelifecyclestates.model.DeviceLifeCycleState', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.ParentVersion',
     alias: 'deviceLifeCycleState',
     requires: [
         'Dlc.devicelifecyclestates.model.TransitionBusinessProcess'

@@ -114,6 +114,7 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             successMessage = Uni.I18n.translate('deviceLifeCycleStates.saved', 'DLC', 'State saved'),
             entryProcessesStore = editForm.down('#processesOnEntryGridPanel').getStore(),
             exitProcessesStore = editForm.down('#processesOnExitGridPanel').getStore(),
+            backUrl,
             record;
 
         editForm.updateRecord();
@@ -125,20 +126,20 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
         if (btn.action === 'add') {
             successMessage = Uni.I18n.translate('deviceLifeCycleStates.added', 'DLC', 'State added');
         }
+        if (me.fromAddTransition) {
+            backUrl = router.getRoute('administration/devicelifecycles/devicelifecycle/transitions/add').buildUrl();
+        } else if (me.fromEditTransition) {
+            backUrl = router.getRoute('administration/devicelifecycles/devicelifecycle/transitions/edit').buildUrl();
+        } else {
+            backUrl = router.getRoute('administration/devicelifecycles/devicelifecycle/states').buildUrl();
+        }
 
         record.save({
+            backUrl: backUrl,
             success: function () {
-                var route;
-                if (me.fromAddTransition) {
-                    route = router.getRoute('administration/devicelifecycles/devicelifecycle/transitions/add');
-                } else if (me.fromEditTransition) {
-                    route = router.getRoute('administration/devicelifecycles/devicelifecycle/transitions/edit');
-                } else {
-                    route = router.getRoute('administration/devicelifecycles/devicelifecycle/states');
-                }
                 entryProcessesStore.removeAll();
                 exitProcessesStore.removeAll();
-                route.forward();
+                window.location.href = backUrl;
                 me.getApplication().fireEvent('acknowledge', successMessage);
             },
             failure: function (record, operation) {
@@ -193,10 +194,14 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
         Ext.Ajax.request({
             url: '/api/dld/devicelifecycles/' + router.arguments.deviceLifeCycleId + '/states/' + record.get('id') + '/status',
             method: 'PUT',
-            jsonData: null,
+            jsonData: record.getRecordData(),
+            isNotEdit: true,
             success: function () {
                 router.getRoute().forward(null, router.queryParams);
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceLifeCycleStates.saved', 'DLC', 'State saved'));
+            },
+            callback: function () {
+                page.setLoading(false);
             }
         });
     },
@@ -288,7 +293,8 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
         var me = this,
             grid = me.getPage().down('#states-grid'),
             record = grid.getSelectionModel().getLastSelected(),
-            router = me.getController('Uni.controller.history.Router');
+            router = me.getController('Uni.controller.history.Router'),
+            page = me.getPage();
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('deviceLifeCycleStates.remove.msg', 'DLC', 'This state will no longer be available.'),
@@ -296,14 +302,14 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
             fn: function (state) {
                 if (state === 'confirm') {
                     record.getProxy().setUrl(router.arguments);
-                    me.getPage().setLoading(Uni.I18n.translate('general.removing', 'DLC', 'Removing...'));
+                    page.setLoading(Uni.I18n.translate('general.removing', 'DLC', 'Removing...'));
                     record.destroy({
                         success: function () {
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceLifeCycleStates.remove.success.msg', 'DLC', 'State removed'));
                             router.getRoute().forward();
                         },
                         callback: function () {
-                            me.getPage().setLoading(false);
+                            page.setLoading(false);
                         }
                     });
                 }

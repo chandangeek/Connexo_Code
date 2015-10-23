@@ -1,5 +1,5 @@
 Ext.define('Dlc.devicelifecycletransitions.model.DeviceLifeCycleTransition', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.ParentVersion',
     fields: [
         'id',
         'name',
@@ -8,7 +8,7 @@ Ext.define('Dlc.devicelifecycletransitions.model.DeviceLifeCycleTransition', {
         'privileges',
         'triggeredBy',
         'microActions',
-        'microChecks',
+        {name: 'microChecks', defaultValue: null},
         {
             name: 'fromState_name',
             persist: false,

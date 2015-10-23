@@ -110,7 +110,8 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
 
     removeTransition: function (record) {
         var me = this,
-            router = me.getController('Uni.controller.history.Router');
+            router = me.getController('Uni.controller.history.Router'),
+            page = me.getPage();
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('deviceLifeCycleTransitions.remove.msg', 'DLC', 'This transition will no longer be available.'),
@@ -118,12 +119,14 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
             fn: function (state) {
                 if (state === 'confirm') {
                     record.getProxy().setUrl(router.arguments);
-                    me.getPage().setLoading(Uni.I18n.translate('general.removing', 'DLC', 'Removing...'));
+                    page.setLoading(Uni.I18n.translate('general.removing', 'DLC', 'Removing...'));
                     record.destroy({
                         success: function () {
-                            me.getPage().setLoading(false);
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceLifeCycleTransitions.remove.success.msg', 'DLC', 'Transition removed'));
                             router.getRoute().forward();
+                        },
+                        callback: function () {
+                            page.setLoading(false);
                         }
                     });
                 }
@@ -239,7 +242,8 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
             record = me.transition || Ext.create('Dlc.devicelifecycletransitions.model.DeviceLifeCycleTransition'),
             privilegesArray = [],
             microActions = [],
-            microChecks = [];
+            microChecks = [],
+            backUrl = router.getRoute('administration/devicelifecycles/devicelifecycle/transitions').buildUrl();
 
         if (!formErrorsPanel.isHidden()) {
             formErrorsPanel.setText(formErrorsPanel.defaultText);
@@ -271,8 +275,9 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
         record.endEdit();
         page.setLoading();
         record.save({
+            backUrl: backUrl,
             success: function () {
-                router.getRoute('administration/devicelifecycles/devicelifecycle/transitions').forward();
+                window.location.href = backUrl;
                 if (button.action === 'editTransition') {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceLifeCycleTransitions.edit.successMessage', 'DLC', 'Transition saved'));
                 } else {
@@ -281,7 +286,7 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
             },
             failure: function (record, operation) {
                 var json = Ext.decode(operation.response.responseText, true);
-                page.setLoading(false);
+
                 if (json && json.errors) {
                     form.getForm().markInvalid(json.errors);
                     formErrorsPanel.show();
@@ -293,6 +298,9 @@ Ext.define('Dlc.devicelifecycletransitions.controller.DeviceLifeCycleTransitions
                         }
                     });
                 }
+            },
+            callback: function () {
+                page.setLoading(false);
             }
         })
     },

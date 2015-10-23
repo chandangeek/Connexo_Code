@@ -111,11 +111,10 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
             widget.setLoading(Uni.I18n.translate('general.removing', 'DLC', 'Removing...'));
             model.destroy({
                 success: function () {
-                    widget.setLoading(false);
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceLifeCycles.removeSuccessMsg', 'DLC', 'Device life cycle removed'));
                     router.getRoute('administration/devicelifecycles').forward();
                 },
-                failure: function () {
+                callback: function () {
                     widget.setLoading(false);
                 }
             });
@@ -260,7 +259,10 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
             form = page.down('device-life-cycles-add-form'),
             formErrorsPanel = form.down('#form-errors'),
             record = me.deviceLifeCycle || Ext.create('Dlc.devicelifecycles.model.DeviceLifeCycle'),
-            route;
+            router = me.getController('Uni.controller.history.Router'),
+            backUrl = me.fromOverview
+                ? router.getRoute('administration/devicelifecycles/devicelifecycle').buildUrl()
+                : router.getRoute('administration/devicelifecycles').buildUrl();
 
         if (!formErrorsPanel.isHidden()) {
             formErrorsPanel.hide();
@@ -269,9 +271,9 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
         record.set('name', form.down('#device-life-cycle-name').getValue());
         page.setLoading();
         record.save({
+            backUrl: backUrl,
             success: function () {
-                route = me.fromOverview ? 'administration/devicelifecycles/devicelifecycle' : 'administration/devicelifecycles';
-                me.getController('Uni.controller.history.Router').getRoute(route).forward();
+                window.location.href = backUrl;
                 if (btn.action === 'edit') {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceLifeCycles.edit.successMsg', 'DLC', 'Device life cycle saved'));
                 } else {
@@ -279,12 +281,14 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
                 }
             },
             failure: function (record, operation) {
-                page.setLoading(false);
                 var json = Ext.decode(operation.response.responseText, true);
                 if (json && json.errors) {
                     form.getForm().markInvalid(json.errors);
                     formErrorsPanel.show();
                 }
+            },
+            callback: function () {
+                page.setLoading(false);
             }
         });
     },
