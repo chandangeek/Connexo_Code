@@ -52,21 +52,21 @@ Ext.define('Apr.controller.history.AppServer', {
                             },
                             items: {
                                 messageservices: {
-                                    route: 'msgservices',
+                                    route: 'messageservices',
                                     privileges: Apr.privileges.AppServer.admin,
                                     title: Uni.I18n.translate('general.messageServices', 'APR', 'Message services'),
                                     controller: 'Apr.controller.AppServers',
                                     action: 'showMessageServices'
                                 },
                                 importservices: {
-                                    route: 'impservices',
+                                    route: 'importservices',
                                     privileges: Apr.privileges.AppServer.admin,
                                     title: Uni.I18n.translate('general.importServices', 'APR', 'Import services'),
                                     controller: 'Apr.controller.AppServers',
                                     action: 'showImportServices'
                                 }
                             }
-                        },
+                        }
                     }
                 }
             }
