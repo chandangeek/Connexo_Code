@@ -2,6 +2,8 @@ package com.energyict.mdc.device.data.tasks;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.time.Instant;
+
 /**
  * Builder that supports basic value setters for a {@link ComTaskExecution}.
  */
@@ -26,6 +28,11 @@ public interface ComTaskExecutionBuilder<C extends ComTaskExecution> {
     public ComTaskExecutionBuilder priority(int executionPriority);
 
     public ComTaskExecutionBuilder ignoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound);
+
+    // For adhoc comtaskExecutions
+    public ComTaskExecutionBuilder scheduleNow();
+
+    public ComTaskExecutionBuilder schedule(Instant instant);
 
     /**
      * Creates the actual ComTaskExecution with the objects set in the builder.

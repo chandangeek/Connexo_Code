@@ -528,7 +528,9 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     @Override
     public void schedule(Instant when) {
         this.schedule(when, this.getPlannedNextExecutionTimestamp());
-        this.update();
+        if (this.getId() > 0) {
+            this.update();
+        }
     }
 
     @Override
@@ -744,6 +746,18 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         public ComTaskExecutionBuilder<C> ignoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound) {
             this.comTaskExecution.setIgnoreNextExecutionSpecsForInbound(ignoreNextExecutionSpecsForInbound);
             return this;
+        }
+
+        @Override
+        public ComTaskExecutionBuilder scheduleNow() {
+            this.comTaskExecution.scheduleNow();
+            return this;
+        }
+
+        @Override
+        public ComTaskExecutionBuilder schedule(Instant instant) {
+            this.comTaskExecution.schedule(instant);
+            return null;
         }
 
         @Override

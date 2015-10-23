@@ -1635,6 +1635,7 @@ public class DeviceImpl implements Device, CanLock {
         this.comTaskExecutions.add(comTaskExecution);
         if (this.id != 0) {
             Save.CREATE.validate(this.dataModel, this);  // To validate that all scheduled ComTasks are unique
+            this.dataModel.touch(this);
         }
     }
 
