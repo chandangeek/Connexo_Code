@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -8,6 +9,7 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.energyict.mdc.common.rest.Untransactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -15,6 +17,7 @@ import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
 import com.energyict.mdc.device.data.rest.DeviceInfoFactory;
 import com.energyict.mdc.device.data.rest.DevicePrivileges;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -181,6 +184,34 @@ public class DeviceResource {
 
         //TODO: Device Date should go on the device wharehouse (future development) - or to go on Batch - creation date
         return deviceInfoFactory.from(newDevice, getSlaveDevicesForDevice(newDevice));
+    }
+
+    @PUT
+    @Untransactional
+    @Path("/{id}/changedeviceconfig")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_COMMUNICATION)
+    public Response updateDeviceConfig(@PathParam("id") long id, DeviceInfo info, @Context SecurityContext securityContext) {
+        if(info.deviceConfigurationId==0){
+            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY, "deviceConfigurationId");
+        }
+        Device device = deviceService.findDeviceById(id)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_ID, id));
+        if(device.getDeviceConfiguration().getId()==info.deviceConfigurationId){
+            return Response.ok().build();
+        }
+        DeviceConfiguration destinationConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfigurationId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_CONFIG));
+        try {
+            deviceService.changeDeviceConfigurationForSingleDevice(device, destinationConfiguration.getId(), destinationConfiguration.getVersion());
+        }catch (CannotChangeDeviceConfigStillUnresolvedConflicts e){
+            return Response.ok().entity(new DeviceConflictsInfo(device.getDeviceType().getDeviceConfigConflictMappings().stream()
+                    .filter(conflict -> conflict.getOriginDeviceConfiguration().getId() == device.getDeviceConfiguration().getId()
+                            && conflict.getDestinationDeviceConfiguration().getId() == destinationConfiguration.getId()).findFirst().orElseThrow(() -> e)))
+                    .build();
+        }
+        return Response.ok().build();
     }
 
     @PUT//the method designed like 'PATCH'
