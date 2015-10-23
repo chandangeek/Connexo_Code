@@ -69,6 +69,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                 bind(EventService.class).toInstance(eventService);
                 bind(Clock.class).toInstance(clock);
                 bind(UserService.class).toInstance(userService);
+                bind(ValidationService.class).toInstance(validationService);
             }
         };
     }

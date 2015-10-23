@@ -170,7 +170,7 @@ public class LinkTest {
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
             ServiceCategory serviceCategory = mtrService.getServiceCategory(ServiceKind.ELECTRICITY).get();
             up = serviceCategory.newUsagePoint("UpdateMe").create();
-            mc1 = upcService.newMetrologyConfiguration("First");
+            mc1 = upcService.newMetrologyConfiguration("First2");
             mc2 = upcService.newMetrologyConfiguration("Second");
             context.commit();
         }
@@ -180,7 +180,7 @@ public class LinkTest {
             context.commit();
             Optional<MetrologyConfiguration> mcx = upcService.findMetrologyConfigurationForUsagePoint(up);
             assertThat(mcx).isPresent();
-            assertThat(mcx.get().getName()).isEqualTo("First");
+            assertThat(mcx.get().getName()).isEqualTo("First2");
         }
         try (TransactionContext context = getTransactionService().getContext()) {
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
