@@ -766,6 +766,8 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     me.getNewDeviceConfigurationCombo().setVisible(!isEmptyStore);
                 });
 
+                widget.down('#device-configuration-name').setValue(device.get('deviceConfigurationName'));
+
                 me.getApplication().fireEvent('loadDevice', device);
                 me.getApplication().fireEvent('changecontentevent', widget);
             },
