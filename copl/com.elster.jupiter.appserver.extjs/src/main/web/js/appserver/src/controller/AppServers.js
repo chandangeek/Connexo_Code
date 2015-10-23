@@ -443,7 +443,9 @@ Ext.define('Apr.controller.AppServers', {
             });
         } else {
             servedMessageServicesStore.getProxy().setUrl(null);
+            servedMessageServicesStore.removeAll();
             servedImportStore.getProxy().setUrl(null);
+            servedImportStore.removeAll();
             unservedMessageServicesStore.getProxy().setUrl(null);
             unservedImportStore.getProxy().setUrl(null);
             me.edit = false;
@@ -889,6 +891,10 @@ Ext.define('Apr.controller.AppServers', {
     },
 
     messageServiceDataChanged: function(){
+        if (!this.getSaveSettingsButton()) { // We're not @ the details view
+            return; // ... so nothing to update
+        }
+
         var me =this,
             store = me.getMessageServicesGrid().getStore(),
             itemsUpdated = store.getUpdatedRecords().length > 0,
