@@ -22,6 +22,7 @@ Ext.define('Uni.form.field.CustomAttributeSetSelector', {
             {
                 xtype: 'combobox',
                 width: me.comboWidth,
+                itemId: 'custom-attribute-set-selector-combobox',
                 displayField: 'name',
                 valueField: 'id',
                 forceSelection: true,
