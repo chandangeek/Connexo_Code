@@ -79,14 +79,17 @@ public class PublicRestApplication extends Application implements TranslationKey
 
                 AuthenticationDeviceAccessLevelResource.class,
                 ComPortPoolResource.class,
+                ComScheduleResource.class,
                 ComTaskResource.class,
                 ComTaskEnablementResource.class,
                 ComTaskExecutionResource.class,
                 ConfigurationSecurityPropertySetResource.class,
                 ConnectionTaskResource.class,
                 DeviceConfigurationResource.class,
+                DeviceContactorResource.class,
                 DeviceLifecycleActionResource.class,
                 DeviceMessageCategoryResource.class,
+                DeviceMessageResource.class,
                 DeviceProtocolPluggableClassResource.class,
                 DeviceResource.class,
                 DeviceTypeResource.class,
@@ -231,9 +234,9 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(schedulingService).to(SchedulingService.class);
 
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class).in(Singleton.class);
-            bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
-            bind(ExceptionFactory.class).to(ExceptionFactory.class);
-            bind(ResourceHelper.class).to(ResourceHelper.class);
+            bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class).in(Singleton.class);
+            bind(ExceptionFactory.class).to(ExceptionFactory.class).in(Singleton.class);
+            bind(ResourceHelper.class).to(ResourceHelper.class).in(Singleton.class);
 
             bind(DeviceInfoFactory.class).to(DeviceInfoFactory.class).in(Singleton.class);
             bind(DeviceLifecycleActionInfoFactory.class).to(DeviceLifecycleActionInfoFactory.class).in(Singleton.class);
@@ -252,6 +255,7 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(ComTaskExecutionInfoFactory.class).to(ComTaskExecutionInfoFactory.class).in(Singleton.class);
             bind(ComTaskEnablementInfoFactory.class).to(ComTaskEnablementInfoFactory.class).in(Singleton.class);
             bind(ProtocolDialectConfigurationPropertiesInfoFactory.class).to(ProtocolDialectConfigurationPropertiesInfoFactory.class).in(Singleton.class);
+            bind(DeviceMessageInfoFactory.class).to(DeviceMessageInfoFactory.class).in(Singleton.class);
         }
     }
 

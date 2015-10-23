@@ -43,7 +43,12 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_COM_SCHEDULE(34, "NoSuchComSchedule", "Communication schedule does not exist"),
     NO_SUCH_PROTOCOL_DIALECT_PROPERTIES(35, "NoSuchProtocolDialectProperties", "Protocol dialect properties do not exist"),
     NO_SUCH_COM_TASK_ENABLEMENT(36, "NoSuchComtaskEnablement", "Communication task enablement does not exist"),
-    NOT_POSSIBLE_TO_SUPPLY_BOTH_OR_NONE(37, "EitherDefaultorExplicit", "The communication task execution should either use default connection task or an explicitly set connection task");
+    NOT_POSSIBLE_TO_SUPPLY_BOTH_OR_NONE(37, "EitherDefaultorExplicit", "The communication task execution should either use default connection task or an explicitly set connection task"),
+    NO_SUCH_DEVICE_MESSAGE(38, "NoSuchDeviceMessage", "The device has no known device message with that id"),
+    UNKNOWN_STATUS(39, "StatusUnknown", "Unknown device contacter status"),
+    NO_COMTASK_FOR_COMMAND(40, "NoComtaskForCommand", "A comtask to execute the device messages could not be located"),
+    ;
+
 
     private final int number;
     private final String key;
