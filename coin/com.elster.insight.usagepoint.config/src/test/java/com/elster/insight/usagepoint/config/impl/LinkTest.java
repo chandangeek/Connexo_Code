@@ -223,6 +223,7 @@ public class LinkTest {
     public void testMCValRuleSetLink() {
         MetrologyConfiguration mc;
         ValidationRuleSet vrs1;
+        ValidationRuleSet vrs2;
         try (TransactionContext context = getTransactionService().getContext()) {
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
             ValidationService valService = getValidationService();
@@ -236,7 +237,33 @@ public class LinkTest {
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
             Optional<MetrologyConfiguration> mc2 = upcService.findMetrologyConfiguration(mc.getId());
             assertThat(mc2).isPresent();
-            assertThat(mc2.get().getValidationRuleSets().size()).isEqualTo(1);            
+            assertThat(mc2.get().getValidationRuleSets().size()).isEqualTo(1);  
+            context.commit();
+        }
+        try (TransactionContext context = getTransactionService().getContext()) {
+            UsagePointConfigurationService upcService = getUsagePointConfigurationService();
+            ValidationService valService = getValidationService();
+            vrs2 = valService.createValidationRuleSet("Rule #2");
+            vrs2.save();
+            mc.addValidationRuleSet(vrs2);
+            Optional<MetrologyConfiguration> mc2 = upcService.findMetrologyConfiguration(mc.getId());
+            assertThat(mc2).isPresent();
+            assertThat(mc2.get().getValidationRuleSets().size()).isEqualTo(2);  
+            context.commit();
+        }
+        try (TransactionContext context = getTransactionService().getContext()) {
+            UsagePointConfigurationService upcService = getUsagePointConfigurationService();
+            Optional<MetrologyConfiguration> mc2 = upcService.findMetrologyConfiguration(mc.getId());
+            assertThat(mc2).isPresent();
+            mc2.get().removeValidationRuleSet(vrs1);  
+            context.commit();
+        }
+        try (TransactionContext context = getTransactionService().getContext()) {
+            UsagePointConfigurationService upcService = getUsagePointConfigurationService();
+            Optional<MetrologyConfiguration> mc2 = upcService.findMetrologyConfiguration(mc.getId());
+            assertThat(mc2).isPresent();
+            assertThat(mc2.get().getValidationRuleSets().size()).isEqualTo(1); 
+            context.commit();
         }
     }
     

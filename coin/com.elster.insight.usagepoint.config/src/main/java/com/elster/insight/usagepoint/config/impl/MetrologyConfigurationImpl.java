@@ -29,7 +29,7 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
     private Instant createTime;
     private Instant modTime;
     private String userName;
-    private List<MetrologyConfValidationRuleSetUsageImpl> metrologyConfValidationRuleSetUsages = new ArrayList<MetrologyConfValidationRuleSetUsageImpl>();
+    private List<MetrologyConfValidationRuleSetUsage> metrologyConfValidationRuleSetUsages = new ArrayList<MetrologyConfValidationRuleSetUsage>();
     
     @NotEmpty
     @Size(max = 80)
@@ -68,6 +68,10 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
         this.name = name;
     }
 
+    public List<MetrologyConfValidationRuleSetUsage> getMetrologyConfValidationRuleSetUsages() {
+        return metrologyConfValidationRuleSetUsages;
+    }
+    
     @Override
     public MetrologyConfValidationRuleSetUsage addValidationRuleSet(ValidationRuleSet validationRuleSet) {
         MetrologyConfValidationRuleSetUsageImpl usage =new MetrologyConfValidationRuleSetUsageImpl(dataModel, eventService, validationService);
@@ -75,6 +79,23 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
         metrologyConfValidationRuleSetUsages.add(usage);
         getDataModel().touch(this);
         return usage;
+    }
+    
+    protected MetrologyConfValidationRuleSetUsage getUsage(ValidationRuleSet validationRuleSet) {
+        List<MetrologyConfValidationRuleSetUsage> usages = this.getMetrologyConfValidationRuleSetUsages();
+        for (MetrologyConfValidationRuleSetUsage usage : usages) {
+            if (usage.getValidationRuleSet().getId() == validationRuleSet.getId()) {
+                return usage;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void removeValidationRuleSet(ValidationRuleSet validationRuleSet) {
+        MetrologyConfValidationRuleSetUsage usage = getUsage(validationRuleSet);
+        metrologyConfValidationRuleSetUsages.remove(usage);
+        getDataModel().touch(this);
     }
     
     @Override

@@ -14,6 +14,7 @@ public interface MetrologyConfiguration {
 
     MetrologyConfValidationRuleSetUsage addValidationRuleSet(ValidationRuleSet validationRuleSet);
     List<ValidationRuleSet> getValidationRuleSets();
+    void removeValidationRuleSet(ValidationRuleSet validationRuleSet);
 
     void update();
 
