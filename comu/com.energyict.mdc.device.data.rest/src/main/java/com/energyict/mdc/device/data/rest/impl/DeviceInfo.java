@@ -35,9 +35,9 @@ public class DeviceInfo extends DeviceVersionInfo {
     public long id;
     public String serialNumber;
     public String deviceTypeName;
-    public Long deviceTypeId;
+    public long deviceTypeId;
     public String deviceConfigurationName;
-    public Long deviceConfigurationId;
+    public long deviceConfigurationId;
     public Long deviceProtocolPluggeableClassId;
     public Integer yearOfCertification;
     public String batch;
