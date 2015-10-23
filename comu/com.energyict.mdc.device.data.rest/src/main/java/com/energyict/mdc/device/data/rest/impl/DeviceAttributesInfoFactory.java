@@ -136,7 +136,7 @@ public class DeviceAttributesInfoFactory {
         if (!currentDate.isPresent()) {
             validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.THIS_FIELD_IS_REQUIRED, fieldName));
         } else {
-            if (previousDate.isPresent() && currentDate.get().isBefore(previousDate.get())) {
+            if (previousDate.isPresent() && !currentDate.get().isAfter(previousDate.get())) {
                 validationBuilder.addValidationError(new LocalizedFieldValidationException(MessageSeeds.CIM_DATE_SHOULD_BE_AFTER_X, fieldName,
                         thesaurus.getString(cimDateTranslation.getKey(), cimDateTranslation.getDefaultFormat())));
             }
