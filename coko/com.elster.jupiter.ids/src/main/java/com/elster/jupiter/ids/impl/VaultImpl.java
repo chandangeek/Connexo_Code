@@ -38,6 +38,7 @@ public final class VaultImpl implements IVault {
     private static final int TO_COLUMN_INDEX = 3;
     private static final int WHEN_COLUMN_INDEX = 2;
     private static final int RECORDTIME_INDEX = 4;
+    private static final int VERSION_INDEX = 3;
 
     //persistent fields
     private String componentName;
@@ -302,6 +303,12 @@ public final class VaultImpl implements IVault {
         return builder;
     }
 
+    private StringBuilder selectJournalSql(TimeSeriesImpl timeSeries) {
+        StringBuilder builder = selectJournalSql(timeSeries.getRecordSpec());
+        builder.append(" TIMESERIESID = ?");
+        return builder;
+    }
+
     private StringBuilder baseJournalSql(RecordSpecImpl recordSpec) {
         StringBuilder builder = new StringBuilder("insert into ");
         builder.append(getJournalTableName());
@@ -386,6 +393,15 @@ public final class VaultImpl implements IVault {
         }
     }
 
+    @Override
+    public Optional<TimeSeriesEntry> getJournaledEntry(TimeSeriesImpl timeSeries, Instant when, Instant at) {
+        try {
+            return Optional.ofNullable(doGetJournalEntry(timeSeries, when, at));
+        } catch (SQLException ex) {
+            throw new UnderlyingSQLFailedException(ex);
+        }
+    }
+
     private String rangeSql(TimeSeriesImpl timeSeries, Range<Instant> range) {
         StringBuilder builder = selectSql(timeSeries);
         builder.append(" AND UTCSTAMP >");
@@ -421,6 +437,12 @@ public final class VaultImpl implements IVault {
 
     private String entrySql(TimeSeriesImpl timeSeries) {
         StringBuilder builder = selectSql(timeSeries);
+        builder.append(" AND UTCSTAMP = ? ");
+        return builder.toString();
+    }
+
+    private String entryJournalSql(TimeSeriesImpl timeSeries) {
+        StringBuilder builder = selectJournalSql(timeSeries);
         builder.append(" AND UTCSTAMP = ? ");
         return builder.toString();
     }
@@ -472,6 +494,21 @@ public final class VaultImpl implements IVault {
         }
     }
 
+    private TimeSeriesEntry doGetJournalEntry(TimeSeriesImpl timeSeries, Instant when, Instant at) throws SQLException {
+        try (Connection connection = getConnection(false)) {
+            StringBuilder journalSql = new StringBuilder(entryJournalSql(timeSeries));
+            journalSql.append(" and RECORDTIME <= ? and JOURNALTIME > ? ");
+            try (PreparedStatement statement = connection.prepareStatement(journalSql.toString())) {
+                statement.setLong(ID_COLUMN_INDEX, timeSeries.getId());
+                statement.setLong(WHEN_COLUMN_INDEX, when.toEpochMilli());
+                statement.setLong(VERSION_INDEX, at.toEpochMilli());
+                statement.setLong(VERSION_INDEX + 1, at.toEpochMilli());
+                try (ResultSet rs = statement.executeQuery()) {
+                    return rs.next() ? new TimeSeriesEntryImpl(timeSeries, rs) : null;
+                }
+            }
+        }
+    }
 
     StringBuilder selectSql(RecordSpecImpl recordSpec) {
         StringBuilder builder = new StringBuilder("select timeseriesid , utcstamp , versioncount , recordtime ");
@@ -481,6 +518,18 @@ public final class VaultImpl implements IVault {
         }
         builder.append(" FROM ");
         builder.append(getTableName());
+        builder.append(" WHERE");
+        return builder;
+    }
+
+    StringBuilder selectJournalSql(RecordSpecImpl recordSpec) {
+        StringBuilder builder = new StringBuilder("select timeseriesid , utcstamp , versioncount , recordtime ");
+        for (String column : recordSpec.columnNames()) {
+            builder.append(",");
+            builder.append(column);
+        }
+        builder.append(" FROM ");
+        builder.append(getJournalTableName());
         builder.append(" WHERE");
         return builder;
     }

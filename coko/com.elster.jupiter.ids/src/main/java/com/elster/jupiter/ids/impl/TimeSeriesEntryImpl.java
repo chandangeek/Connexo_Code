@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
 
 public class TimeSeriesEntryImpl implements TimeSeriesEntry {
     private final TimeSeriesImpl timeSeries;
@@ -158,4 +159,8 @@ public class TimeSeriesEntryImpl implements TimeSeriesEntry {
         return timeStamp;
     }
 
+    @Override
+    public Optional<TimeSeriesEntry> getVersion(Instant at) {
+        return getTimeSeries().getVault().getJournaledEntry(getTimeSeries(), getTimeStamp(), at);
+    }
 }
