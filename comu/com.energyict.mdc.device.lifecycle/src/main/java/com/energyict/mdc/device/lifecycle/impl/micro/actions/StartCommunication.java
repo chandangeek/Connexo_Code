@@ -41,18 +41,12 @@ public class StartCommunication extends TranslatableServerMicroAction {
                         .flatMap(each -> each.getComTasks().stream())
                         .map(ComTask::getId)
                         .collect(Collectors.toSet());
-        boolean deviceNeedsToBeSaved = false;
-        for(ComTaskEnablement comTaskEnablement : comTaskEnablements){
-            if(!usedComtaskIds.contains(comTaskEnablement.getComTask().getId())){
-                comTaskExecutions.add(device.newManuallyScheduledComTaskExecution(comTaskEnablement, null ).add()) ;
-                deviceNeedsToBeSaved = true;
+        for (ComTaskEnablement comTaskEnablement : comTaskEnablements) {
+            if (!usedComtaskIds.contains(comTaskEnablement.getComTask().getId())) {
+                device.newAdHocComTaskExecution(comTaskEnablement).scheduleNow().add();
             }
         }
-        if (deviceNeedsToBeSaved){
-            device.save();
-        }
         device.getConnectionTasks().forEach(ConnectionTask::activate);
-        device.getComTaskExecutions().forEach(ComTaskExecution::scheduleNow);
     }
 
     @Override
