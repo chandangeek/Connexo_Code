@@ -1,12 +1,9 @@
 #!/usr/bin/ruby
 
 branch=ARGV[1]
-if branch != "master" then
-        exit(0)
-end
-
 
 require 'fileutils'
+require 'socket'
 
 regexesPluralOneMissingPara = [
         /Uni\.I18n\.translatePlural\(\s*'([^,]*)'\s*,\s*([^,]*)\s*,\s*'(.{3})'\s*,\s*'([^,]*)'\s*,\s*'([^,]*)'\s*\)/m,
@@ -211,12 +208,16 @@ difference=`diff src/main/resources/i18n.properties.bak src/main/resources/i18n.
 FileUtils.rm('src/main/resources/i18n.properties.bak')
 FileUtils.rm('src/main/resources/i18n.properties.tmp.bak')
 if difference.to_s != '' then
-	FileUtils.mv('src/main/resources/i18n.properties.tmp','src/main/resources/i18n.properties')
-		print "\ni18n.properties changed, push to git\n"
+    FileUtils.mv('src/main/resources/i18n.properties.tmp','src/main/resources/i18n.properties')
+    if Socket.gethostname == "neitvs002" && branch == "master" then
+        print "\ni18n.properties changed, push to git\n"
         remote=ARGV[0]
         value=`git remote add origin #{remote}`
         value=`git commit -m "New version of i18n.properties (bamboo build)" src/main/resources/i18n.properties`
         value=`git push origin master`
+    else
+        print "\ni18n.properties changed\n"
+    end
 else
-        FileUtils.rm('src/main/resources/i18n.properties.tmp')
+    FileUtils.rm('src/main/resources/i18n.properties.tmp')
 end
