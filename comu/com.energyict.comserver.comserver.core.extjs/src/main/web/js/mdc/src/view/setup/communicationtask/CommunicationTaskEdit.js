@@ -38,6 +38,7 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
 
         if (!Ext.isEmpty(record.get('comTask'))) {
             me.down('#comTaskDisplayField').setValue(record.get('comTask').name);
+            me.down('hiddenfield[name=comTaskName]').setValue(record.get('comTask').name);
         }
         if (!Ext.isEmpty(record.get('securityPropertySet'))) {
             me.down('#securityPropertySetComboBox').setValue(record.get('securityPropertySet').id);
@@ -88,6 +89,10 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskEdit', {
                         fieldLabel: Uni.I18n.translate('communicationtasks.form.comTask', 'MDC', 'Communication task'),
                         itemId: 'comTaskDisplayField',
                         hidden: true
+                    },
+                    {
+                        xtype: 'hiddenfield',
+                        name: 'comTaskName'
                     },
                     {
                         xtype: 'combobox',

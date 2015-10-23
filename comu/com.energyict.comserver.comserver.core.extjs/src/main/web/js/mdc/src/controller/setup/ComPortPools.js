@@ -92,13 +92,17 @@ Ext.define('Mdc.controller.setup.ComPortPools', {
         if (activeChange != 'notChange') {
             record.set('active', activeChange);
             record.save({
-                callback: function (model) {
+                isNotEdit: true,
+                success: function (model) {
                     var msg = activeChange ? Uni.I18n.translate('general.activated', 'MDC', 'activated') :
                         Uni.I18n.translate('general.deactivated', 'MDC', 'deactivated');
                     gridView.refresh();
                     form.loadRecord(model);
                     me.getPreviewActionMenu().record = model;
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.comPortPoolMsg', 'MDC', 'Communication port pool {0}',[msg]));
+                },
+                failure: function () {
+                    record.reject();
                 }
             });
         }

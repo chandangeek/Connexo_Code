@@ -190,15 +190,19 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
             Ext.Ajax.request({
                 url: '../../api/ddr/devices/' + encodeURIComponent(mRID) + '/loadprofiles/' + loadProfileId + '/validate',
                 method: 'PUT',
-                jsonData: {
+                isNotEdit: true,
+                jsonData: Ext.merge(_.pick(record.getRecordData(), 'id', 'name', 'version', 'parent'), {
                     lastChecked: confWindow.down('#validateLoadProfileFromDate').getValue().getTime()
-                },
+                }),
                 success: function () {
                     confWindow.removeAll(true);
                     confWindow.destroy();
                     me.getApplication().fireEvent('acknowledge',
                         Uni.I18n.translate('deviceloadprofiles.activation.completed', 'MDC', 'Data validation completed'));
-                    Ext.ComponentQuery.query('#deviceLoadProfilesGrid')[0].fireEvent('select', Ext.ComponentQuery.query('#deviceLoadProfilesGrid')[0].getSelectionModel(), record);
+                    router.getRoute().forward();
+                },
+                failure: function () {
+                    confWindow.destroy();
                 }
             });
         }

@@ -1,8 +1,9 @@
 Ext.define('Mdc.model.DeviceConnection', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.ParentVersion',
 
     fields: [
         {name: 'id', type: 'number'},
+        {name: 'name', type: 'auto'},
         {name: 'currentState', type: 'auto'},
         {name: 'latestStatus', type: 'auto'},
         {name: 'latestResult', type: 'auto'},
@@ -25,11 +26,22 @@ Ext.define('Mdc.model.DeviceConnection', {
         {name: 'isDefault', type: 'boolean', mapping: function (data) {return data.connectionMethod.isDefault;}, persist: false}
     ],
 
-    run: function(callback) {
+    run: function(callback, body) {
         Ext.Ajax.request({
             method: 'PUT',
             url: this.proxy.url + '/{id}/run'.replace('{id}', this.getId()),
-            success: callback
+            success: callback,
+            isNotEdit: true,
+            jsonData: body
+        });
+    },
+    deactivate: function(callback, body) {
+        Ext.Ajax.request({
+            method: 'PUT',
+            url: this.proxy.url + '/{id}'.replace('{id}', this.getId()),
+            success: callback,
+            isNotEdit: true,
+            jsonData: body
         });
     },
 

@@ -95,7 +95,8 @@ Ext.define('Mdc.deviceconfigurationestimationrules.controller.RuleSets', {
         Ext.Ajax.request({
             url: url,
             method: 'PUT',
-            jsonData: Ext.encode(ruleSets),
+            jsonData: {parent: view.deviceConfiguration.getRecordData(), ruleSets: ruleSets},
+            backUrl: router.getRoute('administration/devicetypes/view/deviceconfigurations/view/estimationrulesets').buildUrl(),
             success: function () {
                 var message = Uni.I18n.translate('deviceconfiguration.estimation.ruleSets.orderSaved.success', 'MDC', 'Estimation rule sets order saved.');
                 router.getRoute('administration/devicetypes/view/deviceconfigurations/view/estimationrulesets').forward();
@@ -236,6 +237,7 @@ Ext.define('Mdc.deviceconfigurationestimationrules.controller.RuleSets', {
                 model.load(deviceConfigurationId, {
                     success: function (deviceConfig) {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
+                        widget.deviceConfiguration = deviceConfig;
                         if (widget.down('#stepsMenu #deviceConfigurationOverviewLink')) {
                             widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
                         }

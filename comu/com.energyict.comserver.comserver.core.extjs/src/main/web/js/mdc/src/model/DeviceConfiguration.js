@@ -1,5 +1,5 @@
 Ext.define('Mdc.model.DeviceConfiguration', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.ParentVersion',
     fields: [
         {name: 'id',type:'number',useNull:true},
         {name: 'name', type: 'string', useNull: true},
@@ -7,7 +7,6 @@ Ext.define('Mdc.model.DeviceConfiguration', {
         {name: 'active', type: 'boolean', useNull: true},
         {name: 'loadProfileCount', type: 'number', useNull: true},
         {name: 'registerCount', type: 'number', useNull: true},
-        {name: 'version', type: 'number', useNull: true},
         {name: 'logBookCount', type: 'number', useNull: true},
         {name: 'canBeGateway', type: 'boolean', useNull: true},
         {name: 'isDirectlyAddressable', type: 'boolean', useNull: true},

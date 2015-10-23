@@ -1,5 +1,5 @@
 Ext.define('Mdc.model.ConflictingMapping', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.ParentVersion',
     requires: [
         'Mdc.model.ConnectionMethodsAndSecuritySets',
         'Mdc.model.SolutionConnectionMethod',
@@ -44,7 +44,7 @@ Ext.define('Mdc.model.ConflictingMapping', {
     ],
     proxy: {
         type: 'rest',
-        urlTpl: '../../api/dtc/devicetypes/{deviceType}/conflictmappings',
+        urlTpl: '/api/dtc/devicetypes/{deviceType}/conflictmappings',
         reader: {
             type: 'json'
         },

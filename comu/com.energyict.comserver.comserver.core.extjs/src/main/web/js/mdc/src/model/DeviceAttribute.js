@@ -15,7 +15,7 @@ Ext.define('Mdc.model.DeviceAttribute', {
         {name: 'installationDate', type: 'auto'},
         {name: 'deactivationDate', type: 'auto'},
         {name: 'decommissioningDate', type: 'auto'},
-        {name: 'deviceVersion', type: 'int'},
+        {name: 'device', defaultValue: null},
         {
             name: 'deviceConfigurationDisplay',
             persist: false,

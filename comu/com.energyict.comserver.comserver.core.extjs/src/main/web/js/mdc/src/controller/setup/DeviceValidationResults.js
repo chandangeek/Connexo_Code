@@ -106,12 +106,16 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
+                var widget = me.getMainPage();
+
                 me.getApplication().fireEvent('loadDevice', device);
                 viewport.setLoading(false);
 
-                if (!me.getMainPage()) {
-                    var widget = Ext.widget('mdc-device-validation-results-main-view', {device: device});
+                if (!widget) {
+                    widget = Ext.widget('mdc-device-validation-results-main-view', {device: device});
                     me.getApplication().fireEvent('changecontentevent', widget);
+                } else {
+                    widget.device = device;
                 }
                 me.veto = true;
                 me.getValidationResultsTabPanel().setActiveTab(activeTab);
@@ -346,17 +350,26 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
         Ext.Ajax.request({
             url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/validationstatus',
             method: 'PUT',
+            isNotEdit: true,
             jsonData: {
                 isActive: 'true',
-                lastChecked: (isFromNewValidation ? confWindow.down('#dtm-validation-from-date').getValue().getTime() : me.dataValidationLastChecked.getTime())
+                lastChecked: (isFromNewValidation ? confWindow.down('#dtm-validation-from-date').getValue().getTime() : me.dataValidationLastChecked.getTime()),
+                device: _.pick(me.getMainPage().device.getRecordData(), 'mRID', 'version', 'parent')
             },
             success: function () {
-                me.validateData(confWindow);
+                me.updateDevice(function () {
+                    me.validateData(confWindow)
+                });
             },
             failure: function (response) {
                 var res = Ext.JSON.decode(response.responseText);
-                me.showValidationActivationErrors(res.errors[0].msg);
-                me.confirmationWindowButtonsDisable(false);
+
+                if (response.status === 400) {
+                    me.showValidationActivationErrors(res.errors[0].msg);
+                    me.confirmationWindowButtonsDisable(false);
+                } else {
+                    confWindow.destroy();
+                }
             }
         });
     },
@@ -395,27 +408,30 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
                 }
             });
 
-        Ext.Ajax.suspendEvent('requestexception');
-
         Ext.Ajax.request({
             url: '../../api/ddr/devices/' + encodeURIComponent(me.mRID) + '/validationrulesets/validate',
             method: 'PUT',
             timeout: 600000,
+            isNotEdit: true,
+            jsonData: _.pick(me.getMainPage().device.getRecordData(), 'mRID', 'version', 'parent'),
             success: function () {
                 me.destroyConfirmationWindow();
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('device.dataValidation.activation.validated', 'MDC', 'Data validation completed'));
-                me.showDeviceValidationResultsMainView(me.mRID, 0);
+                me.getController('Uni.controller.history.Router').getRoute().forward();
             },
             failure: function (response) {
+                var res;
+
                 if (confWindow) {
-                    var res = Ext.JSON.decode(response.responseText);
-                    confWindow.down('#pnl-validation-progress').removeAll(true);
-                    me.showValidationActivationErrors(res.errors[0].msg);
-                    me.confirmationWindowButtonsDisable(false);
+                    if (response.status === 400) {
+                        res = Ext.JSON.decode(response.responseText);
+                        confWindow.down('#pnl-validation-progress').removeAll(true);
+                        me.showValidationActivationErrors(res.errors[0].msg);
+                        me.confirmationWindowButtonsDisable(false);
+                    } else {
+                        me.destroyConfirmationWindow();
+                    }
                 }
-            },
-            callback: function () {
-                Ext.Ajax.resumeEvent('requestexception');
             }
         });
     },
@@ -838,6 +854,19 @@ Ext.define('Mdc.controller.setup.DeviceValidationResults', {
             );
         }
         Ext.resumeLayouts(true);
-    }
+    },
 
+    updateDevice: function (callback) {
+        var me = this,
+            page = me.getMainPage();
+
+        me.getModel('Mdc.model.Device').load(page.device.get('mRID'), {
+            success: function (record) {
+                if (page.rendered) {
+                    page.device = record;
+                    callback.call(me);
+                }
+            }
+        });
+    }
 });

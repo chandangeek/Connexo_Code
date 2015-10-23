@@ -87,51 +87,59 @@ Ext.define('Mdc.controller.setup.Devices', {
     },
 
     connectionRun: function (record) {
-        var me = this;
+        var me = this,
+            bodyDataForRequest =
+                _.pick(record.getRecordData(), 'id', 'name', 'version', 'parent');
         record.run(function () {
             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('device.connection.run.now', 'MDC', 'Run succeeded'));
             record.set('nextExecution', new Date());
-            me.doRefresh();
-        });
+            me.updateDevice(me.doRefresh);
+        }, bodyDataForRequest);
     },
 
     connectionToggle: function (record) {
         var me = this;
-        var connectionMethod = record.get('connectionMethod');
+        var connectionMethod = record.get('connectionMethod'),
+            bodyDataForRequest =
+                _.pick(record.getRecordData(), 'id', 'name', 'version', 'parent');
         connectionMethod.status = connectionMethod.status == 'active' ? 'inactive' : 'active';
         // COMU-705 : the save() failed due to the fact that for the dates numbers are expected (but strings were passed)
         record.data.startDateTime = Number(Ext.Date.format(record.data.startDateTime, 'time'));
         record.data.endDateTime = Number(Ext.Date.format(record.data.endDateTime, 'time'));
         record.data.nextExecution = Number(Ext.Date.format(record.data.nextExecution, 'time'));
         record.set('connectionMethod', connectionMethod);
-        record.save({
+        record.deactivate({
             callback: function (record, operation, success) {
                 if (success) {
                     me.getApplication().fireEvent('acknowledge',
                         Uni.I18n.translate('device.connection.toggle', 'MDC', 'Connection status changed to {0}',[connectionMethod.status])
                     );
-                    me.refreshConnections();
+                    me.updateDevice(me.doRefresh);
                 }
             }
-        });
+        }, bodyDataForRequest);
     },
 
     communicationToggle: function (record) {
-        var me = this;
-        var status = !record.get('isOnHold');
+        var me = this,
+            status = !record.get('isOnHold'),
+            bodyDataForRequest = {
+                device: _.pick(me.getDevice().getRecordData(), 'mRID', 'version', 'parent')
+            };
+
         if (status) {
             record.deactivate(function () {
                 me.getApplication().fireEvent('acknowledge',
                 Uni.I18n.translate('device.communication.toggle.deactivate', 'MDC', 'Communication task configuration deactivated'));
-                me.doRefresh();
+                me.updateDevice(me.doRefresh);
 
-            });
+            }, bodyDataForRequest);
         } else {
             record.activate(function () {
                 me.getApplication().fireEvent('acknowledge',
                 Uni.I18n.translate('device.communication.toggle.activate', 'MDC', 'Communication task configuration activated'));
-                me.doRefresh();
-            });
+                me.updateDevice(me.doRefresh);
+            }, bodyDataForRequest);
         }
     },
 
@@ -142,8 +150,12 @@ Ext.define('Mdc.controller.setup.Devices', {
         Ext.Ajax.request({
             method: 'PUT',
             url: '/api/ddr/devices/{mRID}/comtasks/activate'.replace('{mRID}', encodeURIComponent(router.arguments.mRID)),
+            isNotEdit: true,
+            jsonData: {
+                device: _.pick(me.getDevice().getRecordData(), 'mRID', 'version', 'parent')
+            },
             success: function () {
-                me.refreshCommunications();
+                me.updateDevice(me.refreshCommunications);
                 me.getApplication().fireEvent('acknowledge',
                     Uni.I18n.translate('device.communication.activateAll', 'MDC', 'Communication tasks activated')
                 );
@@ -158,8 +170,12 @@ Ext.define('Mdc.controller.setup.Devices', {
         Ext.Ajax.request({
             method: 'PUT',
             url: '/api/ddr/devices/{mRID}/comtasks/deactivate'.replace('{mRID}', encodeURIComponent(router.arguments.mRID)),
+            isNotEdit: true,
+            jsonData: {
+                device: _.pick(me.getDevice().getRecordData(), 'mRID', 'version', 'parent')
+            },
             success: function () {
-                me.refreshCommunications();
+                me.updateDevice(me.refreshCommunications);
                 me.getApplication().fireEvent('acknowledge',
                     Uni.I18n.translate('device.communication.deactivateAll', 'MDC', 'Communication tasks deactivated')
                 );
@@ -174,7 +190,9 @@ Ext.define('Mdc.controller.setup.Devices', {
                 Uni.I18n.translate('device.communication.run.wait', 'MDC', 'Run succeeded')
             );
             record.set('plannedDate', new Date());
-            me.doRefresh();
+            me.updateDevice(me.doRefresh);
+        }, {
+            device: _.pick(me.getDevice().getRecordData(), 'mRID', 'version', 'parent')
         });
     },
 
@@ -185,7 +203,9 @@ Ext.define('Mdc.controller.setup.Devices', {
                 Uni.I18n.translate('device.communication.run.now', 'MDC', 'Run now succeeded')
             );
             record.set('plannedDate', new Date());
-            me.doRefresh();
+            me.updateDevice(me.doRefresh);
+        }, {
+            device: _.pick(me.getDevice().getRecordData(), 'mRID', 'version', 'parent')
         });
     },
 
@@ -253,6 +273,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         var lastUpdateField = widget.down('#deviceSetupPanel #last-updated-field');
         var deviceConnectionsStore = device.connections();
 
+        widget.down('device-connections-list').bindStore(deviceConnectionsStore);
         deviceConnectionsStore.getProxy().setUrl(device.get('mRID'));
         lastUpdateField.update(Uni.I18n.translate('general.lastUpdatedAt', 'MDC', 'Last updated at {0}', [Uni.DateTime.formatTimeShort(new Date())]));
         deviceConnectionsStore.load(function (records) {
@@ -268,6 +289,7 @@ Ext.define('Mdc.controller.setup.Devices', {
         var lastUpdateField = widget.down('#deviceSetupPanel #last-updated-field');
         var deviceCommunicationsStore = device.communications();
 
+        widget.down('device-communications-list').bindStore(deviceCommunicationsStore);
         deviceCommunicationsStore.getProxy().setUrl(device.get('mRID'));
         lastUpdateField.update(Uni.I18n.translate('general.lastUpdatedAt', 'MDC', 'Last updated at {0}', [Uni.DateTime.formatTimeShort(new Date())]));
         deviceCommunicationsStore.load(function (records) {
@@ -352,6 +374,32 @@ Ext.define('Mdc.controller.setup.Devices', {
 
     onDeactivate: function () {
         this.showDeactivationConfirmation(this.getDeviceSetupPanel());
+    },
+
+    getDevice: function () {
+        var me = this,
+            page = me.getDeviceSetup(),
+            device;
+
+        if (page) {
+            device = page.device;
+        }
+
+        return device
+    },
+
+    updateDevice: function (callback) {
+        var me = this,
+            page = me.getDeviceSetup();
+
+        me.getModel('Mdc.model.Device').load(page.device.get('mRID'), {
+            success: function (record) {
+                if (page.rendered) {
+                    page.device = record;
+                    callback.call(me);
+                }
+            }
+        });
     }
 });
 

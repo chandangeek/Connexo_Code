@@ -1,5 +1,5 @@
 Ext.define('Mdc.model.LogbookTypeOfDeviceType', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.ParentVersion',
 
     fields: [
         {

@@ -29,7 +29,8 @@ Ext.define('Mdc.controller.setup.DeviceConflictingMapping', {
         {ref: 'afterSetsAdds', selector: '#afterSetsAdds'},
         {ref: 'afterConnectionsAdds', selector: '#afterConnectionsAdds'},
         {ref: 'connectionMethodsAddsPanel', selector: '#connectionMethodsAddsPanel'},
-        {ref: 'securitySettingsAddsPanel', selector: '#securitySettingsAddsPanel'}
+        {ref: 'securitySettingsAddsPanel', selector: '#securitySettingsAddsPanel'},
+        {ref: 'deviceConflictingMappingEditPage', selector: 'deviceConflictingMappingEdit'}
     ],
 
     init: function () {
@@ -157,7 +158,8 @@ Ext.define('Mdc.controller.setup.DeviceConflictingMapping', {
                     fromConfig: record.get('fromConfiguration').name,
                     toConfig: record.get('toConfiguration').name,
                     cancelLink: cancelLink,
-                    title: title
+                    title: title,
+                    conflictingMapping: record
                 });
                 Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
                     success: function (deviceType) {
@@ -200,35 +202,20 @@ Ext.define('Mdc.controller.setup.DeviceConflictingMapping', {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
             router = me.getController('Uni.controller.history.Router'),
-            conflictsModel = me.getModel('Mdc.model.ConflictingMapping');
-        conflictsModel.getProxy().setUrl(me.deviceTypeId);
-        conflictsModel.load(me.mappingId, {
-            success: function (record) {
-                viewport.setLoading(true);
-                me.addSolutions(record);
-                record.save({
-                    success: function () {
-                        switch (me.returnInfo.from) {
-                            case('unsolvedConflicts') :
-                            {
-                                router.getRoute('administration/devicetypes/view/conflictmappings').forward();
-                            }
-                                break;
-                            case('allConflicts') :
-                            {
-                                router.getRoute('administration/devicetypes/view/conflictmappings/all').forward();
-                            }
-                                break;
-                            case('changeDeviceConfiguration') :
-                            {
-                                router.getRoute('devices/device/changedeviceconfiguration').forward({mRID: me.returnInfo.id});
-                            }
-                                break;
-                        }
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceConflicting.acknowledgment.SolutionsAdded', 'MDC', 'Solutions added'));
-                        viewport.setLoading(false);
-                    }
-                });
+            page = me.getDeviceConflictingMappingEditPage(),
+            cancelLink = page.cancelLink,
+            record = page.conflictingMapping;
+
+        viewport.setLoading(true);
+        me.addSolutions(record);
+        record.save({
+            backUrl: cancelLink,
+            success: function () {
+                window.location.href = cancelLink;
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceConflicting.acknowledgment.SolutionsAdded', 'MDC', 'Solutions added'));
+            },
+            callback: function () {
+                viewport.setLoading(false);
             }
         });
     },

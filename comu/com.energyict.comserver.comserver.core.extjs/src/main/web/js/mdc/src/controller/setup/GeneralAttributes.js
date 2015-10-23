@@ -54,6 +54,7 @@ Ext.define('Mdc.controller.setup.GeneralAttributes', {
 
         form.updateRecord();
         form.getRecord().save({
+            backUrl: me.getController('Uni.controller.history.Router').getRoute('administration/devicetypes/view/deviceconfigurations/view/generalattributes').buildUrl(),
             callback: function (model, operation, success) {
                 editView.setLoading(false);
                 if (success) {

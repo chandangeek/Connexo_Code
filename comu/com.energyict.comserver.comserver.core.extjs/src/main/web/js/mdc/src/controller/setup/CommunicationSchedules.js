@@ -215,7 +215,9 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
     saveCommunicationSchedule: function () {
         var me = this,
             values = this.getCommunicationScheduleEditForm().getValues(),
-            editView = this.getCommunicationScheduleEdit();
+            editView = this.getCommunicationScheduleEdit(),
+            router = me.getController('Uni.controller.history.Router'),
+            backUrl = router.getRoute('administration/communicationschedules').buildUrl();
 
 
         if (this.record) {
@@ -224,14 +226,14 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             me.hideErrorPanel();
             editView.setLoading(true);
             this.record.save({
+                backUrl: backUrl,
                 success: function (record) {
-                    location.href = '#/administration/communicationschedules';
+                    location.href = backUrl;
                     if (me.mode == 'edit') {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationschedule.saved', 'MDC', 'Shared communication schedule saved'));
                     } else {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationschedule.added', 'MDC', 'Shared communication schedule added'));
                     }
-                    editView.setLoading(false);
                 },
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText);
@@ -248,8 +250,10 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                         });
                         me.getCommunicationScheduleEditForm().getForm().markInvalid(json.errors);
                         me.showErrorPanel();
-                        editView.setLoading(false);
                     }
+                },
+                callback: function () {
+                    editView.setLoading(false);
                 }
             });
         }

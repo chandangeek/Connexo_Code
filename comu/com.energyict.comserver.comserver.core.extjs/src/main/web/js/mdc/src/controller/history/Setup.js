@@ -216,7 +216,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                                             route: 'add',
                                                             privileges: Mdc.privileges.DeviceType.admin,
                                                             controller: 'Mdc.controller.setup.LoadProfileConfigurations',
-                                                            action: 'showDeviceConfigurationLoadProfilesAddView'
+                                                            action: 'showDeviceConfigurationLoadProfilesEditView'
                                                         },
                                                         edit: {
                                                             title: Uni.I18n.translate('loadProfileConfigurations.edit', 'MDC', 'Edit load profile configuration'),

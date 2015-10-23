@@ -1,6 +1,9 @@
 Ext.define('Mdc.view.setup.comservercomports.UDPForm', {
     extend: 'Ext.container.Container',
     alias: 'widget.udpForm',
+    requires: [
+        'Mdc.view.setup.comservercomports.InboundComPortPoolCombo'
+    ],
     defaults: {
         labelWidth: 250,
         width: 600,
@@ -82,7 +85,7 @@ Ext.define('Mdc.view.setup.comservercomports.UDPForm', {
             width: 370
         },
         {
-            xtype: 'combobox',
+            xtype: 'inbound-com-port-pool-combo',
             fieldLabel: Uni.I18n.translate('general.comPortPool', 'MDC', 'Communication port pool'),
             required: false,
             store: 'Mdc.store.InboundComPortPools',

@@ -138,7 +138,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
             Ext.suspendLayouts();
             if (!device.get('isDirectlyAddressed')) {
                 if (device.get('masterDeviceId')) {
-                    me.addItemToForm(masterContainer, device.get('masterDevicemRID'), me.router.getRoute('devices/device').buildUrl({mRID: device.get('masterDevicemRID')}));
+                    me.addItemToForm(masterContainer, Ext.htmlEncode(device.get('masterDevicemRID')), me.router.getRoute('devices/device').buildUrl({mRID: encodeURIComponent(device.get('masterDevicemRID'))}));
                     me.renderActionButtonsToMasterField(masterContainer, true, true, false, false);
                 } else {
                     me.addItemToForm(masterContainer, Uni.I18n.translate('general.none', 'MDC', 'None'), null, 'span');
@@ -314,7 +314,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
     clearMasterDevice: function () {
         var me = this;
         Ext.create('Uni.view.window.Confirmation').show({
-            title: Ext.String.format(Uni.I18n.translate('comTopologyWidget.removeMasterConfirmation.title', 'MDC', 'Remove \'{0}\' as master device?'), me.device.get('masterDevicemRID')),
+            title: Ext.String.format(Uni.I18n.translate('comTopologyWidget.removeMasterConfirmation.title', 'MDC', 'Remove \'{0}\' as master device?'), Ext.htmlEncode(me.device.get('masterDevicemRID'))),
             msg: Ext.String.format(Uni.I18n.translate('comTopologyWidget.removeMasterConfirmation.message', 'MDC', 'This device will no longer be the master of  \'{0}\''), me.device.get('mRID')),
             fn: function (action) {
                 if (action === 'confirm') {
@@ -358,6 +358,7 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
         me.device.set('masterDeviceId', data.masterDeviceId);
         me.device.set('masterDevicemRID', data.masterDevicemRID);
         me.device.save({
+            isNotEdit: true,
             success: function (deviceData) {
                 Ext.ModelManager.getModel('Mdc.model.Device').load(deviceData.get('mRID'), {
                     success: function (device) {
@@ -367,6 +368,9 @@ Ext.define('Mdc.view.setup.device.DeviceCommunicationTopologyPanel', {
                         me.setLoading(false);
                     }
                 });
+            },
+            failure: function () {
+                me.setLoading(false);
             }
         });
     },

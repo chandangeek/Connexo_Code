@@ -46,13 +46,17 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
         editForm.getForm().clearInvalid();
 
         updatedRecord.save({
-            callback: function (model, operation, success) {
-                if (success) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceAttributes.saved', 'MDC', 'Device attributes saved.'));
-                    me.goToAttributesLanding();
-                } else {
+            backUrl: me.getController('Uni.controller.history.Router').getRoute('devices/device/attributes').buildUrl(),
+            success: function () {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceAttributes.saved', 'MDC', 'Device attributes saved.'));
+                me.goToAttributesLanding();
+            },
+            failure: function (record, operation) {
+                if (operation && operation.response && operation.response.status === 400) {
                     me.formMarkInvalid(Ext.decode(operation.response.responseText));
                 }
+            },
+            callback: function () {
                 editPage.setLoading(false);
             }
         });
@@ -154,8 +158,11 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
     },
 
     getUpdatedRecord: function (record) {
-        var me = this;
+        var me = this,
+            device = me.getDeviceAttributesEditPage().device;
 
+        record.beginEdit();
+        record.set('device', _.pick(device.getRecordData(), 'mRID', 'version', 'parent'));
         Ext.iterate(record.getData(), function (key, value) {
             if (!Ext.isEmpty(value.available) && !Ext.isEmpty(value.editable) && value.available && value.editable) {
                 var editField = me.getEditField(key);
@@ -170,6 +177,7 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
                 }
             }
         });
+        record.endEdit();
         return record;
     },
 

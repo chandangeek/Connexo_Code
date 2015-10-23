@@ -85,15 +85,17 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
 
     activateDataValidation: function (activate) {
         var me = this,
-            url = '/api/ddr/devices/' + me.device.get('mRID') + '/estimationrulesets/esimationstatus';
+            url = '/api/ddr/devices/' + me.device.get('mRID') + '/estimationrulesets/esimationstatus',
+            page = me.getPage();
 
         me.device.set('estimationStatus', { active: activate });
-        me.getPage().setLoading();
+        page.setLoading();
 
         Ext.Ajax.request({
             url: url,
             method: 'PUT',
             jsonData: Ext.encode(me.device.getData()),
+            isNotEdit: true,
             success: function () {
                 var router = me.getController('Uni.controller.history.Router');
                 router.getRoute().forward();
@@ -101,6 +103,9 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
                     ? Uni.I18n.translate('estimationDevice.activation.activated', 'MDC', 'Data estimation on device {0} was activated successfully', [me.mRID])
                     : Uni.I18n.translate('estimationDevice.activation.deactivated', 'MDC', 'Data estimation on device {0} was deactivated successfully', [me.mRID])
                 );
+            },
+            callback: function () {
+                page.setLoading(false);
             }
         });
     },
@@ -169,12 +174,14 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
             ruleSetId = this.getRulesSetGrid().getSelectionModel().getLastSelected().get('id'),
             record = this.getRulesSetGrid().getStore().getById(ruleSetId),
             ruleSetName = record.get('name'),
-            ruleSetIsActive = record.get('active');
+            ruleSetIsActive = record.get('active'),
+            page = me.getPage();
 
         record.getProxy().setExtraParam('mRID', encodeURIComponent(me.mRID));
         record.set('active', !ruleSetIsActive);
-        me.getPage().setLoading();
+        page.setLoading();
         record.save({
+            isNotEdit: true,
             success: function () {
                 var router = me.getController('Uni.controller.history.Router');
                 router.getRoute().forward();
@@ -182,6 +189,12 @@ Ext.define('Mdc.controller.setup.DeviceDataEstimation', {
                     ? Uni.I18n.translate('device.dataEstimation.ruleSet.deactivated', 'MDC', 'Estimation rule set deactivated', [ruleSetName])
                     : Uni.I18n.translate('device.dataEstimation.ruleSet.activated', 'MDC', 'Estimation rule set activated', [ruleSetName])
                 );
+            },
+            callback: function () {
+                page.setLoading(false);
+            },
+            failure: function () {
+                record.reject();
             }
         });
     }

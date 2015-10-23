@@ -93,34 +93,34 @@ Ext.define('Mdc.controller.setup.ComServersView', {
         }
 
         if (activeChange != 'notChanged') {
-            var me = this;
             var recordId = record.get('id');
+
+            record.set('active', activeChange);
             Ext.Ajax.request({
                 url: '/api/mdc/comservers/' + recordId + '/status',
                 method: 'PUT',
-                jsonData: {active: activeChange},
-                success: function () {
-                    Ext.ModelManager.getModel('Mdc.model.ComServer').load(recordId, {
-                        callback: function (model) {
-                            if (grid) {
-                                record.set('active', activeChange);
-                                record.commit();
-                                gridView.refresh();
-                                me.getPreviewActionMenu().record = model;
-                            } else {
-                                menu.record = model;
-                            }
+                jsonData: record.getRecordData(),
+                isNotEdit: true,
+                success: function (response) {
+                    var data = Ext.decode(response.responseText);
 
-                            var msg = activeChange ? Uni.I18n.translate('general.activated', 'MDC', 'activated') :
-                                Uni.I18n.translate('general.deactivated', 'MDC', 'deactivated');
-                            form.loadRecord(model);
-                            me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('general.comServerMsg', 'MDC', 'Communication server {0}',[msg]));
-                        }
-                    });
+                    record.set(data);
+                    record.commit();
+                    form.loadRecord(record);
+                    if (grid) {
+                        me.getPreviewActionMenu().record = record;
+                    } else {
+                        menu.record = record;
+                    }
+                    me.getApplication().fireEvent('acknowledge', activeChange
+                        ? Uni.I18n.translate('general.comServer.msg.activated', 'MDC', 'Communication server activated')
+                        : Uni.I18n.translate('general.comServer.msg.deactivated', 'MDC', 'Communication server deactivated')
+                    );
                 },
                 failure: function(response, opts) {
-                    console.log('server-side failure with status code ' + response.status);
                     var json = Ext.decode(response.responseText);
+
+                    record.reject();
                     if (json && json.errors) {
                         var msg = '';
                         Ext.each(json.errors, function (error) {
@@ -201,13 +201,12 @@ Ext.define('Mdc.controller.setup.ComServersView', {
 
         page.setLoading(Uni.I18n.translate('general.removing', 'MDC', 'Removing...'));
         record.destroy({
+            success: function () {
+                me.getController('Uni.controller.history.Router').getRoute().forward();
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comServer.deleteSuccess.msg', 'MDC', 'Communication server removed'));
+            },
             callback: function (model, operation) {
                 page.setLoading(false);
-                if (operation.wasSuccessful()) {
-                    gridToolbarTop.totalCount = 0;
-                    me.getComServerGrid().getStore().loadPage(1);
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comServer.deleteSuccess.msg', 'MDC', 'Communication server removed'));
-                }
             }
         });
     }

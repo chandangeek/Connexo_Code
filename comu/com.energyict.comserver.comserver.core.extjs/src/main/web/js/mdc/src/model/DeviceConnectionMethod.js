@@ -1,5 +1,5 @@
 Ext.define('Mdc.model.DeviceConnectionMethod', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.ParentVersion',
     requires: [
         'Uni.property.model.Property'
     ],
@@ -14,9 +14,9 @@ Ext.define('Mdc.model.DeviceConnectionMethod', {
         {name: 'connectionType', type: 'string', useNull: true},
         {name: 'connectionStrategy', type: 'string', useNull: true},
         'rescheduleRetryDelay',
-        {name: 'nextExecutionSpecs', useNull: true},
-        {name: 'comWindowStart',useNull: true},
-        {name: 'comWindowEnd',useNull: true},
+        {name: 'nextExecutionSpecs', useNull: true, defaultValue: null},
+        {name: 'comWindowStart',useNull: true, defaultValue: null},
+        {name: 'comWindowEnd',useNull: true, defaultValue: null},
         {
             name: 'connectionWindow',
             persist: false,

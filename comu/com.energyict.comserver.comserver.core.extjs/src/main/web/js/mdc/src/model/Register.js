@@ -58,7 +58,8 @@ Ext.define('Mdc.model.Register', {
                 return (data.detailedValidationInfo && data.detailedValidationInfo.lastChecked) ?
                     Uni.DateTime.formatDateTimeLong(new Date(data.detailedValidationInfo.lastChecked)) : '';
             }
-        }
+        },
+        {name: 'mRID', type: 'string'}
     ],
     proxy: {
         type: 'rest',

@@ -298,7 +298,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             registerConfigurationToDelete.destroy({
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registerConfig.acknowlegment.removed', 'MDC', 'Register configuration removed'));
-                    location.href = '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigId + '/registerconfigurations';
+                    me.getController('Uni.controller.history.Router').getRoute().forward();
                 }
             });
 
@@ -382,11 +382,15 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             }
             record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigId});
             record.save({
+                backUrl: router.getRoute('administration/devicetypes/view/deviceconfigurations/view/registerconfigurations').buildUrl(),
                 success: function (record) {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registerConfig.acknowlegment.saved', 'MDC', 'Register configuration saved'));
                     router.getRoute('administration/devicetypes/view/deviceconfigurations/view/registerconfigurations').forward();
                 },
                 failure: function (record, operation) {
+                    if (operation.response.status === 400) {
+                        return
+                    }
                     var json = Ext.decode(operation.response.responseText);
                     if (json && json.errors) {
                         me.getRegisterConfigEditForm().getForm().markInvalid(json.errors);

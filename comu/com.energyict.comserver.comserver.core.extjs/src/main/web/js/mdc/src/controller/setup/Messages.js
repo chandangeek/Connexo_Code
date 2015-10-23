@@ -14,13 +14,18 @@ Ext.define('Mdc.controller.setup.Messages', {
         'MessagesPrivileges',
         'MessagesGridStore'
     ],
-    models: [ 'Mdc.model.MessageCategory' ],
+    models: [
+        'Mdc.model.DeviceType',
+        'Mdc.model.DeviceConfiguration',
+        'Mdc.model.MessageCategory'
+    ],
     refs: [
         { ref: 'messagesCategoriesGrid', selector: 'messages-categories-grid' },
         { ref: 'messagesCategoriesActionMenu', selector: '#messages-categories-actionmenu' },
         { ref: 'messagesGrid', selector: 'messages-grid' },
         { ref: 'messagesActionMenu', selector: '#messages-actionmenu' },
-        { ref: 'messagesActionBtn', selector: '#messages-actionbutton' }
+        { ref: 'messagesActionBtn', selector: '#messages-actionbutton' },
+        { ref: 'messagesOverview', selector: 'messages-overview' }
     ],
     deviceTypeId: null,
     deviceConfigId: null,
@@ -29,7 +34,6 @@ Ext.define('Mdc.controller.setup.Messages', {
         this.callParent(arguments);
         this.control({
             'messages-categories-grid': {
-                afterrender: this.onMessagesCategoriesGridAfterRender,
                 selectionchange: this.onMessageCategoryChange
             },
             'messages-grid': {
@@ -49,40 +53,43 @@ Ext.define('Mdc.controller.setup.Messages', {
 
     showMessagesOverview: function (deviceTypeId, deviceConfigId) {
         var me = this,
-            model = Ext.ModelManager.getModel('Mdc.model.MessageCategory');
-        model.getProxy().setExtraParam('deviceType', deviceTypeId);
-        model.getProxy().setExtraParam('deviceConfig', deviceConfigId);
+            models = {
+                messageCategory: me.getModel('Mdc.model.MessageCategory'),
+                deviceType: me.getModel('Mdc.model.DeviceType'),
+                deviceConfiguration: me.getModel('Mdc.model.DeviceConfiguration')
+            },
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0];
 
-        var  widget = Ext.widget('messages-overview', { deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigId });
+        mainView.setLoading();
+        models.messageCategory.getProxy().setExtraParam('deviceType', deviceTypeId);
+        models.messageCategory.getProxy().setExtraParam('deviceConfig', deviceConfigId);
+
         me.deviceTypeId = deviceTypeId;
         me.deviceConfigId = deviceConfigId;
-        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
+
+        models.deviceType.load(deviceTypeId, {
             success: function (deviceType) {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
-                var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
-                model.getProxy().setExtraParam('deviceType', deviceTypeId);
-                model.load(deviceConfigId, {
-                    success: function (deviceConfig) {
-                        me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
-                        widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
-                        me.getApplication().fireEvent('changecontentevent', widget);
-                    }
-                });
             }
         });
-    },
 
-    onMessagesCategoriesGridAfterRender: function (grid) {
-        var model = Ext.ModelManager.getModel('Mdc.model.MessageCategory');
-        model.getProxy().setExtraParam('deviceType', grid.deviceTypeId);
-        model.getProxy().setExtraParam('deviceConfig', grid.deviceConfigId);
-        grid.store.load({
-            callback: function (messagesCategories) {
-                if (messagesCategories && messagesCategories.length > 0) {
-                    grid.getSelectionModel().doSelect(0);
-                }
+        models.deviceConfiguration.getProxy().setExtraParam('deviceType', deviceTypeId);
+        models.deviceConfiguration.load(deviceConfigId, {
+            success: function (deviceConfig) {
+                var  widget = Ext.widget('messages-overview', {
+                    deviceTypeId: deviceTypeId,
+                    deviceConfigId: deviceConfigId
+                });
+
+                me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
+                widget.deviceConfiguration = deviceConfig;
+                widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
+                me.getApplication().fireEvent('changecontentevent', widget);
+            },
+            callback: function () {
+                mainView.setLoading(false);
             }
-        })
+        });
     },
 
     onMessageCategoryChange: function (sm, records) {
@@ -353,7 +360,14 @@ Ext.define('Mdc.controller.setup.Messages', {
         }
     },
     activateAll: function (messagesCategory, privileges) {
-        var inactiveEnablements = [];
+        var me = this,
+            inactiveEnablements = [],
+            router = this.getController('Uni.controller.history.Router'),
+            model = Ext.create('Mdc.model.MessageActivate'),
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0];
+
+        mainView.setLoading();
+
         Ext.each(messagesCategory.deviceMessageEnablementsStore.getRange(), function (e) {
             if (!e.get('active')) {
 
@@ -367,26 +381,42 @@ Ext.define('Mdc.controller.setup.Messages', {
             }
         });
 
-        var router = this.getController('Uni.controller.history.Router');
-        var model = Ext.create('Mdc.model.MessageActivate');
         model.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
         model.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
         model.beginEdit();
         model.set('messageIds', inactiveEnablements);
         model.set('privileges', privileges);
+        model.set('deviceConfiguration', me.getMessagesOverview().deviceConfiguration.getRecordData());
         model.endEdit();
-        model.save();
-        this.showMessagesOverview(router.arguments.deviceTypeId, router.arguments.deviceConfigurationId);
+        model.save({
+            isNotEdit: true,
+            success: function () {
+                router.getRoute().forward();
+            },
+            callback: function () {
+                mainView.setLoading(false);
+            }
+        });
     },
 
     deactivateRequest: function(message) {
-        var router = this.getController('Uni.controller.history.Router');
+        var me = this,
+            router = this.getController('Uni.controller.history.Router'),
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0];
+
+        mainView.setLoading();
         Ext.Ajax.request({
             url: '/api/dtc/devicetypes/' + router.arguments.deviceTypeId + '/deviceconfigurations/' + router.arguments.deviceConfigurationId
-                + '/devicemessageenablements/?messageId=' + message,
+                + '/devicemessageenablements',
             method: 'DELETE',
             waitMsg: 'Removing...',
+            isNotEdit: true,
+            jsonData: {
+                messageIds: message,
+                deviceConfiguration: me.getMessagesOverview().deviceConfiguration.getRecordData()
+            },
             success: function () {
+                router.getRoute().forward();
             },
             failure: function (response) {
                 var errorText = "Unknown error occurred";
@@ -397,6 +427,9 @@ Ext.define('Mdc.controller.setup.Messages', {
                         errorText = result.message;
                     }
                 }
+            },
+            callback: function () {
+                mainView.setLoading(false);
             }
         });
     },
@@ -404,20 +437,14 @@ Ext.define('Mdc.controller.setup.Messages', {
 
     deactivateAll: function (messagesCategory) {
         var me = this,
-            model = Ext.ModelManager.getModel('Mdc.model.MessageCategory');
-        var router = this.getController('Uni.controller.history.Router');
-        var activeEnablements = [];
+            activeEnablements = [];
 
         Ext.each(messagesCategory.deviceMessageEnablementsStore.getRange(), function (e) {
             if (e.get('active')) {
                 activeEnablements.push(e.get('id'));
             }
         });
-        Ext.each(activeEnablements, function(e) {
-            me.deactivateRequest(e);
-        });
-
-        this.showMessagesOverview(router.arguments.deviceTypeId, router.arguments.deviceConfigurationId);
+        me.deactivateRequest(activeEnablements);
     },
 
     changePrivilegesForAll: function (messagesCategory, privileges) {
@@ -428,50 +455,67 @@ Ext.define('Mdc.controller.setup.Messages', {
                 }
         });
         this.changeRequest(activeEnablements, privileges);
-        var router = this.getController('Uni.controller.history.Router');
-        this.showMessagesOverview(router.arguments.deviceTypeId, router.arguments.deviceConfigurationId);
     },
 
     activate: function (message, privileges) {
-        var messageIds = [];
+        var me = this,
+            messageIds = [],
+            router = this.getController('Uni.controller.history.Router'),
+            model = Ext.create('Mdc.model.MessageActivate'),
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0];
+
+        mainView.setLoading();
         messageIds.push(message.get('id'));
-        var router = this.getController('Uni.controller.history.Router');
-        var model = Ext.create('Mdc.model.MessageActivate');
         model.getProxy().setExtraParam('deviceType', router.arguments.deviceTypeId);
         model.getProxy().setExtraParam('deviceConfig', router.arguments.deviceConfigurationId);
         model.set('messageIds', messageIds);
         model.set('privileges', privileges);
-        model.save();
-        this.showMessagesOverview(router.arguments.deviceTypeId, router.arguments.deviceConfigurationId);
+        model.set('deviceConfiguration', me.getMessagesOverview().deviceConfiguration.getRecordData());
+        model.save({
+            isNotEdit: true,
+            success: function () {
+                router.getRoute().forward();
+            },
+            callback: function () {
+                mainView.setLoading(false);
+            }
+        });
     },
 
     deactivate: function (message) {
-        var messageIds = [];
+        var me = this,
+            messageIds = [];
+
         messageIds.push(message.get('id'));
-        this.deactivateRequest(messageIds);
-        var router = this.getController('Uni.controller.history.Router');
-        this.showMessagesOverview(router.arguments.deviceTypeId, router.arguments.deviceConfigurationId);
+        me.deactivateRequest(messageIds);
     },
 
     changePrivileges: function (message, privileges) {
-        var messageIds = [];
+        var me = this,
+            messageIds = [];
+
         messageIds.push(message.get('id'));
-        this.changeRequest(messageIds, privileges);
-        var router = this.getController('Uni.controller.history.Router');
-        this.showMessagesOverview(router.arguments.deviceTypeId, router.arguments.deviceConfigurationId);
+        me.changeRequest(messageIds, privileges);
     },
     changeRequest: function(message, privileges) {
-        var router = this.getController('Uni.controller.history.Router');
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0];
+
+        mainView.setLoading();
         Ext.Ajax.request({
             url: '/api/dtc/devicetypes/' + router.arguments.deviceTypeId + '/deviceconfigurations/' + router.arguments.deviceConfigurationId
                 + '/devicemessageenablements/',
             method: 'PUT',
+            isNotEdit: true,
             jsonData: {
                 "messageIds": message,
-                "privileges": privileges
+                "privileges": privileges,
+                deviceConfiguration: me.getMessagesOverview().deviceConfiguration.getRecordData()
             },
             waitMsg: 'Changing privileges...',
             success: function () {
+                router.getRoute().forward();
             },
             failure: function (response) {
                 var errorText = "Unknown error occurred";
@@ -482,6 +526,9 @@ Ext.define('Mdc.controller.setup.Messages', {
                         errorText = result.message;
                     }
                 }
+            },
+            callback: function () {
+                mainView.setLoading(false);
             }
         });
     }

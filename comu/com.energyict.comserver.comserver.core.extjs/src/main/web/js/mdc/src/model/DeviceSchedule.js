@@ -1,5 +1,5 @@
 Ext.define('Mdc.model.DeviceSchedule', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.ParentVersion',
     fields: [
         {name: 'id'},
         {name: 'masterScheduleId'},

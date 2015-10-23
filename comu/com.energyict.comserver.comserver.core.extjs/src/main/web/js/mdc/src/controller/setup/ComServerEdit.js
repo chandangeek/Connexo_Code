@@ -116,6 +116,7 @@ Ext.define('Mdc.controller.setup.ComServerEdit', {
         formErrorsPanel.hide();
         form.getForm().clearInvalid();
         model.save({
+            backUrl: me.getController('Uni.controller.history.Router').getRoute('administration/comservers').buildUrl(),
             callback: function (model, operation, success) {
                 page.setLoading(false);
                 button.setDisabled(false);

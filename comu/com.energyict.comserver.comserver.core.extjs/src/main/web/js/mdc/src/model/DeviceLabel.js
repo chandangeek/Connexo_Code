@@ -1,5 +1,5 @@
 Ext.define('Mdc.model.DeviceLabel', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.ParentVersion',
     fields: [
         {name: 'id', mapping: function (data) {return data.category.id;}, persist: false},
         {name: 'category', type: 'auto'},

@@ -24,7 +24,8 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
         {ref: 'deviceCommunicationTaskPreview', selector: '#deviceCommunicationTaskPreview'},
         {ref: 'changeConnectionItemForm', selector: '#changeConnectionItemForm'},
         {ref: 'changeConnectionItemPopUp', selector: '#changeConnectionItemPopUp'},
-        {ref: 'deviceCommunicationTaskActionMenu', selector: '#device-communication-task-action-menu'}
+        {ref: 'deviceCommunicationTaskActionMenu', selector: '#device-communication-task-action-menu'},
+        {ref: 'deviceCommunicationTaskOverview', selector: 'deviceCommunicationTaskSetup'}
     ],
 
     init: function () {
@@ -248,13 +249,16 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
     },
 
     sendToServer: function (request, actionUrl, actionMsg) {
-        var me = this;
-        jsonData = Ext.encode(request);
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            device = me.getDeviceCommunicationTaskOverview().device;
+
         Ext.Ajax.request({
             url: actionUrl,
             method: 'PUT',
             params: '',
-            jsonData: jsonData,
+            isNotEdit: true,
+            jsonData: Ext.merge(request, {device: _.pick(device.getRecordData(), 'mRID', 'version', 'parent')}),
             timeout: 180000,
             success: function (response) {
                 var changeConnectionItemPopUp = me.getChangeConnectionItemPopUp();
@@ -262,25 +266,25 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                     changeConnectionItemPopUp.close();
                 }
                 me.getApplication().fireEvent('acknowledge', actionMsg);
-                me.showDeviceCommunicationTasksView(me.mrid);
+                router.getRoute().forward();
             },
             failure: function (response) {
                 var json = Ext.decode(response.responseText),
                     changeConnectionItemPopUp = me.getChangeConnectionItemPopUp(),
                     form = changeConnectionItemPopUp && changeConnectionItemPopUp.down('form').getForm();
 
-                if (json && json.errors && form) {
+                if (response.status === 400 && json && json.errors && form) {
                     Ext.each(json.errors, function (error) {
                         switch (error.id) {
                             case 'plannedPriority':
                                 error.id = 'urgency';
                                 break;
-                }
+                        }
                     });
                     form.markInvalid(json.errors);
-                } else {
-                me.showDeviceCommunicationTasksView(me.mrid);
-            }
+                } else if(changeConnectionItemPopUp){
+                    changeConnectionItemPopUp.close();
+                }
             }
         });
     },

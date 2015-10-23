@@ -33,7 +33,8 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
         {ref: 'scheduleField', selector: '#scheduleField'},
         {ref: 'warningMessage', selector: '#warningMessage'},
         {ref: 'addButton', selector: '#addButton'},
-        {ref: 'uniFormErrorMessage', selector: '#form-errors'}
+        {ref: 'uniFormErrorMessage', selector: '#form-errors'},
+        {ref: 'addSharedCommunicationSchedulePage', selector: 'addSharedCommunicationSchedule'}
 
     ],
 
@@ -196,6 +197,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(mrid, {
             success: function (device) {
+                widget.device = device;
                 me.getApplication().fireEvent('loadDevice', device);
             }
         });
@@ -246,26 +248,30 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
     },
 
     saveSharedSchedule: function () {
-        var me = this;
-        var communicationSchedules = this.getAddSharedCommunicationScheduleGrid().getSelectionModel().getSelection();
-        var scheduleIds = [];
-        var jsonData;
-        var request = {};
+        var me = this,
+            communicationSchedules = this.getAddSharedCommunicationScheduleGrid().getSelectionModel().getSelection(),
+            scheduleIds = [],
+            device = me.getAddSharedCommunicationSchedulePage().device,
+            mRID = device.get('mRID'),
+            backUrl = me.getController('Uni.controller.history.Router').getRoute('devices/device/communicationschedules').buildUrl({mRID: mRID});
 
         if (this.checkValidSelection(communicationSchedules)) {
             Ext.each(communicationSchedules, function (communicationSchedule) {
                 scheduleIds.push(communicationSchedule.get('id'));
             });
-            request.scheduleIds = scheduleIds;
-            jsonData = Ext.encode(request);
+
             Ext.Ajax.request({
-                url: '/api/ddr/devices/'+ this.mrid +'/sharedschedules',
+                url: '/api/ddr/devices/'+ mRID +'/sharedschedules',
                 method: 'PUT',
                 params: '',
-                jsonData: jsonData,
+                jsonData: {
+                    device: _.pick(device.getRecordData(), 'mRID', 'version', 'parent'),
+                    scheduleIds: scheduleIds
+                },
                 timeout: 180000,
+                backUrl: backUrl,
                 success: function (response) {
-                    location.href = '#/devices/' + encodeURIComponent(me.mrid) + '/communicationplanning';
+                    location.href = backUrl;
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.addSharedScheduleSucceeded', 'MDC', 'Add shared communication schedule succeeded'));
                 }
             });
@@ -323,18 +329,16 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
 
     removeSharedCommunicationSchedule: function (record) {
         var me = this;
-        var jsonData;
-        var request = {};
-        jsonData = Ext.encode(request);
+
         Ext.Ajax.request({
             url: '/api/ddr/devices/' + encodeURIComponent(this.mrid) + '/schedules/' + record.getId(),
             method: 'DELETE',
             params: '',
-            jsonData: jsonData,
+            jsonData: _.pick(record.getRecordData(), 'id', 'name', 'version', 'parent'),
             timeout: 180000,
             success: function (response) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('communicationSchedule.removed', 'MDC', 'Shared communication schedule removed'));
-                me.showDeviceCommunicationScheduleView(me.mrid);
+                me.getController('Uni.controller.history.Router').getRoute().forward();
             }
         });
     },
@@ -377,19 +381,17 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
 
     removeCommunicationSchedule: function (record) {
         var me = this;
-        var jsonData;
-        var request = {};
-        request.id = this.getIndividualCommunicationScheduleGrid().getSelectionModel().getSelection()[0].get('id');
-        jsonData = Ext.encode(request);
+
         Ext.Ajax.request({
             url: '/api/ddr/devices/' + encodeURIComponent(me.mrid) + '/schedules',
+            isNotEdit: true,
             method: 'PUT',
             params: '',
-            jsonData: jsonData,
+            jsonData: _.pick(record.getRecordData(), 'id', 'version', 'parent', 'name'),
             timeout: 180000,
             success: function (response) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.removeIndividualScheduleSucceeded', 'MDC', 'Individual communication schedule removed'))
-                me.showDeviceCommunicationScheduleView(me.mrid);
+                me.getController('Uni.controller.history.Router').getRoute().forward();
             }
         });
     },
@@ -438,22 +440,22 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationSchedules', {
     },
 
     updateIndividualSchedule: function (button) {
-        var me = this;
-        var scheduleField = this.getScheduleField();
-        var jsonData;
-        var request = {};
-        request.id = this.getIndividualCommunicationScheduleGrid().getSelectionModel().getSelection()[0].get('id');
-        request.schedule = scheduleField.getValue();
-        jsonData = Ext.encode(request);
+        var me = this,
+            schedule = me.getIndividualCommunicationScheduleGrid().getSelectionModel().getSelection()[0],
+            scheduleField = me.getScheduleField();
+
         Ext.Ajax.request({
             url: '/api/ddr/devices/' + encodeURIComponent(me.mrid) + '/schedules',
+            isNotEdit: true,
             method: 'PUT',
             params: '',
-            jsonData: jsonData,
+            jsonData: Ext.merge(_.pick(schedule.getRecordData(), 'id', 'version', 'parent', 'name'), {
+                schedule: scheduleField.getValue()
+            }),
             timeout: 180000,
             success: function (response) {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommunicationSchedule.editIndividualScheduleSucceeded', 'MDC', 'Individual communication schedule saved'));
-                me.showDeviceCommunicationScheduleView(me.mrid);
+                me.getController('Uni.controller.history.Router').getRoute().forward();
             }
         });
         button.up('.window').close();

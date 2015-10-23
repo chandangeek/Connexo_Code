@@ -8,8 +8,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSetu
         'Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPreview',
         'Mdc.view.setup.deviceconfiguration.DeviceConfigurationMenu',
         'Uni.view.container.PreviewContainer',
-        'Uni.view.notifications.NoItemsFoundPanel',
-        'Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigAndRulesPreviewContainer'
+        'Uni.view.notifications.NoItemsFoundPanel'
     ],
 
     router: null,
@@ -40,7 +39,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSetu
                         xtype: 'preview-container',
                         grid: {
                             xtype: 'loadProfileConfigurationGrid',
-                            store: me.config.gridStore ? me.config.gridStore : null
+                            router: me.router
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
@@ -53,14 +52,14 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSetu
                                 {
                                     text: Uni.I18n.translate('loadProfileConfigurations.add', 'MDC', 'Add load profile configuration'),
                                     privileges: Mdc.privileges.DeviceType.admin,
-                                    action: 'addloadprofileconfiguration'
+                                    action: 'addloadprofileconfiguration',
+                                    href: me.router.getRoute('administration/devicetypes/view/deviceconfigurations/view/loadprofiles/add').buildUrl()
                                 }
                             ]
                         },
                         previewComponent: {
-                            xtype: 'loadProfileConfigAndRulesPreviewContainer',
-                            deviceTypeId: me.config.deviceTypeId,
-                            deviceConfigId: me.config.deviceConfigurationId,
+                            xtype: 'loadProfileConfigurationPreview',
+                            itemId: 'loadProfileConfigAndRulesPreviewContainer',
                             router: me.router
                         }
                     }
