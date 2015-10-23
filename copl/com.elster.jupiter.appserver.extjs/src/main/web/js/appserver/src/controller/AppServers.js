@@ -157,7 +157,7 @@ Ext.define('Apr.controller.AppServers', {
             '#undo-message-services-settings':{
                 click: this.undoMessageServiceChanges
             },
-            '#message-services-grid':{
+            'appserver-message-services #message-services-grid':{
                 edit: this.messageServiceDataChanged,
                 select: this.showMessageServicePreview
             },
@@ -234,6 +234,7 @@ Ext.define('Apr.controller.AppServers', {
             me.getApplication().fireEvent('appserverload', appServerName);
             me.getApplication().fireEvent('changecontentevent', view);
             view.down('preview-container').updateOnChange(!servedMessageServicesStore.getCount()); // to autoselect the 1st item
+            view.down('#apr-msg-service-preview').setVisible(servedMessageServicesStore.getCount());
             me.updateMessageServiceCounter();
             unservedMessageServicesStore.load(function (unservedMessages) {
                 if(unservedMessages.length === 0){
@@ -253,7 +254,7 @@ Ext.define('Apr.controller.AppServers', {
             overview = me.getMessageServicesOverview(),
             preview = overview.down('msg-service-preview'),
             previewForm = overview.down('msg-service-preview-form'),
-            menu = overview.down('message-services-action-menu');
+            menu = preview.down('message-services-action-menu');
 
         preview.setTitle(record.get('messageService'));
         previewForm.updatePreview(record);
@@ -534,7 +535,6 @@ Ext.define('Apr.controller.AppServers', {
             me.getAddMessageServicesButton().enable();
         }
         me.getAddImportServicesButton().setDisabled(unservedImportStore.getCount() === 0);
-
     },
 
     returnToMessageServiceDetailView: function () {
@@ -553,7 +553,7 @@ Ext.define('Apr.controller.AppServers', {
         me.getApplication().fireEvent('appserverload', me.appServer.get('name'));
         me.getApplication().fireEvent('changecontentevent', view);
         view.down('preview-container').updateOnChange(!servedMessageServicesStore.getCount()); // to autoselect the 1st item
-        me.updateMessageServiceCounter();
+        me.messageServiceDataChanged();
     },
 
     storeCurrentValues: function () {
@@ -640,10 +640,12 @@ Ext.define('Apr.controller.AppServers', {
 
     removeMessageService: function (menu) {
         var me = this,
-            grid = me.getMessageServicesGrid();
-        grid.getStore().remove(menu.record);
-        var unserved = this.convertToUnservedMessageServiceModel(menu.record);
-        var unservedMessageServicesStore = me.getStore('Apr.store.UnservedMessageServices')
+            recordToRemove = menu.record,
+            grid = me.getMessageServicesGrid(),
+            unserved = this.convertToUnservedMessageServiceModel(recordToRemove),
+            unservedMessageServicesStore = me.getStore('Apr.store.UnservedMessageServices');
+
+        grid.getStore().remove(recordToRemove);
         unservedMessageServicesStore.add(unserved);
         if (unservedMessageServicesStore.getCount() === 0) {
             if (me.getAddMessageServicesButton()) {
@@ -689,8 +691,10 @@ Ext.define('Apr.controller.AppServers', {
 
     changeMessageGridVisibility: function (visibility) {
         var me = this;
-        me.getAddPage().down('message-services-grid').setVisible(visibility);
-        me.getAddPage().down('#empty-text-grid').setVisible(!visibility);
+        if (me.getAddPage()) {
+            me.getAddPage().down('message-services-grid').setVisible(visibility);
+            me.getAddPage().down('#empty-text-grid').setVisible(!visibility);
+        }
     },
 
     removeImportService: function (menu) {

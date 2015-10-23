@@ -25,7 +25,7 @@ Ext.define('Apr.view.appservers.MessageServicesGrid', {
         {
             header: Uni.I18n.translate('general.status', 'APR', 'Status'),
             dataIndex: 'active',
-            flex: 1,
+            flex: 0.5,
             editor: {
                 xtype: 'combobox',
                 allowBlank: false,
@@ -43,7 +43,7 @@ Ext.define('Apr.view.appservers.MessageServicesGrid', {
             header: Uni.I18n.translate('general.threads', 'APR', 'Threads'),
             dataIndex: 'numberOfThreads',
             align: 'right',
-            flex: 0.6,
+            flex: 0.5,
             emptyCellText: 1,
             editor: {
                 xtype: 'numberfield',
