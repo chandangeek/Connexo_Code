@@ -112,6 +112,9 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             },
             '#change-device-configuration-view button[action=cancel-change-device-configuration]': {
                 click: this.cancelChangeDeviceConfiguration
+            },
+            '#new-device-configuration': {
+                select: this.enableSaveButton
             }
         });
     },
@@ -121,6 +124,10 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         if (addBtn) {
             selectionModel.getSelection().length > 0 ? addBtn.enable() : addBtn.disable();
         }
+    },
+
+    enableSaveButton: function () {
+        this.getSaveChangeDeviceConfigurationBtn().setDisabled(false);
     },
 
     showTypeOfGatewayCombo: function (deviceIsGatewayCombo) {
@@ -771,7 +778,6 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                     var isEmptyStore = !deviceConfigurationsStore.count();
                     me.getNoDeviceConfigurationsLabel().setVisible(isEmptyStore);
                     me.getNewDeviceConfigurationCombo().setVisible(!isEmptyStore);
-                    me.getSaveChangeDeviceConfigurationBtn().setDisabled(isEmptyStore);
                 });
 
                 me.getApplication().fireEvent('loadDevice', device);
@@ -793,17 +799,15 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         me.getChangeDeviceConfigurationFormErrors().hide();
         me.getChangeDeviceConfigurationForm().getForm().clearInvalid();
         viewport.setLoading(true);
-        device.save({
-            success: function () {
-                router.getRoute('devices/device').forward();
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('device.changeDeviceConfiguration.changed', 'MDC', 'Device configuration successfully changed'));
-            },
-            failure: function (record, operation) {
-                var json = Ext.decode(operation.response.responseText, true);
-                if (json && json.errors) {
-                    me.getChangeDeviceConfigurationFormErrors().show();
-                    me.getChangeDeviceConfigurationForm().getForm().markInvalid(json.errors);
-                } else if (json && json.message) {
+
+        Ext.Ajax.request({
+            url: '/api/ddr/devices/' + device.get('id') + '/changedeviceconfig',
+            method: 'PUT',
+            jsonData: device.data,
+            success: function (response) {
+                var json = Ext.decode(response.responseText, true);
+
+                if(json && !json.isSolved){
                     var title = (canSolveConflictingMappings ? Uni.I18n.translate('general.failed', 'MDC', 'Failed') : Uni.I18n.translate('general.unable', 'MDC', 'Unable')) +
                         Uni.I18n.translate('device.changeDeviceConfiguration.changeFailedTitle', 'MDC', ' to change device configuration');
 
@@ -828,13 +832,17 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
 
                     errorWindow.down('displayfield').htmlEncode = false;
 
-                    var solveConflictsLink = router.getRoute('administration/devicetypes/view/conflictmappings').buildUrl({deviceTypeId: device.get('deviceTypeId')}),
-                        message = canSolveConflictingMappings ? json.message + '<br/><br/>' + Uni.I18n.translate('device.changeDeviceConfiguration.SolveTheConflictsBeforeYouRetry', 'MDC', '<a href="{0}">Solve the conflicts</a> before you retry.', solveConflictsLink)
+                    var solveConflictsLink = router.getRoute('administration/devicetypes/view/conflictmappings/edit').buildUrl({deviceTypeId: device.get('deviceTypeId'), id: json.id}),
+                        message = canSolveConflictingMappings
+                            ?  Uni.I18n.translate('device.changeDeviceConfiguration.cannotbeChanged', 'MDC', "The configuration of device '{0}' cannot be changed to '{1}' due to unsolved conflicts. <br/><br/>", [device.get('mRID'), me.getNewDeviceConfigurationCombo().getRawValue()])
+                        + Uni.I18n.translate('device.changeDeviceConfiguration.SolveTheConflictsBeforeYouRetry', 'MDC', '<a href="{0}">Solve the conflicts</a> before you retry.', solveConflictsLink)
                             : Uni.I18n.translate('device.changeDeviceConfiguration.noRightsToSolveTheConflicts', 'MDC', 'You cannot solve the conflicts in conflicting mappings on device type because you do not have the privileges. Contact the administrator.');
 
                     router.addListener('routeChangeStart', function () {
                         errorWindow.close();
                     }, this, {single: true});
+
+                    me.getController('Mdc.controller.setup.DeviceConflictingMapping').returnInfo = {from: 'changeDeviceConfiguration', id: device.get('mRID')};
 
                     errorWindow.show(
                         {
@@ -844,6 +852,20 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                             icon: 'icon-warning2'
                         }
                     );
+
+                } else {
+                    router.getRoute('devices/device').forward();
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('device.changeDeviceConfiguration.changed', 'MDC', 'Device configuration successfully changed'));
+
+                }
+            },
+            failure: function (response, request) {
+                if (response.status == 400) {
+                    var json = Ext.decode(response.responseText, true);
+                    if (json && json.errors) {
+                        me.getChangeDeviceConfigurationFormErrors().setText(json.errors[0].msg);
+                        me.getChangeDeviceConfigurationFormErrors().show();
+                    }
                 }
             },
             callback: function () {

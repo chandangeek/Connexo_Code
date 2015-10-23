@@ -2,7 +2,7 @@ Ext.define('Mdc.controller.setup.DeviceConflictingMapping', {
     extend: 'Ext.app.Controller',
     deviceTypeId: null,
     mappingId: null,
-    fromAll: false,
+    returnInfo: null,
     requires: [],
 
     views: [
@@ -45,12 +45,12 @@ Ext.define('Mdc.controller.setup.DeviceConflictingMapping', {
     },
 
     showOverview: function (deviceTypeId) {
-        this.fromAll = false;
+        this.returnInfo = {from: 'unsolvedConflicts', id: deviceTypeId};
         this.showMappingsComplete('showUnsolved', deviceTypeId)
     },
 
     showAll: function (deviceTypeId) {
-        this.fromAll = true;
+        this.returnInfo = {from: 'allConflicts', id: deviceTypeId};
         this.showMappingsComplete('showAll', deviceTypeId)
     },
 
@@ -125,8 +125,23 @@ Ext.define('Mdc.controller.setup.DeviceConflictingMapping', {
             viewport = Ext.ComponentQuery.query('viewport > #contentPanel')[0];
         me.deviceTypeId = deviceTypeId;
 
-        cancelLink = me.fromAll ? router.getRoute('administration/devicetypes/view/conflictmappings/all').buildUrl({deviceTypeId: me.deviceTypeId})
-            : router.getRoute('administration/devicetypes/view/conflictmappings').buildUrl({deviceTypeId: me.deviceTypeId});
+        switch (me.returnInfo.from) {
+            case('unsolvedConflicts') :
+            {
+                cancelLink = router.getRoute('administration/devicetypes/view/conflictmappings').buildUrl({deviceTypeId: me.returnInfo.id});
+            }
+                break;
+            case('allConflicts') :
+            {
+                cancelLink = router.getRoute('administration/devicetypes/view/conflictmappings/all').buildUrl({deviceTypeId: me.returnInfo.id});
+            }
+                break;
+            case('changeDeviceConfiguration') :
+            {
+                cancelLink = router.getRoute('devices/device/changedeviceconfiguration').buildUrl({mRID: me.returnInfo.id});
+            }
+                break;
+        }
 
         viewport.setLoading(true);
         conflictingMappingModel.getProxy().setUrl(deviceTypeId);
@@ -193,8 +208,23 @@ Ext.define('Mdc.controller.setup.DeviceConflictingMapping', {
                 me.addSolutions(record);
                 record.save({
                     success: function () {
-                        me.fromAll ? router.getRoute('administration/devicetypes/view/conflictmappings/all').forward()
-                            : router.getRoute('administration/devicetypes/view/conflictmappings').forward();
+                        switch (me.returnInfo.from) {
+                            case('unsolvedConflicts') :
+                            {
+                                router.getRoute('administration/devicetypes/view/conflictmappings').forward();
+                            }
+                                break;
+                            case('allConflicts') :
+                            {
+                                router.getRoute('administration/devicetypes/view/conflictmappings/all').forward();
+                            }
+                                break;
+                            case('changeDeviceConfiguration') :
+                            {
+                                router.getRoute('devices/device/changedeviceconfiguration').forward({mRID: me.returnInfo.id});
+                            }
+                                break;
+                        }
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceConflicting.acknowledgment.SolutionsAdded', 'MDC', 'Solutions added'));
                         viewport.setLoading(false);
                     }
