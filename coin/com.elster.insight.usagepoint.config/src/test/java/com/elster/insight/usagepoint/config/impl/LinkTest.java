@@ -47,6 +47,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.inject.AbstractModule;
@@ -67,12 +68,6 @@ public class LinkTest {
     }
 
     private static final boolean printSql = false;
-    
-    
-    
-    
-    
-    
 
     @BeforeClass
     public static void setUp() {
@@ -126,6 +121,10 @@ public class LinkTest {
     
     private ServerMeteringService getMeteringService() {
         return injector.getInstance(ServerMeteringService.class);
+    }
+    
+    private ValidationService getValidationService() {
+        return injector.getInstance(ValidationService.class);
     }
     
     @Test
@@ -219,4 +218,26 @@ public class LinkTest {
             context.commit();
         }
     }
+    
+    @Test
+    public void testMCValRuleSetLink() {
+        MetrologyConfiguration mc;
+        ValidationRuleSet vrs1;
+        try (TransactionContext context = getTransactionService().getContext()) {
+            UsagePointConfigurationService upcService = getUsagePointConfigurationService();
+            ValidationService valService = getValidationService();
+            mc = upcService.newMetrologyConfiguration("First");
+            vrs1 = valService.createValidationRuleSet("Rule #1");
+            vrs1.save();
+            mc.addValidationRuleSet(vrs1);
+            context.commit();
+        }
+        try (TransactionContext context = getTransactionService().getContext()) {
+            UsagePointConfigurationService upcService = getUsagePointConfigurationService();
+            Optional<MetrologyConfiguration> mc2 = upcService.findMetrologyConfiguration(mc.getId());
+            assertThat(mc2).isPresent();
+            assertThat(mc2.get().getValidationRuleSets().size()).isEqualTo(1);            
+        }
+    }
+    
 }

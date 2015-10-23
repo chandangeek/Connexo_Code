@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.validation.ValidationRuleSet;
 
 public interface UsagePointConfigurationService {
     static String COMPONENTNAME = "UPC";

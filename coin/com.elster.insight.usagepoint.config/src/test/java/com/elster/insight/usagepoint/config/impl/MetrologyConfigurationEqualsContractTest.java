@@ -10,6 +10,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.validation.ValidationService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MetrologyConfigurationEqualsContractTest extends EqualsContractTest {
@@ -20,13 +21,15 @@ public class MetrologyConfigurationEqualsContractTest extends EqualsContractTest
     DataModel dataModel;
     @Mock
     EventService eventService;
+    @Mock
+    ValidationService validationService;
 
     private MetrologyConfigurationImpl instanceA;
 
     @Override
     protected Object getInstanceA() {
         if (instanceA == null) {
-            instanceA = new MetrologyConfigurationImpl(dataModel, eventService);
+            instanceA = new MetrologyConfigurationImpl(dataModel, eventService, validationService);
             instanceA.init("name");
             field("id").ofType(Long.TYPE).in(instanceA).set(INSTANCE_A_ID);
 
@@ -36,7 +39,7 @@ public class MetrologyConfigurationEqualsContractTest extends EqualsContractTest
     
     @Override
     protected Object getInstanceEqualToA() {
-    	MetrologyConfigurationImpl other = new MetrologyConfigurationImpl(dataModel, eventService);
+    	MetrologyConfigurationImpl other = new MetrologyConfigurationImpl(dataModel, eventService, validationService);
         other.init("name");
         field("id").ofType(Long.TYPE).in(other).set(INSTANCE_A_ID);
         return other;
@@ -44,7 +47,7 @@ public class MetrologyConfigurationEqualsContractTest extends EqualsContractTest
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-    	MetrologyConfigurationImpl other = new MetrologyConfigurationImpl(dataModel, eventService);
+    	MetrologyConfigurationImpl other = new MetrologyConfigurationImpl(dataModel, eventService, validationService);
         other.init("name");
         field("id").ofType(Long.TYPE).in(other).set(INSTANCE_A_ID + 1);
         return singletonList(other);

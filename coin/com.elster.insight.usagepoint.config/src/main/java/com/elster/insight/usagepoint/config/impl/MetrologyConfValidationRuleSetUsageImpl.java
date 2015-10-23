@@ -30,7 +30,7 @@ public class MetrologyConfValidationRuleSetUsageImpl implements MetrologyConfVal
         this.validationService = validationService;
     }
 
-    MetrologyConfValidationRuleSetUsageImpl init(ValidationRuleSet validationRuleSet, MetrologyConfiguration deviceConfiguration) {
+    MetrologyConfValidationRuleSetUsageImpl init(MetrologyConfiguration deviceConfiguration, ValidationRuleSet validationRuleSet) {
         this.validationRuleSet = validationRuleSet;
         this.metrologyConfiguration = deviceConfiguration;
         this.validationRuleSetId = validationRuleSet.getId();

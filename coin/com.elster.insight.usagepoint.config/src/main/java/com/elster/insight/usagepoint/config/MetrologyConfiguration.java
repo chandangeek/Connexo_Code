@@ -12,6 +12,7 @@ public interface MetrologyConfiguration {
 
     void setName(String name);
 
+    MetrologyConfValidationRuleSetUsage addValidationRuleSet(ValidationRuleSet validationRuleSet);
     List<ValidationRuleSet> getValidationRuleSets();
 
     void update();

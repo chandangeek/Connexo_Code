@@ -20,6 +20,7 @@ import com.elster.jupiter.domain.util.Unique;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationService;
 
 @Unique(fields = "name", groups = Save.Create.class)
 public final class MetrologyConfigurationImpl implements MetrologyConfiguration {
@@ -36,11 +37,13 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
 
     private final DataModel dataModel;
     private final EventService eventService;
+    private final ValidationService validationService;
 
     @Inject
-    MetrologyConfigurationImpl(DataModel dataModel, EventService eventService) {
+    MetrologyConfigurationImpl(DataModel dataModel, EventService eventService, ValidationService validationService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
+        this.validationService = validationService;
     }
 
     MetrologyConfigurationImpl init(String name) {
@@ -65,6 +68,15 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
         this.name = name;
     }
 
+    @Override
+    public MetrologyConfValidationRuleSetUsage addValidationRuleSet(ValidationRuleSet validationRuleSet) {
+        MetrologyConfValidationRuleSetUsageImpl usage =new MetrologyConfValidationRuleSetUsageImpl(dataModel, eventService, validationService);
+        usage.init(this, validationRuleSet);
+        metrologyConfValidationRuleSetUsages.add(usage);
+        getDataModel().touch(this);
+        return usage;
+    }
+    
     @Override
     public List<ValidationRuleSet> getValidationRuleSets() {
         return this.metrologyConfValidationRuleSetUsages
@@ -139,6 +151,10 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
         return id == party.getId();
     }
 
+    protected DataModel getDataModel() {
+        return dataModel;
+    }
+    
     @Override
     public int hashCode() {
         return Objects.hash(id);

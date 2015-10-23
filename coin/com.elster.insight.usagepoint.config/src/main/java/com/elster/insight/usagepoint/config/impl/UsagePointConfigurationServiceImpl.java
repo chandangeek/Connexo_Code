@@ -15,6 +15,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import com.elster.insight.usagepoint.config.MetrologyConfValidationRuleSetUsage;
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.insight.usagepoint.config.UsagePointMetrologyConfiguration;
@@ -27,6 +28,8 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 
@@ -38,18 +41,20 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     private volatile UserService userService;
     private volatile QueryService queryService;
     private volatile EventService eventService;
+    private volatile ValidationService validationService;
 
     public UsagePointConfigurationServiceImpl() {
     }
 
     @Inject
     public UsagePointConfigurationServiceImpl(Clock clock, OrmService ormService, QueryService queryService, UserService userService, EventService eventService,
-            MeteringService meteringService) {
+            MeteringService meteringService, ValidationService validationService) {
         setClock(clock);
         setOrmService(ormService);
         setQueryService(queryService);
         setUserService(userService);
         setEventService(eventService);
+        setValidationService(validationService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -115,6 +120,11 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
         this.userService = userService;
     }
 
+    @Reference
+    public void setValidationService(ValidationService validationService) {
+        this.validationService = validationService;
+    }
+    
     DataModel getDataModel() {
         return dataModel;
     }
@@ -143,7 +153,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
         candidate.update();
         return candidate;
     }
-
+    
     @Override
     public Optional<MetrologyConfiguration> findMetrologyConfigurationForUsagePoint(UsagePoint up) {
         Optional<UsagePointMetrologyConfiguration> obj = this.getDataModel().query(UsagePointMetrologyConfiguration.class).getOptional(up.getId());
