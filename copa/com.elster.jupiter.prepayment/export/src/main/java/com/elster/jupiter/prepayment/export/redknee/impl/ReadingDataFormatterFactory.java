@@ -23,7 +23,7 @@ public class ReadingDataFormatterFactory implements DataFormatterFactory {
 
     public enum FieldSeparator{
         SEMICOLON("Semicolon (;)",";"),
-        COMMA("Comma (,)", ";"),
+        COMMA("Comma (,)", ","),
         PIPE("Pipe (|)", "\u007C");
 
         private String name;
