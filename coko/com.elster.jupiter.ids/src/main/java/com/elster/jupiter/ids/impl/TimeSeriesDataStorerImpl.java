@@ -10,8 +10,10 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -204,6 +206,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
         private final RecordSpecImpl recordSpec;
         private final DataModel dataModel;
         private final Clock clock;
+        private final ThreadPrincipalService threadPrincipalService;
 
         SlaveTimeSeriesDataStorer(DataModel dataModel, Clock clock, TimeSeriesEntryImpl entry) {
             this.dataModel = dataModel;
@@ -212,7 +215,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
             storerMap.put(entry.getTimeSeries().getId(), storer);
             vault = (VaultImpl) entry.getTimeSeries().getVault();
             recordSpec = entry.getTimeSeries().getRecordSpec();
-
+            threadPrincipalService = dataModel.getInstance(ThreadPrincipalService.class);
         }
 
         List<TimeSeriesImpl> getAllTimeSeries() {
@@ -291,17 +294,17 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
         void addUnJournaledUpdates(Connection connection, long now) throws SQLException {
             try (PreparedStatement statement = connection.prepareStatement(updateSql())) {
                 for (SingleTimeSeriesStorer storer : storerMap.values()) {
-                    storer.addUpdates(statement, now);
+                    storer.addUpdates(statement, now, threadPrincipalService.getPrincipal());
                 }
                 statement.executeBatch();
             }
         }
 
-        void addJournaledUpdates(Connection connection, long now) throws SQLException {
+        void addJournaledUpdates(Connection connection, long now, Principal principal) throws SQLException {
             try (PreparedStatement updateStatement = connection.prepareStatement(updateSql())) {
                 try (PreparedStatement journalStatement = connection.prepareStatement(journalSql())) {
                     for (SingleTimeSeriesStorer storer : storerMap.values()) {
-                        storer.addUpdates(updateStatement, journalStatement, now);
+                        storer.addUpdates(updateStatement, journalStatement, now, principal);
                     }
                     journalStatement.executeBatch();
                     updateStatement.executeBatch();
@@ -316,7 +319,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
                 addInserts(connection, now);
                 if (updateBehaviour.overrules()) {
                     if (vault.hasJournal()) {
-                        addJournaledUpdates(connection, now);
+                        addJournaledUpdates(connection, now, threadPrincipalService.getPrincipal());
                     } else {
                         addUnJournaledUpdates(connection, now);
                     }
@@ -471,11 +474,11 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
             }
         }
 
-        void addUpdates(PreparedStatement statement, long now) throws SQLException {
-            addUpdates(statement, null, now);
+        void addUpdates(PreparedStatement statement, long now, Principal principal) throws SQLException {
+            addUpdates(statement, null, now, principal);
         }
 
-        void addUpdates(PreparedStatement updateStatement, PreparedStatement journalStatement, long now) throws SQLException {
+        void addUpdates(PreparedStatement updateStatement, PreparedStatement journalStatement, long now, Principal principal) throws SQLException {
             for (TimeSeriesEntryImpl entry : newEntries.values()) {
                 if (isUpdate(entry)) {
                     Object[] values = entry.getValues();
@@ -486,7 +489,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
                                 entry.set(i, oldEntry == null ? null : oldEntry.getValues()[i]);
                             });
                     if (journalStatement != null) {
-                        entry.journal(journalStatement, now);
+                        entry.journal(journalStatement, now, principal);
                         journalStatement.addBatch();
                     }
                     entry.update(updateStatement, now);

@@ -4,6 +4,7 @@ import com.elster.jupiter.ids.FieldSpec;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -126,9 +127,10 @@ public class TimeSeriesEntryImpl implements TimeSeriesEntry {
         }
     }
 
-    void journal(PreparedStatement statement, long now) throws SQLException {
+    void journal(PreparedStatement statement, long now, Principal principal) throws SQLException {
         int offset = 1;
         statement.setLong(offset++, now);
+        statement.setString(offset++, principal.getName());
         statement.setLong(offset++, getTimeSeries().getId());
         statement.setLong(offset++, timeStamp);
     }

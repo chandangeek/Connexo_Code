@@ -10,13 +10,15 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 
-import java.time.Clock;
 import java.math.BigDecimal;
+import java.security.Principal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -86,9 +88,9 @@ public class TimeSeriesDataWriterImpl implements TimeSeriesDataWriter {
     private void doExecute() throws SQLException {
         // lock all timeseries objects, but make sure to do this in id order to avoid deadlocks between concurrent storers
         storerMap.values().stream()
-        	.flatMap(slaveStorer -> slaveStorer.getAllTimeSeries().stream())
-        	.sorted(Comparator.comparing(TimeSeriesImpl::getId))
-        	.forEach(TimeSeriesImpl::lock);
+                .flatMap(slaveStorer -> slaveStorer.getAllTimeSeries().stream())
+                .sorted(Comparator.comparing(TimeSeriesImpl::getId))
+                .forEach(TimeSeriesImpl::lock);
         for (SlaveTimeSeriesDataStorer storer : storerMap.values()) {
             storer.execute(stats, overrules());
         }
@@ -147,6 +149,7 @@ public class TimeSeriesDataWriterImpl implements TimeSeriesDataWriter {
         private final RecordSpecImpl recordSpec;
         private final DataModel dataModel;
         private final Clock clock;
+        private final ThreadPrincipalService threadPrincipalService;
 
         SlaveTimeSeriesDataStorer(DataModel dataModel, Clock clock, TimeSeriesEntryImpl entry) {
             this.dataModel = dataModel;
@@ -155,7 +158,7 @@ public class TimeSeriesDataWriterImpl implements TimeSeriesDataWriter {
             storerMap.put(entry.getTimeSeries().getId(), storer);
             vault = (VaultImpl) entry.getTimeSeries().getVault();
             recordSpec = entry.getTimeSeries().getRecordSpec();
-
+            threadPrincipalService = dataModel.getInstance(ThreadPrincipalService.class);
         }
 
         List<TimeSeriesImpl> getAllTimeSeries() {
@@ -231,20 +234,20 @@ public class TimeSeriesDataWriterImpl implements TimeSeriesDataWriter {
             }
         }
 
-        void addUnJournaledUpdates(Connection connection, long now) throws SQLException {
+        void addUnJournaledUpdates(Connection connection, long now, Principal principal) throws SQLException {
             try (PreparedStatement statement = connection.prepareStatement(updateSql())) {
                 for (SingleTimeSeriesStorer storer : storerMap.values()) {
-                    storer.addUpdates(statement, now);
+                    storer.addUpdates(statement, now, principal);
                 }
                 statement.executeBatch();
             }
         }
 
-        void addJournaledUpdates(Connection connection, long now) throws SQLException {
+        void addJournaledUpdates(Connection connection, long now, Principal principal) throws SQLException {
             try (PreparedStatement updateStatement = connection.prepareStatement(updateSql())) {
                 try (PreparedStatement journalStatement = connection.prepareStatement(journalSql())) {
                     for (SingleTimeSeriesStorer storer : storerMap.values()) {
-                        storer.addUpdates(updateStatement, journalStatement, now);
+                        storer.addUpdates(updateStatement, journalStatement, now, principal);
                     }
                     journalStatement.executeBatch();
                     updateStatement.executeBatch();
@@ -256,12 +259,13 @@ public class TimeSeriesDataWriterImpl implements TimeSeriesDataWriter {
             try (Connection connection = dataModel.getConnection(true)) {
                 setOldEntries(connection);
                 long now = clock.millis();
+                Principal principal = threadPrincipalService.getPrincipal();
                 addInserts(connection, now);
                 if (overrules) {
                     if (vault.hasJournal()) {
-                        addJournaledUpdates(connection, now);
+                        addJournaledUpdates(connection, now, principal);
                     } else {
-                        addUnJournaledUpdates(connection, now);
+                        addUnJournaledUpdates(connection, now, principal);
                     }
                 }
             }
@@ -423,15 +427,15 @@ public class TimeSeriesDataWriterImpl implements TimeSeriesDataWriter {
             }
         }
 
-        void addUpdates(PreparedStatement statement, long now) throws SQLException {
-            addUpdates(statement, null, now);
+        void addUpdates(PreparedStatement statement, long now, Principal principal) throws SQLException {
+            addUpdates(statement, null, now, principal);
         }
 
-        void addUpdates(PreparedStatement updateStatement, PreparedStatement journalStatement, long now) throws SQLException {
+        void addUpdates(PreparedStatement updateStatement, PreparedStatement journalStatement, long now, Principal principal) throws SQLException {
             for (TimeSeriesEntryImpl entry : newEntries.values()) {
                 if (isUpdate(entry)) {
                     if (journalStatement != null) {
-                        entry.journal(journalStatement, now);
+                        entry.journal(journalStatement, now, principal);
                         journalStatement.addBatch();
                     }
                     entry.update(updateStatement, now);

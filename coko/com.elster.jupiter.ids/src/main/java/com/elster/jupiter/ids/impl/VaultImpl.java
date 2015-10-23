@@ -5,6 +5,7 @@ import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.google.common.collect.BoundType;
@@ -60,12 +61,14 @@ public final class VaultImpl implements IVault {
 
     private final DataModel dataModel;
     private final Clock clock;
+    private final ThreadPrincipalService threadPrincipalService;
     private final Provider<TimeSeriesImpl> timeSeriesProvider;
 
     @Inject
-    VaultImpl(DataModel dataModel, Clock clock, Provider<TimeSeriesImpl> timeSeriesProvider) {
+    VaultImpl(DataModel dataModel, Clock clock, ThreadPrincipalService threadPrincipalService, Provider<TimeSeriesImpl> timeSeriesProvider) {
         this.dataModel = dataModel;
         this.clock = clock;
+        this.threadPrincipalService = threadPrincipalService;
         this.timeSeriesProvider = timeSeriesProvider;
     }
 
@@ -188,29 +191,30 @@ public final class VaultImpl implements IVault {
     }
 
     public Instant extendTo(Instant to, Logger logger) {
-    	if (!isActive()) {
-            throw new IllegalStateException("Vault " + getTableName() + " is not active"); 
+        if (!isActive()) {
+            throw new IllegalStateException("Vault " + getTableName() + " is not active");
         }
-    	if (!to.isAfter(getMaxDate())) {
-    		return getMaxDate();
-    	}
-    	this.maxTime = to;
+        if (!to.isAfter(getMaxDate())) {
+            return getMaxDate();
+        }
+        this.maxTime = to;
         if (isPartitioned()) {
-        	this.maxTime = dataModel.partitionCreator(getTableName(), logger).create(to);
-        	if (hasJournal()) {
-        		dataModel.partitionCreator(getJournalTableName(), logger).create(to);
-        	}            
+            this.maxTime = dataModel.partitionCreator(getTableName(), logger).create(to);
+            if (hasJournal()) {
+                dataModel.partitionCreator(getJournalTableName(), logger).create(to);
+            }
         }
         dataModel.update(this, "maxTime");
-        return maxTime;    	
+        return maxTime;
     }
-    
+
     private String createTableDdl(Instant to, boolean journal) {
         StringBuilder builder = new StringBuilder("create table ");
         builder.append(getTableName(journal));
         builder.append("(TIMESERIESID NUMBER NOT NULL,UTCSTAMP NUMBER NOT NULL,VERSIONCOUNT NUMBER NOT NULL,RECORDTIME NUMBER NOT NULL");
         if (journal) {
             builder.append(",JOURNALTIME NUMBER NOT NULL");
+            builder.append(",USERNAME VARCHAR(80) NOT NULL");
         }
         if (hasLocalTime()) {
             builder.append(",LOCALDATE DATE NOT NULL");
@@ -244,7 +248,7 @@ public final class VaultImpl implements IVault {
             builder.append(" VALUES LESS THAN (");
             builder.append(to.toEpochMilli() + 1L);
             builder.append("))");
-        }                
+        }
         return builder.toString();
     }
 
@@ -270,7 +274,7 @@ public final class VaultImpl implements IVault {
 
 
     private String getPartitionName(Instant to) {
-        return "P" + to.toString().replaceAll("-","").replaceAll(":","");
+        return "P" + to.toString().replaceAll("-", "").replaceAll(":", "");
     }
 
     @Override
@@ -301,12 +305,12 @@ public final class VaultImpl implements IVault {
     private StringBuilder baseJournalSql(RecordSpecImpl recordSpec) {
         StringBuilder builder = new StringBuilder("insert into ");
         builder.append(getJournalTableName());
-        builder.append("(TIMESERIESID,UTCSTAMP,VERSIONCOUNT,RECORDTIME,JOURNALTIME");
+        builder.append("(TIMESERIESID,UTCSTAMP,VERSIONCOUNT,RECORDTIME,JOURNALTIME,USERNAME");
         if (hasLocalTime()) {
             builder.append(",LOCALDATE");
         }
         recordSpec.columnNames().forEach(column -> builder.append(", " + column));
-        builder.append(") (SELECT TIMESERIESID,UTCSTAMP,VERSIONCOUNT,RECORDTIME,?");
+        builder.append(") (SELECT TIMESERIESID,UTCSTAMP,VERSIONCOUNT,RECORDTIME,?,?");
         if (hasLocalTime()) {
             builder.append(",LOCALDATE");
         }
@@ -333,6 +337,18 @@ public final class VaultImpl implements IVault {
             @Override
             public int bind(PreparedStatement statement, int position) throws SQLException {
                 statement.setLong(position++, System.currentTimeMillis());
+                return position;
+            }
+        });
+        builder.add(new SqlFragment() {
+            @Override
+            public String getText() {
+                return "";
+            }
+
+            @Override
+            public int bind(PreparedStatement statement, int position) throws SQLException {
+                statement.setString(position++, threadPrincipalService.getPrincipal().getName());
                 return position;
             }
         });
@@ -374,11 +390,11 @@ public final class VaultImpl implements IVault {
         StringBuilder builder = selectSql(timeSeries);
         builder.append(" AND UTCSTAMP >");
         if (range.hasLowerBound() && range.lowerBoundType() == BoundType.CLOSED) {
-        	builder.append("=");
+            builder.append("=");
         }
         builder.append(" ? and UTCSTAMP <");
         if (range.hasUpperBound() && range.upperBoundType() == BoundType.CLOSED) {
-        	builder.append("=");
+            builder.append("=");
         }
         builder.append(" ?");
         builder.append(" order by UTCSTAMP");
@@ -412,8 +428,8 @@ public final class VaultImpl implements IVault {
     private List<TimeSeriesEntry> doGetEntries(TimeSeriesImpl timeSeries, Range<Instant> interval) throws SQLException {
         List<TimeSeriesEntry> result = new ArrayList<>();
         try (Connection connection = getConnection(false)) {
-            try (PreparedStatement statement = connection.prepareStatement(rangeSql(timeSeries,interval))) {
-            	statement.setLong(ID_COLUMN_INDEX, timeSeries.getId());
+            try (PreparedStatement statement = connection.prepareStatement(rangeSql(timeSeries, interval))) {
+                statement.setLong(ID_COLUMN_INDEX, timeSeries.getId());
                 statement.setLong(FROM_COLUMN_INDEX, interval.hasLowerBound() ? interval.lowerEndpoint().toEpochMilli() : Long.MIN_VALUE);
                 statement.setLong(TO_COLUMN_INDEX, interval.hasUpperBound() ? interval.upperEndpoint().toEpochMilli() : Long.MAX_VALUE);
                 try (ResultSet rs = statement.executeQuery()) {
@@ -589,34 +605,34 @@ public final class VaultImpl implements IVault {
 
     @Override
     public void purge(Logger logger) {
-    	if (retentionDays == 0) {
-    		return;
-    	}    	
-    	Instant instant = clock.instant().minus(retentionDays, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
-    	if (isPartitioned()) {
-    		logger.info("Removing data up to " + instant + " for time series vault " + getTableName());
-    		dataModel.dataDropper(getTableName(), logger).drop(instant);
-        	if (hasJournal()) {
-        		dataModel.dataDropper(getJournalTableName(), logger).drop(instant);
-        	}
-    	}
-    	if (instant.isAfter(minTime)) {
-    		this.minTime = instant;
-    		dataModel.update(this, "minTime");
-    	}
+        if (retentionDays == 0) {
+            return;
+        }
+        Instant instant = clock.instant().minus(retentionDays, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
+        if (isPartitioned()) {
+            logger.info("Removing data up to " + instant + " for time series vault " + getTableName());
+            dataModel.dataDropper(getTableName(), logger).drop(instant);
+            if (hasJournal()) {
+                dataModel.dataDropper(getJournalTableName(), logger).drop(instant);
+            }
+        }
+        if (instant.isAfter(minTime)) {
+            this.minTime = instant;
+            dataModel.update(this, "minTime");
+        }
     }
 
-	@Override
-	public Period getRetention() {
-		return Period.ofDays(retentionDays == 0 ? 360 * 99 : retentionDays);
-	}
+    @Override
+    public Period getRetention() {
+        return Period.ofDays(retentionDays == 0 ? 360 * 99 : retentionDays);
+    }
 
-	@Override
-	public void setRetentionDays(int numberOfDays) {
-		if (numberOfDays <= 0) {
-			throw new IllegalArgumentException();
-		}
-		this.retentionDays = numberOfDays;
-		dataModel.update(this, "retentionDays");
-	}    
- }
+    @Override
+    public void setRetentionDays(int numberOfDays) {
+        if (numberOfDays <= 0) {
+            throw new IllegalArgumentException();
+        }
+        this.retentionDays = numberOfDays;
+        dataModel.update(this, "retentionDays");
+    }
+}
