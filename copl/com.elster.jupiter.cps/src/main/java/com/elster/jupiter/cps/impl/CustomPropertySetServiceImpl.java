@@ -165,6 +165,8 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             public void configure() {
                 customPropertySet.getPersistenceSupport().module().ifPresent(customModule -> customModule.configure(this.binder()));
                 bind(DataModel.class).toInstance(dataModel);
+                bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(CustomPropertySetService.class).toInstance(CustomPropertySetServiceImpl.this);
             }
         };
