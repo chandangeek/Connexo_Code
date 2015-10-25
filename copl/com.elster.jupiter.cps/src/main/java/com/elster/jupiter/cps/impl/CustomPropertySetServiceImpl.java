@@ -120,6 +120,13 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
                 "customPropertySet.customPropertySets", "customPropertySet.customPropertySets.description",
                 Arrays.asList(Privileges.ADMINISTER_PRIVILEGES, Privileges.VIEW_PRIVILEGES)));
+        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
+                "customPropertySet.customPropertyPrivileges", "customPropertySet.customPropertyPrivileges.description",
+                Arrays.asList(
+                        Privileges.VIEW_CUSTOM_PROPERTIES_1, Privileges.VIEW_CUSTOM_PROPERTIES_2,
+                        Privileges.VIEW_CUSTOM_PROPERTIES_3, Privileges.VIEW_CUSTOM_PROPERTIES_4,
+                        Privileges.EDIT_CUSTOM_PROPERTIES_1, Privileges.EDIT_CUSTOM_PROPERTIES_2,
+                        Privileges.EDIT_CUSTOM_PROPERTIES_3, Privileges.EDIT_CUSTOM_PROPERTIES_4)));
         return resources;
     }
 
