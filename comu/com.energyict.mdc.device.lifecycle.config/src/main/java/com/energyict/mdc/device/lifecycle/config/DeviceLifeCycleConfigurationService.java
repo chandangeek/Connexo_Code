@@ -76,6 +76,7 @@ public interface DeviceLifeCycleConfigurationService {
      */
     public Optional<DeviceLifeCycle> findDeviceLifeCycle(long id);
 
+    Optional<DeviceLifeCycle> findAndLockDeviceLifeCycleByIdAndVersion(long id, long version);
     /**
      * Finds the {@link DeviceLifeCycle} with the specified name.
      *
@@ -164,4 +165,7 @@ public interface DeviceLifeCycleConfigurationService {
      */
     public void disableAsTransitionBusinessProcess(String deploymentId, String processId);
 
+    Optional<AuthorizedAction> findAuthorizedActionById(long id);
+
+    Optional<AuthorizedAction> findAndLockAuthorizedActionByIdAndVersion(long id, long version);
 }

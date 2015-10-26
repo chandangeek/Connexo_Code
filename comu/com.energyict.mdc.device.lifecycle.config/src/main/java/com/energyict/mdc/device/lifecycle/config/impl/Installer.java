@@ -1,16 +1,5 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
-import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
-import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.device.lifecycle.config.MicroAction;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
-import com.energyict.mdc.device.lifecycle.config.Privileges;
-import com.energyict.mdc.device.lifecycle.config.TransitionType;
-
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.CustomStateTransitionEventType;
 import com.elster.jupiter.fsm.FiniteStateMachine;
@@ -20,8 +9,16 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.orm.DataModel;
-
 import com.elster.jupiter.users.UserService;
+import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
+import com.energyict.mdc.device.lifecycle.config.DefaultCustomStateTransitionEventType;
+import com.energyict.mdc.device.lifecycle.config.DefaultState;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleBuilder;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.MicroAction;
+import com.energyict.mdc.device.lifecycle.config.MicroCheck;
+import com.energyict.mdc.device.lifecycle.config.TransitionType;
 
 import java.util.EnumSet;
 import java.util.Map;
@@ -156,9 +153,8 @@ public class Installer {
                 .on(commissioningEventType).transitionTo(commissioning, DefaultLifeCycleTranslationKey.TRANSITION_FROM_IN_STOCK_TO_COMMISSIONING)
                 .on(deletedEventType).transitionTo(removed, DefaultLifeCycleTranslationKey.TRANSITION_FROM_IN_STOCK_TO_REMOVED)
                 .complete();
-        FiniteStateMachine stateMachine = builder.complete(inStock);
         this.logger.fine(() -> "Creating default finite state machine...");
-        stateMachine.save();
+        FiniteStateMachine stateMachine = builder.complete(inStock);
         this.logger.fine(() -> "Created default finite state machine");
         return stateMachine;
     }
@@ -177,7 +173,7 @@ public class Installer {
     }
 
     private Set<MicroAction> applicableActionsFor(StateTransition transition) {
-        return TransitionType.from(transition).get().supportedActions();
+        return TransitionType.from(transition).get().requiredActions();
     }
 
 }

@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
-import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
-
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.orm.DataModel;
-import org.hibernate.validator.constraints.NotEmpty;
+import com.energyict.mdc.device.lifecycle.config.TransitionBusinessProcess;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;

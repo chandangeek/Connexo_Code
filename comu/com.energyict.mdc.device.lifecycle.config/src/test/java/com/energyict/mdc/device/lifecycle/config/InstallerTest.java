@@ -1,14 +1,17 @@
 package com.energyict.mdc.device.lifecycle.config;
 
+import com.energyict.mdc.device.lifecycle.config.impl.InMemoryPersistence;
 
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
-import com.energyict.mdc.device.lifecycle.config.impl.*;
-import org.junit.*;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,7 +40,7 @@ public class InstallerTest {
     public void isStandardLifeCyclePresentTest(){
         Optional<DeviceLifeCycle> deviceLifeCycle = inMemoryPersistence.getDeviceLifeCycleConfigurationService().findDefaultDeviceLifeCycle();
         assertThat(deviceLifeCycle.isPresent()).isTrue();
-        assertThat(DefaultLifeCycleTranslationKey.DEFAULT_DEVICE_LIFE_CYCLE_NAME.getKey()).isEqualTo(deviceLifeCycle.get().getName());
+        assertThat(deviceLifeCycle.get().getName()).isNotEmpty();
     }
 
     @Test
