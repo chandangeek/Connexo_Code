@@ -19,6 +19,16 @@ Ext.define('Mdc.view.setup.device.DeviceGeneralInformationPanel', {
                 xtype: 'deviceAttributesForm',
                 itemId: 'deviceGeneralInformationForm',
                 router: me.router
+            },
+            {
+                xtype: 'button',
+                margin: '0 0 0 65',
+                text: Uni.I18n.translate('deviceGeneralInformation.viewmorelinktext', 'MDC', 'View more'),
+                ui: 'link',
+                itemId: 'view-more-general-information-link',
+                handler: function() {
+                    me.router.getRoute('devices/device/attributes').forward();
+                }
             }
         ];
 
