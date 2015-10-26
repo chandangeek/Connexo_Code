@@ -10,6 +10,7 @@ public class LifeCycleCategoryInfo {
     public String name;
     public int retainedPartitionCount;
     public int retention;
+    public long version;
 
     public LifeCycleCategoryInfo(){}
 
@@ -18,5 +19,6 @@ public class LifeCycleCategoryInfo {
         this.name = thesaurus.getStringBeyondComponent(category.getTranslationKey(), category.getName());
         this.retainedPartitionCount = category.getRetainedPartitionCount();
         this.retention = category.getRetention().getDays();
+        this.version = category.getVersion();
     }
 }

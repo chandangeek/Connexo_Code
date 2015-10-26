@@ -31,6 +31,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,6 +39,8 @@ import static org.mockito.Mockito.when;
 public class DataPurgeResourceTest extends LicensingApplicationJerseyTest {
 
     public static final Instant JUN_2014 = LocalDateTime.of(2014, 6, 1, 10, 0, 0).toInstant(ZoneOffset.UTC);
+    public static final long OK_VERSION = 17L;
+    public static final long BAD_VERSION = 16L;
 
     @Test
     public void testLifeCycleCategoryInfoModel(){
@@ -61,6 +64,9 @@ public class DataPurgeResourceTest extends LicensingApplicationJerseyTest {
         when(category.getRetainedPartitionCount()).thenReturn(partCount);
         when(category.getRetention()).thenReturn(Period.ofDays(partCount*30));
         when(category.getPartitionSize()).thenReturn(Period.ofDays(30));
+        when(category.getVersion()).thenReturn(OK_VERSION);
+        when(lifeCycleService.findAndLockCategoryByKeyAndVersion(kind, OK_VERSION)).thenReturn(Optional.of(category));
+        when(lifeCycleService.findAndLockCategoryByKeyAndVersion(kind, BAD_VERSION)).thenReturn(Optional.empty());
         return category;
     }
 
@@ -73,6 +79,7 @@ public class DataPurgeResourceTest extends LicensingApplicationJerseyTest {
         LifeCycleCategoryInfo info = new LifeCycleCategoryInfo();
         info.kind = "REGISTER";
         info.retention = 60;
+        info.version = OK_VERSION;
 
         Response response = target("/data/lifecycle/categories/REGISTER").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -90,11 +97,13 @@ public class DataPurgeResourceTest extends LicensingApplicationJerseyTest {
         LifeCycleCategoryInfo info = new LifeCycleCategoryInfo();
         info.kind = "REGISTER";
         info.retention = 60;
+        info.version = OK_VERSION;
         infos.data.add(info);
 
         info = new LifeCycleCategoryInfo();
         info.kind = "JOURNAL";
         info.retention = 90;
+        info.version = OK_VERSION;
         infos.data.add(info);
 
         Response response = target("/data/lifecycle/categories").request().put(Entity.json(infos));
@@ -113,7 +122,7 @@ public class DataPurgeResourceTest extends LicensingApplicationJerseyTest {
         assertThat(model.<Number> get("$.id")).isEqualTo(1);
         assertThat(model.<Number> get("$.startDate")).isEqualTo(JUN_2014.toEpochMilli());
         assertThat(model.<Number> get("$.duration")).isEqualTo(10*60*1000);
-        assertThat(model.<String> get("$.status")).isEqualTo(TaskStatus.FAILED.toString());
+        assertThat(model.<String>get("$.status")).isEqualTo(TaskStatus.FAILED.toString());
     }
 
     private TaskOccurrence mockTaskOccurrence() {
@@ -176,8 +185,8 @@ public class DataPurgeResourceTest extends LicensingApplicationJerseyTest {
 
         String response = target("/data/history/458/categories").request().get(String.class);
         JsonModel model = JsonModel.create(response);
-        assertThat(model.<Number> get("$.total")).isEqualTo(2);
-        assertThat(model.<List> get("$.data").size()).isEqualTo(2);
+        assertThat(model.<Number>get("$.total")).isEqualTo(2);
+        assertThat(model.<List>get("$.data").size()).isEqualTo(2);
         assertThat(model.<String> get("$.data[0].kind")).isEqualTo("REGISTER");
         assertThat(model.<Number> get("$.data[0].retention")).isEqualTo(600);
     }
@@ -234,8 +243,8 @@ public class DataPurgeResourceTest extends LicensingApplicationJerseyTest {
 
         String response = target("/data/history/1/logs").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);
         JsonModel model = JsonModel.create(response);
-        assertThat(model.<Number> get("$.total")).isEqualTo(11);
-        assertThat(model.<List> get("$.data").size()).isEqualTo(10);
+        assertThat(model.<Number>get("$.total")).isEqualTo(11);
+        assertThat(model.<List>get("$.data").size()).isEqualTo(10);
     }
 
     @Test
@@ -269,5 +278,47 @@ public class DataPurgeResourceTest extends LicensingApplicationJerseyTest {
         JsonModel model = JsonModel.create(response);
         assertThat(model.<List> get("$.data").size()).isEqualTo(0);
         assertThat(model.<Number> get("$.total")).isEqualTo(2);
+    }
+
+    @Test
+    public void testUpdateSingleLifeCycleCategoryBadVersion(){
+        LifeCycleCategory category = mockLifeCycleCategory(LifeCycleCategoryKind.REGISTER, 10);
+
+        when(lifeCycleService.getCategories()).thenReturn(Collections.singletonList(category));
+
+        LifeCycleCategoryInfo info = new LifeCycleCategoryInfo();
+        info.kind = "REGISTER";
+        info.retention = 60;
+        info.version = BAD_VERSION;
+
+        Response response = target("/data/lifecycle/categories/REGISTER").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+        verify(category, never()).setRetentionDays(60);
+    }
+
+    @Test
+    public void testUpdateBatchLifeCycleCategoriesBadVersion(){
+        LifeCycleCategory category1 = mockLifeCycleCategory(LifeCycleCategoryKind.REGISTER, 10);
+        LifeCycleCategory category2 = mockLifeCycleCategory(LifeCycleCategoryKind.JOURNAL, 10);
+        when(lifeCycleService.getCategories()).thenReturn(Arrays.asList(category1, category2));
+
+
+        ListInfo<LifeCycleCategoryInfo> infos = new ListInfo<>();
+        LifeCycleCategoryInfo info = new LifeCycleCategoryInfo();
+        info.kind = "REGISTER";
+        info.retention = 60;
+        info.version = BAD_VERSION;
+        infos.data.add(info);
+
+        info = new LifeCycleCategoryInfo();
+        info.kind = "JOURNAL";
+        info.retention = 90;
+        info.version = BAD_VERSION;
+        infos.data.add(info);
+
+        Response response = target("/data/lifecycle/categories").request().put(Entity.json(infos));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+        verify(category1, never()).setRetentionDays(60);
+        verify(category2, never()).setRetentionDays(90);
     }
 }
