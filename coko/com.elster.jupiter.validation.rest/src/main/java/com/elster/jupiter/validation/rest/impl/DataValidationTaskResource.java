@@ -84,7 +84,7 @@ public class DataValidationTaskResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
     public Response createDataValidationTask(DataValidationTaskInfo info) {
 
         DataValidationTaskBuilder builder = validationService.newTaskBuilder()
@@ -107,9 +107,9 @@ public class DataValidationTaskResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION,
-            Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
+            Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public KorePagedInfoList getDataValidationTasks(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<DataValidationTask> list = getValidationTaskRestQuery().select(queryParameters, Order.ascending("name").toLowerCase());
@@ -119,8 +119,8 @@ public class DataValidationTaskResource {
 
     @DELETE
     @Path("/{dataValidationTaskId}")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
     public Response deleteDataValidationTask(@PathParam("dataValidationTaskId") long dataValidationTaskId, DataValidationTaskInfo info) {
         info.id = dataValidationTaskId;
         transactionService.execute(VoidTransaction.of(() -> findAndLockDataValidationTask(info).delete()));
@@ -129,8 +129,8 @@ public class DataValidationTaskResource {
 
     @GET
     @Path("/{dataValidationTaskId}")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION})
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
     public DataValidationTaskInfo getDataValidationTask(@PathParam("dataValidationTaskId") long dataValidationTaskId, @Context SecurityContext securityContext) {
         DataValidationTask task = validationService.findValidationTask(dataValidationTaskId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         return new DataValidationTaskInfo(task, thesaurus, timeService);
@@ -138,8 +138,8 @@ public class DataValidationTaskResource {
 
     @PUT
     @Path("/{dataValidationTaskId}")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
     public Response updateReadingTypeDataValidationTask(@PathParam("dataValidationTaskId") long dataValidationTaskId, DataValidationTaskInfo info) {
         info.id = dataValidationTaskId;
         try (TransactionContext context = transactionService.getContext()) {
@@ -159,8 +159,8 @@ public class DataValidationTaskResource {
 
     @PUT
     @Path("/{id}/trigger")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_VALIDATION_CONFIGURATION, Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response triggerDataValidationTask(@PathParam("id") long id, DataValidationTaskInfo info) {
         info.id = id;
         transactionService.execute(VoidTransaction.of(() -> validationService.findAndLockValidationTaskByIdAndVersion(info.id, info.version)
@@ -177,10 +177,9 @@ public class DataValidationTaskResource {
     @Path("/{id}/history")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    public DataValidationTaskHistoryInfos getDataValidationTaskHistory(@PathParam("id") long id,
-            @Context SecurityContext securityContext,
-            @BeanParam JsonQueryFilter filter,
-            @Context UriInfo uriInfo) {
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
+    public DataValidationTaskHistoryInfos getDataValidationTaskHistory(@PathParam("id") long id, @Context SecurityContext securityContext,
+                                                                   @BeanParam JsonQueryFilter filter, @Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         DataValidationTask task = fetchDataValidationTask(id);
         DataValidationOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder()
@@ -214,11 +213,10 @@ public class DataValidationTaskResource {
 
     @GET
     @Path("/{id}/history/{occurrenceId}")
-    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public DataValidationOccurrenceLogInfos getDataValidationTaskHistory(@PathParam("id") long id,
-            @PathParam("occurrenceId") long occurrenceId,
-            @Context SecurityContext securityContext,
-            @Context UriInfo uriInfo) {
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
+    public DataValidationOccurrenceLogInfos getDataValidationTaskHistory(@PathParam("id") long id, @PathParam("occurrenceId") long occurrenceId,
+                                                                     @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         DataValidationTask task = fetchDataValidationTask(id);
         DataValidationOccurrence occurrence = fetchDataValidationOccurrence(occurrenceId, task);

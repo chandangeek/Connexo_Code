@@ -18,6 +18,7 @@ import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.PropertyUtils;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.google.common.collect.ImmutableSet;
+import com.elster.jupiter.validation.security.Privileges;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,6 +26,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.ws.rs.core.Application;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -122,12 +127,18 @@ public class ValidationApplication extends Application implements TranslationKey
     }
 
     @Override
+    public List<TranslationKey> getKeys() {
+        return Stream.of(
+                Arrays.stream(TranslationKeys.values()),
+                Arrays.stream(Privileges.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
 
-    @Override
-    public List<TranslationKey> getKeys() {
-        return Arrays.asList(TranslationKeys.values());
-    }
 }
+
