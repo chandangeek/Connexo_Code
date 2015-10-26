@@ -54,9 +54,21 @@ Ext.define('Apr.view.appservers.AppServerImportServices', {
                         xtype: 'no-items-found-panel',
                         title: Uni.I18n.translate('general.importServices.empty.title', 'APR', 'No import services found.'),
                         reasons: [
-                            Uni.I18n.translate('general.importServices.empty.list.item1', 'APR', 'No import services have been added to the application server.')
+                            Uni.I18n.translate('general.importServices.empty.list.item1', 'APR', 'No import services have been added yet.')
                         ],
                         stepItems: [
+                            {
+                                text: Uni.I18n.translate('general.saveMessageServicesSettings', 'APR', 'Save settings'),
+                                privileges: Apr.privileges.AppServer.admin,
+                                itemId: 'apr-no-imp-services-save-settings-btn',
+                                disabled: true
+                            },
+                            {
+                                text: Uni.I18n.translate('general.undo', 'APR', 'Undo'),
+                                privileges: Apr.privileges.AppServer.admin,
+                                itemId: 'apr-no-imp-services-undo-btn',
+                                disabled: true
+                            },
                             {
                                 text: Uni.I18n.translate('general.addImportServices', 'APR', 'Add import services'),
                                 itemId: 'add-import-services-button-from-detail-empty',
