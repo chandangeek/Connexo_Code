@@ -35,6 +35,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component(
         name = "com.elster.jupiter.time",
@@ -237,7 +240,11 @@ public class TimeServiceImpl implements TimeService, InstallService, PrivilegesP
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(Labels.values());
+        return Stream.of(
+                Arrays.stream(Labels.values()),
+                Arrays.stream(Privileges.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
     @Override
