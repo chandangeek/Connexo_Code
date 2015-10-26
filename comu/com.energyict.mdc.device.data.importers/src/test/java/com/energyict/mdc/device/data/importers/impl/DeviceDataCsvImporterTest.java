@@ -1,26 +1,34 @@
 package com.energyict.mdc.device.data.importers.impl;
 
+import com.energyict.mdc.device.data.importers.impl.exceptions.FileImportParserException;
+import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
+
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.data.importers.impl.exceptions.FileImportParserException;
-import com.energyict.mdc.device.data.importers.impl.exceptions.ProcessorException;
 import org.apache.commons.csv.CSVRecord;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatcher;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.ByteArrayInputStream;
 import java.io.Serializable;
 import java.util.logging.Logger;
 
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.ArgumentMatcher;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceDataCsvImporterTest {
@@ -29,7 +37,7 @@ public class DeviceDataCsvImporterTest {
 
         private int line;
 
-        public CSVLineMatcher(int lineNumber) {
+        CSVLineMatcher(int lineNumber) {
             this.line = lineNumber;
         }
 
@@ -48,7 +56,7 @@ public class DeviceDataCsvImporterTest {
 
         private int line;
 
-        public RecordLineMatcher(int lineNumber) {
+        RecordLineMatcher(int lineNumber) {
             this.line = lineNumber;
         }
 
@@ -71,19 +79,10 @@ public class DeviceDataCsvImporterTest {
     @Before
     public void beforeTest() {
         reset(logger, context, thesaurus);
-        when(thesaurus.getString(anyString(), anyString())).thenAnswer(invocationOnMock -> {
-            for (MessageSeed messageSeeds : MessageSeeds.values()) {
-                if (messageSeeds.getKey().equals(invocationOnMock.getArguments()[0])) {
-                    return messageSeeds.getDefaultFormat();
-                }
-            }
-            for (TranslationKey translation : TranslationKeys.values()) {
-                if (translation.getKey().equals(invocationOnMock.getArguments()[0])) {
-                    return translation.getDefaultFormat();
-                }
-            }
-            return invocationOnMock.getArguments()[1];
-        });
+        when(thesaurus.getFormat(any(TranslationKey.class)))
+                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((TranslationKey) invocationOnMock.getArguments()[0]));
+        when(thesaurus.getFormat(any(MessageSeed.class)))
+                .thenAnswer(invocationOnMock -> new SimpleNlsMessageFormat((MessageSeed) invocationOnMock.getArguments()[0]));
         when(context.getThesaurus()).thenReturn(thesaurus);
     }
 
@@ -181,7 +180,7 @@ public class DeviceDataCsvImporterTest {
         DeviceDataCsvImporter<FileImportRecord> importer = mockImporter(parser, processor);
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_FAIL.getTranslated(thesaurus, 1));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_FAIL).format(1));
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, times(1)).severe(Matchers.anyString());
@@ -198,7 +197,7 @@ public class DeviceDataCsvImporterTest {
         DeviceDataCsvImporter<FileImportRecord> importer = mockImporter(parser, processor);
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_FAIL_WITH_WARN.getTranslated(thesaurus, 1, 1));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_FAIL_WITH_WARN).format(1, 1));
         verify(logger, times(1)).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, times(1)).severe(Matchers.anyString());
@@ -215,7 +214,7 @@ public class DeviceDataCsvImporterTest {
         DeviceDataCsvImporter<FileImportRecord> importer = mockImporter(parser, processor);
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_FAIL_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_FAIL_WITH_ERRORS).format(0, 1));
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, times(1)).warning(Matchers.anyString());
         verify(logger, times(1)).severe(Matchers.anyString());
@@ -232,7 +231,7 @@ public class DeviceDataCsvImporterTest {
         DeviceDataCsvImporter<FileImportRecord> importer = mockImporter(parser, processor);
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_FAIL_WITH_WARN_AND_ERRORS.getTranslated(thesaurus, 1, 1, 1));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_FAIL_WITH_WARN_AND_ERRORS).format(1, 1, 1));
         verify(logger, times(1)).info(Matchers.anyString());
         verify(logger, times(1)).warning(Matchers.anyString());
         verify(logger, times(1)).severe(Matchers.anyString());
@@ -249,7 +248,7 @@ public class DeviceDataCsvImporterTest {
         DeviceDataCsvImporter<FileImportRecord> importer = mockImporter(parser, processor);
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markFailure(TranslationKeys.IMPORT_RESULT_FAIL_WITH_ERRORS.getTranslated(thesaurus, 1, 1));
+        verify(importOccurrence).markFailure(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_FAIL_WITH_ERRORS).format(1, 1));
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, times(1)).warning(Matchers.anyString());
         verify(logger, times(1)).severe(Matchers.anyString());
@@ -266,7 +265,7 @@ public class DeviceDataCsvImporterTest {
         DeviceDataCsvImporter<FileImportRecord> importer = mockImporter(parser, processor);
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS.getTranslated(thesaurus, 2));
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS).format(2));
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
@@ -283,7 +282,7 @@ public class DeviceDataCsvImporterTest {
         DeviceDataCsvImporter<FileImportRecord> importer = mockImporter(parser, processor);
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccess(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN.getTranslated(thesaurus, 1, 1));
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN).format(1, 1));
         verify(logger, times(1)).info(Matchers.anyString());
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
@@ -300,7 +299,7 @@ public class DeviceDataCsvImporterTest {
         DeviceDataCsvImporter<FileImportRecord> importer = mockImporter(parser, processor);
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS.getTranslated(thesaurus, 0, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
         verify(logger, never()).info(Matchers.anyString());
         verify(logger, times(1)).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
@@ -317,7 +316,7 @@ public class DeviceDataCsvImporterTest {
         DeviceDataCsvImporter<FileImportRecord> importer = mockImporter(parser, processor);
 
         importer.process(importOccurrence);
-        verify(importOccurrence).markSuccessWithFailures(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN_AND_ERRORS.getTranslated(thesaurus, 1, 1, 1));
+        verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN_AND_ERRORS).format(1, 1, 1));
         verify(logger, times(1)).info(Matchers.anyString());
         verify(logger, times(1)).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());

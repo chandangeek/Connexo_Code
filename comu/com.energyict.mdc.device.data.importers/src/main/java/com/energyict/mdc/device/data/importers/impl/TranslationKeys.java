@@ -1,7 +1,5 @@
 package com.energyict.mdc.device.data.importers.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.device.data.importers.impl.attributes.connection.ConnectionAttributesImportFactory;
 import com.energyict.mdc.device.data.importers.impl.attributes.security.SecurityAttributesImportFactory;
 import com.energyict.mdc.device.data.importers.impl.devices.activation.DeviceActivationDeactivationImportFactory;
@@ -12,7 +10,7 @@ import com.energyict.mdc.device.data.importers.impl.devices.remove.DeviceRemoveI
 import com.energyict.mdc.device.data.importers.impl.devices.shipment.DeviceShipmentImporterFactory;
 import com.energyict.mdc.device.data.importers.impl.readingsimport.DeviceReadingsImporterFactory;
 
-import java.text.MessageFormat;
+import com.elster.jupiter.nls.TranslationKey;
 
 public enum TranslationKeys implements TranslationKey {
 
@@ -86,8 +84,4 @@ public enum TranslationKeys implements TranslationKey {
         return defaultFormat;
     }
 
-    public String getTranslated(Thesaurus thesaurus, Object... args){
-        String translated = thesaurus.getString(this.getKey(), this.getDefaultFormat());
-        return MessageFormat.format(translated, args);
-    }
 }

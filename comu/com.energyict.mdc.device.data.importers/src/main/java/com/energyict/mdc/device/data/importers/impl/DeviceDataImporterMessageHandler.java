@@ -7,26 +7,27 @@ import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.util.exception.ExceptionCatcher;
+import com.elster.jupiter.util.exception.MessageSeed;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 @Component(name = "com.energyict.mdc.device.data.importers.DeviceDataImporterMessageHandler",
-        service = {MessageHandlerFactory.class, TranslationKeyProvider.class, InstallService.class},
+        service = {MessageHandlerFactory.class, TranslationKeyProvider.class, MessageSeedProvider.class, InstallService.class},
         property = {"name=" + DeviceDataImporterMessageHandler.COMPONENT,
                     "subscriber=" + DeviceDataImporterMessageHandler.SUBSCRIBER_NAME,
                     "destination=" + DeviceDataImporterMessageHandler.DESTINATION_NAME},
         immediate = true)
-public class DeviceDataImporterMessageHandler implements MessageHandlerFactory, TranslationKeyProvider, InstallService {
+public class DeviceDataImporterMessageHandler implements MessageHandlerFactory, TranslationKeyProvider, MessageSeedProvider, InstallService {
 
     public static final String COMPONENT = "DDI";
 
@@ -40,6 +41,7 @@ public class DeviceDataImporterMessageHandler implements MessageHandlerFactory, 
 
     @Inject
     public DeviceDataImporterMessageHandler(MessageService messageService, FileImportService fileImportService) {
+        this();
         setMessageService(messageService);
         setFileImportService(fileImportService);
     }
@@ -56,10 +58,12 @@ public class DeviceDataImporterMessageHandler implements MessageHandlerFactory, 
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys = new ArrayList<>();
-        keys.addAll(Arrays.asList(TranslationKeys.values()));
-        keys.addAll(Arrays.asList(MessageSeeds.values()));
-        return keys;
+        return Arrays.asList(TranslationKeys.values());
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Override

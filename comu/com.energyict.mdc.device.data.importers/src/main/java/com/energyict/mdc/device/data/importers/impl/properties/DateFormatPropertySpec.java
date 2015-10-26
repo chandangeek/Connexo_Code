@@ -1,12 +1,13 @@
 package com.energyict.mdc.device.data.importers.impl.properties;
 
+import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
+
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpecPossibleValuesImpl;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 
 import java.time.format.DateTimeFormatter;
 
@@ -32,7 +33,7 @@ public class DateFormatPropertySpec extends BasicPropertySpec {
             try {
                 DateTimeFormatter.ofPattern(value);
             } catch (IllegalArgumentException e) {
-                throw new InvalidValueException(MessageSeeds.DATE_FORMAT_IS_NOT_VALID.getTranslated(thesaurus),
+                throw new InvalidValueException(thesaurus.getFormat(MessageSeeds.DATE_FORMAT_IS_NOT_VALID).format(),
                         MessageSeeds.DATE_FORMAT_IS_NOT_VALID.getDefaultFormat(),
                         getName());
             }

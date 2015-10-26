@@ -1,15 +1,10 @@
 package com.energyict.mdc.device.data.importers.impl;
 
-import com.elster.jupiter.nls.NlsMessageFormat;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
-import java.text.MessageFormat;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
 
     DATE_FORMAT_IS_NOT_VALID(1, "DateFormatIsNotValid", "Invalid date format", Level.SEVERE),
     TIME_ZONE_IS_NOT_VALID(2, "TimeZoneIsNotValid", "Invalid time zone", Level.SEVERE),
@@ -41,8 +36,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     DEVICE_DOES_NOT_SUPPORT_READING_TYPE(205, "DeviceDoesNotSupportReadingType", "Can''t process line {0}: Reading type {1} is not available for the device with MRID: {2}", Level.WARNING),
     READING_VALUE_DOES_NOT_MATCH_REGISTER_CONFIG_OVERFLOW(206, "ReadingValueDoesNotMatchRegisterConfigOverflow", "Can''t process line {0}: Reading value for reading type {1} of device with MRID: {2} doesn''t match with register configuration settings (overflow)", Level.WARNING),
     READING_VALUE_DOES_NOT_MATCH_CHANNEL_CONFIG_OVERFLOW(207, "ReadingValueDoesNotMatchChannelConfigOverflow", "Can''t process line {0}: Reading value for reading type {1} of device with MRID: {2} doesn''t match with channel configuration settings (overflow)", Level.WARNING),
-    READING_VALUE_WAS_TRUNCATED_TO_REGISTER_CONFIG(208, "ReadingValueWasTruncatedToRegisterConfig", "Note for line {0}: Reading value was truncated to {1} accordingly to register configuration.", Level.INFO),
-    READING_VALUE_WAS_TRUNCATED_TO_CHANNEL_CONFIG(209, "ReadingValueWasTruncatedToChannelConfig", "Note for line {0}: Reading value was truncated to {1} accordingly to channel configuration.", Level.INFO),
+    READING_VALUE_WAS_TRUNCATED_TO_REGISTER_CONFIG(208, "ReadingValueWasTruncatedToRegisterConfig", "Note for line {0}: Reading value was truncated to {1} according to register configuration.", Level.INFO),
+    READING_VALUE_WAS_TRUNCATED_TO_CHANNEL_CONFIG(209, "ReadingValueWasTruncatedToChannelConfig", "Note for line {0}: Reading value was truncated to {1} according to channel configuration.", Level.INFO),
     READING_IMPORT_NOT_ALLOWED_FOR_DECOMMISSIONED_DEVICE(210, "ReadingImportIsNotAllowedForDecommissionedDevices", "Can''t process line {0}: Readings import is not allowed for device {1} since it is decommissioned.", Level.WARNING),
 
     NO_CONNECTION_METHOD_ON_DEVICE(301, "NoSuchConnectionMethodOnDevice", "Can''t process line {0}: Connection method {1} is not supported on the device.", Level.WARNING),
@@ -95,18 +90,4 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         return level;
     }
 
-    public String getTranslated(Thesaurus thesaurus, Object... args) {
-        String translated = thesaurus.getString(this.getKey(), this.getDefaultFormat());
-        return MessageFormat.format(translated, args);
-    }
-
-    public void log(Logger logger, Thesaurus thesaurus, Object... args) {
-        NlsMessageFormat format = thesaurus.getFormat(this);
-        logger.log(getLevel(), format.format(args));
-    }
-
-    public void log(Logger logger, Thesaurus thesaurus, Throwable t, Object... args) {
-        NlsMessageFormat format = thesaurus.getFormat(this);
-        logger.log(getLevel(), format.format(args), t);
-    }
 }

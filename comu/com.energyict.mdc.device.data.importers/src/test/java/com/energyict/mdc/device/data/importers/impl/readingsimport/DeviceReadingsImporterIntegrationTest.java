@@ -49,6 +49,7 @@ import java.util.logging.Logger;
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.*;
 import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT3;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.contains;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -104,7 +105,7 @@ public class DeviceReadingsImporterIntegrationTest extends PersistenceIntegratio
         FileImporter importer = deviceReadingsImporterFactory.createImporter(properties);
 
         String csv = "Device MRID;Reading date;Reading type MRID;Reading Value;;\n" +
-                "TestDevice;01/08/2015 00:00;0.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0;100.527\n" +
+                "TestDevice;01/08/2015 01:00;0.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0;100.527\n" +
                 "TestDevice;02/08/2015 00:00;0.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0;101;11.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0;800.455\n" +
                 "TestDevice;03/08/2015 00:00;11.0.0.9.1.1.12.0.0.0.0.1.0.0.0.0.72.0;810";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
@@ -113,15 +114,15 @@ public class DeviceReadingsImporterIntegrationTest extends PersistenceIntegratio
 
         Thesaurus thesaurus = inMemoryPersistence.getService(Thesaurus.class);
 
-        verify(logger).info(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_REGISTER_CONFIG.getTranslated(thesaurus, 2, "100.52"));
-        verify(logger).info(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_CHANNEL_CONFIG.getTranslated(thesaurus, 3, "800.45"));
+        verify(logger).info(contains(thesaurus.getFormat(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_REGISTER_CONFIG).format(2, "100.52")));
+        verify(logger).info(contains(thesaurus.getFormat(MessageSeeds.READING_VALUE_WAS_TRUNCATED_TO_CHANNEL_CONFIG).format(3, "800.45")));
         verify(logger, never()).warning(Matchers.anyString());
         verify(logger, never()).severe(Matchers.anyString());
-        verify(importOccurrence).markSuccess(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_WARN.getTranslated(thesaurus, 4, 1, 2));
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.READINGS_IMPORT_RESULT_SUCCESS_WITH_WARN).format(4, 1, 2));
 
         List<NumericalReading> readings = device.getRegisters().get(0).getReadings(Interval.forever());
         assertThat(readings).hasSize(2);
-        assertThat(readings.get(0).getTimeStamp()).isEqualTo(ZonedDateTime.of(2015, 8, 1, 0, 0, 0, 0, ZoneOffset.UTC).toInstant());
+        assertThat(readings.get(0).getTimeStamp()).isEqualTo(ZonedDateTime.of(2015, 8, 1, 1, 0, 0, 0, ZoneOffset.UTC).toInstant());
         assertThat(readings.get(0).getValue()).isEqualTo(BigDecimal.valueOf(100.52));
         assertThat(readings.get(1).getTimeStamp()).isEqualTo(ZonedDateTime.of(2015, 8, 2, 0, 0, 0, 0, ZoneOffset.UTC).toInstant());
         assertThat(readings.get(1).getValue()).isEqualTo(BigDecimal.valueOf(101));
