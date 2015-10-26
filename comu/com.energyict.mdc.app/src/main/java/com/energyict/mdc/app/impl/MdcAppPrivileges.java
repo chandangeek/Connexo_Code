@@ -35,7 +35,8 @@ class MdcAppPrivileges {
                 com.elster.jupiter.issue.security.Privileges.Constants.VIEW_CREATION_RULE,
 
                 //yellowfin reports
-                com.elster.jupiter.yellowfin.security.Privileges.Constants.VIEW_REPORTS,
+                //com.elster.jupiter.yellowfin.security.Privileges.Constants.VIEW_REPORTS,
+                com.elster.jupiter.yellowfin.security.Privileges.VIEW_REPORTS,
 
                 //mdc.engine.config
                 com.energyict.mdc.engine.config.security.Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION,
@@ -128,22 +129,14 @@ class MdcAppPrivileges {
                 com.energyict.mdc.scheduling.security.Privileges.Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE,
                 com.energyict.mdc.scheduling.security.Privileges.Constants.VIEW_SHARED_COMMUNICATION_SCHEDULE,
 
-<<<<<<< HEAD
-                //com.elster.
+                //com.elster.jupiter.time
                 com.elster.jupiter.time.security.Privileges.Constants.ADMINISTRATE_RELATIVE_PERIOD,
-                com.elster.jupiter.time.security.Privileges.Constants.VIEW_RELATIVE_PERIOD
-        );
-    }
-=======
-                //com.elster.jupiter.time.security
-                com.elster.jupiter.time.security.Privileges.ADMINISTRATE_RELATIVE_PERIOD,
-                com.elster.jupiter.time.security.Privileges.VIEW_RELATIVE_PERIOD,
+                com.elster.jupiter.time.security.Privileges.Constants.VIEW_RELATIVE_PERIOD,
 
-//                com.elster.jupiter.bpm.security
-                com.elster.jupiter.bpm.security.Privileges.EXECUTE_TASK,
-                com.elster.jupiter.bpm.security.Privileges.VIEW_TASK,
-                com.elster.jupiter.bpm.security.Privileges.ASSIGN_TASK);
->>>>>>> master
+                //com.elster.jupiter.bpm.security
+                com.elster.jupiter.bpm.security.Privileges.Constants.EXECUTE_TASK,
+                com.elster.jupiter.bpm.security.Privileges.Constants.VIEW_TASK,
+                com.elster.jupiter.bpm.security.Privileges.Constants.ASSIGN_TASK);
 
     }
 }
