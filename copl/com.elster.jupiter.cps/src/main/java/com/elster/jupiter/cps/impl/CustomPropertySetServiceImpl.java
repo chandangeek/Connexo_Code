@@ -121,6 +121,13 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
                 "customPropertySet.customPropertySets", "customPropertySet.customPropertySets.description",
                 Arrays.asList(Privileges.Constants.ADMINISTER_PRIVILEGES, Privileges.Constants.VIEW_PRIVILEGES)));
+        resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
+                "customPropertySet.customPropertyPrivileges", "customPropertySet.customPropertyPrivileges.description",
+                Arrays.asList(
+                        Privileges.Constants.VIEW_CUSTOM_PROPERTIES_1, Privileges.Constants.VIEW_CUSTOM_PROPERTIES_2,
+                        Privileges.Constants.VIEW_CUSTOM_PROPERTIES_3, Privileges.Constants.VIEW_CUSTOM_PROPERTIES_4,
+                        Privileges.Constants.EDIT_CUSTOM_PROPERTIES_1, Privileges.Constants.EDIT_CUSTOM_PROPERTIES_2,
+                        Privileges.Constants.EDIT_CUSTOM_PROPERTIES_3, Privileges.Constants.EDIT_CUSTOM_PROPERTIES_4)));
         return resources;
     }
 
@@ -166,6 +173,8 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             public void configure() {
                 customPropertySet.getPersistenceSupport().module().ifPresent(customModule -> customModule.configure(this.binder()));
                 bind(DataModel.class).toInstance(dataModel);
+                bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(CustomPropertySetService.class).toInstance(CustomPropertySetServiceImpl.this);
             }
         };
