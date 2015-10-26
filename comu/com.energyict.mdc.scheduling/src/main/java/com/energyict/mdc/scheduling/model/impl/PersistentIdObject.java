@@ -9,10 +9,12 @@ import com.energyict.mdc.scheduling.events.CreateEventType;
 import com.energyict.mdc.scheduling.events.DeleteEventType;
 import com.energyict.mdc.scheduling.events.UpdateEventType;
 
+import java.util.Objects;
+
 /**
  * Provides code reuse opportunities for entities in this bundle
  * that are persistable and have a unique ID
- * <p/>
+ * <p>
  * Copyrights EnergyICT
  * Date: 31/01/14
  * Time: 15:29
@@ -45,12 +47,15 @@ public abstract class PersistentIdObject<T> {
         return this.dataModel.mapper(api);
     }
 
-    public void save () {
-        if (this.id > 0) {
-            this.post();
-            this.notifyUpdated();
-        }
-        else {
+    public void update() {
+        this.post();
+        this.notifyUpdated();
+    }
+
+    void save() {
+        if (id > 0) {
+            update();
+        } else {
             this.postNew();
             this.notifyCreated();
         }
@@ -94,7 +99,6 @@ public abstract class PersistentIdObject<T> {
         Save.UPDATE.save(this.dataModel, this, Save.Update.class);
     }
 
-
     /**
      * Deletes this object using the mapper.
      */
@@ -110,4 +114,22 @@ public abstract class PersistentIdObject<T> {
         return id;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        PersistentIdObject that = (PersistentIdObject) o;
+
+        return this.id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

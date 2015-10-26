@@ -6,7 +6,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.tasks.ComTask;
 
 import static com.elster.jupiter.orm.ColumnConversion.*;
 
@@ -65,7 +65,7 @@ public enum TableSpecs {
                         add();
                 table.foreignKey("FK_SCH_COMTASKINCOMSCH_COMTASK")
                         .on(comTaskId)
-                        .references(TaskService.COMPONENT_NAME, "CTS_COMTASK")
+                        .references(ComTask.class)
                         .map(ComTaskInComScheduleImpl.Fields.COM_TASK_REFERENCE.fieldName())
                         .add();
             }

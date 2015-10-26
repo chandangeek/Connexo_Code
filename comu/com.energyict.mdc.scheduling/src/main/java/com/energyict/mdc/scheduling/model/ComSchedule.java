@@ -2,7 +2,7 @@ package com.energyict.mdc.scheduling.model;
 
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.HasName;
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.protocol.api.device.data.DataCollectionConfiguration;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.elster.jupiter.time.TemporalExpression;
@@ -18,6 +18,8 @@ import java.util.Optional;
 public interface ComSchedule extends HasId, HasName, DataCollectionConfiguration {
 
     public void setName(String name);
+
+    public long getVersion();
 
     public SchedulingStatus getSchedulingStatus();
 
@@ -39,7 +41,7 @@ public interface ComSchedule extends HasId, HasName, DataCollectionConfiguration
 
     public void setTemporalExpression(TemporalExpression temporalExpression);
 
-    public void save();
+    public void update();
 
     public void delete();
 
@@ -77,7 +79,7 @@ public interface ComSchedule extends HasId, HasName, DataCollectionConfiguration
      *
      * @return This ComSchedule's master resource identifier
      */
-    public String getmRID();
+    public Optional<String> getmRID();
 
     public void setmRID(String mRID);
 
