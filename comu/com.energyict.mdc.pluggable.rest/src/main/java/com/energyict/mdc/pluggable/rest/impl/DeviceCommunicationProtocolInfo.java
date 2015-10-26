@@ -26,6 +26,7 @@ public class DeviceCommunicationProtocolInfo {
     public LicensedProtocolInfo licensedProtocol;
     public String deviceProtocolVersion;
     public PropertyInfo[] properties;
+    public long version;
 
     public DeviceCommunicationProtocolInfo() {
     }
@@ -47,6 +48,7 @@ public class DeviceCommunicationProtocolInfo {
             List<PropertyInfo> propertyInfoList = createPropertyInfoList(uriInfo, deviceProtocolPluggableClass, mdcPropertyUtils);
             this.properties = propertyInfoList.toArray(new PropertyInfo[propertyInfoList.size()]);
         }
+        this.version = deviceProtocolPluggableClass.getEntityVersion();
     }
 
     private List<PropertyInfo> createPropertyInfoList(UriInfo uriInfo, DeviceProtocolPluggableClass deviceProtocolPluggableClass, MdcPropertyUtils mdcPropertyUtils) {

@@ -19,11 +19,17 @@ import java.util.Optional;
 import org.junit.*;
 import org.mockito.Mock;
 
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DeviceCommunicationProtocolsResourceTest extends PluggableRestApplicationJerseyTest {
@@ -124,6 +130,35 @@ public class DeviceCommunicationProtocolsResourceTest extends PluggableRestAppli
         List<Map<String, Object>> response = target("/devicecommunicationprotocols/1/connectiontypes").queryParam("filter", ExtjsFilter.filter().property("direction", "ThisIsNotADirectionItIsOnlyForGuidance").create()).request().get(List.class);
 
         assertThat(response).hasSize(3);
+    }
+
+    @Test
+    public void testDeleteProtocolOkVersion(){
+        DeviceProtocolPluggableClass protocolClass = mock(DeviceProtocolPluggableClass.class);
+        when(protocolPluggableService.findAndLockDeviceProtocolPluggableClassByIdAndVersion(1L, 1L)).thenReturn(Optional.of(protocolClass));
+
+        DeviceCommunicationProtocolInfo info = new DeviceCommunicationProtocolInfo();
+        info.id = 1L;
+        info.version = 1L;
+
+        Response response = target("/devicecommunicationprotocols/1").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(protocolClass).delete();
+    }
+
+    @Test
+    public void testDeleteProtocolBadVersion(){
+        DeviceProtocolPluggableClass protocolClass = mock(DeviceProtocolPluggableClass.class);
+        when(protocolPluggableService.findAndLockDeviceProtocolPluggableClassByIdAndVersion(1L, 1L)).thenReturn(Optional.empty());
+        when(protocolPluggableService.findDeviceProtocolPluggableClass(1L)).thenReturn(Optional.<DeviceProtocolPluggableClass>empty());
+
+        DeviceCommunicationProtocolInfo info = new DeviceCommunicationProtocolInfo();
+        info.id = 1L;
+        info.version = 1L;
+
+        Response response = target("/devicecommunicationprotocols/1").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+        verify(protocolClass, never()).delete();
     }
 
     private ConnectionTypePluggableClass createMockedConnectionTypePluggableCass(ConnectionType connectionType) {

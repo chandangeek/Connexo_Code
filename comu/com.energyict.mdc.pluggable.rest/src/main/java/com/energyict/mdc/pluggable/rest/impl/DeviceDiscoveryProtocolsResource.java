@@ -1,5 +1,6 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
+import com.elster.jupiter.rest.util.ConcurrentModificationException;
 import com.energyict.mdc.engine.config.security.Privileges;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -28,10 +29,13 @@ import java.util.stream.Collectors;
 public class DeviceDiscoveryProtocolsResource {
 
     private final ProtocolPluggableService protocolPluggableService;
+    private final ResourceHelper resourceHelper;
+
 
     @Inject
-    public DeviceDiscoveryProtocolsResource(ProtocolPluggableService protocolPluggableService) {
+    public DeviceDiscoveryProtocolsResource(ProtocolPluggableService protocolPluggableService, ResourceHelper resourceHelper) {
         this.protocolPluggableService = protocolPluggableService;
+        this.resourceHelper = resourceHelper;
     }
 
     @GET
@@ -53,16 +57,19 @@ public class DeviceDiscoveryProtocolsResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
     public DeviceDiscoveryProtocolInfo getDeviceDiscoveryProtocol(@PathParam("id") long id) {
-        return new DeviceDiscoveryProtocolInfo(this.findDeviceProtocolPluggableClassOrThrowException(id));
+        return new DeviceDiscoveryProtocolInfo(resourceHelper.findInboundDeviceProtocolPluggableClassOrThrowException(id));
     }
 
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
-    public Response deleteDeviceDiscoveryProtocol(@PathParam("id") long id) {
+    public Response deleteDeviceDiscoveryProtocol(@PathParam("id") long id, DeviceDiscoveryProtocolInfo info) {
+        info.id = id;
         try {
-            this.protocolPluggableService.deleteInboundDeviceProtocolPluggableClass(id);
+            resourceHelper.lockInboundDeviceProtocolPluggableClassOrThrowException(info).delete();
+        } catch (ConcurrentModificationException cme) {
+            throw cme;
         } catch (Exception e) {
             throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
         }
@@ -87,23 +94,19 @@ public class DeviceDiscoveryProtocolsResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
-    public DeviceDiscoveryProtocolInfo updateDeviceDiscoveryProtocol(@PathParam("id") long id, DeviceDiscoveryProtocolInfo deviceDiscoveryProtocolInfo) throws WebApplicationException {
+    public DeviceDiscoveryProtocolInfo updateDeviceDiscoveryProtocol(@PathParam("id") long id, DeviceDiscoveryProtocolInfo info) throws WebApplicationException {
         try {
-            InboundDeviceProtocolPluggableClass pluggableClass = this.findDeviceProtocolPluggableClassOrThrowException(id);
-            pluggableClass.setName(deviceDiscoveryProtocolInfo.name);
+            InboundDeviceProtocolPluggableClass pluggableClass = resourceHelper.lockInboundDeviceProtocolPluggableClassOrThrowException(info);
+            pluggableClass.setName(info.name);
             pluggableClass.save();
             return new DeviceDiscoveryProtocolInfo(pluggableClass);
+        } catch (ConcurrentModificationException cme) {
+            throw cme;
         } catch (Exception e) {
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
-    private InboundDeviceProtocolPluggableClass findDeviceProtocolPluggableClassOrThrowException(long id) {
-        return this.protocolPluggableService
-                .findInboundDeviceProtocolPluggableClass(id)
-                .orElseThrow(() -> new WebApplicationException(
-                        "No inbound device protocol with id " + id + " found",
-                        Response.status(Response.Status.NOT_FOUND).entity("No inbound device protocol with id " + id + " found").build()));
-    }
+
 
 }

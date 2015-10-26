@@ -15,6 +15,7 @@ public class DeviceDiscoveryProtocolInfo {
     public String name;
     public String javaClassName;
     public String deviceProtocolVersion;
+    public long version;
 
     public DeviceDiscoveryProtocolInfo() {
     }
@@ -30,6 +31,7 @@ public class DeviceDiscoveryProtocolInfo {
             e.printStackTrace(System.err);
             this.deviceProtocolVersion = "*** PROTOCOL NOT YET SUPPORTED IN THE CURRENT OSGI BUNDLE ***";
         }
+        this.version = inboundDeviceProtocolPluggableClass.getEntityVersion();
     }
 
 }
