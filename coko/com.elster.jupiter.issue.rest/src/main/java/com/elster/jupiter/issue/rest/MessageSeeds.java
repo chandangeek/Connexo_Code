@@ -1,25 +1,15 @@
 package com.elster.jupiter.issue.rest;
 
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
-import java.text.MessageFormat;
 import java.util.logging.Level;
 
+public enum MessageSeeds implements MessageSeed {
 
-public enum MessageSeeds implements MessageSeed, TranslationKey {
-
-    ISSUE_ASSIGNEE_ME (0001, "IssueAssigneeMe", "Me", Level.SEVERE),
-    ISSUE_ASSIGNEE_UNASSIGNED (0002, "IssueAssigneeUnassigned", "Unassigned", Level.SEVERE),
-    ISSUE_DOES_NOT_EXIST (0003, "IssueDoesNotExist", "Issue doesn't exist", Level.SEVERE),
-    ISSUE_ALREADY_CLOSED(0004, "IssueAlreadyClosed", "Issue already closed", Level.SEVERE),
-    ISSUE_ACTION_CLASS_LOAD_FAIL(0005, "IssueActionClassLoadFail", "Unable to load Action class \"{0}\" for \"{1}\" action type", Level.SEVERE),
-    ISSUE_ACTION_PHASE_CREATE(0006, "IssueActionPhaseCreation", "Issue creation", Level.INFO),
-    ISSUE_ACTION_PHASE_OVERDUE(0007, "IssueActionPhaseOverdue", "Issue overdue", Level.INFO),
-    ISSUE_ACTION_PHASE_CREATE_DESCRIPTION(0010, "IssueActionPhaseCreationDescription", "The action will be performed at the issue creation time", Level.INFO),
-    ISSUE_ACTION_PHASE_OVERDUE_DESCRIPTION(0011, "IssueActionPhaseOverdueDescription", "The action will be performed when the issue becomes overdue", Level.INFO)
+    ISSUE_DOES_NOT_EXIST (0001, "IssueDoesNotExist", "Issue doesn't exist", Level.SEVERE),
+    ISSUE_ALREADY_CLOSED(0002, "IssueAlreadyClosed", "Issue already closed", Level.SEVERE),
+    ISSUE_ACTION_CLASS_LOAD_FAIL(0003, "IssueActionClassLoadFail", "Unable to load Action class \"{0}\" for \"{1}\" action type", Level.SEVERE),
     ;
 
     private final int number;
@@ -59,23 +49,4 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         return this.level;
     }
 
-    public String getFormated(Object... args){
-        return MessageFormat.format(this.getDefaultFormat(), args);
-    }
-
-    public String getTranslated(Thesaurus thesaurus, Object... args){
-        String text = thesaurus.getString(getKey(), getDefaultFormat());
-        return MessageFormat.format(text, args);
-    }
-
-    public static MessageSeeds getByKey(String key) {
-        if (key != null) {
-            for (MessageSeeds column : MessageSeeds.values()) {
-                if (column.getKey().equals(key)) {
-                    return column;
-                }
-            }
-        }
-        return null;
-    }
 }

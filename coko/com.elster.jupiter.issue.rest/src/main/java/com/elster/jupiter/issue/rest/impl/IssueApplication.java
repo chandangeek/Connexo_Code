@@ -1,7 +1,16 @@
 package com.elster.jupiter.issue.rest.impl;
 
 import com.elster.jupiter.issue.rest.MessageSeeds;
-import com.elster.jupiter.issue.rest.impl.resource.*;
+import com.elster.jupiter.issue.rest.TranslationKeys;
+import com.elster.jupiter.issue.rest.impl.resource.ActionResource;
+import com.elster.jupiter.issue.rest.impl.resource.AssigneeResource;
+import com.elster.jupiter.issue.rest.impl.resource.CreationRuleResource;
+import com.elster.jupiter.issue.rest.impl.resource.IssueResource;
+import com.elster.jupiter.issue.rest.impl.resource.IssueTypeResource;
+import com.elster.jupiter.issue.rest.impl.resource.MeterResource;
+import com.elster.jupiter.issue.rest.impl.resource.ReasonResource;
+import com.elster.jupiter.issue.rest.impl.resource.RuleResource;
+import com.elster.jupiter.issue.rest.impl.resource.StatusResource;
 import com.elster.jupiter.issue.rest.response.IssueActionInfoFactory;
 import com.elster.jupiter.issue.rest.response.PropertyUtils;
 import com.elster.jupiter.issue.rest.response.cep.CreationRuleActionInfoFactory;
@@ -12,23 +21,33 @@ import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-@Component(name = "com.elster.jupiter.issue.rest", 
-           service = { Application.class, TranslationKeyProvider.class },
+@Component(name = "com.elster.jupiter.issue.rest",
+           service = { Application.class, TranslationKeyProvider.class, MessageSeedProvider.class },
            immediate = true, property = { "alias=/isu", "app=SYS", "name=" + IssueApplication.ISSUE_REST_COMPONENT })
-public class IssueApplication extends Application implements TranslationKeyProvider {
+public class IssueApplication extends Application implements TranslationKeyProvider, MessageSeedProvider {
 
     public static final String ISSUE_REST_COMPONENT = "ISR";
 
@@ -111,6 +130,11 @@ public class IssueApplication extends Application implements TranslationKeyProvi
 
     @Override
     public List<TranslationKey> getKeys() {
+        return Arrays.asList(TranslationKeys.values());
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
 
@@ -135,4 +159,5 @@ public class IssueApplication extends Application implements TranslationKeyProvi
             bind(IssueActionInfoFactory.class).to(IssueActionInfoFactory.class);
         }
     }
+
 }

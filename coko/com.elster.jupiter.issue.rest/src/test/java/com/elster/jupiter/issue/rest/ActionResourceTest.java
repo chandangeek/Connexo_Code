@@ -1,30 +1,33 @@
 package com.elster.jupiter.issue.rest;
 
-import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import javax.ws.rs.core.Response;
-
-import org.junit.Test;
-import org.mockito.Matchers;
-
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.util.conditions.Condition;
 import com.jayway.jsonpath.JsonModel;
 
+import javax.ws.rs.core.Response;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.*;
+import org.mockito.Matchers;
+
+import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 public class ActionResourceTest extends IssueRestApplicationJerseyTest {
 
     @Test
     public void testGetAllActionPhases() {
+        this.mockTranslation(TranslationKeys.ISSUE_ACTION_PHASE_CREATE);
+        this.mockTranslation(TranslationKeys.ISSUE_ACTION_PHASE_CREATE_DESCRIPTION);
+        this.mockTranslation(TranslationKeys.ISSUE_ACTION_PHASE_OVERDUE);
+        this.mockTranslation(TranslationKeys.ISSUE_ACTION_PHASE_OVERDUE_DESCRIPTION);
         String response = target("/actions/phases").request().get(String.class);
 
         JsonModel json = JsonModel.model(response);
@@ -43,9 +46,9 @@ public class ActionResourceTest extends IssueRestApplicationJerseyTest {
         when(issueActionService.getActionTypeQuery()).thenReturn(query);
         when(issueService.findIssueType(null)).thenReturn(Optional.empty());
         when(issueService.findReason(null)).thenReturn(Optional.empty());
-        
+
         Response response = target("/actions").request().get();
-        
+
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
@@ -60,7 +63,7 @@ public class ActionResourceTest extends IssueRestApplicationJerseyTest {
         when(issueService.findReason(null)).thenReturn(Optional.empty());
 
         String response = target("/actions").queryParam(ISSUE_TYPE, issueType.getKey()).request().get(String.class);
-        
+
         JsonModel json = JsonModel.model(response);
         assertThat(json.<Number>get("$.total")).isEqualTo(0);
         assertThat(json.<List<?>>get("$.ruleActionTypes")).isEmpty();
@@ -78,7 +81,7 @@ public class ActionResourceTest extends IssueRestApplicationJerseyTest {
         when(issueService.findReason(null)).thenReturn(Optional.empty());
 
         String response = target("/actions").queryParam(ISSUE_TYPE, issueType.getKey()).request().get(String.class);
-        
+
         JsonModel json = JsonModel.model(response);
         assertThat(json.<Number>get("$.total")).isEqualTo(0);
         assertThat(json.<List<?>>get("$.ruleActionTypes")).isEmpty();

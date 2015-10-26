@@ -21,6 +21,7 @@ import com.elster.jupiter.util.conditions.Order;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.util.HashMap;
@@ -38,18 +39,21 @@ public class IssueResourceHelper {
     private final IssueActionInfoFactory actionInfoFactory;
     private final PropertyUtils propertyUtils;
     private final Thesaurus thesaurus;
+    private final SecurityContext securityContext;
 
     @Inject
-    public IssueResourceHelper(TransactionService transactionService, IssueService issueService, IssueActionService issueActionService, IssueActionInfoFactory actionFactory, PropertyUtils propertyUtils, Thesaurus thesaurus) {
+    public IssueResourceHelper(TransactionService transactionService, IssueService issueService, IssueActionService issueActionService, IssueActionInfoFactory actionFactory, PropertyUtils propertyUtils, Thesaurus thesaurus, @Context SecurityContext securityContext) {
         this.transactionService = transactionService;
         this.issueService = issueService;
         this.issueActionService = issueActionService;
         this.actionInfoFactory = actionFactory;
         this.propertyUtils = propertyUtils;
         this.thesaurus = thesaurus;
+        this.securityContext = securityContext;
     }
 
     public List<IssueActionTypeInfo> getListOfAvailableIssueActions(Issue issue) {
+        User user = ((User)securityContext.getUserPrincipal());
         Query<IssueActionType> query = issueService.query(IssueActionType.class, IssueType.class);
         IssueReason reason = issue.getReason();
         IssueType type = reason.getIssueType();
@@ -61,7 +65,7 @@ public class IssueResourceHelper {
 
         return query.select(condition).stream()
                 .filter(actionType -> actionType.createIssueAction()
-                        .map(action -> action.isApplicable(issue))
+                        .map(action -> action.isApplicable(issue) && action.isApplicableForUser(user))
                         .orElse(false))
                 .map(actionInfoFactory::asInfo)
                 .collect(Collectors.toList());

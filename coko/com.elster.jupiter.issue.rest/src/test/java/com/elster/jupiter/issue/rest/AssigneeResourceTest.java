@@ -8,16 +8,15 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 
-import org.junit.Test;
-import org.mockito.Matchers;
-
 import javax.ws.rs.core.Response;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.junit.*;
+import org.mockito.Matchers;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ASSIGNEE_TYPE;
 import static com.elster.jupiter.issue.rest.request.RequestHelper.LIKE;
@@ -28,18 +27,20 @@ import static org.mockito.Mockito.when;
 
 @SuppressWarnings("unchecked")
 public class AssigneeResourceTest extends IssueRestApplicationJerseyTest {
-    
+
     @Test
     public void testGetAllAssigneesWithoutLike() {
+        this.mockTranslation(TranslationKeys.ISSUE_ASSIGNEE_UNASSIGNED);
+
         Query<User> queryUser = mock(Query.class);
-        when(queryUser.select(Matchers.<Condition>anyObject(), Matchers.<Order>anyObject())).thenReturn(new ArrayList<User>());
+        when(queryUser.select(Matchers.<Condition>anyObject(), Matchers.<Order>anyObject())).thenReturn(new ArrayList<>());
         when(userService.getUserQuery()).thenReturn(queryUser);
         Map<String, Object> map = target("/assignees").queryParam("start", 0).queryParam("limit", 10).request().get(Map.class);
 
         assertThat(map.get("total")).isEqualTo(1);
         List<?> assigneesList = (List<?>) map.get("data");
         assertThat(assigneesList).hasSize(1);
-        
+
         Map<?,?> unassigned = (Map<?, ?>) assigneesList.get(0);
 
         assertThat(unassigned.get("id")).isEqualTo(-1);
@@ -51,7 +52,7 @@ public class AssigneeResourceTest extends IssueRestApplicationJerseyTest {
     public void testGetAllAssigneesWithMeParameter() {
         User user = mockUser(13L, "user");
         when(securityContext.getUserPrincipal()).thenReturn(user);
-        
+
         Map<String, Object> map = target("/assignees").queryParam(RequestHelper.ME, "true").request().get(Map.class);
 
         assertThat(map.get("total")).isEqualTo(1);
@@ -64,27 +65,27 @@ public class AssigneeResourceTest extends IssueRestApplicationJerseyTest {
         assertThat(me.get("type")).isEqualTo(IssueAssignee.Types.USER);
         assertThat(me.get("name")).isEqualTo("user");
     }
-    
+
     @Test
     public void testGetAllAssigneesWithLike() {
         List<User> users = Arrays.asList(mockUser(3L, "dream user"));
         Query<User> queryUser = mock(Query.class);
         when(queryUser.select(Matchers.<Condition>anyObject(), Matchers.<Order>anyObject())).thenReturn(users);
         when(userService.getUserQuery()).thenReturn(queryUser);
-        
+
         Map<String, Object> map = target("/assignees").queryParam(RequestHelper.LIKE, "dream").request().get(Map.class);
 
         assertThat(map.get("total")).isEqualTo(1);
         List<?> assigneesList = (List<?>) map.get("data");
         assertThat(assigneesList).hasSize(1);
-        
+
         Map<?,?> assignee = (Map<?,?>) assigneesList.get(0);
 
         assertThat(assignee.get("id")).isEqualTo(3);
         assertThat(assignee.get("name")).isEqualTo("dream user");
         assertThat(assignee.get("type")).isEqualTo(IssueAssignee.Types.USER);
     }
-    
+
     @Test
     public void testGetAssignee() {
         IssueAssignee issueAssignee = getDefaultAssignee();
@@ -111,7 +112,7 @@ public class AssigneeResourceTest extends IssueRestApplicationJerseyTest {
     @Test
     public void testGetAssigneeWithIncorrectType() {
         when(issueService.findIssueAssignee(null, 1)).thenReturn(Optional.empty());
-        
+
         Response response = target("/assignees/1").queryParam(ASSIGNEE_TYPE, "some").request().get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
