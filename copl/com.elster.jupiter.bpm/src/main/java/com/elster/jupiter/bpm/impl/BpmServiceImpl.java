@@ -1,5 +1,6 @@
 package com.elster.jupiter.bpm.impl;
 
+import com.elster.jupiter.bpm.BpmAppService;
 import com.elster.jupiter.bpm.BpmProcess;
 import com.elster.jupiter.bpm.BpmServer;
 import com.elster.jupiter.bpm.BpmService;
