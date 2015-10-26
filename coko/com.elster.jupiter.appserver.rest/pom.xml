@@ -4,7 +4,7 @@
 
     <parent>
         <groupId>com.elster.jupiter</groupId>
-        <artifactId>parent</artifactId>
+        <artifactId>platform</artifactId>
         <version>1.1.0-SNAPSHOT</version>
     </parent>
     <artifactId>appserver.rest</artifactId>
@@ -15,16 +15,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <_include>bnd.bnd</_include>
-                    </instructions>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>com.qmino</groupId>
                 <artifactId>miredot-plugin</artifactId>
@@ -59,45 +49,51 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>appserver</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>orm</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>fileimport</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>domain.util</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>users</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
         </dependency>
-
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>rest.util</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>transaction</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>time.rest</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>messaging</artifactId>
+        </dependency>
+
 
 
         <!-- TEST -->
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>
             <artifactId>jersey-test-framework-provider-inmemory</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.media</groupId>
@@ -107,7 +103,15 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools.rest</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>properties</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

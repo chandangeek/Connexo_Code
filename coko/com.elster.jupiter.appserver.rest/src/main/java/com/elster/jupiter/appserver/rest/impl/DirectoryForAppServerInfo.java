@@ -1,10 +1,8 @@
 package com.elster.jupiter.appserver.rest.impl;
 
 import com.elster.jupiter.appserver.AppServer;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class DirectoryForAppServerInfo {
 
