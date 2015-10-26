@@ -1,23 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import org.junit.Test;
-
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
@@ -30,6 +13,23 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
+
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DeviceMessagesResourceTest extends BaseLoadProfileTest {
 
@@ -129,6 +129,10 @@ public class DeviceMessagesResourceTest extends BaseLoadProfileTest {
         requestBody.privileges = Arrays.asList(
                 DeviceMessagePrivilegeInfo.from(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1),
                 DeviceMessagePrivilegeInfo.from(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE3));
+        requestBody.deviceConfiguration = new DeviceConfigurationInfo();
+        requestBody.deviceConfiguration.id = 1;
+        requestBody.deviceConfiguration.version = OK_VERSION;
+        requestBody.deviceConfiguration.parent = new VersionInfo<>(1L, OK_VERSION);
         Response response = target("/devicetypes/1/deviceconfigurations/1/devicemessageenablements").request().post(Entity.entity(requestBody, MediaType.APPLICATION_JSON));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
@@ -147,6 +151,10 @@ public class DeviceMessagesResourceTest extends BaseLoadProfileTest {
         requestBody.privileges = Arrays.asList(
                 DeviceMessagePrivilegeInfo.from(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1),
                 DeviceMessagePrivilegeInfo.from(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE3));
+        requestBody.deviceConfiguration = new DeviceConfigurationInfo();
+        requestBody.deviceConfiguration.id = 1;
+        requestBody.deviceConfiguration.version = OK_VERSION;
+        requestBody.deviceConfiguration.parent = new VersionInfo<>(1L, OK_VERSION);
         Response response = target("/devicetypes/1/deviceconfigurations/1/devicemessageenablements").request().post(Entity.entity(requestBody, MediaType.APPLICATION_JSON));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
@@ -156,7 +164,10 @@ public class DeviceMessagesResourceTest extends BaseLoadProfileTest {
 
     @Test
     public void testDeactivateDeviceMessagesIncorrectMessage() {
-        mockDeviceConfiguration();
+        DeviceType deviceType = mockDeviceType("Some", 1L);
+        when(deviceConfigurationService.findAndLockDeviceType(1L, OK_VERSION)).thenReturn(Optional.of(deviceType));
+
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1);
         when(deviceMessageSpecificationService.findMessageSpecById(1L)).thenReturn(Optional.empty());
         when(deviceMessageSpecificationService.findMessageSpecById(13L)).thenReturn(Optional.empty());
 
@@ -165,14 +176,40 @@ public class DeviceMessagesResourceTest extends BaseLoadProfileTest {
         requestBody.privileges = Arrays.asList(
                 DeviceMessagePrivilegeInfo.from(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1),
                 DeviceMessagePrivilegeInfo.from(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE3));
-        Response response = target("/devicetypes/1/deviceconfigurations/1/devicemessageenablements")
-                .queryParam("messageId", 1).queryParam("messageId", 13).request().delete();
+        requestBody.deviceConfiguration.id = 1;
+        requestBody.deviceConfiguration.version = OK_VERSION;
+        requestBody.deviceConfiguration.parent = new VersionInfo<>(1L, OK_VERSION);
+        Response response = target("/devicetypes/1/deviceconfigurations/1/devicemessageenablements").request().build(HttpMethod.DELETE, Entity.json(requestBody)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+    @Test
+    public void testDeactivateDeviceMessagesBadVersion() {
+        DeviceType deviceType = mockDeviceType("Some", 1L);
+        when(deviceConfigurationService.findAndLockDeviceType(1L, OK_VERSION)).thenReturn(Optional.empty());
+        when(deviceConfigurationService.findDeviceType(1L)).thenReturn(Optional.empty());
+
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1);
+        when(deviceMessageSpecificationService.findMessageSpecById(1L)).thenReturn(Optional.empty());
+        when(deviceMessageSpecificationService.findMessageSpecById(13L)).thenReturn(Optional.empty());
+
+        DeviceMessageEnablementInfo requestBody = new DeviceMessageEnablementInfo();
+        requestBody.messageIds = Arrays.asList(1L);
+        requestBody.privileges = Arrays.asList(
+                DeviceMessagePrivilegeInfo.from(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1),
+                DeviceMessagePrivilegeInfo.from(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE3));
+        requestBody.deviceConfiguration.id = 1;
+        requestBody.deviceConfiguration.version = OK_VERSION;
+        requestBody.deviceConfiguration.parent = new VersionInfo<>(1L, OK_VERSION);
+        Response response = target("/devicetypes/1/deviceconfigurations/1/devicemessageenablements").request().build(HttpMethod.DELETE, Entity.json(requestBody)).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
     @Test
     public void testDeactivateDeviceMessages() {
-        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration();
+        DeviceType deviceType = mockDeviceType("Some", 1L);
+        when(deviceConfigurationService.findAndLockDeviceType(1L, OK_VERSION)).thenReturn(Optional.of(deviceType));
+
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1);
         DeviceMessageSpec message1 = mock(DeviceMessageSpec.class);
         DeviceMessageSpec message2 = mock(DeviceMessageSpec.class);
         when(deviceMessageSpecificationService.findMessageSpecById(1)).thenReturn(Optional.of(message1));
@@ -180,8 +217,13 @@ public class DeviceMessagesResourceTest extends BaseLoadProfileTest {
         when(message1.getId()).thenReturn(DeviceMessageId.CLOCK_SET_TIME);
         when(message2.getId()).thenReturn(DeviceMessageId.CLOCK_SET_DST);
 
-        Response response = target("/devicetypes/1/deviceconfigurations/1/devicemessageenablements")
-                .queryParam("messageId", 1).queryParam("messageId", 13).request().delete();
+        DeviceMessageEnablementInfo info = new DeviceMessageEnablementInfo();
+        info.messageIds = Arrays.asList(1L, 13L);
+        info.deviceConfiguration.id = 1;
+        info.deviceConfiguration.version = OK_VERSION;
+        info.deviceConfiguration.parent = new VersionInfo<>(1L, OK_VERSION);
+
+        Response response = target("/devicetypes/1/deviceconfigurations/1/devicemessageenablements").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         verify(deviceConfiguration).removeDeviceMessageEnablement(DeviceMessageId.CLOCK_SET_TIME);
@@ -190,6 +232,8 @@ public class DeviceMessagesResourceTest extends BaseLoadProfileTest {
 
     @Test
     public void testChangeDeviceMessagesPrivileges() {
+        DeviceType deviceType = mockDeviceType("Some", 1L);
+        when(deviceConfigurationService.findAndLockDeviceType(1L, OK_VERSION)).thenReturn(Optional.of(deviceType));
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration();
         DeviceMessageEnablement enablement = mock(DeviceMessageEnablement.class);
         Set<DeviceMessageUserAction> privileges = new HashSet<>();
@@ -203,6 +247,9 @@ public class DeviceMessagesResourceTest extends BaseLoadProfileTest {
         requestBody.privileges = Arrays.asList(
                 DeviceMessagePrivilegeInfo.from(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1),
                 DeviceMessagePrivilegeInfo.from(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE3));
+        requestBody.deviceConfiguration.id = 1;
+        requestBody.deviceConfiguration.version = OK_VERSION;
+        requestBody.deviceConfiguration.parent = new VersionInfo<>(1L, OK_VERSION);
         Response response = target("/devicetypes/1/deviceconfigurations/1/devicemessageenablements").request().put(Entity.entity(requestBody, MediaType.APPLICATION_JSON));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
@@ -217,10 +264,11 @@ public class DeviceMessagesResourceTest extends BaseLoadProfileTest {
 
     private DeviceConfiguration mockDeviceConfiguration() {
         DeviceType deviceType = mockDeviceType("device", 1);
-        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration("config", 1);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1);
         List<DeviceConfiguration> deviceConfigurations = new ArrayList<>(1);
         deviceConfigurations.add(deviceConfiguration);
         when(deviceConfigurationService.findDeviceType(1)).thenReturn(Optional.of(deviceType));
+        when(deviceConfigurationService.findAndLockDeviceType(1, OK_VERSION)).thenReturn(Optional.of(deviceType));
         when(deviceType.getConfigurations()).thenReturn(deviceConfigurations);
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         return deviceConfiguration;

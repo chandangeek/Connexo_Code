@@ -2,6 +2,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
@@ -22,16 +23,17 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -39,6 +41,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class ConnectionMethodResourceTest extends DeviceConfigurationApplicationJerseyTest {
+
+    public static final long OK_VERSION = 24L;
+    public static final long BAD_VERSION = 17L;
 
     private PartialInboundConnectionTask partialInboundConnectionTask;
     private PartialScheduledConnectionTask partialScheduledConnectionTask;
@@ -58,11 +63,24 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         info.comWindowStart = 6;
         info.comWindowEnd = 12;
         info.connectionTypePluggableClass = "pluggableClass";
+        info.version = OK_VERSION;
+        info.parent = new VersionInfo<>(12L, OK_VERSION);
         Response response = target("/devicetypes/11/deviceconfigurations/12/connectionmethods/13").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ArgumentCaptor<InboundComPortPool> comPortPoolArgumentCaptor = ArgumentCaptor.forClass(InboundComPortPool.class);
         verify(partialInboundConnectionTask).setComportPool(comPortPoolArgumentCaptor.capture());
         assertThat(comPortPoolArgumentCaptor.getValue()).isNull();
+    }
+
+
+    @Test
+    public void testUpdateConnectionMethodBadVersion() throws Exception {
+        InboundConnectionMethodInfo info = new InboundConnectionMethodInfo();
+        info.name = "name";
+        info.version = BAD_VERSION;
+        info.parent = new VersionInfo<>(12L, OK_VERSION);
+        Response response = target("/devicetypes/11/deviceconfigurations/12/connectionmethods/13").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
     @Test
@@ -84,6 +102,8 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         propertyInfo.propertyTypeInfo = new PropertyTypeInfo();
         propertyInfo.propertyTypeInfo.simplePropertyType = SimplePropertyType.TIMEDURATION;
         info.properties.add(propertyInfo);
+        info.version = OK_VERSION;
+        info.parent = new VersionInfo<>(12L, OK_VERSION);
         Response response = target("/devicetypes/11/deviceconfigurations/12/connectionmethods/13").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.model((ByteArrayInputStream)response.getEntity());
@@ -100,6 +120,8 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         info.comWindowStart = 6;
         info.comWindowEnd = 12;
         info.connectionTypePluggableClass = "pluggableClass";
+        info.version = OK_VERSION;
+        info.parent = new VersionInfo<>(12L, OK_VERSION);
         Response response = target("/devicetypes/11/deviceconfigurations/12/connectionmethods/14").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ArgumentCaptor<OutboundComPortPool> comPortPoolArgumentCaptor = ArgumentCaptor.forClass(OutboundComPortPool.class);
@@ -115,7 +137,9 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
         partialInboundConnectionTask = mockPartialInboundConnectionTask(13L, "partial inbound");
+        when(partialInboundConnectionTask.getConfiguration()).thenReturn(deviceConfiguration);
         partialScheduledConnectionTask = mockPartialScheduledConnectionTask(14L, "partial scheduled");
+        when(partialScheduledConnectionTask.getConfiguration()).thenReturn(deviceConfiguration);
         when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialInboundConnectionTask, partialScheduledConnectionTask));
 
     }
@@ -129,6 +153,9 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         when(registerSpec.getRegisterType()).thenReturn(registerType);
         when(registerType.getId()).thenReturn(101L);
         when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.asList(registerSpec));
+        when(deviceConfigurationService.findDeviceConfiguration(id)).thenReturn(Optional.of(deviceConfiguration));
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(id, OK_VERSION)).thenReturn(Optional.of(deviceConfiguration));
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(id, BAD_VERSION)).thenReturn(Optional.empty());
         return deviceConfiguration;
     }
 
@@ -147,6 +174,8 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         when(pluggableClass.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
         when(protocolPluggableService.findConnectionTypePluggableClassByName("pluggableClass")).thenReturn(Optional.of(pluggableClass));
         when(deviceConfigurationService.findPartialConnectionTask(id)).thenReturn(Optional.of(partialConnectionTask));
+        when(deviceConfigurationService.findAndLockPartialConnectionTaskByIdAndVersion(id, OK_VERSION)).thenReturn(Optional.of(partialConnectionTask));
+        when(deviceConfigurationService.findAndLockPartialConnectionTaskByIdAndVersion(id, BAD_VERSION)).thenReturn(Optional.empty());
         InboundComPortPool comPortPool = mock(InboundComPortPool.class);
         when(comPortPool.getName()).thenReturn("com port pool");
         when(partialConnectionTask.getComPortPool()).thenReturn(comPortPool);
@@ -166,6 +195,8 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         when(pluggableClass.getName()).thenReturn("pluggableClass");
         when(protocolPluggableService.findConnectionTypePluggableClassByName("pluggableClass")).thenReturn(Optional.of(pluggableClass));
         when(deviceConfigurationService.findPartialConnectionTask(id)).thenReturn(Optional.of(partialConnectionTask));
+        when(deviceConfigurationService.findAndLockPartialConnectionTaskByIdAndVersion(id, OK_VERSION)).thenReturn(Optional.of(partialConnectionTask));
+        when(deviceConfigurationService.findAndLockPartialConnectionTaskByIdAndVersion(id, BAD_VERSION)).thenReturn(Optional.empty());
         OutboundComPortPool comPortPool = mock(OutboundComPortPool.class);
         when(comPortPool.getName()).thenReturn("com port pool");
         when(partialConnectionTask.getComPortPool()).thenReturn(comPortPool);
@@ -183,6 +214,8 @@ public class ConnectionMethodResourceTest extends DeviceConfigurationApplication
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceConfigurationService.findDeviceType(id)).thenReturn(Optional.of(deviceType));
+        when(deviceConfigurationService.findAndLockDeviceType(id, OK_VERSION)).thenReturn(Optional.of(deviceType));
+        when(deviceConfigurationService.findAndLockDeviceType(id, BAD_VERSION)).thenReturn(Optional.empty());
         return deviceType;
     }
 

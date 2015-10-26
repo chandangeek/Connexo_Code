@@ -11,18 +11,26 @@ import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.EditPrivilege;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.devtools.tests.Answers;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.metering.IncompatibleFiniteStateMachineChangeException;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -54,7 +62,16 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.google.common.collect.Sets;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
+
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -65,20 +82,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.LongStream;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -90,10 +103,12 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
     public static final ReadingType READING_TYPE_1 = mockReadingType("0.1.2.3.5.6.7.8.9.1.2.3.4.5.6.7.8");
     public static final ReadingType READING_TYPE_2 = mockReadingType("0.1.2.3.5.6.7.8.9.1.2.3.4.0.0.0.0");
 
+    public static final long OK_VERSION = 24L;
+    public static final long BAD_VERSION = 17L;
+
     Unit unit = Unit.get("kWh");
 
-
-    private static ReadingType mockReadingType(String mrid){
+    private static ReadingType mockReadingType(String mrid) {
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMRID()).thenReturn(mrid);
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
@@ -103,8 +118,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(readingType.getFlowDirection()).thenReturn(FlowDirection.FORWARD);
         when(readingType.getCommodity()).thenReturn(Commodity.AIR);
         when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ACVOLTAGEPEAK);
-        when(readingType.getInterharmonic()).thenReturn(new RationalNumber(1,2));
-        when(readingType.getArgument()).thenReturn(new RationalNumber(1,2));
+        when(readingType.getInterharmonic()).thenReturn(new RationalNumber(1, 2));
+        when(readingType.getArgument()).thenReturn(new RationalNumber(1, 2));
         when(readingType.getTou()).thenReturn(3);
         when(readingType.getCpp()).thenReturn(4);
         when(readingType.getConsumptionTier()).thenReturn(5);
@@ -156,8 +171,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = Optional.empty();
         when(protocolPluggableService.findDeviceProtocolPluggableClassByName("theProtocol")).thenReturn(deviceProtocolPluggableClass);
         when(deviceConfigurationService.newDeviceType("newName", null, null)).thenReturn(deviceType);
-        NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
-        when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenReturn(nlsMessageFormat);
         Response response = target("/devicetypes/").request().post(json);
         verify(deviceType).save();
     }
@@ -175,8 +188,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceProtocolPluggableClass protocol = mock(DeviceProtocolPluggableClass.class);
         Optional<DeviceProtocolPluggableClass> deviceProtocolPluggableClass = Optional.of(protocol);
         when(protocolPluggableService.findDeviceProtocolPluggableClassByName("theProtocol")).thenReturn(deviceProtocolPluggableClass);
-        NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
-        when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenReturn(nlsMessageFormat);
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
         when(deviceConfigurationService.newDeviceType("newName", protocol, deviceLifeCycle)).thenReturn(deviceType);
@@ -249,6 +260,9 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
     private DeviceType mockDeviceType(String name, long id) {
         DeviceType deviceType = mock(DeviceType.class);
+        RegisteredCustomPropertySet registeredCustomPropertySet = mockRegisteredCustomPropertySet();
+        when(deviceType.getRegisterTypeTypeCustomPropertySet(anyObject())).thenReturn(Optional.of(registeredCustomPropertySet));
+        when(deviceType.getDeviceTypeCustomPropertySetUsage()).thenReturn(Arrays.asList(registeredCustomPropertySet));
         when(deviceType.getName()).thenReturn(name);
         when(deviceType.getId()).thenReturn(id);
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
@@ -257,6 +271,14 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         DeviceLifeCycle deviceLifeCycle = mockStandardDeviceLifeCycle();
         when(deviceType.getDeviceLifeCycle()).thenReturn(deviceLifeCycle);
+        List<DeviceConfiguration> deviceConfigurations = new ArrayList<>();
+        when(deviceType.getConfigurations()).thenReturn(deviceConfigurations);
+        when(deviceType.getVersion()).thenReturn(OK_VERSION);
+
+        doReturn(Optional.of(deviceType)).when(deviceConfigurationService).findDeviceType(id);
+        doReturn(Optional.of(deviceType)).when(deviceConfigurationService).findAndLockDeviceType(id, OK_VERSION);
+        doReturn(Optional.empty()).when(deviceConfigurationService).findAndLockDeviceType(id, BAD_VERSION);
+
         return deviceType;
     }
 
@@ -267,6 +289,26 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         return deviceLifeCycle;
     }
 
+    private DeviceConfiguration mockDeviceConfiguration(long id, DeviceType deviceType) {
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getName()).thenReturn("Device configuration " + id);
+        when(deviceConfiguration.getId()).thenReturn(id);
+        when(deviceConfiguration.getVersion()).thenReturn(OK_VERSION);
+        when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
+        deviceType.getConfigurations().add(deviceConfiguration);
+        List<RegisterSpec> registerSpec = new ArrayList<>();
+        when(deviceConfiguration.getRegisterSpecs()).thenReturn(registerSpec);
+        List<PartialConnectionTask> partialConnectionTasks = new ArrayList<>();
+        when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(partialConnectionTasks);
+
+        doReturn(Optional.of(deviceConfiguration)).when(deviceConfigurationService).findDeviceConfiguration(id);
+        doReturn(Optional.of(deviceConfiguration)).when(deviceConfigurationService).findAndLockDeviceConfigurationByIdAndVersion(id, OK_VERSION);
+        doReturn(Optional.empty()).when(deviceConfigurationService).findAndLockDeviceConfigurationByIdAndVersion(id, BAD_VERSION);
+
+        return deviceConfiguration;
+    }
+
+
     private DeviceConfiguration mockDeviceConfiguration(String name, long id) {
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(deviceConfiguration.getName()).thenReturn(name);
@@ -276,6 +318,11 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(registerSpec.getRegisterType()).thenReturn(registerType);
         when(registerType.getId()).thenReturn(101L);
         when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.asList(registerSpec));
+
+        doReturn(Optional.of(deviceConfiguration)).when(deviceConfigurationService).findDeviceConfiguration(id);
+        doReturn(Optional.of(deviceConfiguration)).when(deviceConfigurationService).findAndLockDeviceConfigurationByIdAndVersion(id, OK_VERSION);
+        doReturn(Optional.empty()).when(deviceConfigurationService).findAndLockDeviceConfigurationByIdAndVersion(id, BAD_VERSION);
+
         return deviceConfiguration;
     }
 
@@ -360,6 +407,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
         when(deviceProtocolPluggableClass.getName()).thenReturn("device protocol name");
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
+        when(deviceConfiguration.getVersion()).thenReturn(OK_VERSION);
 
         Finder<DeviceConfiguration> finder = mockFinder(deviceType.getConfigurations());
         when(deviceConfigurationService.findDeviceConfigurationsUsingDeviceType(any(DeviceType.class))).thenReturn(finder);
@@ -369,7 +417,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat(map.get("total")).describedAs("JSon representation of a field, JavaScript impact if it changed").isEqualTo(1);
         assertThat((List) map.get("deviceConfigurations")).hasSize(1).describedAs("JSon representation of a field, JavaScript impact if it changed");
         Map jsonDeviceConfiguration = (Map) ((List) map.get("deviceConfigurations")).get(0);
-        assertThat(jsonDeviceConfiguration).hasSize(13);
+        assertThat(jsonDeviceConfiguration).hasSize(14);
         assertThat(jsonDeviceConfiguration.get("id")).isEqualTo(113).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("name")).isEqualTo("defcon").describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("active")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
@@ -382,44 +430,55 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat(jsonDeviceConfiguration.get("canBeGateway")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("gatewayType")).isEqualTo("HAN").describedAs("JSon representation of a field, JavaScript impact if it changed");
         assertThat(jsonDeviceConfiguration.get("isDirectlyAddressable")).isEqualTo(true).describedAs("JSon representation of a field, JavaScript impact if it changed");
+        assertThat(jsonDeviceConfiguration.get("version")).isEqualTo(((Number) OK_VERSION).intValue()).describedAs("JSon representation of a field, JavaScript impact if it changed");
     }
 
     @Test
     public void testRegisterConfigurationInfoJavaScriptMappings() throws Exception {
+        DeviceType deviceType = mockDeviceType("some", 6);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(113L, deviceType);
 
-        DeviceType deviceType = mock(DeviceType.class);
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(deviceConfiguration.getId()).thenReturn(113L);
-        RegisterType registerType = mock(RegisterType.class);
+        NumericalRegisterSpec registerSpec = mockNumericalRegister(1L, deviceConfiguration);
+
+        Map<String, Object> jsonRegisterConfiguration = target("/devicetypes/6/deviceconfigurations/113/registerconfigurations/1").request().get(Map.class);
+        assertThat(jsonRegisterConfiguration.keySet()).containsOnly("id", "name", "readingType", "registerType", "obisCode", "overruledObisCode",
+                "obisCodeDescription", "unitOfMeasure", "numberOfDigits", "numberOfFractionDigits", "overflow", "timeOfUse", "asText", "version", "parent")
+                .describedAs("JSon representation of a field, JavaScript impact if it changed");
+    }
+
+    private NumericalRegisterSpec mockNumericalRegister(long id, DeviceConfiguration deviceConfiguration) {
         ReadingType readingType = mockReadingType();
         when(readingType.getAliasName()).thenReturn("alias");
+
+        RegisterType registerType = mock(RegisterType.class);
         when(registerType.getReadingType()).thenReturn(readingType);
+
+        ObisCode obisCode = mockObisCode();
+
         NumericalRegisterSpec registerSpec = mock(NumericalRegisterSpec.class);
         when(registerSpec.isTextual()).thenReturn(false);
-        when(registerSpec.getId()).thenReturn(1L);
+        when(registerSpec.getId()).thenReturn(id);
         when(registerSpec.getRegisterType()).thenReturn(registerType);
         when(registerSpec.getUnit()).thenReturn(unit);
         when(registerSpec.getDeviceObisCode()).thenReturn(new ObisCode());
         when(registerSpec.getNumberOfDigits()).thenReturn(4);
         when(registerSpec.getOverflowValue()).thenReturn(BigDecimal.ONE);
         when(registerSpec.getNumberOfFractionDigits()).thenReturn(1);
-        ObisCode obisCode = mockObisCode();
         when(registerSpec.getObisCode()).thenReturn(obisCode);
-        when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.<RegisterSpec>asList(registerSpec));
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
+        when(registerSpec.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(registerSpec.getVersion()).thenReturn(OK_VERSION);
+        deviceConfiguration.getRegisterSpecs().add(registerSpec);
 
-        when(deviceConfigurationService.findDeviceType(6)).thenReturn(Optional.of(deviceType));
+        doReturn(Optional.of(registerSpec)).when(deviceConfigurationService).findRegisterSpec(id);
+        doReturn(Optional.of(registerSpec)).when(deviceConfigurationService).findAndLockRegisterSpecByIdAndVersion(id, OK_VERSION);
+        doReturn(Optional.empty()).when(deviceConfigurationService).findAndLockRegisterSpecByIdAndVersion(id, BAD_VERSION);
 
-        Map<String, Object> jsonRegisterConfiguration = target("/devicetypes/6/deviceconfigurations/113/registerconfigurations/1").request().get(Map.class);
-//        assertThat(jsonRegisterConfiguration.keySet()).hasSize(13);
-        assertThat(jsonRegisterConfiguration.keySet()).containsOnly("id", "name", "readingType", "registerType", "obisCode", "overruledObisCode",
-                "obisCodeDescription", "unitOfMeasure", "numberOfDigits", "numberOfFractionDigits", "overflow", "timeOfUse", "asText")
-                .describedAs("JSon representation of a field, JavaScript impact if it changed");
+        return registerSpec;
     }
 
     @Test
     public void testRegisterTypesInfoJavaScriptMappings() throws Exception {
-        DeviceType deviceType = mock(DeviceType.class);
+        DeviceType deviceType = mockDeviceType("name", 6);
         RegisterType registerType = mock(RegisterType.class);
         when(deviceType.getRegisterTypes()).thenReturn(Arrays.asList(registerType));
 
@@ -454,13 +513,19 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         RegisterType registerType101 = mock(RegisterType.class);
         when(registerType101.getId()).thenReturn(RM_ID_1);
         when(deviceType.getRegisterTypes()).thenReturn(Arrays.asList(registerType101));
-        when(deviceConfigurationService.findDeviceType(31)).thenReturn(Optional.of(deviceType));
         Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = this.<DeviceProtocolPluggableClass>mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList());
         when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(deviceProtocolPluggableClassFinder);
-        when(masterDataService.findRegisterType(RM_ID_1)).thenReturn(Optional.of(registerType101));
+        when(masterDataService.findRegisterType(101L)).thenReturn(Optional.empty());
+        when(masterDataService.findAndLockRegisterTypeByIdAndVersion(101L, OK_VERSION)).thenReturn(Optional.empty());
 
-        Response response = target("/devicetypes/31/registertypes/102").request().delete();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        RegisterTypeInfo info = new RegisterTypeInfo();
+        info.id = 101L;
+        info.readingType = new ReadingTypeInfo();
+        info.readingType.aliasName = "Bulk";
+        info.version = OK_VERSION;
+        info.parent = new VersionInfo<>(31L, OK_VERSION);
+        Response response = target("/devicetypes/31/registertypes/102").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
     @Test
@@ -482,12 +547,12 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         RegisterType registerType102 = mock(RegisterType.class);
         when(registerType102.getId()).thenReturn(RM_ID_2);
         when(deviceType.getRegisterTypes()).thenReturn(Arrays.asList(registerType101, registerType102));
-        when(deviceConfigurationService.findDeviceType(31)).thenReturn(Optional.of(deviceType));
         Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = this.<DeviceProtocolPluggableClass>mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList());
         when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(deviceProtocolPluggableClassFinder);
 
         DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
         deviceTypeInfo.registerTypes = Arrays.asList(registerTypeInfo1, registerTypeInfo2);
+        deviceTypeInfo.version = OK_VERSION;
         Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
         Response response = target("/devicetypes/31").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -515,15 +580,15 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         RegisterType measurementType102 = mock(RegisterType.class);
         when(measurementType102.getId()).thenReturn(RM_ID_2);
         when(deviceType.getRegisterTypes()).thenReturn(Arrays.asList(measurementType101));
-        when(deviceConfigurationService.findDeviceType(31)).thenReturn(Optional.of(deviceType));
         when(masterDataService.findRegisterType(RM_ID_1)).thenReturn(Optional.of(measurementType101));
         when(masterDataService.findRegisterType(RM_ID_2)).thenReturn(Optional.of(measurementType102));
         Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = this.<DeviceProtocolPluggableClass>mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList());
         when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(deviceProtocolPluggableClassFinder);
 
-        DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
-        deviceTypeInfo.registerTypes = Arrays.asList(registerTypeInfo1, registerTypeInfo2);
-        Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
+        DeviceTypeInfo info = new DeviceTypeInfo();
+        info.registerTypes = Arrays.asList(registerTypeInfo1, registerTypeInfo2);
+        info.version = OK_VERSION;
+        Entity<DeviceTypeInfo> json = Entity.json(info);
         Response response = target("/devicetypes/31").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
@@ -534,47 +599,35 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
     @Test
     public void testUpdateDeviceConfiguration() throws Exception {
         DeviceType deviceType = mockDeviceType("updater", 31L);
-        DeviceConfiguration deviceConfiguration101 = mock(DeviceConfiguration.class);
-        when(deviceConfiguration101.getId()).thenReturn(101L);
-        when(deviceConfiguration101.getDeviceType()).thenReturn(deviceType);
-        DeviceConfiguration deviceConfiguration102 = mock(DeviceConfiguration.class);
-        when(deviceConfiguration102.getId()).thenReturn(102L);
-        when(deviceConfiguration102.getDeviceType()).thenReturn(deviceType);
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration101, deviceConfiguration102));
-        when(deviceConfigurationService.findDeviceType(31L)).thenReturn(Optional.of(deviceType));
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(101L, deviceType);
 
-        DeviceConfigurationInfo deviceConfigurationInfo = new DeviceConfigurationInfo();
+        DeviceConfigurationInfo deviceConfigurationInfo = new DeviceConfigurationInfo(deviceConfiguration);
         deviceConfigurationInfo.name = "new name";
         deviceConfigurationInfo.canBeGateway = true;
         deviceConfigurationInfo.isDirectlyAddressable = true;
         Entity<DeviceConfigurationInfo> json = Entity.json(deviceConfigurationInfo);
         Response response = target("/devicetypes/31/deviceconfigurations/101").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(deviceConfiguration101).setName("new name");
-        verify(deviceConfiguration101).setDirectlyAddressable(true);
-        verify(deviceConfiguration101).setCanActAsGateway(true);
+        verify(deviceConfiguration).setName("new name");
+        verify(deviceConfiguration).setDirectlyAddressable(true);
+        verify(deviceConfiguration).setCanActAsGateway(true);
     }
 
     @Test
     public void testUpdateDeviceConfigurationWithoutGatewayAndDirectAddrressJsonFields() throws Exception {
         DeviceType deviceType = mockDeviceType("updater", 31L);
-        DeviceConfiguration deviceConfiguration101 = mock(DeviceConfiguration.class);
-        when(deviceConfiguration101.getId()).thenReturn(101L);
-        when(deviceConfiguration101.getDeviceType()).thenReturn(deviceType);
-        DeviceConfiguration deviceConfiguration102 = mock(DeviceConfiguration.class);
-        when(deviceConfiguration102.getId()).thenReturn(102L);
-        when(deviceConfiguration102.getDeviceType()).thenReturn(deviceType);
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration101, deviceConfiguration102));
-        when(deviceConfigurationService.findDeviceType(31L)).thenReturn(Optional.of(deviceType));
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(101L, deviceType);
 
-        DeviceConfigurationInfo deviceConfigurationInfo = new DeviceConfigurationInfo();
+        DeviceConfigurationInfo deviceConfigurationInfo = new DeviceConfigurationInfo(deviceConfiguration);
         deviceConfigurationInfo.name = "new name";
+        deviceConfigurationInfo.isDirectlyAddressable = null;
+        deviceConfigurationInfo.canBeGateway = null;
         Entity<DeviceConfigurationInfo> json = Entity.json(deviceConfigurationInfo);
         Response response = target("/devicetypes/31/deviceconfigurations/101").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(deviceConfiguration101).setName("new name");
-        verify(deviceConfiguration101, never()).setDirectlyAddressable(anyBoolean());
-        verify(deviceConfiguration101, never()).setCanActAsGateway(anyBoolean());
+        verify(deviceConfiguration).setName("new name");
+        verify(deviceConfiguration, never()).setDirectlyAddressable(anyBoolean());
+        verify(deviceConfiguration, never()).setCanActAsGateway(anyBoolean());
     }
 
     @Test
@@ -654,52 +707,68 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
     @Test
     public void testDeleteDeviceConfiguration() throws Exception {
         DeviceType deviceType = mockDeviceType("updater", 31L);
-        DeviceConfiguration deviceConfiguration101 = mock(DeviceConfiguration.class);
-        when(deviceConfiguration101.getId()).thenReturn(101L);
-        when(deviceConfiguration101.getDeviceType()).thenReturn(deviceType);
-        DeviceConfiguration deviceConfiguration102 = mock(DeviceConfiguration.class);
-        when(deviceConfiguration102.getId()).thenReturn(102L);
-        when(deviceConfiguration102.getDeviceType()).thenReturn(deviceType);
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration101, deviceConfiguration102));
-        when(deviceConfigurationService.findDeviceType(31L)).thenReturn(Optional.of(deviceType));
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(101, deviceType);
 
-        Response response = target("/devicetypes/31/deviceconfigurations/101").request().delete();
+        DeviceConfigurationInfo info = new DeviceConfigurationInfo(deviceConfiguration);
+
+        Response response = target("/devicetypes/31/deviceconfigurations/101").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(deviceType).removeConfiguration(deviceConfiguration101);
+        verify(deviceType).removeConfiguration(deviceConfiguration);
+    }
+
+    @Test
+    public void testDeleteDeviceConfigurationBadVersion() throws Exception {
+        DeviceType deviceType = mockDeviceType("updater", 31L);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(101, deviceType);
+
+        DeviceConfigurationInfo info = new DeviceConfigurationInfo(deviceConfiguration);
+        info.version = BAD_VERSION;
+
+        Response response = target("/devicetypes/31/deviceconfigurations/101").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+        verify(deviceType, never()).removeConfiguration(deviceConfiguration);
+    }
+
+    @Test
+    public void testDeleteDeviceConfigurationBadParentVersion() throws Exception {
+        DeviceType deviceType = mockDeviceType("updater", 31L);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(101, deviceType);
+
+        DeviceConfigurationInfo info = new DeviceConfigurationInfo(deviceConfiguration);
+        info.parent.version = BAD_VERSION;
+
+        Response response = target("/devicetypes/31/deviceconfigurations/101").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+        verify(deviceType, never()).removeConfiguration(deviceConfiguration);
     }
 
     @Test
     public void testDeleteNonExistingDeviceConfiguration() throws Exception {
         DeviceType deviceType = mockDeviceType("updater", 31L);
-        when(deviceType.getConfigurations()).thenReturn(new ArrayList<DeviceConfiguration>());
-        when(deviceConfigurationService.findDeviceType(31L)).thenReturn(Optional.of(deviceType));
+        when(deviceConfigurationService.findDeviceConfiguration(101L)).thenReturn(Optional.empty());
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(101L, OK_VERSION)).thenReturn(Optional.empty());
 
-        Response response = target("/devicetypes/31/deviceconfigurations/101").request().delete();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+        DeviceConfigurationInfo info = new DeviceConfigurationInfo();
+        info.id = 101;
+        info.version = OK_VERSION;
+        info.parent = new VersionInfo<>(31L, OK_VERSION);
+        Response response = target("/devicetypes/31/deviceconfigurations/101").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
     @Test
     public void testActivateDeviceConfigurationIgnoresOtherProperties() throws Exception {
         DeviceType deviceType = mockDeviceType("updater", 31L);
-        DeviceConfiguration deviceConfiguration101 = mock(DeviceConfiguration.class);
-        when(deviceConfiguration101.getId()).thenReturn(101L);
-        when(deviceConfiguration101.isActive()).thenReturn(false);
-        when(deviceConfiguration101.getDeviceType()).thenReturn(deviceType);
-        DeviceConfiguration deviceConfiguration102 = mock(DeviceConfiguration.class);
-        when(deviceConfiguration102.getId()).thenReturn(102L);
-        when(deviceConfiguration102.isActive()).thenReturn(false);
-        when(deviceConfiguration102.getDeviceType()).thenReturn(deviceType);
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration101, deviceConfiguration102));
-        when(deviceConfigurationService.findDeviceType(31L)).thenReturn(Optional.of(deviceType));
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(101, deviceType);
 
-        DeviceConfigurationInfo deviceConfigurationInfo = new DeviceConfigurationInfo();
+        DeviceConfigurationInfo deviceConfigurationInfo = new DeviceConfigurationInfo(deviceConfiguration);
         deviceConfigurationInfo.name = "new name";
         deviceConfigurationInfo.active = true;
         Entity<DeviceConfigurationInfo> json = Entity.json(deviceConfigurationInfo);
         Response response = target("/devicetypes/31/deviceconfigurations/101/status").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(deviceConfiguration101, never()).setName(anyString());
-        verify(deviceConfiguration101, times(1)).activate();
+        verify(deviceConfiguration, never()).setName(anyString());
+        verify(deviceConfiguration, times(1)).activate();
     }
 
     @Test
@@ -718,7 +787,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         RegisterType registerType101 = mock(RegisterType.class);
         when(registerType101.getId()).thenReturn(RM_ID_1);
         when(deviceType.getRegisterTypes()).thenReturn(Arrays.asList(registerType101));
-        when(deviceConfigurationService.findDeviceType(31)).thenReturn(Optional.of(deviceType));
         when(masterDataService.findRegisterType(RM_ID_1)).thenReturn(Optional.of(registerType101));
         when(masterDataService.findRegisterType(RM_ID_2)).thenReturn(Optional.empty());
         Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = this.<DeviceProtocolPluggableClass>mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList());
@@ -726,6 +794,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
         DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
         deviceTypeInfo.registerTypes = Arrays.asList(registerTypeInfo1, registerTypeInfo2);
+        deviceTypeInfo.version = OK_VERSION;
         Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
         Response response = target("/devicetypes/31").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -750,12 +819,12 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceType.getRegisterTypes()).thenReturn(Arrays.asList(registerType101, registerType102));
         Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = this.<DeviceProtocolPluggableClass>mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList());
         when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(deviceProtocolPluggableClassFinder);
-        when(deviceConfigurationService.findDeviceType(31)).thenReturn(Optional.of(deviceType));
         when(masterDataService.findRegisterType(RM_ID_1)).thenReturn(Optional.of(registerType101));
         when(masterDataService.findRegisterType(RM_ID_2)).thenReturn(Optional.of(registerType102));
 
         DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
         deviceTypeInfo.registerTypes = Arrays.asList(registerTypeInfo1);
+        deviceTypeInfo.version = OK_VERSION;
         Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
         Response response = target("/devicetypes/31").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -878,7 +947,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         Finder<RegisterType> registerTypeFinder = mockFinder(registerTypeList);
         when(masterDataService.findAllRegisterTypes()).thenReturn(registerTypeFinder);
 
-        Response response = target("/devicetypes/31/registertypes").queryParam("start",10).queryParam("limit", 10).queryParam("filter", ExtjsFilter.filter().property("available", "true").create()).request().get();
+        Response response = target("/devicetypes/31/registertypes").queryParam("start", 10).queryParam("limit", 10).queryParam("filter", ExtjsFilter.filter().property("available", "true").create()).request().get();
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(21);
         assertThat(jsonModel.<List<RegisterType>>get("$.registerTypes")).hasSize(10);
@@ -942,49 +1011,42 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(Optional.of(deviceType));
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
 
-        Response response = target("/devicetypes/31/registertypes").queryParam("start",10).queryParam("limit", 10).queryParam("filter",  ExtjsFilter.filter().property("available", "true").property("deviceconfigurationid", 41l).create()).request().get();
+        Response response = target("/devicetypes/31/registertypes").queryParam("start", 10).queryParam("limit", 10).queryParam("filter", ExtjsFilter.filter().property("available", "true").property("deviceconfigurationid", 41l).create()).request().get();
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(21);
         assertThat(jsonModel.<List<RegisterType>>get("$.registerTypes")).hasSize(10);
         assertThat(jsonModel.<List<Integer>>get("$.registerTypes[*].id")).containsOnly(112, 113, 114, 115, 116, 117, 118, 119, 120, 121);
     }
 
-
     @Test
-    public void testGetDeviceCommunicationById() throws Exception {
-        long deviceType_id = 41;
-        long deviceConfiguration_id = 14;
-        DeviceType deviceType = mockDeviceType("getUnfiltered", (int) deviceType_id);
-        DeviceConfiguration mock1 = mock(DeviceConfiguration.class);
-        when(mock1.getId()).thenReturn(deviceConfiguration_id + 1);
-        DeviceConfiguration mock2 = mock(DeviceConfiguration.class);
-        when(mock2.getId()).thenReturn(deviceConfiguration_id + 2);
-        DeviceConfiguration mock3 = mock(DeviceConfiguration.class);
-        when(mock3.getDeviceType()).thenReturn(deviceType);
-        when(mock3.getId()).thenReturn(deviceConfiguration_id);
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(mock1, mock2, mock3));
-        when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(Optional.of(deviceType));
+    public void testGetDeviceConfigurationById() throws Exception {
+        DeviceType deviceType = mockDeviceType("getUnfiltered", 41);
+        mockDeviceConfiguration(14, deviceType);
+
         Response response = target("/devicetypes/41/deviceconfigurations/14").request().get(Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     @Test
-    public void testGetDeviceCommunicationByIdButNoSuchConfigOnTheDevice() throws Exception {
-        long deviceType_id = 41;
-        long deviceConfiguration_id = 14;
-        DeviceType deviceType = mockDeviceType("getUnfiltered", (int) deviceType_id);
-        DeviceConfiguration mock1 = mock(DeviceConfiguration.class);
-        when(mock1.getId()).thenReturn(deviceConfiguration_id + 1);
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(mock1));
-        when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(Optional.of(deviceType));
+    public void testGetDeviceConfigurationByIdButNoSuchConfigOnTheDevice() throws Exception {
+        DeviceType deviceType = mockDeviceType("some", 41);
+
+        doReturn(Optional.empty()).when(deviceConfigurationService).findDeviceConfiguration(14);
+        doReturn(Optional.empty()).when(deviceConfigurationService).findAndLockDeviceConfigurationByIdAndVersion(14, OK_VERSION);
+        doReturn(Optional.empty()).when(deviceConfigurationService).findAndLockDeviceConfigurationByIdAndVersion(14, BAD_VERSION);
+
         Response response = target("/devicetypes/41/deviceconfigurations/14").request().get(Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
-    public void testGetDeviceCommunicationByIdWithNonExistingDeviceType() throws Exception {
+    public void testGetDeviceConfigurationByIdWithNonExistingDeviceType() throws Exception {
         long deviceType_id = 41;
         when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(Optional.empty());
+        doReturn(Optional.empty()).when(deviceConfigurationService).findDeviceConfiguration(14);
+        doReturn(Optional.empty()).when(deviceConfigurationService).findAndLockDeviceConfigurationByIdAndVersion(14, OK_VERSION);
+        doReturn(Optional.empty()).when(deviceConfigurationService).findAndLockDeviceConfigurationByIdAndVersion(14, BAD_VERSION);
+
         Response response = target("/devicetypes/41/deviceconfigurations/14").request().get(Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
@@ -993,12 +1055,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
     public void testGetAllRegisterConfig() throws Exception {
         long deviceType_id = 41;
         long deviceConfig_id = 51;
-        DeviceType deviceType = mock(DeviceType.class);
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(deviceConfiguration.getId()).thenReturn(deviceConfig_id);
-        when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(Optional.of(deviceType));
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        when(deviceConfiguration.getRegisterSpecs()).thenReturn(Collections.<RegisterSpec>emptyList());
+        DeviceType deviceType = mockDeviceType("Device type", deviceType_id);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(deviceConfig_id, deviceType);
 
         Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations").request().get(Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -1009,23 +1067,10 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         long deviceType_id = 41;
         long deviceConfig_id = 51;
         long registerConfig_id = 61;
-        DeviceType deviceType = mock(DeviceType.class);
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(deviceConfiguration.getId()).thenReturn(deviceConfig_id);
-        when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(Optional.of(deviceType));
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        NumericalRegisterSpec registerSpec = mock(NumericalRegisterSpec.class);
-        when(registerSpec.getId()).thenReturn(registerConfig_id);
-        when(registerSpec.isTextual()).thenReturn(false);
-        ReadingType readingType = mockReadingType();
-        RegisterType registerType = mock(RegisterType.class);
-        when(registerType.getReadingType()).thenReturn(readingType);
-        when(registerSpec.getRegisterType()).thenReturn(registerType);
-        ObisCode obisCode = mockObisCode();
-        when(registerSpec.getObisCode()).thenReturn(obisCode);
-        when(registerSpec.getUnit()).thenReturn(unit);
 
-        when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.<RegisterSpec>asList(registerSpec));
+        DeviceType deviceType = mockDeviceType("Device Type", deviceType_id);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(deviceConfig_id, deviceType);
+        NumericalRegisterSpec registerSpec = mockNumericalRegister(registerConfig_id, deviceConfiguration);
 
         Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/61").request().get(Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -1036,23 +1081,27 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         long deviceType_id = 41;
         long deviceConfig_id = 51;
         long registerType_id = 133;
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(deviceConfiguration.getId()).thenReturn(deviceConfig_id);
-        DeviceType deviceType = mock(DeviceType.class);
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        RegisterType registerType = mock(RegisterType.class);
-        when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(Optional.of(deviceType));
-        when(masterDataService.findRegisterType(registerType_id)).thenReturn(Optional.of(registerType));
+        DeviceType deviceType = mockDeviceType("Device type", deviceType_id);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(deviceConfig_id, deviceType);
+
         ReadingType readingType = mockReadingType();
+
+        ObisCode obisCode = mockObisCode();
+
+        RegisterType registerType = mock(RegisterType.class);
         when(registerType.getReadingType()).thenReturn(readingType);
+        when(masterDataService.findRegisterType(registerType_id)).thenReturn(Optional.of(registerType));
+
         NumericalRegisterSpec registerSpec = mock(NumericalRegisterSpec.class);
         when(registerSpec.getRegisterType()).thenReturn(registerType);
-        ObisCode obisCode = mockObisCode();
         when(registerSpec.getObisCode()).thenReturn(obisCode);
-        NumericalRegisterSpec.Builder registerSpecBuilder = mock(NumericalRegisterSpec.Builder.class, Answers.RETURNS_SELF);
-        when(registerSpecBuilder.add()).thenReturn(registerSpec);
-        when(deviceConfiguration.createNumericalRegisterSpec(Matchers.<RegisterType>any())).thenReturn(registerSpecBuilder);
         when(registerSpec.getUnit()).thenReturn(unit);
+        when(registerSpec.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+
+        NumericalRegisterSpec.Builder registerSpecBuilder = mock(NumericalRegisterSpec.Builder.class, Answers.RETURNS_SELF);
+        when(deviceConfiguration.createNumericalRegisterSpec(Matchers.<RegisterType>any())).thenReturn(registerSpecBuilder);
+        when(registerSpecBuilder.add()).thenReturn(registerSpec);
+
         RegisterConfigInfo registerConfigInfo = new RegisterConfigInfo();
         registerConfigInfo.registerType = registerType_id;
         registerConfigInfo.numberOfFractionDigits = 6;
@@ -1078,34 +1127,42 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         long deviceConfig_id = 51;
         long registerSpec_id = 61;
         long registerType_id = 133;
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(deviceConfiguration.getId()).thenReturn(deviceConfig_id);
-        DeviceType deviceType = mock(DeviceType.class);
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        RegisterType registerType = mock(RegisterType.class);
-        when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(Optional.of(deviceType));
-        when(masterDataService.findRegisterType(registerType_id)).thenReturn(Optional.of(registerType));
+        DeviceType deviceType = mockDeviceType("Device type", deviceType_id);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(deviceConfig_id, deviceType);
+
         ReadingType readingType = mockReadingType();
+
+        RegisterType registerType = mock(RegisterType.class);
         when(registerType.getReadingType()).thenReturn(readingType);
+        when(masterDataService.findRegisterType(registerType_id)).thenReturn(Optional.of(registerType));
+
+        ObisCode obisCode = mockObisCode();
+
         NumericalRegisterSpec registerSpec = mock(NumericalRegisterSpec.class);
         when(registerSpec.getRegisterType()).thenReturn(registerType);
         when(registerSpec.getId()).thenReturn(registerSpec_id);
-        ObisCode obisCode = mockObisCode();
         when(registerSpec.getObisCode()).thenReturn(obisCode);
-        NumericalRegisterSpec.Builder registerSpecBuilder = mock(NumericalRegisterSpec.Builder.class, Answers.RETURNS_SELF);
-        when(registerSpecBuilder.add()).thenReturn(registerSpec);
-        when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.<RegisterSpec>asList(registerSpec));
-        NumericalRegisterSpec.Updater updater = mock(NumericalRegisterSpec.Updater.class);
-        when(deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec)).thenReturn(updater);
         when(registerSpec.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(registerSpec.getUnit()).thenReturn(unit);
-        RegisterConfigInfo registerConfigInfo = new RegisterConfigInfo();
+        when(registerSpec.getVersion()).thenReturn(OK_VERSION);
+        deviceConfiguration.getRegisterSpecs().add(registerSpec);
+
+        NumericalRegisterSpec.Builder registerSpecBuilder = mock(NumericalRegisterSpec.Builder.class, Answers.RETURNS_SELF);
+        when(registerSpecBuilder.add()).thenReturn(registerSpec);
+        NumericalRegisterSpec.Updater updater = mock(NumericalRegisterSpec.Updater.class);
+        when(deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec)).thenReturn(updater);
+
+        RegisterConfigInfo registerConfigInfo = new RegisterConfigInfo(registerSpec);
         registerConfigInfo.registerType = registerType_id;
         registerConfigInfo.numberOfFractionDigits = 6;
         registerConfigInfo.numberOfDigits = 4;
         registerConfigInfo.overflow = BigDecimal.valueOf(123);
         registerConfigInfo.overruledObisCode = obisCode;
         registerConfigInfo.unitOfMeasure = "kWh";
+
+        doReturn(Optional.of(registerSpec)).when(deviceConfigurationService).findRegisterSpec(registerSpec_id);
+        doReturn(Optional.of(registerSpec)).when(deviceConfigurationService).findAndLockRegisterSpecByIdAndVersion(registerSpec_id, OK_VERSION);
+        doReturn(Optional.empty()).when(deviceConfigurationService).findAndLockRegisterSpecByIdAndVersion(registerSpec_id, BAD_VERSION);
 
         Entity<RegisterConfigInfo> json = Entity.json(registerConfigInfo);
         Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/61").request().put(json);
@@ -1126,34 +1183,11 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         long deviceType_id = 41L;
         long deviceConfig_id = 51L;
         long connectionMethodId = 61L;
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(deviceConfiguration.getId()).thenReturn(deviceConfig_id);
-        DeviceType deviceType = mock(DeviceType.class);
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(Optional.of(deviceType));
-        PartialScheduledConnectionTask partialConnectionTask = mock(PartialScheduledConnectionTask.class);
-        ConnectionTypePluggableClass connectionTypePluggableClass = mock(ConnectionTypePluggableClass.class);
-        when(connectionTypePluggableClass.getName()).thenReturn("connection type PC");
-        ConnectionType connectionType = mock(ConnectionType.class);
-        when(partialConnectionTask.getConnectionType()).thenReturn(connectionType);
-        when(partialConnectionTask.getId()).thenReturn(connectionMethodId);
-        when(partialConnectionTask.getName()).thenReturn("connection method");
-        when(partialConnectionTask.getCommunicationWindow()).thenReturn(new ComWindow(100,200));
-        when(partialConnectionTask.isSimultaneousConnectionsAllowed()).thenReturn(true);
-        when(partialConnectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
-        when(partialConnectionTask.getRescheduleDelay()).thenReturn(TimeDuration.minutes(15));
-        when(partialConnectionTask.getProperties()).thenReturn(Collections.emptyList());
-        NextExecutionSpecs nextExecSpecs = mock(NextExecutionSpecs.class);
-        when(nextExecSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.minutes(60)));
-        when(partialConnectionTask.getNextExecutionSpecs()).thenReturn(nextExecSpecs);
-        PropertySpec propertySpec1 = mock(PropertySpec.class);
-        when(propertySpec1.getName()).thenReturn("macAddress");
-        when(propertySpec1.getValueFactory()).thenReturn(new StringFactory());
-        TypedProperties typedProperties = TypedProperties.empty();
-        typedProperties.setProperty("macAddress", "aa:bb:cc:dd:ee:ff");
-        when(partialConnectionTask.getTypedProperties()).thenReturn(typedProperties);
-        when(connectionType.getPropertySpecs()).thenReturn(Arrays.<PropertySpec>asList(propertySpec1));
-        when(partialConnectionTask.getPluggableClass()).thenReturn(connectionTypePluggableClass);
+        DeviceType deviceType = mockDeviceType("Device type", deviceType_id);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(deviceConfig_id, deviceType);
+
+        PartialScheduledConnectionTask partialConnectionTask = mockPartialScheduledConnectionTask(connectionMethodId, deviceConfiguration);
+
         when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Arrays.<PartialConnectionTask>asList(partialConnectionTask));
         Map<String, Object> response = target("/devicetypes/41/deviceconfigurations/51/connectionmethods").request().get(Map.class);
         assertThat(response).hasSize(2);
@@ -1161,7 +1195,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         List<Map<String, Object>> connectionMethods = (List<Map<String, Object>>) response.get("data");
         assertThat(connectionMethods).hasSize(1);
         Map<String, Object> connectionMethod = connectionMethods.get(0);
-        assertThat(connectionMethod).hasSize(12)
+        assertThat(connectionMethod).hasSize(14)
                 .containsKey("id")
                 .containsKey("name")
                 .containsKey("direction")
@@ -1173,7 +1207,9 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
                 .containsKey("rescheduleRetryDelay")
                 .containsKey("connectionStrategy")
                 .containsKey("properties")
-                .containsKey("temporalExpression");
+                .containsKey("temporalExpression")
+                .containsKey("version")
+                .containsKey("parent");
         List<Map<String, Object>> propertyInfos = (List<Map<String, Object>>) connectionMethod.get("properties");
         assertThat(propertyInfos).isNotNull().hasSize(1);
         Map<String, Object> macAddressProperty = propertyInfos.get(0);
@@ -1185,27 +1221,55 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
                 .containsKey("required");
     }
 
+    private PartialScheduledConnectionTask mockPartialScheduledConnectionTask(long id, DeviceConfiguration deviceConfiguration) {
+        ConnectionTypePluggableClass connectionTypePluggableClass = mock(ConnectionTypePluggableClass.class);
+        when(connectionTypePluggableClass.getName()).thenReturn("connection type PC");
+
+        PropertySpec propertySpec1 = mock(PropertySpec.class);
+        when(propertySpec1.getName()).thenReturn("macAddress");
+        when(propertySpec1.getValueFactory()).thenReturn(new StringFactory());
+        TypedProperties typedProperties = TypedProperties.empty();
+        typedProperties.setProperty("macAddress", "aa:bb:cc:dd:ee:ff");
+
+        ConnectionType connectionType = mock(ConnectionType.class);
+        when(connectionType.getPropertySpecs()).thenReturn(Arrays.<PropertySpec>asList(propertySpec1));
+
+        NextExecutionSpecs nextExecSpecs = mock(NextExecutionSpecs.class);
+        when(nextExecSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.minutes(60)));
+
+        PartialScheduledConnectionTask partialConnectionTask = mock(PartialScheduledConnectionTask.class);
+        when(partialConnectionTask.getConnectionType()).thenReturn(connectionType);
+        when(partialConnectionTask.getId()).thenReturn(id);
+        when(partialConnectionTask.getName()).thenReturn("connection method");
+        when(partialConnectionTask.getCommunicationWindow()).thenReturn(new ComWindow(100, 200));
+        when(partialConnectionTask.isSimultaneousConnectionsAllowed()).thenReturn(true);
+        when(partialConnectionTask.getConnectionStrategy()).thenReturn(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
+        when(partialConnectionTask.getRescheduleDelay()).thenReturn(TimeDuration.minutes(15));
+        when(partialConnectionTask.getProperties()).thenReturn(Collections.emptyList());
+        when(partialConnectionTask.getNextExecutionSpecs()).thenReturn(nextExecSpecs);
+        when(partialConnectionTask.getTypedProperties()).thenReturn(typedProperties);
+        when(partialConnectionTask.getPluggableClass()).thenReturn(connectionTypePluggableClass);
+        when(partialConnectionTask.getVersion()).thenReturn(OK_VERSION);
+        when(partialConnectionTask.getConfiguration()).thenReturn(deviceConfiguration);
+        deviceConfiguration.getPartialConnectionTasks().add(partialConnectionTask);
+
+        doReturn(Optional.of(partialConnectionTask)).when(deviceConfigurationService).findPartialConnectionTask(id);
+        doReturn(Optional.of(partialConnectionTask)).when(deviceConfigurationService).findAndLockPartialConnectionTaskByIdAndVersion(id, OK_VERSION);
+        doReturn(Optional.empty()).when(deviceConfigurationService).findAndLockPartialConnectionTaskByIdAndVersion(id, BAD_VERSION);
+        return partialConnectionTask;
+    }
+
     @Test
     public void testUpdateConnectionMethodNormalProperties() throws Exception {
         long deviceType_id = 41L;
         long deviceConfig_id = 51L;
         long connectionMethodId = 71L;
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(deviceConfiguration.getId()).thenReturn(deviceConfig_id);
-        DeviceType deviceType = mock(DeviceType.class);
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(Optional.of(deviceType));
-        PartialScheduledConnectionTask partialConnectionTask = mock(PartialScheduledConnectionTask.class);
-        when(partialConnectionTask.getId()).thenReturn(connectionMethodId);
-        when(deviceConfigurationService.findPartialConnectionTask(connectionMethodId)).thenReturn(Optional.<PartialConnectionTask>of(partialConnectionTask));
+        DeviceType deviceType = mockDeviceType("Device type", deviceType_id);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(deviceConfig_id, deviceType);
+        PartialScheduledConnectionTask partialScheduledConnectionTask = mockPartialScheduledConnectionTask(connectionMethodId, deviceConfiguration);
+
         ConnectionTypePluggableClass connectionTypePluggableClass = mock(ConnectionTypePluggableClass.class);
         when(protocolPluggableService.findConnectionTypePluggableClassByName("ConnType")).thenReturn(Optional.of(connectionTypePluggableClass));
-        when(partialConnectionTask.getPluggableClass()).thenReturn(connectionTypePluggableClass); // it will not be set in the PUT!
-        ConnectionType connectionType = mock(ConnectionType.class);
-        when(connectionType.getPropertySpecs()).thenReturn(Collections.<PropertySpec>emptyList());
-        when(partialConnectionTask.getConnectionType()).thenReturn(connectionType);
-        when(connectionTypePluggableClass.getConnectionType()).thenReturn(connectionType);
-        when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Arrays.<PartialConnectionTask>asList(partialConnectionTask));
 
         ScheduledConnectionMethodInfo connectionMethodInfo = new ScheduledConnectionMethodInfo();
         connectionMethodInfo.name = "connection method";
@@ -1215,8 +1279,12 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         connectionMethodInfo.isDefault = true;
         connectionMethodInfo.allowSimultaneousConnections = true;
         connectionMethodInfo.connectionTypePluggableClass = "ConnType";
+        connectionMethodInfo.version = OK_VERSION;
+        connectionMethodInfo.parent = new VersionInfo<>(deviceConfig_id, OK_VERSION);
+
         Entity<ScheduledConnectionMethodInfo> json = Entity.json(connectionMethodInfo);
         Response response = target("/devicetypes/41/deviceconfigurations/51/connectionmethods/71").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     @Test
@@ -1224,35 +1292,53 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         long deviceType_id = 41L;
         long deviceConfig_id = 51L;
         long registerSpec_id = 61L;
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(deviceConfiguration.getId()).thenReturn(deviceConfig_id);
-        RegisterSpec registerSpec = mock(RegisterSpec.class);
-        when(registerSpec.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        when(registerSpec.getId()).thenReturn(registerSpec_id);
-        when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.asList(registerSpec));
-        DeviceType deviceType = mock(DeviceType.class);
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(Optional.of(deviceType));
+        DeviceType deviceType = mockDeviceType("Device type", deviceType_id);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(deviceConfig_id, deviceType);
+        NumericalRegisterSpec registerSpec = mockNumericalRegister(registerSpec_id, deviceConfiguration);
+        RegisterConfigInfo info = new RegisterConfigInfo(registerSpec);
 
-        Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/61").request().delete();
+        Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/61").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(deviceConfiguration).deleteRegisterSpec(registerSpec);
+    }
+
+    @Test
+    public void testDeleteRegisterConfigBadVersion() throws Exception {
+        long deviceType_id = 41L;
+        long deviceConfig_id = 51L;
+        long registerSpec_id = 61L;
+        DeviceType deviceType = mockDeviceType("Device type", deviceType_id);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(deviceConfig_id, deviceType);
+        NumericalRegisterSpec registerSpec = mockNumericalRegister(registerSpec_id, deviceConfiguration);
+        RegisterConfigInfo info = new RegisterConfigInfo(registerSpec);
+        info.version = BAD_VERSION;
+
+        Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/61").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
+    public void testDeleteRegisterConfigBadParentVersion() throws Exception {
+        long deviceType_id = 41L;
+        long deviceConfig_id = 51L;
+        long registerSpec_id = 61L;
+        DeviceType deviceType = mockDeviceType("Device type", deviceType_id);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(deviceConfig_id, deviceType);
+        NumericalRegisterSpec registerSpec = mockNumericalRegister(registerSpec_id, deviceConfiguration);
+        RegisterConfigInfo info = new RegisterConfigInfo(registerSpec);
+        info.parent.version = BAD_VERSION;
+
+        Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/61").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
     @Test
     public void testCreateRegisterConfigWithLinkToNonExistingRegisterType() throws Exception {
         long deviceType_id = 41L;
         long deviceConfig_id = 51L;
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(deviceConfiguration.getId()).thenReturn(deviceConfig_id);
-        RegisterSpec registerSpec = mock(RegisterSpec.class);
-        when(registerSpec.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.asList(registerSpec));
-        NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
-        when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenReturn(nlsMessageFormat);
-        DeviceType deviceType = mock(DeviceType.class);
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        when(deviceConfigurationService.findDeviceType(deviceType_id)).thenReturn(Optional.of(deviceType));
+        DeviceType deviceType = mockDeviceType("Device type", deviceType_id);
+        mockDeviceConfiguration(deviceConfig_id, deviceType);
+
         RegisterConfigInfo registerConfigInfo = new RegisterConfigInfo();
         when(masterDataService.findRegisterType(12345)).thenReturn(Optional.empty());
         registerConfigInfo.registerType = 12345L;
@@ -1279,7 +1365,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(deviceType.getRegisterTypes()).thenReturn(Arrays.asList(registerType101, registerType102));
         Finder<DeviceProtocolPluggableClass> deviceProtocolPluggableClassFinder = this.mockFinder(Collections.<DeviceProtocolPluggableClass>emptyList());
         when(protocolPluggableService.findAllDeviceProtocolPluggableClasses()).thenReturn(deviceProtocolPluggableClassFinder);
-        when(deviceConfigurationService.findDeviceType(31)).thenReturn(Optional.of(deviceType));
         when(masterDataService.findRegisterType(RM_ID_1)).thenReturn(Optional.of(registerType101));
         when(masterDataService.findRegisterType(RM_ID_2)).thenReturn(Optional.of(registerType102));
 
@@ -1291,6 +1376,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
         DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
         deviceTypeInfo.registerTypes = Arrays.asList(registerTypeInfo1);
+        deviceTypeInfo.version = OK_VERSION;
         Entity<DeviceTypeInfo> json = Entity.json(deviceTypeInfo);
         Response response = target("/devicetypes/31").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -1299,22 +1385,19 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
     @Test
     public void testGetAvailableConnectionMethodsForDevice() throws Exception {
         DeviceType deviceType = mockDeviceType("updater", 31);
-        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration("random", 32);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(32, deviceType);
         Device device = mock(Device.class);
-
-        when(deviceConfigurationService.findDeviceType(31L)).thenReturn(Optional.of(deviceType));
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
         when(deviceService.findByUniqueMrid("Z666")).thenReturn(Optional.of(device));
         ConnectionTask<?, ?> connectionTask1 = mockConnectionTask(101L);
         ConnectionTask<?, ?> connectionTask2 = mockConnectionTask(102L);
         ConnectionTask<?, ?> connectionTask3 = mockConnectionTask(103L);
         when(device.getConnectionTasks()).thenReturn(Arrays.<ConnectionTask<?, ?>>asList(connectionTask3, connectionTask1, connectionTask2));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        PartialConnectionTask partialConnectionTask1 = mockPartialConnectionTask(101L);
-        PartialConnectionTask partialConnectionTask2 = mockPartialConnectionTask(102L);
-        PartialConnectionTask partialConnectionTask3 = mockPartialConnectionTask(103L);
-        PartialConnectionTask partialConnectionTask4 = mockPartialConnectionTask(104L);
-        when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask1, partialConnectionTask2, partialConnectionTask4, partialConnectionTask3));
+        PartialConnectionTask partialConnectionTask1 = mockPartialScheduledConnectionTask(101L, deviceConfiguration);
+        PartialConnectionTask partialConnectionTask2 = mockPartialScheduledConnectionTask(102L, deviceConfiguration);
+        PartialConnectionTask partialConnectionTask3 = mockPartialScheduledConnectionTask(103L, deviceConfiguration);
+        PartialConnectionTask partialConnectionTask4 = mockPartialScheduledConnectionTask(104L, deviceConfiguration);
+
         Map<String, Object> response = target("/devicetypes/31/deviceconfigurations/32/connectionmethods/").queryParam("available", "true").queryParam("mrId", "Z666").request().get(Map.class);
         assertThat(response.get("total")).isEqualTo(1);
         List<Map<String, Object>> data = (List<Map<String, Object>>) response.get("data");
@@ -1351,6 +1434,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat(response.getStatus()).isEqualTo(200);
         verify(deviceConfigurationService).changeDeviceLifeCycle(deviceType, targetDeviceLifeCycle);
     }
+
     @Test
     public void testUpdateDeviceLifeCycleForDeviceTypeFail() throws Exception {
         DeviceType deviceType = mock(DeviceType.class);
@@ -1393,7 +1477,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         verify(deviceConfigurationService).changeDeviceLifeCycle(deviceType, targetDeviceLifeCycle);
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<Boolean>get("$.success")).isEqualTo(false);
-        assertThat(jsonModel.<String>get("$.message")).isNotEmpty();
+        assertThat(jsonModel.<String>get("$.errorMessage")).isNotEmpty();
         assertThat(jsonModel.<Number>get("$.currentDeviceLifeCycle.id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.currentDeviceLifeCycle.name")).isEqualTo("Device life cycle 1");
         assertThat(jsonModel.<Number>get("$.targetDeviceLifeCycle.id")).isEqualTo(2);
@@ -1404,15 +1488,15 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
     @Test
     public void testUpdateDeviceLifeCycleForDeviceTypeVersionicFail() throws Exception {
-        when(deviceConfigurationService.findAndLockDeviceType(1L, 100)).thenReturn(Optional.empty());
+        mockDeviceType("device", 1);
 
         ChangeDeviceLifeCycleInfo info = new ChangeDeviceLifeCycleInfo();
         info.targetDeviceLifeCycle = new DeviceLifeCycleInfo();
         info.targetDeviceLifeCycle.id = 2;
-        info.version = 100;
+        info.version = BAD_VERSION;
         Entity<ChangeDeviceLifeCycleInfo> json = Entity.json(info);
         Response response = target("/devicetypes/1/devicelifecycle").request().put(json);
-        assertThat(response.getStatus()).isEqualTo(409);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
     private ConnectionTask<?, ?> mockConnectionTask(long partialConnectionTaskId) {
@@ -1422,18 +1506,22 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         return mock;
     }
 
-    private PartialInboundConnectionTask mockPartialConnectionTask(long partialConnectionTaskId) {
+    private PartialInboundConnectionTask mockPartialConnectionTask(long id) {
         PartialInboundConnectionTask partialInboundConnectionTask = mock(PartialInboundConnectionTask.class);
-        when(partialInboundConnectionTask.getId()).thenReturn(partialConnectionTaskId);
+        when(partialInboundConnectionTask.getId()).thenReturn(id);
         ConnectionTypePluggableClass pluggableClass = mock(ConnectionTypePluggableClass.class);
         when(pluggableClass.getName()).thenReturn("someClass");
         when(partialInboundConnectionTask.getPluggableClass()).thenReturn(pluggableClass);
         ConnectionType connectionType = mock(ConnectionType.class);
         when(partialInboundConnectionTask.getConnectionType()).thenReturn(connectionType);
         when(connectionType.getPropertySpecs()).thenReturn(Collections.<PropertySpec>emptyList());
+
+        doReturn(Optional.of(partialInboundConnectionTask)).when(deviceConfigurationService).findPartialConnectionTask(id);
+        doReturn(Optional.of(partialInboundConnectionTask)).when(deviceConfigurationService).findAndLockPartialConnectionTaskByIdAndVersion(id, OK_VERSION);
+        doReturn(Optional.empty()).when(deviceConfigurationService).findAndLockPartialConnectionTaskByIdAndVersion(id, BAD_VERSION);
+
         return partialInboundConnectionTask;
     }
-
 
     private <T> Finder<T> mockFinder(List<T> list) {
         Finder<T> finder = mock(Finder.class);
@@ -1481,4 +1569,40 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         }
     }
 
+    @SuppressWarnings("unchecked")
+    private PropertySpec mockPropertySpec() {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        ValueFactory valueFactory = mock(BigDecimalFactory.class);
+        when(propertySpec.getName()).thenReturn("customAttribute");
+        when(propertySpec.getValueFactory()).thenReturn(valueFactory);
+        when(propertySpec.getValueFactory().getValueType()).thenReturn(BigDecimalFactory.class);
+        when(propertySpec.isRequired()).thenReturn(true);
+        when(propertySpec.getDescription()).thenReturn("kw");
+        return propertySpec;
+    }
+
+    @SuppressWarnings("unchecked")
+    private CustomPropertySet mockCustomPropertySet() {
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getName()).thenReturn("domainExtensionName");
+        when(customPropertySet.isRequired()).thenReturn(true);
+        when(customPropertySet.isVersioned()).thenReturn(false);
+        when(customPropertySet.defaultViewPrivileges()).thenReturn(Sets.newHashSet(ViewPrivilege.LEVEL_3));
+        when(customPropertySet.defaultEditPrivileges()).thenReturn(Sets.newHashSet(EditPrivilege.LEVEL_4));
+        when(customPropertySet.getDomainClass()).thenReturn(BigDecimalFactory.class);
+        return customPropertySet;
+    }
+
+    @SuppressWarnings("unchecked")
+    private RegisteredCustomPropertySet mockRegisteredCustomPropertySet() {
+        PropertySpec propertySpec = mockPropertySpec();
+        CustomPropertySet customPropertySet = mockCustomPropertySet();
+        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
+        when(registeredCustomPropertySet.getId()).thenReturn(100500L);
+        when(registeredCustomPropertySet.getViewPrivileges()).thenReturn(Sets.newHashSet(ViewPrivilege.LEVEL_1));
+        when(registeredCustomPropertySet.getEditPrivileges()).thenReturn(Sets.newHashSet(EditPrivilege.LEVEL_2));
+        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        when(registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
+        return registeredCustomPropertySet;
+    }
 }

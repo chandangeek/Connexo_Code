@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.device.config.ChannelSpec;
@@ -24,6 +25,8 @@ public class ChannelSpecFullInfo extends ChannelSpecInfo {
     public String unitOfMeasure;
     public int nbrOfFractionDigits;
     public Boolean isLinkedByActiveDeviceConfiguration;
+    public long version;
+    public VersionInfo<Long> parent;
 
     public static List<ChannelSpecInfo> from(List<ChannelSpec> channelSpecList){
         List<ChannelSpecInfo> infos = new ArrayList<>(channelSpecList.size());
@@ -36,12 +39,15 @@ public class ChannelSpecFullInfo extends ChannelSpecInfo {
     public static ChannelSpecFullInfo from(ChannelSpec channelSpec){
         ChannelSpecFullInfo info = new ChannelSpecFullInfo();
         info.id = channelSpec.getId();
+        info.name = channelSpec.getReadingType().getFullAliasName();
         info.overruledObisCode = channelSpec.getDeviceObisCode();
         info.overflowValue = channelSpec.getOverflow();
         info.nbrOfFractionDigits = channelSpec.getNbrOfFractionDigits();
         // TODO check that it is truth (true for isLinkedByDeviceType)
         info.registerTypeInfo = new RegisterTypeInfo(channelSpec.getChannelType(), true, false);
         info.unitOfMeasure = channelSpec.getChannelType().getUnit().toString();
+        info.parent = new VersionInfo<>(channelSpec.getLoadProfileSpec().getId(), channelSpec.getLoadProfileSpec().getVersion());
+        info.version = channelSpec.getVersion();
         return info;
     }
 

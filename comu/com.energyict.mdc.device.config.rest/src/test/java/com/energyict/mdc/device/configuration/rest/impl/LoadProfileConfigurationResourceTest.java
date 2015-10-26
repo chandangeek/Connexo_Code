@@ -1,22 +1,22 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.energyict.mdc.common.ObisCode;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.masterdata.LoadProfileType;
-import java.util.Optional;
 import org.junit.Test;
-import org.mockito.Matchers;
 
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyLong;
@@ -24,24 +24,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class LoadProfileConfigurationResourceTest extends BaseLoadProfileTest {
-
-    private DeviceConfiguration getDeviceConfiguration() {
-        DeviceType deviceType = mockDeviceType("device", 1);
-        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration("config", 1);
-        List<DeviceConfiguration> deviceConfigurations = new ArrayList<>(1);
-        deviceConfigurations.add(deviceConfiguration);
-        when(deviceConfigurationService.findDeviceType(1)).thenReturn(Optional.of(deviceType));
-        when(deviceType.getConfigurations()).thenReturn(deviceConfigurations);
-        return deviceConfiguration;
-    }
-
     @Test
     public void testGetLoadProfileSpecsForDeviceConfiguration(){
-        DeviceConfiguration deviceConfiguration = getDeviceConfiguration();
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1L);
         List<LoadProfileSpec> loadProfileSpecs = getLoadProfileSpecs(5);
         when(deviceConfiguration.getLoadProfileSpecs()).thenReturn(loadProfileSpecs);
         for (LoadProfileSpec loadProfileSpec : loadProfileSpecs) {
             when(loadProfileSpec.getChannelSpecs()).thenReturn(Collections.emptyList());
+            when(loadProfileSpec.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         }
 
         Map<String, Object> map = target("/devicetypes/1/deviceconfigurations/1/loadprofileconfigurations").request().get(Map.class);
@@ -52,7 +42,7 @@ public class LoadProfileConfigurationResourceTest extends BaseLoadProfileTest {
     @Test
     public void testGetAvailableLoadProfileSpecsForDeviceConfiguration(){
         DeviceType deviceType = mockDeviceType("device", 1);
-        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration("config", 1);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1);
         List<DeviceConfiguration> deviceConfigurations = new ArrayList<>(1);
         deviceConfigurations.add(deviceConfiguration);
         List<LoadProfileSpec> loadProfileSpecs = getLoadProfileSpecs(5);
@@ -72,51 +62,52 @@ public class LoadProfileConfigurationResourceTest extends BaseLoadProfileTest {
     }
 
     @Test
-    public void testGetLoadProfileSpec(){
-        mockNlsMessageFormat();
+    public void testGetUnexistedLoadProfileSpec() {
         when(deviceConfigurationService.findLoadProfileSpec(anyLong())).thenReturn(Optional.empty());
 
         Response response = target("/devicetypes/1/deviceconfigurations/1/loadprofileconfigurations/9999").request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+    }
 
-        LoadProfileSpec loadProfileSpec = mockLoadProfileSpec(1L, "spec");
+    @Test
+    public void testGetLoadProfileSpec(){
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1L);
+        LoadProfileSpec loadProfileSpec = mockLoadProfileSpec(1L);
+        when(loadProfileSpec.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(deviceConfigurationService.findLoadProfileSpec(1L)).thenReturn(Optional.of(loadProfileSpec));
 
         Map<String, Object> map = target("/devicetypes/1/deviceconfigurations/1/loadprofileconfigurations/1").request().get(Map.class);
-        assertThat(map.get("total")).isEqualTo(1);
-        map = (Map<String, Object>) ((List)map.get("data")).get(0);
         assertThat(map.get("id")).isEqualTo(1);
-        assertThat(map.get("name")).isEqualTo("spec");
+        assertThat(map.get("name")).isEqualTo("Load profile spec 1");
+        assertThat(map.get("version")).isEqualTo(((Number)OK_VERSION).intValue());
     }
 
     @Test
     public void testDeleteLoadProfileSpecFromDeviceConfiguration(){
-        mockNlsMessageFormat();
-        getDeviceConfiguration();
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1L);
+        LoadProfileSpec loadProfileSpec = mockLoadProfileSpec(1);
+        when(loadProfileSpec.getDeviceConfiguration()).thenReturn(deviceConfiguration);
 
-        LoadProfileSpec loadProfileSpec = mockLoadProfileSpec(1, "spec");
-        when(deviceConfigurationService.findLoadProfileSpec(anyLong())).thenReturn(Optional.empty());
+        LoadProfileSpecInfo info = new LoadProfileSpecInfo();
+        info.version = OK_VERSION;
+        info.parent = new VersionInfo<>(1L, OK_VERSION);
+        Entity<LoadProfileSpecInfo> json = Entity.json(info);
 
-        Response response = target("/devicetypes/1/deviceconfigurations/1/loadprofileconfigurations/9999").request().delete();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-
-        when(deviceConfigurationService.findLoadProfileSpec(1L)).thenReturn(Optional.of(loadProfileSpec));
-
-        response = target("/devicetypes/1/deviceconfigurations/1/loadprofileconfigurations/1").request().delete();
+        Response response = target("/devicetypes/1/deviceconfigurations/1/loadprofileconfigurations/1").request().build(HttpMethod.DELETE, json).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 
     @Test
     public void testAddLoadProfileTypesForDeviceType(){
-        mockNlsMessageFormat();
-        DeviceConfiguration deviceConfiguration = getDeviceConfiguration();
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1L);
 
         LoadProfileSpecInfo info = new LoadProfileSpecInfo();
         Entity<LoadProfileSpecInfo> json = Entity.json(info);
         TimeDuration interval = getRandomTimeDuration();
         LoadProfileType loadProfileType = mockLoadProfileType(1, "loadProfile", interval, new ObisCode(0, 1, 2, 3, 4, 5), getChannelTypes(1, interval));
         LoadProfileSpec.LoadProfileSpecBuilder specBuilder = mock(LoadProfileSpec.LoadProfileSpecBuilder.class);
-        LoadProfileSpec loadProfileSpec = mockLoadProfileSpec(15, "spec");
+        LoadProfileSpec loadProfileSpec = mockLoadProfileSpec(15);
+        when(loadProfileSpec.getDeviceConfiguration()).thenReturn(deviceConfiguration);
 
         when(masterDataService.findLoadProfileType(1)).thenReturn(Optional.of(loadProfileType));
         when(deviceConfiguration.createLoadProfileSpec(loadProfileType)).thenReturn(specBuilder);
@@ -132,24 +123,38 @@ public class LoadProfileConfigurationResourceTest extends BaseLoadProfileTest {
     }
 
     @Test
-    public void testEditLoadProfileSpecOnDeviceConfiguration(){
-        mockNlsMessageFormat();
-        DeviceConfiguration deviceConfiguration = getDeviceConfiguration();
+    public void testEditLoadProfileSpecOnDeviceConfigurationBadVersion() {
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1L);
+        LoadProfileSpec loadProfileSpec = mockLoadProfileSpec(1);
+
         LoadProfileSpecInfo info = new LoadProfileSpecInfo();
-        info.overruledObisCode = new ObisCode(200,201,202,203,204,205);
+        info.overruledObisCode = new ObisCode(200, 201, 202, 203, 204, 205);
+        info.version = OK_VERSION;
+        info.parent = new VersionInfo<>(1L, BAD_VERSION);
         Entity<LoadProfileSpecInfo> json = Entity.json(info);
-        LoadProfileSpec loadProfileSpec = mockLoadProfileSpec(1, "spec");
-        when(deviceConfigurationService.findLoadProfileSpec(1L)).thenReturn(Optional.empty());
-        LoadProfileSpec.LoadProfileSpecUpdater specUpdater = mock(LoadProfileSpec.LoadProfileSpecUpdater.class);
 
         Response response = target("/devicetypes/1/deviceconfigurations/1/loadprofileconfigurations/1").request().put(json);
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
 
-        when(deviceConfigurationService.findLoadProfileSpec(1L)).thenReturn(Optional.of(loadProfileSpec));
-        when(specUpdater.setOverruledObisCode(info.overruledObisCode)).thenReturn(specUpdater);
+    @Test
+    public void testEditLoadProfileSpecOnDeviceConfiguration(){
+        ObisCode obisCode = new ObisCode(200, 201, 202, 203, 204, 205);
+
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1L);
+        LoadProfileSpec loadProfileSpec = mockLoadProfileSpec(1);
+        when(loadProfileSpec.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        LoadProfileSpec.LoadProfileSpecUpdater specUpdater = mock(LoadProfileSpec.LoadProfileSpecUpdater.class);
+        when(specUpdater.setOverruledObisCode(obisCode)).thenReturn(specUpdater);
         when(deviceConfiguration.getLoadProfileSpecUpdaterFor(loadProfileSpec)).thenReturn(specUpdater);
 
-        response = target("/devicetypes/1/deviceconfigurations/1/loadprofileconfigurations/1").request().put(json);
+        LoadProfileSpecInfo info = new LoadProfileSpecInfo();
+        info.overruledObisCode = obisCode;
+        info.version = OK_VERSION;
+        info.parent = new VersionInfo<>(1L, OK_VERSION);
+        Entity<LoadProfileSpecInfo> json = Entity.json(info);
+
+        Response response = target("/devicetypes/1/deviceconfigurations/1/loadprofileconfigurations/1").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 }

@@ -1,8 +1,10 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 
@@ -16,6 +18,8 @@ public class ProtocolDialectInfo {
     public String name;
     public boolean availableForUse;
     public List<PropertyInfo> properties;
+    public long version;
+    public VersionInfo<Long> parent;
 
     public ProtocolDialectInfo() {
     }
@@ -30,6 +34,9 @@ public class ProtocolDialectInfo {
         TypedProperties typedProperties = protocolDialectConfigurationProperties.getTypedProperties();
         protocolDialectInfo.properties = new ArrayList();
         mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, typedProperties, protocolDialectInfo.properties);
+        protocolDialectInfo.version = protocolDialectConfigurationProperties.getVersion();
+        DeviceConfiguration deviceConfiguration = protocolDialectConfigurationProperties.getDeviceConfiguration();
+        protocolDialectInfo.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
 
         return protocolDialectInfo;
     }

@@ -19,13 +19,15 @@ public class RegisterGroupInfo {
     public String name;
     @JsonProperty("registerTypes")
     public List<RegisterTypeInfo> registerTypes;
+    public long version;
 
     public RegisterGroupInfo() {
     }
 
-    public RegisterGroupInfo(long id, String name){
+    public RegisterGroupInfo(long id, String name, long version){
         this.id = id;
         this.name = name;
+        this.version = version;
     }
 
     public RegisterGroupInfo(RegisterGroup registerGroup){
@@ -42,5 +44,7 @@ public class RegisterGroupInfo {
                 return rm1.readingType.aliasName.compareTo(rm2.readingType.aliasName);
             }
         });
+
+        this.version = registerGroup.getVersion();
     }
 }

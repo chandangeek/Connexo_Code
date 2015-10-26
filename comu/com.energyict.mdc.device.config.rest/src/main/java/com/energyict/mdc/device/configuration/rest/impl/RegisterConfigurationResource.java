@@ -5,7 +5,6 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.TextualRegisterSpec;
@@ -25,7 +24,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -46,9 +44,8 @@ public class RegisterConfigurationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
-    public PagedInfoList getRegisterConfigs(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam JsonQueryParameters queryParameters) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+    public PagedInfoList getRegisterConfigs(@PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam JsonQueryParameters queryParameters) {
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         List<RegisterSpec> pagedRegisterSpecs = ListPager.of(deviceConfiguration.getRegisterSpecs(), new RegisterConfigurationComparator()).from(queryParameters).find();
         List<RegisterConfigInfo> registerConfigInfos = RegisterConfigInfo.from(pagedRegisterSpecs);
         return PagedInfoList.fromPagedList("registerConfigurations", registerConfigInfos, queryParameters);
@@ -58,16 +55,15 @@ public class RegisterConfigurationResource {
     @Path("/{registerId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
-    public RegisterConfigInfo getRegisterConfigs(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("registerId") long registerId) {
-        return RegisterConfigInfo.from(findRegisterSpecOrThrowException(deviceTypeId, deviceConfigurationId, registerId));
+    public RegisterConfigInfo getRegisterConfigs(@PathParam("registerId") long registerId) {
+        return RegisterConfigInfo.from(resourceHelper.findRegisterSpecByIdOrThrowException(registerId));
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
-    public Response createRegisterConfig(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, RegisterConfigInfo registerConfigInfo) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+    public Response createRegisterConfig(@PathParam("deviceConfigurationId") long deviceConfigurationId, RegisterConfigInfo registerConfigInfo) {
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         RegisterType registerType = registerConfigInfo.registerType ==null?null: findRegisterTypeOrThrowException(registerConfigInfo.registerType);
         RegisterSpec registerSpec = createRegisterSpec(registerConfigInfo, deviceConfiguration, registerType);
         return Response.status(Response.Status.CREATED).entity(RegisterConfigInfo.from(registerSpec)).build();
@@ -94,30 +90,32 @@ public class RegisterConfigurationResource {
     @Path("/{registerConfigId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
-    public RegisterConfigInfo updateRegisterConfig(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("registerConfigId") long registerConfigId, RegisterConfigInfo registerConfigInfo) {
-        RegisterSpec registerSpec = findRegisterSpecOrThrowException(deviceTypeId, deviceConfigurationId, registerConfigId);
-        RegisterType registerType = registerConfigInfo.registerType ==null?null:resourceHelper.findRegisterTypeByIdOrThrowException(registerConfigInfo.registerType);
-        if(registerConfigInfo.asText == registerSpec.isTextual()){
-            registerConfigInfo.writeTo(registerSpec, registerType);
-            if (registerConfigInfo.asText) {
+    public RegisterConfigInfo updateRegisterConfig(@PathParam("registerConfigId") long registerConfigId, RegisterConfigInfo info) {
+        info.id = registerConfigId;
+        RegisterSpec registerSpec = resourceHelper.lockRegisterSpecOrThrowException(info);
+        RegisterType registerType = info.registerType ==null?null:resourceHelper.findRegisterTypeByIdOrThrowException(info.registerType);
+        if(info.asText == registerSpec.isTextual()){
+            info.writeTo(registerSpec, registerType);
+            if (info.asText) {
                 registerSpec.getDeviceConfiguration().getRegisterSpecUpdaterFor((TextualRegisterSpec) registerSpec).update();
             } else {
                 registerSpec.getDeviceConfiguration().getRegisterSpecUpdaterFor((NumericalRegisterSpec) registerSpec).update();
             }
         } else {
             registerSpec.getDeviceConfiguration().deleteRegisterSpec(registerSpec);
-            RegisterSpec newRegisterSpec = createRegisterSpec(registerConfigInfo, registerSpec.getDeviceConfiguration(), registerType);
+            RegisterSpec newRegisterSpec = createRegisterSpec(info, registerSpec.getDeviceConfiguration(), registerType);
             registerConfigId = newRegisterSpec.getId();
         }
-        return RegisterConfigInfo.from(findRegisterSpecOrThrowException(deviceTypeId, deviceConfigurationId, registerConfigId));
+        return RegisterConfigInfo.from(resourceHelper.findRegisterSpecByIdOrThrowException(registerConfigId));
     }
 
     @DELETE
     @Path("/{registerConfigId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
-    public Response deleteRegisterConfig(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("registerConfigId") long registerTypeId) {
-        RegisterSpec registerSpec = findRegisterSpecOrThrowException(deviceTypeId, deviceConfigurationId, registerTypeId);
+    public Response deleteRegisterConfig(@PathParam("registerConfigId") long registerConfigId, RegisterConfigInfo info) {
+        info.id = registerConfigId;
+        RegisterSpec registerSpec = resourceHelper.lockRegisterSpecOrThrowException(info);
         registerSpec.getDeviceConfiguration().deleteRegisterSpec(registerSpec);
         return Response.ok().build();
     }
@@ -129,17 +127,4 @@ public class RegisterConfigurationResource {
         }
         return registerType.get();
     }
-
-    private RegisterSpec findRegisterSpecOrThrowException(long deviceTypeId, long deviceConfigId, long registerId) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigId);
-        for (RegisterSpec registerSpec : deviceConfiguration.getRegisterSpecs()) {
-            if (registerSpec.getId()==registerId) {
-                return registerSpec;
-            }
-        }
-        throw new WebApplicationException("No such register configuration for the device configuration", Response.status(Response.Status.NOT_FOUND).entity("No such register configuration for the device configuration").build());
-    }
-
-
 }

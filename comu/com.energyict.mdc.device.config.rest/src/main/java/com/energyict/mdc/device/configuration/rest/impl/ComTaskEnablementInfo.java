@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -28,6 +30,8 @@ public class ComTaskEnablementInfo {
     public Boolean suspended;
     @JsonProperty("ignoreNextExecutionSpecsForInbound")
     public Boolean ignoreNextExecutionSpecsForInbound;
+    public long version;
+    public VersionInfo<Long> parent;
 
     public ComTaskEnablementInfo() {}
 
@@ -45,6 +49,9 @@ public class ComTaskEnablementInfo {
         comTaskEnablementInfo.priority = comTaskEnablement.getPriority();
         comTaskEnablementInfo.suspended = comTaskEnablement.isSuspended();
         comTaskEnablementInfo.ignoreNextExecutionSpecsForInbound = comTaskEnablement.isIgnoreNextExecutionSpecsForInbound();
+        comTaskEnablementInfo.version = comTaskEnablement.getVersion();
+        DeviceConfiguration deviceConfiguration = comTaskEnablement.getDeviceConfiguration();
+        comTaskEnablementInfo.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
         return comTaskEnablementInfo;
     }
 
@@ -108,7 +115,7 @@ public class ComTaskEnablementInfo {
             PartialConnectionTaskInfo partialConnectionTaskInfo = new PartialConnectionTaskInfo();
             if(partialConnectionTask.isDefault()) {
                 partialConnectionTaskInfo.id = useDefaultConnectionTask ? DEFAULT_PARTIAL_CONNECTION_TASK_ID : partialConnectionTask.getId();
-                partialConnectionTaskInfo.name = thesaurus.getString(MessageSeeds.DEFAULT.getKey(), MessageSeeds.DEFAULT.getKey()) + " (" + partialConnectionTask.getName() + ")";
+                partialConnectionTaskInfo.name = thesaurus.getFormat(TranslationKeys.DEFAULT).format();
             } else {
                 partialConnectionTaskInfo.id = partialConnectionTask.getId();
                 partialConnectionTaskInfo.name = partialConnectionTask.getName();
@@ -119,7 +126,7 @@ public class ComTaskEnablementInfo {
         public static PartialConnectionTaskInfo defaultPartialConnectionTaskInfo(Thesaurus thesaurus) {
             PartialConnectionTaskInfo partialConnectionTaskInfo = new PartialConnectionTaskInfo();
             partialConnectionTaskInfo.id = DEFAULT_PARTIAL_CONNECTION_TASK_ID;
-            partialConnectionTaskInfo.name = thesaurus.getString(MessageSeeds.DEFAULT.getKey(), MessageSeeds.DEFAULT.getKey());
+            partialConnectionTaskInfo.name = thesaurus.getFormat(TranslationKeys.DEFAULT).format();
             return partialConnectionTaskInfo;
         }
     }

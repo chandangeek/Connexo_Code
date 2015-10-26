@@ -11,11 +11,15 @@ import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.EditPrivilege;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -28,20 +32,26 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.google.common.collect.Sets;
 import org.junit.Ignore;
-import org.mockito.Matchers;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Currency;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @Ignore("basic functionality for load profiles")
 public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTest {
+
+    public static final long OK_VERSION = 24L;
+    public static final long BAD_VERSION = 17L;
+
     protected List<LoadProfileType> getLoadProfileTypes(int count) {
         List<LoadProfileType> loadProfileTypes = new ArrayList<>(count);
         for (int i = 1; i <= count; i++) {
@@ -55,7 +65,7 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
     protected List<LoadProfileSpec> getLoadProfileSpecs(int count) {
         List<LoadProfileSpec> loadProfileSpecs = new ArrayList<>(count);
         for (int i = 1; i <= count; i++) {
-            loadProfileSpecs.add(mockLoadProfileSpec(1000 + i, "Name " + i));
+            loadProfileSpecs.add(mockLoadProfileSpec(1000 + i));
         }
         return loadProfileSpecs;
     }
@@ -79,30 +89,28 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
         return (int) (start + new Random().nextDouble() * range);
     }
 
-    protected TimeDuration getRandomTimeDuration(){
+    protected TimeDuration getRandomTimeDuration() {
         return LocalizedTimeDuration.intervals.get(getRandomInt(LocalizedTimeDuration.intervals.size() - 1)).getTimeDuration();
-    }
-
-
-    protected NlsMessageFormat mockNlsMessageFormat() {
-        NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
-        when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenReturn(nlsMessageFormat);
-        return nlsMessageFormat;
     }
 
     protected DeviceType mockDeviceType(String name, long id) {
         DeviceType deviceType = mock(DeviceType.class);
+        RegisteredCustomPropertySet registeredCustomPropertySet = mockRegisteredCustomPropertySet();
+        when(deviceType.getLoadProfileTypeCustomPropertySet(anyObject())).thenReturn(Optional.of(registeredCustomPropertySet));
         when(deviceType.getName()).thenReturn(name);
         when(deviceType.getId()).thenReturn(id);
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(deviceProtocolPluggableClass);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
+        when(deviceType.getVersion()).thenReturn(OK_VERSION);
         return deviceType;
     }
 
     protected DeviceType mockDeviceType(String name, long id, List<PropertySpec> specs) {
         DeviceType deviceType = mock(DeviceType.class);
+        RegisteredCustomPropertySet registeredCustomPropertySet = mockRegisteredCustomPropertySet();
+        when(deviceType.getLoadProfileTypeCustomPropertySet(anyObject())).thenReturn(Optional.of(registeredCustomPropertySet));
         when(deviceType.getName()).thenReturn(name);
         when(deviceType.getId()).thenReturn(id);
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
@@ -115,15 +123,19 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
         return deviceType;
     }
 
-    protected DeviceConfiguration mockDeviceConfiguration(String name, long id){
+    protected DeviceConfiguration mockDeviceConfiguration(long id){
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(deviceConfiguration.getName()).thenReturn(name);
+        when(deviceConfiguration.getName()).thenReturn("Device configuration " + id);
         when(deviceConfiguration.getId()).thenReturn(id);
         RegisterSpec registerSpec = mock(RegisterSpec.class);
         RegisterType registerType = mock(RegisterType.class);
         when(registerSpec.getRegisterType()).thenReturn(registerType);
         when(registerType.getId()).thenReturn(101L);
         when(deviceConfiguration.getRegisterSpecs()).thenReturn(Arrays.asList(registerSpec));
+        when(deviceConfiguration.getVersion()).thenReturn(OK_VERSION);
+        when(deviceConfigurationService.findDeviceConfiguration(id)).thenReturn(Optional.of(deviceConfiguration));
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(id, OK_VERSION)).thenReturn(Optional.of(deviceConfiguration));
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(id, BAD_VERSION)).thenReturn(Optional.empty());
         return deviceConfiguration;
     }
 
@@ -134,6 +146,7 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
         when(loadProfileType.getInterval()).thenReturn(interval);
         when(loadProfileType.getObisCode()).thenReturn(obisCode);
         when(loadProfileType.getChannelTypes()).thenReturn(channelTypes);
+        when(loadProfileType.getVersion()).thenReturn(OK_VERSION);
         return loadProfileType;
     }
 
@@ -164,17 +177,21 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
         return channelType;
     }
 
-    protected LoadProfileSpec mockLoadProfileSpec(long id, String name){
+    protected LoadProfileSpec mockLoadProfileSpec(long id){
         LoadProfileSpec loadProfileSpec = mock(LoadProfileSpec.class);
-        ObisCode obisCode = new ObisCode(0,1,2,3,4,5);
-        ObisCode overrulledObisCode = new ObisCode(200,201,202,203,204,205);
+        ObisCode obisCode = new ObisCode(0, 1, 2, 3, 4, 5);
+        ObisCode overruledObisCode = new ObisCode(200,201,202,203,204,205);
         TimeDuration randomTimeDuration = getRandomTimeDuration();
-        LoadProfileType loadProfileType = mockLoadProfileType(id, name, randomTimeDuration, obisCode, getChannelTypes(2, randomTimeDuration));
+        LoadProfileType loadProfileType = mockLoadProfileType(id, "Load profile spec " + id, randomTimeDuration, obisCode, getChannelTypes(2, randomTimeDuration));
         when(loadProfileSpec.getId()).thenReturn(id);
         when(loadProfileSpec.getLoadProfileType()).thenReturn(loadProfileType);
         when(loadProfileSpec.getObisCode()).thenReturn(obisCode);
-        when(loadProfileSpec.getDeviceObisCode()).thenReturn(overrulledObisCode);
+        when(loadProfileSpec.getDeviceObisCode()).thenReturn(overruledObisCode);
         when(loadProfileSpec.getInterval()).thenReturn(getRandomTimeDuration());
+        when(loadProfileSpec.getVersion()).thenReturn(OK_VERSION);
+        when(deviceConfigurationService.findLoadProfileSpec(id)).thenReturn(Optional.of(loadProfileSpec));
+        when(deviceConfigurationService.findAndLockLoadProfileSpecByIdAndVersion(id, OK_VERSION)).thenReturn(Optional.of(loadProfileSpec));
+        when(deviceConfigurationService.findAndLockLoadProfileSpecByIdAndVersion(id, BAD_VERSION)).thenReturn(Optional.empty());
         return loadProfileSpec;
     }
 
@@ -188,8 +205,8 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
         when(readingType.getFlowDirection()).thenReturn(FlowDirection.FORWARD);
         when(readingType.getCommodity()).thenReturn(Commodity.AIR);
         when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ACVOLTAGEPEAK);
-        when(readingType.getInterharmonic()).thenReturn(new RationalNumber(1,2));
-        when(readingType.getArgument()).thenReturn(new RationalNumber(1,2));
+        when(readingType.getInterharmonic()).thenReturn(new RationalNumber(1, 2));
+        when(readingType.getArgument()).thenReturn(new RationalNumber(1, 2));
         when(readingType.getTou()).thenReturn(3);
         when(readingType.getCpp()).thenReturn(4);
         when(readingType.getConsumptionTier()).thenReturn(5);
@@ -198,5 +215,42 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
         when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
         when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
         return readingType;
+    }
+
+    @SuppressWarnings("unchecked")
+    private PropertySpec mockPropertySpec() {
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        ValueFactory valueFactory = mock(BigDecimalFactory.class);
+        when(propertySpec.getName()).thenReturn("customAttribute");
+        when(propertySpec.getValueFactory()).thenReturn(valueFactory);
+        when(propertySpec.getValueFactory().getValueType()).thenReturn(BigDecimalFactory.class);
+        when(propertySpec.isRequired()).thenReturn(true);
+        when(propertySpec.getDescription()).thenReturn("kw");
+        return propertySpec;
+    }
+
+    @SuppressWarnings("unchecked")
+    private CustomPropertySet mockCustomPropertySet() {
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getName()).thenReturn("domainExtensionName");
+        when(customPropertySet.isRequired()).thenReturn(true);
+        when(customPropertySet.isVersioned()).thenReturn(false);
+        when(customPropertySet.defaultViewPrivileges()).thenReturn(Sets.newHashSet(ViewPrivilege.LEVEL_3));
+        when(customPropertySet.defaultEditPrivileges()).thenReturn(Sets.newHashSet(EditPrivilege.LEVEL_4));
+        when(customPropertySet.getDomainClass()).thenReturn(BigDecimalFactory.class);
+        return customPropertySet;
+    }
+
+    @SuppressWarnings("unchecked")
+    private RegisteredCustomPropertySet mockRegisteredCustomPropertySet() {
+        PropertySpec propertySpec = mockPropertySpec();
+        CustomPropertySet customPropertySet = mockCustomPropertySet();
+        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
+        when(registeredCustomPropertySet.getId()).thenReturn(100500L);
+        when(registeredCustomPropertySet.getViewPrivileges()).thenReturn(Sets.newHashSet(ViewPrivilege.LEVEL_1));
+        when(registeredCustomPropertySet.getEditPrivileges()).thenReturn(Sets.newHashSet(EditPrivilege.LEVEL_2));
+        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        when(registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
+        return registeredCustomPropertySet;
     }
 }

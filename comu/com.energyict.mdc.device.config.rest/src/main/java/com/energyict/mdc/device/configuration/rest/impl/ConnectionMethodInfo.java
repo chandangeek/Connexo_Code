@@ -2,15 +2,14 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
-import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialConnectionTaskBuilder;
-import com.energyict.mdc.device.configuration.rest.ConnectionStrategyAdapter;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
@@ -21,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import javax.ws.rs.core.UriInfo;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -45,12 +43,13 @@ public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
     public boolean isDefault;
     public Integer comWindowStart;
     public Integer comWindowEnd;
-    @XmlJavaTypeAdapter(ConnectionStrategyAdapter.class)
-    public ConnectionStrategy connectionStrategy;
+    public String connectionStrategy;
     public List<PropertyInfo> properties;
     public boolean allowSimultaneousConnections;
     public TimeDurationInfo rescheduleRetryDelay;
     public TemporalExpressionInfo temporalExpression;
+    public long version;
+    public VersionInfo<Long> parent;
 
     public ConnectionMethodInfo() {
     }
@@ -66,6 +65,9 @@ public abstract class ConnectionMethodInfo<T extends PartialConnectionTask> {
         TypedProperties typedProperties = partialConnectionTask.getTypedProperties();
         this.properties = new ArrayList<>();
         mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, typedProperties, this.properties);
+        this.version = partialConnectionTask.getVersion();
+        DeviceConfiguration deviceConfiguration = partialConnectionTask.getConfiguration();
+        this.parent = new VersionInfo<>(deviceConfiguration.getId(), deviceConfiguration.getVersion());
     }
 
     protected void addPropertiesToPartialConnectionTask(PartialConnectionTaskBuilder<?, ?, ?> connectionTaskBuilder, ConnectionTypePluggableClass connectionTypePluggableClass) {

@@ -1,16 +1,15 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.security.Privileges;
 
 import java.util.logging.Level;
 
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
 
     FIELD_IS_REQUIRED(1, "RequiredField", "This field is required"),
-    PROTOCOL_INVALID_NAME(2,"deviceType.no.such.protocol", "A protocol with name ''{0}'' does not exist"),
-    NO_LOGBOOK_TYPE_ID_FOR_ADDING(3,"NoLogBookTypeIdForAdding", "User should specify ids of LogBook Type for adding"),
+    PROTOCOL_INVALID_NAME(2, "deviceType.no.such.protocol", "A protocol with name ''{0}'' does not exist"),
+    NO_LOGBOOK_TYPE_ID_FOR_ADDING(3, "NoLogBookTypeIdForAdding", "User should specify ids of LogBook Type for adding"),
     NO_LOGBOOK_TYPE_FOUND(4, "NoLogBookTypeFound", "No LogBook type with id {0}"),
     NO_LOGBOOK_SPEC_FOUND(5, "NoLogBookSpecFound", "No LogBook configuration with id {0}"),
     NO_LOAD_PROFILE_TYPE_ID_FOR_ADDING(6, "NoLoadProfileTypeIdForAdding", "User should specify ids of Load Profile Type for adding"),
@@ -18,32 +17,18 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     NO_CHANNEL_SPEC_FOUND(9, "NoChannelSpecFound", "No channel specification with id {0}"),
     INVALID_REFERENCE_TO_REGISTER_TYPE(10, "NoSuchRegisterType", "Register type could not be found"),
     DUPLICATE_OBISCODE(11, "DuplicateObisCode", "A register mapping with obis code ''{0}'', unit ''{1}'' and time of use ''{2}'' already exists"),
-    AS_SOON_AS_POSSIBLE(12, "asSoonAsPossible", "As soon a possible"),
-    MINIMIZE_CONNECTIONS(13, "minimizeConnections", "Minimize connections"),
-    NO_SUCH_DEVICE(14, "noSuchDevice", "No device with id {0}"),
+    NO_SUCH_DEVICE(14, "noSuchDevice", "No device with MRID {0}"),
     DEVICE_DOES_NOT_MATCH_CONFIG(15, "deviceDoesNotMatchConfig", "Device does not match device configuration"),
     NO_SUCH_CONNECTION_TASK(16, "NoSuchConnectionTask", "No such connection task"),
     NO_DEVICECONFIG_ID_FOR_ADDING(17, "NoDeviceConfigurationIdForAdding", "User should specify ids of Device Configuration for adding"),
     CONNECTION_TYPE_UNKNOWN(18, "NoSuchConnectionType", "No connection type pluggable class could be found for ''{0}''"),
-    NO_VALIDATIONRULESET_ID_FOR_ADDING(20,"NoValidationRuleSetIdForAdding", "User should specify ids of Validation Ruleset for adding"),
+    NO_VALIDATIONRULESET_ID_FOR_ADDING(20, "NoValidationRuleSetIdForAdding", "User should specify ids of Validation Ruleset for adding"),
     EXECUTE_COM_TASK_LEVEL1(21, Privileges.Constants.EXECUTE_COM_TASK_1, "Execute com task (level 1)"),
     EXECUTE_COM_TASK_LEVEL2(22, Privileges.Constants.EXECUTE_COM_TASK_2, "Execute com task (level 2)"),
     EXECUTE_COM_TASK_LEVEL3(23, Privileges.Constants.EXECUTE_COM_TASK_3, "Execute com task (level 3)"),
     EXECUTE_COM_TASK_LEVEL4(24, Privileges.Constants.EXECUTE_COM_TASK_4, "Execute com task (level 4)"),
-    EDIT_DEVICE_SECURITY_PROPERTIES_1(25, Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_1, "Edit device security settings (level 1)"),
-    EDIT_DEVICE_SECURITY_PROPERTIES_2(26, Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_2, "Edit device security settings (level 2)"),
-    EDIT_DEVICE_SECURITY_PROPERTIES_3(27, Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_3, "Edit device security settings (level 3)"),
-    EDIT_DEVICE_SECURITY_PROPERTIES_4(28, Privileges.Constants.EDIT_DEVICE_SECURITY_PROPERTIES_4, "Edit device security settings (level 4)"),
-    VIEW_DEVICE_SECURITY_PROPERTIES_1(29, Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_1, "View device security settings (level 1)"),
-    VIEW_DEVICE_SECURITY_PROPERTIES_2(30, Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_2, "View device security settings (level 2)"),
-    VIEW_DEVICE_SECURITY_PROPERTIES_3(31, Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_3, "View device security settings (level 3)"),
-    VIEW_DEVICE_SECURITY_PROPERTIES_4(32, Privileges.Constants.VIEW_DEVICE_SECURITY_PROPERTIES_4, "View device security settings (level 4)"),
     UNKNOWN_PRIVILEGE_ID(33, "NoSuchExecutionLevels", "No such execution levels: {0}"),
     NO_SUCH_DEVICE_MESSAGE_SPEC(34, "NoSuchDeviceMessageSpec", "No such device message spec: {0}"),
-    EXECUTE_DEVICE_MESSAGE_LEVEL1(35, Privileges.Constants.EXECUTE_DEVICE_MESSAGE_1, "Level 1"),
-    EXECUTE_DEVICE_MESSAGE_LEVEL2(36, Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2, "Level 2"),
-    EXECUTE_DEVICE_MESSAGE_LEVEL3(37, Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3, "Level 3"),
-    EXECUTE_DEVICE_MESSAGE_LEVEL4(38, Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4, "Level 4"),
     ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_0(100, Keys.ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_0, "Unrestricted authentication"),
     ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_1(103, Keys.ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_1, "Restricted authentication"),
     ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_2(105, Keys.ANSIC12SECURITYSUPPORT_AUTHENTICATIONLEVEL_2, "Read only authentication"),
@@ -115,9 +100,9 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_8(174, Keys.DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_8, "No Encryption Extended DataCollection client"),
     DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_9(175, Keys.DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_9, "Message Encryption Extended DataCollection client"),
     IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_0(177, Keys.IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_0, "No Authentication"),
-    IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_1(179, Keys.IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_1, "Level 1authentication"),
-    IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_2(181, Keys.IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_2, "Level 2authentication"),
-    IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_3(183, Keys.IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_3, "Level three authentication"),
+    IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_1(179, Keys.IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_1, "Level 1 authentication"),
+    IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_2(181, Keys.IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_2, "Level 2 authentication"),
+    IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_3(183, Keys.IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_3, "Level 3 authentication"),
     MTU155SECURITYSUPPORT_AUTHENTICATIONLEVEL_0(184, Keys.MTU155SECURITYSUPPORT_AUTHENTICATIONLEVEL_0, "Default authentication"),
     MTU155SECURITYSUPPORT_ENCRYPTIONLEVEL_0(185, Keys.MTU155SECURITYSUPPORT_ENCRYPTIONLEVEL_0, "KeyT encryption"),
     MTU155SECURITYSUPPORT_ENCRYPTIONLEVEL_1(186, Keys.MTU155SECURITYSUPPORT_ENCRYPTIONLEVEL_1, "KeyC encryption"),
@@ -132,17 +117,21 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     SIMPLEPASSWORDSECURITYSUPPORT_AUTHENTICATIONLEVEL_0(200, Keys.SIMPLEPASSWORDSECURITYSUPPORT_AUTHENTICATIONLEVEL_0, "Password authentication"),
     WAVENISSECURITYSUPPORT_AUTHENTICATIONLEVEL_0(202, Keys.WAVENISSECURITYSUPPORT_AUTHENTICATIONLEVEL_0, "Wavenis authentication"),
     WAVENISSECURITYSUPPORT_ENCRYPTIONLEVEL_0(204, Keys.WAVENISSECURITYSUPPORT_ENCRYPTIONLEVEL_0, "Standard Wavenis encryption"),
-    DEFAULT(205, "Default", "Default"),
     NO_SUCH_DEVICE_LIFE_CYCLE(206, "NoSuchDeviceLifeCycle", "There is no device life cycle with id = {0}"),
     UNABLE_TO_CHANGE_DEVICE_LIFE_CYCLE(207, "UnableToChangeDeviceLifeCycle", "Unable to change device life cycle to \"{0}\""),
-
+    HAS_SOLVED(208, Keys.SOLVED, "Solved"),
+    HAS_UNSOLVED(209, Keys.UNSOLVED, "Unsolved"),
+    CONCURRENT_FAIL_ACTIVATE_TITLE(210, "ConcurrentFailActivateTitle", "Failed to activate ''{0}''"),
+    CONCURRENT_FAIL_DEACTIVATE_TITLE(211, "ConcurrentFailDeActivateTitle", "Failed to deactivate ''{0}''"),
+    CONCURRENT_FAIL_ACTIVATE_BODY(212, "ConcurrentFailActivateBody", "{0} has changed since the page was last updated."),
+    CONCURRENT_FAIL_DEACTIVATE_BODY(213, "ConcurrentFailDeActivateBody", "{0} has changed since the page was last updated."),
     ;
 
     private final int number;
     private final String key;
     private final String format;
 
-    private MessageSeeds(int number, String key, String format) {
+    MessageSeeds(int number, String key, String format) {
         this.number = number;
         this.key = key;
         this.format = format;
@@ -263,6 +252,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String SIMPLEPASSWORDSECURITYSUPPORT_AUTHENTICATIONLEVEL_0 = "SimplePasswordSecuritySupport.authenticationlevel.0";
         public static final String WAVENISSECURITYSUPPORT_AUTHENTICATIONLEVEL_0 = "WavenisSecuritySupport.authenticationlevel.0";
         public static final String WAVENISSECURITYSUPPORT_ENCRYPTIONLEVEL_0 = "WavenisSecuritySupport.encryptionlevel.0";
-
+        public static final String SOLVED = "Solved";
+        public static final String UNSOLVED = "Unsolved";
     }
 }

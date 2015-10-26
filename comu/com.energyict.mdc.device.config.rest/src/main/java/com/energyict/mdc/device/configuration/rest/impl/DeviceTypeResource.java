@@ -1,13 +1,14 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
-import com.energyict.mdc.common.BusinessException;
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.rest.util.VersionInfo;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
@@ -21,6 +22,7 @@ import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleInfo;
 import com.energyict.mdc.device.lifecycle.config.rest.info.DeviceLifeCycleStateInfo;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -42,8 +44,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.sql.SQLException;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -60,6 +60,7 @@ public class DeviceTypeResource {
     private final MasterDataService masterDataService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final Provider<DeviceConfigurationResource> deviceConfigurationResourceProvider;
+    private final Provider<DeviceConfigConflictMappingResource> deviceConflictMappingResourceProvider;
     private final Provider<LoadProfileTypeResource> loadProfileTypeResourceProvider;
     private final ProtocolPluggableService protocolPluggableService;
     private final Thesaurus thesaurus;
@@ -69,6 +70,7 @@ public class DeviceTypeResource {
             ResourceHelper resourceHelper,
             MasterDataService masterDataService,
             DeviceConfigurationService deviceConfigurationService,
+            Provider<DeviceConfigConflictMappingResource> deviceConflictMappingResourceProvider,
             ProtocolPluggableService protocolPluggableService,
             Provider<DeviceConfigurationResource> deviceConfigurationResourceProvider,
             Provider<LoadProfileTypeResource> loadProfileTypeResourceProvider,
@@ -79,6 +81,7 @@ public class DeviceTypeResource {
         this.protocolPluggableService = protocolPluggableService;
         this.loadProfileTypeResourceProvider = loadProfileTypeResourceProvider;
         this.deviceConfigurationResourceProvider = deviceConfigurationResourceProvider;
+        this.deviceConflictMappingResourceProvider = deviceConflictMappingResourceProvider;
         this.thesaurus = thesaurus;
     }
 
@@ -96,9 +99,9 @@ public class DeviceTypeResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
-    public Response deleteDeviceType(@PathParam("id") long id) throws SQLException, BusinessException {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        deviceType.delete();
+    public Response deleteDeviceType(@PathParam("id") long id, DeviceTypeInfo info) {
+        info.id = id;
+        resourceHelper.lockDeviceTypeOrThrowException(info).delete();
         return Response.ok().build();
 
     }
@@ -123,7 +126,8 @@ public class DeviceTypeResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response updateDeviceType(@PathParam("id") long id, DeviceTypeInfo deviceTypeInfo) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        deviceTypeInfo.id = id;
+        DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(deviceTypeInfo);
         deviceType.setName(deviceTypeInfo.name);
         deviceType.setDeviceProtocolPluggableClass(deviceTypeInfo.deviceProtocolPluggableClassName);
         if (deviceTypeInfo.registerTypes != null) {
@@ -147,13 +151,12 @@ public class DeviceTypeResource {
     private ChangeDeviceLifeCycleInfo getChangeDeviceLifeCycleFailInfo(IncompatibleDeviceLifeCycleChangeException lifeCycleChangeError, DeviceLifeCycle currentDeviceLifeCycle, DeviceLifeCycle targetDeviceLifeCycle) {
         ChangeDeviceLifeCycleInfo info = new ChangeDeviceLifeCycleInfo();
         info.success = false;
-        String errorMessage = thesaurus.getString(MessageSeeds.UNABLE_TO_CHANGE_DEVICE_LIFE_CYCLE.getKey(), MessageSeeds.UNABLE_TO_CHANGE_DEVICE_LIFE_CYCLE.getDefaultFormat());
-        info.message = new MessageFormat(errorMessage).format(new Object[]{targetDeviceLifeCycle.getName()}, new StringBuffer(), null).toString();
+        info.errorMessage = thesaurus.getFormat(MessageSeeds.UNABLE_TO_CHANGE_DEVICE_LIFE_CYCLE).format(targetDeviceLifeCycle.getName());
         info.currentDeviceLifeCycle = new DeviceLifeCycleInfo(currentDeviceLifeCycle);
         info.targetDeviceLifeCycle = new DeviceLifeCycleInfo(targetDeviceLifeCycle);
         info.notMappableStates = lifeCycleChangeError.getMissingStates()
                 .stream()
-                .map(state -> new DeviceLifeCycleStateInfo(thesaurus, state))
+                .map(state -> new DeviceLifeCycleStateInfo(thesaurus, null, state))
                 .collect(Collectors.toList());
         return info;
     }
@@ -164,11 +167,11 @@ public class DeviceTypeResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response updateDeviceLifeCycleForDeviceType(@PathParam("id") long id, ChangeDeviceLifeCycleInfo info) {
-        DeviceType deviceType = resourceHelper.findAndLockDeviceType(id, info.version);
-        DeviceLifeCycle oldDeviceLifeCycle = deviceType.getDeviceLifeCycle();
         new RestValidationBuilder()
                 .isCorrectId(info.targetDeviceLifeCycle != null ? info.targetDeviceLifeCycle.id : null, "deviceLifeCycleId")
                 .validate();
+        DeviceType deviceType = resourceHelper.lockDeviceTypeOrThrowException(id, info.version, info.name);
+        DeviceLifeCycle oldDeviceLifeCycle = deviceType.getDeviceLifeCycle();
         DeviceLifeCycle targetDeviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(info.targetDeviceLifeCycle.id);
         try {
             deviceConfigurationService.changeDeviceLifeCycle(deviceType, targetDeviceLifeCycle);
@@ -188,6 +191,46 @@ public class DeviceTypeResource {
         return DeviceTypeInfo.from(deviceType, deviceType.getRegisterTypes());
     }
 
+    @GET
+    @Path("/{id}/custompropertysets")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    public PagedInfoList getDeviceTypeCustomPropertySetUsage(@PathParam("id") long id, @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
+        boolean isLinked = filter.getBoolean("linked");
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        List<RegisteredCustomPropertySet> registeredCustomPropertySets;
+        if (!isLinked) {
+            registeredCustomPropertySets = resourceHelper.findCustomPropertySets(DeviceType.class.getName())
+                    .stream()
+                    .filter(f -> !deviceType.getDeviceTypeCustomPropertySetUsage().stream().map(m -> m.getId()).collect(Collectors.toList()).contains(f.getId()))
+            .collect(Collectors.toList());
+        } else {
+            registeredCustomPropertySets = deviceType.getDeviceTypeCustomPropertySetUsage();
+        }
+        return PagedInfoList.fromPagedList("deviceTypeCustomPropertySets", DeviceTypeCustomPropertySetInfo.from(registeredCustomPropertySets), queryParameters);
+    }
+
+    @PUT
+    @Path("/{id}/custompropertysets")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    public Response addDeviceTypeCustomPropertySetUsage(@PathParam("id") long id, List<DeviceTypeCustomPropertySetInfo> infos) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
+        infos.stream().forEach(deviceTypeCustomPropertySetInfo ->
+                deviceType.addDeviceTypeCustomPropertySetUsage(resourceHelper.findDeviceTypeCustomPropertySetByIdOrThrowException(deviceTypeCustomPropertySetInfo.id)));
+        return Response.ok().build();
+    }
+
+    @DELETE
+    @Path("/{deviceTypeId}/custompropertysets/{customPropertySetId}")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    public Response deleteDeviceTypeCustomPropertySetUsage(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("customPropertySetId") long customPropertySetId) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
+        deviceType.removeDeviceTypeCustomPropertySetUsage(resourceHelper.findDeviceTypeCustomPropertySetByIdOrThrowException(customPropertySetId));
+        return Response.ok().build();
+    }
 
     @Path("/{id}/loadprofiletypes")
     public LoadProfileTypeResource getLoadProfileTypesResource() {
@@ -206,7 +249,7 @@ public class DeviceTypeResource {
         } else {
             findAllAvailableLogBookTypesForDeviceType(queryParameters, deviceType, logbookTypes);
         }
-        List<LogBookTypeInfo> logBookTypeInfos = LogBookTypeInfo.from(ListPager.of(logbookTypes, new LogBookTypeComparator()).find());
+        List<LogBookTypeInfo> logBookTypeInfos = LogBookTypeInfo.from(ListPager.of(logbookTypes, new LogBookTypeComparator()).find(), deviceType);
         return PagedInfoList.fromPagedList("logbookTypes", logBookTypeInfos, queryParameters);
     }
 
@@ -218,37 +261,6 @@ public class DeviceTypeResource {
             }
         }
     }
-
-
-/*    @GET
-    @Path("/{id}/logbooktypes")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.VIEW_DEVICE_TYPE)
-    public Response getLogBookTypesForDeviceType(@PathParam("id") long id, @BeanParam QueryParameters queryParameters, @QueryParam("available") String available) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        List<LogBookType> resultLogBookTypes = deviceType.getLogBookTypes();
-        if (available != null && Boolean.parseBoolean(available)) {
-            resultLogBookTypes = findAllAvailableLogBookTypesForDeviceType(resultLogBookTypes);
-        }
-        return Response.ok(PagedInfoList.asJson("data",
-                LogBookTypeInfo.from(ListPager.of(resultLogBookTypes, new LogBookTypeComparator()).find()), queryParameters)).build();
-    }*/
-
-   /* private List<LogBookType> findAllAvailableLogBookTypesForDeviceType(List<LogBookType> registeredLogBookTypes) {
-        List<LogBookType> allLogBookTypes = masterDataService.findAllLogBookTypes().find();
-        Set<Long> registeredLogBookTypeIds = new HashSet<>(registeredLogBookTypes.size());
-        for (LogBookType logBookType : registeredLogBookTypes) {
-            registeredLogBookTypeIds.add(logBookType.getId());
-        }
-        Iterator<LogBookType> logBookTypeIterator = allLogBookTypes.iterator();
-        while (logBookTypeIterator.hasNext()) {
-            LogBookType logBookType = logBookTypeIterator.next();
-            if (registeredLogBookTypeIds.contains(logBookType.getId())) {
-                logBookTypeIterator.remove();
-            }
-        }
-        return allLogBookTypes;
-    }*/
 
     @POST
     @Path("/{id}/logbooktypes")
@@ -269,20 +281,17 @@ public class DeviceTypeResource {
         for (LogBookType logBookType : logBookTypes) {
             deviceType.addLogBookType(logBookType);
         }
-        return Response.ok(LogBookTypeInfo.from(logBookTypes)).build();
+        return Response.ok(LogBookTypeInfo.from(logBookTypes, deviceType)).build();
     }
 
     @DELETE
     @Path("/{id}/logbooktypes/{lbid}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
-    public Response deleteLogbookTypeFromDeviceType(@PathParam("id") long id, @PathParam("lbid") long lbid) {
+    public Response deleteLogbookTypeFromDeviceType(@PathParam("id") long id, @PathParam("lbid") long lbid, LogBookTypeInfo info) {
+        info.parent.id = id;
+        LogBookType logBookType = resourceHelper.lockDeviceTypeLogBookOrThrowException(info);
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        Optional<LogBookType> logBookTypeRef = masterDataService.findLogBookType(lbid);
-        if (!logBookTypeRef.isPresent()) {
-            throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_LOGBOOK_TYPE_FOUND, lbid);
-        }
-        LogBookType logBookType = logBookTypeRef.get();
         deleteLogBookTypeFromChildConfigurations(deviceType, logBookType);
         deviceType.removeLogBookType(logBookType);
         return Response.ok().build();
@@ -306,6 +315,11 @@ public class DeviceTypeResource {
         return deviceConfigurationResourceProvider.get();
     }
 
+    @Path("/{deviceTypeId}/conflictmappings")
+    public DeviceConfigConflictMappingResource getDeviceConflictMappingResource() {
+        return deviceConflictMappingResourceProvider.get();
+    }
+
     @GET
     @Path("/{id}/registertypes")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -325,7 +339,7 @@ public class DeviceTypeResource {
             }
         }
         List<RegisterType> registerTypes = ListPager.of(matchingRegisterTypes, new RegisterTypeComparator()).from(queryParameters).find();
-        List<RegisterTypeInfo> registerTypeInfos = asInfoList(deviceType, registerTypes);
+        List<RegisterTypeOnDeviceTypeInfo> registerTypeInfos = asInfoList(deviceType, registerTypes);
         return PagedInfoList.fromPagedList("registerTypes", registerTypeInfos, queryParameters);
     }
 
@@ -341,9 +355,43 @@ public class DeviceTypeResource {
     }
 
     private List<RegisterType> findAllAvailableRegisterTypesForDeviceConfiguration(DeviceType deviceType, long deviceConfigurationId) {
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         Set<Long> unavailableRegisterTypeIds = deviceConfiguration.getRegisterSpecs().stream().map(rs -> rs.getRegisterType().getId()).collect(toSet());
         return deviceType.getRegisterTypes().stream().filter(rt->!unavailableRegisterTypeIds.contains(rt.getId())).collect(toList());
+    }
+
+    @GET
+    @Path("/{id}/registertypes/{registerTypeId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    public RegisterTypeOnDeviceTypeInfo getRegisterForDeviceType(@PathParam("id") long deviceTypeId,
+                                                                    @PathParam("registerTypeId") long registerTypeId) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
+        RegisterType registerType = resourceHelper.findRegisterTypeByIdOrThrowException(registerTypeId);
+        return new RegisterTypeOnDeviceTypeInfo(registerType, false, false, false, deviceType.getRegisterTypeTypeCustomPropertySet(registerType));
+    }
+
+    @PUT
+    @Path("/{id}/registertypes/{registerTypeId}")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    public Response changeRegisterTypeOnDeviceTypeCustomPropertySet(@PathParam("id") long deviceTypeId,
+                                                                    @PathParam("registerTypeId") long registerTypeId,
+                                                                    RegisterTypeOnDeviceTypeInfo registerTypeOnDeviceTypeInfo) {
+        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
+        RegisterType registerType = resourceHelper.findRegisterTypeByIdOrThrowException(registerTypeId);
+        deviceType.addRegisterTypeCustomPropertySet(registerType, registerTypeOnDeviceTypeInfo.customPropertySet.id > 0 ?
+                resourceHelper.findDeviceTypeCustomPropertySetByIdOrThrowException(registerTypeOnDeviceTypeInfo.customPropertySet.id) : null);
+        return Response.ok().build();
+    }
+
+    @GET
+    @Path("/{id}/registertypes/custompropertysets")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    public Response getRegisterCustomPropertySets() {
+        return Response.ok(DeviceTypeCustomPropertySetInfo.from(resourceHelper.findCustomPropertySets(MeasurementType.class.getName()))).build();
     }
 
     @POST
@@ -351,7 +399,7 @@ public class DeviceTypeResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
-    public List<RegisterTypeInfo> linkRegisterTypesToDeviceType(@PathParam("id") long id, @PathParam("rmId") long rmId) {
+    public List<RegisterTypeOnDeviceTypeInfo> linkRegisterTypesToDeviceType(@PathParam("id") long id, @PathParam("rmId") long rmId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
 
         linkRegisterTypeToDeviceType(deviceType, rmId);
@@ -366,19 +414,12 @@ public class DeviceTypeResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
-    public Response unlinkRegisterTypesFromDeviceType(@PathParam("id") long id, @PathParam("rmId") long registerTypeId) {
+    public Response unlinkRegisterTypesFromDeviceType(@PathParam("id") long id, @PathParam("rmId") long registerTypeId, RegisterTypeInfo info) {
+        RegisterType registerType = resourceHelper.lockDeviceTypeRegisterTypeOrThrowException(info);
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
-        if (getRegisterTypeById(deviceType.getRegisterTypes(), registerTypeId) == null) {
-            String message = "No register type with id " + registerTypeId + " configured on device " + id;
-            throw new WebApplicationException(message,
-                    Response.status(Response.Status.BAD_REQUEST).entity(message).build());
-        }
-
-        unlinkRegisterTypeFromDeviceType(deviceType, registerTypeId);
-
+        deviceType.removeRegisterType(registerType);
         return Response.ok().build();
     }
-
 
     private void updateRegisterTypeAssociations(DeviceType deviceType, List<RegisterTypeInfo> newRegisterTypeInfos) {
         Set<Long> newRegisterTypeIds = asIdz(newRegisterTypeInfos);
@@ -436,15 +477,18 @@ public class DeviceTypeResource {
         return idList;
     }
 
-    private List<RegisterTypeInfo> asInfoList(DeviceType deviceType, List<RegisterType> registerTypes) {
-        List<RegisterTypeInfo> registerTypeInfos = new ArrayList<>();
+    private List<RegisterTypeOnDeviceTypeInfo> asInfoList(DeviceType deviceType, List<RegisterType> registerTypes) {
+        List<RegisterTypeOnDeviceTypeInfo> registerTypeInfos = new ArrayList<>();
         for (RegisterType registerType : registerTypes) {
             boolean isLinkedByDeviceType = !deviceConfigurationService.findDeviceTypesUsingRegisterType(registerType).isEmpty();
             boolean isLinkedByActiveRegisterSpec = !deviceConfigurationService.findActiveRegisterSpecsByDeviceTypeAndRegisterType(deviceType, registerType).isEmpty();
             boolean isLinkedByInactiveRegisterSpec = !deviceConfigurationService.findInactiveRegisterSpecsByDeviceTypeAndRegisterType(deviceType, registerType).isEmpty();
-            registerTypeInfos.add(new RegisterTypeInfo(registerType, isLinkedByDeviceType, isLinkedByActiveRegisterSpec, isLinkedByInactiveRegisterSpec));
+            RegisterTypeOnDeviceTypeInfo info = new RegisterTypeOnDeviceTypeInfo(registerType, isLinkedByDeviceType, isLinkedByActiveRegisterSpec, isLinkedByInactiveRegisterSpec, deviceType.getRegisterTypeTypeCustomPropertySet(registerType));
+            if (isLinkedByDeviceType){
+                info.parent = new VersionInfo<>(deviceType.getId(), deviceType.getVersion());
+            }
+            registerTypeInfos.add(info);
         }
         return registerTypeInfos;
     }
-
 }

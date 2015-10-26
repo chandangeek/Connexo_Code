@@ -20,16 +20,16 @@ public class DeviceMessagePrivilegeInfo {
 
     public DeviceMessagePrivilegeInfo() {
     }
-    
+
     static DeviceMessagePrivilegeInfo from(DeviceMessageUserAction userAction) {
         DeviceMessagePrivilegeInfo info = new DeviceMessagePrivilegeInfo();
         info.privilege = userAction;
         return info;
     }
-    
+
     public static DeviceMessagePrivilegeInfo from(DeviceMessageUserAction userAction, Thesaurus thesaurus) {
         DeviceMessagePrivilegeInfo info = from(userAction);
-        info.name = thesaurus.getString(userAction.getPrivilege(), userAction.getPrivilege());
+        info.name = thesaurus.getFormat(DeviceMessageExecutionLevelTranslationKeys.from(userAction.getPrivilege())).format();
         return info;
     }
 
@@ -41,4 +41,5 @@ public class DeviceMessagePrivilegeInfo {
         }
         return info;
     }
+
 }

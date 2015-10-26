@@ -2,6 +2,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.properties.BasicPropertySpec;
 import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
@@ -12,15 +13,15 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.configuration.rest.ProtocolInfo;
 import com.energyict.mdc.pluggable.rest.impl.properties.SimplePropertyType;
 import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
-
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -53,6 +54,10 @@ public class ProtocolPropertiesResourceTest extends BaseLoadProfileTest {
 
         ProtocolInfo protocolInfo = new ProtocolInfo();
         protocolInfo.properties = Arrays.asList(propertyInfo);
+        protocolInfo.deviceConfiguration = new DeviceConfigurationInfo();
+        protocolInfo.deviceConfiguration.id = 12L;
+        protocolInfo.deviceConfiguration.version = 1L;
+        protocolInfo.deviceConfiguration.parent = new VersionInfo<>(11L, 1L);
 
         Response response = target("/devicetypes/11/deviceconfigurations/12/protocols/7").request().put(Entity.json(protocolInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -60,10 +65,25 @@ public class ProtocolPropertiesResourceTest extends BaseLoadProfileTest {
         verify(deviceConfiguration).save();
     }
 
+    @Test
+    public void testSetDeviceProtocolPropertyBadVersion() {
+        DeviceProtocolConfigurationProperties properties = mock(DeviceProtocolConfigurationProperties.class);
+        mockDeviceConfiguration(properties);
+
+        ProtocolInfo protocolInfo = new ProtocolInfo();
+        protocolInfo.deviceConfiguration = new DeviceConfigurationInfo();
+        protocolInfo.deviceConfiguration.id = 12L;
+        protocolInfo.deviceConfiguration.version = 1L;
+        protocolInfo.deviceConfiguration.parent = new VersionInfo<>(11L, 2L);
+
+        Response response = target("/devicetypes/11/deviceconfigurations/12/protocols/7").request().put(Entity.json(protocolInfo));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
     private DeviceConfiguration mockDeviceConfiguration(DeviceProtocolConfigurationProperties properties) {
         BasicPropertySpec propertySpec = new BasicPropertySpec(DeviceProtocolProperty.callHomeId.name(), new StringFactory());
         DeviceType deviceType = mockDeviceType("device", 11, Arrays.asList(propertySpec));
-        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration("config", 12);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(12);
         when(properties.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         TypedProperties typedProperties = TypedProperties.empty();
         typedProperties.setProperty(DeviceProtocolProperty.callHomeId.name(), "0x7");
@@ -75,6 +95,9 @@ public class ProtocolPropertiesResourceTest extends BaseLoadProfileTest {
         when(deviceConfigurationService.findDeviceType(11)).thenReturn(Optional.of(deviceType));
         when(deviceType.getConfigurations()).thenReturn(deviceConfigurations);
         when(deviceConfiguration.getDeviceType()).thenReturn(deviceType);
+        when(deviceConfigurationService.findAndLockDeviceType(11L, 1L)).thenReturn(Optional.of(deviceType));
+        when(deviceConfigurationService.findAndLockDeviceType(11L, 2L)).thenReturn(Optional.empty());
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(12L, 1L)).thenReturn(Optional.of(deviceConfiguration));
         return deviceConfiguration;
     }
 }

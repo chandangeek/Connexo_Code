@@ -6,13 +6,11 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.elster.jupiter.validation.security.Privileges;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
 import com.google.common.collect.Iterables;
 
 import javax.annotation.security.RolesAllowed;
@@ -31,7 +29,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Created by bvn on 9/12/14.
@@ -53,17 +51,15 @@ public class ValidationRuleSetResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response getValidationsRuleSets(
-            @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @BeanParam JsonQueryParameters queryParameters) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         List<ValidationRuleSet> ruleSets = deviceConfiguration.getValidationRuleSets();
         List<ValidationRuleSetInfo> result = new ArrayList<>();
         for (ValidationRuleSet ruleSet : ruleSets) {
-            result.add(new ValidationRuleSetInfo(ruleSet));
+            result.add(new ValidationRuleSetInfo(ruleSet, deviceConfiguration));
         }
         result = ListPager.of(result, ValidationRuleSetInfo.VALIDATION_RULESET_NAME_COMPARATOR).from(queryParameters).find();
         return Response.ok(PagedInfoList.fromPagedList("validationRuleSets", result, queryParameters)).build();
@@ -72,26 +68,22 @@ public class ValidationRuleSetResource {
     @DELETE
     @Path("/{validationRuleSetId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response deleteValidationRuleSetFromDeviceConfiguration(
-            @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
-            @PathParam("validationRuleSetId") long validationRuleSetId) {
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        Optional<? extends ValidationRuleSet> optional = validationService.getValidationRuleSet(validationRuleSetId);
-        if (optional.isPresent()) {
-            ValidationRuleSet ruleSet = optional.get();
-            deviceConfiguration.removeValidationRuleSet(ruleSet);
-        }
+            @PathParam("validationRuleSetId") long validationRuleSetId,
+            ValidationRuleSetInfo info) {
+        info.id = validationRuleSetId;
+        ValidationRuleSet validationRuleSet = resourceHelper.lockValidationRuleSetOrThrowException(info);
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
+        deviceConfiguration.removeValidationRuleSet(validationRuleSet);
         return Response.ok().build();
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response addRuleSetsToDeviceConfiguration(
-            @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             List<Long> ids,
             @Context UriInfo uriInfo) {
@@ -100,16 +92,20 @@ public class ValidationRuleSetResource {
         if (!all && (ids == null || ids.size() == 0)) {
             throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_VALIDATIONRULESET_ID_FOR_ADDING);
         }
-        DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
-        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationForDeviceTypeOrThrowException(deviceType, deviceConfigurationId);
-        List<ValidationRuleSetInfo> addedValidationRuleSets = new ArrayList<>();
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
+        List<ValidationRuleSet> addedValidationRuleSets = new ArrayList<>();
+
         for (ValidationRuleSet validationRuleSet : all ? allRuleSets(deviceConfiguration) : ruleSetsFor(ids)) {
             if (!deviceConfiguration.getValidationRuleSets().contains(validationRuleSet)) {
                 deviceConfiguration.addValidationRuleSet(validationRuleSet);
-                addedValidationRuleSets.add(new ValidationRuleSetInfo(validationRuleSet));
+                addedValidationRuleSets.add(validationRuleSet);
             }
         }
-        return Response.ok(addedValidationRuleSets).build();
+        List<ValidationRuleSetInfo> infos = addedValidationRuleSets
+                .stream()
+                .map(vrs -> new ValidationRuleSetInfo(vrs, deviceConfiguration))
+                .collect(Collectors.toList());
+        return Response.ok(infos).build();
     }
 
     private boolean getBoolean(UriInfo uriInfo, String key) {
@@ -118,7 +114,7 @@ public class ValidationRuleSetResource {
     }
 
     private Iterable<? extends ValidationRuleSet> ruleSetsFor(List<Long> ids) {
-        return Iterables.transform(ids, input -> validationService.getValidationRuleSet(input).get());
+        return Iterables.transform(ids, input -> resourceHelper.findValidationRuleSetOrThrowException(input));
     }
 
     private Iterable<ValidationRuleSet> allRuleSets(DeviceConfiguration deviceConfiguration) {

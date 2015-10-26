@@ -1,24 +1,24 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.users.Group;
-import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
-import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.jayway.jsonpath.JsonModel;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.matches;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -32,16 +32,12 @@ public class ExecutionLevelResourceTest extends DeviceConfigurationApplicationJe
 
     @Test
     public void testAddPrivilege() throws Exception {
-        DeviceType deviceType = mock(DeviceType.class);
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(deviceConfiguration.getId()).thenReturn(456L);
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        when(deviceConfigurationService.findDeviceType(123L)).thenReturn(Optional.of(deviceType));
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getId()).thenReturn(999L);
-        when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(securityPropertySet));
 
-        List<String> executionLevels = Arrays.asList(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1.getPrivilege(), DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES4.getPrivilege());
+        when(deviceConfigurationService.findSecurityPropertySet(999L)).thenReturn(Optional.of(securityPropertySet));
+        List<String> executionLevels = Arrays.asList(DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1.getPrivilege(),
+                DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES4.getPrivilege());
         Response response = target("/devicetypes/123/deviceconfigurations/456/securityproperties/999/executionlevels").request().post(Entity.json(executionLevels));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
 
@@ -53,14 +49,9 @@ public class ExecutionLevelResourceTest extends DeviceConfigurationApplicationJe
 
     @Test
     public void testAddUnknownPrivilege() throws Exception {
-        DeviceType deviceType = mock(DeviceType.class);
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(deviceConfiguration.getId()).thenReturn(456L);
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        when(deviceConfigurationService.findDeviceType(123L)).thenReturn(Optional.of(deviceType));
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getId()).thenReturn(999L);
-        when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(securityPropertySet));
+        when(deviceConfigurationService.findSecurityPropertySet(999L)).thenReturn(Optional.of(securityPropertySet));
 
         List<String> executionLevels = Arrays.asList("UNKNOWN", DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2.getPrivilege());
         Response response = target("/devicetypes/123/deviceconfigurations/456/securityproperties/999/executionlevels").request().post(Entity.json(executionLevels));
@@ -75,16 +66,13 @@ public class ExecutionLevelResourceTest extends DeviceConfigurationApplicationJe
 
     @Test
     public void testDeletePrivilegeFromSecurityPropertySet() throws Exception {
-        DeviceType deviceType = mock(DeviceType.class);
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(deviceConfiguration.getId()).thenReturn(456L);
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        when(deviceConfigurationService.findDeviceType(123L)).thenReturn(Optional.of(deviceType));
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getId()).thenReturn(999L);
-        when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(securityPropertySet));
+        when(deviceConfigurationService.findAndLockSecurityPropertySetByIdAndVersion(999L, 1L)).thenReturn(Optional.of(securityPropertySet));
 
-        Response response = target("/devicetypes/123/deviceconfigurations/456/securityproperties/999/executionlevels/edit.device.security.properties.level4").request().delete();
+        ExecutionLevelInfo info = new ExecutionLevelInfo();
+        info.parent = new VersionInfo<>(999L, 1L);
+        Response response = target("/devicetypes/123/deviceconfigurations/456/securityproperties/999/executionlevels/edit.device.security.properties.level4").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
         ArgumentCaptor<DeviceSecurityUserAction> argumentCaptor = ArgumentCaptor.forClass(DeviceSecurityUserAction.class);
@@ -93,15 +81,24 @@ public class ExecutionLevelResourceTest extends DeviceConfigurationApplicationJe
     }
 
     @Test
-    public void testGetAvailableExecutionLevelsForVirginSecurityPropertySet() throws Exception {
-        DeviceType deviceType = mock(DeviceType.class);
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(deviceConfiguration.getId()).thenReturn(456L);
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        when(deviceConfigurationService.findDeviceType(123L)).thenReturn(Optional.of(deviceType));
+    public void testDeletePrivilegeBadVersion() throws Exception {
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getId()).thenReturn(999L);
-        when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(securityPropertySet));
+        when(deviceConfigurationService.findSecurityPropertySet(999L)).thenReturn(Optional.empty());
+        when(deviceConfigurationService.findAndLockSecurityPropertySetByIdAndVersion(999L, 1L)).thenReturn(Optional.empty());
+
+        ExecutionLevelInfo info = new ExecutionLevelInfo();
+        info.parent = new VersionInfo<>(999L, 1L);
+        Response response = target("/devicetypes/123/deviceconfigurations/456/securityproperties/999/executionlevels/edit.device.security.properties.level4").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
+    public void testGetAvailableExecutionLevelsForVirginSecurityPropertySet() throws Exception {
+        SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
+        when(securityPropertySet.getId()).thenReturn(999L);
+        when(deviceConfigurationService.findSecurityPropertySet(999L)).thenReturn(Optional.of(securityPropertySet));
 
         String response = target("/devicetypes/123/deviceconfigurations/456/securityproperties/999/executionlevels/").queryParam("available", true).request().get(String.class);
         JsonModel jsonModel = JsonModel.create(response);
@@ -110,15 +107,10 @@ public class ExecutionLevelResourceTest extends DeviceConfigurationApplicationJe
 
     @Test
     public void testGetAvailableExecutionLevels() throws Exception {
-        DeviceType deviceType = mock(DeviceType.class);
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(deviceConfiguration.getId()).thenReturn(456L);
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        when(deviceConfigurationService.findDeviceType(123L)).thenReturn(Optional.of(deviceType));
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getId()).thenReturn(999L);
-        when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(securityPropertySet));
         when(securityPropertySet.getUserActions()).thenReturn(EnumSet.of(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES3, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES4));
+        when(deviceConfigurationService.findSecurityPropertySet(999L)).thenReturn(Optional.of(securityPropertySet));
 
         String response = target("/devicetypes/123/deviceconfigurations/456/securityproperties/999/executionlevels/").queryParam("available", true).request().get(String.class);
         JsonModel jsonModel = JsonModel.create(response);
@@ -129,14 +121,9 @@ public class ExecutionLevelResourceTest extends DeviceConfigurationApplicationJe
     }
     @Test
     public void testGetExecutionLevels() throws Exception {
-        DeviceType deviceType = mock(DeviceType.class);
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(deviceConfiguration.getId()).thenReturn(456L);
-        when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        when(deviceConfigurationService.findDeviceType(123L)).thenReturn(Optional.of(deviceType));
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getId()).thenReturn(999L);
-        when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(securityPropertySet));
+        when(deviceConfigurationService.findSecurityPropertySet(999L)).thenReturn(Optional.of(securityPropertySet));
         when(securityPropertySet.getUserActions()).thenReturn(EnumSet.of(DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2));
         Group group1 = mockUserGroup(66L, "Zulu");
         Group group2 = mockUserGroup(67L, "Alpha");

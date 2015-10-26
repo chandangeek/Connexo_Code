@@ -37,4 +37,5 @@ public class DeviceMessageInfo {
                 .collect(Collectors.toList());
         return info;
     }
+
 }

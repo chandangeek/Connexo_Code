@@ -9,5 +9,5 @@ public class DeviceMessageEnablementInfo {
 
     public List<Long> messageIds = new ArrayList<>();
     public List<DeviceMessagePrivilegeInfo> privileges = new ArrayList<>();
-    
+    public DeviceConfigurationInfo deviceConfiguration = new DeviceConfigurationInfo();
 }
