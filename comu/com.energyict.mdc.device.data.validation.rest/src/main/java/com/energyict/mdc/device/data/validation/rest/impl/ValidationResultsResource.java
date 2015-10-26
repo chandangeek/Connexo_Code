@@ -1,14 +1,18 @@
 package com.energyict.mdc.device.data.validation.rest.impl;
 
-import com.elster.jupiter.validation.security.Privileges;
+import com.energyict.mdc.device.data.validation.DeviceDataValidationService;
+
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
-import com.energyict.mdc.device.data.validation.DeviceDataValidationService;
-import com.energyict.mdc.device.data.validation.ValidationOverview;
+import com.elster.jupiter.validation.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
@@ -30,13 +34,13 @@ public class ValidationResultsResource {
     @Path("/devicegroups/{id}")
     @RolesAllowed({Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, Privileges.Constants.VALIDATE_MANUAL, Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public PagedInfoList getValidationResultsPerDeviceGroup(@Context UriInfo uriInf, @BeanParam JsonQueryParameters queryParameters, @PathParam("id") Long groupId) {
-
-        List<ValidationOverview> list = deviceDataValidationService.getValidationResultsOfDeviceGroup(groupId, queryParameters.getStart(), queryParameters.getLimit());
-
-        List<ValidationSummaryInfo> data = list.stream().map(each -> new ValidationSummaryInfo(each)).collect(Collectors.toList());
+        List<ValidationSummaryInfo> data =
+                deviceDataValidationService
+                        .getValidationResultsOfDeviceGroup(groupId, queryParameters.getStart(), queryParameters.getLimit())
+                        .stream()
+                        .map(ValidationSummaryInfo::new)
+                        .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("summary", data, queryParameters);
-
     }
-
 
 }
