@@ -64,7 +64,6 @@ public class BpmAppServiceImpl implements BpmAppService , ApplicationPrivilegesP
     @Override
     public List<String> getApplicationPrivileges() {
         return Arrays.asList(
-                Privileges.Constants.VIEW_BPM,
                 Privileges.Constants.DESIGN_BPM
         );
     }

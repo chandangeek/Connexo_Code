@@ -1,13 +1,19 @@
 package com.elster.jupiter.bpm.security;
 
+import com.elster.jupiter.bpm.BpmAppService;
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.nls.TranslationKey;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum Privileges implements TranslationKey {
+    APP_NAME(BpmAppService.APPLICATION_KEY, "Flow"),
 
     VIEW_BPM(Constants.VIEW_BPM, "View"),
-    DESIGN_BPM(Constants.DESIGN_BPM, "Design");
+    DESIGN_BPM(Constants.DESIGN_BPM, "Design"),
+    EXECUTE_TASK(Constants.EXECUTE_TASK, "Execute"),
+    ASSIGN_TASK(Constants.ASSIGN_TASK, "Assign"),
+    VIEW_TASK(Constants.VIEW_TASK, "View");
 
     private final String key;
     private final String description;
@@ -40,5 +46,8 @@ public enum Privileges implements TranslationKey {
     public interface Constants {
         String VIEW_BPM = "privilege.view.bpm";
         String DESIGN_BPM = "privilege.design.bpm";
+        String EXECUTE_TASK = "privilege.execute.task";
+        String ASSIGN_TASK = "privilege.assign.task";
+        String VIEW_TASK = "privilege.view.task";
     }
 }
