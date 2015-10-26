@@ -1,10 +1,10 @@
 package com.energyict.mdc.scheduling.rest.impl;
 
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
+
 import java.util.logging.Level;
 
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
     INVALID_VALUE(1, "InvalidValue", "Invalid value"),
     CAN_NOT_BE_EMPTY(2, "CanNotBeEmpty", "Field can not be empty"),
     ;
@@ -16,7 +16,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     private final String format;
     private final Level level;
 
-    private MessageSeeds(int number, String key, String format) {
+    MessageSeeds(int number, String key, String format) {
         this.number = number;
         this.key = key;
         this.format = format;

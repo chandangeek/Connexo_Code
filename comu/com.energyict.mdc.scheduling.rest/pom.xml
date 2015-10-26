@@ -7,7 +7,7 @@
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
         <version>1.1.0-SNAPSHOT</version>
-        <relativePath>../com.energyict.comserver.parent/pom.xml</relativePath>
+        <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>mdc.scheduling.rest</artifactId>
@@ -42,7 +42,6 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.tasks.rest</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
@@ -57,6 +56,26 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>systemadmin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>time</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>rest.util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>transaction</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>properties</artifactId>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
@@ -77,6 +96,18 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>devtools</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>domain.util</artifactId>
+        </dependency>
 
         <!-- TESTS -->
         <dependency>
@@ -91,16 +122,28 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>messaging.h2</artifactId>
+            <artifactId>estimation</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>devtools</artifactId>
+            <artifactId>validation</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>domain.util</artifactId>
+            <artifactId>cbo</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>fsm</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>messaging.h2</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
@@ -148,10 +191,6 @@
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
         </dependency>
     </dependencies>
 

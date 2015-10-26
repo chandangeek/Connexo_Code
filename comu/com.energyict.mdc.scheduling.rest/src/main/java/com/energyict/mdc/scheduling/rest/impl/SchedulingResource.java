@@ -2,10 +2,10 @@ package com.energyict.mdc.scheduling.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.common.rest.IdListBuilder;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -13,25 +13,13 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.scheduling.model.SchedulingStatus;
 import com.energyict.mdc.scheduling.rest.ComTaskInfo;
 import com.energyict.mdc.scheduling.security.Privileges;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-import java.time.Clock;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -46,6 +34,20 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.Clock;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 @Path("/schedules")
 public class SchedulingResource {
@@ -55,14 +57,16 @@ public class SchedulingResource {
     private final Clock clock;
     private final DeviceConfigurationService deviceConfigurationService;
     private final TaskService taskService;
+    private final ResourceHelper resourceHelper;
 
     @Inject
-    public SchedulingResource(SchedulingService schedulingService, DeviceService deviceService, Clock clock, DeviceConfigurationService deviceConfigurationService, TaskService taskService) {
+    public SchedulingResource(SchedulingService schedulingService, DeviceService deviceService, Clock clock, DeviceConfigurationService deviceConfigurationService, TaskService taskService, ResourceHelper resourceHelper) {
         this.schedulingService = schedulingService;
         this.deviceService = deviceService;
         this.clock = clock;
         this.deviceConfigurationService = deviceConfigurationService;
         this.taskService = taskService;
+        this.resourceHelper = resourceHelper;
     }
 
     @GET
@@ -71,7 +75,7 @@ public class SchedulingResource {
     public PagedInfoList getSchedules(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
         String mrid = queryFilter.hasProperty("mrid") ? queryFilter.getString("mrid") : null;
         boolean available = queryFilter.hasProperty("available") ? queryFilter.getBoolean("available") : false;
-        List<ComSchedule> comSchedules = schedulingService.findAllSchedules();
+        List<ComSchedule> comSchedules = schedulingService.getAllSchedules();
         Collections.sort(comSchedules, new CompareBySchedulingStatus());
         if (mrid != null && available) {
             filterAvailableSchedulesOnly(mrid, comSchedules);
@@ -212,29 +216,24 @@ public class SchedulingResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE, Privileges.Constants.VIEW_SHARED_COMMUNICATION_SCHEDULE})
     public ComScheduleInfo getSchedules(@PathParam("id") long id) {
-        ComSchedule comSchedule = findComScheduleOrThrowException(id);
+        ComSchedule comSchedule = resourceHelper.findComScheduleOrThrowException(id);
         return ComScheduleInfo.from(comSchedule, isInUse(comSchedule));
     }
 
-    private ComSchedule findComScheduleOrThrowException(long id) {
-        Optional<ComSchedule> comSchedule = schedulingService.findSchedule(id);
-        if (!comSchedule.isPresent()) {
-            throw new WebApplicationException("No such schedule", Response.Status.NOT_FOUND);
-        }
-        return comSchedule.get();
-    }
+
 
     @POST
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE)
     public Response createSchedule(ComScheduleInfo comScheduleInfo) {
-        ComSchedule comSchedule = schedulingService.newComSchedule(comScheduleInfo.name, comScheduleInfo.temporalExpression.asTemporalExpression(),
-                comScheduleInfo.startDate == null ? null : comScheduleInfo.startDate).mrid(comScheduleInfo.mRID).build();
+        ComScheduleBuilder comScheduleBuilder = schedulingService.newComSchedule(comScheduleInfo.name, comScheduleInfo.temporalExpression.asTemporalExpression(),
+                comScheduleInfo.startDate == null ? null : comScheduleInfo.startDate);
+        comScheduleBuilder.mrid(comScheduleInfo.mRID);
         if (comScheduleInfo.comTaskUsages != null) {
-            updateTasks(comSchedule, comScheduleInfo.comTaskUsages);
+            getComTasks(comScheduleInfo.comTaskUsages).stream().forEach(comScheduleBuilder::addComTask);
         }
-        comSchedule.save();
+        ComSchedule comSchedule = comScheduleBuilder.build();
         return Response.status(Response.Status.CREATED).entity(ComScheduleInfo.from(comSchedule, false)).build();
     }
 
@@ -242,8 +241,9 @@ public class SchedulingResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE)
-    public Response deleteSchedules(@PathParam("id") long id) {
-        ComSchedule comSchedule = findComScheduleOrThrowException(id);
+    public Response deleteSchedules(@PathParam("id") long id, ComScheduleInfo info) {
+        info.id = id;
+        ComSchedule comSchedule = resourceHelper.lockComScheduleOrThrowException(info);
         if (this.isInUse(comSchedule)) {
             comSchedule.makeObsolete();
         } else {
@@ -257,7 +257,7 @@ public class SchedulingResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE)
     public ComScheduleInfo updateSchedules(@PathParam("id") long id, ComScheduleInfo comScheduleInfo) {
-        ComSchedule comSchedule = findComScheduleOrThrowException(id);
+        ComSchedule comSchedule = resourceHelper.lockComScheduleOrThrowException(comScheduleInfo);
         comSchedule.setName(comScheduleInfo.name);
         comSchedule.setTemporalExpression(comScheduleInfo.temporalExpression == null ? null : comScheduleInfo.temporalExpression.asTemporalExpression());
         comSchedule.setStartDate(comScheduleInfo.startDate == null ? null : comScheduleInfo.startDate);
@@ -265,8 +265,17 @@ public class SchedulingResource {
         if (comScheduleInfo.comTaskUsages != null) {
             updateTasks(comSchedule, comScheduleInfo.comTaskUsages);
         }
-        comSchedule.save();
-        return ComScheduleInfo.from(findComScheduleOrThrowException(id), isInUse(comSchedule));
+        comSchedule.update();
+        return ComScheduleInfo.from(comSchedule, isInUse(comSchedule));
+    }
+
+    private List<ComTask> getComTasks(Collection<ComTaskInfo> comTaskUsages) {
+        List<ComTask> comTasks = new ArrayList<>();
+        for (ComTaskInfo comTaskInfo : comTaskUsages) {
+            ComTask comTask = taskService.findComTask(comTaskInfo.id).orElseThrow(() -> new WebApplicationException("No ComTask with id " + comTaskInfo.id, Response.Status.BAD_REQUEST));
+            comTasks.add(comTask);
+        }
+        return comTasks;
     }
 
     private void updateTasks(ComSchedule comSchedule, List<ComTaskInfo> comTaskUsages) {
@@ -279,11 +288,7 @@ public class SchedulingResource {
                 comSchedule.removeComTask(comTask);
             }
         }
-
-        for (ComTaskInfo comTaskInfo : newComTaskIdMap.values()) {
-            ComTask comTask = taskService.findComTask(comTaskInfo.id).orElseThrow(() -> new WebApplicationException("No ComTask with id " + comTaskInfo.id, Response.Status.BAD_REQUEST));
-            comSchedule.addComTask(comTask);
-        }
+        getComTasks(newComTaskIdMap.values()).stream().forEach(comSchedule::addComTask);
     }
 
     private Map<Long, ComTaskInfo> asIdz(Collection<ComTaskInfo> comTaskInfos) {
@@ -299,7 +304,7 @@ public class SchedulingResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE, Privileges.Constants.VIEW_SHARED_COMMUNICATION_SCHEDULE})
     public Response getComTasks(@PathParam("id") long id, @BeanParam JsonQueryFilter queryFilter) {
-        ComSchedule comSchedule = findComScheduleOrThrowException(id);
+        ComSchedule comSchedule = resourceHelper.findComScheduleOrThrowException(id);
         if (queryFilter.hasProperty("available") && queryFilter.getBoolean("available")) {
             return Response.ok().entity(ComTaskInfo.from(getAvailableComTasksExcludingAlreadyAssigned(comSchedule))).build();
         } else {
