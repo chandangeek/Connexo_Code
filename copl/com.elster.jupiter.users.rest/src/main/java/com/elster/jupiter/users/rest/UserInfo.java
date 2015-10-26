@@ -20,6 +20,7 @@ public class UserInfo {
     public long id;
     public String authenticationName;
     public String description;
+    public Boolean active;
     public long version;
     public String domain;
     public LocaleInfo language;
@@ -34,6 +35,7 @@ public class UserInfo {
         id = user.getId();
         authenticationName = user.getName();
         description = user.getDescription();
+        active = user.getStatus();
         version = user.getVersion();
         domain = user.getDomain();
         language = user.getLocale().map((locale) -> new LocaleInfo(locale, locale)).orElse(null);
@@ -51,7 +53,7 @@ public class UserInfo {
     }
 
     public boolean update(User user) {
-        return updateDescription(user) | updateLocale(user);
+        return updateDescription(user) | updateLocale(user) | updateStatus(user);
     }
 
     private boolean updateLocale(User user) {
@@ -69,6 +71,14 @@ public class UserInfo {
     private boolean updateDescription(User user) {
         if (description != null && !description.equals(user.getDescription())) {
             user.setDescription(description);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean updateStatus(User user) {
+        if (active != null && !active.equals(user.getStatus())) {
+            user.setStatus(active);
             return true;
         }
         return false;

@@ -1,5 +1,8 @@
 package com.elster.jupiter.users.rest.actions;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ConcurrentModificationException;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
@@ -16,18 +19,18 @@ import java.util.Set;
 public class UpdateUserTransaction implements Transaction<User> {
 
     private final UserInfo info;
-
     private final UserService userService;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
-    public UpdateUserTransaction(UserInfo info, UserService userService) {
+    public UpdateUserTransaction(UserInfo info, UserService userService, ConcurrentModificationExceptionFactory conflictFactory) {
         this.info = info;
         this.userService = userService;
+        this.conflictFactory = conflictFactory;
     }
 
     @Override
     public User perform() {
         User user = fetchUser();
-        validateUpdate(user);
         return doUpdate(user);
     }
 
@@ -35,7 +38,7 @@ public class UpdateUserTransaction implements Transaction<User> {
         boolean updated = updateMemberships(user);
         updated |= info.update(user);
         if(updated){
-            user.save();
+            user.update();
         }
         return user;
     }
@@ -81,17 +84,10 @@ public class UpdateUserTransaction implements Transaction<User> {
         return target;
     }
 
-    private void validateUpdate(User user) {
-        if (user.getVersion() != info.version) {
-            throw new WebApplicationException(Response.Status.CONFLICT);
-        }
-    }
-
     private User fetchUser() {
-        Optional<User> user = userService.getUser(info.id);
-        if (user.isPresent()) {
-            return user.get();
-        }
-        throw new WebApplicationException(Response.Status.NOT_FOUND);
+        return userService.findAndLockUserByIdAndVersion(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.authenticationName)
+                        .withActualVersion(() -> userService.getUser(info.id).map(User::getVersion).orElse(null))
+                        .supplier());
     }
 }

@@ -20,14 +20,14 @@ import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.*;
 import com.elster.jupiter.users.rest.PrivilegeInfos;
 import com.elster.jupiter.users.rest.UserInfo;
 import com.elster.jupiter.users.rest.UserInfos;
@@ -41,12 +41,14 @@ public class UserResource {
     private final TransactionService transactionService;
     private final UserService userService;
     private final RestQueryService restQueryService;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public UserResource(TransactionService transactionService, UserService userService, RestQueryService restQueryService) {
+    public UserResource(TransactionService transactionService, UserService userService, RestQueryService restQueryService, ConcurrentModificationExceptionFactory conflictFactory) {
         this.transactionService = transactionService;
         this.userService = userService;
         this.restQueryService = restQueryService;
+        this.conflictFactory = conflictFactory;
     }
 
 // - To be added in the future?
@@ -127,13 +129,41 @@ public class UserResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_USER_ROLE)
     public UserInfos updateUser(UserInfo info, @PathParam("id") long id) {
         info.id = id;
-        transactionService.execute(new UpdateUserTransaction(info, userService));
+        transactionService.execute(new UpdateUserTransaction(info, userService, conflictFactory));
         return getUser(info.id);
+    }
+
+    @PUT
+    @Path("/{id}/activate")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE})
+    public UserInfos activateUser(UserInfo info, @PathParam("id") long id) {
+        Optional<User> user = userService.getUser(id);
+        if(!userService.findUserDirectory(user.get().getDomain()).get().getType().equals("INT")  &&
+                !userService.findUserDirectory(user.get().getDomain()).get().getLdapUserStatus(user.get().getName()))
+            throw new FailToActivateUser(userService.getThesaurus());
+        info.active = true;
+        info.id = id;
+        transactionService.execute(new UpdateUserTransaction(info, userService, conflictFactory));
+        return getUser(info.id);
+    }
+
+    @PUT
+    @Path("/{id}/deactivate")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE})
+    public UserInfos deactivateUser(UserInfo info, @PathParam("id") long id) {
+        info.active = false;
+        info.id = id;
+        transactionService.execute(new UpdateUserTransaction(info, userService, conflictFactory));
+        return getUser(info.id);
+
     }
 
     private RestQuery<User> getUserRestQuery() {
         Query<User> query = userService.getUserQuery();
         return restQueryService.wrap(query);
     }
-
 }

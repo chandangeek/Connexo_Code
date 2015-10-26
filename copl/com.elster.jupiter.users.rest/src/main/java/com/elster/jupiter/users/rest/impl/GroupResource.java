@@ -20,6 +20,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -40,12 +41,14 @@ public class GroupResource {
     private final TransactionService transactionService;
     private final UserService userService;
     private final RestQueryService restQueryService;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public GroupResource(TransactionService transactionService, UserService userService, RestQueryService restQueryService) {
+    public GroupResource(TransactionService transactionService, UserService userService, RestQueryService restQueryService, ConcurrentModificationExceptionFactory conflictFactory) {
         this.transactionService = transactionService;
         this.userService = userService;
         this.restQueryService = restQueryService;
+        this.conflictFactory = conflictFactory;
     }
 
     @POST
@@ -64,7 +67,7 @@ public class GroupResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_USER_ROLE)
     public GroupInfos deleteGroup(GroupInfo info, @PathParam("id") long id) {
         info.id = id;
-        transactionService.execute(new DeleteGroupTransaction(info, userService));
+        transactionService.execute(new DeleteGroupTransaction(info, userService, conflictFactory));
         return new GroupInfos();
     }
 
@@ -98,7 +101,7 @@ public class GroupResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_USER_ROLE)
     public GroupInfos updateGroup(GroupInfo info, @PathParam("id") long id) {
         info.id = id;
-        transactionService.execute(new UpdateGroupTransaction(info, userService));
+        transactionService.execute(new UpdateGroupTransaction(info, userService, conflictFactory));
         return getGroup(info.id);
     }
 
@@ -106,5 +109,4 @@ public class GroupResource {
         Query<Group> query = userService.getGroupQuery();
         return restQueryService.wrap(query);
     }
-
 }
