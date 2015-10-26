@@ -108,41 +108,38 @@ public class EngineConfigurationServiceImplTest extends PersistenceTest {
     }
 
     private OnlineComServer createOnlineComServer(String name) {
-        OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance();
-        onlineComServer.setServerLogLevel(ComServer.LogLevel.ERROR);
-        onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.ERROR);
-        onlineComServer.setChangesInterPollDelay(new TimeDuration(600));
-        onlineComServer.setSchedulingInterPollDelay(new TimeDuration(600));
-        onlineComServer.setStoreTaskQueueSize(10);
-        onlineComServer.setStoreTaskThreadPriority(3);
-        onlineComServer.setNumberOfStoreTaskThreads(6);
-        onlineComServer.setName(name);
-        onlineComServer.save();
-        return onlineComServer;
+        OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServer = getEngineModelService().newOnlineComServerBuilder();
+        onlineComServer.serverLogLevel(ComServer.LogLevel.ERROR);
+        onlineComServer.communicationLogLevel(ComServer.LogLevel.ERROR);
+        onlineComServer.changesInterPollDelay(new TimeDuration(600));
+        onlineComServer.schedulingInterPollDelay(new TimeDuration(600));
+        onlineComServer.storeTaskQueueSize(10);
+        onlineComServer.storeTaskThreadPriority(3);
+        onlineComServer.numberOfStoreTaskThreads(6);
+        onlineComServer.name(name);
+        return onlineComServer.create();
     }
 
     private OfflineComServer createOfflineComServer(String name) {
-        OfflineComServer offlineComServer = getEngineModelService().newOfflineComServerInstance();
-        offlineComServer.setName(name);
-        offlineComServer.setServerLogLevel(ComServer.LogLevel.ERROR);
-        offlineComServer.setCommunicationLogLevel(ComServer.LogLevel.DEBUG);
-        offlineComServer.setChangesInterPollDelay(new TimeDuration(600));
-        offlineComServer.setSchedulingInterPollDelay(new TimeDuration(900));
-        offlineComServer.setActive(false);
-        offlineComServer.save();
-        return offlineComServer;
+        ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> offlineComServer = getEngineModelService().newOfflineComServerBuilder();
+        offlineComServer.name(name);
+        offlineComServer.serverLogLevel(ComServer.LogLevel.ERROR);
+        offlineComServer.communicationLogLevel(ComServer.LogLevel.DEBUG);
+        offlineComServer.changesInterPollDelay(new TimeDuration(600));
+        offlineComServer.schedulingInterPollDelay(new TimeDuration(900));
+        offlineComServer.active(false);
+        return offlineComServer.create();
     }
 
     private RemoteComServer createRemoteComServer(String name, OnlineComServer onlineComServer) {
-        RemoteComServer remoteComServer = getEngineModelService().newRemoteComServerInstance();
-        remoteComServer.setName(name);
-        remoteComServer.setServerLogLevel(ComServer.LogLevel.ERROR);
-        remoteComServer.setCommunicationLogLevel(ComServer.LogLevel.DEBUG);
-        remoteComServer.setChangesInterPollDelay(new TimeDuration(600));
-        remoteComServer.setSchedulingInterPollDelay(new TimeDuration(900));
-        remoteComServer.setActive(false);
-        remoteComServer.setOnlineComServer(onlineComServer);
-        remoteComServer.save();
-        return remoteComServer;
+        RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> remoteComServer = getEngineModelService().newRemoteComServerBuilder();
+        remoteComServer.name(name);
+        remoteComServer.serverLogLevel(ComServer.LogLevel.ERROR);
+        remoteComServer.communicationLogLevel(ComServer.LogLevel.DEBUG);
+        remoteComServer.changesInterPollDelay(new TimeDuration(600));
+        remoteComServer.schedulingInterPollDelay(new TimeDuration(900));
+        remoteComServer.active(false);
+        remoteComServer.onlineComServer(onlineComServer);
+        return remoteComServer.create();
     }
 }

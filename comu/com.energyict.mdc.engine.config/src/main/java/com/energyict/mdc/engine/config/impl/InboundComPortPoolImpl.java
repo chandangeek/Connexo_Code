@@ -24,7 +24,7 @@ import java.util.List;
  * @since 2012-04-26 (10:21)
  */
 @ComPortPoolTypeMatchesComPortType(groups = {Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_COM_PORT_TYPE_OF_COM_PORT_DOES_NOT_MATCH_WITH_COM_PORT_POOL+"}")
-public class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundComPortPool {
+public final class InboundComPortPoolImpl extends ComPortPoolImpl implements InboundComPortPool {
 
     public static final String FIELD_DISCOVEYPROTOCOL = "discoveryProtocolPluggableClassId";
 

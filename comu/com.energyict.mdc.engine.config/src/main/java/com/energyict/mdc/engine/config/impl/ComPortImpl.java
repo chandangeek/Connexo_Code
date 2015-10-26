@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.config.impl;
 
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
@@ -14,11 +15,6 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.ImmutableMap;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import javax.inject.Inject;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -29,8 +25,11 @@ import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
-import org.hibernate.validator.constraints.NotEmpty;
 
 /**
  * Serves as the root of class hierarchy that will provide
@@ -192,7 +191,7 @@ public abstract class ComPortImpl implements ComPort {
     }
 
     @Override
-    public void save() {
+    public void update() {
         if (this.getId()==0) {
             throw new IllegalStateException("ComPort should have been created using the ComServer, how did you end up here?");
         } else {
@@ -207,6 +206,11 @@ public abstract class ComPortImpl implements ComPort {
         this.obsoleteDate = Instant.now();
         this.removeFromComPortPools();
         dataModel.update(this);
+    }
+
+    @Override
+    public long getVersion() {
+        return this.version;
     }
 
     private void removeFromComPortPools() {

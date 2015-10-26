@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.config.impl;
 
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -21,7 +22,6 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Provider;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -57,7 +57,7 @@ public abstract class ComServerImpl implements ComServer {
                     REMOTE_COMSERVER_DISCRIMINATOR, RemoteComServerImpl.class);
 
     private final DataModel dataModel;
-    private final Provider<OutboundComPortImpl> outboundComPortProvider;
+    private final Provider<OutboundComPort> outboundComPortProvider;
 
     private final Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider;
     private final Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider;
@@ -117,7 +117,7 @@ public abstract class ComServerImpl implements ComServer {
     private Instant obsoleteDate;
 
     @Inject
-    protected ComServerImpl(DataModel dataModel, Provider<OutboundComPortImpl> outboundComPortProvider, Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider, Thesaurus thesaurus) {
+    protected ComServerImpl(DataModel dataModel, Provider<OutboundComPort> outboundComPortProvider, Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider, Thesaurus thesaurus) {
         super();
         this.dataModel = dataModel;
         this.outboundComPortProvider = outboundComPortProvider;
@@ -156,6 +156,11 @@ public abstract class ComServerImpl implements ComServer {
         validateDelete();
         this.comPorts.clear();
         dataModel.remove(this);
+    }
+
+    @Override
+    public void update() {
+        save();
     }
 
     protected void validateDelete() {
@@ -327,6 +332,7 @@ public abstract class ComServerImpl implements ComServer {
             if (next.getId() == id) {
                 if (!next.isObsolete()) {
                     next.makeObsolete();
+                    this.dataModel.touch(this);
                 }
             }
         }
@@ -479,7 +485,7 @@ public abstract class ComServerImpl implements ComServer {
         throw new BusinessException("ComServerXDoesNotSupportRemoteQueries", "The comserver {0} does not support remote queries", this.getName());
     }
 
-    public final void save() {
+    final void save() {
         Save.action(this.getId()).save(dataModel, this);
     }
 
@@ -492,6 +498,83 @@ public abstract class ComServerImpl implements ComServer {
             return this.getName();
         }
 
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ComServerImpl comServer = (ComServerImpl) o;
+
+        return id == comServer.id;
+
+    }
+
+    @Override
+    public final int hashCode() {
+        return (int) (id ^ (id >>> 32));
+    }
+
+    static abstract class AbstractComServerBuilder<CS extends ComServerImpl, CSB extends ComServerBuilder> implements ComServerBuilder<CS, CSB> {
+
+        final CS comServerInstance;
+        private CSB me;
+
+        protected AbstractComServerBuilder(CS comServerInstance, Class<CSB> clazz) {
+            this.comServerInstance = comServerInstance;
+            this.me = clazz.cast(this); // typesafe cast ...
+        }
+
+        public void me(CSB me) {
+            this.me = me;
+        }
+
+        CS getComServerInstance() {
+            return comServerInstance;
+        }
+
+        @Override
+        public CSB name(String comServerName) {
+            comServerInstance.setName(comServerName);
+            return me;
+        }
+
+        @Override
+        public CSB changesInterPollDelay(TimeDuration changesInterPollDelay) {
+            comServerInstance.setChangesInterPollDelay(changesInterPollDelay);
+            return me;
+        }
+
+        @Override
+        public CSB schedulingInterPollDelay(TimeDuration schedulingInterPollDelay) {
+            comServerInstance.setSchedulingInterPollDelay(schedulingInterPollDelay);
+            return me;
+        }
+
+        @Override
+        public CSB communicationLogLevel(LogLevel logLevel) {
+            comServerInstance.setCommunicationLogLevel(logLevel);
+            return me;
+        }
+
+        @Override
+        public CSB serverLogLevel(LogLevel logLevel) {
+            comServerInstance.setServerLogLevel(logLevel);
+            return me;
+        }
+
+        @Override
+        public CSB active(boolean active) {
+            comServerInstance.setActive(active);
+            return me;
+        }
+
+        @Override
+        public CS create() {
+            comServerInstance.save();
+            return comServerInstance;
+        }
     }
 
 }

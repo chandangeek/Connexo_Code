@@ -1,28 +1,22 @@
 package com.energyict.mdc.engine.config.impl;
 
+import com.elster.jupiter.domain.util.Range;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.IPBasedInboundComPort;
-import com.energyict.mdc.engine.config.InboundComPort;
-import com.energyict.mdc.engine.config.ModemBasedInboundComPort;
-import com.energyict.mdc.engine.config.OnlineComServer;
-import com.energyict.mdc.engine.config.ServletBasedInboundComPort;
-import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
-import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
+import com.energyict.mdc.engine.config.*;
 import com.google.inject.Provider;
-import java.util.ArrayList;
-import java.util.List;
+
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlElement;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.hibernate.validator.constraints.Range;
-import org.hibernate.validator.constraints.URL;
 
 /**
  * Provides an implementation for the {@link com.energyict.mdc.engine.config.OnlineComServer} interface.
@@ -30,7 +24,7 @@ import org.hibernate.validator.constraints.URL;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-03-28 (15:36)
  */
-public class OnlineComServerImpl extends ComServerImpl implements OnlineComServer {
+public final class OnlineComServerImpl extends ComServerImpl implements OnlineComServer {
 
     private final EngineConfigurationService engineConfigurationService;
     @URI(message = "{"+ MessageSeeds.Keys.MDC_INVALID_URL+"}", groups = {Save.Update.class, Save.Create.class})
@@ -41,7 +35,7 @@ public class OnlineComServerImpl extends ComServerImpl implements OnlineComServe
     @Size(max = 512)
     private String eventRegistrationUri;
     private boolean usesDefaultEventRegistrationUri = true;
-    @URL(message = "{"+ MessageSeeds.Keys.MDC_INVALID_URL+"}", groups = {Save.Update.class, Save.Create.class})
+    @URI(message = "{" + MessageSeeds.Keys.MDC_INVALID_URL + "}", groups = {Save.Update.class, Save.Create.class})
     @Size(max = 512)
     private String statusUri;
     private boolean usesDefaultStatusUri = true;
@@ -53,7 +47,7 @@ public class OnlineComServerImpl extends ComServerImpl implements OnlineComServe
     private int storeTaskThreadPriority;
 
     @Inject
-    public OnlineComServerImpl(DataModel dataModel, EngineConfigurationService engineConfigurationService, Provider<OutboundComPortImpl> outboundComPortProvider, Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider, Thesaurus thesaurus) {
+    public OnlineComServerImpl(DataModel dataModel, EngineConfigurationService engineConfigurationService, Provider<OutboundComPort> outboundComPortProvider, Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider, Thesaurus thesaurus) {
         super(dataModel, outboundComPortProvider, servletBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
         this.engineConfigurationService = engineConfigurationService;
     }
@@ -226,5 +220,67 @@ public class OnlineComServerImpl extends ComServerImpl implements OnlineComServe
     @Override
     public void setStoreTaskThreadPriority(int storeTaskThreadPriority) {
         this.storeTaskThreadPriority = storeTaskThreadPriority;
+    }
+
+    public static class OnlineComServerBuilderImpl extends AbstractComServerBuilder<OnlineComServerImpl, OnlineComServerBuilder> implements OnlineComServerBuilder<OnlineComServerImpl> {
+
+        @Inject
+        public OnlineComServerBuilderImpl(DataModel dataModel) {
+            super(dataModel.getInstance(OnlineComServerImpl.class), OnlineComServerBuilder.class);
+        }
+
+        @Override
+        public OnlineComServerBuilderImpl numberOfStoreTaskThreads(int numberOfStoreTaskThreads) {
+            getComServerInstance().setNumberOfStoreTaskThreads(numberOfStoreTaskThreads);
+            return this;
+        }
+
+        @Override
+        public OnlineComServerBuilderImpl storeTaskQueueSize(int storeTaskQueueSize) {
+            getComServerInstance().setStoreTaskQueueSize(storeTaskQueueSize);
+            return this;
+        }
+
+        @Override
+        public OnlineComServerBuilderImpl storeTaskThreadPriority(int storeTaskThreadPriority) {
+            getComServerInstance().setStoreTaskThreadPriority(storeTaskThreadPriority);
+            return this;
+        }
+
+        @Override
+        public OnlineComServerBuilderImpl eventRegistrationUri(String eventRegistrationUri) {
+            getComServerInstance().setEventRegistrationUri(eventRegistrationUri);
+            return this;
+        }
+
+        @Override
+        public OnlineComServerBuilderImpl queryApiPostUri(String queryApiPostUri) {
+            getComServerInstance().setQueryAPIPostUri(queryApiPostUri);
+            return this;
+        }
+
+        @Override
+        public OnlineComServerBuilderImpl statusUri(String statusUri) {
+            getComServerInstance().setStatusUri(statusUri);
+            return this;
+        }
+
+        @Override
+        public OnlineComServerBuilderImpl usesDefaultEventRegistrationUri(boolean usesDefaultEventRegistrationUri) {
+            getComServerInstance().setUsesDefaultEventRegistrationUri(usesDefaultEventRegistrationUri);
+            return this;
+        }
+
+        @Override
+        public OnlineComServerBuilderImpl usesDefaultQueryApiPostUri(boolean usesDefaultQueryApiPostUri) {
+            getComServerInstance().setUsesDefaultQueryAPIPostUri(usesDefaultQueryApiPostUri);
+            return this;
+        }
+
+        @Override
+        public OnlineComServerBuilderImpl usesDefaultStatusUri(boolean usesDefaultStatusUri) {
+            getComServerInstance().setUsesDefaultStatusUri(usesDefaultStatusUri);
+            return this;
+        }
     }
 }

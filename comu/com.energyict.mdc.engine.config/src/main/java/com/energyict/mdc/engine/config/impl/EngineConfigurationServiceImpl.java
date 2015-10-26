@@ -28,10 +28,9 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -41,6 +40,7 @@ import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.proxy.LazyLoader;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.streams.Predicates;
@@ -69,9 +69,8 @@ import static com.energyict.mdc.engine.config.impl.ComServerImpl.OFFLINE_COMSERV
 import static com.energyict.mdc.engine.config.impl.ComServerImpl.ONLINE_COMSERVER_DISCRIMINATOR;
 import static com.energyict.mdc.engine.config.impl.ComServerImpl.REMOTE_COMSERVER_DISCRIMINATOR;
 
-
-@Component(name = "com.energyict.mdc.engine.config", service = {EngineConfigurationService.class, InstallService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + EngineConfigurationService.COMPONENT_NAME)
-public class EngineConfigurationServiceImpl implements EngineConfigurationService, InstallService, TranslationKeyProvider, OrmClient, PrivilegesProvider {
+@Component(name = "com.energyict.mdc.engine.config", service = {EngineConfigurationService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + EngineConfigurationService.COMPONENT_NAME)
+public class EngineConfigurationServiceImpl implements EngineConfigurationService, InstallService, MessageSeedProvider, TranslationKeyProvider, OrmClient, PrivilegesProvider {
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
@@ -107,11 +106,6 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     @Override
-    public String getComponentName() {
-        return EngineConfigurationService.COMPONENT_NAME;
-    }
-
-    @Override
     public Layer getLayer() {
         return Layer.DOMAIN;
     }
@@ -119,10 +113,14 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     @Override
     public List<TranslationKey> getKeys() {
         return Stream.of(
-                Arrays.stream(MessageSeeds.values()),
                 Arrays.stream(Privileges.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Reference
@@ -198,6 +196,11 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     @Override
+    public Optional<ComServer> findAndLockComServerByIdAndVersion(long id, long version) {
+        return getComServerDataMapper().lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public Finder<ComServer> findAllComServers() {
         return DefaultFinder.of(ComServer.class, where("obsoleteDate").isNull(), dataModel);
     }
@@ -235,18 +238,18 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     @Override
-    public OnlineComServer newOnlineComServerInstance() {
-        return dataModel.getInstance(OnlineComServerImpl.class);
+    public OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> newOnlineComServerBuilder() {
+        return dataModel.getInstance(OnlineComServerImpl.OnlineComServerBuilderImpl.class);
     }
 
     @Override
-    public OfflineComServer newOfflineComServerInstance() {
-        return dataModel.getInstance(OfflineComServerImpl.class);
+    public ComServer.ComServerBuilder<? extends OfflineComServer, ? extends ComServer.ComServerBuilder> newOfflineComServerBuilder() {
+        return dataModel.getInstance(OfflineComServerImpl.OfflineComServerBuilderImpl.class);
     }
 
     @Override
-    public RemoteComServer newRemoteComServerInstance() {
-        return dataModel.getInstance(RemoteComServerImpl.class);
+    public RemoteComServer.RemoteComServerBuilder<? extends RemoteComServer> newRemoteComServerBuilder() {
+        return dataModel.getInstance(RemoteComServerImpl.RemoteComServerBuilderImpl.class);
     }
 
     /**
@@ -288,6 +291,11 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     }
 
     @Override
+    public Optional<? extends ComPort> findAndLockComPortByIdAndVersion(long id, long version) {
+        return getComPortDataMapper().lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public List<ComPort> findComPortsByComServer(ComServer comServer) {
         return getComPortDataMapper().find("comServer", comServer);
     }
@@ -322,6 +330,11 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     @Override
     public Optional<? extends ComPortPool> findComPortPool(long id) {
         return getComPortPoolDataMapper().getOptional(id);
+    }
+
+    @Override
+    public Optional<? extends ComPortPool> findAndLockComPortPoolByIdAndVersion(long id, long version) {
+        return getComPortPoolDataMapper().lockObjectIfVersion(version, id);
     }
 
     @Override
@@ -393,12 +406,16 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
 
     @Override
     public InboundComPortPool newInboundComPortPool(String name, ComPortType comPortType, InboundDeviceProtocolPluggableClass discoveryProtocol) {
-        return this.dataModel.getInstance(InboundComPortPoolImpl.class).initialize(name, comPortType, discoveryProtocol);
+        final InboundComPortPoolImpl inboundComPortPool = this.dataModel.getInstance(InboundComPortPoolImpl.class).initialize(name, comPortType, discoveryProtocol);
+        inboundComPortPool.save();
+        return inboundComPortPool;
     }
 
     @Override
     public OutboundComPortPool newOutboundComPortPool(String name, ComPortType comPortType, TimeDuration taskExecutionTimeout) {
-        return dataModel.getInstance(OutboundComPortPoolImpl.class).initialize(name, comPortType, taskExecutionTimeout);
+        final OutboundComPortPoolImpl outboundComPortPool = dataModel.getInstance(OutboundComPortPoolImpl.class).initialize(name, comPortType, taskExecutionTimeout);
+        outboundComPortPool.save();
+        return outboundComPortPool;
     }
 
     @Override

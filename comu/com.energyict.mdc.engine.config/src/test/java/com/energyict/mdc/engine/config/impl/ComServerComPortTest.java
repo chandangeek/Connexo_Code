@@ -15,13 +15,13 @@ import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.engine.config.PersistenceTest;
 import com.energyict.mdc.engine.config.TCPBasedInboundComPort;
 import com.energyict.mdc.engine.config.UDPBasedInboundComPort;
-import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.io.BaudrateValue;
 import com.energyict.mdc.io.FlowControl;
 import com.energyict.mdc.io.NrOfDataBits;
 import com.energyict.mdc.io.NrOfStopBits;
 import com.energyict.mdc.io.Parities;
 import com.energyict.mdc.io.SerialPortConfiguration;
+import com.energyict.mdc.protocol.api.ComPortType;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -118,7 +118,7 @@ public class ComServerComPortTest extends PersistenceTest {
         int numberOfComPorts = 3;
         this.addComPorts(onlineComServer, numberOfComPorts);
 
-        onlineComServer.save();
+        onlineComServer.update();
 
         // Asserts
         assertThat(onlineComServer.getOutboundComPorts().size()).isEqualTo(numberOfComPorts);
@@ -176,13 +176,13 @@ public class ComServerComPortTest extends PersistenceTest {
         onlineComServer.setActive(false);
         OutboundComPort comPort1 = onlineComServer.getOutboundComPorts().get(0);
         comPort1.setName("Updated-1");
-        comPort1.save();
+        comPort1.update();
         OutboundComPort comPort2 = onlineComServer.getOutboundComPorts().get(1);
         comPort2.setName("Updated-2");
-        comPort2.save();
+        comPort2.update();
         OutboundComPort comPort3 = onlineComServer.getOutboundComPorts().get(2);
         comPort3.setName("Updated-3");
-        comPort3.save();
+        comPort3.update();
 
         // Asserts
         assertThat(onlineComServer.getOutboundComPorts().size()).isEqualTo(numberOfComPorts);
@@ -368,6 +368,40 @@ public class ComServerComPortTest extends PersistenceTest {
         assertThat(comPortPoolIds).containsOnly(comPortPool1.getId(), comPortPool2.getId(), comPortPool3.getId());
     }
 
+    @Test
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.MDC_DUPLICATE_COM_PORT+"}", property = "name")
+    @Transactional
+    public void testCreateTwoComPortsWithTheSameNameOnOneComServer(){
+        OnlineComServer comServer = this.createOnlineComServer();
+        comServer.newOutboundComPort("Non-unique name", 2).comPortType(ComPortType.TCP).active(true).add();
+        comServer.newOutboundComPort("Non-unique name", 4).comPortType(ComPortType.TCP).active(true).add();
+
+        // Assert exception
+    }
+
+    @Test
+    @Transactional
+    public void testCreateTwoComPortsWithTheSameNameOnDifferentComServers(){
+        OnlineComServer firstComServer = this.createOnlineComServer();
+        OutboundComPort firstComPort = firstComServer.newOutboundComPort("Unique name per comserver", 2).comPortType(ComPortType.TCP).active(true).add();
+
+        OnlineComServer secondComServer = this.createOnlineComServer();
+        OutboundComPort secondComPort = secondComServer.newOutboundComPort("Unique name per comserver", 4).comPortType(ComPortType.TCP).active(true).add();
+
+        assertThat(firstComPort.getName()).isEqualTo(secondComPort.getName());
+    }
+
+    @Test
+    @Transactional
+    public void testCreateDeleteCreateComPortsWithTheSameNameOnOneComServer(){
+        OnlineComServer comServer = this.createOnlineComServer();
+        OutboundComPort comPort = comServer.newOutboundComPort("Non-unique name", 2).comPortType(ComPortType.TCP).active(true).add();
+        comPort.makeObsolete();
+        comServer.newOutboundComPort("Non-unique name", 4).comPortType(ComPortType.TCP).active(true).add();
+
+        // Assert no exception
+    }
+
     private int uniqueComPortId=1;
     private void addComPorts(OnlineComServer comServer, int numberOfComPorts) {
         for (int i = 0; i < numberOfComPorts; i++) {
@@ -410,27 +444,17 @@ public class ComServerComPortTest extends PersistenceTest {
     private InboundComPortPool newInboundComPortPool(ComPortType comPortType) {
         InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool("Unique comPortPool "+comPortPoolIndex++, comPortType, inboundDeviceProtocolPluggableClass);
         inboundComPortPool.setDescription("description");
-        inboundComPortPool.save();
+        inboundComPortPool.update();
         return inboundComPortPool;
     }
 
     int onlineNameNumber=1;
+
     private OnlineComServer createOnlineComServer() {
-        OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance();
+        final OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = getEngineModelService().newOnlineComServerBuilder();
         String name = "Online-" + onlineNameNumber++;
-        onlineComServer.setName(name);
-        onlineComServer.setActive(true);
-        onlineComServer.setServerLogLevel(SERVER_LOG_LEVEL);
-        onlineComServer.setCommunicationLogLevel(COMMUNICATION_LOG_LEVEL);
-        onlineComServer.setChangesInterPollDelay(CHANGES_INTER_POLL_DELAY);
-        onlineComServer.setSchedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
-        onlineComServer.setStoreTaskQueueSize(1);
-        onlineComServer.setStoreTaskThreadPriority(1);
-        onlineComServer.setNumberOfStoreTaskThreads(1);
-        onlineComServer.setQueryAPIPostUri(QUERY_API_POST_URL);
-        onlineComServer.setEventRegistrationUri(EVENT_REGISTRATION_URL);
-        onlineComServer.save();
-        return onlineComServer;
+        onlineComServerBuilder.storeTaskQueueSize(1).storeTaskThreadPriority(1).numberOfStoreTaskThreads(1).queryApiPostUri(QUERY_API_POST_URL).eventRegistrationUri(EVENT_REGISTRATION_URL).name(name).active(true).serverLogLevel(SERVER_LOG_LEVEL).communicationLogLevel(COMMUNICATION_LOG_LEVEL).changesInterPollDelay(CHANGES_INTER_POLL_DELAY).schedulingInterPollDelay(SCHEDULING_INTER_POLL_DELAY);
+        return onlineComServerBuilder.create();
     }
 
     private OutboundComPortPool createOutboundComPortPool () {
@@ -440,7 +464,7 @@ public class ComServerComPortTest extends PersistenceTest {
     private OutboundComPortPool createOutboundComPortPool (String name) {
         OutboundComPortPool comPortPool = getEngineModelService().newOutboundComPortPool(name, ComPortType.TCP, TimeDuration.minutes(1));
         comPortPool.setActive(true);
-        comPortPool.save();
+        comPortPool.update();
         return comPortPool;
     }
 

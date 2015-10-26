@@ -153,7 +153,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
                 .add();
 
         servletBasedInboundComPort.setActive(true);
-        servletBasedInboundComPort.save();
+        servletBasedInboundComPort.update();
     }
 
     @Test
@@ -167,7 +167,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         InboundComPortPool comPortPool = createComPortPool();
         servletBasedInboundComPort.setComPortPool(comPortPool);
         servletBasedInboundComPort.setActive(true);
-        servletBasedInboundComPort.save();
+        servletBasedInboundComPort.update();
 
         assertThat(servletBasedInboundComPort.isActive()).isTrue();
         assertThat(servletBasedInboundComPort.getComPortPool()).isEqualTo(comPortPool);
@@ -475,7 +475,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         comPort.setNumberOfSimultaneousConnections(newNumberOfSimultaneousConnections);
 
         // Business method
-        comPort.save();
+        comPort.update();
 
         // Asserts
         assertEquals("Name does not match", newName, comPort.getName());
@@ -496,7 +496,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         comPort.setName(null);
 
         // Business method
-        comPort.save();
+        comPort.update();
 
         // Expected BusinessException because name is null
     }
@@ -507,7 +507,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         ServletBasedInboundComPort comPort = createSimpleComPort();
         comPort.setHttps(false);
         // Business method
-        comPort.save();
+        comPort.update();
 
         // Asserts
         assertThat(comPort.isHttps()).isFalse();
@@ -530,7 +530,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         comPort.setKeyStoreSpecsPassword(null);
 
         // Business method
-        comPort.save();
+        comPort.update();
 
         // Expected TranslatableApplicationException because the key store is null
     }
@@ -549,7 +549,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         comPort.setKeyStoreSpecsFilePath(null);
 
         // Business method
-        comPort.save();
+        comPort.update();
 
         // Expected TranslatableApplicationException because the key store file path is null
     }
@@ -568,7 +568,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         comPort.setKeyStoreSpecsFilePath("");
 
         // Business method
-        comPort.save();
+        comPort.update();
 
         // Expected TranslatableApplicationException because the key store file path is empty
     }
@@ -587,7 +587,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         comPort.setKeyStoreSpecsPassword(null);
 
         // Business method
-        comPort.save();
+        comPort.update();
 
         // Expected TranslatableApplicationException because the key store password is null
     }
@@ -606,7 +606,7 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         comPort.setKeyStoreSpecsPassword("");
 
         // Business method
-        comPort.save();
+        comPort.update();
 
         // Expected TranslatableApplicationException because the key store password is empty
     }
@@ -626,16 +626,14 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
         comPort.setTrustStoreSpecsPassword(null);
 
         // Business method
-        comPort.save();
+        comPort.update();
 
         // Expected TranslatableApplicationException because the trust store is null
     }
 
     private int comPortPoolIndex=1;
     private InboundComPortPool createComPortPool() {
-        InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool("comPortPool"+comPortPoolIndex++, ComPortType.SERVLET, inboundDeviceProtocolPluggableClass);
-        inboundComPortPool.save();
-        return inboundComPortPool;
+        return getEngineModelService().newInboundComPortPool("comPortPool"+comPortPoolIndex++, ComPortType.SERVLET, inboundDeviceProtocolPluggableClass);
     }
 
     private ServletBasedInboundComPort createSimpleComPort() {
@@ -658,18 +656,17 @@ public class ServletBasedInboundComPortImplTest extends PersistenceTest {
     private int onlineNameNumber = 1;
 
     private OnlineComServer createOnlineComServer() {
-        OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance();
+        OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = getEngineModelService().newOnlineComServerBuilder();
         String name = "Online-" + onlineNameNumber++;
-        onlineComServer.setName(name);
-        onlineComServer.setActive(true);
-        onlineComServer.setServerLogLevel(ComServer.LogLevel.ERROR);
-        onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.TRACE);
-        onlineComServer.setChangesInterPollDelay(new TimeDuration(60));
-        onlineComServer.setSchedulingInterPollDelay(new TimeDuration(90));
-        onlineComServer.setStoreTaskQueueSize(1);
-        onlineComServer.setStoreTaskThreadPriority(1);
-        onlineComServer.setNumberOfStoreTaskThreads(1);
-        onlineComServer.save();
-        return onlineComServer;
+        onlineComServerBuilder.name(name);
+        onlineComServerBuilder.active(true);
+        onlineComServerBuilder.serverLogLevel(ComServer.LogLevel.ERROR);
+        onlineComServerBuilder.communicationLogLevel(ComServer.LogLevel.TRACE);
+        onlineComServerBuilder.changesInterPollDelay(new TimeDuration(60));
+        onlineComServerBuilder.schedulingInterPollDelay(new TimeDuration(90));
+        onlineComServerBuilder.storeTaskQueueSize(1);
+        onlineComServerBuilder.storeTaskThreadPriority(1);
+        onlineComServerBuilder.numberOfStoreTaskThreads(1);
+        return onlineComServerBuilder.create();
     }
 }

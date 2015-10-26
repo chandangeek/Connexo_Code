@@ -111,7 +111,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
                 .add();
 
         tcpBasedInboundComPort.setActive(true);
-        tcpBasedInboundComPort.save();
+        tcpBasedInboundComPort.update();
     }
 
     @Test
@@ -125,7 +125,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
         InboundComPortPool comPortPool = createComPortPool();
         tcpBasedInboundComPort.setComPortPool(comPortPool);
         tcpBasedInboundComPort.setActive(true);
-        tcpBasedInboundComPort.save();
+        tcpBasedInboundComPort.update();
 
         assertThat(tcpBasedInboundComPort.isActive()).isTrue();
         assertThat(tcpBasedInboundComPort.getComPortPool()).isEqualTo(comPortPool);
@@ -225,7 +225,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
         comPort.setPortNumber(newPortNumber);
         comPort.setNumberOfSimultaneousConnections(newNumberOfSimultaneousConnections);
 
-        comPort.save();
+        comPort.update();
 
         // Asserts
         assertEquals("Name does not match", newName, comPort.getName());
@@ -237,9 +237,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
 
     private int comPortPoolIndex=1;
     private InboundComPortPool createComPortPool() {
-        InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool("ComPortPool "+comPortPoolIndex++, ComPortType.TCP, inboundDeviceProtocolPluggableClass);
-        inboundComPortPool.save();
-        return inboundComPortPool;
+        return getEngineModelService().newInboundComPortPool("ComPortPool "+comPortPoolIndex++, ComPortType.TCP, inboundDeviceProtocolPluggableClass);
     }
 
     private TCPBasedInboundComPort createSimpleComPort() {
@@ -257,19 +255,18 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
     private int onlineNameNumber = 1;
 
     private OnlineComServer createOnlineComServer() {
-        OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance();
+        OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = getEngineModelService().newOnlineComServerBuilder();
         String name = "Online-" + onlineNameNumber++;
-        onlineComServer.setName(name);
-        onlineComServer.setActive(true);
-        onlineComServer.setServerLogLevel(ComServer.LogLevel.ERROR);
-        onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.TRACE);
-        onlineComServer.setChangesInterPollDelay(new TimeDuration(60));
-        onlineComServer.setSchedulingInterPollDelay(new TimeDuration(90));
-        onlineComServer.setStoreTaskQueueSize(1);
-        onlineComServer.setStoreTaskThreadPriority(1);
-        onlineComServer.setNumberOfStoreTaskThreads(1);
-        onlineComServer.save();
-        return onlineComServer;
+        onlineComServerBuilder.name(name);
+        onlineComServerBuilder.active(true);
+        onlineComServerBuilder.serverLogLevel(ComServer.LogLevel.ERROR);
+        onlineComServerBuilder.communicationLogLevel(ComServer.LogLevel.TRACE);
+        onlineComServerBuilder.changesInterPollDelay(new TimeDuration(60));
+        onlineComServerBuilder.schedulingInterPollDelay(new TimeDuration(90));
+        onlineComServerBuilder.storeTaskQueueSize(1);
+        onlineComServerBuilder.storeTaskThreadPriority(1);
+        onlineComServerBuilder.numberOfStoreTaskThreads(1);
+        return onlineComServerBuilder.create();
     }
 
 }

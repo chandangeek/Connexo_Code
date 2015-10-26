@@ -203,7 +203,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
                 .add();
 
         modemBasedInboundComPort.setActive(true);
-        modemBasedInboundComPort.save();
+        modemBasedInboundComPort.update();
     }
 
     @Test
@@ -219,7 +219,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
         InboundComPortPool comPortPool = createComPortPool();
         modemBasedInboundComPort.setComPortPool(comPortPool);
         modemBasedInboundComPort.setActive(true);
-        modemBasedInboundComPort.save();
+        modemBasedInboundComPort.update();
 
         assertThat(modemBasedInboundComPort.isActive()).isTrue();
         assertThat(modemBasedInboundComPort.getComPortPool()).isEqualTo(comPortPool);
@@ -443,7 +443,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
                 newNrOfStopBits,
                 newParity,
                 newFlowControl));
-        comPort.save();
+        comPort.update();
 
         ModemBasedInboundComPort updatedComPort = (ModemBasedInboundComPort) getEngineModelService().findComPort(comPort.getId()).get();
 
@@ -477,7 +477,7 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
 
         comPort.setName(null);
 
-        comPort.save();
+        comPort.update();
 
         // was expecting a BusinessException because the name is set to null
     }
@@ -493,26 +493,23 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
 
     private int onlineNameNumber=1;
     private OnlineComServer createOnlineComServer() {
-        OnlineComServer onlineComServer = getEngineModelService().newOnlineComServerInstance();
+        OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = getEngineModelService().newOnlineComServerBuilder();
         String name = "Online-" + onlineNameNumber++;
-        onlineComServer.setName(name);
-        onlineComServer.setActive(true);
-        onlineComServer.setServerLogLevel(ComServer.LogLevel.ERROR);
-        onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.TRACE);
-        onlineComServer.setChangesInterPollDelay(new TimeDuration(60));
-        onlineComServer.setSchedulingInterPollDelay(new TimeDuration(90));
-        onlineComServer.setStoreTaskQueueSize(1);
-        onlineComServer.setStoreTaskThreadPriority(1);
-        onlineComServer.setNumberOfStoreTaskThreads(1);
-        onlineComServer.save();
-        return onlineComServer;
+        onlineComServerBuilder.name(name);
+        onlineComServerBuilder.active(true);
+        onlineComServerBuilder.serverLogLevel(ComServer.LogLevel.ERROR);
+        onlineComServerBuilder.communicationLogLevel(ComServer.LogLevel.TRACE);
+        onlineComServerBuilder.changesInterPollDelay(new TimeDuration(60));
+        onlineComServerBuilder.schedulingInterPollDelay(new TimeDuration(90));
+        onlineComServerBuilder.storeTaskQueueSize(1);
+        onlineComServerBuilder.storeTaskThreadPriority(1);
+        onlineComServerBuilder.numberOfStoreTaskThreads(1);
+        return onlineComServerBuilder.create();
     }
 
     private int comPortPoolId=1;
     private InboundComPortPool createComPortPool() {
-        InboundComPortPool inboundComPortPool = getEngineModelService().newInboundComPortPool("comPortPool "+comPortPoolId++, ComPortType.SERIAL, inboundDeviceProtocolPluggableClass);
-        inboundComPortPool.save();
-        return inboundComPortPool;
+        return getEngineModelService().newInboundComPortPool("comPortPool "+comPortPoolId++, ComPortType.SERIAL, inboundDeviceProtocolPluggableClass);
     }
 
     private ModemBasedInboundComPort createSimpleComPort() {
