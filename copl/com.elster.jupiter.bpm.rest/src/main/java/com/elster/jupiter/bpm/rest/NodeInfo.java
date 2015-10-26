@@ -2,7 +2,6 @@ package com.elster.jupiter.bpm.rest;
 
 import com.elster.jupiter.bpm.rest.impl.DateConvertor;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
