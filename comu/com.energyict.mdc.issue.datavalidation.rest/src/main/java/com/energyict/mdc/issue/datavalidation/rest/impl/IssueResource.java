@@ -1,8 +1,18 @@
 package com.energyict.mdc.issue.datavalidation.rest.impl;
 
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
+import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
+
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.rest.MessageSeeds;
-import com.elster.jupiter.issue.rest.request.*;
+import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
+import com.elster.jupiter.issue.rest.request.BulkIssueRequest;
+import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
+import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
+import com.elster.jupiter.issue.rest.request.EntityReference;
+import com.elster.jupiter.issue.rest.request.PerformActionRequest;
 import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
@@ -26,13 +36,18 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Order;
-import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
-import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
-import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -57,11 +72,12 @@ public class IssueResource {
 
     private final IssueResourceHelper issueResourceHelper;
     private final DataValidationIssueInfoFactory issueInfoFactory;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
     public IssueResource(IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService,
                          UserService userService, TransactionService transactionService, DataValidationIssueInfoFactory dataCollectionIssuesInfoFactory,
-                         IssueResourceHelper issueResourceHelperFactory, Thesaurus thesaurus) {
+                         IssueResourceHelper issueResourceHelperFactory, Thesaurus thesaurus, ConcurrentModificationExceptionFactory conflictFactory) {
         this.issueService = issueService;
         this.issueDataValidationService = issueDataValidationService;
         this.meteringService = meteringService;
@@ -70,6 +86,7 @@ public class IssueResource {
         this.issueInfoFactory = dataCollectionIssuesInfoFactory;
         this.issueResourceHelper = issueResourceHelperFactory;
         this.thesaurus = thesaurus;
+        this.conflictFactory = conflictFactory;
     }
 
     @GET
@@ -138,7 +155,12 @@ public class IssueResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
     public Response performAction(@PathParam("id") long id, @PathParam("actionId") long actionId, PerformActionRequest request) {
-        IssueDataValidation issue = issueDataValidationService.findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        IssueDataValidation issue = issueDataValidationService.findAndLockIssueDataValidationByIdAndVersion(id, request.issue.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(request.issue.title)
+                        .withActualVersion(() -> issueDataValidationService.findIssue(request.id)
+                                .map(IssueDataValidation::getVersion)
+                                .orElse(null))
+                        .supplier());
         request.id = actionId;
         return Response.ok(issueResourceHelper.performIssueAction(issue, request)).build();
     }
@@ -191,7 +213,7 @@ public class IssueResource {
             if (issue.isPresent()) {
                 issuesForBulk.add(issue.get());
             } else {
-                bulkResult.addFail(MessageSeeds.ISSUE_DOES_NOT_EXIST.getTranslated(thesaurus), issueRef.getId(), "Issue (id = " + issueRef.getId() + ")");
+                bulkResult.addFail(thesaurus.getFormat(MessageSeeds.ISSUE_DOES_NOT_EXIST).format(), issueRef.getId(), "Issue (id = " + issueRef.getId() + ")");
             }
         }
         return issuesForBulk;
@@ -204,7 +226,7 @@ public class IssueResource {
             if (status.isPresent() && status.get().isHistorical()) {
                 for (Issue issue : issueProvider.apply(response)) {
                     if (issue.getStatus().isHistorical()) {
-                        response.addFail(MessageSeeds.ISSUE_ALREADY_CLOSED.getTranslated(thesaurus), issue.getId(), issue.getTitle());
+                        response.addFail(thesaurus.getFormat(MessageSeeds.ISSUE_ALREADY_CLOSED).format(), issue.getId(), issue.getTitle());
                     } else {
                         issue.addComment(request.comment, performer);
                         if (issue instanceof OpenIssue) {

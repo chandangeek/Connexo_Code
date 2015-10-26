@@ -17,6 +17,7 @@ import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
 import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
 import com.elster.jupiter.issue.rest.request.EntityReference;
 import com.elster.jupiter.issue.rest.request.PerformActionRequest;
+import com.elster.jupiter.issue.rest.response.issue.IssueShortInfo;
 import com.elster.jupiter.issue.share.entity.IssueActionType;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueComment;
@@ -309,12 +310,15 @@ public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest 
     public void testPerformAction() {
         Optional<IssueDataValidation> issue = Optional.of(getDefaultIssue());
         doReturn(issue).when(issueDataValidationService).findIssue(1);
+        doReturn(issue).when(issueDataValidationService).findAndLockIssueDataValidationByIdAndVersion(1, 1);
 
         Optional<IssueActionType> mockActionType = Optional.of(getDefaultIssueActionType());
         when(issueActionService.findActionType(1)).thenReturn(mockActionType);
 
         PerformActionRequest request = new PerformActionRequest();
         request.id = 1;
+        request.issue = new IssueShortInfo();
+        request.issue.version = 1L;
 
         Response response = target("issues/1/actions/1").request().put(Entity.json(request));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -323,8 +327,12 @@ public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest 
     @Test
     public void testPerformActionOnUnexistingIssue() {
         when(issueDataValidationService.findIssue(1123)).thenReturn(Optional.empty());
+        when(issueDataValidationService.findAndLockIssueDataValidationByIdAndVersion(1123, 1)).thenReturn(Optional.empty());
 
-        Response response = target("issues/1123/action").request().put(Entity.json(new PerformActionRequest()));
+        PerformActionRequest info = new PerformActionRequest();
+        info.issue = new IssueShortInfo();
+        info.issue.version = 1L;
+        Response response = target("issue/1123/actions/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
@@ -332,12 +340,14 @@ public class IssueResourceTest extends IssueDataValidationApplicationJerseyTest 
     public void testPerformNonexistingAction() {
         Optional<IssueDataValidation> issue = Optional.of(getDefaultIssue());
         doReturn(issue).when(issueDataValidationService).findIssue(1);
+        doReturn(issue).when(issueDataValidationService).findAndLockIssueDataValidationByIdAndVersion(1, 1);
         when(issueActionService.findActionType(1)).thenReturn(Optional.empty());
 
         PerformActionRequest request = new PerformActionRequest();
         request.id = 1;
-
-        Response response = target("issue/1/action").request().put(Entity.json(request));
+        request.issue = new IssueShortInfo();
+        request.issue.version = 1L;
+        Response response = target("issue/1123/actions/1").request().put(Entity.json(request));
         assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
