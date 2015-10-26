@@ -49,7 +49,7 @@ public class FormattersResource {
     private ProcessorInfos toInfos(List<DataFormatterFactory> formatters) {
         ProcessorInfos infos = new ProcessorInfos();
         for (DataFormatterFactory processor : formatters) {
-            infos.add(processor.getName(), thesaurus.getStringBeyondComponent(processor.getName(), processor.getName()),
+            infos.add(processor.getName(), thesaurus.getStringBeyondComponent(processor.getName(), processor.getDisplayName()),
                     propertyUtils.convertPropertySpecsToPropertyInfos(processor.getPropertySpecs()));
         }
         infos.total = formatters.size();

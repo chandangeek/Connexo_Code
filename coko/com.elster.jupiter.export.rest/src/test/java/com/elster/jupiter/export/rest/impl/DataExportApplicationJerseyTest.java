@@ -9,7 +9,7 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.ExportTask;
-import com.elster.jupiter.export.ReadingTypeDataSelector;
+import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -21,7 +21,6 @@ import com.elster.jupiter.time.RelativeField;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.Transaction;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Never;
 import org.junit.Before;
 import org.mockito.Answers;
@@ -31,7 +30,6 @@ import javax.ws.rs.core.Application;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -45,7 +43,7 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
     @Mock
     protected ExportTask exportTask;
     @Mock
-    protected ReadingTypeDataSelector readingTypeDataSelector;
+    protected StandardDataSelector standardDataSelector;
     @Mock
     protected RestQueryService restQueryService;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
@@ -75,10 +73,10 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
     protected DataExportTaskBuilder builder = initBuilderStub();
 
     private DataExportTaskBuilder initBuilderStub() {
-        final Object proxyInstance = Proxy.newProxyInstance(DataExportTaskBuilder.class.getClassLoader(), new Class<?>[]{DataExportTaskBuilder.class, DataExportTaskBuilder.PropertyBuilder.class, DataExportTaskBuilder.CustomSelectorBuilder.class, DataExportTaskBuilder.StandardSelectorBuilder.class}, new InvocationHandler() {
+        final Object proxyInstance = Proxy.newProxyInstance(DataExportTaskBuilder.class.getClassLoader(), new Class<?>[]{DataExportTaskBuilder.class, DataExportTaskBuilder.PropertyBuilder.class, DataExportTaskBuilder.CustomSelectorBuilder.class, DataExportTaskBuilder.EventSelectorBuilder.class}, new InvocationHandler() {
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                if (hasReturnType(method, asList(DataExportTaskBuilder.class, DataExportTaskBuilder.PropertyBuilder.class, DataExportTaskBuilder.CustomSelectorBuilder.class, DataExportTaskBuilder.StandardSelectorBuilder.class))) {
+                if (hasReturnType(method, asList(DataExportTaskBuilder.class, DataExportTaskBuilder.PropertyBuilder.class, DataExportTaskBuilder.CustomSelectorBuilder.class, DataExportTaskBuilder.EventSelectorBuilder.class))) {
                     return builderGetter.get();
                 }
                 return taskGetter.get();
@@ -92,11 +90,6 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
             private Supplier<DataExportTaskBuilder> builderGetter = () -> builder;
         });
         return (DataExportTaskBuilder) proxyInstance;
-    }
-
-    @Override
-    protected MessageSeed[] getMessageSeeds() {
-        return MessageSeeds.values();
     }
 
     @Override
@@ -121,14 +114,15 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
         doReturn(query).when(dataExportService).getReadingTypeDataExportTaskQuery();
         doReturn(restQuery).when(restQueryService).wrap(query);
         doReturn(asList(exportTask)).when(restQuery).select(any(), any());
-        when(exportTask.getReadingTypeDataSelector()).thenReturn(Optional.of(readingTypeDataSelector));
+        doReturn(Optional.of(standardDataSelector)).when(exportTask).getReadingTypeDataSelector();
         when(exportTask.getDataSelector()).thenReturn("Standard Data Selector");
-        when(readingTypeDataSelector.getEndDeviceGroup()).thenReturn(endDeviceGroup);
-        when(readingTypeDataSelector.getExportPeriod()).thenReturn(exportPeriod);
+        when(standardDataSelector.getEndDeviceGroup()).thenReturn(endDeviceGroup);
+        when(standardDataSelector.getExportPeriod()).thenReturn(exportPeriod);
         when(exportPeriod.getRelativeDateFrom()).thenReturn(new RelativeDate(RelativeField.DAY.minus(1)));
         when(exportPeriod.getRelativeDateTo()).thenReturn(new RelativeDate());
-        when(readingTypeDataSelector.getStrategy()).thenReturn(strategy);
-        when(readingTypeDataSelector.getUpdatePeriod()).thenReturn(Optional.of(exportPeriod));
+        when(standardDataSelector.getStrategy()).thenReturn(strategy);
+        when(strategy.getUpdateWindow()).thenReturn(Optional.empty());
+        when(standardDataSelector.getStrategy().getUpdatePeriod()).thenReturn(Optional.of(exportPeriod));
         when(exportTask.getNextExecution()).thenReturn(DataExportTaskResourceTest.NEXT_EXECUTION.toInstant());
         when(meteringGroupsService.findEndDeviceGroup(5)).thenReturn(Optional.of(endDeviceGroup));
         when(exportTask.getScheduleExpression()).thenReturn(Never.NEVER);
@@ -136,13 +130,16 @@ public class DataExportApplicationJerseyTest extends FelixRestApplicationJerseyT
         when(exportTask.getOccurrencesFinder()).thenReturn(finder);
         when(exportTask.getName()).thenReturn("Name");
         when(exportTask.getLastOccurrence()).thenReturn(Optional.empty());
-        when(exportTask.getLastRun()).thenReturn(Optional.<Instant>empty());
+        when(exportTask.getLastRun()).thenReturn(Optional.empty());
+        when(exportTask.getVersion()).thenReturn(DataExportTaskResourceTest.OK_VERSION);
 
         doReturn(Optional.of(exportTask)).when(dataExportService).findExportTask(DataExportTaskResourceTest.TASK_ID);
+        doReturn(Optional.of(exportTask)).when(dataExportService).findAndLockExportTask(DataExportTaskResourceTest.TASK_ID, DataExportTaskResourceTest.OK_VERSION);
+        doReturn(Optional.empty()).when(dataExportService).findAndLockExportTask(DataExportTaskResourceTest.TASK_ID, DataExportTaskResourceTest.BAD_VERSION);
         setUpStubs();
     }
 
-    protected void setUpStubs(){
+    protected void setUpStubs() {
         // for child
     }
 }

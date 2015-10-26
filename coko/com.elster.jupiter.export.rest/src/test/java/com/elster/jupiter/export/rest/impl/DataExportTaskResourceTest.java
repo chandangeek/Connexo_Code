@@ -1,10 +1,12 @@
 package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.EmailDestination;
+import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.FileDestination;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.time.ZoneId;
@@ -18,6 +20,9 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
 
     public static final ZonedDateTime NEXT_EXECUTION = ZonedDateTime.of(2015, 1, 13, 0, 0, 0, 0, ZoneId.systemDefault());
     public static final int TASK_ID = 750;
+    public static final long OK_VERSION = 41L;
+    public static final long BAD_VERSION = 35L;
+
     @Mock
     private FileDestination newDestination;
 
@@ -36,8 +41,10 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
     @Test
     public void triggerTaskTest() {
         DataExportTaskInfo info = new DataExportTaskInfo();
+        info.id = TASK_ID;
+        info.version = OK_VERSION;
 
-        Response response1 = target("/dataexporttask/"+TASK_ID+"/trigger").request().post(Entity.json(null));
+        Response response1 = target("/dataexporttask/"+TASK_ID+"/trigger").request().put(Entity.json(info));
         assertThat(response1.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         verify(exportTask).triggerNow();
@@ -54,20 +61,43 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         info.dataProcessor = new ProcessorInfo();
         info.dataProcessor.name = "dataProcessor";
         info.dataSelector = new SelectorInfo();
-        info.dataSelector.name = "Standard Data Selector";
+        info.dataSelector.name = "Device readings data selector";
         DestinationInfo fileDestinationInfo = new DestinationInfo();
         fileDestinationInfo.type = DestinationType.FILE;
         fileDestinationInfo.fileLocation = "";
         fileDestinationInfo.fileName = "file";
         fileDestinationInfo.fileExtension = "txt";
         info.destinations.add(fileDestinationInfo);
+
         DestinationInfo emailDestinationInfo = new DestinationInfo();
         emailDestinationInfo.type = DestinationType.EMAIL;
         emailDestinationInfo.fileName = "attachment";
         emailDestinationInfo.fileExtension = "csv";
-        emailDestinationInfo.recipients="user1@elster.com,user2@elster.com";
+        emailDestinationInfo.recipients="user1@elster.com;user2@elster.com";
         emailDestinationInfo.subject="daily report";
         info.destinations.add(emailDestinationInfo);
+
+        DestinationInfo ftpDestinationInfo = new DestinationInfo();
+        ftpDestinationInfo.type = DestinationType.FTP;
+        ftpDestinationInfo.fileLocation = "";
+        ftpDestinationInfo.fileName = "ftpfile";
+        ftpDestinationInfo.fileExtension = "ftptxt";
+        ftpDestinationInfo.server = "ftpserver";
+        ftpDestinationInfo.password = "ftppassword";
+        ftpDestinationInfo.user = "ftpuser";
+        ftpDestinationInfo.port = 21;
+        info.destinations.add(ftpDestinationInfo);
+
+        DestinationInfo ftpsDestinationInfo = new DestinationInfo();
+        ftpsDestinationInfo.type = DestinationType.FTPS;
+        ftpsDestinationInfo.fileLocation = "";
+        ftpsDestinationInfo.fileName = "ftpsfile";
+        ftpsDestinationInfo.fileExtension = "ftpstxt";
+        ftpsDestinationInfo.server = "ftpsserver";
+        ftpsDestinationInfo.password = "ftpspassword";
+        ftpsDestinationInfo.user = "ftpsuser";
+        ftpsDestinationInfo.port = 20;
+        info.destinations.add(ftpsDestinationInfo);
 
         Entity<DataExportTaskInfo> json = Entity.json(info);
 
@@ -76,7 +106,9 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
 
         verify(exportTask).addFileDestination("", "file", "txt");
-        verify(exportTask).addEmailDestination("user1@elster.com,user2@elster.com", "daily report", "attachment", "csv");
+        verify(exportTask).addEmailDestination("user1@elster.com;user2@elster.com", "daily report", "attachment", "csv");
+        verify(exportTask).addFtpDestination("ftpserver", 21, "ftpuser", "ftppassword", "", "ftpfile", "ftptxt");
+        verify(exportTask).addFtpsDestination("ftpsserver", 20, "ftpsuser", "ftpspassword", "", "ftpsfile", "ftpstxt");
     }
 
     @Test
@@ -90,7 +122,14 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         info.dataProcessor.name = "dataProcessor";
         info.dataSelector = new SelectorInfo();
         info.dataSelector.name = "Standard Data Selector";
-
+        info.version = OK_VERSION;
+        DestinationInfo fileDestinationInfo = new DestinationInfo();
+        fileDestinationInfo.id = 0; // new
+        fileDestinationInfo.type = DestinationType.FILE;
+        fileDestinationInfo.fileLocation = "";
+        fileDestinationInfo.fileName = "file";
+        fileDestinationInfo.fileExtension = "txt";
+        info.destinations.add(fileDestinationInfo);
 
         Entity<DataExportTaskInfo> json = Entity.json(info);
 
@@ -115,6 +154,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         info.dataSelector = new SelectorInfo();
         info.dataProcessor = new ProcessorInfo();
         info.dataProcessor.name = "dataProcessor";
+        info.version = OK_VERSION;
         DestinationInfo fileDestinationInfo = new DestinationInfo();
         fileDestinationInfo.id = 0; // new
         fileDestinationInfo.type = DestinationType.FILE;
@@ -127,7 +167,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         emailDestinationInfo.type = DestinationType.EMAIL;
         emailDestinationInfo.fileName = "attachment";
         emailDestinationInfo.fileExtension = "csv";
-        emailDestinationInfo.recipients="user1@elster.com,user2@elster.com";
+        emailDestinationInfo.recipients="user1@elster.com;user2@elster.com";
         emailDestinationInfo.subject="daily report";
         info.destinations.add(emailDestinationInfo);
 
@@ -139,7 +179,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
 
         verify(exportTask).removeDestination(obsolete);
         verify(exportTask, never()).removeDestination(newDestination);
-        verify(toUpdate).setRecipients("user1@elster.com,user2@elster.com");
+        verify(toUpdate).setRecipients("user1@elster.com;user2@elster.com");
         verify(toUpdate).setSubject("daily report");
         verify(toUpdate).setAttachmentName("attachment");
         verify(toUpdate).setAttachmentExtension("csv");
@@ -148,4 +188,47 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
     }
 
 
+    @Test
+    public void updateTaskBadVersion() {
+        DataExportTaskInfo info = new DataExportTaskInfo();
+        info.id = TASK_ID;
+        info.name = "newName";
+        info.nextRun = 250L;
+        info.dataSelector = new SelectorInfo();
+        info.dataProcessor = new ProcessorInfo();
+        info.dataProcessor.name = "dataProcessor";
+        info.version = BAD_VERSION;
+
+        Entity<DataExportTaskInfo> json = Entity.json(info);
+
+        Response response = target("/dataexporttask/" + TASK_ID).request().put(json);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
+    public void deleteTaskBadVersion() {
+        DataExportTaskInfo info = new DataExportTaskInfo();
+        info.id = TASK_ID;
+        info.name = "newName";
+        info.version = BAD_VERSION;
+        Entity<DataExportTaskInfo> json = Entity.json(info);
+        Response response = target("/dataexporttask/" + TASK_ID).request().build(HttpMethod.DELETE, json).invoke();
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
+    public void triggerNowBadVersion() {
+        ExportTask exportTask = mock(ExportTask.class);
+        DataExportTaskInfo info = new DataExportTaskInfo();
+        info.id = TASK_ID;
+        info.name = "newName";
+        info.version = BAD_VERSION;
+        Entity<DataExportTaskInfo> json = Entity.json(info);
+        Response response = target("/dataexporttask/" + TASK_ID + "/trigger").request().put(json);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+        verify(exportTask, never()).triggerNow();
+    }
 }

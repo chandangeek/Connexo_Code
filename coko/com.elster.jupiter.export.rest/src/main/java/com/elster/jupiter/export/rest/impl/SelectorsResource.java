@@ -2,7 +2,6 @@ package com.elster.jupiter.export.rest.impl;
 
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataSelectorFactory;
-import com.elster.jupiter.export.impl.StandardDataSelectorFactory;
 import com.elster.jupiter.export.security.Privileges;
 import com.elster.jupiter.nls.Thesaurus;
 
@@ -38,7 +37,7 @@ public class SelectorsResource {
         List<DataSelectorFactory> selectors = dataExportService.getAvailableSelectors();
         for (DataSelectorFactory selector : selectors) {
             infos.add(selector.getName(), thesaurus.getStringBeyondComponent(selector.getName(), selector.getDisplayName()),
-                    propertyUtils.convertPropertySpecsToPropertyInfos(selector.getPropertySpecs()), selector.isDefault());
+                    propertyUtils.convertPropertySpecsToPropertyInfos(selector.getPropertySpecs()), SelectorType.forSelector(selector.getName()));
         }
 
         infos.total = selectors.size();

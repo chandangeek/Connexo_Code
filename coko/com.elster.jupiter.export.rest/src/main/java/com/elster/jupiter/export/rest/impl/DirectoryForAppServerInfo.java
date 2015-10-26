@@ -11,8 +11,8 @@ import java.nio.file.Paths;
 public class DirectoryForAppServerInfo {
 
     public String appServerName;
-
     public String directory;
+    public long version;
 
     public DirectoryForAppServerInfo() {
     }
@@ -20,6 +20,7 @@ public class DirectoryForAppServerInfo {
     public DirectoryForAppServerInfo(AppServer appServer, Path path) {
         appServerName = appServer.getName();
         directory = path.toString();
+        version = appServer.getVersion();
     }
 
     @JsonIgnore

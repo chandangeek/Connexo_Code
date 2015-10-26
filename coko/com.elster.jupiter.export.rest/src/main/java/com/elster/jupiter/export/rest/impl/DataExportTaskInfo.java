@@ -4,7 +4,6 @@ import com.elster.jupiter.export.DataExportDestination;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
@@ -19,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -32,12 +30,13 @@ public class DataExportTaskInfo {
     public ProcessorInfo dataProcessor;
     public SelectorInfo dataSelector;
     public PeriodicalExpressionInfo schedule;
-    public List<PropertyInfo> properties = new ArrayList<PropertyInfo>();
+    //public List<PropertyInfo> properties = new ArrayList<PropertyInfo>();
     public DataExportTaskHistoryInfo lastExportOccurrence;
     public Long nextRun;
     public Long lastRun;
     public StandardDataSelectorInfo standardDataSelector;
     public List<DestinationInfo> destinations = new ArrayList<>();
+    public long version;
 
 
     public DataExportTaskInfo(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
@@ -52,13 +51,13 @@ public class DataExportTaskInfo {
                 schedule = PeriodicalExpressionInfo.from((PeriodicalScheduleExpression) scheduleExpression);
             }
         }
-        properties = propertyUtils.convertPropertySpecsToPropertyInfos(dataExportTask.getDataProcessorPropertySpecs(), dataExportTask.getProperties());
+        //properties = propertyUtils.convertPropertySpecsToPropertyInfos(dataExportTask.getDataProcessorPropertySpecs(), dataExportTask.getProperties());
         lastExportOccurrence = dataExportTask.getLastOccurrence().map(oc -> new DataExportTaskHistoryInfo(oc, thesaurus, timeService, propertyUtils)).orElse(null);
         dataExportTask.getDestinations().stream()
-                .forEach(destination -> destinations.add(typeOf(destination).toInfo(destination)));
+            .forEach(destination -> destinations.add(typeOf(destination).toInfo(destination)));
     }
 
-    private DestinationType typeOf(DataExportDestination destination) {
+    protected DestinationType typeOf(DataExportDestination destination) {
         return Arrays.stream(DestinationType.values())
                 .filter(type -> type.getDestinationClass().isInstance(destination))
                 .findAny()
@@ -69,25 +68,30 @@ public class DataExportTaskInfo {
         doPopulate(dataExportTask, thesaurus, timeService, propertyUtils);
     }
 
-    private void doPopulate(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
+    protected void doPopulate(ExportTask dataExportTask, Thesaurus thesaurus, TimeService timeService, PropertyUtils propertyUtils) {
         id = dataExportTask.getId();
         name = dataExportTask.getName();
 
         active = dataExportTask.isActive();
-        populateReadingTypeDataExport(dataExportTask, thesaurus);
+        String selector = dataExportTask.getDataSelector();
+        SelectorType selectorType = SelectorType.forSelector(selector);
+        if(selectorType.equals(SelectorType.DEFAULT_READINGS)){
+            populateReadingTypeDataExport(dataExportTask, thesaurus);
+        } else if (selectorType.equals(SelectorType.DEFAULT_EVENTS)){
+            populateEventTypeDataExport(dataExportTask,thesaurus);
+        }
+
 
         String dataFormatter = dataExportTask.getDataFormatter();
-        dataProcessor = new ProcessorInfo(dataFormatter, thesaurus.getStringBeyondComponent(dataFormatter, dataFormatter), Collections.<PropertyInfo>emptyList()) ;
-
-        String selector = dataExportTask.getDataSelector();
+        dataProcessor = new ProcessorInfo(dataFormatter, thesaurus.getStringBeyondComponent(dataFormatter, dataFormatter),
+                propertyUtils.convertPropertySpecsToPropertyInfos(dataExportTask.getDataProcessorPropertySpecs(), dataExportTask.getProperties())) ;
 
         dataSelector =
                 new SelectorInfo(
                         selector,
                         thesaurus.getStringBeyondComponent(selector, selector),
                         propertyUtils.convertPropertySpecsToPropertyInfos(dataExportTask.getDataSelectorPropertySpecs(), dataExportTask.getProperties()),
-                        selector.equals(DataExportService.STANDARD_DATA_SELECTOR));
-//TODO above : pass correct property info
+                        selectorType);
         Instant nextExecution = dataExportTask.getNextExecution();
         if (nextExecution != null) {
             nextRun = nextExecution.toEpochMilli();
@@ -96,12 +100,20 @@ public class DataExportTaskInfo {
         if (lastRunOptional.isPresent()) {
             lastRun = lastRunOptional.get().toEpochMilli();
         }
+        version = dataExportTask.getVersion();
     }
 
     private void populateReadingTypeDataExport(ExportTask dataExportTask, Thesaurus thesaurus) {
         dataExportTask.getReadingTypeDataSelector()
                 .ifPresent(readingTypeDataSelector -> {
                     standardDataSelector = new StandardDataSelectorInfo(readingTypeDataSelector, thesaurus);
+                });
+    }
+
+    private void populateEventTypeDataExport(ExportTask dataExportTask, Thesaurus thesaurus) {
+        dataExportTask.getEventDataSelector()
+                .ifPresent(eventDataSelector -> {
+                    standardDataSelector = new StandardDataSelectorInfo(eventDataSelector, thesaurus);
                 });
     }
 

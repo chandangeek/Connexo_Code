@@ -5,20 +5,17 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
@@ -30,10 +27,10 @@ import java.util.Set;
 
 @Component(
         name = "com.elster.jupiter.export.rest",
-        service = {Application.class, TranslationKeyProvider.class},
+        service = {Application.class, MessageSeedProvider.class},
         immediate = true,
         property = {"alias=/export", "app=SYS", "name=" + DataExportApplication.COMPONENT_NAME})
-public class DataExportApplication extends Application implements TranslationKeyProvider {
+public class DataExportApplication extends Application implements MessageSeedProvider {
     public static final String COMPONENT_NAME = "DER";
 
     private volatile DataExportService dataExportService;
@@ -48,7 +45,7 @@ public class DataExportApplication extends Application implements TranslationKey
     private volatile TimeService timeService;
 
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.<Class<?>>of(
+        return ImmutableSet.of(
                 DataExportTaskResource.class,
                 ExportDirectoryResource.class,
                 MeterGroupsResource.class,
@@ -124,17 +121,12 @@ public class DataExportApplication extends Application implements TranslationKey
     }
 
     @Override
-    public String getComponentName() {
-        return COMPONENT_NAME;
-    }
-
-    @Override
     public Layer getLayer() {
         return Layer.REST;
     }
 
     @Override
-    public List<TranslationKey> getKeys() {
+    public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
 }
