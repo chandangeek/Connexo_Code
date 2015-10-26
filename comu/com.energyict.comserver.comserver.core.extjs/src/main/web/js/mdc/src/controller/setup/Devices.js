@@ -291,10 +291,10 @@ Ext.define('Mdc.controller.setup.Devices', {
         var device = widget.device;
         var lastUpdateField = widget.down('#deviceSetupPanel #last-updated-field');
         var deviceCommunicationsStore = device.communications();
-        var communications = widget.down('device-communications-list');
+        var communicationsList = widget.down('device-communications-list');
 
-        if (communications) {
-            communications.bindStore(deviceCommunicationsStore);
+        if (communicationsList) {
+            communicationsList.bindStore(deviceCommunicationsStore);
             deviceCommunicationsStore.getProxy().setUrl(device.get('mRID'));
             lastUpdateField.update(Uni.I18n.translate('general.lastUpdatedAt', 'MDC', 'Last updated at {0}', [Uni.DateTime.formatTimeShort(new Date())]));
             deviceCommunicationsStore.load(function (records) {
