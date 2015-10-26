@@ -103,6 +103,7 @@ Ext.define('Apr.view.appservers.Add', {
                                     },
                                     {
                                         xtype: 'component',
+                                        itemId: 'apr-add-msg-services-push-to-right-component',
                                         flex: 1
                                     },
                                     {

@@ -451,6 +451,7 @@ Ext.define('Apr.controller.AppServers', {
                                     me.getAddImportServicesButton().setDisabled(unservedImportStore.getCount() === 0);
                                     me.changeImportGridVisibility(servedImportStore.getCount() !== 0);
                                     me.changeMessageGridVisibility(servedMessageServicesStore.getCount() !== 0);
+                                    me.getMessageServicesGrid().on('apr-msg-service-remove-event', me.onRemoveMessageService, me);
                                 }
                             });
 
@@ -499,6 +500,7 @@ Ext.define('Apr.controller.AppServers', {
                     me.getAddImportServicesButton().setDisabled(unservedImportStore.getCount() === 0);
                     me.changeImportGridVisibility(servedImportStore.getCount() !== 0);
                     me.changeMessageGridVisibility(servedMessageServicesStore.getCount() !== 0);
+                    me.getMessageServicesGrid().on('apr-msg-service-remove-event', me.onRemoveMessageService, me);
                 });
 
             });
@@ -555,6 +557,7 @@ Ext.define('Apr.controller.AppServers', {
             me.getAddMessageServicesButton().enable();
         }
         me.getAddImportServicesButton().setDisabled(unservedImportStore.getCount() === 0);
+        me.getMessageServicesGrid().on('apr-msg-service-remove-event', me.onRemoveMessageService, me);
     },
 
     returnToMessageServiceDetailView: function () {
@@ -573,6 +576,7 @@ Ext.define('Apr.controller.AppServers', {
         me.getApplication().fireEvent('appserverload', me.appServer.get('name'));
         me.getApplication().fireEvent('changecontentevent', view);
         view.down('preview-container').updateOnChange(!servedMessageServicesStore.getCount()); // to autoselect the 1st item
+        me.getMessageServicesGrid().on('apr-msg-service-remove-event', me.onRemoveMessageService, me);
         me.messageServiceDataChanged();
     },
 
@@ -720,6 +724,7 @@ Ext.define('Apr.controller.AppServers', {
         var me = this;
         if (me.getAddPage()) {
             me.getAddPage().down('message-services-grid').setVisible(visibility);
+            me.getAddPage().down('#apr-add-msg-services-push-to-right-component').setVisible(visibility);
             me.getAddPage().down('#empty-text-grid').setVisible(!visibility);
         }
     },
