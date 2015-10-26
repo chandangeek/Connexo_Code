@@ -1,6 +1,7 @@
 package com.elster.jupiter.time.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.Query;
@@ -72,7 +73,6 @@ public class TimeServiceIT {
             bind(BundleContext.class).toInstance(bundleContext);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(LogService.class).toInstance(logService);
-
         }
     }
 
@@ -132,6 +132,7 @@ public class TimeServiceIT {
             injector = Guice.createInjector(
                     new MockModule(),
                     inMemoryBootstrapModule,
+                    new DataVaultModule(),
                     new InMemoryMessagingModule(),
                     new EventsModule(),
                     new DomainUtilModule(),
@@ -169,11 +170,8 @@ public class TimeServiceIT {
 
         try (TransactionContext context = transactionService.getContext()) {
             RelativePeriodCategory categoryA = timeService.createRelativePeriodCategory("A");
-            categoryA.save();
             RelativePeriodCategory categoryB = timeService.createRelativePeriodCategory("B");
-            categoryB.save();
             RelativePeriodCategory categoryC = timeService.createRelativePeriodCategory("C");
-            categoryC.save();
             inA1 = timeService.createRelativePeriod("inA1", new RelativeDate(RelativeField.YEAR.minus(2)), new RelativeDate(RelativeField.YEAR.minus(1)), Arrays.asList(categoryA));
             inA2 = timeService.createRelativePeriod("inA2", new RelativeDate(RelativeField.YEAR.minus(2)), new RelativeDate(RelativeField.YEAR.minus(1)), Arrays.asList(categoryA));
             inB1 = timeService.createRelativePeriod("inB1", new RelativeDate(RelativeField.YEAR.minus(2)), new RelativeDate(RelativeField.YEAR.minus(1)), Arrays.asList(categoryB));

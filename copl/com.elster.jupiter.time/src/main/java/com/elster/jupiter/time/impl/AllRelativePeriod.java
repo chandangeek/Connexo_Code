@@ -109,11 +109,6 @@ public enum AllRelativePeriod implements RelativePeriod {
     }
 
     @Override
-    public void save() {
-
-    }
-
-    @Override
     public void delete() {
 
     }

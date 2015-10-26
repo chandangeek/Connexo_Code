@@ -2,15 +2,13 @@ package com.elster.jupiter.time.impl;
 
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
-import java.text.MessageFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
     FIELD_CAN_NOT_BE_EMPTY(1, Keys.FIELD_CAN_NOT_BE_EMPTY, "Field can't be empty", Level.SEVERE),
     FIELD_SIZE_BETWEEN_1_AND_80(2, Keys.FIELD_SIZE_BETWEEN_1_AND_80, "Field's text length should be between 1 and 80 symbols", Level.SEVERE),
 
@@ -60,14 +58,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     @Override
     public Level getLevel() {
         return this.level;
-    }
-
-    public String getFormated(Object... args) {
-        return MessageSeeds.getFormated(this, args);
-    }
-
-    public static String getFormated(MessageSeed messageSeed, Object... args) {
-        return MessageFormat.format(messageSeed.getDefaultFormat(), args);
     }
 
     public void log(Logger logger, Thesaurus thesaurus, Object... args) {

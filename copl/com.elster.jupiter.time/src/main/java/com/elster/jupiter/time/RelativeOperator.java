@@ -33,12 +33,17 @@ public enum RelativeOperator {
             }
             if (field.equals(RelativeField.DAY_OF_WEEK)) {
                 WeekFields weekFields = WeekFields.of(Locale.getDefault());
-                long localValue = (value + weekFields.getFirstDayOfWeek().getValue()) % 7 + 1;
+                long localValue = mod1((8 - weekFields.getFirstDayOfWeek().getValue()) + value, 7);
                 return dateTime.with(weekFields.dayOfWeek(), localValue);
             }
             return dateTime.with(field.getChronoField(), value);
         }
     };
+
+    private static long mod1(long a, long m) {
+        long mod0 = a % m;
+        return mod0 == 0 ? m : mod0;
+    }
 
     private final String operator;
 
