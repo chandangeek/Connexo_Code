@@ -52,8 +52,8 @@ public class ComScheduleResourceTest extends MultisensePublicApiJerseyTest {
     public void testComScheduleFields() throws Exception {
         Response response = target("/comschedules").request("application/json").method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<List>get("$")).hasSize(2);
-        assertThat(model.<List<String>>get("$")).containsOnly("id", "link");
+        assertThat(model.<List>get("$")).hasSize(9);
+        assertThat(model.<List<String>>get("$")).containsOnly("comTasks","id","isInUse","link","mRID","name","plannedDate","startDate","temporalExpression");
     }
 
 

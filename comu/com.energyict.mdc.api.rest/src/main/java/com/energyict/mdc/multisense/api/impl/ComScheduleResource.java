@@ -6,9 +6,11 @@ import com.elster.jupiter.rest.util.PROPFIND;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
+import com.energyict.mdc.multisense.api.security.Privileges;
 import com.energyict.mdc.scheduling.SchedulingService;
 
 import java.util.List;
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
@@ -40,6 +42,7 @@ public class ComScheduleResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{comScheduleId}")
+    @RolesAllowed(Privileges.PUBLIC_REST_API)
     public ComScheduleInfo getComSchedule(@PathParam("comScheduleId") long comScheduleId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
          return comScheduleService.findSchedule(comScheduleId)
                  .map(ct -> comScheduleInfoFactory.from(ct, uriInfo, fieldSelection.getFields()))
@@ -48,6 +51,7 @@ public class ComScheduleResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @RolesAllowed(Privileges.PUBLIC_REST_API)
     public PagedInfoList<ComScheduleInfo> getComSchedules(@BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
         List<ComScheduleInfo> infos = comScheduleService.findAllSchedules().from(queryParameters).stream()
                 .map(ct -> comScheduleInfoFactory.from(ct, uriInfo, fieldSelection.getFields()))
@@ -59,6 +63,7 @@ public class ComScheduleResource {
 
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @RolesAllowed(Privileges.PUBLIC_REST_API)
     public List<String> getFields() {
         return comScheduleInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }
