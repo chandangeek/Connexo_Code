@@ -7,10 +7,10 @@ Ext.define('Mdc.customattributesonvaluesobjects.store.DeviceCustomAttributeSets'
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/mds/devices/{mRID}/custompropertysets',
+        urlTpl: '/api/ddr/devices/{mRID}/customproperties',
         reader: {
             type: 'json',
-            root: 'custompropertysets'
+            root: 'customproperties'
         },
         pageParam: false,
         startParam: false,

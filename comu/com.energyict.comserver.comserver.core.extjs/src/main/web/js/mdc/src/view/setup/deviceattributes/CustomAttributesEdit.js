@@ -37,7 +37,7 @@ Ext.define('Mdc.view.setup.deviceattributes.CustomAttributesEdit', {
                     },
                     {
                         xtype: 'button',
-                        text: Uni.I18n.translate('general.restoreToDefaultSettings', 'MDC', 'Restore to default settings'),
+                        text: Uni.I18n.translate('general.restoretodefaults', 'MDC', 'Restore to defaults'),
                         icon: '../sky/build/resources/images/form/restore.png',
                         itemId: 'device-custom-attributes-restore-default-btn'
                     },

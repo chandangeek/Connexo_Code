@@ -7,10 +7,10 @@ Ext.define('Mdc.customattributesonvaluesobjects.store.ChannelCustomAttributeSets
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/mds/devices/{mRID}/channels/{channelId}/custompropertysets',
+        urlTpl: '/api/ddr/devices/{mRID}/channels/{channelId}/customproperties',
         reader: {
             type: 'json',
-            root: 'custompropertysets'
+            root: 'customproperties'
         },
         pageParam: false,
         startParam: false,

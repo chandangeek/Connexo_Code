@@ -19,8 +19,10 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
     ],
 
     models: [
-        'Mdc.model.RegisterValidationPreview'
+        'Mdc.model.RegisterValidationPreview',
+        'Mdc.customattributesonvaluesobjects.model.AttributeSetOnRegister'
         ],
+
     stores: [
         'Mdc.customattributesonvaluesobjects.store.RegisterCustomAttributeSets',
         'RegisterConfigsOfDevice'
@@ -353,7 +355,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                         me.getApplication().fireEvent('loadDevice', device);
                         me.getApplication().fireEvent('loadRegisterConfiguration', register);
                         me.getApplication().fireEvent('changecontentevent', widget);
-                        me.loadPropertiesRecord(widget);
+                        me.loadPropertiesRecord(widget, mRID, registerId, customAttributeSetId);
                     },
                     failure: function () {
                         contentPanel.setLoading(false);
@@ -364,16 +366,15 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
 
     },
 
-    loadPropertiesRecord: function(widget) {
+    loadPropertiesRecord: function(widget, mRID, registerId, customAttributeSetId) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
-            model = Ext.ModelManager.getModel('Mdc.customattributesonvaluesobjects.model.AttributeSetOnObject'),
-            form = widget.down('property-form'),
-            router = this.getController('Uni.controller.history.Router'),
-            routeParams = router.arguments,
-            id = routeParams.customAttributeSetId;
+            model = Ext.ModelManager.getModel('Mdc.customattributesonvaluesobjects.model.AttributeSetOnRegister'),
+            form = widget.down('property-form');
 
-        model.load(id, {
+        model.getProxy().setUrl(mRID, registerId);
+
+        model.load(customAttributeSetId, {
             success: function (record) {
                 widget.down('#registerEditPanel').setTitle(Uni.I18n.translate('deviceregisters.EditCustomAttributeSet', 'MDC', "Edit '{0}'",[record.get('name')]));
                 me.getApplication().fireEvent('loadRegisterConfigurationCustomAttributes', record);

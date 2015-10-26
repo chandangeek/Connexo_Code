@@ -35,7 +35,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.AttributeSetPropertyForm', 
 
         me.callParent(arguments);
         me.down('property-form').loadRecord(me.record);
-        if (me.actionMenuXtype) {
+        if (me.actionMenuXtype && me.record.get('editable')) {
             Mdc.customattributesonvaluesobjects.service.ActionMenuManager.addAction(me.actionMenuXtype, me.record, me.router, me.attributeSetType);
         }
     }

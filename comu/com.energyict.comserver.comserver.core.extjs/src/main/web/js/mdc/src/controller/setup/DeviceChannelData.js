@@ -13,7 +13,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         'Mdc.model.LoadProfileOfDevice',
         'Mdc.model.ChannelOfLoadProfilesOfDevice',
         'Mdc.model.ChannelOfLoadProfilesOfDeviceDataFilter',
-        'Mdc.model.DeviceChannelDataEstimate'
+        'Mdc.model.DeviceChannelDataEstimate',
+        'Mdc.customattributesonvaluesobjects.model.AttributeSetOnChannel'
     ],
 
     stores: [
@@ -781,6 +782,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     showEditChannelOfLoadProfileCustomAttributes: function (mRID, channelId, customAttributeSetId) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0];
+
         viewport.setLoading(true);
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
@@ -796,7 +798,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', channel);
                         me.getApplication().fireEvent('channelOfLoadProfileCustomAttributes', device);
                         me.getApplication().fireEvent('changecontentevent', widget);
-                        me.loadPropertiesRecord(widget);
+                        me.loadPropertiesRecord(widget, mRID, channelId, customAttributeSetId);
                     },
                     failure: function () {
                         viewport.setLoading(false);
@@ -807,21 +809,19 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     },
 
-    loadPropertiesRecord: function(widget) {
+    loadPropertiesRecord: function(widget, mRID, channelId, customAttributeSetId) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
-            model = Ext.ModelManager.getModel('Mdc.customattributesonvaluesobjects.model.AttributeSetOnObject'),
-            form = widget.down('property-form'),
-            router = this.getController('Uni.controller.history.Router'),
-            routeParams = router.arguments,
-            id = routeParams.customAttributeSetId;
+            model = Ext.ModelManager.getModel('Mdc.customattributesonvaluesobjects.model.AttributeSetOnChannel'),
+            form = widget.down('property-form');
 
-        model.load(id, {
+        model.getProxy().setUrl(mRID, channelId);
+
+        model.load(customAttributeSetId, {
             success: function (record) {
                 widget.down('#channelEditPanel').setTitle(Uni.I18n.translate('devicechannels.EditCustomAttributeSet', 'MDC', "Edit '{0}'",[record.get('name')]));
                 me.getApplication().fireEvent('channelOfLoadProfileCustomAttributes', record);
                 form.loadRecord(record);
-
             },
             callback: function () {
                 viewport.setLoading(false);

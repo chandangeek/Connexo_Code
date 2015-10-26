@@ -6,10 +6,10 @@ Ext.define('Mdc.customattributesonvaluesobjects.model.AttributeSetOnChannel', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/mds/customattributesets/',
+        urlTpl: '/api/ddr/devices/{mRID}/channels/{channelId}/customproperties',
 
-        //setUrl: function (mRID) {
-        //    this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID));
-        //}
+        setUrl: function (mRID, channelId) {
+            this.url = this.urlTpl.replace('{mRID}', encodeURIComponent(mRID)).replace('{channelId}', channelId);
+        }
     }
 });
