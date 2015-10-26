@@ -1,12 +1,13 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
@@ -140,6 +141,7 @@ public class PartialConnectionInitiationTaskCrudIT {
             injector = Guice.createInjector(
                     new MockModule(),
                     bootstrapModule,
+                    new CustomPropertySetsModule(),
                     new ThreadSecurityModule(principal),
                     new EventsModule(),
                     new PubSubModule(),
@@ -182,6 +184,7 @@ public class PartialConnectionInitiationTaskCrudIT {
         }
         transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
+            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(OrmService.class);
             injector.getInstance(EventService.class);
             injector.getInstance(NlsService.class);
@@ -222,10 +225,10 @@ public class PartialConnectionInitiationTaskCrudIT {
             connectionTypePluggableClass2.save();
             outboundComPortPool = engineConfigurationService.newOutboundComPortPool("inboundComPortPool", ComPortType.TCP, TimeDuration.minutes(15));
             outboundComPortPool.setActive(true);
-            outboundComPortPool.save();
+            outboundComPortPool.update();
             outboundComPortPool1 = engineConfigurationService.newOutboundComPortPool("inboundComPortPool2", ComPortType.TCP, TimeDuration.minutes(5));
             outboundComPortPool1.setActive(true);
-            outboundComPortPool1.save();
+            outboundComPortPool1.update();
             context.commit();
         }
     }

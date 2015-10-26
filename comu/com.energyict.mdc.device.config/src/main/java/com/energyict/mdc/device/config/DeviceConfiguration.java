@@ -8,7 +8,7 @@ import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -85,6 +85,8 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
 
     void save();
 
+    void touch();
+
     Set<DeviceCommunicationFunction> getCommunicationFunctions();
 
     void addCommunicationFunction(DeviceCommunicationFunction function);
@@ -122,7 +124,6 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
     public GatewayType getGatewayType();
 
     public void setGatewayType(GatewayType gatewayType);
-    //TODO we remove 'CreateDeviceTransaction' and 'DeviceConfigurationChanges' from the API, must be included when time comes ...
 
     /**
      * Gets the general protocol properties that have been specified on

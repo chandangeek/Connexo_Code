@@ -61,10 +61,10 @@ public class LoadProfileTypeUpdateEventHandler implements TopicHandler {
         this.validateDeviceConfigurations(loadProfileType);
         if (this.isUsed(loadProfileType)) {
             if (this.obisCodeChanged(event, loadProfileType)) {
-                throw new CannotUpdateObisCodeWhenLoadProfileTypeIsInUseException(this.thesaurus, loadProfileType);
+                throw new CannotUpdateObisCodeWhenLoadProfileTypeIsInUseException(loadProfileType, this.thesaurus, MessageSeeds.LOAD_PROFILE_TYPE_OBIS_CODE_CANNOT_BE_UPDATED);
             }
             if (this.intervalChanged(event, loadProfileType)) {
-                throw new CannotUpdateIntervalWhenLoadProfileTypeIsInUseException(this.thesaurus, loadProfileType);
+                throw new CannotUpdateIntervalWhenLoadProfileTypeIsInUseException(loadProfileType, this.thesaurus, MessageSeeds.LOAD_PROFILE_TYPE_INTERVAL_CANNOT_BE_UPDATED);
             }
         }
     }

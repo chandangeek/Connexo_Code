@@ -1,8 +1,10 @@
 package com.energyict.mdc.device.config.exceptions;
 
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Copyrights EnergyICT
@@ -11,9 +13,10 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
  */
 public class NoSuchPropertyOnDialectException extends LocalizedException {
 
-    public NoSuchPropertyOnDialectException(Thesaurus thesaurus, DeviceProtocolDialect dialect, String propertyName) {
-        super(thesaurus, MessageSeeds.PROTOCOL_DIALECT_HAS_NO_SUCH_PROPERTY, dialect.getDeviceProtocolDialectName(), propertyName);
+    public NoSuchPropertyOnDialectException(DeviceProtocolDialect dialect, String propertyName, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, dialect.getDeviceProtocolDialectName(), propertyName);
         set("dialect", dialect);
         set("propertyName", propertyName);
     }
+
 }

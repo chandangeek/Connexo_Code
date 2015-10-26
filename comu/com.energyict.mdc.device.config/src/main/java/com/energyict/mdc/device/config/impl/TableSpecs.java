@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
@@ -8,9 +9,12 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ComTaskEnablement;
-import com.energyict.mdc.device.config.DeviceConfigurationEstimationRuleSetUsage;
+import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
+import com.energyict.mdc.device.config.ConflictingSecuritySetSolution;
 import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
+import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationEstimationRuleSetUsage;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.DeviceTypeFields;
@@ -21,6 +25,9 @@ import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperty;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.impl.deviceconfigchange.ConflictingConnectionMethodSolutionImpl;
+import com.energyict.mdc.device.config.impl.deviceconfigchange.ConflictingSecuritySetSolutionImpl;
+import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingImpl;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -92,6 +99,7 @@ public enum TableSpecs {
             table.map(DeviceTypeLoadProfileTypeUsage.class);
             Column loadProfileType = table.column("LOADPROFILETYPEID").number().notNull().add();
             Column deviceType = table.column("DEVICETYPEID").number().notNull().add();
+            Column customPropertySet = table.column("CUSTOMPROPERTYSETID").number().add();
             table.addAuditColumns();
             table.primaryKey("PK_DTC_LOADPRFTYPEFORDEVTYPE").on(loadProfileType, deviceType).add();
             table.foreignKey("FK_DTC_DEVTYPE_LPT_DEVTYPE").
@@ -107,6 +115,11 @@ public enum TableSpecs {
                     references(MasterDataService.COMPONENTNAME, "MDS_LOADPROFILETYPE").
                     map("loadProfileType").
                     add();
+            table.foreignKey("FK_DTC_LPT_CPS_CPS")
+                    .references(RegisteredCustomPropertySet.class)
+                    .on(customPropertySet)
+                    .map("customPropertySet")
+                    .add();
         }
     },
 
@@ -117,6 +130,7 @@ public enum TableSpecs {
             table.map(DeviceTypeRegisterTypeUsage.class);
             Column registerType = table.column("REGISTERTYPEID").number().notNull().add();
             Column deviceType = table.column("DEVICETYPEID").number().notNull().add();
+            Column customPropertySet = table.column("CUSTOMPROPERTYSETID").number().add();
             table.addAuditColumns();
             table.primaryKey("PK_DTC_REGTYPEFORDEVICETYPE").on(registerType, deviceType).add();
             table.foreignKey("FK_DTC_DEVTYPE_REGTYPE_DEVTYPE").
@@ -132,6 +146,11 @@ public enum TableSpecs {
                     references(MasterDataService.COMPONENTNAME, "MDS_MEASUREMENTTYPE")
                     .map("registerType").
                     add();
+            table.foreignKey("FK_DTC_REGTYPE_CPS_CPS")
+                    .references(RegisteredCustomPropertySet.class)
+                    .on(customPropertySet)
+                    .map("registeredCustomPropertySet")
+                    .add();
         }
     },
 
@@ -167,7 +186,7 @@ public enum TableSpecs {
             table.map(DeviceConfigurationImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
-            table.column("NAME").varChar().notNull().map("name").add();
+            Column nameColumn = table.column("NAME").varChar().notNull().map("name").add();
             table.column("DESCRIPTION").varChar().map("description").add();
             Column deviceType = table.column("DEVICETYPEID").number().notNull().add();
             table.column("ACTIVE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("active").add();
@@ -184,6 +203,7 @@ public enum TableSpecs {
                     composition().
                     onDelete(CASCADE).
                     add();
+            table.unique("UQ_DTC_DEVICECONFIG_NAME").on(deviceType, nameColumn).add();
         }
     },
 
@@ -323,7 +343,7 @@ public enum TableSpecs {
             table.addAuditColumns();
             Column deviceConfiguration = table.column("DEVICECONFIGURATION").number().notNull().add();
             table.column("DEVICEPROTOCOLDIALECT").varChar().notNull().map("protocolDialectName").add();
-            table.column("NAME").varChar().notNull().map("name").add();
+            Column nameColumn = table.column("NAME").varChar().notNull().map("name").add();
             table.foreignKey("FK_DTC_DIALECTCONFPROPS_CONFIG").
                     on(deviceConfiguration).
                     references(DTC_DEVICECONFIG.name()).
@@ -333,6 +353,7 @@ public enum TableSpecs {
                     composition().
                     add();
             table.primaryKey("PK_DTC_DIALECTCONFIGPROPS").on(id).add();
+            table.unique("UQ_DTC_CONFIGPROPS_NAME").on(deviceConfiguration, nameColumn).add();
         }
     },
 
@@ -353,7 +374,7 @@ public enum TableSpecs {
                     reverseMap("propertyList").
                     onDelete(CASCADE).
                     add();
-            table.primaryKey("PK_DTC_DIALECTCONFIGPROPSATTR").on(id,name).add();
+            table.primaryKey("PK_DTC_DIALECTCONFIGPROPSATTR").on(id, name).add();
         }
     },
 
@@ -385,7 +406,7 @@ public enum TableSpecs {
             table.map(PartialConnectionTaskImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
-            table.column("NAME").varChar().notNull().map("name").add();
+            Column nameColumn = table.column("NAME").varChar().notNull().map("name").add();
             table.addDiscriminatorColumn("DISCRIMINATOR", "number");
             Column deviceConfiguration = table.column("DEVICECONFIG").number().add();
             Column connectionType = table.column("CONNECTIONTYPE").number().conversion(NUMBER2LONG).map("pluggableClassId").add();
@@ -429,8 +450,10 @@ public enum TableSpecs {
                     references(DTC_PARTIALCONNECTIONTASK.name()).
                     map("initiator").
                     add();
+            table.unique("UQ_DTC_PARTIALCT_NAME").on(deviceConfiguration, nameColumn).add();
         }
     },
+
     DTC_PARTIALCONNECTIONTASKPROPS {
         @Override
         public void addTo(DataModel dataModel) {
@@ -448,9 +471,10 @@ public enum TableSpecs {
                     onDelete(CASCADE).
                     composition().
                     add();
-            table.primaryKey("PK_DTC_PARTIALCONTASKPROPS").on(partialconnectiontask,name).add();
+            table.primaryKey("PK_DTC_PARTIALCONTASKPROPS").on(partialconnectiontask, name).add();
         }
     },
+
     DTC_MESSAGEENABLEMENT {
         @Override
         void addTo(DataModel dataModel) {
@@ -471,6 +495,7 @@ public enum TableSpecs {
             table.primaryKey("PK_DTC_DEVMESENABLEMENT").on(id).add();
         }
     },
+
     DTC_MSGABLEMENTUSERACTION {
         @Override
         public void addTo(DataModel dataModel) {
@@ -487,9 +512,10 @@ public enum TableSpecs {
                     composition().
                     map("deviceMessageEnablement").
                     add();
-            table.primaryKey("PK_DTC_MESENABLEUSERACTION").on(useraction,deviceMessageEnablement).add();
+            table.primaryKey("PK_DTC_MESENABLEUSERACTION").on(useraction, deviceMessageEnablement).add();
         }
     },
+
     DTC_SECURITYPROPERTYSET {
         @Override
         public void addTo(DataModel dataModel) {
@@ -513,6 +539,7 @@ public enum TableSpecs {
             table.unique("UK_DTC_SECPROPSET_NAME").on(deviceConfiguration, name).add();
         }
     },
+
     DTC_SECURITYPROPSETUSERACTION {
         @Override
         public void addTo(DataModel dataModel) {
@@ -529,9 +556,10 @@ public enum TableSpecs {
                     composition().
                     map("set").
                     add();
-            table.primaryKey("PK_DTC_SECPROPSETUSERACTION").on(useraction,securitypropertyset).add();
+            table.primaryKey("PK_DTC_SECPROPSETUSERACTION").on(useraction, securitypropertyset).add();
         }
     },
+
     DTC_COMTASKENABLEMENT {
         @Override
         public void addTo(DataModel dataModel) {
@@ -549,35 +577,35 @@ public enum TableSpecs {
             Column dialectConfigurationProperties = table.column("DIALECTCONFIGPROPERTIES").number().notNull().add();
             table.column("IGNORENEXTEXECSPECS").number().notNull().conversion(NUMBER2BOOLEAN).map(ComTaskEnablementImpl.Fields.IGNORE_NEXT_EXECUTION_SPECS_FOR_INBOUND.fieldName()).add();
             table.
-                foreignKey("FK_DTC_COMTASKENABLMNT_OPARTCT").
-                on(partialConnectionTask).
-                references(DTC_PARTIALCONNECTIONTASK.name()).
-                map(ComTaskEnablementImpl.Fields.PARTIAL_CONNECTION_TASK.fieldName()).add();
+                    foreignKey("FK_DTC_COMTASKENABLMNT_OPARTCT").
+                    on(partialConnectionTask).
+                    references(DTC_PARTIALCONNECTIONTASK.name()).
+                    map(ComTaskEnablementImpl.Fields.PARTIAL_CONNECTION_TASK.fieldName()).add();
             table.
-                foreignKey("FK_DTC_COMTASKENABLMNT_SECURPS").
-                on(securityPropertySet).
-                references(DTC_SECURITYPROPERTYSET.name()).
-                map(ComTaskEnablementImpl.Fields.SECURITY_PROPERTY_SET.fieldName()).add();
+                    foreignKey("FK_DTC_COMTASKENABLMNT_SECURPS").
+                    on(securityPropertySet).
+                    references(DTC_SECURITYPROPERTYSET.name()).
+                    map(ComTaskEnablementImpl.Fields.SECURITY_PROPERTY_SET.fieldName()).add();
             table.
-                foreignKey("FK_DTC_COMTASKENABLMNT_COMTASK").
-                on(comtask).
-                references(TaskService.COMPONENT_NAME, "CTS_COMTASK").
-                map(ComTaskEnablementImpl.Fields.COM_TASK.fieldName()).add();
+                    foreignKey("FK_DTC_COMTASKENABLMNT_COMTASK").
+                    on(comtask).
+                    references(TaskService.COMPONENT_NAME, "CTS_COMTASK").
+                    map(ComTaskEnablementImpl.Fields.COM_TASK.fieldName()).add();
             table.
-                foreignKey("FK_DTC_COMTASKENBLMNT_DCOMCONF").
-                on(deviceCommunicationConfigation).
-                references(DTC_DEVICECONFIG.name()).
-                map(ComTaskEnablementImpl.Fields.CONFIGURATION.fieldName())
+                    foreignKey("FK_DTC_COMTASKENBLMNT_DCOMCONF").
+                    on(deviceCommunicationConfigation).
+                    references(DTC_DEVICECONFIG.name()).
+                    map(ComTaskEnablementImpl.Fields.CONFIGURATION.fieldName())
                     .reverseMap(DeviceConfigurationImpl.Fields.COM_TASK_ENABLEMENTS.fieldName())
                     .composition()
                     .onDelete(CASCADE)
-                .add();
+                    .add();
             table.
-                foreignKey("FK_DTC_COMTASKENABLMNT_PDCP").
-                on(dialectConfigurationProperties).
-                references(DTC_DIALECTCONFIGPROPERTIES.name()).
-                map(ComTaskEnablementImpl.Fields.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES.fieldName()).onDelete(CASCADE).add();
-            table.unique("UK_DTC_COMTASKENABLEMENT").on(comtask,deviceCommunicationConfigation).add();
+                    foreignKey("FK_DTC_COMTASKENABLMNT_PDCP").
+                    on(dialectConfigurationProperties).
+                    references(DTC_DIALECTCONFIGPROPERTIES.name()).
+                    map(ComTaskEnablementImpl.Fields.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES.fieldName()).onDelete(CASCADE).add();
+            table.unique("UK_DTC_COMTASKENABLEMENT").on(comtask, deviceCommunicationConfigation).add();
             table.primaryKey("PK_DTC_COMTASKENABLEMENT").on(id).add();
         }
     },
@@ -629,8 +657,124 @@ public enum TableSpecs {
                     add();
         }
     },
-    ;
+
+    DTC_CONFIGCONFLICTMAPPING {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<DeviceConfigConflictMapping> table = dataModel.addTable(name(), DeviceConfigConflictMapping.class);
+            table.map(DeviceConfigConflictMappingImpl.class);
+            Column id = table.addAutoIdColumn();
+            Column deviceType = table.column("DEVICETYPE").number().notNull().add();
+            Column originDeviceConfig = table.column("ORIGINDEVCONFIG").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column destinationDeviceConfig = table.column("DESTINATIONDEVCONFIG").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
+            table.column("SOLVED").type("char(1)").notNull().map(DeviceConfigConflictMappingImpl.Fields.SOLVED.fieldName()).conversion(ColumnConversion.CHAR2BOOLEAN).add();
+            table.addAuditColumns();
+            table.primaryKey("PK_DTC_CONFLMAP").on(id).add();
+            table.foreignKey("FK_DTC_CONFLMAPDEVTYPE")
+                    .references(DTC_DEVICETYPE.name())
+                    .on(deviceType)
+                    .onDelete(CASCADE)
+                    .map(DeviceConfigConflictMappingImpl.Fields.DEVICETYPE.fieldName())
+                    .reverseMap(DeviceTypeImpl.Fields.CONFLICTINGMAPPING.fieldName())
+                    .composition().add();
+            table.foreignKey("FK_DTC_CONFLICTMAPORIGIN")
+                    .references(DTC_DEVICECONFIG.name())
+                    .on(originDeviceConfig)
+                    .onDelete(CASCADE)
+                    .map(DeviceConfigConflictMappingImpl.Fields.ORIGINDEVICECONFIG.fieldName()).add();
+            table.foreignKey("FK_DTC_CONFLICTMAPDEST")
+                    .references(DTC_DEVICECONFIG.name())
+                    .on(destinationDeviceConfig)
+                    .onDelete(CASCADE)
+                    .map(DeviceConfigConflictMappingImpl.Fields.DESTINATIONDEVICECONFIG.fieldName()).add();
+            table.unique("UK_DTC_CONFLMAP").on(originDeviceConfig, destinationDeviceConfig).add();
+        }
+    },
+
+    DTC_CONFLICTCONMETHSOLUTION {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<ConflictingConnectionMethodSolution> table = dataModel.addTable(name(), ConflictingConnectionMethodSolution.class);
+            table.map(ConflictingConnectionMethodSolutionImpl.class);
+            Column id = table.addAutoIdColumn();
+            Column conflictmapping = table.column("CONFLICTMAPPING").number().notNull().add();
+            table.column("ACTION").number().conversion(ColumnConversion.NUMBER2ENUM).map(ConflictingConnectionMethodSolutionImpl.Fields.ACTION.fieldName()).add();
+            Column originconnectionmethod = table.column("ORIGINCONNECTIONMETHOD").number().conversion(NUMBER2LONG).add();
+            Column destinationconnectionmethod = table.column("DESTCONNECTIONMETHOD").number().conversion(NUMBER2LONG).add();
+            table.primaryKey("PK_DTC_CMSOLUTION").on(id).add();
+            table.foreignKey("FK_DTC_CM_SOLUTION")
+                    .references(DTC_CONFIGCONFLICTMAPPING.name())
+                    .on(conflictmapping)
+                    .composition()
+                    .map(ConflictingConnectionMethodSolutionImpl.Fields.CONFLICTINGMAPPING.fieldName())
+                    .reverseMap(DeviceConfigConflictMappingImpl.Fields.CONNECTIONMETHODSOLUTIONS.fieldName())
+                    .onDelete(CASCADE)
+                    .add();
+            table.foreignKey("FK_DTC_CONFORIGINCONMETH")
+                    .references(DTC_PARTIALCONNECTIONTASK.name())
+                    .on(originconnectionmethod)
+                    .map(ConflictingConnectionMethodSolutionImpl.Fields.ORIGINCONNECTIONMETHOD.fieldName()).add();
+            table.foreignKey("FK_DTC_CONFDESTCONMETH")
+                    .references(DTC_PARTIALCONNECTIONTASK.name())
+                    .on(destinationconnectionmethod)
+                    .map(ConflictingConnectionMethodSolutionImpl.Fields.DESTINATIONCONNECTIONMETHOD.fieldName()).add();
+        }
+    },
+
+    DTC_CONFLICTSECSETSOLUTION {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<ConflictingSecuritySetSolution> table = dataModel.addTable(name(), ConflictingSecuritySetSolution.class);
+            table.map(ConflictingSecuritySetSolutionImpl.class);
+            Column id = table.addAutoIdColumn();
+            Column conflictmapping = table.column("CONFLICTMAPPING").number().notNull().add();
+            table.column("ACTION").number().conversion(ColumnConversion.NUMBER2ENUM).map(ConflictingSecuritySetSolutionImpl.Fields.ACTION.fieldName()).add();
+            Column originSecuritySet = table.column("ORIGINSECURITYSET").number().conversion(NUMBER2LONG).add();
+            Column destinationSecuritySet = table.column("DESTSECURITYSET").number().conversion(NUMBER2LONG).add();
+            table.primaryKey("PK_DTC_SSSOLUTION").on(id).add();
+            table.foreignKey("FK_DTC_SS_SOLUTION")
+                    .references(DTC_CONFIGCONFLICTMAPPING.name())
+                    .on(conflictmapping)
+                    .composition()
+                    .map(ConflictingSecuritySetSolutionImpl.Fields.CONFLICTINGMAPPING.fieldName())
+                    .reverseMap(DeviceConfigConflictMappingImpl.Fields.SECURITYSETSOLUTIONS.fieldName())
+                    .onDelete(CASCADE)
+                    .add();
+            table.foreignKey("FK_DTC_CONFORIGINSECSET")
+                    .references(DTC_SECURITYPROPERTYSET.name())
+                    .on(originSecuritySet)
+                    .map(ConflictingSecuritySetSolutionImpl.Fields.ORIGINSECURITYSET.fieldName()).add();
+            table.foreignKey("FK_DTC_CONFDESTSECSET")
+                    .references(DTC_SECURITYPROPERTYSET.name())
+                    .on(destinationSecuritySet)
+                    .map(ConflictingSecuritySetSolutionImpl.Fields.DESTINATIONSECURITYSET.fieldName()).add();
+        }
+    },
+
+    DTC_DEVICETYPECPSUSAGE {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<DeviceTypeCustomPropertySetUsage> table = dataModel.addTable(name(), DeviceTypeCustomPropertySetUsage.class);
+            table.map(DeviceTypeCustomPropertySetUsageImpl.class);
+            Column deviceType = table.column("DEVICETYPE").number().notNull().add();
+            Column customPropertySet = table.column("CUSTOMPROPERTYSET").number().notNull().add();
+            table.primaryKey("PK_DTC_CPSUSAGE").on(deviceType, customPropertySet).add();
+            table.foreignKey("FK_DTC_CPSDEVICETYPE")
+                    .references(DTC_DEVICETYPE.name())
+                    .on(deviceType)
+                    .onDelete(CASCADE)
+                    .map(DeviceTypeCustomPropertySetUsageImpl.Fields.DEVICETYPE.fieldName())
+                    .reverseMap(DeviceTypeImpl.Fields.CUSTOMPROPERTYSETUSAGE.fieldName())
+                    .composition()
+                    .add();
+            table.foreignKey("FK_DTC_CPS")
+                    .references(RegisteredCustomPropertySet.class)
+                    .on(customPropertySet)
+                    .onDelete(CASCADE)
+                    .map(DeviceTypeCustomPropertySetUsageImpl.Fields.CUSTOMPROPERTYSET.fieldName())
+                    .add();
+        }
+    };
 
     abstract void addTo(DataModel component);
-
 }

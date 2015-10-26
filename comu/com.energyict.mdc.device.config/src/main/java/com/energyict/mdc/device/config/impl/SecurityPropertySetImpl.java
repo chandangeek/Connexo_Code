@@ -1,5 +1,21 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceSecurityUserAction;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
+import com.energyict.mdc.device.config.events.EventType;
+import com.energyict.mdc.device.config.exceptions.CannotDeleteSecurityPropertySetWhileInUseException;
+import com.energyict.mdc.dynamic.relation.Relation;
+import com.energyict.mdc.dynamic.relation.RelationAttributeType;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -10,22 +26,15 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
-import com.energyict.mdc.device.config.*;
-import com.energyict.mdc.device.config.events.EventType;
-import com.energyict.mdc.device.config.exceptions.CannotDeleteSecurityPropertySetWhileInUseException;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.dynamic.relation.Relation;
-import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.google.common.collect.Range;
 
-import java.time.Instant;
-import java.util.Optional;
+import javax.inject.Inject;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
+import javax.validation.constraints.Size;
 import java.security.Principal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -35,15 +44,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.inject.Inject;
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
-import javax.validation.constraints.Size;
-
-import com.google.common.collect.Range;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import static com.energyict.mdc.protocol.api.security.DeviceAccessLevel.NOT_USED_DEVICE_ACCESS_LEVEL_ID;
 
@@ -56,7 +59,7 @@ import static com.energyict.mdc.protocol.api.security.DeviceAccessLevel.NOT_USED
 @LevelMustBeProvidedIfSupportedByDevice(groups = {Save.Create.class, Save.Update.class})
 public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPropertySet> implements ServerSecurityPropertySet, PersistenceAware {
 
-    @Size(max= Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.NAME_REQUIRED + "}")
     private String name;
     private Reference<DeviceConfiguration> deviceConfiguration = ValueReference.absent();
@@ -68,7 +71,6 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     private Set<DeviceSecurityUserAction> userActions = EnumSet.noneOf(DeviceSecurityUserAction.class);
     private List<UserActionRecord> userActionRecords = new ArrayList<>();
     private final ThreadPrincipalService threadPrincipalService;
-    private final DeviceConfigurationService deviceConfigurationService;
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -77,6 +79,14 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     private Instant createTime;
     @SuppressWarnings("unused")
     private Instant modTime;
+
+    @Inject
+    public SecurityPropertySetImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus,
+                                   ThreadPrincipalService threadPrincipalService) {
+        super(SecurityPropertySet.class, dataModel, eventService, thesaurus);
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
 
     @Override
     public String getName() {
@@ -112,7 +122,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     protected void validateDelete() {
         List<ComTaskEnablement> comTaskEnablements = this.getDataModel().mapper(ComTaskEnablement.class).find(ComTaskEnablementImpl.Fields.SECURITY_PROPERTY_SET.fieldName(), this);
         if (!comTaskEnablements.isEmpty()) {
-            throw new CannotDeleteSecurityPropertySetWhileInUseException(this.getThesaurus(), this);
+            throw new CannotDeleteSecurityPropertySetWhileInUseException(this, this.getThesaurus(), MessageSeeds.SECURITY_PROPERTY_SET_IN_USE);
         }
         this.getEventService().postEvent(EventType.SECURITY_PROPERTY_SET_VALIDATE_DELETE.topic(), this);
     }
@@ -128,12 +138,10 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
             SecurityPropertySet otherSet = other.get();
             if (otherSet.getId() == this.getId()) {
                 return null;
-            }
-            else {
+            } else {
                 return other.get();
             }
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -163,13 +171,6 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     @Override
     public void postLoad() {
         userActions.addAll(userActionRecords.stream().map(userActionRecord -> userActionRecord.userAction).collect(Collectors.toList()));
-    }
-
-    @Inject
-    public SecurityPropertySetImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, DeviceConfigurationService deviceConfigurationService) {
-        super(SecurityPropertySet.class, dataModel, eventService, thesaurus);
-        this.threadPrincipalService = threadPrincipalService;
-        this.deviceConfigurationService = deviceConfigurationService;
     }
 
     static SecurityPropertySetImpl from(DataModel dataModel, DeviceConfigurationImpl deviceConfiguration, String name) {
@@ -206,7 +207,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     public AuthenticationDeviceAccessLevel getAuthenticationDeviceAccessLevel() {
         if (this.authenticationLevel == null) {
             if (this.authenticationLevelId == NOT_USED_DEVICE_ACCESS_LEVEL_ID) {
-                this.authenticationLevel = new NoAuthentication();
+                this.authenticationLevel = new NoAuthentication(getThesaurus());
             } else {
                 this.authenticationLevel = this.findAuthenticationLevel(this.authenticationLevelId);
             }
@@ -220,7 +221,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
      *
      * @param id The unique identifier of the AuthenticationDeviceAccessLevel
      * @return The AuthenticationDeviceAccessLevel or NoAuthenthication when the device protocol
-     *         does not have an AuthenticationDeviceAccessLevel with the specified id
+     * does not have an AuthenticationDeviceAccessLevel with the specified id
      */
     private AuthenticationDeviceAccessLevel findAuthenticationLevel(int id) {
         List<AuthenticationDeviceAccessLevel> levels = this.getDeviceProtocol().getAuthenticationAccessLevels();
@@ -229,14 +230,14 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
                 return level;
             }
         }
-        return new NoAuthentication();
+        return new NoAuthentication(getThesaurus());
     }
 
     @Override
     public EncryptionDeviceAccessLevel getEncryptionDeviceAccessLevel() {
         if (this.encryptionLevel == null) {
             if (this.encryptionLevelId == NOT_USED_DEVICE_ACCESS_LEVEL_ID) {
-                this.encryptionLevel = new NoEncryption();
+                this.encryptionLevel = new NoEncryption(getThesaurus());
             } else {
                 this.encryptionLevel = this.findEncryptionLevel(this.encryptionLevelId);
             }
@@ -250,7 +251,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
      *
      * @param id The unique identifier of the EncryptionDeviceAccessLevel
      * @return The EncryptionDeviceAccessLevel or NoEncryption when the device protocol
-     *         does not have an EncryptionDeviceAccessLevel with the specified id
+     * does not have an EncryptionDeviceAccessLevel with the specified id
      */
     private EncryptionDeviceAccessLevel findEncryptionLevel(int id) {
         List<EncryptionDeviceAccessLevel> levels = this.getDeviceProtocol().getEncryptionAccessLevels();
@@ -259,7 +260,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
                 return level;
             }
         }
-        return new NoEncryption();
+        return new NoEncryption(getThesaurus());
     }
 
     private DeviceProtocol getDeviceProtocol() {
@@ -327,6 +328,8 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
             for (Iterator<UserActionRecord> iterator = userActionRecords.iterator(); iterator.hasNext(); ) {
                 if (iterator.next().userAction.equals(userAction)) {
                     iterator.remove();
+                    getDataModel().touch(this);
+                    break;
                 }
             }
         }
@@ -364,15 +367,15 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         return false;
     }
 
-    public boolean viewingIsAuthorizedFor (DeviceSecurityUserAction action, User user) {
+    public boolean viewingIsAuthorizedFor(DeviceSecurityUserAction action, User user) {
         return action.isViewing() && this.isAuthorized(action, user);
     }
 
     private boolean isAuthorized(DeviceSecurityUserAction action, User user) {
-        return user.hasPrivilege("MDC",action.getPrivilege());
+        return user.hasPrivilege("MDC", action.getPrivilege());
     }
 
-    public boolean editingIsAuthorizedFor (DeviceSecurityUserAction action, User user) {
+    public boolean editingIsAuthorizedFor(DeviceSecurityUserAction action, User user) {
         return action.isEditing() && this.isAuthorized(action, user);
     }
 
@@ -388,14 +391,21 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     }
 
     private static class NoAuthentication implements AuthenticationDeviceAccessLevel {
+
+        private final Thesaurus thesaurus;
+
+        public NoAuthentication(Thesaurus thesaurus) {
+            this.thesaurus = thesaurus;
+        }
+
         @Override
         public int getId() {
             return NOT_USED_DEVICE_ACCESS_LEVEL_ID;
         }
 
         @Override
-        public String getTranslationKey() {
-            return "NoAuthenthication";
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.NO_AUTHENTICATION).format();
         }
 
         @Override
@@ -405,14 +415,20 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     }
 
     private static class NoEncryption implements EncryptionDeviceAccessLevel {
+        private final Thesaurus thesaurus;
+
+        private NoEncryption(Thesaurus thesaurus) {
+            this.thesaurus = thesaurus;
+        }
+
         @Override
         public int getId() {
             return NOT_USED_DEVICE_ACCESS_LEVEL_ID;
         }
 
         @Override
-        public String getTranslationKey() {
-            return "NoEncryption";
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.NO_ENCRYPTION).format();
         }
 
         @Override
@@ -424,11 +440,23 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
     @Override
     public void update() {
-        Save.UPDATE.validate(this.getDataModel(), this);
-        this.getDataMapper().update(this);
+        save();
+        getDataModel().touch(deviceConfiguration.get());
+    }
+
+    @Override
+    public long getVersion() {
+        return version;
     }
 
     public static class LevelsAreSupportedValidator implements ConstraintValidator<LevelMustBeProvidedIfSupportedByDevice, SecurityPropertySetImpl> {
+
+        private final Thesaurus thesaurus;
+
+        @Inject
+        public LevelsAreSupportedValidator(Thesaurus thesaurus) {
+            this.thesaurus = thesaurus;
+        }
 
         @Override
         public void initialize(LevelMustBeProvidedIfSupportedByDevice constraintAnnotation) {
@@ -450,7 +478,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
         private List<EncryptionDeviceAccessLevel> supportedEncryptionlevels(SecurityPropertySetImpl value) {
             List<EncryptionDeviceAccessLevel> levels = value.getDeviceProtocol().getEncryptionAccessLevels();
-            return levels.isEmpty() ? Arrays.<EncryptionDeviceAccessLevel>asList(new NoEncryption()) : levels;
+            return levels.isEmpty() ? Arrays.<EncryptionDeviceAccessLevel>asList(new NoEncryption(thesaurus)) : levels;
         }
 
         private boolean authLevelSupported(SecurityPropertySetImpl value) {
@@ -464,7 +492,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
         private List<AuthenticationDeviceAccessLevel> supportedAutheticationLevels(SecurityPropertySetImpl value) {
             List<AuthenticationDeviceAccessLevel> levels = value.getDeviceProtocol().getAuthenticationAccessLevels();
-            return levels.isEmpty() ? Arrays.<AuthenticationDeviceAccessLevel>asList(new NoAuthentication()) : levels;
+            return levels.isEmpty() ? Arrays.<AuthenticationDeviceAccessLevel>asList(new NoAuthentication(thesaurus)) : levels;
         }
     }
 

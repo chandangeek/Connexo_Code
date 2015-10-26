@@ -1,7 +1,7 @@
 -classpath: target/classes
 -dsannotations: *
 Private-Package:  \
-	com.energyict.mdc.device.config.impl
+	com.energyict.mdc.device.config.impl.*
 Export-Package:  \
 	com.energyict.mdc.device.config,\
 	com.energyict.mdc.device.config.events,\

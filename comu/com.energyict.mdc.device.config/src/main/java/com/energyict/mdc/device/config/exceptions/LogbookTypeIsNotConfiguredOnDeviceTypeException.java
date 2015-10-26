@@ -1,8 +1,10 @@
 package com.energyict.mdc.device.config.exceptions;
 
+import com.energyict.mdc.masterdata.LogBookType;
+
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.masterdata.LogBookType;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made
@@ -15,8 +17,9 @@ import com.energyict.mdc.masterdata.LogBookType;
  */
 public class LogbookTypeIsNotConfiguredOnDeviceTypeException extends LocalizedException {
 
-    public LogbookTypeIsNotConfiguredOnDeviceTypeException(Thesaurus thesaurus, LogBookType logBookType) {
-        super(thesaurus, MessageSeeds.LOGBOOK_SPEC_LOGBOOK_TYPE_IS_NOT_ON_DEVICE_TYPE, logBookType);
+    public LogbookTypeIsNotConfiguredOnDeviceTypeException(LogBookType logBookType, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, logBookType);
         set("logBookType", logBookType);
     }
+
 }

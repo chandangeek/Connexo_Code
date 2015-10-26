@@ -3,7 +3,7 @@ package com.energyict.mdc.device.config;
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.HasName;
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.dynamic.relation.RelationParticipant;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
@@ -71,4 +71,6 @@ public interface SecurityPropertySet extends HasName, HasId, RelationParticipant
     void setEncryptionLevelId(int encryptionLevelId);
 
     void update();
+
+    long getVersion();
 }

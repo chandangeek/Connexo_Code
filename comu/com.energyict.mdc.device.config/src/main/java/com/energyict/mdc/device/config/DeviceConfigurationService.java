@@ -123,23 +123,28 @@ public interface DeviceConfigurationService {
      * @return the DeviceConfiguration or empty if either the DeviceConfiguration does not exist
      *         or the version of the DeviceConfiguration is not equal to the specified version
      */
-    public Optional<DeviceConfiguration> findAndLockDeviceConfigurationByIdAndVersion(long id, long version);
+    Optional<DeviceConfiguration> findAndLockDeviceConfigurationByIdAndVersion(long id, long version);
 
+    Optional<DeviceConfigConflictMapping> findAndLockDeviceConfigConflictMappingByIdAndVersion(long id, long version);
     /**
      * Finds a {@link ChannelSpec} which is uniquely identified by the given ID.
      *
      * @param channelSpecId the id of the ChannelSpec
      * @return the ChannelSpec or <code>null</code> if there is no such ChannelSpec
      */
-    public Optional<ChannelSpec> findChannelSpec(long channelSpecId);
+    Optional<ChannelSpec> findChannelSpec(long channelSpecId);
 
-    /**R
+    Optional<ChannelSpec> findAndLockChannelSpecByIdAndVersion(long id, long version);
+
+    /**
      * Finds a {@link RegisterSpec} which is uniquely identified by the given ID.
      *
      * @param id the id of the RegisterSpec
      * @return the RegisterSpec or <code>null</code> if there is no such RegisterSpec
      */
-    public Optional<RegisterSpec> findRegisterSpec(long id);
+    Optional<RegisterSpec> findRegisterSpec(long id);
+
+    Optional<RegisterSpec> findAndLockRegisterSpecByIdAndVersion(long id, long version);
 
     /**
      * Finds a list of {@link RegisterSpec RegisterSpecs}
@@ -179,7 +184,9 @@ public interface DeviceConfigurationService {
      * @param loadProfileSpecId the ID of the LoadProfileSpec
      * @return the LoadProfileSpec or <code>null</code> if there is no such LoadProfileSpec
      */
-    public Optional<LoadProfileSpec> findLoadProfileSpec(long loadProfileSpecId);
+    Optional<LoadProfileSpec> findLoadProfileSpec(long loadProfileSpecId);
+
+    Optional<LoadProfileSpec> findAndLockLoadProfileSpecByIdAndVersion(long id, long version);
 
     /**
      * Find a {@link LoadProfileSpec} which is modeled by the given {@link LoadProfileType} for the given
@@ -200,6 +207,8 @@ public interface DeviceConfigurationService {
      * @return the LogBookSpec or <code>null</code> if there is no such LogBookSpec
      */
     public Optional<LogBookSpec> findLogBookSpec(long id);
+
+    Optional<LogBookSpec> findAndLockLogBookSpecByIdAndVersion(long id, long version);
 
     public Optional<ChannelSpec> findChannelSpecForLoadProfileSpecAndChannelType(LoadProfileSpec loadProfileSpec, ChannelType channelType);
 
@@ -227,17 +236,25 @@ public interface DeviceConfigurationService {
 
     public Finder<DeviceConfiguration> findDeviceConfigurationsUsingDeviceType(DeviceType deviceType);
 
-    public Optional<PartialConnectionTask> findPartialConnectionTask(long id);
+    Optional<PartialConnectionTask> findPartialConnectionTask(long id);
+
+    Optional<PartialConnectionTask> findAndLockPartialConnectionTaskByIdAndVersion(long id, long version);
 
     public List<PartialConnectionTask> findByConnectionTypePluggableClass(ConnectionTypePluggableClass connectionTypePluggableClass);
 
-    public Optional<ProtocolDialectConfigurationProperties> getProtocolDialectConfigurationProperties(long id);
+    Optional<ProtocolDialectConfigurationProperties> getProtocolDialectConfigurationProperties(long id);
+
+    Optional<ProtocolDialectConfigurationProperties> findAndLockProtocolDialectConfigurationPropertiesByIdAndVersion(long id, long version);
 
     public List<PartialConnectionTask> findByComPortPool(ComPortPool comPortPool);
 
-    public Optional<SecurityPropertySet> findSecurityPropertySet(long id);
+    Optional<SecurityPropertySet> findSecurityPropertySet(long id);
 
-    public Optional<ComTaskEnablement> findComTaskEnablement (long id);
+    Optional<SecurityPropertySet> findAndLockSecurityPropertySetByIdAndVersion(long id, long version);
+
+    Optional<ComTaskEnablement> findComTaskEnablement (long id);
+
+    Optional<ComTaskEnablement> findAndLockComTaskEnablementByIdAndVersion(long id, long version);
 
     /**
      * Return a list of ComTasks that are legal for assignment to the ComSchedule.
@@ -264,10 +281,13 @@ public interface DeviceConfigurationService {
 
     public List<DeviceConfiguration> getLinkableDeviceConfigurations(ValidationRuleSet validationRuleSet);
 
+    public List<DeviceConfiguration> getLinkableDeviceConfigurations(EstimationRuleSet estimationRuleSet);
+
     public List<SecurityPropertySet> findUniqueSecurityPropertySets();
 
     public Finder<DeviceConfiguration> findDeviceConfigurationsForEstimationRuleSet(EstimationRuleSet estimationRuleSet);
 
     DeviceConfiguration cloneDeviceConfiguration(DeviceConfiguration templateDeviceConfiguration, String name);
 
+    Optional<DeviceConfigConflictMapping> findDeviceConfigConflictMapping(long id);
 }

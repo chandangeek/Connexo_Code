@@ -1,30 +1,8 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
-import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.engine.config.impl.EngineModelModule;
-import com.energyict.mdc.io.impl.MdcIOModule;
-import com.energyict.mdc.issues.impl.IssuesModule;
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.impl.MasterDataModule;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
-import com.energyict.mdc.pluggable.PluggableService;
-import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
-import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
-import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
-import com.energyict.mdc.scheduling.SchedulingModule;
-import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.tasks.TaskService;
-import com.energyict.mdc.tasks.impl.TasksModule;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.EstimationService;
@@ -63,6 +41,29 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.impl.EngineModelModule;
+import com.energyict.mdc.io.impl.MdcIOModule;
+import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.impl.MasterDataModule;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
+import com.energyict.mdc.pluggable.PluggableService;
+import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.scheduling.SchedulingModule;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -108,6 +109,7 @@ public class InMemoryPersistence {
     private ValidationService validationService;
     private EstimationService estimationService;
     private PluggableService pluggableService;
+    private CustomPropertySetService customPropertySetService;
 
     private boolean mockProtocolPluggableService;
     private ProtocolPluggableService protocolPluggableService;
@@ -147,6 +149,7 @@ public class InMemoryPersistence {
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(DeviceLifeCycleConfigurationService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
+            this.customPropertySetService = injector.getInstance(CustomPropertySetService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
             injector.getInstance(EngineConfigurationService.class);
             this.masterDataService = injector.getInstance(MasterDataService.class);
@@ -186,6 +189,7 @@ public class InMemoryPersistence {
                         "11.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
                         "0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0",
                         "0.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
+                        "11.0.0.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
                         "0.0.0.4.19.1.12.0.0.0.0.0.0.0.0.3.72.0",
                         "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
                         "0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0"),
@@ -209,12 +213,14 @@ public class InMemoryPersistence {
                 new EngineModelModule(),
                 new PluggableModule(),
                 new SchedulingModule(),
-                new TimeModule()));
+                new TimeModule(),
+                new CustomPropertySetsModule()));
         if (!mockedProtocolPluggableService) {
             modules.add(new IssuesModule());
             modules.add(new BasicPropertiesModule());
             modules.add(new MdcDynamicModule());
             modules.add(new ProtocolPluggableModule());
+            modules.add(new CustomPropertySetsModule());
         }
         return modules.toArray(new Module[modules.size()]);
     }
@@ -275,6 +281,10 @@ public class InMemoryPersistence {
         return masterDataService;
     }
 
+    public CustomPropertySetService getCustomPropertySetService() {
+        return customPropertySetService;
+    }
+
     public TaskService getTaskService() {
         return taskService;
     }
@@ -291,11 +301,11 @@ public class InMemoryPersistence {
         return propertySpecService;
     }
 
-    public PluggableService getPluggableService(){
+    public PluggableService getPluggableService() {
         return pluggableService;
     }
 
-    public LicensedProtocolService getLicensedProtocolService(){
+    public LicensedProtocolService getLicensedProtocolService() {
         return licensedProtocolService;
     }
 
@@ -352,7 +362,7 @@ public class InMemoryPersistence {
         return this.dataModel;
     }
 
-    public User getMockedUser(){
+    public User getMockedUser() {
         return (User) this.principal;
     }
 
@@ -367,7 +377,5 @@ public class InMemoryPersistence {
             }
             bind(DataModel.class).toProvider(() -> dataModel);
         }
-
     }
-
 }

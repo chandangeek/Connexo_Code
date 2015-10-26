@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Subquery;
@@ -39,6 +40,16 @@ public class LinkableConfigResolverBySql implements LinkableConfigResolver {
         }, "id"), "name");
     }
 
+    @Override
+    public List<DeviceConfiguration> getLinkableDeviceConfigurations(final EstimationRuleSet ruleSet) {
+        return query.select(ListOperator.IN.contains(new Subquery() {
+            @Override
+            public SqlFragment toFragment() {
+                return getBuilderFor(ruleSet);
+            }
+        }, "id"), "name");
+    }
+
     /**
      * @return a subquery that holds all ids of the eligible DeviceConfigurations.
      */
@@ -64,4 +75,31 @@ public class LinkableConfigResolverBySql implements LinkableConfigResolver {
         builder.append(")");
         return builder;
     }
+
+    /**
+     * @return a subquery that holds all ids of the eligible DeviceConfigurations.
+     */
+    private SqlBuilder getBuilderFor(EstimationRuleSet ruleSet) {
+        SqlBuilder builder = new SqlBuilder();
+
+        builder.append("select distinct(id) from ((select rs.deviceconfigid as id from dtc_registerspec rs where rs.registertypeid in" +
+                "  (select id from mds_measurementtype rm " +
+                "  where rm.readingtype in (select tier.readingtypemrid from est_readingtypeinestrule tier " +
+                "    where tier.ruleid in (select er.id from est_estimationrule er where er.rulesetid = ");
+        builder.addLong(ruleSet.getId());
+        builder.append(") )))" +
+                " union" +
+                " (select lps.deviceconfigid as id from dtc_loadprofilespec lps where lps.id in " +
+                "  (select cs.loadprofilespecid from dtc_channelspec cs where cs.channeltypeid in" +
+                "  (select id from mds_measurementtype rm " +
+                "  where rm.readingtype in (select tier.readingtypemrid from est_readingtypeinestrule tier " +
+                "    where tier.ruleid in (select er.id from est_estimationrule er where er.rulesetid = ");
+        builder.addLong(ruleSet.getId());
+        builder.append(") )))))" +
+                "  where id not in (select rsu.deviceconfig from DTC_DEVCFGESTRULESETUSAGE rsu where rsu.estimationruleset = ");
+        builder.addLong(ruleSet.getId());
+        builder.append(")");
+        return builder;
+    }
+
 }

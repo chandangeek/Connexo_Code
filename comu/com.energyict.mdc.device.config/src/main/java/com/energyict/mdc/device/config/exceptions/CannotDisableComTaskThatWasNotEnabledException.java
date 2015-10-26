@@ -1,9 +1,11 @@
 package com.energyict.mdc.device.config.exceptions;
 
-import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when an attempt
@@ -16,8 +18,8 @@ import com.energyict.mdc.tasks.ComTask;
  */
 public class CannotDisableComTaskThatWasNotEnabledException extends LocalizedException {
 
-    public CannotDisableComTaskThatWasNotEnabledException(Thesaurus thesaurus, DeviceConfiguration deviceConfiguration, ComTask comTask) {
-        super(thesaurus, MessageSeeds.COM_TASK_ENABLEMENT_DOES_NOT_EXIST, comTask.getName(), deviceConfiguration.getName());
+    public CannotDisableComTaskThatWasNotEnabledException(DeviceConfiguration deviceConfiguration, ComTask comTask, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, comTask.getName(), deviceConfiguration.getName());
         this.set("comTask", comTask);
         this.set("deviceConfiguration", deviceConfiguration);
     }

@@ -1,12 +1,14 @@
 package com.energyict.mdc.device.config.exceptions;
 
-import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Models the exceptional situation that occurs when a {@link LogBookType}
@@ -17,21 +19,12 @@ import java.util.List;
  */
 public class VetoLogBookTypeDeletionBecauseStillUsedByDeviceTypesException extends LocalizedException {
 
-    public VetoLogBookTypeDeletionBecauseStillUsedByDeviceTypesException(Thesaurus thesaurus, LogBookType logBookType, List<DeviceType> deviceTypes) {
-        super(thesaurus, MessageSeeds.VETO_LOGBOOKTYPE_DELETION, logBookType.getName(), namesToStringListForDeviceTypes(deviceTypes));
+    public VetoLogBookTypeDeletionBecauseStillUsedByDeviceTypesException(LogBookType logBookType, List<DeviceType> deviceTypes, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, logBookType.getName(), namesToStringListForDeviceTypes(deviceTypes));
     }
 
     private static String namesToStringListForDeviceTypes(List<DeviceType> deviceTypes) {
-        StringBuilder builder = new StringBuilder();
-        boolean notFirst = false;
-        for (DeviceType deviceType : deviceTypes) {
-            if (notFirst) {
-                builder.append(", ");
-            }
-            builder.append(deviceType.getName());
-            notFirst = true;
-        }
-        return builder.toString();
+        return deviceTypes.stream().map(DeviceType::getName).collect(Collectors.joining(", "));
     }
 
 }

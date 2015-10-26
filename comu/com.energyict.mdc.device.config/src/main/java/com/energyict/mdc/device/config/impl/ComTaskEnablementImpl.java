@@ -1,5 +1,15 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.config.events.EventType;
+import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.domain.util.Range;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -8,11 +18,6 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.energyict.mdc.device.config.*;
-import com.energyict.mdc.device.config.events.EventType;
-import com.energyict.mdc.device.config.exceptions.MessageSeeds;
-import com.energyict.mdc.tasks.ComTask;
-import org.hibernate.validator.constraints.Range;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -165,6 +170,11 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     @Override
     public void setProtocolDialectConfigurationProperties(ProtocolDialectConfigurationProperties properties) {
         this.protocolDialectConfigurationProperties.set(properties);
+    }
+
+    @Override
+    public long getVersion() {
+        return this.version;
     }
 
     @Override
@@ -565,5 +575,14 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
             ).findFirst().orElse(null);
         }
         return correspondingSecurityPropertySet;
+    }
+
+    @Override
+    public void save() {
+        boolean update = getId() > 0;
+        super.save();
+        if (update) {
+            getDataModel().touch(deviceConfiguration.get());
+        }
     }
 }

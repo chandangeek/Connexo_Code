@@ -22,6 +22,8 @@ public enum EventType {
     DEVICECONFIGURATION_CREATED("deviceconfiguration/CREATED"),
     DEVICECONFIGURATION_UPDATED("deviceconfiguration/UPDATED"),
     DEVICECONFIGURATION_DELETED("deviceconfiguration/DELETED"),
+    DEVICECONFIGURATION_ACTIVATED("deviceconfiguration/ACTIVATED"),
+    DEVICECONFIGURATION_DEACTIVATED("deviceconfiguration/DEACTIVATED"),
     DEVICECONFIGURATION_VALIDATEDEACTIVATE("deviceconfiguration/VALIDATEDEACTIVATE"),
     COMTASKENABLEMENT_CREATED("comtaskenablement/CREATED"),
     COMTASKENABLEMENT_UPDATED("comtaskenablement/UPDATED"),
@@ -221,7 +223,7 @@ public enum EventType {
                 .category("Crud")
                 .scope("System");
         this.addCustomProperties(builder);
-        this.shouldPublish(builder).create().save();
+        this.shouldPublish(builder).create();
     }
 
     EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {

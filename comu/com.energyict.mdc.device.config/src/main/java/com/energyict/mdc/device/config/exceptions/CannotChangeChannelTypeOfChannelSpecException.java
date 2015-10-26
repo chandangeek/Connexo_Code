@@ -2,6 +2,7 @@ package com.energyict.mdc.device.config.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made
@@ -14,7 +15,8 @@ import com.elster.jupiter.nls.Thesaurus;
  */
 public class CannotChangeChannelTypeOfChannelSpecException extends LocalizedException {
 
-    public CannotChangeChannelTypeOfChannelSpecException(Thesaurus thesaurus) {
-        super(thesaurus, MessageSeeds.CHANNEL_SPEC_CANNOT_CHANGE_CHANNEL_TYPE);
+    public CannotChangeChannelTypeOfChannelSpecException(Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed);
     }
+
 }

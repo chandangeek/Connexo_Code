@@ -1,8 +1,10 @@
 package com.energyict.mdc.device.config.exceptions;
 
+import com.energyict.mdc.masterdata.LogBookType;
+
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.masterdata.LogBookType;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made
@@ -15,7 +17,8 @@ import com.energyict.mdc.masterdata.LogBookType;
  */
 public class CannotChangeLogbookTypeOfLogbookSpecException extends LocalizedException {
 
-    public CannotChangeLogbookTypeOfLogbookSpecException(Thesaurus thesaurus) {
-        super(thesaurus, MessageSeeds.LOGBOOK_SPEC_CANNOT_CHANGE_LOGBOOK_TYPE);
+    public CannotChangeLogbookTypeOfLogbookSpecException(Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed);
     }
+
 }

@@ -1,7 +1,5 @@
 package com.energyict.mdc.device.config.exceptions;
 
-import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.LoadProfileSpec;
@@ -11,7 +9,14 @@ import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.MeasurementType;
 
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.util.exception.MessageSeed;
+
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Models the exceptional situation that occurs when an attempt is made
@@ -28,11 +33,12 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      * situation that occurs when an attempt is made to delete a {@link com.energyict.mdc.masterdata.MeasurementType}
      * while it is still used by the specified {@link RegisterSpec}s.
      *
+     * @param messageSeed The MessageSeed
      * @param thesaurus The Thesaurus
      * @return The CannotDeleteBecauseStillInUseException
      */
-    public static CannotDeleteBecauseStillInUseException registerTypeIsStillInUseByRegisterSpecs(Thesaurus thesaurus, MeasurementType measurementType, List<RegisterSpec> registerSpecs) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_TYPE_STILL_USED_BY_REGISTER_SPEC, measurementType.getReadingType().getAliasName(), namesToStringListForRegisterSpecs(registerSpecs));
+    public static CannotDeleteBecauseStillInUseException registerTypeIsStillInUseByRegisterSpecs(Thesaurus thesaurus, MeasurementType measurementType, List<RegisterSpec> registerSpecs, MessageSeed messageSeed) {
+        return new CannotDeleteBecauseStillInUseException(thesaurus, messageSeed, measurementType.getReadingType().getAliasName(), namesToStringListForRegisterSpecs(registerSpecs));
     }
 
     /**
@@ -40,11 +46,12 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      * situation that occurs when an attempt is made to delete a {@link com.energyict.mdc.masterdata.MeasurementType}
      * while it is still used by the specified {@link ChannelSpec}s.
      *
+     * @param messageSeed The MessageSeed
      * @param thesaurus The Thesaurus
      * @return The CannotDeleteBecauseStillInUseException
      */
-    public static CannotDeleteBecauseStillInUseException channelTypeIsStillInUseByChannelSpecs(Thesaurus thesaurus, MeasurementType measurementType, List<ChannelSpec> channelSpecs) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.CHANNEL_TYPE_STILL_USED_BY_CHANNEL_SPEC, measurementType.getReadingType().getAliasName(), namesToStringListForChannelSpecs(channelSpecs));
+    public static CannotDeleteBecauseStillInUseException channelTypeIsStillInUseByChannelSpecs(Thesaurus thesaurus, MeasurementType measurementType, List<ChannelSpec> channelSpecs, MessageSeed messageSeed) {
+        return new CannotDeleteBecauseStillInUseException(thesaurus, messageSeed, measurementType.getReadingType().getAliasName(), namesToStringListForChannelSpecs(channelSpecs));
     }
 
     /**
@@ -53,10 +60,11 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      * while it is still used by the specified {@link DeviceType}s.
      *
      * @param thesaurus The Thesaurus
+     * @param messageSeed The MessageSeed
      * @return The CannotDeleteBecauseStillInUseException
      */
-    public static CannotDeleteBecauseStillInUseException registerTypeIsStillInUseByDeviceTypes(Thesaurus thesaurus, MeasurementType measurementType, List<DeviceType> deviceTypes) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.REGISTER_TYPE_STILL_USED_BY_DEVICE_TYPE, measurementType.getReadingType().getAliasName(), namesToStringListForDeviceTypes(deviceTypes));
+    public static CannotDeleteBecauseStillInUseException registerTypeIsStillInUseByDeviceTypes(Thesaurus thesaurus, MeasurementType measurementType, List<DeviceType> deviceTypes, MessageSeed messageSeed) {
+        return new CannotDeleteBecauseStillInUseException(thesaurus, messageSeed, measurementType.getReadingType().getAliasName(), namesToStringListForDeviceTypes(deviceTypes));
     }
 
     /**
@@ -65,10 +73,11 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      * while it is still used by the specified {@link LogBookSpec}s.
      *
      * @param thesaurus The Thesaurus
+     * @param messageSeed The MessageSeed
      * @return The CannotDeleteBecauseStillInUseException
      */
-    public static CannotDeleteBecauseStillInUseException logBookTypeIsStillInUseByLogBookSpec(Thesaurus thesaurus, LogBookType logBookType, List<LogBookSpec> logBookSpecs) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS, logBookType.getName(), namesToStringListForLogBookSpecs(logBookSpecs));
+    public static CannotDeleteBecauseStillInUseException logBookTypeIsStillInUseByLogBookSpec(Thesaurus thesaurus, LogBookType logBookType, List<LogBookSpec> logBookSpecs, MessageSeed messageSeed) {
+        return new CannotDeleteBecauseStillInUseException(thesaurus, messageSeed, logBookType.getName(), namesToStringListForLogBookSpecs(logBookSpecs));
     }
 
     /**
@@ -77,10 +86,11 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      * while it is still used by the specified {@link LoadProfileSpec}s.
      *
      * @param thesaurus The Thesaurus
+     * @param messageSeed The MessageSeed
      * @return The CannotDeleteBecauseStillInUseException
      */
-    public static CannotDeleteBecauseStillInUseException loadProfileTypeIsStillInUseByLoadProfileSpec(Thesaurus thesaurus, LoadProfileType loadProfileType, List<LoadProfileSpec> loadProfileSpecs) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.LOAD_PROFILE_TYPE_STILL_IN_USE_BY_LOAD_PROFILE_SPECS, loadProfileType.getName(), namesToStringListForLoadProfileSpecs(loadProfileSpecs));
+    public static CannotDeleteBecauseStillInUseException loadProfileTypeIsStillInUseByLoadProfileSpec(LoadProfileType loadProfileType, List<LoadProfileSpec> loadProfileSpecs, Thesaurus thesaurus, MessageSeed messageSeed) {
+        return new CannotDeleteBecauseStillInUseException(thesaurus, messageSeed, loadProfileType.getName(), namesToStringListForLoadProfileSpecs(loadProfileSpecs));
     }
 
     /**
@@ -89,10 +99,11 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      * while it is still used by the specified {@link DeviceType}s.
      *
      * @param thesaurus The Thesaurus
+     * @param messageSeed The MessageSeed
      * @return The CannotDeleteBecauseStillInUseException
      */
-    public static CannotDeleteBecauseStillInUseException loadProfileTypeIsStillInUseByDeviceType(Thesaurus thesaurus, LoadProfileType loadProfileType, List<DeviceType> deviceTypes) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.LOAD_PROFILE_TYPE_STILL_IN_USE_BY_DEVICE_TYPES, loadProfileType.getName(), namesToStringListForDeviceTypes(deviceTypes));
+    public static CannotDeleteBecauseStillInUseException loadProfileTypeIsStillInUseByDeviceType(LoadProfileType loadProfileType, List<DeviceType> deviceTypes, Thesaurus thesaurus, MessageSeed messageSeed) {
+        return new CannotDeleteBecauseStillInUseException(thesaurus, messageSeed, loadProfileType.getName(), namesToStringListForDeviceTypes(deviceTypes));
     }
 
     /**
@@ -100,104 +111,65 @@ public class CannotDeleteBecauseStillInUseException extends LocalizedException {
      * situation that occurs when an attempt is made to delete a {@link DeviceType}
      * while it has active {@link com.energyict.mdc.device.config.DeviceConfiguration}s.
      *
+     * @param messageSeed The MessageSeed
      * @param thesaurus The Thesaurus
      * @return The CannotDeleteBecauseStillInUseException
      */
-    public static CannotDeleteBecauseStillInUseException deviceTypeIsStillInUse (Thesaurus thesaurus, DeviceType deviceType) {
-        return new CannotDeleteBecauseStillInUseException(thesaurus, MessageSeeds.DEVICE_TYPE_STILL_HAS_ACTIVE_CONFIGURATIONS, deviceType.getName());
+    public static CannotDeleteBecauseStillInUseException deviceTypeIsStillInUse(Thesaurus thesaurus, DeviceType deviceType, MessageSeed messageSeed) {
+        return new CannotDeleteBecauseStillInUseException(thesaurus, messageSeed, deviceType.getName());
     }
 
     private static String namesToStringListForChannelSpecs(List<ChannelSpec> channelSpecs) {
-        StringBuilder builder = new StringBuilder();
-        boolean notFirst = false;
-        for (ChannelSpec channelSpec : channelSpecs) {
-            if (notFirst) {
-                builder.append(", ");
-            }
-            builder.append(channelSpec.getReadingType().getAliasName());
-            notFirst = true;
-        }
-        return builder.toString();
-    }
-
-    private static String namesToStringListForLoadProfileTypes(List<LoadProfileType> loadProfileTypes) {
-        StringBuilder builder = new StringBuilder();
-        boolean notFirst = false;
-        for (LoadProfileType loadProfileType : loadProfileTypes) {
-            if (notFirst) {
-                builder.append(", ");
-            }
-            builder.append(loadProfileType.getName());
-            notFirst = true;
-        }
-        return builder.toString();
+        return channelSpecs
+                .stream()
+                .map(ChannelSpec::getReadingType)
+                .map(ReadingType::getAliasName)
+                .collect(Collectors.joining(", "));
     }
 
     private static String namesToStringListForDeviceTypes(List<DeviceType> deviceTypes) {
-        StringBuilder builder = new StringBuilder();
-        boolean notFirst = false;
-        for (DeviceType deviceType : deviceTypes) {
-            if (notFirst) {
-                builder.append(", ");
-            }
-            builder.append(deviceType.getName());
-            notFirst = true;
-        }
-        return builder.toString();
+        return deviceTypes.stream().map(DeviceType::getName).collect(Collectors.joining(", "));
     }
 
     private static String namesToStringListForLogBookSpecs(List<LogBookSpec> logBookSpecs) {
-        StringBuilder builder = new StringBuilder();
-        boolean notFirst = false;
-        for (LogBookSpec logBookSpec : logBookSpecs) {
-            if (notFirst) {
-                builder.append(", ");
-            }
-            builder.append(logBookSpec.getDeviceConfiguration().getName());
-            builder.append(":");
-            builder.append(logBookSpec.getDeviceObisCode().toString());
-            notFirst = true;
-        }
-        return builder.toString();
+        return logBookSpecs
+                .stream()
+                .map(CannotDeleteBecauseStillInUseException::toString)
+                .collect(Collectors.joining(", "));
+    }
+
+    private static String toString(LogBookSpec logBookSpec) {
+        return logBookSpec.getDeviceConfiguration().getName() + ":" + logBookSpec.getDeviceObisCode().toString();
+    }
+
+    private static String toString(RegisterSpec registerSpec) {
+        return "register configuration with Obis code " + registerSpec.getDeviceObisCode().toString() + " in device configuration " + registerSpec.getDeviceConfiguration().getName();
     }
 
     private static String namesToStringListForRegisterSpecs(List<RegisterSpec> registerSpecs) {
-        StringBuilder builder = new StringBuilder();
-        boolean notFirst = false;
-        for (RegisterSpec registerSpec : registerSpecs) {
-            if (notFirst) {
-                builder.append(", ");
-            }
-            builder.append("register configuration with Obis code ");
-            builder.append(registerSpec.getDeviceObisCode().toString());
-            builder.append(" in device configuration ");
-            builder.append(registerSpec.getDeviceConfiguration().getName());
-            notFirst = true;
-        }
-        return builder.toString();
+        return registerSpecs
+                .stream()
+                .map(CannotDeleteBecauseStillInUseException::toString)
+                .collect(Collectors.joining(", "));
     }
 
     private static String namesToStringListForLoadProfileSpecs(List<LoadProfileSpec> loadProfileSpecs) {
-        StringBuilder builder = new StringBuilder();
-        boolean notFirst = false;
-        for (LoadProfileSpec loadProfileSpec : loadProfileSpecs) {
-            if (notFirst) {
-                builder.append(", ");
-            }
-            builder.append(loadProfileSpec.getLoadProfileType().getName());
-            notFirst = true;
-        }
-        return builder.toString();
+        return loadProfileSpecs
+                .stream()
+                .map(LoadProfileSpec::getLoadProfileType)
+                .map(HasName::getName)
+                .collect(Collectors.joining(", "));
     }
 
-    private CannotDeleteBecauseStillInUseException(Thesaurus thesaurus, MessageSeeds messageSeeds, String registerGroupName, String dependendObjectNames) {
-        super(thesaurus, messageSeeds, registerGroupName, dependendObjectNames);
+    private CannotDeleteBecauseStillInUseException(Thesaurus thesaurus, MessageSeed messageSeed, String registerGroupName, String dependendObjectNames) {
+        super(thesaurus, messageSeed, registerGroupName, dependendObjectNames);
         this.set("registerGroupName", registerGroupName);
         this.set("dependendObjectNames", dependendObjectNames);
     }
 
-    private CannotDeleteBecauseStillInUseException(Thesaurus thesaurus, MessageSeeds messageSeeds, String deviceTypeName) {
-        super(thesaurus, messageSeeds, deviceTypeName);
+    private CannotDeleteBecauseStillInUseException(Thesaurus thesaurus, MessageSeed messageSeed, String deviceTypeName) {
+        super(thesaurus, messageSeed, deviceTypeName);
         this.set("deviceTypeName", deviceTypeName);
     }
+
 }

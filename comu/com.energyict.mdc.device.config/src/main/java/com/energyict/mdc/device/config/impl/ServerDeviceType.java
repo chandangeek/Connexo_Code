@@ -1,7 +1,10 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingImpl;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
+
+import java.util.List;
 
 /**
  * Adds behavior to {@link DeviceType} that is reserved
@@ -17,6 +20,35 @@ public interface ServerDeviceType extends DeviceType {
      *
      * @param deviceLifeCycle The DeviceLifeCycle
      */
-    public void updateDeviceLifeCycle(DeviceLifeCycle deviceLifeCycle);
+    void updateDeviceLifeCycle(DeviceLifeCycle deviceLifeCycle);
 
+    /**
+     * Creates a new DeviceConfigConflictMappingImpl.
+     *
+     * @param origin the origin DeviceConfiguration
+     * @param destination the destination DeviceConfiguration
+     * @return a newly created DeviceConfigConflictMapping for this DeviceType with the given configs
+     */
+    DeviceConfigConflictMappingImpl newConflictMappingFor(DeviceConfiguration origin, DeviceConfiguration destination);
+
+    /**
+     * Remove the given deviceConfigConflictMappings
+     *
+     * @param deviceConfigConflictMappings the mappings to remove
+     */
+    void removeDeviceConfigConflictMappings(List<DeviceConfigConflictMapping> deviceConfigConflictMappings);
+
+    /**
+     * Cleans up the DeviceConfigConflictMapping which use the given partialConnectionTask
+     *
+     * @param partialConnectionTask the partialConnectionTask
+     */
+    void removeConflictsFor(PartialConnectionTask partialConnectionTask);
+
+    /**
+     * Cleans up the DeviceConfigConflictMapping which uses the given SecurityPropertySet
+     *
+     * @param securityPropertySet the SecurityPropertySet
+     */
+    void removeConflictsFor(SecurityPropertySet securityPropertySet);
 }
