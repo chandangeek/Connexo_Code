@@ -9,8 +9,9 @@ import com.elster.jupiter.orm.DataModel;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.Objects;
 
-public class IssueTypeImpl extends EntityImpl implements IssueType {
+public final class IssueTypeImpl extends EntityImpl implements IssueType {
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(min = 1, max = 80, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String key;
@@ -43,5 +44,24 @@ public class IssueTypeImpl extends EntityImpl implements IssueType {
     @Override
     public String getName() {
         return this.thesaurus.getStringBeyondComponent(this.translationKey, this.translationKey);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        IssueTypeImpl that = (IssueTypeImpl) o;
+
+        return key.equals(that.key);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key);
     }
 }

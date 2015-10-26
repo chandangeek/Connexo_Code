@@ -10,7 +10,7 @@ import com.elster.jupiter.orm.DataModel;
 import javax.inject.Inject;
 import java.util.Optional;
 
-public class OpenIssueImpl extends IssueImpl implements OpenIssue {
+public final class OpenIssueImpl extends IssueImpl implements OpenIssue {
 
     @Inject
     public OpenIssueImpl(DataModel dataModel, IssueService issueService) {

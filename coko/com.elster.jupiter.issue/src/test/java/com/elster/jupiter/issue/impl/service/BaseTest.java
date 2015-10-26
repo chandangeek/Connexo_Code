@@ -1,6 +1,7 @@
 package com.elster.jupiter.issue.impl.service;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.domain.util.Query;
@@ -45,6 +46,7 @@ import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -57,6 +59,7 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.TestRule;
@@ -82,7 +85,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 import static org.mockito.Mockito.*;
 
 @SuppressWarnings("deprecation")
-public class BaseTest {
+public abstract class BaseTest {
     public static final String ISSUE_DEFAULT_TYPE_UUID = "datacollection";
     public static final String ISSUE_DEFAULT_REASON = "reason.default";
     public static final TranslationKey MESSAGE_SEED_DEFAULT_TRANSLATION = new TranslationKey() {
@@ -111,6 +114,7 @@ public class BaseTest {
         protected void configure() {
             bind(BundleContext.class).toInstance(mock(BundleContext.class));
             bind(EventAdmin.class).toInstance(mock(EventAdmin.class));
+            bind(TimeService.class).toInstance(mock(TimeService.class));
 
             TaskService taskService = mock(TaskService.class);
             bind(TaskService.class).toInstance(taskService);
@@ -131,6 +135,7 @@ public class BaseTest {
                 new MockModule(),
                 inMemoryBootstrapModule,
                 new InMemoryMessagingModule(),
+                new DataVaultModule(),
                 new IdsModule(),
                 new MeteringModule(),
                 new PartyModule(),
@@ -153,18 +158,24 @@ public class BaseTest {
             injector.getInstance(FiniteStateMachineService.class);
             issueService = injector.getInstance(IssueService.class);
             injector.getInstance(DummyIssueProvider.class);
-            ((NlsServiceImpl)injector.getInstance(NlsService.class)).addTranslationProvider((IssueServiceImpl) issueService);
             injector.getInstance(ThreadPrincipalService.class).set(() -> "Test");
             // In OSGI container issue types will be set by separate bundle
             IssueType type = issueService.createIssueType(ISSUE_DEFAULT_TYPE_UUID, MESSAGE_SEED_DEFAULT_TRANSLATION);
             issueService.createReason(ISSUE_DEFAULT_REASON, type, MESSAGE_SEED_DEFAULT_TRANSLATION, MESSAGE_SEED_DEFAULT_TRANSLATION);
             ctx.commit();
         }
+        injector.getInstance(ThreadPrincipalService.class).set(() -> "Test");
+        ((NlsServiceImpl)injector.getInstance(NlsService.class)).addTranslationKeyProvider((IssueServiceImpl) issueService);
     }
 
     @AfterClass
     public static void deactivateEnvironment(){
         inMemoryBootstrapModule.deactivate();
+    }
+
+    @Before
+    public void setThreadPrinciple() {
+        injector.getInstance(ThreadPrincipalService.class).set(() -> "Test");
     }
 
     protected TransactionService getTransactionService() {
@@ -198,17 +209,17 @@ public class BaseTest {
     protected ThreadPrincipalService getThreadPrincipalService() {
         return injector.getInstance(ThreadPrincipalService.class);
     }
-    
+
     protected PropertySpecService getPropertySpecService() {
         return injector.getInstance(PropertySpecService.class);
     }
-    
+
     protected IssueDefaultActionsFactory getDefaultActionsFactory() {
         return injector.getInstance(IssueDefaultActionsFactory.class);
     }
 
     protected OpenIssue createIssueMinInfo() {
-        OpenIssue issue = getDataModel().getInstance(OpenIssueImpl.class);
+        OpenIssueImpl issue = getDataModel().getInstance(OpenIssueImpl.class);
         issue.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
         issue.setStatus(getIssueService().findStatus(IssueStatus.OPEN).orElse(null));
         CreationRule rule = createCreationRule("creation rule" + Instant.now());
@@ -216,18 +227,16 @@ public class BaseTest {
         issue.save();
         return issue;
     }
-    
+
     private CreationRule createCreationRule(String name) {
         CreationRuleBuilder builder = getIssueCreationService().newCreationRule();
         builder.setName(name);
         builder.setTemplate(mockCreationRuleTemplate().getName());
         builder.setIssueType(getIssueService().findIssueType(ISSUE_DEFAULT_TYPE_UUID).orElse(null));
         builder.setReason(getIssueService().findReason(ISSUE_DEFAULT_REASON).orElse(null));
-        CreationRule creationRule = builder.complete();
-        creationRule.save();
-        return creationRule;
+        return builder.complete();
     }
-    
+
     private CreationRuleTemplate mockCreationRuleTemplate() {
         CreationRuleTemplate creationRuleTemplate = mock(CreationRuleTemplate.class);
         when(creationRuleTemplate.getPropertySpecs()).thenReturn(Collections.emptyList());
@@ -284,7 +293,7 @@ public class BaseTest {
     protected IssueAction getMockIssueAction() {
         return mock(IssueAction.class);
     }
-    
+
     protected List<IssueComment> getIssueComments(Issue issue) {
         Query<IssueComment> query = getIssueService().query(IssueComment.class, User.class);
         return query.select(where("issueId").isEqualTo(issue.getId()), Order.ascending("createTime"));
@@ -293,15 +302,15 @@ public class BaseTest {
     private static class DummyIssueProvider implements IssueProvider {
 
         @Inject
-        public DummyIssueProvider(IssueService issueService) {
+        DummyIssueProvider(IssueService issueService) {
             ((IssueServiceImpl) issueService).addIssueProvider(this);
         }
 
         @Override
         public Optional<? extends OpenIssue> getOpenIssue(OpenIssue issue) {
-            OpenIssue spyOpenIssue = spy(issue);
+            OpenIssue spyOpenIssue = mock(OpenIssue.class);
             doAnswer(invocationOnMock -> {
-                IssueStatus status = (IssueStatus)invocationOnMock.getArguments()[0];
+                IssueStatus status = (IssueStatus) invocationOnMock.getArguments()[0];
                 return issue.closeInternal(status);
             }).when(spyOpenIssue).close(any());
             return Optional.of(spyOpenIssue);
@@ -312,4 +321,5 @@ public class BaseTest {
             return Optional.of(issue);
         }
     }
+
 }

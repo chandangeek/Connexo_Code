@@ -1,7 +1,5 @@
 package com.elster.jupiter.issue.impl.records;
 
-import java.util.Optional;
-
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
@@ -16,6 +14,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.Optional;
 
 public class IssueActionTypeImpl extends EntityImpl implements IssueActionType {
 
@@ -39,24 +38,25 @@ public class IssueActionTypeImpl extends EntityImpl implements IssueActionType {
         this.issueActionService = issueActionService;
     }
 
-    public void init(String factoryId, String actionTypeClass, IssueReason issueReason, CreationRuleActionPhase phase){
+    public IssueActionTypeImpl init(String factoryId, String actionTypeClass, IssueReason issueReason, CreationRuleActionPhase phase){
         IssueType type = null;
         if (issueReason != null){
             type = issueReason.getIssueType();
         }
-        this.init(factoryId, actionTypeClass, issueReason, type, phase);
+        return init(factoryId, actionTypeClass, issueReason, type, phase);
     }
 
-    public void init(String factoryId, String actionTypeClass, IssueType issueType, CreationRuleActionPhase phase){
-        this.init(factoryId, actionTypeClass, null, issueType, phase);
+    public IssueActionTypeImpl init(String factoryId, String actionTypeClass, IssueType issueType, CreationRuleActionPhase phase){
+        return init(factoryId, actionTypeClass, null, issueType, phase);
     }
 
-    private void init(String factoryId, String actionTypeClass, IssueReason issueReason, IssueType issueType, CreationRuleActionPhase phase) {
+    private IssueActionTypeImpl init(String factoryId, String actionTypeClass, IssueReason issueReason, IssueType issueType, CreationRuleActionPhase phase) {
         this.factoryId = factoryId;
         this.className = actionTypeClass;
         this.issueReason.set(issueReason);
         this.issueType.set(issueType);
         this.phase = phase;
+        return this;
     }
 
     @Override

@@ -147,8 +147,7 @@ public class IssueImpl extends EntityImpl implements Issue {
     public Optional<IssueComment> addComment(String body, User author){
         if (!is(body).emptyOrOnlyWhiteSpace() && author != null){
             IssueCommentImpl comment = getDataModel().getInstance(IssueCommentImpl.class);
-            comment.init(getId(), body, author);
-            comment.save();
+            comment.init(getId(), body, author).save();
             return Optional.of(IssueComment.class.cast(comment));
         }
         return Optional.empty();

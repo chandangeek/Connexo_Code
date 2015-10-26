@@ -1,12 +1,5 @@
 package com.elster.jupiter.issue.impl.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.util.List;
-import java.util.Optional;
-
-import org.junit.Test;
-
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.domain.util.Query;
@@ -21,6 +14,12 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueGroupFilter;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
+import org.junit.Test;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class IssueServiceImplTest extends BaseTest {
 
@@ -29,7 +28,7 @@ public class IssueServiceImplTest extends BaseTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}", property = "rule", strict = false)
     public void testIssueCreationWithDefault() {
         Issue issue = getDataModel().getInstance(IssueImpl.class);
-        issue.save();
+        issue.update();
     }
 
     @Test
@@ -49,7 +48,7 @@ public class IssueServiceImplTest extends BaseTest {
         Optional<User> userRef = getUserService().findUser("admin");
         assertThat(userRef).isNotEqualTo(Optional.empty());
         issue.addComment("comment", userRef.get());
-        issue.save();
+        issue.update();
         Query<IssueComment> commentQuery = getIssueService().query(IssueComment.class);
         List<IssueComment> issueCommentList = commentQuery.select(Condition.TRUE);
         assertThat(issueCommentList).isNotEmpty();

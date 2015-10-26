@@ -130,11 +130,12 @@ public enum TableSpecs {
             table.column(CREATION_RULE_DUE_IN_VALUE).map("dueInValue").type("number").conversion(NUMBER2LONG).add();
             table.column(CREATION_RULE_DUE_IN_TYPE).map("dueInType").type("number").conversion(NUMBER2ENUM).add();
             table.column(CREATION_RULE_TEMPLATE_NAME).map("template").varChar(1024).notNull().add();
-            table.column(CREATION_RULE_OBSOLETE_TIME).map("obsoleteTime").type("number").conversion(NUMBER2INSTANT).add();
+            Column obsoleteColumn = table.column(CREATION_RULE_OBSOLETE_TIME).map("obsoleteTime").type("number").conversion(NUMBER2INSTANT).add();
             table.addAuditColumns();
 
             table.primaryKey(CREATION_RULE_PK_NAME).on(idColumn).add();
             table.foreignKey(CREATION_RULE_FK_TO_REASON).map("reason").on(reasonRefIdColumn).references(ISU_REASON.name()).add();
+            table.unique(CREATION_RULE_UQ_NAME).on(nameColumn, obsoleteColumn).add();
         }
     },
     

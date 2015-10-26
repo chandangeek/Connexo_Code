@@ -1,17 +1,5 @@
 package com.elster.jupiter.issue.impl.records;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.IssueAction;
@@ -27,12 +15,20 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.HasValidProperties;
 import com.elster.jupiter.properties.PropertySpec;
 
+import javax.inject.Inject;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 @HasValidProperties(requiredPropertyMissingMessage = "{" + MessageSeeds.Keys.PROPERTY_MISSING + "}",
                     propertyNotInSpecMessage = "{" + MessageSeeds.Keys.PROPERTY_NOT_IN_PROPERTYSPECS + "}")
-public class CreationRuleActionImpl implements CreationRuleAction {
+public class CreationRuleActionImpl extends EntityImpl implements CreationRuleAction {
 
-    @SuppressWarnings("unused")
-    private long id;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private CreationRuleActionPhase phase;
     @IsPresent
@@ -42,21 +38,9 @@ public class CreationRuleActionImpl implements CreationRuleAction {
     @Valid
     private List<CreationRuleActionProperty> properties = new ArrayList<>();
 
-    // Audit fields
-    @SuppressWarnings("unused")
-    private Instant createTime;
-    @SuppressWarnings("unused")
-    private Instant modTime;
-    @SuppressWarnings("unused")
-    private String userName;
-    @SuppressWarnings("unused")
-    private long version;
-    
-    private final DataModel dataModel;
-    
     @Inject
     public CreationRuleActionImpl(DataModel dataModel) {
-        this.dataModel = dataModel;
+        super(dataModel);
     }
 
     @Override
@@ -97,7 +81,7 @@ public class CreationRuleActionImpl implements CreationRuleAction {
     
     @Override
     public void validate() {
-        Save.CREATE.validate(dataModel, this);
+        Save.CREATE.validate(getDataModel(), this);
     }
 
     void setAction(IssueActionType type) {
@@ -109,7 +93,7 @@ public class CreationRuleActionImpl implements CreationRuleAction {
     }
 
     CreationRuleActionProperty addProperty(String name, Object value) {
-        CreationRuleActionProperty newProperty = dataModel.getInstance(CreationRuleActionPropertyImpl.class).init(this, name, value);
+        CreationRuleActionProperty newProperty = getDataModel().getInstance(CreationRuleActionPropertyImpl.class).init(this, name, value);
         properties.add(newProperty);
         return newProperty;
     }

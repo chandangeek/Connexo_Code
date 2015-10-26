@@ -1,10 +1,17 @@
 package com.elster.jupiter.issue.impl.records;
 
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
-import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.CreationRuleAction;
+import com.elster.jupiter.issue.share.entity.CreationRuleProperty;
+import com.elster.jupiter.issue.share.entity.DueInType;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleUpdater;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.orm.DataModel;
@@ -16,7 +23,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.collections.ArrayDiffList;
 import com.elster.jupiter.util.collections.DiffList;
 import com.elster.jupiter.util.conditions.Condition;
-import org.hibernate.validator.constraints.NotBlank;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -39,8 +45,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class CreationRuleImpl extends EntityImpl implements CreationRule {
     
     private static final String PARAM_RULE_ID = "ruleId";
-    
-    @NotBlank(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+
+    @NotEmpty(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(max = 80, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String name;
     private String comment;
@@ -229,12 +235,15 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
         persistentActions.clear();
         actions.clear();
     }
-    
+
     @Override
     public void save() {
-        if (this.getCreateTime() == null) {
-            Save.CREATE.save(getDataModel(), this);
-        }
+        Save.CREATE.save(getDataModel(), this);
+        update();
+    }
+
+    @Override
+    public void update() {
         updateIssueType();
         updateContent();
         Save.UPDATE.save(getDataModel(), this);
@@ -250,7 +259,7 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
             super.delete(); // delete from table
         } else {
             this.setObsoleteTime(Instant.now()); // mark obsolete
-            this.save();
+            this.update();
         }
         issueService.getIssueCreationService().reReadRules();
     }

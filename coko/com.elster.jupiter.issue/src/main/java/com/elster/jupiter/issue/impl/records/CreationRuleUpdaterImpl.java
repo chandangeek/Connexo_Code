@@ -1,5 +1,6 @@
 package com.elster.jupiter.issue.impl.records;
 
+import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.service.IssueCreationService.CreationRuleUpdater;
 import com.elster.jupiter.orm.DataModel;
 
@@ -13,5 +14,11 @@ public class CreationRuleUpdaterImpl extends CreationRuleBuilderImpl implements 
     public CreationRuleUpdater removeActions() {
         this.underConstruction.removeActions();
         return this;
+    }
+
+    @Override
+    public CreationRule complete() {
+        this.underConstruction.update();
+        return this.underConstruction;
     }
 }

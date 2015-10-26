@@ -93,6 +93,6 @@ public class IssueForAssignImpl implements IssueForAssign{
     public void assignTo(String type, long id){
         isProcessed = true;
         issue.assignTo(type, id);
-        issue.save();
+        issue.update();
     }
 }

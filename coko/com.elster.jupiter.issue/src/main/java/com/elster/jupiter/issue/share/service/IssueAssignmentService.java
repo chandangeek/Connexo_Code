@@ -12,7 +12,7 @@ import java.util.List;
 @ProviderType
 public interface IssueAssignmentService {
 
-    AssignmentRule createAssignmentRule();
+    AssignmentRule createAssignmentRule(String title, String ruleData);
     
     Optional<AssignmentRule> findAssignmentRule(long id);
 
