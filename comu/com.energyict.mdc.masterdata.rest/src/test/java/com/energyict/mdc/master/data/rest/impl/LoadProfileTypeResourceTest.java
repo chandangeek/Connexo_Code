@@ -13,19 +13,19 @@ import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
+import com.energyict.mdc.masterdata.rest.LoadProfileTypeInfo;
 import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Test;
-import org.mockito.Matchers;
 
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.net.URLEncoder;
@@ -41,9 +41,18 @@ import java.util.Random;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest {
+
+
+    public static final long OK_VERSION = 11;
+    public static final long BAD_VERSION = 8;
+    public static final long LOADPROFILE_ID = 1L;
+
 
     @Test
     public void testIntervalsList() throws Exception {
@@ -77,14 +86,8 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
     public void testGetUnexistingLoadProfileType() throws Exception {
         when(masterDataService.findLoadProfileType(9999)).thenReturn(Optional.empty());
 
-        NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
-        when(thesaurus.getFormat(Matchers.<MessageSeed>anyObject())).thenReturn(nlsMessageFormat);
-
         Response response = target("/loadprofiles/9999").request().get();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        String answer = getServerAnswer(response);
-
-        assertThat(answer).contains("\"success\":false").contains("\"errors\"");
+        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
     }
 
     @Test
@@ -207,6 +210,12 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
         when(loadProfileType.getInterval()).thenReturn(interval);
         when(loadProfileType.getObisCode()).thenReturn(obisCode);
         when(loadProfileType.getChannelTypes()).thenReturn(channelTypes);
+        when(loadProfileType.getVersion()).thenReturn(OK_VERSION);
+
+
+        when(masterDataService.findLoadProfileType(id)).thenReturn(Optional.of(loadProfileType));
+        when(masterDataService.findAndLockLoadProfileTypeByIdAndVersion(id, OK_VERSION)).thenReturn(Optional.of(loadProfileType));
+        when(masterDataService.findAndLockLoadProfileTypeByIdAndVersion(id, BAD_VERSION)).thenReturn(Optional.empty());
         return loadProfileType;
     }
 
@@ -219,6 +228,8 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
         ReadingType readingType = mockReadingType();
         when(registerType.getReadingType()).thenReturn(readingType);
         when(readingType.getAliasName()).thenReturn(name);
+        when(masterDataService.findRegisterType(1001)).thenReturn(Optional.of(registerType));
+        when(masterDataService.findRegisterType(1002)).thenReturn(Optional.of(registerType));
         return registerType;
     }
 
@@ -257,4 +268,56 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
         when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
         return readingType;
     }
+
+    @Test
+    public void testUpdateLoadProfileTypeOkVersion() {
+        TimeDuration interval = getRandomTimeDuration();
+        LoadProfileType loadProfile = mockLoadProfileType(LOADPROFILE_ID, String.format("Load Profile Type %04d", 1), interval,
+                new ObisCode(10, 20, 30, 40, 50, 60), getChannelTypes(2, interval));
+        LoadProfileTypeInfo info = LoadProfileTypeInfo.from(loadProfile, false);
+        info.name = "new name";
+        info.version = OK_VERSION;
+        Response response = target("/loadprofiles/" + LOADPROFILE_ID).request().build(HttpMethod.PUT, Entity.json(info)).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(loadProfile, times(1)).setName("new name");
+    }
+
+    @Test
+    public void testUpdateLoadPrifileTypeBadVersion() {
+        TimeDuration interval = getRandomTimeDuration();
+        LoadProfileType loadProfile = mockLoadProfileType(1, String.format("Load Profile Type %04d", 1), interval,
+                new ObisCode(10, 20, 30, 40, 50, 60), getChannelTypes(2, interval));
+        LoadProfileTypeInfo info = LoadProfileTypeInfo.from(loadProfile, false);
+        info.name = "new name";
+        info.version = BAD_VERSION;
+        Response response = target("/loadprofiles/" + LOADPROFILE_ID).request().build(HttpMethod.PUT, Entity.json(info)).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+        verify(loadProfile, never()).setName("new name");
+    }
+
+    @Test
+    public void testDeleteLoadProfileTypeOkVersion() {
+        TimeDuration interval = getRandomTimeDuration();
+        LoadProfileType loadProfile = mockLoadProfileType(1, String.format("Load Profile Type %04d", 1), interval,
+                new ObisCode(10, 20, 30, 40, 50, 60), getChannelTypes(2, interval));
+        LoadProfileTypeInfo info = LoadProfileTypeInfo.from(loadProfile, false);
+        info.name = "new name";
+        Response response = target("/loadprofiles/" + LOADPROFILE_ID).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(loadProfile, times(1)).delete();
+    }
+
+    @Test
+    public void testDeleteLogBookTypeBadVersion() {
+        TimeDuration interval = getRandomTimeDuration();
+        LoadProfileType loadProfile = mockLoadProfileType(1, String.format("Load Profile Type %04d", 1), interval,
+                new ObisCode(10, 20, 30, 40, 50, 60), getChannelTypes(2, interval));
+        LoadProfileTypeInfo info = LoadProfileTypeInfo.from(loadProfile, false);
+        info.name = "new name";
+        info.version = BAD_VERSION;
+        Response response = target("/loadprofiles/" + LOADPROFILE_ID).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+        verify(loadProfile, never()).delete();
+    }
+
 }

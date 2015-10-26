@@ -3,14 +3,12 @@ package com.energyict.mdc.masterdata.rest.impl;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.util.streams.Functions;
-import com.energyict.mdc.common.TranslatableApplicationException;
-import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.security.Privileges;
-import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterType;
@@ -53,12 +51,14 @@ public class LoadProfileTypeResource {
     private final MasterDataService masterDataService;
     private final DeviceConfigurationService deviceConfigurationService;
     private final Thesaurus thesaurus;
+    private final ResourceHelper resourceHelper;
 
     @Inject
-    public LoadProfileTypeResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus) {
+    public LoadProfileTypeResource(MasterDataService masterDataService, DeviceConfigurationService deviceConfigurationService, Thesaurus thesaurus, ResourceHelper resourceHelper) {
         this.masterDataService = masterDataService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.thesaurus = thesaurus;
+        this.resourceHelper = resourceHelper;
     }
 
     @GET
@@ -91,7 +91,7 @@ public class LoadProfileTypeResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public Response getLoadProfileType(@PathParam("id") long loadProfileId) {
-        LoadProfileType loadProfileType = findLoadProfileTypeByIdOrThrowException(loadProfileId);
+        LoadProfileType loadProfileType = resourceHelper.findLoadProfileTypeOrThrowException(loadProfileId);
         return Response.ok(LoadProfileTypeInfo.from(loadProfileType, isLoadProfileTypeAlreadyInUse(loadProfileType))).build();
     }
 
@@ -127,7 +127,7 @@ public class LoadProfileTypeResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
     public Response editLoadProfileType(@PathParam("id") long loadProfileId, LoadProfileTypeInfo request, @Context UriInfo uriInfo) {
-        LoadProfileType loadProfileType = findLoadProfileTypeByIdOrThrowException(loadProfileId);
+        LoadProfileType loadProfileType = resourceHelper.lockLoadProfileTypeOrThrowException(request);
         loadProfileType.setName(request.name);
         boolean isInUse = isLoadProfileTypeAlreadyInUse(loadProfileType);
         if (!isInUse) {
@@ -149,8 +149,8 @@ public class LoadProfileTypeResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
-    public Response deleteProfileType(@PathParam("id") long loadProfileId) {
-        findLoadProfileTypeByIdOrThrowException(loadProfileId).delete();
+    public Response deleteProfileType(@PathParam("id") long loadProfileId, LoadProfileTypeInfo request) {
+        resourceHelper.lockLoadProfileTypeOrThrowException(request).delete();
         return Response.ok().build();
     }
 
@@ -178,7 +178,7 @@ public class LoadProfileTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
     public PagedInfoList getAvailableRegisterTypesForLoadProfileTypeById(@BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters, @PathParam("id") long loadProfileId) {
-        LoadProfileType loadProfileType = this.findLoadProfileTypeByIdOrThrowException(loadProfileId);
+        LoadProfileType loadProfileType = resourceHelper.findLoadProfileTypeOrThrowException(loadProfileId);
         List<Long> excludedRegisterTypeIds = filter.getLongList("ids");
         Stream<RegisterType> registerTypeStream = this.masterDataService.findAllRegisterTypes().stream()
                 .filter(readingTypesWithInterval())
@@ -210,15 +210,6 @@ public class LoadProfileTypeResource {
 
     private Set<Commodity> loadProfileCompatibleCommodities() {
         return EnumSet.complementOf(EnumSet.of(Commodity.NOTAPPLICABLE, Commodity.COMMUNICATION, Commodity.DEVICE));
-    }
-
-    private LoadProfileType findLoadProfileTypeByIdOrThrowException(long loadProfileId) {
-        Optional<LoadProfileType> loadProfileTypeRef = masterDataService.findLoadProfileType(loadProfileId);
-        if (!loadProfileTypeRef.isPresent()) {
-            throw new TranslatableApplicationException(thesaurus, MessageSeeds.NO_LOAD_PROFILE_TYPE_FOUND, loadProfileId);
-        }
-
-        return loadProfileTypeRef.get();
     }
 
     private void addAllChannelTypesToLoadProfileType(LoadProfileType loadProfileType) {

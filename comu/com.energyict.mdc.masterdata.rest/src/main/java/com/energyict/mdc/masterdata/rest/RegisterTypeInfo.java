@@ -2,6 +2,7 @@ package com.energyict.mdc.masterdata.rest;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.masterdata.ChannelType;
@@ -26,6 +27,8 @@ public class RegisterTypeInfo {
     public String unitOfMeasure;
     public ReadingTypeInfo readingType;
     public ReadingTypeInfo calculatedReadingType;
+    public long version;
+    public VersionInfo<Long> parent;
 
     public RegisterTypeInfo() {
     }
@@ -47,6 +50,7 @@ public class RegisterTypeInfo {
         if (measurementType.getUnit() != null) {
             this.unitOfMeasure = measurementType.getUnit().toString();
         }
+        this.version = measurementType.getVersion();
     }
 
     public RegisterTypeInfo(MeasurementType measurementType, boolean isLinkedByDeviceType, boolean isLinkedByActiveRegisterSpec, boolean isLinkedByInactiveRegisterSpec) {

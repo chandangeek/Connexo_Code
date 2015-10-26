@@ -86,7 +86,7 @@ public class ReadingTypeResource {
     }
 
     private String escapeSpecialCharacters(String text){
-        for (String keyword: Arrays.asList("\\", "_", "%", "(", ")", "+", "-", ".")) {
+        for (String keyword: Arrays.asList("\\", "_", "%", "(", ")", "+", "-", ".", "[", "*")) {
             text=text.replace(keyword,"\\"+keyword);
         }
         return text;

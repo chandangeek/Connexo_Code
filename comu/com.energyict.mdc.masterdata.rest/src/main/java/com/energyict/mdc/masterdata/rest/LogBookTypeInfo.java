@@ -19,6 +19,7 @@ public class LogBookTypeInfo {
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode obisCode;
     public Boolean isInUse;
+    public long version;
 
     public LogBookTypeInfo() {
     }
@@ -27,6 +28,7 @@ public class LogBookTypeInfo {
         this.id = logbook.getId();
         this.name = logbook.getName();
         this.obisCode = logbook.getObisCode();
+        this.version = logbook.getVersion();
     }
 
     public static LogBookTypeInfo from(LogBookType logBookType) {
@@ -39,6 +41,7 @@ public class LogBookTypeInfo {
         info.name = logBookType.getName();
         info.obisCode = logBookType.getObisCode();
         info.isInUse = isInUse;
+        info.version = logBookType.getVersion();
         return info;
     }
 
