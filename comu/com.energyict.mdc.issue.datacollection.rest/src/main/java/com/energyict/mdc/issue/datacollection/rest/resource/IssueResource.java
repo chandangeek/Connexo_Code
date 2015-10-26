@@ -1,8 +1,19 @@
 package com.energyict.mdc.issue.datacollection.rest.resource;
 
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionFilter;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
+import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
+import com.energyict.mdc.issue.datacollection.rest.response.DataCollectionIssueInfoFactory;
+
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.rest.request.*;
+import com.elster.jupiter.issue.rest.request.AssignIssueRequest;
+import com.elster.jupiter.issue.rest.request.BulkIssueRequest;
+import com.elster.jupiter.issue.rest.request.CloseIssueRequest;
+import com.elster.jupiter.issue.rest.request.CreateCommentRequest;
+import com.elster.jupiter.issue.rest.request.EntityReference;
+import com.elster.jupiter.issue.rest.request.PerformActionRequest;
 import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
 import com.elster.jupiter.issue.rest.resource.StandardParametersBean;
 import com.elster.jupiter.issue.rest.response.ActionInfo;
@@ -11,7 +22,12 @@ import com.elster.jupiter.issue.rest.response.IssueAssigneeInfoAdapter;
 import com.elster.jupiter.issue.rest.response.device.DeviceInfo;
 import com.elster.jupiter.issue.rest.transactions.AssignIssueTransaction;
 import com.elster.jupiter.issue.security.Privileges;
-import com.elster.jupiter.issue.share.entity.*;
+import com.elster.jupiter.issue.share.entity.Issue;
+import com.elster.jupiter.issue.share.entity.IssueAssignee;
+import com.elster.jupiter.issue.share.entity.IssueReason;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
@@ -21,19 +37,19 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.energyict.mdc.issue.datacollection.IssueDataCollectionFilter;
-import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
-import com.energyict.mdc.issue.datacollection.entity.HistoricalIssueDataCollection;
-import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
-import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
-import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
-import com.energyict.mdc.issue.datacollection.rest.response.DataCollectionIssueInfoFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -44,10 +60,11 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.ID;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.KEY;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.LIMIT;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.START;
 import static com.elster.jupiter.issue.rest.response.ResponseHelper.entity;
-import static com.elster.jupiter.util.conditions.Where.where;
-import static com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds.getString;
 
 @Path("/issue")
 public class IssueResource extends BaseResource {
@@ -58,15 +75,17 @@ public class IssueResource extends BaseResource {
     private final IssueDataCollectionService issueDataCollectionService;
     private final DataCollectionIssueInfoFactory issuesInfoFactory;
     private final IssueResourceHelper issueResourceHelper;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public IssueResource(IssueService issueService, MeteringService meteringService, UserService userService, IssueDataCollectionService issueDataCollectionService, DataCollectionIssueInfoFactory dataCollectionIssuesInfoFactory, IssueResourceHelper issueResourceHelper) {
+    public IssueResource(IssueService issueService, MeteringService meteringService, UserService userService, IssueDataCollectionService issueDataCollectionService, DataCollectionIssueInfoFactory dataCollectionIssuesInfoFactory, IssueResourceHelper issueResourceHelper, ConcurrentModificationExceptionFactory conflictFactory) {
         this.issueService = issueService;
         this.meteringService = meteringService;
         this.userService = userService;
         this.issueDataCollectionService = issueDataCollectionService;
         this.issuesInfoFactory = dataCollectionIssuesInfoFactory;
         this.issueResourceHelper = issueResourceHelper;
+        this.conflictFactory = conflictFactory;
     }
 
     @GET
@@ -142,7 +161,12 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ACTION_ISSUE)
     public Response performAction(@PathParam(ID) long id, @PathParam(KEY) long actionId, PerformActionRequest request) {
-        IssueDataCollection issue = getIssueDataCollectionService().findIssue(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        IssueDataCollection issue = getIssueDataCollectionService().findAndLockIssueDataCollectionByIdAndVersion(id, request.issue.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(request.issue.title)
+                        .withActualVersion(() -> getIssueDataCollectionService().findIssue(id)
+                                .map(IssueDataCollection::getVersion)
+                                .orElse(null))
+                        .supplier());
         request.id = actionId;
         return Response.ok(issueResourceHelper.performIssueAction(issue, request)).build();
     }
@@ -153,7 +177,7 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ASSIGN_ISSUE)
     @Deprecated
-    public Response assignIssues(AssignIssueRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter/*StandardParametersBean params*/) {
+    public Response assignIssues(AssignIssueRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter) {
         /* TODO this method should be refactored when FE implements dynamic actions for bulk operations */
         User performer = (User) securityContext.getUserPrincipal();
         Function<ActionInfo, List<? extends Issue>> issueProvider;
@@ -174,7 +198,7 @@ public class IssueResource extends BaseResource {
                 issue = getIssueDataCollectionService().findHistoricalIssue(issueRef.getId()).orElse(null);
             }
             if (issue == null) {
-                bulkResult.addFail(getString(MessageSeeds.ISSUE_DOES_NOT_EXIST, getThesaurus()), issueRef.getId(), "Issue (id = " + issueRef.getId() + ")");
+                bulkResult.addFail(getThesaurus().getFormat(MessageSeeds.ISSUE_DOES_NOT_EXIST).format(), issueRef.getId(), "Issue (id = " + issueRef.getId() + ")");
             } else {
                 issuesForBulk.add(issue);
             }
@@ -188,7 +212,7 @@ public class IssueResource extends BaseResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.CLOSE_ISSUE)
     @Deprecated
-    public Response closeIssues(CloseIssueRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter/*StandardParametersBean params*/) {
+    public Response closeIssues(CloseIssueRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter) {
         /* TODO this method should be refactored when FE implements dynamic actions for bulk operations */
         User performer = (User) securityContext.getUserPrincipal();
         Function<ActionInfo, List<? extends Issue>> issueProvider;
@@ -207,7 +231,7 @@ public class IssueResource extends BaseResource {
             if (status.isPresent() && status.get().isHistorical()) {
                 for (Issue issue : issueProvider.apply(response)) {
                     if (issue.getStatus().isHistorical()) {
-                        response.addFail(getString(MessageSeeds.ISSUE_ALREADY_CLOSED, getThesaurus()), issue.getId(), issue.getTitle());
+                        response.addFail(getThesaurus().getFormat(MessageSeeds.ISSUE_ALREADY_CLOSED).format(), issue.getId(), issue.getTitle());
                     } else {
                         issue.addComment(request.comment, performer);
                         if (issue instanceof OpenIssue) {

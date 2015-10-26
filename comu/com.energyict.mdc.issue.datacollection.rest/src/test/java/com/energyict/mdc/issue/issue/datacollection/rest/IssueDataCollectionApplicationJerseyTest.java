@@ -1,5 +1,10 @@
 package com.energyict.mdc.issue.issue.datacollection.rest;
 
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
+import com.energyict.mdc.issue.datacollection.rest.IssueDataCollectionApplication;
+
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueAction;
@@ -24,21 +29,14 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
-import com.energyict.mdc.issue.datacollection.entity.OpenIssueDataCollection;
-import com.energyict.mdc.issue.datacollection.rest.IssueDataCollectionApplication;
-import com.energyict.mdc.issue.datacollection.rest.i18n.MessageSeeds;
-
-import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
-
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import org.mockito.Mock;
 
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -60,7 +58,7 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
     MeteringService meteringService;
     @Mock
     DeviceService deviceService;
-    
+
     @Override
     protected Application getApplication() {
         IssueDataCollectionApplication application = new IssueDataCollectionApplication();
@@ -77,11 +75,6 @@ public class IssueDataCollectionApplicationJerseyTest extends FelixRestApplicati
         return application;
     }
 
-    @Override
-    protected MessageSeed[] getMessageSeeds() {
-        return MessageSeeds.values();
-    }
-    
     protected IssueStatus mockStatus(String key, String name, boolean isFinal) {
         IssueStatus status = mock(IssueStatus.class);
         when(status.isHistorical()).thenReturn(isFinal);
