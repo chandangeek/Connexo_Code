@@ -61,6 +61,8 @@ public class DeviceContactorResource {
      * @param uriInfo
      * @return HTTP 202 upon success
      * @responseheader location href to device message/command. Poll this resource to follow up on message state
+     * @statuscode 404 If there is no device with the provided mRID
+     * @statuscode 202 The contacter state was accepted and a message was created to send the state to the meter
      */
     @PUT
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
