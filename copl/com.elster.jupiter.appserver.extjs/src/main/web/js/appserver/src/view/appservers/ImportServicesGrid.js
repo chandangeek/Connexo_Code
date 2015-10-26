@@ -19,6 +19,7 @@ Ext.define('Apr.view.appservers.ImportServicesGrid', {
         },
         {
             xtype: 'uni-actioncolumn',
+            privileges: Apr.privileges.AppServer.admin,
             menu: {
                 xtype: 'apr-import-services-action-menu',
                 itemId: 'apr-import-services-action-menu'

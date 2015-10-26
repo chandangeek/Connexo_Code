@@ -29,14 +29,6 @@ Ext.define('Apr.view.appservers.MessageServicesGrid', {
                 header: Uni.I18n.translate('general.status', 'APR', 'Status'),
                 dataIndex: 'active',
                 flex: 0.5,
-                editor: {
-                    xtype: 'combobox',
-                    allowBlank: false,
-                    displayField: 'displayName',
-                    valueField: 'active',
-                    queryMode: 'local',
-                    store: 'Apr.store.ActiveService'
-                },
                 renderer: function (value) {
                     return value ? Uni.I18n.translate('general.active', 'APR', 'Active') : Uni.I18n.translate('general.inactive', 'APR', 'Inactive');
                 }
@@ -47,14 +39,11 @@ Ext.define('Apr.view.appservers.MessageServicesGrid', {
                 dataIndex: 'numberOfThreads',
                 align: 'right',
                 flex: 0.5,
-                emptyCellText: 1,
-                editor: {
-                    xtype: 'numberfield',
-                    minValue: 1
-                }
+                emptyCellText: 1
             },
             {
                 xtype: 'actioncolumn',
+                privileges: Apr.privileges.AppServer.admin,
                 header: Uni.I18n.translate('general.actions', 'UNI', 'Actions'),
                 align: 'right',
                 itemId: 'apr-remove-message-service-column',
@@ -70,6 +59,21 @@ Ext.define('Apr.view.appservers.MessageServicesGrid', {
                 ]
             }
         ];
+
+        if (Apr.privileges.AppServer.canAdministrate()) {
+            me.columns[1].editor = {
+                xtype: 'combobox',
+                allowBlank: false,
+                displayField: 'displayName',
+                valueField: 'active',
+                queryMode: 'local',
+                store: 'Apr.store.ActiveService'
+            };
+            me.columns[2].editor = {
+                xtype: 'numberfield',
+                minValue: 1
+            };
+        }
 
         me.callParent(arguments);
     }

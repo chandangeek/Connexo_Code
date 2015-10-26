@@ -39,7 +39,7 @@ Ext.define('Apr.controller.history.AppServer', {
                         },
                         overview: {
                             route: '{appServerName}',
-                            privileges: Apr.privileges.AppServer.admin,
+                            privileges: Apr.privileges.AppServer.view,
                             title: Uni.I18n.translate('general.overview', 'APR', 'Overview'),
                             controller: 'Apr.controller.AppServers',
                             action: 'showAppServerOverview',
@@ -53,14 +53,14 @@ Ext.define('Apr.controller.history.AppServer', {
                             items: {
                                 messageservices: {
                                     route: 'messageservices',
-                                    privileges: Apr.privileges.AppServer.admin,
+                                    privileges: Apr.privileges.AppServer.view,
                                     title: Uni.I18n.translate('general.messageServices', 'APR', 'Message services'),
                                     controller: 'Apr.controller.AppServers',
                                     action: 'showMessageServices'
                                 },
                                 importservices: {
                                     route: 'importservices',
-                                    privileges: Apr.privileges.AppServer.admin,
+                                    privileges: Apr.privileges.AppServer.view,
                                     title: Uni.I18n.translate('general.importServices', 'APR', 'Import services'),
                                     controller: 'Apr.controller.AppServers',
                                     action: 'showImportServices'
