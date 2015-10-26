@@ -9,5 +9,5 @@ public interface YfnAppService {
 
     String COMPONENTNAME = "YFNAPP";
     String APPLICATION_KEY = "YFN";
-
+    String APP_NAME = "Facts";
 }

@@ -5,6 +5,10 @@ import com.elster.jupiter.http.whiteboard.BundleResolver;
 import com.elster.jupiter.http.whiteboard.DefaultStartPage;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.license.License;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.SimpleTranslationKey;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.users.ApplicationPrivilegesProvider;
 import com.elster.jupiter.yellowfin.app.YfnAppService;
 import org.osgi.framework.BundleContext;
@@ -15,6 +19,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -25,12 +30,11 @@ import java.util.List;
  */
 @Component(
         name = "com.elster.jupiter.yellowfin.app",
-        service = {YfnAppService.class,ApplicationPrivilegesProvider.class},
+        service = {YfnAppService.class, TranslationKeyProvider.class, ApplicationPrivilegesProvider.class},
         immediate = true
 )
-public class YfnAppServiceImpl implements YfnAppService, ApplicationPrivilegesProvider{
+public class YfnAppServiceImpl implements YfnAppService, TranslationKeyProvider, ApplicationPrivilegesProvider{
 
-    public static final String APP_NAME = "Facts";
     public static final String APP_ICON = "connexo";
 
     public static final String HTTP_RESOURCE_ALIAS = "/facts";
@@ -82,6 +86,23 @@ public class YfnAppServiceImpl implements YfnAppService, ApplicationPrivilegesPr
     @Override
     public String getApplicationName() {
         return YfnAppService.APPLICATION_KEY;
+    }
+
+    @Override
+    public String getComponentName() {
+        return YfnAppService.APPLICATION_KEY;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        List<TranslationKey> translationKeys = new ArrayList<>();
+        translationKeys.add(new SimpleTranslationKey(APPLICATION_KEY, APP_NAME));
+        return translationKeys;
     }
 }
 
