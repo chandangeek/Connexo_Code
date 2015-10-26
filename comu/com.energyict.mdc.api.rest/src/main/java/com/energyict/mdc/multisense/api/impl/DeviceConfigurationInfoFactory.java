@@ -2,41 +2,34 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
+
 import javax.inject.Inject;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
 /**
  * Created by bvn on 4/30/15.
  */
-public class DeviceConfigurationInfoFactory {
+public class DeviceConfigurationInfoFactory extends SelectableFieldFactory<DeviceConfigurationInfo, DeviceConfiguration> {
 
     @Inject
     public DeviceConfigurationInfoFactory() {
     }
 
-    public DeviceConfigurationInfo asHypermedia(DeviceConfiguration deviceConfiguration, UriInfo uriInfo, List<String> fields) {
+    public DeviceConfigurationInfo from(DeviceConfiguration deviceConfiguration, UriInfo uriInfo, List<String> fields) {
         DeviceConfigurationInfo deviceConfigurationInfo = new DeviceConfigurationInfo();
-        getSelectedFields(fields).stream().forEach(copier -> copier.copy(deviceConfigurationInfo, deviceConfiguration, uriInfo));
+        copySelectedFields(deviceConfigurationInfo, deviceConfiguration, uriInfo, fields);
         return deviceConfigurationInfo;
     }
 
-    private List<PropertyCopier<DeviceConfigurationInfo, DeviceConfiguration>> getSelectedFields(Collection<String> fields) {
-        Map<String, PropertyCopier<DeviceConfigurationInfo, DeviceConfiguration>> fieldSelectionMap = buildFieldSelectionMap();
-        if (fields==null || fields.isEmpty()) {
-            fields = fieldSelectionMap.keySet();
-        }
-        return fields.stream().filter(fieldSelectionMap::containsKey).map(fieldSelectionMap::get).collect(toList());
-    }
-
-    private Map<String, PropertyCopier<DeviceConfigurationInfo,DeviceConfiguration>> buildFieldSelectionMap() {
+    protected Map<String, PropertyCopier<DeviceConfigurationInfo,DeviceConfiguration>> buildFieldMap() {
         Map<String, PropertyCopier<DeviceConfigurationInfo, DeviceConfiguration>> map = new HashMap<>();
         map.put("id", (deviceConfigurationInfo, deviceConfiguration, uriInfo) -> {
             deviceConfigurationInfo.id = deviceConfiguration.getId();
@@ -67,7 +60,35 @@ public class DeviceConfigurationInfoFactory {
                     deviceConfiguration.getPartialConnectionTasks().stream().map(pct -> {
                         LinkInfo linkInfo = new LinkInfo();
                         linkInfo.id = pct.getId();
-                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel("related").build(pct.getId());
+                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).build(pct.getId());
+                        return linkInfo;
+                    }).collect(toList());
+        });
+        map.put("comTaskEnablements", (deviceConfigurationInfo, deviceConfiguration, uriInfo) -> {
+            UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
+                    .path(ComTaskEnablementResource.class)
+                    .path(ComTaskEnablementResource.class, "getComTaskEnablement")
+                    .resolveTemplate("deviceTypeId", deviceConfiguration.getDeviceType().getId())
+                    .resolveTemplate("deviceConfigId", deviceConfiguration.getId());
+            deviceConfigurationInfo.comTaskEnablements =
+                    deviceConfiguration.getComTaskEnablements().stream().map(enablement -> {
+                        LinkInfo linkInfo = new LinkInfo();
+                        linkInfo.id = enablement.getId();
+                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).build(enablement.getId());
+                        return linkInfo;
+                    }).collect(toList());
+        });
+        map.put("securityPropertySets", (deviceConfigurationInfo, deviceConfiguration, uriInfo) -> {
+            UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
+                    .path(ConfigurationSecurityPropertySetResource.class)
+                    .path(ConfigurationSecurityPropertySetResource.class, "getSecurityPropertySet")
+                    .resolveTemplate("deviceTypeId", deviceConfiguration.getDeviceType().getId())
+                    .resolveTemplate("deviceConfigId", deviceConfiguration.getId());
+            deviceConfigurationInfo.securityPropertySets =
+                    deviceConfiguration.getSecurityPropertySets().stream().map(sps -> {
+                        LinkInfo linkInfo = new LinkInfo();
+                        linkInfo.id = sps.getId();
+                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).build(sps.getId());
                         return linkInfo;
                     }).collect(toList());
         });

@@ -1,11 +1,11 @@
 package com.energyict.mdc.multisense.api.impl.utils;
 
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.multisense.api.impl.PublicRestApplication;
+
 import java.util.logging.Level;
 
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
 
     IMPOSSIBLE_TO_SET_MASTER_DEVICE(1, "ImpossibleToSetMasterDevice", "Device {0} is directly addressable. It is not possible to set master device"),
     NO_SUCH_DEVICE_LIFE_CYCLE_ACTION(2, "NoSuchDeviceLifeCycleAction" , "No device life cycle action with id = {0}"),
@@ -22,13 +22,39 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     NO_SUCH_CONNECTION_TASK(13, "NoSuchConnectionTask" , "The device does not contain a connection method with that id"),
     EXPECTED_INBOUND(14, "ExpectedInbound", "Expected connection method on device to be 'Inbound'-type"),
     EXPECTED_OUTBOUND(15, "ExpectedOutbound", "Expected connection method on device to be 'Outbound'-type"),
+    NO_SUCH_COM_TASK(16, "NoSuchComTask", "Communication task does not exist"),
+    NO_SUCH_SECURITY_PROPERTY_SET(17, "NoSuchSecurityPropertySet" , "Security property set does not exist"),
+    NO_SUCH_DEVICE(18, "NoSuchDevice", "Device does not exist"),
+    CONTENT_EXPECTED(19, "ContentExpected", "This method expected content, but the body was empty"),
+    NO_SUCH_MESSAGE_CATEGORY(20, "NoSuchMessageCategory", "Message category does not exist"),
+    NO_SUCH_GATEWAY(21, "NuSuchGateway", "Gateway device does not exist"),
+    NO_SUCH_DEVICE_PROTOCOL(22, "NoSuchDeviceProtocol", "Device protocol does not exist"),
+    NO_SUCH_AUTH_DEVICE_ACCESS_LEVEL(23, "NoSuchAuthDevAccessLevel" , "The device protocol does not have an authentication access level with that id"),
+    NO_SUCH_ENC_DEVICE_ACCESS_LEVEL(24, "NoSuchEncDevAccessLevel" , "The device protocol does not have an encryption access level with that id"),
+    CONFLICT_ON_DEVICE(25, "ConflictOnDevice", "The device you attempted to edit was changed by someone els"),
+    NO_SUCH_PROTOCOL_TASK(26, "NoSuchProtocolTask", "Protocol task does not exist"),
+    NO_SUCH_COM_TASK_EXECUTION(27, "NoSuchComTaskExecution", "The device has no communication task with that id"),
+    TYPE_DOES_NOT_SUPPORT_COM_TASK(28, "ComTaskNotSupporter", "Scheduled communications tasks can not be configured with communication task, only accept schedules"),
+    COM_TASK_NOT_ENABLED(29, "ComTaskNotEnabled" , "The communication task has not been enabled on the configuration"),
+    COM_TASK_EXPECTED(30, "ComTaskExpected", "Communication task was expected in the request"),
+    SCHEDULE_SPEC_EXPECTED(31, "ScheduleSpecExpected", "A manually scheduled communication task requires a scheduling specification. Did you want to make an Ad-hoc communication task?"),
+    TYPE_DOES_NOT_SUPPORT_SCHEDULE_SPEC(32, "SchedulingSpecNotSupported", "This communication task execution does does not support a scheduling specification."),
+    SCHEDULE_EXPECTED(33, "ScheduleExpected", "Expected communication schedule on a scheduled communication task "),
+    NO_SUCH_COM_SCHEDULE(34, "NoSuchComSchedule", "Communication schedule does not exist"),
+    NO_SUCH_PROTOCOL_DIALECT_PROPERTIES(35, "NoSuchProtocolDialectProperties", "Protocol dialect properties do not exist"),
+    NO_SUCH_COM_TASK_ENABLEMENT(36, "NoSuchComtaskEnablement", "Communication task enablement does not exist"),
+    NOT_POSSIBLE_TO_SUPPLY_BOTH_OR_NONE(37, "EitherDefaultorExplicit", "The communication task execution should either use default connection task or an explicitly set connection task"),
+    NO_SUCH_DEVICE_MESSAGE(38, "NoSuchDeviceMessage", "The device has no known device message with that id"),
+    UNKNOWN_STATUS(39, "StatusUnknown", "Unknown device contacter status"),
+    NO_COMTASK_FOR_COMMAND(40, "NoComtaskForCommand", "A comtask to execute the device messages could not be located"),
     ;
+
 
     private final int number;
     private final String key;
     private final String format;
 
-    private MessageSeeds(int number, String key, String format) {
+    MessageSeeds(int number, String key, String format) {
         this.number = number;
         this.key = key;
         this.format = format;

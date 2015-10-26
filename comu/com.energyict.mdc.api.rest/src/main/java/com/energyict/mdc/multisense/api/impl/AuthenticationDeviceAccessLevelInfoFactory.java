@@ -1,6 +1,5 @@
 package com.energyict.mdc.multisense.api.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
@@ -8,22 +7,21 @@ import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+
 import javax.inject.Inject;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriInfo;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AuthenticationDeviceAccessLevelInfoFactory extends SelectableFieldFactory<DeviceAccessLevelInfo, Pair<DeviceProtocolPluggableClass, DeviceAccessLevel>> {
 
     private final MdcPropertyUtils mdcPropertyUtils;
-    private final Thesaurus thesaurus;
 
     @Inject
-    public AuthenticationDeviceAccessLevelInfoFactory(MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus) {
+    public AuthenticationDeviceAccessLevelInfoFactory(MdcPropertyUtils mdcPropertyUtils) {
         this.mdcPropertyUtils = mdcPropertyUtils;
-        this.thesaurus = thesaurus;
     }
 
     public DeviceAccessLevelInfo from(DeviceProtocolPluggableClass pluggableClass, DeviceAccessLevel authenticationDeviceAccessLevel, UriInfo uriInfo, Collection<String> fields) {
@@ -36,16 +34,16 @@ public class AuthenticationDeviceAccessLevelInfoFactory extends SelectableFieldF
     protected Map<String, PropertyCopier<DeviceAccessLevelInfo, Pair<DeviceProtocolPluggableClass, DeviceAccessLevel>>> buildFieldMap() {
         Map<String, PropertyCopier<DeviceAccessLevelInfo, Pair<DeviceProtocolPluggableClass, DeviceAccessLevel>>> map = new HashMap<>();
         map.put("id", (deviceAccessLevelInfo, pair, uriInfo) -> deviceAccessLevelInfo.id = (long) pair.getLast().getId());
-        map.put("name", (deviceAccessLevelInfo, pair, uriInfo) -> deviceAccessLevelInfo.name = thesaurus.getStringBeyondComponent(pair.getLast().getTranslationKey(), pair.getLast().getTranslationKey()));
+        map.put("name", (deviceAccessLevelInfo, pair, uriInfo) -> deviceAccessLevelInfo.name = pair.getLast().getTranslation());
         map.put("properties", (deviceAccessLevelInfo, pair, uriInfo) -> deviceAccessLevelInfo.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(pair.getLast().getSecurityProperties(), TypedProperties.empty()));
-        map.put("link", ((deviceAccessLevelInfo, deviceAccessLevel, uriInfo) ->
-            deviceAccessLevelInfo.link = Link.fromUriBuilder(uriInfo.
-                    getBaseUriBuilder().
-                    path(AuthenticationDeviceAccessLevelResource.class).
-                    path(AuthenticationDeviceAccessLevelResource.class, "getAuthenticationDeviceAccessLevel")).
-                    rel(LinkInfo.REF_SELF).
-                    title("Authentication access level").
-                    build(deviceAccessLevel.getFirst().getId(),deviceAccessLevel.getLast().getId())
+        map.put("link", ((deviceAccessLevelInfo, pair, uriInfo) ->
+                deviceAccessLevelInfo.link = Link.fromUriBuilder(uriInfo.
+                        getBaseUriBuilder().
+                        path(AuthenticationDeviceAccessLevelResource.class).
+                        path(AuthenticationDeviceAccessLevelResource.class, "getAuthenticationDeviceAccessLevel")).
+                        rel(LinkInfo.REF_SELF).
+                        title("Authentication access level").
+                        build(pair.getFirst().getId(), pair.getLast().getId())
         ));
 
         return map;

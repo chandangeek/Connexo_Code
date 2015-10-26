@@ -1,8 +1,8 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
-import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -13,9 +13,9 @@ import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
 import com.energyict.mdc.multisense.api.impl.utils.ResourceHelper;
-import java.net.URI;
-import java.util.Collections;
-import java.util.List;
+import com.energyict.mdc.multisense.api.security.Privileges;
+
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
@@ -25,19 +25,21 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.net.URI;
+import java.util.Collections;
+import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
 /**
  * Created by bvn on 7/13/15.
  */
-@Path("devices/{mrid}/connectionmethods")
+@Path("devices/{mrid}/connectiontasks")
 public class ConnectionTaskResource {
 
     private final ConnectionTaskInfoFactory connectionTaskInfoFactory;
@@ -55,7 +57,8 @@ public class ConnectionTaskResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    public PagedInfoList<ConnectionTaskInfo> getConnectionMethods(@PathParam("mrid") String mrid,
+    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    public PagedInfoList<ConnectionTaskInfo> getConnectionTasks(@PathParam("mrid") String mrid,
                                               @Context UriInfo uriInfo,
                                               @BeanParam FieldSelection fieldSelection,
                                               @BeanParam JsonQueryParameters queryParameters) {
@@ -72,14 +75,16 @@ public class ConnectionTaskResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{connectionTaskId}")
+    @RolesAllowed({Privileges.PUBLIC_REST_API})
     public ConnectionTaskInfo getConnectionTask(@PathParam("mrid") String mrid,
                                                 @PathParam("connectionTaskId") long id,
                                                 @Context UriInfo uriInfo,
                                                 @BeanParam FieldSelection fieldSelection,
                                                 @BeanParam JsonQueryParameters queryParameters) {
-        ConnectionTask<?,?> connectionTask = connectionTaskService.findConnectionTask(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+        ConnectionTask<?,?> connectionTask = connectionTaskService.findConnectionTask(id)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_CONNECTION_TASK));
         if (!connectionTask.getDevice().getmRID().equals(mrid)) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode());
+            throw exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_CONNECTION_TASK);
         }
         return connectionTaskInfoFactory.from(connectionTask, uriInfo, fieldSelection.getFields());
     }
@@ -87,7 +92,8 @@ public class ConnectionTaskResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    public Response createConnectionTaskResource(@PathParam("mrid") String mrid, ConnectionTaskInfo connectionTaskInfo, @Context UriInfo uriInfo) {
+    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    public Response createConnectionTask(@PathParam("mrid") String mrid, ConnectionTaskInfo connectionTaskInfo, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         if (connectionTaskInfo.connectionMethod == null || connectionTaskInfo.connectionMethod.id == null) {
             throw exceptionFactory.newException(MessageSeeds.MISSING_PARTIAL_CONNECTION_METHOD);
@@ -113,7 +119,8 @@ public class ConnectionTaskResource {
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{connectionTaskId}")
-    public ConnectionTaskInfo updateConnectionTaskResource(@PathParam("mrid") String mrid, @PathParam("connectionTaskId") long connectionTaskId,
+    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    public ConnectionTaskInfo updateConnectionTask(@PathParam("mrid") String mrid, @PathParam("connectionTaskId") long connectionTaskId,
                                                            ConnectionTaskInfo connectionTaskInfo, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         ConnectionTask<? extends ComPortPool, ? extends PartialConnectionTask> connectionTask = findConnectionTaskOrThrowException(device, connectionTaskId);
@@ -127,6 +134,7 @@ public class ConnectionTaskResource {
 
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @RolesAllowed({Privileges.PUBLIC_REST_API})
     public List<String> getFields() {
         return connectionTaskInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }
@@ -137,7 +145,7 @@ public class ConnectionTaskResource {
                 getPartialConnectionTasks().stream().
                 filter(pct -> pct.getId() == id).
                 findFirst().
-                orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_PARTIAL_CONNECTION_TASK));
+                orElseThrow(() -> exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_PARTIAL_CONNECTION_TASK));
     }
 
     public ConnectionTask<?, ?> findConnectionTaskOrThrowException(Device device, long connectionTaskId) {
@@ -145,7 +153,7 @@ public class ConnectionTaskResource {
                 .stream()
                 .filter(ct -> ct.getId() == connectionTaskId)
                 .findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CONNECTION_TASK));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_CONNECTION_TASK));
     }
 
 

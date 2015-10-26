@@ -9,13 +9,14 @@ import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
 import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+
 import javax.inject.Inject;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by bvn on 7/15/15.
@@ -54,7 +55,7 @@ public class PartialConnectionTaskInfoFactory extends SelectableFieldFactory<Par
             UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().
                     path(ComPortPoolResource.class).
                     path(ComPortPoolResource.class, "getComPortPool");
-            partialConnectionTaskInfo.comPortPool.link = Link.fromUriBuilder(uriBuilder).rel("related").build(partialConnectionTaskInfo.comPortPool.id);
+            partialConnectionTaskInfo.comPortPool.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).build(partialConnectionTaskInfo.comPortPool.id);
         });
         map.put("isDefault", (partialConnectionTaskInfo, partialConnectionTask, uriInfo)-> partialConnectionTaskInfo.isDefault = partialConnectionTask.isDefault());
         map.put("properties", (partialConnectionTaskInfo, partialConnectionTask, uriInfo)-> partialConnectionTaskInfo.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(partialConnectionTask.getConnectionType().getPropertySpecs(), partialConnectionTask.getTypedProperties()));

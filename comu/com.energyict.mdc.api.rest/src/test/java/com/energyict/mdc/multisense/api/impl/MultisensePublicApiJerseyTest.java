@@ -23,10 +23,10 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.interval.PartialTime;
+import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -57,6 +57,8 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
@@ -67,6 +69,7 @@ import org.mockito.Mock;
 import javax.ws.rs.core.Application;
 import java.math.BigDecimal;
 import java.time.Clock;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Currency;
@@ -74,7 +77,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -108,11 +113,8 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     Clock clock;
     @Mock
     ProtocolPluggableService protocolPluggableService;
-
-    @Override
-    protected MessageSeed[] getMessageSeeds() {
-        return new MessageSeed[0];
-    }
+    @Mock
+    SchedulingService schedulingService;
 
     @Override
     protected Application getApplication() {
@@ -132,6 +134,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         application.setTaskService(taskService);
         application.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         application.setProtocolPluggableService(protocolPluggableService);
+        application.setSchedulingService(schedulingService);
         return application;
     }
 
@@ -257,6 +260,14 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(possibleValues.getDefault()).thenReturn(defaultValue);
         when(propertySpec.getPossibleValues()).thenReturn(possibleValues);
         return propertySpec;
+    }
+
+    ScheduledConnectionTask mockScheduledConnectionTask(long id, String name) {
+        ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
+        when(connectionTask.getId()).thenReturn(id);
+        when(connectionTask.getName()).thenReturn(name);
+        when(connectionTaskService.findConnectionTask(id)).thenReturn(Optional.of(connectionTask));
+        return connectionTask;
     }
 
     ScheduledConnectionTask mockScheduledConnectionTask(long id, String name, Device deviceXas, OutboundComPortPool comPortPool, PartialScheduledConnectionTask partial) {
@@ -418,8 +429,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     AuthenticationDeviceAccessLevel mockAuthenticationAccessLevel(int id) {
         AuthenticationDeviceAccessLevel mock = mock(AuthenticationDeviceAccessLevel.class);
         when(mock.getId()).thenReturn(id);
-        when(mock.getTranslationKey()).thenReturn("aal" + id);
-        when(thesaurus.getStringBeyondComponent("aal" + id, "aal" + id)).thenReturn("Proper name for " + id);
+        when(mock.getTranslation()).thenReturn("Proper name for " + id);
         PropertySpec propertySpec = mockBigDecimalPropertySpec();
         when(mock.getSecurityProperties()).thenReturn(Collections.singletonList(propertySpec));
         return mock;
@@ -428,11 +438,39 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     EncryptionDeviceAccessLevel mockEncryptionAccessLevel(int id) {
         EncryptionDeviceAccessLevel mock = mock(EncryptionDeviceAccessLevel.class);
         when(mock.getId()).thenReturn(id);
-        when(mock.getTranslationKey()).thenReturn("eal" + id);
-        when(thesaurus.getStringBeyondComponent("eal" + id, "eal" + id)).thenReturn("Proper name for " + id);
+        when(mock.getTranslation()).thenReturn("Proper name for " + id);
         PropertySpec propertySpec = mockBigDecimalPropertySpec();
         when(mock.getSecurityProperties()).thenReturn(Collections.singletonList(propertySpec));
         return mock;
+    }
+
+    ComTaskEnablement mockComTaskEnablement(ComTask comTask, DeviceConfiguration deviceConfiguration) {
+        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
+        when(comTaskEnablement.getComTask()).thenReturn(comTask);
+        when(comTaskEnablement.getPriority()).thenReturn(-19);
+        when(comTaskEnablement.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        return comTaskEnablement;
+    }
+
+    ComSchedule mockComSchedule(long scheduleId, String name) {
+        ComSchedule comSchedule = mock(ComSchedule.class);
+        when(comSchedule.getId()).thenReturn(scheduleId);
+        when(comSchedule.getName()).thenReturn(name);
+        when(comSchedule.getmRID()).thenReturn(Optional.<String>empty());
+        when(comSchedule.getPlannedDate()).thenReturn(Optional.empty());
+        when(schedulingService.findSchedule(scheduleId)).thenReturn(Optional.of(comSchedule));
+        return comSchedule;
+    }
+
+    ComSchedule mockComSchedule(long scheduleId, String name, Optional<String> mRID, Optional<Instant> plannedDate) {
+        ComSchedule comSchedule = mock(ComSchedule.class);
+        when(comSchedule.getId()).thenReturn(scheduleId);
+        when(comSchedule.getName()).thenReturn(name);
+        when(comSchedule.getmRID()).thenReturn(mRID);
+        when(comSchedule.getPlannedDate()).thenReturn(plannedDate);
+        when(comSchedule.getPlannedDate()).thenReturn(plannedDate);
+        when(schedulingService.findSchedule(scheduleId)).thenReturn(Optional.of(comSchedule));
+        return comSchedule;
     }
 
     <T> Finder<T> mockFinder(List<T> list) {

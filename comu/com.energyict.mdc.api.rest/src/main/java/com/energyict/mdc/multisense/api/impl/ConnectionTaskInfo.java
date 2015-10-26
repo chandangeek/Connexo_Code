@@ -4,8 +4,9 @@ import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import java.util.List;
+
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.List;
 
 /**
  * Created by bvn on 7/13/15.
@@ -27,12 +28,6 @@ public class ConnectionTaskInfo extends LinkInfo {
     public Boolean allowSimultaneousConnections;
     public TimeDurationInfo rescheduleRetryDelay;
     public TemporalExpressionInfo nextExecutionSpecs;
-
-
 }
 
-class ComWindowInfo {
-    public Integer start;
-    public Integer end;
-}
 

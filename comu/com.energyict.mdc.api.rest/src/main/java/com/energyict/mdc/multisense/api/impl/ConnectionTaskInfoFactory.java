@@ -2,9 +2,9 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
@@ -20,13 +20,14 @@ import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
 import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+
 import javax.inject.Inject;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by bvn on 7/13/15.
@@ -85,7 +86,7 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
             UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().
                     path(ComPortPoolResource.class).
                     path(ComPortPoolResource.class, "getComPortPool");
-            connectionTaskInfo.comPortPool.link = Link.fromUriBuilder(uriBuilder).rel("related").build(connectionTaskInfo.comPortPool.id);
+            connectionTaskInfo.comPortPool.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).build(connectionTaskInfo.comPortPool.id);
         });
         map.put("isDefault", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.isDefault = connectionTask.isDefault());
         map.put("properties", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(connectionTask.getConnectionType().getPropertySpecs(), connectionTask.getTypedProperties()));

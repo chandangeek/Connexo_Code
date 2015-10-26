@@ -3,8 +3,9 @@ package com.energyict.mdc.multisense.api.impl;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ConnectionStrategy;
-import java.util.List;
+
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.List;
 
 /**
  * Created by bvn on 7/15/15.

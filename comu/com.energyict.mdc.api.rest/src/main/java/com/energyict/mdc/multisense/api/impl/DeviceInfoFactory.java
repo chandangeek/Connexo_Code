@@ -1,6 +1,5 @@
 package com.energyict.mdc.multisense.api.impl;
 
-import com.elster.jupiter.issue.share.service.IssueService;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
@@ -35,14 +34,12 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo,Device>
 
     private final BatchService batchService;
     private final TopologyService topologyService;
-    private final IssueService issueService;
     private final DeviceLifeCycleService deviceLifeCycleService;
 
     @Inject
-    public DeviceInfoFactory(BatchService batchService, TopologyService topologyService, IssueService issueService, DeviceLifeCycleService deviceLifeCycleService) {
+    public DeviceInfoFactory(BatchService batchService, TopologyService topologyService, DeviceLifeCycleService deviceLifeCycleService) {
         this.batchService = batchService;
         this.topologyService = topologyService;
-        this.issueService = issueService;
         this.deviceLifeCycleService = deviceLifeCycleService;
     }
 
@@ -94,7 +91,7 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo,Device>
                 deviceInfo.masterDevice = new DeviceInfo();
                 deviceInfo.masterDevice.mRID = physicalGateway.get().getmRID();
                 UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path(DeviceResource.class).path("{mrid}").resolveTemplate("mrid", physicalGateway.get().getmRID());
-                deviceInfo.masterDevice.link = Link.fromUriBuilder(uriBuilder).rel("related").title("gateway").build();
+                deviceInfo.masterDevice.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).title("gateway").build();
             }
         });
         map.put("slaveDevices", (deviceInfo, device, uriInfo) -> {
@@ -111,21 +108,41 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo,Device>
             }
         });
         map.put("connectionMethods", (deviceInfo, device, uriInfo) -> {
+            UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().
+                    path(ConnectionTaskResource.class).
+                    path(ConnectionTaskResource.class, "getConnectionTask").
+                    resolveTemplate("mrid", device.getmRID());
             deviceInfo.connectionMethods = device.getConnectionTasks().stream().
                     map(connectionTask -> {
                         LinkInfo linkInfo = new LinkInfo();
                         linkInfo.id = connectionTask.getId();
-                        UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().
-                                path(ConnectionTaskResource.class).
-                                path(ConnectionTaskResource.class, "getConnectionTask").
-                                resolveTemplate("mrid", device.getmRID()).
-                                resolveTemplate("connectionTaskId", connectionTask.getId());
-                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel("related").title("connection method").build();
+                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).title("Connection method").build(connectionTask.getId());
                         return linkInfo;
                     }).
                     collect(toList());
         });
         map.put("deviceConfiguration", (deviceInfo, device, uriInfo) -> {
+            deviceInfo.deviceConfiguration = new DeviceConfigurationInfo();
+            deviceInfo.deviceConfiguration.id = device.getDeviceConfiguration().getId();
+            deviceInfo.deviceConfiguration.link = Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(DeviceConfigurationResource.class).path("{id}")).rel(LinkInfo.REF_PARENT).title("Device configuration").build(device.getDeviceType().getId(), device.getDeviceConfiguration().getId());
+            deviceInfo.deviceConfiguration.deviceType = new LinkInfo();
+            deviceInfo.deviceConfiguration.deviceType.id = device.getDeviceType().getId();
+            deviceInfo.deviceConfiguration.deviceType.link = Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class).path("{id}")).rel(LinkInfo.REF_PARENT).title("Device type").build(device.getDeviceType().getId());
+        });
+        map.put("communicationTaskExecutions", (deviceInfo, device, uriInfo) -> {
+            UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().
+                    path(ComTaskExecutionResource.class).
+                    path(ComTaskExecutionResource.class, "getComTaskExecution").
+                    resolveTemplate("mrid", device.getmRID());
+            deviceInfo.communicationsTaskExecutions = device.getComTaskExecutions().stream()
+                    .map(cte->{
+                        LinkInfo linkInfo = new LinkInfo();
+                        linkInfo.id = cte.getId();
+                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).title("Communication task execution").build(cte.getId());
+                        return linkInfo;
+                    })
+                    .collect(toList());
+
             deviceInfo.deviceConfiguration = new DeviceConfigurationInfo();
             deviceInfo.deviceConfiguration.id = device.getDeviceConfiguration().getId();
             deviceInfo.deviceConfiguration.link = Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(DeviceConfigurationResource.class).path("{id}")).rel(LinkInfo.REF_PARENT).title("Device configuration").build(device.getDeviceType().getId(), device.getDeviceConfiguration().getId());
@@ -143,7 +160,7 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo,Device>
                 path(DeviceResource.class).
                 path(DeviceResource.class, "getDevice").
                 resolveTemplate("mrid", device.getmRID());
-        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel("related").title("slave device").build();
+        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).title("slave device").build();
         return linkInfo;
     }
 

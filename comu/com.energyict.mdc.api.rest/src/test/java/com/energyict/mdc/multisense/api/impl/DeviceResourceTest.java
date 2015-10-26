@@ -21,6 +21,12 @@ import com.energyict.mdc.device.lifecycle.impl.ExecutableActionPropertyImpl;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.dynamic.DateFactory;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -28,11 +34,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -75,11 +76,11 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
     public void testDeviceFields() throws Exception {
         Response response = target("/devices").request("application/json").method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<List>get("$")).hasSize(18);
+        assertThat(model.<List>get("$")).hasSize(19);
         assertThat(model.<List<String>>get("$")).containsOnly("actions", "batch", "connectionMethods", "deviceConfiguration",
                 "deviceProtocolPluggeableClassId", "gatewayType", "id", "isDirectlyAddressable", "isGateway", "lifecycleState",
                 "link", "mRID", "name", "physicalGateway", "serialNumber",
-                "slaveDevices", "version", "yearOfCertification");
+                "slaveDevices", "version", "yearOfCertification", "communicationTaskExecutions");
     }
 
     @Test
@@ -94,7 +95,7 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(model.<List>get("$.connectionMethods")).hasSize(2);
         assertThat(model.<Integer>get("$.connectionMethods[0].id")).isEqualTo(13);
         assertThat(model.<String>get("$.connectionMethods[0].link.params.rel")).isEqualTo("related");
-        assertThat(model.<String>get("$.connectionMethods[0].link.href")).isEqualTo("http://localhost:9998/devices/XAS/connectionmethods/13");
+        assertThat(model.<String>get("$.connectionMethods[0].link.href")).isEqualTo("http://localhost:9998/devices/XAS/connectiontasks/13");
     }
 
     @Test

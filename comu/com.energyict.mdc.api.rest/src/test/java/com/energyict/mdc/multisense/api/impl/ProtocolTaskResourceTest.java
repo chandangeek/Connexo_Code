@@ -3,11 +3,12 @@ package com.energyict.mdc.multisense.api.impl;
 import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
+
+import javax.ws.rs.core.Response;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
-import javax.ws.rs.core.Response;
-import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;

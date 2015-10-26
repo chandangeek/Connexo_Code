@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 public class LinkInfo {
     public static final String REF_SELF = "self";
     public static final String REF_PARENT = "up";
+    public static final String REF_RELATION = "related";
 
     public Long id;
     @XmlJavaTypeAdapter(Link.JaxbAdapter.class)

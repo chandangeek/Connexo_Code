@@ -1,6 +1,7 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.energyict.mdc.protocol.api.ComPortType;
+
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**

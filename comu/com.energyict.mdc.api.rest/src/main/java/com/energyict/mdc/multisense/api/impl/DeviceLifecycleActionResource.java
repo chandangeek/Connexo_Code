@@ -3,12 +3,11 @@ package com.energyict.mdc.multisense.api.impl;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
@@ -16,13 +15,8 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
-import java.time.Clock;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import com.energyict.mdc.multisense.api.security.Privileges;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -32,12 +26,18 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.time.Clock;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -64,14 +64,15 @@ public class DeviceLifecycleActionResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Path("/{actionId}")
     public LifeCycleActionInfo getAction(@PathParam("mrid") String mRID,
                                          @PathParam("actionId") long actionId,
                                          @Context UriInfo uriInfo,
                                          @BeanParam FieldSelection fieldSelection) {
 
-        Device device = deviceService.findByUniqueMrid(mRID).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+        Device device = deviceService.findByUniqueMrid(mRID)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         ExecutableAction executableAction = getExecutableActionByIdOrThrowException(actionId, device);
         return deviceLifecycleActionInfoFactory.createDeviceLifecycleActionInfo(device, (AuthorizedTransitionAction) executableAction.getAction(), uriInfo, fieldSelection.getFields());
     }
@@ -79,12 +80,13 @@ public class DeviceLifecycleActionResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<LifeCycleActionInfo> getDeviceExecutableActions(@PathParam("mrid") String mRID,
                                                     @BeanParam FieldSelection fieldSelection,
                                                     @Context UriInfo uriInfo,
                                                     @BeanParam JsonQueryParameters queryParameters) {
-        Device device = deviceService.findByUniqueMrid(mRID).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+        Device device = deviceService.findByUniqueMrid(mRID)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         List<LifeCycleActionInfo> infos = deviceLifeCycleService.getExecutableActions(device).stream().
                 map(ExecutableAction::getAction).
                 filter(aa -> aa instanceof AuthorizedTransitionAction).
@@ -100,18 +102,19 @@ public class DeviceLifecycleActionResource {
     @PUT
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Path("/{actionId}")
     public Response executeAction(
                 @PathParam("mrid") String mrid,
                 @PathParam("actionId") long actionId,
                 @BeanParam JsonQueryParameters queryParameters,
                 LifeCycleActionInfo info){
-        Device device = deviceService.findByUniqueMrid(mrid).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND.getStatusCode()));
+        Device device = deviceService.findByUniqueMrid(mrid).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         if (info==null) {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+            throw exceptionFactory.newException(MessageSeeds.CONTENT_EXPECTED);
         }
-        device = deviceService.findAndLockDeviceByIdAndVersion(device.getId(), info.deviceVersion).orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
+        device = deviceService.findAndLockDeviceByIdAndVersion(device.getId(), info.deviceVersion)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.CONFLICT_ON_DEVICE));
         ExecutableAction requestedAction = getExecutableActionByIdOrThrowException(actionId, device);
         if (requestedAction.getAction() instanceof AuthorizedTransitionAction){
             requestedAction.execute(info.effectiveTimestamp==null?clock.instant():info.effectiveTimestamp, getExecutableActionPropertiesFromInfo(info, (AuthorizedTransitionAction) requestedAction.getAction()));

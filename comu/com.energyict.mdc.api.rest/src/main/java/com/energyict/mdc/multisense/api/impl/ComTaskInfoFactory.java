@@ -4,12 +4,13 @@ import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
 import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.MessagesTask;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
@@ -37,7 +38,7 @@ public class ComTaskInfoFactory extends SelectableFieldFactory<ComTaskInfo, ComT
                     .map(pt->{
                         LinkInfo linkInfo = new LinkInfo();
                         linkInfo.id = pt.getId();
-                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel("related").build(pt.getId());
+                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).build(pt.getId());
                         return linkInfo;
                     }).collect(toList());
         } );
@@ -53,7 +54,7 @@ public class ComTaskInfoFactory extends SelectableFieldFactory<ComTaskInfo, ComT
                     .map(mt -> {
                         LinkInfo linkInfo = new LinkInfo();
                         linkInfo.id = (long) mt.getId();
-                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel("related").build(mt.getId());
+                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).build(mt.getId());
                         return linkInfo;
                     }).collect(toList());
         });

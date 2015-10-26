@@ -1,15 +1,17 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
-import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
-import java.util.List;
+import com.energyict.mdc.multisense.api.security.Privileges;
+
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
@@ -18,15 +20,17 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
 /**
  * Created by bvn on 7/15/15.
  */
-@Path("/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigId}/connectionmethods")
+@Path("/devicetypes/{deviceTypeId}/deviceconfigurations/{deviceConfigId}/partialconnectiontasks")
 public class PartialConnectionTaskResource {
 
     private final DeviceConfigurationService deviceConfigurationService;
@@ -43,33 +47,35 @@ public class PartialConnectionTaskResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{id}")
+    @RolesAllowed({Privileges.PUBLIC_REST_API})
     public PartialConnectionTaskInfo getPartialConnectionTask(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigId") long deviceConfigId, @PathParam("id") long id,
                                                               @Context UriInfo uriInfo, @BeanParam FieldSelection fieldSelection) {
         PartialConnectionTask partialConnectionTask = deviceConfigurationService.
                 findDeviceType(deviceTypeId)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_TYPE))
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_TYPE))
                 .getConfigurations().stream()
                 .filter(config -> config.getId() == deviceConfigId)
                 .findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_CONFIG))
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_CONFIG))
                 .getPartialConnectionTasks().stream()
                 .filter(task -> task.getId() == id)
                 .findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_PARTIAL_CONNECTION_TASK));
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_PARTIAL_CONNECTION_TASK));
         return partialConnectionTypeInfoFactory.from(partialConnectionTask, uriInfo, fieldSelection.getFields());
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @RolesAllowed({Privileges.PUBLIC_REST_API})
     public PagedInfoList<PartialConnectionTaskInfo> getPartialConnectionTasks(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigId") long deviceConfigId,
                                                                               @Context UriInfo uriInfo, @BeanParam FieldSelection fieldSelection, @BeanParam JsonQueryParameters queryParameters) {
         List<PartialConnectionTask> partialConnectionTasks = deviceConfigurationService.
                 findDeviceType(deviceTypeId)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_TYPE))
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_TYPE))
                 .getConfigurations().stream()
                 .filter(config -> config.getId() == deviceConfigId)
                 .findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_CONFIG))
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_CONFIG))
                 .getPartialConnectionTasks();
         List<PartialConnectionTaskInfo> infos = ListPager.of(partialConnectionTasks, (pct1, pct2) -> (pct1.getName().compareToIgnoreCase(pct2.getName())))
                 .from(queryParameters).stream()
@@ -85,6 +91,7 @@ public class PartialConnectionTaskResource {
 
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @RolesAllowed({Privileges.PUBLIC_REST_API})
     public List<String> getPartialConnectionTasks() {
         return partialConnectionTypeInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }

@@ -3,42 +3,33 @@ package com.energyict.mdc.multisense.api.impl;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
+
 import javax.inject.Inject;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-
-import static java.util.stream.Collectors.toList;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by bvn on 4/30/15.
  */
-public class DeviceTypeInfoFactory {
+public class DeviceTypeInfoFactory extends SelectableFieldFactory<DeviceTypeInfo, DeviceType> {
 
     @Inject
     public DeviceTypeInfoFactory() {
     }
 
-    private List<PropertyCopier<DeviceTypeInfo, DeviceType>> getSelectedFields(Collection<String> fields) {
-        Map<String, PropertyCopier<DeviceTypeInfo, DeviceType>> fieldSelectionMap = buildFieldSelectionMap();
-        if (fields==null || fields.isEmpty()) {
-            fields = fieldSelectionMap.keySet();
-        }
-        return fields.stream().filter(fieldSelectionMap::containsKey).map(fieldSelectionMap::get).collect(toList());
-    }
-
-    public DeviceTypeInfo asInfo(DeviceType deviceType, UriInfo uriInfo, List<String> fields) {
+    public DeviceTypeInfo from(DeviceType deviceType, UriInfo uriInfo, List<String> fields) {
         DeviceTypeInfo deviceTypeInfo = new DeviceTypeInfo();
-        getSelectedFields(fields).stream().forEach(copier -> copier.copy(deviceTypeInfo, deviceType, uriInfo));
+        copySelectedFields(deviceTypeInfo, deviceType, uriInfo, fields);
         return deviceTypeInfo;
     }
 
-    private Map<String, PropertyCopier<DeviceTypeInfo,DeviceType>> buildFieldSelectionMap() {
+    protected Map<String, PropertyCopier<DeviceTypeInfo,DeviceType>> buildFieldMap() {
         Map<String, PropertyCopier<DeviceTypeInfo, DeviceType>> map = new HashMap<>();
         map.put("id", (deviceTypeInfo, deviceType, uriInfo) -> {
             deviceTypeInfo.id = deviceType.getId();

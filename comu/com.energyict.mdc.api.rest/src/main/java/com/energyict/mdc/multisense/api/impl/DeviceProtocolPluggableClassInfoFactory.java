@@ -3,12 +3,13 @@ package com.energyict.mdc.multisense.api.impl;
 import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
 import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
@@ -45,12 +46,12 @@ public class DeviceProtocolPluggableClassInfoFactory extends SelectableFieldFact
                     .getDeviceProtocol()
                     .getAuthenticationAccessLevels()
                     .stream()
-                    .sorted((aa1, aa2) -> aa1.getTranslationKey().compareTo(aa2.getTranslationKey()))
+                    .sorted((aa1, aa2) -> aa1.getTranslation().compareTo(aa2.getTranslation()))
                     .map(aal -> {
                         LinkInfo linkInfo = new LinkInfo();
                         linkInfo.id = (long)aal.getId();
                         linkInfo.link = Link.fromUriBuilder(uriBuilder).
-                                rel("related").
+                                rel(LinkInfo.REF_RELATION).
                                 title("Authentication access level").
                                 build(aal.getId());
 
@@ -66,12 +67,12 @@ public class DeviceProtocolPluggableClassInfoFactory extends SelectableFieldFact
                     .getDeviceProtocol()
                     .getEncryptionAccessLevels()
                     .stream()
-                    .sorted((aa1, aa2) -> aa1.getTranslationKey().compareTo(aa2.getTranslationKey()))
+                    .sorted((aa1, aa2) -> aa1.getTranslation().compareTo(aa2.getTranslation()))
                     .map(aal -> {
                         LinkInfo linkInfo = new LinkInfo();
                         linkInfo.id = (long)aal.getId();
                         linkInfo.link = Link.fromUriBuilder(uriBuilder).
-                                rel("related").
+                                rel(LinkInfo.REF_RELATION).
                                 title("Encryption access level").
                                 build(aal.getId());
 

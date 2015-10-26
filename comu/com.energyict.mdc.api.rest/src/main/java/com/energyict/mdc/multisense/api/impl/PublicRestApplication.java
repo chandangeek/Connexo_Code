@@ -9,8 +9,8 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.transaction.TransactionService;
-import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -22,9 +22,11 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.multisense.api.impl.utils.DeviceLifeCycleActionViolationExceptionMapper;
 import com.energyict.mdc.multisense.api.impl.utils.ResourceHelper;
+import com.energyict.mdc.multisense.api.impl.utils.RestExceptionMapper;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -43,13 +45,13 @@ import java.util.logging.Logger;
 @Component(name = "com.energyict.multisense.public.rest",
         service = {Application.class, TranslationKeyProvider.class},
         immediate = true,
-        property = {"alias=/dda", "app=MDC", "name=" + PublicRestApplication.COMPONENT_NAME, "version=v2.0"})
+        property = {"alias=/comu", "app=MDC", "name=" + PublicRestApplication.COMPONENT_NAME, "version=v2.0"})
 public class PublicRestApplication extends Application implements TranslationKeyProvider {
 
     private final Logger logger = Logger.getLogger(PublicRestApplication.class.getName());
 
     public static final String APP_KEY = "MDC";
-    public static final String COMPONENT_NAME = "DDA";
+    public static final String COMPONENT_NAME = "MRA"; // Mdc Rest Api
 
     private volatile DeviceService deviceService;
     private volatile BatchService batchService;
@@ -64,6 +66,7 @@ public class PublicRestApplication extends Application implements TranslationKey
     private volatile ConnectionTaskService connectionTaskService;
     private volatile EngineConfigurationService engineConfigurationService;
     private volatile TaskService taskService;
+    private volatile SchedulingService schedulingService;
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile Clock clock;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
@@ -73,19 +76,29 @@ public class PublicRestApplication extends Application implements TranslationKey
         return ImmutableSet.of(
                 TransactionWrapper.class,
                 ExceptionLogger.class,
-                DeviceResource.class,
-                DeviceConfigurationResource.class,
-                DeviceTypeResource.class,
-                DeviceLifecycleActionResource.class,
-                ConnectionTaskResource.class,
-                ComPortPoolResource.class,
-                PartialConnectionTaskResource.class,
-                ComTaskResource.class,
-                DeviceMessageCategoryResource.class,
-                ProtocolTaskResource.class,
-                DeviceProtocolPluggableClassResource.class,
+
                 AuthenticationDeviceAccessLevelResource.class,
+                ComPortPoolResource.class,
+                ComScheduleResource.class,
+                ComTaskResource.class,
+                ComTaskEnablementResource.class,
+                ComTaskExecutionResource.class,
+                ConfigurationSecurityPropertySetResource.class,
+                ConnectionTaskResource.class,
+                DeviceConfigurationResource.class,
+                DeviceContactorResource.class,
+                DeviceLifecycleActionResource.class,
+                DeviceMessageCategoryResource.class,
+                DeviceMessageResource.class,
+                DeviceProtocolPluggableClassResource.class,
+                DeviceResource.class,
+                DeviceTypeResource.class,
                 EncryptionDeviceAccessLevelResource.class,
+                PartialConnectionTaskResource.class,
+                ProtocolDialectConfigurationPropertiesResource.class,
+                ProtocolTaskResource.class,
+
+                RestExceptionMapper.class,
                 DeviceLifeCycleActionViolationExceptionMapper.class
         );
     }
@@ -147,6 +160,11 @@ public class PublicRestApplication extends Application implements TranslationKey
     @Reference
     public void setEngineConfigurationService(EngineConfigurationService engineConfigurationService) {
         this.engineConfigurationService = engineConfigurationService;
+    }
+
+    @Reference
+    public void setSchedulingService(SchedulingService schedulingService) {
+        this.schedulingService = schedulingService;
     }
 
     @Override
@@ -213,11 +231,12 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(deviceMessageSpecificationService).to(DeviceMessageSpecificationService.class);
             bind(clock).to(Clock.class);
             bind(protocolPluggableService).to(ProtocolPluggableService.class);
+            bind(schedulingService).to(SchedulingService.class);
 
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class).in(Singleton.class);
-            bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
-            bind(ExceptionFactory.class).to(ExceptionFactory.class);
-            bind(ResourceHelper.class).to(ResourceHelper.class);
+            bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class).in(Singleton.class);
+            bind(ExceptionFactory.class).to(ExceptionFactory.class).in(Singleton.class);
+            bind(ResourceHelper.class).to(ResourceHelper.class).in(Singleton.class);
 
             bind(DeviceInfoFactory.class).to(DeviceInfoFactory.class).in(Singleton.class);
             bind(DeviceLifecycleActionInfoFactory.class).to(DeviceLifecycleActionInfoFactory.class).in(Singleton.class);
@@ -232,6 +251,12 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(DeviceProtocolPluggableClassInfoFactory.class).to(DeviceProtocolPluggableClassInfoFactory.class).in(Singleton.class);
             bind(AuthenticationDeviceAccessLevelInfoFactory.class).to(AuthenticationDeviceAccessLevelInfoFactory.class).in(Singleton.class);
             bind(EncryptionDeviceAccessLevelInfoFactory.class).to(EncryptionDeviceAccessLevelInfoFactory.class).in(Singleton.class);
+            bind(ConfigurationSecurityPropertySetFactory.class).to(ConfigurationSecurityPropertySetFactory.class).in(Singleton.class);
+            bind(ComTaskExecutionInfoFactory.class).to(ComTaskExecutionInfoFactory.class).in(Singleton.class);
+            bind(ComTaskEnablementInfoFactory.class).to(ComTaskEnablementInfoFactory.class).in(Singleton.class);
+            bind(ProtocolDialectConfigurationPropertiesInfoFactory.class).to(ProtocolDialectConfigurationPropertiesInfoFactory.class).in(Singleton.class);
+            bind(DeviceMessageInfoFactory.class).to(DeviceMessageInfoFactory.class).in(Singleton.class);
+            bind(ComScheduleInfoFactory.class).to(ComScheduleInfoFactory.class).in(Singleton.class);
         }
     }
 
