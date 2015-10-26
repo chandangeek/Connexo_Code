@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.time.Period;
 import java.util.List;
 
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,6 +65,7 @@ public class LifeCycleServiceTest {
 				new MockModule(),
     			inMemoryBootstrapModule,
     			new OrmModule(),
+				new DataVaultModule(),
     			new DomainUtilModule(),
     			new NlsModule(),
     			new UserModule(),

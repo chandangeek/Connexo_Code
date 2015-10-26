@@ -75,6 +75,11 @@ public final class LifeCycleCategoryImpl implements LifeCycleCategory {
 	}
 
 	@Override
+	public long getVersion() {
+		return this.version;
+	}
+
+	@Override
 	public String getName() {
 		return kind.name().toLowerCase();
 	}
