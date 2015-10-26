@@ -1,5 +1,6 @@
 package com.energyict.mdc.firmware.impl;
 
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
@@ -14,7 +15,6 @@ import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Max;
@@ -26,7 +26,7 @@ import java.time.Instant;
 @IsValidStatusTransfer(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.STATE_TRANSFER_NOT_ALLOWED + "}")
 @IsFileRequired(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
 @IsStatusRequired(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
-public class FirmwareVersionImpl implements FirmwareVersion, PersistenceAware {
+public final class FirmwareVersionImpl implements FirmwareVersion, PersistenceAware {
 
     enum Fields {
         FIRMWAREVERSION("firmwareVersion"),
@@ -82,13 +82,8 @@ public class FirmwareVersionImpl implements FirmwareVersion, PersistenceAware {
         this.eventService = eventService;
     }
 
-    @Override
     public void save() {
-        if (getId() == 0) {
-            doPersist();
-            return;
-        }
-        doUpdate();
+        doPersist();
     }
 
     @Override
@@ -98,16 +93,22 @@ public class FirmwareVersionImpl implements FirmwareVersion, PersistenceAware {
         save();
     }
 
-    private FirmwareVersion init(DeviceType deviceType, String firmwareVersion, FirmwareStatus firmwareStatus, FirmwareType firmwareType) {
+    @Override
+    public long getVersion() {
+        return this.version;
+    }
+    
+    public void update() {
+        doUpdate();
+    }
+    
+
+    private FirmwareVersionImpl init(DeviceType deviceType, String firmwareVersion, FirmwareStatus firmwareStatus, FirmwareType firmwareType) {
         this.deviceType.set(deviceType);
         setFirmwareVersion(firmwareVersion);
         this.firmwareStatus = firmwareStatus;
         this.firmwareType = firmwareType;
         return this;
-    }
-
-    public static FirmwareVersion from(DataModel dataModel, DeviceType deviceType, String firmwareVersion, FirmwareStatus firmwareStatus, FirmwareType firmwareType) {
-        return dataModel.getInstance(FirmwareVersionImpl.class).init(deviceType, firmwareVersion, firmwareStatus, firmwareType);
     }
 
     @Override
@@ -137,7 +138,7 @@ public class FirmwareVersionImpl implements FirmwareVersion, PersistenceAware {
         return id;
     }
 
-    public void setId( long id) {
+    public void setId(long id) {
         this.id = id;
     }
 
@@ -172,7 +173,7 @@ public class FirmwareVersionImpl implements FirmwareVersion, PersistenceAware {
 
     @Override
     public void setFirmwareStatus(FirmwareStatus firmwareStatus) {
-        this.oldFirmwareStatus =  this.firmwareStatus;
+        this.oldFirmwareStatus = this.firmwareStatus;
         this.firmwareStatus = firmwareStatus;
     }
 
@@ -181,7 +182,7 @@ public class FirmwareVersionImpl implements FirmwareVersion, PersistenceAware {
         return firmwareFileArray;
     }
 
-    public boolean hasFirmwareFile(){
+    public boolean hasFirmwareFile() {
         return this.firmwareFile > 0;
     }
 
@@ -218,5 +219,54 @@ public class FirmwareVersionImpl implements FirmwareVersion, PersistenceAware {
 
     public FirmwareStatus getOldFirmwareStatus() {
         return this.oldFirmwareStatus;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        FirmwareVersionImpl that = (FirmwareVersionImpl) o;
+
+        return id == that.id;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
+    }
+
+    public static class FirmwareVersionImplBuilder implements FirmwareVersionBuilder{
+
+        private final FirmwareVersionImpl underConstruction;
+
+        public FirmwareVersionImplBuilder(FirmwareVersionImpl underConstruction, DeviceType deviceType, String firmwareVersion, FirmwareStatus firmwareStatus, FirmwareType firmwareType) {
+            this.underConstruction = underConstruction;
+            this.underConstruction.init(deviceType, firmwareVersion, firmwareStatus, firmwareType);
+        }
+
+        @Override
+        public FirmwareVersionBuilder setFirmwareFile(byte[] firmwareFile) {
+            underConstruction.setFirmwareFile(firmwareFile);
+            return this;
+        }
+
+        @Override
+        public FirmwareVersionBuilder setExpectedFirmwareSize(Integer fileSize) {
+            underConstruction.setExpectedFirmwareSize(fileSize);
+            return this;
+        }
+
+        @Override
+        public FirmwareVersion create() {
+            underConstruction.save();
+            return underConstruction;
+        }
+
+        @Override
+        public void validate() {
+            underConstruction.validate();
+        }
     }
 }

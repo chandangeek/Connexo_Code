@@ -1,8 +1,28 @@
 package com.energyict.mdc.firmware.impl;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.nls.*;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.ResourceDefinition;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.CommunicationTaskService;
@@ -11,7 +31,18 @@ import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
-import com.energyict.mdc.firmware.*;
+import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
+import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareCampaign;
+import com.energyict.mdc.firmware.FirmwareCampaignStatus;
+import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
+import com.energyict.mdc.firmware.FirmwareManagementOptions;
+import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareStatus;
+import com.energyict.mdc.firmware.FirmwareType;
+import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.firmware.FirmwareVersionFilter;
+import com.energyict.mdc.firmware.PassiveFirmwareVersion;
 import com.energyict.mdc.firmware.security.Privileges;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -20,31 +51,6 @@ import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
-
-import com.elster.jupiter.domain.util.DefaultFinder;
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.ResourceDefinition;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.time.Interval;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -75,8 +81,8 @@ import static com.elster.jupiter.util.conditions.Where.where;
  * Date: 3/5/15
  * Time: 10:33 AM
  */
-@Component(name = "com.energyict.mdc.firmware", service = {FirmwareService.class, InstallService.class, ReferencePropertySpecFinderProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + FirmwareService.COMPONENTNAME, immediate = true)
-public class FirmwareServiceImpl implements FirmwareService, InstallService, TranslationKeyProvider, PrivilegesProvider {
+@Component(name = "com.energyict.mdc.firmware", service = {FirmwareService.class, InstallService.class, ReferencePropertySpecFinderProvider.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = "name=" + FirmwareService.COMPONENTNAME, immediate = true)
+public class FirmwareServiceImpl implements FirmwareService, InstallService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider {
 
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile DataModel dataModel;
@@ -143,10 +149,6 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
                 .collect(Collectors.toCollection(HashSet::new));
     }
 
-    public Query<? extends FirmwareVersion> getFirmwareVersionQuery() {
-        return queryService.wrap(dataModel.query(FirmwareVersion.class));
-    }
-
     @Override
     public Finder<FirmwareVersion> findAllFirmwareVersions(FirmwareVersionFilter filter) {
         if (filter == null) {
@@ -180,29 +182,26 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
     }
 
     @Override
-    public Optional<FirmwareVersion> getFirmwareVersionByVersionAndType(String version, FirmwareType firmwareType, DeviceType deviceType) {
-        return dataModel.mapper(FirmwareVersion.class).getUnique(new String[]{FirmwareVersionImpl.Fields.FIRMWAREVERSION.fieldName(), FirmwareVersionImpl.Fields.DEVICETYPE.fieldName(), FirmwareVersionImpl.Fields.FIRMWARETYPE.fieldName()}, new Object[]{version, deviceType, firmwareType});
+    public Optional<FirmwareVersion> findAndLockFirmwareVersionByIdAndVersion(long id, long version) {
+        return dataModel.mapper(FirmwareVersion.class).lockObjectIfVersion(version, id);
     }
 
     @Override
-    public FirmwareVersion newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type) {
-        return FirmwareVersionImpl.from(dataModel, deviceType, firmwareVersion, status, type);
+    public Optional<FirmwareVersion> getFirmwareVersionByVersionAndType(String version, FirmwareType firmwareType, DeviceType deviceType) {
+        return dataModel.mapper(FirmwareVersion.class).getUnique(new String[]{FirmwareVersionImpl.Fields.FIRMWAREVERSION.fieldName(), FirmwareVersionImpl.Fields.DEVICETYPE.fieldName(), FirmwareVersionImpl.Fields.FIRMWARETYPE
+                .fieldName()}, new Object[]{version, deviceType, firmwareType});
+    }
+
+    @Override
+    public FirmwareVersion.FirmwareVersionBuilder newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type) {
+        return new FirmwareVersionImpl.FirmwareVersionImplBuilder(dataModel.getInstance(FirmwareVersionImpl.class), deviceType, firmwareVersion, status, type);
     }
 
     @Override
     public boolean isFirmwareVersionInUse(long firmwareVersionId) {
         Optional<FirmwareVersion> firmwareVersionRef = getFirmwareVersionById(firmwareVersionId);
-        if (firmwareVersionRef.isPresent()) {
-            return !dataModel.query(ActivatedFirmwareVersion.class)
-                    .select(where(ActivatedFirmwareVersionImpl.Fields.FIRMWARE_VERSION.fieldName()).isEqualTo(firmwareVersionRef.get()), null, false, null, 1, 2)
-                    .isEmpty();
-        }
-        return false;
-    }
-
-    @Override
-    public Optional<FirmwareManagementOptions> getFirmwareManagementOptions(DeviceType deviceType) {
-        return dataModel.mapper(FirmwareManagementOptions.class).getUnique(FirmwareVersionImpl.Fields.DEVICETYPE.fieldName(), deviceType);
+        return firmwareVersionRef.isPresent()
+                && !dataModel.query(ActivatedFirmwareVersion.class).select(where(ActivatedFirmwareVersionImpl.Fields.FIRMWARE_VERSION.fieldName()).isEqualTo(firmwareVersionRef.get()), null, false, null, 1, 2).isEmpty();
     }
 
     @Override
@@ -272,13 +271,23 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
     }
 
     @Override
-    public Optional<FirmwareManagementOptions> findFirmwareManagementOptionsByDeviceType(DeviceType deviceType) {
-        return dataModel.mapper(FirmwareManagementOptions.class).getUnique("deviceType", deviceType);
+    public Optional<FirmwareManagementOptions> findFirmwareManagementOptions(DeviceType deviceType) {
+        return dataModel.mapper(FirmwareManagementOptions.class).getUnique(FirmwareVersionImpl.Fields.DEVICETYPE.fieldName(), deviceType);
+    }
+
+    @Override
+    public Optional<FirmwareManagementOptions> findAndLockFirmwareManagementOptionsByIdAndVersion(DeviceType deviceType, long version) {
+        return dataModel.mapper(FirmwareManagementOptions.class).lockObjectIfVersion(version, deviceType.getId());
     }
 
     @Override
     public Optional<FirmwareCampaign> getFirmwareCampaignById(long id) {
         return dataModel.mapper(FirmwareCampaign.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<FirmwareCampaign> findAndLockFirmwareCampaignByIdAndVersion(long id, long version) {
+        return dataModel.mapper(FirmwareCampaign.class).lockObjectIfVersion(version, id);
     }
 
     @Override
@@ -483,15 +492,19 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Tra
     @Override
     public List<TranslationKey> getKeys() {
         return Stream.of(
-                Arrays.stream(MessageSeeds.values()),
                 Arrays.stream(Privileges.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }
 
     @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
+    }
+
+    @Override
     public List<CanFindByLongPrimaryKey<? extends HasId>> finders() {
-        ArrayList<CanFindByLongPrimaryKey<? extends HasId>> canFindByLongPrimaryKeys = new ArrayList<>();
+        List<CanFindByLongPrimaryKey<? extends HasId>> canFindByLongPrimaryKeys = new ArrayList<>();
         canFindByLongPrimaryKeys.add(new FirmwareVersionFinder());
         return canFindByLongPrimaryKeys;
     }

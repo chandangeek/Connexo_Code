@@ -75,7 +75,7 @@ public enum EventType {
                 .component(FirmwareService.COMPONENTNAME)
                 .category("Crud")
                 .scope("System");
-        this.addCustomProperties(builder).create().save();
+        this.addCustomProperties(builder).create();
     }
 
     @TransactionRequired

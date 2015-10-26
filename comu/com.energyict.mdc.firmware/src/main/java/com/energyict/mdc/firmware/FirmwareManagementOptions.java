@@ -14,4 +14,5 @@ public interface FirmwareManagementOptions {
 
     void delete();
 
+    long getVersion();
 }

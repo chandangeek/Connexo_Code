@@ -22,8 +22,9 @@ public interface FirmwareService extends ReferencePropertySpecFinderProvider {
     // Firmware versions on a device type
     Finder<FirmwareVersion> findAllFirmwareVersions(FirmwareVersionFilter filter);
     Optional<FirmwareVersion> getFirmwareVersionById(long id);
+    Optional<FirmwareVersion> findAndLockFirmwareVersionByIdAndVersion(long id, long version);
     Optional<FirmwareVersion> getFirmwareVersionByVersionAndType(String version, FirmwareType firmwareType, DeviceType deviceType);
-    FirmwareVersion newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type);
+    FirmwareVersion.FirmwareVersionBuilder newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type);
     boolean isFirmwareVersionInUse(long firmwareVersionId);
 
 
@@ -34,8 +35,8 @@ public interface FirmwareService extends ReferencePropertySpecFinderProvider {
     Set<ProtocolSupportedFirmwareOptions> getSupportedFirmwareOptionsFor(DeviceType deviceType);
     Set<ProtocolSupportedFirmwareOptions> getAllowedFirmwareManagementOptionsFor(DeviceType deviceType);
     FirmwareManagementOptions newFirmwareManagementOptions(DeviceType deviceType);
-    Optional<FirmwareManagementOptions> getFirmwareManagementOptions(DeviceType deviceType);
-    Optional<FirmwareManagementOptions> findFirmwareManagementOptionsByDeviceType(DeviceType deviceType);
+    Optional<FirmwareManagementOptions> findFirmwareManagementOptions(DeviceType deviceType);
+    Optional<FirmwareManagementOptions> findAndLockFirmwareManagementOptionsByIdAndVersion(DeviceType deviceType, long version);
     List<DeviceType> getDeviceTypesWhichSupportFirmwareManagement();
 
 
@@ -57,6 +58,7 @@ public interface FirmwareService extends ReferencePropertySpecFinderProvider {
 
     // Firmware campaigns
     Optional<FirmwareCampaign> getFirmwareCampaignById(long id);
+    Optional<FirmwareCampaign> findAndLockFirmwareCampaignByIdAndVersion(long id, long version);
     Finder<FirmwareCampaign> getFirmwareCampaigns();
     FirmwareCampaign newFirmwareCampaign(DeviceType deviceType, EndDeviceGroup endDeviceGroup);
     Finder<DeviceInFirmwareCampaign> getDevicesForFirmwareCampaign(FirmwareCampaign firmwareCampaign);

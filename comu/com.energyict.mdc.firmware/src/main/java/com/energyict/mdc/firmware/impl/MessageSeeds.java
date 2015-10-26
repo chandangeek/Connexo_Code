@@ -1,15 +1,15 @@
 package com.energyict.mdc.firmware.impl;
 
+import com.energyict.mdc.firmware.FirmwareService;
+
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.firmware.FirmwareService;
 
 import java.text.MessageFormat;
 import java.util.logging.Level;
 
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
     FIELD_IS_REQUIRED(1, Keys.FIELD_IS_REQUIRED, "This field is required", Level.SEVERE),
     FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH(2, Keys.FIELD_SIZE_BETWEEN_1_AND_NAME_LENGTH, "Field's text length should be between 1 and " + Table.NAME_LENGTH + " symbols", Level.SEVERE),
     NAME_MUST_BE_UNIQUE(3, Keys.NAME_MUST_BE_UNIQUE, "Name must be unique", Level.SEVERE),

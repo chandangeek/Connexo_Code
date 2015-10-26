@@ -1,6 +1,6 @@
 package com.energyict.mdc.firmware;
 
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.config.DeviceType;
 
 public interface FirmwareVersion extends HasId {
@@ -27,8 +27,24 @@ public interface FirmwareVersion extends HasId {
 
     void validate();
 
-    void save();
-
     void deprecate();
+
+    void update();
+
+    interface FirmwareVersionBuilder {
+
+        FirmwareVersionBuilder setFirmwareFile(byte[] firmwareFile);
+
+        FirmwareVersionBuilder setExpectedFirmwareSize(Integer fileSize);
+
+        FirmwareVersion create();
+
+        /**
+         * Validate will not create anything, just running the validation
+         */
+        void validate();
+    }
+
+    long getVersion();
 
 }
