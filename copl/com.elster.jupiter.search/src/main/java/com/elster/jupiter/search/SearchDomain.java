@@ -88,4 +88,5 @@ public interface SearchDomain {
      */
     public Finder<?> finderFor(List<SearchablePropertyCondition> conditions);
 
+    String displayName();
 }
