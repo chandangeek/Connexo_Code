@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.data.validation.rest.impl;
 
+import com.elster.jupiter.validation.security.Privileges;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.validation.security.Privileges;
 import com.energyict.mdc.device.data.validation.DeviceDataValidationService;
 import com.energyict.mdc.device.data.validation.ValidationOverview;
 
