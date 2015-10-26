@@ -143,8 +143,10 @@ public class MetrologyConfigurationCrudTest {
             assertThat(mc1.get().getName()).isEqualTo("Residenshull");
             mc1.get().setName("Residential");
             mc1.get().update();
-            mc1 = upcService.findMetrologyConfiguration(1);
-            getUsagePointConfigurationService().findMetrologyConfiguration(2);
+            mc1 = upcService.findMetrologyConfiguration(1);            
+            assertThat(mc1).isPresent();
+            assertThat(mc1.get().getName()).isEqualTo("Residential");
+            mc1 = upcService.findMetrologyConfiguration("Residential");            
             assertThat(mc1).isPresent();
             assertThat(mc1.get().getName()).isEqualTo("Residential");
             context.commit();
@@ -182,4 +184,26 @@ public class MetrologyConfigurationCrudTest {
             context.commit();
         }
     }    
+    
+    @Test(expected = ConstraintViolationException.class)
+    public void testDuplicateNameCreate() {
+        try (TransactionContext context = getTransactionService().getContext()) {
+            UsagePointConfigurationService upcService = getUsagePointConfigurationService();
+            upcService.newMetrologyConfiguration("dup1");
+            upcService.newMetrologyConfiguration("dup1");
+            context.commit();
+        }
+    }
+    
+    @Test(expected = ConstraintViolationException.class)
+    public void testDuplicateNameRename() {
+        try (TransactionContext context = getTransactionService().getContext()) {
+            UsagePointConfigurationService upcService = getUsagePointConfigurationService();
+            upcService.newMetrologyConfiguration("dup1");
+            MetrologyConfiguration x = upcService.newMetrologyConfiguration("x");
+            x.setName("dup1");
+            x.update();
+            context.commit();
+        }
+    }
 }

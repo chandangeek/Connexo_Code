@@ -15,7 +15,6 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import com.elster.insight.usagepoint.config.MetrologyConfValidationRuleSetUsage;
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.insight.usagepoint.config.UsagePointMetrologyConfiguration;
@@ -28,7 +27,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -142,6 +140,11 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
         return dataModel.mapper(MetrologyConfiguration.class).getUnique("id", id);
     }
 
+    @Override
+    public Optional<MetrologyConfiguration> findMetrologyConfiguration(String name) {
+        return dataModel.mapper(MetrologyConfiguration.class).getUnique("name", name);
+    }
+    
     @Override
     public List<MetrologyConfiguration> findAllMetrologyConfigurations() {
         return DefaultFinder.of(MetrologyConfiguration.class, this.getDataModel()).defaultSortColumn("lower(name)").find();

@@ -22,7 +22,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 
-@Unique(fields = "name", groups = Save.Create.class)
+@Unique(fields = "name", groups = {Save.Create.class, Save.Update.class})
 public final class MetrologyConfigurationImpl implements MetrologyConfiguration {
     private long id;
     private long version;

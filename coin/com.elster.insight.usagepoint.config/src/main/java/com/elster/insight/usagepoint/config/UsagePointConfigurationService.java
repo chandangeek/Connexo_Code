@@ -12,6 +12,7 @@ public interface UsagePointConfigurationService {
     MetrologyConfiguration newMetrologyConfiguration(String name);
 
     Optional<MetrologyConfiguration> findMetrologyConfiguration(long id);
+    Optional<MetrologyConfiguration> findMetrologyConfiguration(String name);
 
     List<MetrologyConfiguration> findAllMetrologyConfigurations();
 
