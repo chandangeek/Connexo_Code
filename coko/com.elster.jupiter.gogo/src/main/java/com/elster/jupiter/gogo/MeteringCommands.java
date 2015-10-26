@@ -36,6 +36,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -54,7 +55,6 @@ import java.util.regex.Pattern;
         property = {"osgi.command.scope=metering",
                 "osgi.command.function=createMeter",
                 "osgi.command.function=createActivation",
-                "osgi.command.function=createUsagePoint",
                 "osgi.command.function=listReadingTypes",
                 "osgi.command.function=storeRegisterData",
                 "osgi.command.function=storeIntervalData",
@@ -98,13 +98,30 @@ public class MeteringCommands {
             @Override
             public Meter perform() {
                 AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-                Meter meter = amrSystem.newMeter(amrId, mrId);
-                meter.save();
+                Meter meter = amrSystem.newMeter(amrId)
+                        .setMRID(mrId)
+                        .create();
                 return meter;
             }
         });
         System.out.println("meter = " + meter);
         System.out.println(" id = " + meter.getId());
+    }
+
+    private Instant parseEffectiveTimestamp(String effectiveTimestamp) {
+        try {
+            if (effectiveTimestamp == null) {
+                return this.clock.instant();
+            } else {
+                return LocalDate
+                        .from(DateTimeFormatter.ISO_LOCAL_DATE.parse(effectiveTimestamp))
+                        .atStartOfDay(ZoneId.systemDefault())
+                        .toInstant();
+            }
+        } catch (DateTimeParseException e) {
+            System.out.println("Please respect the following format for the effective timestamp: " + DateTimeFormatter.ISO_LOCAL_DATE.toFormat().toString());
+            throw e;
+        }
     }
 
     public void createActivation(long id, String date, final String... readingTypes) {
