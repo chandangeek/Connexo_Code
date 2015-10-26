@@ -32,6 +32,7 @@ public abstract class ComPortPoolInfo<S extends ComPortPool> {
     public Long discoveryProtocolPluggableClassId;
     public List<OutboundComPortInfo> outboundComPorts;
     public TimeDurationInfo taskExecutionTimeout;
+    public long version;
 
     public ComPortPoolInfo() {
     }
@@ -44,6 +45,7 @@ public abstract class ComPortPoolInfo<S extends ComPortPool> {
         this.obsoleteDate = comPortPool.getObsoleteDate();
         this.obsoleteFlag = comPortPool.isObsolete();
         this.comPortType = comPortPool.getComPortType();
+        this.version = comPortPool.getVersion();
     }
 
     protected S writeTo(S target) {

@@ -1,9 +1,10 @@
 package com.energyict.mdc.rest.impl;
 
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.OfflineComServer;
 import com.energyict.mdc.engine.config.OnlineComServer;
@@ -13,35 +14,31 @@ import com.energyict.mdc.rest.impl.comserver.OfflineComServerInfo;
 import com.energyict.mdc.rest.impl.comserver.OnlineComServerInfo;
 import com.energyict.mdc.rest.impl.comserver.RemoteComServerInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.assertj.core.data.MapEntry;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
-import java.util.Optional;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Path;
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-
-import org.assertj.core.data.MapEntry;
-import org.hibernate.validator.internal.engine.path.PathImpl;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * When accessing a resource, I choose not to use UriBuilder, as you should be aware that changing the URI means changing the API!
@@ -50,6 +47,8 @@ import static org.mockito.Mockito.when;
  */
 public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
 
+    public static final long OK_VERSION = 11;
+    public static final long BAD_VERSION = 8;
 
     @Test
     public void testGetNonExistingComServer() throws Exception {
@@ -87,6 +86,7 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
         when(mock.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.ERROR);
         when(mock.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         when(mock.getSchedulingInterPollDelay()).thenReturn(new TimeDuration("7 minutes"));
+        when(mock.getVersion()).thenReturn(OK_VERSION);
 
         final Map<String, Object> response = target("/comservers").request().get(Map.class); // Using MAP instead of *Info to resemble JS
         assertThat(response).describedAs("Should contain field 'data'").containsKey("data").containsKey("total").hasSize(2);
@@ -127,11 +127,15 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
 
     @Test
     public void testUpdateExistingComServer() throws Exception {
-        long comServer_id = 3;
+        long comServerId = 3;
 
         OnlineComServer serverSideComServer = mock(OnlineComServer.class);
-        when(serverSideComServer.getId()).thenReturn(comServer_id);
-        when(engineConfigurationService.findComServer(comServer_id)).thenReturn(Optional.<ComServer>of(serverSideComServer));
+        when(serverSideComServer.getId()).thenReturn(comServerId);
+        when(serverSideComServer.getObsoleteDate()).thenReturn(null);
+        when(serverSideComServer.isObsolete()).thenReturn(false);
+        when(engineConfigurationService.findComServer(comServerId)).thenReturn(Optional.<ComServer>of(serverSideComServer));
+        when(engineConfigurationService.findAndLockComServerByIdAndVersion(comServerId, OK_VERSION)).thenReturn(Optional.of(serverSideComServer));
+        when(engineConfigurationService.findAndLockComServerByIdAndVersion(comServerId, BAD_VERSION)).thenReturn(Optional.empty());
 
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         onlineComServerInfo.name="new name";
@@ -146,12 +150,14 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
         onlineComServerInfo.storeTaskQueueSize= 7;
         onlineComServerInfo.storeTaskThreadPriority= 8;
         onlineComServerInfo.numberOfStoreTaskThreads= 9;
+        onlineComServerInfo.version = OK_VERSION;
+
         Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
 
-        final Response response = target("/comservers/3").request().put(json);
+        final Response response = target("/comservers/"+comServerId).request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
-        verify(serverSideComServer).save();
+        verify(serverSideComServer).update();
         ArgumentCaptor<String> onlineComServerArgumentCaptor = ArgumentCaptor.forClass(String.class);
         verify(serverSideComServer).setName(onlineComServerArgumentCaptor.capture());
         assertThat(onlineComServerArgumentCaptor.getValue()).isEqualTo("new name");
@@ -187,16 +193,42 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
         assertThat(numberOfStoreTaskThreadCaptor.getValue()).isEqualTo(9);
     }
 
+
     @Test
-    public void createOnlineComServer() throws Exception {
-        long comServer_id = 3;
+    public void testUpdateComServerBadVersion() throws Exception {
+        long comServerId = 3;
 
         OnlineComServer serverSideComServer = mock(OnlineComServer.class);
-        when(serverSideComServer.getId()).thenReturn(comServer_id);
-        when(engineConfigurationService.newOnlineComServerInstance()).thenReturn(serverSideComServer);
+        when(serverSideComServer.getId()).thenReturn(comServerId);
+        when(serverSideComServer.getObsoleteDate()).thenReturn(null);
+        when(serverSideComServer.isObsolete()).thenReturn(false);
+        when(engineConfigurationService.findComServer(comServerId)).thenReturn(Optional.<ComServer>of(serverSideComServer));
+        when(engineConfigurationService.findAndLockComServerByIdAndVersion(comServerId, OK_VERSION)).thenReturn(Optional.of(serverSideComServer));
+        when(engineConfigurationService.findAndLockComServerByIdAndVersion(comServerId, BAD_VERSION)).thenReturn(Optional.empty());
 
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         onlineComServerInfo.name="new name";
+        onlineComServerInfo.version = BAD_VERSION;
+
+        Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
+
+        final Response response = target("/comservers/"+comServerId).request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
+    public void createOnlineComServer() throws Exception {
+        long comServer_id = 3;
+        final String comServerName = "new name";
+
+        OnlineComServer serverSideComServer = mock(OnlineComServer.class, withSettings().extraInterfaces(ComServer.class));
+        when(serverSideComServer.getId()).thenReturn(comServer_id);
+        final OnlineComServer.OnlineComServerBuilder onlineComServerBuilder = mock(OnlineComServer.OnlineComServerBuilder.class);
+        when(onlineComServerBuilder.create()).thenReturn(serverSideComServer);
+        when(engineConfigurationService.newOnlineComServerBuilder()).thenReturn(onlineComServerBuilder);
+
+        OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
+        onlineComServerInfo.name= comServerName;
         TimeDurationInfo timeDurationInfo = new TimeDurationInfo();
         timeDurationInfo.count=2;
         timeDurationInfo.timeUnit="seconds";
@@ -209,7 +241,8 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
         final Response response = target("/comservers").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
 
-        verify(serverSideComServer).save();
+        verify(onlineComServerBuilder).name(comServerName);
+        verify(onlineComServerBuilder).create();
     }
 
     @Test
@@ -218,10 +251,13 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
 
         OfflineComServer serverSideComServer = mock(OfflineComServer.class);
         when(serverSideComServer.getId()).thenReturn(comServer_id);
-        when(engineConfigurationService.newOfflineComServerInstance()).thenReturn(serverSideComServer);
+        final ComServer.ComServerBuilder comServerBuilder = mock(ComServer.ComServerBuilder.class);
+        when(comServerBuilder.create()).thenReturn(serverSideComServer);
+        when(engineConfigurationService.newOfflineComServerBuilder()).thenReturn(comServerBuilder);
 
         OfflineComServerInfo offlineComServerInfo = new OfflineComServerInfo();
-        offlineComServerInfo.name="new name";
+        final String comServerName = "new name";
+        offlineComServerInfo.name= comServerName;
         TimeDurationInfo timeDurationInfo = new TimeDurationInfo();
         timeDurationInfo.count=2;
         timeDurationInfo.timeUnit="seconds";
@@ -233,23 +269,27 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
         final Response response = target("/comservers").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
 
-        verify(serverSideComServer).save();
+        verify(comServerBuilder).name(comServerName);
+        verify(comServerBuilder).create();
     }
 
     @Test
     public void createRemoteComServer() throws Exception {
         long comServer_id = 3;
         long onlineComServerId = 5;
+        final String comServerName = "new name";
 
         RemoteComServer serverSideComServer = mock(RemoteComServer.class);
         when(serverSideComServer.getId()).thenReturn(comServer_id);
-        when(engineConfigurationService.newRemoteComServerInstance()).thenReturn(serverSideComServer);
+        final RemoteComServer.RemoteComServerBuilder remoteComServerBuilder = mock(RemoteComServer.RemoteComServerBuilder.class);
+        when(remoteComServerBuilder.create()).thenReturn(serverSideComServer);
+        when(engineConfigurationService.newRemoteComServerBuilder()).thenReturn(remoteComServerBuilder);
 
         OnlineComServer onlineComServer = mock(OnlineComServer.class);
         when(engineConfigurationService.findComServer(onlineComServerId)).thenReturn(Optional.<ComServer>of(onlineComServer));
 
         RemoteComServerInfo remoteComServerInfo = new RemoteComServerInfo();
-        remoteComServerInfo.name="new name";
+        remoteComServerInfo.name= comServerName;
         remoteComServerInfo.onlineComServerId = 5L;
         TimeDurationInfo timeDurationInfo = new TimeDurationInfo();
         timeDurationInfo.count=2;
@@ -262,41 +302,74 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
         final Response response = target("/comservers").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
 
-        verify(serverSideComServer).save();
+        verify(remoteComServerBuilder).create();
+        verify(remoteComServerBuilder).name(comServerName);
     }
 
     @Test
     public void testCannotUpdateNonExistingComServer() throws Exception {
         when(engineConfigurationService.findComServer(anyInt())).thenReturn(Optional.empty());
+        when(engineConfigurationService.findAndLockComServerByIdAndVersion(anyLong(), anyLong())).thenReturn(Optional.empty());
 
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         onlineComServerInfo.name="new name";
         onlineComServerInfo.inboundComPorts = new ArrayList<>();
         onlineComServerInfo.outboundComPorts = new ArrayList<>();
+        onlineComServerInfo.version = OK_VERSION;
         Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
         final Response response = target("/comservers/3").request().put(json); //5 was mocked, there is no ComServer 3
 
-        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
     @Test
     public void testDeleteComServer() throws Exception {
-        int comServer_id = 5;
+        int comServerId = 5;
 
         ComServer serverSideComServer = mock(OnlineComServer.class);
-        when(engineConfigurationService.findComServer(comServer_id)).thenReturn(Optional.of(serverSideComServer));
+        when(engineConfigurationService.findComServer(comServerId)).thenReturn(Optional.of(serverSideComServer));
+        when(engineConfigurationService.findAndLockComServerByIdAndVersion(comServerId, OK_VERSION)).thenReturn(Optional.of(serverSideComServer));
+        when(engineConfigurationService.findAndLockComServerByIdAndVersion(comServerId, BAD_VERSION)).thenReturn(Optional.empty());
+        OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
+        onlineComServerInfo.name="new name";
+        onlineComServerInfo.version = OK_VERSION;
 
-        final Response response = target("/comservers/5").request().delete();
+        Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
+        final Response response = target("/comservers/5").request().build(HttpMethod.DELETE, json).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
 
         verify(serverSideComServer).makeObsolete();
     }
 
     @Test
-    public void testDeleteNonExistingComServerThrows404() throws Exception {
+    public void testDeleteComServerBadVersion() throws Exception {
+        int comServerId = 5;
+
+        ComServer serverSideComServer = mock(OnlineComServer.class);
+        when(engineConfigurationService.findComServer(comServerId)).thenReturn(Optional.of(serverSideComServer));
+        when(engineConfigurationService.findAndLockComServerByIdAndVersion(comServerId, OK_VERSION)).thenReturn(Optional.of(serverSideComServer));
+        when(engineConfigurationService.findAndLockComServerByIdAndVersion(comServerId, BAD_VERSION)).thenReturn(Optional.empty());
+        OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
+        onlineComServerInfo.name="new name";
+        onlineComServerInfo.version = BAD_VERSION;
+
+        Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
+        final Response response = target("/comservers/5").request().build(HttpMethod.DELETE, json).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+
+        verify(serverSideComServer, never()).makeObsolete();
+    }
+
+    @Test
+    public void testDeleteNonExistingComServerThrows409() throws Exception {
         when(engineConfigurationService.findComServer(anyInt())).thenReturn(Optional.empty());
-        final Response response = target("/comservers/5").request().delete();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.NOT_FOUND.getStatusCode());
+        when(engineConfigurationService.findAndLockComServerByIdAndVersion(anyLong(), anyLong())).thenReturn(Optional.empty());
+        OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
+        onlineComServerInfo.name="new name";
+        onlineComServerInfo.version = BAD_VERSION;
+        Entity<OnlineComServerInfo> json = Entity.json(onlineComServerInfo);
+        final Response response = target("/comservers/5").request().build(HttpMethod.DELETE, json).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
     @Test
@@ -305,22 +378,24 @@ public class ComServerResourceTest extends ComserverCoreApplicationJerseyTest {
 
         OnlineComServer serverSideComServer = mock(OnlineComServer.class);
         when(serverSideComServer.getId()).thenReturn(comServer_id);
-        when(engineConfigurationService.newOnlineComServerInstance()).thenReturn(serverSideComServer);
+        final OnlineComServer.OnlineComServerBuilder onlineComServerBuilder = mock(OnlineComServer.OnlineComServerBuilder.class);
+        when(onlineComServerBuilder.create()).thenReturn(serverSideComServer);
+        when(engineConfigurationService.newOnlineComServerBuilder()).thenReturn(onlineComServerBuilder);
         Set<ConstraintViolation<?>> constrainViolations = new HashSet<>();
 
         ConstraintViolation constraintViolation1 = mock(ConstraintViolation.class);
         when(constraintViolation1.getMessageTemplate()).thenReturn("{MDC.CanNotBeNull}");
-        when(constraintViolation1.getPropertyPath()).thenReturn(PathImpl.createPathFromString("name"));
+        when(constraintViolation1.getPropertyPath()).thenReturn(mock(Path.class));
         constrainViolations.add(constraintViolation1);
 
         ConstraintViolation constraintViolation2 = mock(ConstraintViolation.class);
         when(constraintViolation2.getMessageTemplate()).thenReturn("{MDC.CanNotBeNull}");
-        when(constraintViolation2.getPropertyPath()).thenReturn(PathImpl.createPathFromString("someProperty"));
+        when(constraintViolation2.getPropertyPath()).thenReturn(mock(Path.class));
         constrainViolations.add(constraintViolation2);
 
         when(nlsService.interpolate(Matchers.<ConstraintViolation<?>>anyObject())).thenReturn("Property can not be null");
         ConstraintViolationException toBeThrown = new ConstraintViolationException(constrainViolations);
-        doThrow(toBeThrown).when(serverSideComServer).save();
+        doThrow(toBeThrown).when(onlineComServerBuilder).create();
         OnlineComServerInfo onlineComServerInfo = new OnlineComServerInfo();
         onlineComServerInfo.name="new name";
         TimeDurationInfo timeDurationInfo = new TimeDurationInfo();

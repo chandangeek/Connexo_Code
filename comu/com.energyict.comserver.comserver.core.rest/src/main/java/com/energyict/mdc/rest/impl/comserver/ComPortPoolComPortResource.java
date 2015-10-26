@@ -1,5 +1,6 @@
 package com.energyict.mdc.rest.impl.comserver;
 
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.common.services.ListPager;
@@ -30,17 +31,21 @@ import java.util.List;
 public class ComPortPoolComPortResource {
 
     private final EngineConfigurationService engineConfigurationService;
+    private final ResourceHelper resourceHelper;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public ComPortPoolComPortResource(EngineConfigurationService engineConfigurationService) {
+    public ComPortPoolComPortResource(EngineConfigurationService engineConfigurationService, ResourceHelper resourceHelper, ConcurrentModificationExceptionFactory conflictFactory) {
         this.engineConfigurationService = engineConfigurationService;
+        this.resourceHelper = resourceHelper;
+        this.conflictFactory = conflictFactory;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
     public PagedInfoList getComPorts(@PathParam("comPortPoolId") long comPortPoolId, @BeanParam JsonQueryParameters queryParameters) {
-        ComPortPool comPortPool = findComPortPoolOrThrowException(comPortPoolId);
+        ComPortPool comPortPool = resourceHelper.findComPortPoolOrThrowException(comPortPoolId);
         List<ComPort> comPorts = new ArrayList<>(comPortPool.getComPorts());
 
         comPorts = ListPager.of(comPorts, new Comparator<ComPort>() {
@@ -63,8 +68,8 @@ public class ComPortPoolComPortResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
     public ComPortInfo getComPort(@PathParam("comPortPoolId") long comPortPoolId, @PathParam("id") long id) {
-        ComPortPool comPortPool = findComPortPoolOrThrowException(comPortPoolId);
-        ComPort comPort = findComPortOrThrowException(comPortPool, id);
+        ComPortPool comPortPool = resourceHelper.findComPortPoolOrThrowException(comPortPoolId);
+        ComPort comPort = resourceHelper.findComPortOrThrowException(id, comPortPool);
         return ComPortInfoFactory.asInfo(comPort, engineConfigurationService);
     }
 
@@ -72,47 +77,30 @@ public class ComPortPoolComPortResource {
     @Path("/{id}")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public Response removeComPort(@PathParam("comPortPoolId") long comPortPoolId, @PathParam("id") long id) {
-        ComPortPool comPortPool = findComPortPoolOrThrowException(comPortPoolId);
+    public Response removeComPort(@PathParam("comPortPoolId") long comPortPoolId, @PathParam("id") long id, ComPortPoolInfo info) {
+        ComPortPool comPortPool = resourceHelper.getLockedComPortPool(info.id, info.version)
+                .orElseThrow(conflictFactory.conflict()
+                        .withActualVersion(() -> resourceHelper.getCurrentComPortPoolVersion(info.id))
+                        .withMessageTitle(MessageSeeds.EDIT_POOL_CONCURRENT_TITLE, info.name)
+                        .withMessageBody(MessageSeeds.EDIT_POOL_CONCURRENT_BODY, info.name)
+                        .supplier());
         removeComPortFromComPortPool(comPortPool, id);
+        comPortPool.update();
         return Response.noContent().build();
     }
 
     private void removeComPortFromComPortPool(ComPortPool comPortPool, long comPortId) {
         if(OutboundComPortPool.class.isAssignableFrom(comPortPool.getClass())) {
-            ComPort comPort = findComPortOrThrowException(comPortPool, comPortId);
-            ((OutboundComPortPool)comPortPool).removeOutboundComPort((OutboundComPort)comPort);
+            ComPort comPort = resourceHelper.findComPortOrThrowException(comPortId, comPortPool);
+            ((OutboundComPortPool)comPortPool).removeOutboundComPort((OutboundComPort) comPort);
             return;
         }
         if(InboundComPortPool.class.isAssignableFrom(comPortPool.getClass())) {
-            ComPort comPort = findComPortOrThrowException(comPortPool, comPortId);
+            ComPort comPort = resourceHelper.findComPortOrThrowException(comPortId, comPortPool);
             if(InboundComPort.class.isAssignableFrom(comPort.getClass())) {
                 ((InboundComPort)comPort).setComPortPool(null);
-                comPort.save();
-            }
-            return;
-        }
-    }
-
-    private ComPortPool findComPortPoolOrThrowException(long id) {
-        return engineConfigurationService
-                .findComPortPool(id)
-                .orElseThrow(() -> new WebApplicationException(
-                        "No ComPortPool with id " + id,
-                        Response.status(Response.Status.NOT_FOUND)
-                                .entity("No ComPortPool with id " + id)
-                                .build()));
-    }
-
-    private ComPort findComPortOrThrowException(ComPortPool comPortPool, long id) {
-        for (ComPort comPort : comPortPool.getComPorts()) {
-            if (comPort.getId() == id) {
-                return comPort;
+                comPort.update();
             }
         }
-
-        throw new WebApplicationException("No ComPort with id " + id + " found for ComPortPool " + comPortPool.getId(),
-                Response.status(Response.Status.NOT_FOUND).entity("No ComPort with id " + id + " found for ComPortPool " + comPortPool.getId()).build());
     }
-
 }

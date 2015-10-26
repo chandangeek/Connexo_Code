@@ -1,12 +1,13 @@
 package com.energyict.mdc.rest.impl;
 
-import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.rest.impl.comserver.MessageSeeds;
+
+import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+
 import javax.ws.rs.core.Application;
+
 import org.mockito.Mock;
 
 /**
@@ -19,11 +20,6 @@ public class ComserverCoreApplicationJerseyTest extends FelixRestApplicationJers
     ProtocolPluggableService protocolPluggableService;
     @Mock
     DeviceConfigurationService deviceConfigurationService;
-
-    @Override
-    protected MessageSeed[] getMessageSeeds() {
-        return new MessageSeed[0];
-    }
 
     @Override
     protected Application getApplication() {

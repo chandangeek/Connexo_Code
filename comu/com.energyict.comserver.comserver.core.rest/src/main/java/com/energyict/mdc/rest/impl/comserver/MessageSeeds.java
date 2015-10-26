@@ -1,31 +1,27 @@
 package com.energyict.mdc.rest.impl.comserver;
 
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.rest.impl.MdcApplication;
+
 import java.util.logging.Level;
 
-public enum MessageSeeds implements MessageSeed, TranslationKey {
-
-    MILLISECONDS(1, TimeDuration.TimeUnit.MILLISECONDS.getDescription(), "millisecond(s)"),
-    SECONDS(2, TimeDuration.TimeUnit.SECONDS.getDescription(), "second(s)"),
-    MINUTES(3, TimeDuration.TimeUnit.MINUTES.getDescription(), "minute(s)"),
-    HOURS(4, TimeDuration.TimeUnit.HOURS.getDescription(), "hour(s)"),
-    DAYS(5, TimeDuration.TimeUnit.DAYS.getDescription(), "day(s)"),
-    WEEKS(6, TimeDuration.TimeUnit.WEEKS.getDescription(), "week(s)"),
-    MONTHS(7, TimeDuration.TimeUnit.MONTHS.getDescription(), "month(s)"),
-    YEARS(8, TimeDuration.TimeUnit.YEARS.getDescription(), "year(s)"),
+public enum MessageSeeds implements MessageSeed {
+    CHANGE_STATUS_CONCURRENT_TITLE(1, "ChangeStatusConcurrentTitle", "Failed to change status of ''{0}''", Level.SEVERE),
+    CHANGE_STATUS_CONCURRENT_BODY(2, "ChangeStatusConcurrentMessage", "{0} has changed since the page was last updated.", Level.SEVERE),
+    EDIT_POOL_CONCURRENT_TITLE(3, "EditPoolConcurrentTitle", "Failed to save ''{0}''", Level.SEVERE),
+    EDIT_POOL_CONCURRENT_BODY(4, "EditPoolConcurrentMessage", "{0} has changed since the page was last updated.", Level.SEVERE),
     ;
 
     private final int number;
     private final String key;
-    private final String format;
+    private final String defaultFormat;
+    private final Level level;
 
-    private MessageSeeds(int number, String key, String format) {
+    MessageSeeds(int number, String key, String defaultFormat, Level level) {
         this.number = number;
         this.key = key;
-        this.format = format;
+        this.defaultFormat = defaultFormat;
+        this.level = level;
     }
 
     @Override
@@ -45,12 +41,11 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     @Override
     public String getDefaultFormat() {
-        return format;
+        return defaultFormat;
     }
 
     @Override
     public Level getLevel() {
-        return Level.SEVERE;
+        return level;
     }
-
 }

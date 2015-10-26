@@ -52,8 +52,8 @@ public class ModemInboundComPortInfo extends InboundComPortInfo<ModemBasedInboun
     }
 
     @Override
-    protected void writeTo(ModemBasedInboundComPort source,EngineConfigurationService engineConfigurationService) {
-        super.writeTo(source, engineConfigurationService);
+    protected void writeTo(ModemBasedInboundComPort source, EngineConfigurationService engineConfigurationService, ResourceHelper resourceHelper) {
+        super.writeTo(source, engineConfigurationService, resourceHelper);
         Optional<Integer> ringCount = Optional.ofNullable(this.ringCount);
         if(ringCount.isPresent()) {
             source.setRingCount(ringCount.get());

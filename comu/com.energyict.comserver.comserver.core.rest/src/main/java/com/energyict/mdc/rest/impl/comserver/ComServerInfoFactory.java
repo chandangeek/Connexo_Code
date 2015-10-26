@@ -10,7 +10,7 @@ import java.util.List;
 
 public class ComServerInfoFactory {
 
-    public static ComServerInfo<?> asInfo(ComServer comServer) {
+    public static ComServerInfo<?,?> asInfo(ComServer comServer) {
         if (OnlineComServer.class.isAssignableFrom(comServer.getClass())) {
             return new OnlineComServerInfo((OnlineComServer) comServer);
         }
@@ -25,7 +25,7 @@ public class ComServerInfoFactory {
 
     }
 
-    public static ComServerInfo<?> asInfo(ComServer comServer, List<ComPort> comPortList, EngineConfigurationService engineConfigurationService) {
+    public static ComServerInfo<?,?> asInfo(ComServer comServer, List<ComPort> comPortList, EngineConfigurationService engineConfigurationService) {
         if (OnlineComServer.class.isAssignableFrom(comServer.getClass())) {
             return new OnlineComServerInfo((OnlineComServer) comServer, comPortList, engineConfigurationService);
         }

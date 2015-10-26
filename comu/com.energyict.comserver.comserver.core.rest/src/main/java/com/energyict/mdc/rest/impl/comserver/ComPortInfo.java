@@ -1,5 +1,6 @@
 package com.energyict.mdc.rest.impl.comserver;
 
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComServer;
@@ -10,6 +11,7 @@ import com.energyict.mdc.io.FlowControl;
 import com.energyict.mdc.io.NrOfDataBits;
 import com.energyict.mdc.io.NrOfStopBits;
 import com.energyict.mdc.io.Parities;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -31,6 +33,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
         @JsonSubTypes.Type(value = TcpOutboundComPortInfo.class, name = "outbound_TCP"),
         @JsonSubTypes.Type(value = UdpOutboundComPortInfo.class, name = "outbound_UDP"),
         @JsonSubTypes.Type(value = ModemOutboundComPortInfo.class, name = "outbound_SERIAL") })
+@JsonIgnoreProperties(ignoreUnknown = true) // support for FE delete request (which uses common port model with all fields)
 public abstract class ComPortInfo<T extends ComPort, B extends ComPort.Builder<B,T>> {
 
     public long id;
@@ -73,6 +76,8 @@ public abstract class ComPortInfo<T extends ComPort, B extends ComPort.Builder<B
     public String keyStorePassword;
     public String trustStorePassword;
     public String contextPath;
+    public long version;
+    public VersionInfo<Long> parent;
 
     public ComPortInfo() {
     }
@@ -87,9 +92,11 @@ public abstract class ComPortInfo<T extends ComPort, B extends ComPort.Builder<B
         this.comServerName = comPort.getComServer() != null ? comPort.getComServer().getName():null;
         this.comPortType = comPort.getComPortType();
         this.numberOfSimultaneousConnections = comPort.getNumberOfSimultaneousConnections();
+        this.version = comPort.getVersion();
+        this.parent = new VersionInfo<>(this.comServer_id, comPort.getComServer() != null ? comPort.getComServer().getVersion() : 0L);
     }
 
-    protected void writeTo(T source,EngineConfigurationService engineConfigurationService) {
+    protected void writeTo(T source, EngineConfigurationService engineConfigurationService, ResourceHelper resourceHelper) {
         Optional<String> name = Optional.ofNullable(this.name);
         if(name.isPresent()) {
             source.setName(name.get());
