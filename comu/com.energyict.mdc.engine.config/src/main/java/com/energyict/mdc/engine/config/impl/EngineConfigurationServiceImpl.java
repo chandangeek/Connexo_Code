@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.config.impl;
 
+import com.elster.jupiter.nls.*;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
@@ -27,10 +28,6 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.MessageSeedProvider;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -103,6 +100,11 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     @Override
     public List<String> getPrerequisiteModules() {
         return Arrays.asList("ORM", "USR", "EVT", "USR");
+    }
+
+    @Override
+    public String getComponentName() {
+        return EngineConfigurationService.COMPONENT_NAME;
     }
 
     @Override
