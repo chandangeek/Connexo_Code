@@ -1,7 +1,5 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.dashboard.ComPortPoolBreakdown;
 import com.energyict.mdc.dashboard.ComSessionSuccessIndicatorOverview;
 import com.energyict.mdc.dashboard.ConnectionTypeBreakdown;
@@ -11,9 +9,9 @@ import com.energyict.mdc.dashboard.TaskStatusOverview;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
-import com.energyict.mdc.device.data.rest.ComSessionSuccessIndicatorAdapter;
-import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.nls.Thesaurus;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -28,11 +26,6 @@ import java.util.Optional;
  * Created by bvn on 9/18/14.
  */
 public class ConnectionOverviewInfoFactory {
-    @JsonIgnore
-    private static final TaskStatusAdapter taskStatusAdapter = new TaskStatusAdapter();
-    @JsonIgnore
-    private static final ComSessionSuccessIndicatorAdapter COM_SESSION_SUCCESS_INDICATOR_ADAPTER = new ComSessionSuccessIndicatorAdapter();
-
 
     private final BreakdownFactory breakdownFactory;
     private final OverviewFactory overviewFactory;
@@ -119,16 +112,26 @@ public class ConnectionOverviewInfoFactory {
         info.connectionSummary = summaryInfoFactory.from(summaryData);
 
         info.overviews=new ArrayList<>(2);
-        info.overviews.add(overviewFactory.createOverview(thesaurus.getString(MessageSeeds.PER_CURRENT_STATE.getKey(), MessageSeeds.PER_CURRENT_STATE.getDefaultFormat()), taskStatusOverview, FilterOption.currentStates, taskStatusAdapter)); // JP-4278
-        TaskSummaryInfo perLatestResultOverview = overviewFactory.createOverview(thesaurus.getString(MessageSeeds.PER_LATEST_RESULT.getKey(), MessageSeeds.PER_LATEST_RESULT.getDefaultFormat()), comSessionSuccessIndicatorOverview, FilterOption.latestResults, COM_SESSION_SUCCESS_INDICATOR_ADAPTER);
+        info.overviews.add(
+                overviewFactory.createOverview(
+                        thesaurus, TranslationKeys.PER_CURRENT_STATE,
+                        taskStatusOverview,
+                        FilterOption.currentStates,
+                        TaskStatusTranslationKeys::translationFor)); // JP-4278
+        TaskSummaryInfo perLatestResultOverview =
+                overviewFactory.createOverview(
+                        thesaurus, TranslationKeys.PER_LATEST_RESULT,
+                        comSessionSuccessIndicatorOverview,
+                        FilterOption.latestResults,
+                        ComSessionSuccessIndicatorTranslationKeys::translationFor);
         addAtLeastOntTaskFailedCounter(comSessionSuccessIndicatorOverview, perLatestResultOverview); // JP-5868
         info.overviews.add(perLatestResultOverview); // JP-4280
         overviewFactory.sortAllOverviews(info.overviews);
 
         info.breakdowns=new ArrayList<>(3);
-        info.breakdowns.add(breakdownFactory.createBreakdown(thesaurus.getString(MessageSeeds.PER_COMMUNICATION_POOL.getKey(), MessageSeeds.PER_COMMUNICATION_POOL.getDefaultFormat()), comPortPoolBreakdown, FilterOption.comPortPools)); // JP-4281
-        info.breakdowns.add(breakdownFactory.createBreakdown(thesaurus.getString(MessageSeeds.PER_CONNECTION_TYPE.getKey(), MessageSeeds.PER_CONNECTION_TYPE.getDefaultFormat()), connectionTypeBreakdown, FilterOption.connectionTypes)); // JP-4283
-        info.breakdowns.add(breakdownFactory.createBreakdown(thesaurus.getString(MessageSeeds.PER_DEVICE_TYPE.getKey(), MessageSeeds.PER_DEVICE_TYPE.getDefaultFormat()), deviceTypeBreakdown, FilterOption.deviceTypes)); // JP-4284
+        info.breakdowns.add(breakdownFactory.createBreakdown(thesaurus, TranslationKeys.PER_COMMUNICATION_POOL, comPortPoolBreakdown, FilterOption.comPortPools)); // JP-4281
+        info.breakdowns.add(breakdownFactory.createBreakdown(thesaurus, TranslationKeys.PER_CONNECTION_TYPE, connectionTypeBreakdown, FilterOption.connectionTypes)); // JP-4283
+        info.breakdowns.add(breakdownFactory.createBreakdown(thesaurus, TranslationKeys.PER_DEVICE_TYPE, deviceTypeBreakdown, FilterOption.deviceTypes)); // JP-4284
         breakdownFactory.sortAllBreakdowns(info.breakdowns);
 
         return info;
@@ -137,7 +140,7 @@ public class ConnectionOverviewInfoFactory {
     private void addAtLeastOntTaskFailedCounter(ComSessionSuccessIndicatorOverview comSessionSuccessIndicatorOverview, TaskSummaryInfo perLatestResultOverview) {
         TaskCounterInfo taskCounterInfo = new TaskCounterInfo();
         taskCounterInfo.id = null; // Not filterable
-        taskCounterInfo.displayName = thesaurus.getString(MessageSeeds.SUCCESS_WITH_FAILED_TASKS.getKey(), MessageSeeds.SUCCESS_WITH_FAILED_TASKS.getDefaultFormat());
+        taskCounterInfo.displayName = thesaurus.getFormat(TranslationKeys.SUCCESS_WITH_FAILED_TASKS).format();
         taskCounterInfo.count = comSessionSuccessIndicatorOverview.getAtLeastOneTaskFailedCount();
         perLatestResultOverview.total += taskCounterInfo.count;
         perLatestResultOverview.counters.add(taskCounterInfo);

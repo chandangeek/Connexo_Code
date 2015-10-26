@@ -1,23 +1,23 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.util.HasName;
-import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.rest.FieldResource;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.dashboard.rest.DashboardApplication;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.rest.ComSessionSuccessIndicatorAdapter;
-import com.energyict.mdc.device.data.rest.CompletionCodeAdapter;
 import com.energyict.mdc.device.data.rest.ConnectionTaskLifecycleStatusAdapter;
-import com.energyict.mdc.device.data.rest.ConnectionTaskSuccessIndicatorAdapter;
-import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
+
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.HasName;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -73,15 +74,22 @@ public class DashboardFieldResource extends FieldResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getTaskStatusValues() {
-        return asJsonArrayObjectWithTranslation("taskStatuses", "taskStatus", new TaskStatusAdapter().getClientSideValues());
+        return asJsonArrayObjectWithTranslation("taskStatuses", "taskStatus", this.taskStatusClientSideValues());
     }
 
+    private List<String> taskStatusClientSideValues() {
+        return Stream.of(TaskStatus.values()).map(TaskStatus::name).collect(Collectors.toList());
+    }
     @GET
     @Path("/comsessionsuccessindicators")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getComSessionSuccessIndicatorValues() {
-        return asJsonArrayObjectWithTranslation("successIndicators", "successIndicator", new ComSessionSuccessIndicatorAdapter().getClientSideValues());
+        return asJsonArrayObjectWithTranslation("successIndicators", "successIndicator", this.comSessionSuccessIndicatorClientSideValues());
+    }
+
+    private List<String> comSessionSuccessIndicatorClientSideValues() {
+        return Stream.of(ComSessionSuccessIndicatorTranslationKeys.values()).map(ComSessionSuccessIndicatorTranslationKeys::getKey).collect(Collectors.toList());
     }
 
     @GET
@@ -89,7 +97,11 @@ public class DashboardFieldResource extends FieldResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getConnectionTaskSuccessIndicatorValues() {
-        return asJsonArrayObjectWithTranslation("successIndicators", "successIndicator", new ConnectionTaskSuccessIndicatorAdapter().getClientSideValues());
+        return asJsonArrayObjectWithTranslation("successIndicators", "successIndicator", connectionTaskSuccessIndicatorClientSideValues());
+    }
+
+    private List<String> connectionTaskSuccessIndicatorClientSideValues() {
+        return Stream.of(ConnectionTask.SuccessIndicator.values()).map(Enum::name).collect(Collectors.toList());
     }
 
     @GET
@@ -105,7 +117,11 @@ public class DashboardFieldResource extends FieldResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getCompletionCodes() {
-        return asJsonArrayObjectWithTranslation("completionCodes", "completionCode", new CompletionCodeAdapter().getClientSideValues());
+        return asJsonArrayObjectWithTranslation("completionCodes", "completionCode", this.completionCodeClientSideValues());
+    }
+
+    private List<String> completionCodeClientSideValues() {
+        return Stream.of(CompletionCode.values()).map(Enum::name).collect(Collectors.toList());
     }
 
     @GET
@@ -137,7 +153,7 @@ public class DashboardFieldResource extends FieldResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Object getComSchedules() {
-        return Response.ok(asInfoMap("comSchedules", schedulingService.findAllSchedules())).build();
+        return Response.ok(asInfoMap("comSchedules", schedulingService.getAllSchedules())).build();
     }
 
     @GET
@@ -153,4 +169,5 @@ public class DashboardFieldResource extends FieldResource {
         map.put(name, list.stream().sorted(byNameComparator).map(IdWithNameInfo::new).collect(toList()));
         return map;
     }
+
 }

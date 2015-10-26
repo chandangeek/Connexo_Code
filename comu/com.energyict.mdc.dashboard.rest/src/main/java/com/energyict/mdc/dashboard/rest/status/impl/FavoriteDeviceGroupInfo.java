@@ -4,7 +4,10 @@ import java.util.Comparator;
 import java.util.List;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.rest.util.VersionInfo;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FavoriteDeviceGroupInfo {
     
     public static Comparator<FavoriteDeviceGroupInfo> byNameComparator = (info1, info2) -> info1.name.compareTo(info2.name);
@@ -14,7 +17,9 @@ public class FavoriteDeviceGroupInfo {
     public String name;
     public boolean dynamic;
     public boolean favorite;
-    
+    public long version;
+    public VersionInfo<Long> parent;
+
     public static FavoriteDeviceGroupInfo asInfo(EndDeviceGroup endDeviceGroup) {
         FavoriteDeviceGroupInfo info = new FavoriteDeviceGroupInfo();
         info.id = endDeviceGroup.getId();
@@ -22,16 +27,20 @@ public class FavoriteDeviceGroupInfo {
         info.name = endDeviceGroup.getName();
         info.dynamic = endDeviceGroup.isDynamic();
         info.favorite = true;
+        info.parent = new VersionInfo<>(info.id, endDeviceGroup.getVersion());
         return info;
     }
 
     public static FavoriteDeviceGroupInfo asInfo(EndDeviceGroup endDeviceGroup, List<EndDeviceGroup> favoriteEndDeviceGroups) {
         FavoriteDeviceGroupInfo info = asInfo(endDeviceGroup);
         info.favorite = favoriteEndDeviceGroups.stream().anyMatch(edg -> edg.getId() == endDeviceGroup.getId());
+        if (info.favorite){
+            info.version = 1;
+        }
         return info;
     }
     
     public static class SelectionInfo {
-        public List<Long> ids;
+        public List<FavoriteDeviceGroupInfo> ids;
     }
 }

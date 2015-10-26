@@ -11,6 +11,7 @@ import java.util.Optional;
 
 import javax.ws.rs.core.Response;
 
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -77,6 +78,10 @@ public class LabeledDeviceResourceTest extends DashboardApplicationJerseyTest {
         DeviceType deviceType = mock(DeviceType.class);
         when(deviceType.getName()).thenReturn(deviceTypeName);
         when(device.getDeviceType()).thenReturn(deviceType);
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(deviceConfiguration.getId()).thenReturn(deviceId);
+        when(deviceConfiguration.getVersion()).thenReturn(1L);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
 
         when(deviceLabel.getDevice()).thenReturn(device);
         when(deviceLabel.getLabelCategory()).thenReturn(category);

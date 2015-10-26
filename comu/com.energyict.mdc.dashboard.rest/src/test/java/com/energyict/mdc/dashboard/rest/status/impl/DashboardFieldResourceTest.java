@@ -2,9 +2,12 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.energyict.mdc.engine.config.ComPortPool;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import com.jayway.jsonpath.JsonModel;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -24,6 +27,13 @@ public class DashboardFieldResourceTest extends DashboardApplicationJerseyTest {
         when(engineConfigurationService.findAllComPortPools()).thenReturn(Arrays.asList(comPortPool1, comPortPool2, comPortPool3));
 
         target("/field/comportpools").request().get(Map.class);
+    }
+
+    @Test
+    public void testGetComSessionSuccessIndicators() {
+        String response = target("/field/comsessionsuccessindicators").request().get(String.class);
+        JsonModel model = JsonModel.model(response);
+        assertThat(model.<List<String>>get("$.successIndicators[*].localizedValue")).containsExactly("Broken", "Setup error", "Success");
     }
 
     private ComPortPool mockComPortPool(long id, String name) {

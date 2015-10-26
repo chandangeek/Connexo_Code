@@ -1,8 +1,8 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+
+import com.elster.jupiter.nls.Thesaurus;
 
 import javax.inject.Inject;
 import java.util.EnumSet;
@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
  * Created by bvn on 9/18/14.
  */
 public class SummaryInfoFactory {
-    private final static TaskStatusAdapter TASK_STATUS_ADAPTER = new TaskStatusAdapter();
 
     private final Thesaurus thesaurus;
 
@@ -37,7 +36,7 @@ public class SummaryInfoFactory {
         Long atLeastOneTaskFailed = summaryData.getSuccessWithFailedTasks();
         successfulConnections.id = asJsonStringList(EnumSet.of(TaskStatus.Waiting));
         successfulConnections.displayName = atLeastOneTaskFailed == null ?
-                thesaurus.getString(MessageSeeds.SUCCESS.getKey(), "Success") : thesaurus.getString(MessageSeeds.ALL_TASKS_SUCCESSFUL.getKey(), "Success, all tasks successful");
+                thesaurus.getFormat(TranslationKeys.SUCCESS).format() : thesaurus.getFormat(TranslationKeys.ALL_TASKS_SUCCESSFUL).format();
         successfulConnections.name = KpiId.Success.name();
         info.counters.add(successfulConnections);
 
@@ -45,7 +44,7 @@ public class SummaryInfoFactory {
             connectionsWithFailingTasks = new TaskSummaryCounterInfo();
             connectionsWithFailingTasks.count = atLeastOneTaskFailed;
             connectionsWithFailingTasks.id = null; // not navigable
-            connectionsWithFailingTasks.displayName = thesaurus.getString(MessageSeeds.SUCCESS_WITH_FAILED_TASKS.getKey(), "Success, with failed tasks");
+            connectionsWithFailingTasks.displayName = thesaurus.getFormat(TranslationKeys.SUCCESS_WITH_FAILED_TASKS).format();
             connectionsWithFailingTasks.name = KpiId.SuccessWithFailedTasks.name();
             info.counters.add(connectionsWithFailingTasks);
         }
@@ -53,21 +52,21 @@ public class SummaryInfoFactory {
         pendingConnections = new TaskSummaryCounterInfo();
         pendingConnections.count = summaryData.getPending();
         pendingConnections.id = asJsonStringList(EnumSet.of(TaskStatus.Pending, TaskStatus.Busy, TaskStatus.Retrying));
-        pendingConnections.displayName = thesaurus.getString(MessageSeeds.ONGOING.getKey(), "Ongoing");
+        pendingConnections.displayName = thesaurus.getFormat(TranslationKeys.ONGOING).format();
         pendingConnections.name = KpiId.Ongoing.name();
         info.counters.add(pendingConnections);
 
         failedConnections = new TaskSummaryCounterInfo();
         failedConnections.count = summaryData.getFailed();
         failedConnections.id = asJsonStringList(EnumSet.of(TaskStatus.Failed, TaskStatus.NeverCompleted));
-        failedConnections.displayName = thesaurus.getString(MessageSeeds.FAILED.getKey(), "Failed");
+        failedConnections.displayName = thesaurus.getFormat(TaskStatusTranslationKeys.FAILED).format();
         failedConnections.name = KpiId.Failed.name();
         info.counters.add(failedConnections);
         return info;
     }
 
     private List<String> asJsonStringList(Set<TaskStatus> taskStatuses) {
-        return taskStatuses.stream().map(TASK_STATUS_ADAPTER::marshal).collect(Collectors.<String>toList());
+        return taskStatuses.stream().map(TaskStatus::name).collect(Collectors.<String>toList());
     }
 
 }

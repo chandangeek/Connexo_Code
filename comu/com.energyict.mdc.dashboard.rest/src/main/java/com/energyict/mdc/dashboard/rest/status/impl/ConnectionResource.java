@@ -1,35 +1,20 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.elster.jupiter.appserver.AppServer;
-import com.elster.jupiter.appserver.AppService;
-import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.FilterFactory;
 import com.energyict.mdc.device.data.QueueMessage;
-import com.energyict.mdc.device.data.rest.ComSessionSuccessIndicatorAdapter;
-import com.energyict.mdc.device.data.rest.ConnectionTaskSuccessIndicatorAdapter;
-import com.energyict.mdc.device.data.rest.TaskStatusAdapter;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecificationMessage;
-import com.energyict.mdc.device.data.tasks.RescheduleConnectionTaskQueueMessage;
 import com.energyict.mdc.device.data.tasks.ItemizeConnectionFilterRescheduleQueueMessage;
 import com.energyict.mdc.device.data.tasks.ItemizeConnectionFilterUpdatePropertiesQueueMessage;
+import com.energyict.mdc.device.data.tasks.RescheduleConnectionTaskQueueMessage;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.data.tasks.UpdateConnectionTaskPropertiesQueueMessage;
@@ -40,18 +25,23 @@ import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
+import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.time.Interval;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -66,16 +56,22 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.io.IOException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Functions.asStream;
 import static java.util.stream.Collectors.toSet;
 
 @Path("/connections")
 public class ConnectionResource {
-
-    private static final TaskStatusAdapter TASK_STATUS_ADAPTER = new TaskStatusAdapter();
-    private static final ComSessionSuccessIndicatorAdapter COM_SESSION_SUCCESS_INDICATOR_ADAPTER = new ComSessionSuccessIndicatorAdapter();
-    private static final ConnectionTaskSuccessIndicatorAdapter CONNECTION_TASK_SUCCESS_INDICATOR_ADAPTER = new ConnectionTaskSuccessIndicatorAdapter();
 
     private final ConnectionTaskService connectionTaskService;
     private final EngineConfigurationService engineConfigurationService;
@@ -90,9 +86,11 @@ public class ConnectionResource {
     private final AppService appService;
     private final MdcPropertyUtils mdcPropertyUtils;
     private final FilterFactory filterFactory;
+    private final ResourceHelper resourceHelper;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public ConnectionResource(ConnectionTaskService connectionTaskService, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, ConnectionTaskInfoFactory connectionTaskInfoFactory, ExceptionFactory exceptionFactory, MeteringGroupsService meteringGroupsService, ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory, MessageService messageService, JsonService jsonService, AppService appService, MdcPropertyUtils mdcPropertyUtils, FilterFactory filterFactory) {
+    public ConnectionResource(ConnectionTaskService connectionTaskService, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, ConnectionTaskInfoFactory connectionTaskInfoFactory, ExceptionFactory exceptionFactory, MeteringGroupsService meteringGroupsService, ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory, MessageService messageService, JsonService jsonService, AppService appService, MdcPropertyUtils mdcPropertyUtils, FilterFactory filterFactory, ResourceHelper resourceHelper, ConcurrentModificationExceptionFactory conflictFactory) {
         super();
         this.connectionTaskService = connectionTaskService;
         this.engineConfigurationService = engineConfigurationService;
@@ -107,6 +105,8 @@ public class ConnectionResource {
         this.appService = appService;
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.filterFactory = filterFactory;
+        this.resourceHelper = resourceHelper;
+        this.conflictFactory = conflictFactory;
     }
 
     @GET
@@ -145,7 +145,7 @@ public class ConnectionResource {
         ConnectionTaskFilterSpecification filter = new ConnectionTaskFilterSpecification();
         filter.taskStatuses = EnumSet.noneOf(TaskStatus.class);
         if (jsonQueryFilter.hasProperty(FilterOption.currentStates.name())) {
-            List<TaskStatus> taskStatuses = jsonQueryFilter.getPropertyList(FilterOption.currentStates.name(), TASK_STATUS_ADAPTER);
+            List<TaskStatus> taskStatuses = jsonQueryFilter.getStringList(FilterOption.currentStates.name()).stream().map(TaskStatus::valueOf).collect(Collectors.toList());
             filter.taskStatuses.addAll(taskStatuses);
         }
 
@@ -173,13 +173,15 @@ public class ConnectionResource {
 
         filter.latestResults = new HashSet<>();
         if (jsonQueryFilter.hasProperty(FilterOption.latestResults.name())) {
-            List<ComSession.SuccessIndicator> latestResults = jsonQueryFilter.getPropertyList(FilterOption.latestResults.name(), COM_SESSION_SUCCESS_INDICATOR_ADAPTER);
+            List<ComSession.SuccessIndicator> latestResults =
+                    jsonQueryFilter.getStringList(FilterOption.latestResults.name()).stream().map(ComSession.SuccessIndicator::valueOf).collect(Collectors.toList());
             filter.latestResults.addAll(latestResults);
         }
 
         filter.latestStatuses = new HashSet<>();
         if (jsonQueryFilter.hasProperty(FilterOption.latestStates.name())) {
-            List<ConnectionTask.SuccessIndicator> latestStates = jsonQueryFilter.getPropertyList(FilterOption.latestStates.name(), CONNECTION_TASK_SUCCESS_INDICATOR_ADAPTER);
+            List<ConnectionTask.SuccessIndicator> latestStates =
+                    jsonQueryFilter.getStringList(FilterOption.latestStates.name()).stream().map(ConnectionTask.SuccessIndicator::valueOf).collect(Collectors.toList());
             filter.latestStatuses.addAll(latestStates);
         }
 
@@ -227,15 +229,30 @@ public class ConnectionResource {
 
     private ConnectionTaskFilterSpecificationMessage substituteRestToDomainEnums(ConnectionTaskFilterSpecificationMessage jsonQueryFilter) throws Exception {
         if (jsonQueryFilter.currentStates!=null) {
-            jsonQueryFilter.currentStates=jsonQueryFilter.currentStates.stream().map(TASK_STATUS_ADAPTER::unmarshal).map(Enum::name).collect(toSet());
+            jsonQueryFilter.currentStates =
+                    jsonQueryFilter.currentStates
+                            .stream()
+                            .map(TaskStatus::valueOf)
+                            .map(TaskStatus::name)
+                            .collect(toSet());
         }
 
         if (jsonQueryFilter.latestResults!=null) {
-            jsonQueryFilter.latestResults=jsonQueryFilter.latestResults.stream().map(COM_SESSION_SUCCESS_INDICATOR_ADAPTER::unmarshal).map(Enum::name).collect(toSet());
+            jsonQueryFilter.latestResults =
+                    jsonQueryFilter.latestResults
+                            .stream()
+                            .map(ComSession.SuccessIndicator::valueOf)
+                            .map(Enum::name)
+                            .collect(toSet());
         }
 
         if (jsonQueryFilter.latestStates!=null) {
-            jsonQueryFilter.latestStates=jsonQueryFilter.latestStates.stream().map(CONNECTION_TASK_SUCCESS_INDICATOR_ADAPTER::unmarshal).map(Enum::name).collect(toSet());
+            jsonQueryFilter.latestStates =
+                    jsonQueryFilter.latestStates
+                            .stream()
+                            .map(ConnectionTask.SuccessIndicator::valueOf)
+                            .map(Enum::name)
+                            .collect(toSet());
         }
 
         return jsonQueryFilter;
@@ -265,11 +282,14 @@ public class ConnectionResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     // TODO Would be better if this method moved to ConnectionResource in device.data.rest
-    public Response runConnectionTask(@PathParam("connectionId") long connectionId, @Context UriInfo uriInfo) {
-        ConnectionTask connectionTask =
-                connectionTaskService
-                        .findConnectionTask(connectionId)
-                        .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CONNECTION_TASK, connectionId));
+    public Response runConnectionTask(@PathParam("connectionId") long connectionId, ConnectionTaskInfo info) {
+        info.id = connectionId;
+        ConnectionTask connectionTask = resourceHelper.getLockedConnectionTask(info.id, info.version)
+                .orElseThrow(conflictFactory.conflict()
+                        .withActualVersion(() -> resourceHelper.getCurrentConnectionTaskVersion(info.id))
+                        .withMessageTitle(MessageSeeds.CONCURRENT_RUN_TITLE, info.device.name)
+                        .withMessageBody(MessageSeeds.CONCURRENT_RUN_BODY, info.device.name)
+                        .supplier());
 
         if (connectionTask instanceof ScheduledConnectionTask) {
             ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTask;
@@ -373,7 +393,8 @@ public class ConnectionResource {
     }
 
     /**
-     * Gets the ConnectionTypePluggableClass from either filter or list of connections
+     * Gets the ConnectionTypePluggableClass from either filter or list of connections.
+     *
      * @param filterQueryParam Describes the filter accepted by the method
      * @param connectionsQueryParam Describes a list of (long) ids
      * @return unique ConnectionTypePluggableClass, or exception if not unique
@@ -395,7 +416,8 @@ public class ConnectionResource {
     }
 
     /**
-     * Gets the ConnectionTypePluggableClass from either filter or list of connections
+     * Gets the ConnectionTypePluggableClass from either filter or list of connections.
+     *
      * @param filterMessage Describes the filter accepted by the method
      * @param connections Describes a list of (long) ids
      * @return unique ConnectionTypePluggableClass, or exception if not unique

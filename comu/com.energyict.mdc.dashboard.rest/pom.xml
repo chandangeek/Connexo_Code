@@ -6,7 +6,7 @@
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
         <version>1.1.0-SNAPSHOT</version>
-        <relativePath>../com.energyict.comserver.parent/pom.xml</relativePath>
+        <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
     </parent>
     <artifactId>mdc.dashboard.rest</artifactId>
     <version>1.1.0-SNAPSHOT</version>
@@ -15,16 +15,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <_include>bnd.bnd</_include>
-                    </instructions>
-                </configuration>
-            </plugin>
             <plugin>
                 <groupId>com.qmino</groupId>
                 <artifactId>miredot-plugin</artifactId>
@@ -81,7 +71,6 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.config.rest</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
@@ -148,6 +137,42 @@
             <artifactId>rest.util</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>domain.util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>appserver</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>messaging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>time</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>orm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>properties</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>transaction</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>users</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>util</artifactId>
+        </dependency>
+        <dependency>
             <groupId>javax.ws.rs</groupId>
             <artifactId>javax.ws.rs-api</artifactId>
         </dependency>
@@ -182,6 +207,36 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>validation</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>fileimport</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cbo</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>fsm</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>metering</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>estimation</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.lifecycle.config</artifactId>
             <scope>test</scope>
@@ -194,6 +249,11 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.io</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cps</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

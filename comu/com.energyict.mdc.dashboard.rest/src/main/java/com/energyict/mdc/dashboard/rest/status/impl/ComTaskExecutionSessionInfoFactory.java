@@ -1,26 +1,25 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.configuration.rest.DeviceConfigurationIdInfo;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.rest.CompletionCodeInfo;
-import com.energyict.mdc.device.data.rest.TaskStatusInfo;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.tasks.ComTask;
 
+import com.elster.jupiter.nls.Thesaurus;
+
+import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import javax.inject.Inject;
 
 /**
  * Created by bvn on 9/1/14.
@@ -70,7 +69,7 @@ public class ComTaskExecutionSessionInfoFactory {
         } else {
             if (comTaskExecutionSession instanceof ManuallyScheduledComTaskExecution) {
                 Optional<NextExecutionSpecs> nextExecutionSpecs = comTaskExecution.getNextExecutionSpecs();
-                info.comScheduleName = thesaurus.getString(MessageSeeds.INDIVIDUAL.getKey(), MessageSeeds.INDIVIDUAL.getKey());
+                info.comScheduleName = thesaurus.getFormat(TranslationKeys.INDIVIDUAL).format();
                 if (nextExecutionSpecs.isPresent()) {
                     info.comScheduleFrequency = TemporalExpressionInfo.from(nextExecutionSpecs.get().getTemporalExpression());
                 }
@@ -78,8 +77,10 @@ public class ComTaskExecutionSessionInfoFactory {
             }
         }
         info.urgency = comTaskExecution.getExecutionPriority();
-        info.currentState = new TaskStatusInfo(comTaskExecution.getStatus(), thesaurus);
-        info.result = CompletionCodeInfo.from(comTaskExecutionSession.getHighestPriorityCompletionCode(), thesaurus);
+        TaskStatusTranslationKeys taskStatusTranslationKey = TaskStatusTranslationKeys.from(comTaskExecution.getStatus());
+        info.currentState = new TaskStatusInfo(taskStatusTranslationKey.getKey(), thesaurus.getFormat(taskStatusTranslationKey).format());
+        CompletionCode completionCode = comTaskExecutionSession.getHighestPriorityCompletionCode();
+        info.result = new CompletionCodeInfo(completionCode.name(), CompletionCodeTranslationKeys.translationFor(completionCode, thesaurus));
         info.startTime = comTaskExecutionSession.getStartDate();
         info.stopTime = comTaskExecutionSession.getStopDate();
         info.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
