@@ -149,6 +149,7 @@ public class AppServiceImplTest {
         when(importFolderForAppServer.getImportFolder()).thenReturn(Optional.of(importFolder));
         when(appServer.isRecurrentTaskActive()).thenReturn(false);
         when(appServer.messagingName()).thenReturn(MESSAGING_NAME);
+        when(appServer.isActive()).thenReturn(true);
         when(messageService.getSubscriberSpec(MESSAGING_NAME, MESSAGING_NAME)).thenReturn(Optional.empty());
         when(messageService.getSubscriberSpec("AllServers", MESSAGING_NAME)).thenReturn(Optional.empty());
         when(userService.findUser("batch executor")).thenReturn(Optional.of(batchUser));
