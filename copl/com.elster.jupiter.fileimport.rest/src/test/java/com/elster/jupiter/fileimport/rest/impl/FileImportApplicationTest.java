@@ -7,11 +7,11 @@ import com.elster.jupiter.http.whiteboard.App;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
-import com.elster.jupiter.util.exception.MessageSeed;
-import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
 import java.nio.file.FileSystem;
+
+import org.mockito.Mock;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -29,11 +29,6 @@ public class FileImportApplicationTest extends FelixRestApplicationJerseyTest {
     protected AppService appService;
     @Mock
     static FileSystem fileSystem;
-
-    @Override
-    protected MessageSeed[] getMessageSeeds() {
-        return new MessageSeed[0];
-    }
 
     @Override
     protected Application getApplication() {
@@ -58,4 +53,5 @@ public class FileImportApplicationTest extends FelixRestApplicationJerseyTest {
         when(app.getName()).thenReturn(name);
         return app;
     }
+
 }

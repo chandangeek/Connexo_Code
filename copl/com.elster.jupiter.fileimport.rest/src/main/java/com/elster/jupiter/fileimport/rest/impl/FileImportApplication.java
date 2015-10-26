@@ -4,14 +4,14 @@ import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.http.whiteboard.App;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -30,10 +30,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 @Component(
         name = "com.elster.jupiter.fileimport.rest",
-        service = {Application.class, TranslationKeyProvider.class},
+        service = {Application.class, MessageSeedProvider.class},
         immediate = true,
         property = {"alias=/fir", "app=SYS", "name=" + FileImportApplication.COMPONENT_NAME})
-public class FileImportApplication extends Application implements TranslationKeyProvider, AppNamesProvider {
+public class FileImportApplication extends Application implements MessageSeedProvider, AppNamesProvider {
     public static final String COMPONENT_NAME = "FIR";
 
     private volatile FileImportService fileImportService;
@@ -95,6 +95,7 @@ public class FileImportApplication extends Application implements TranslationKey
         apps.add(app);
     }
 
+    @SuppressWarnings("unused")
     public void removeApplication(App app) {
         apps.remove(app);
     }
@@ -130,17 +131,12 @@ public class FileImportApplication extends Application implements TranslationKey
     }
 
     @Override
-    public String getComponentName() {
-        return FileImportApplication.COMPONENT_NAME;
-    }
-
-    @Override
     public Layer getLayer() {
         return Layer.REST;
     }
 
     @Override
-    public List<TranslationKey> getKeys() {
+    public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
     }
 }

@@ -1,14 +1,14 @@
 package com.elster.jupiter.fileimport.rest.impl;
 
 import com.elster.jupiter.fileimport.FileImportService;
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.nls.NlsMessageFormat;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 
-import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
     DELETE_IMPORT_SCHEDULE_SQL_EXCEPTION(1, Keys.DELETE_IMPORT_SCHEDULE_SQL_EXCEPTION, "Import schedule {0} could not be removed. There was a problem accessing the database", Level.SEVERE);
 
     private final int number;

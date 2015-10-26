@@ -25,5 +25,6 @@ public class FileImportScheduleInfo {
     public FileImporterInfo importerInfo;
     public PeriodicalExpressionInfo schedule;
     public List<PropertyInfo> properties = new ArrayList<>();
+    public long version;
 
 }

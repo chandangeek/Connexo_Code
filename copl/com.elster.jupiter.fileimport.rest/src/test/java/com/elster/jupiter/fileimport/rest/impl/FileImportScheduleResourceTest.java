@@ -6,6 +6,7 @@ import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.fileimport.ImportScheduleBuilder;
 import com.elster.jupiter.messaging.DestinationSpec;
+import com.elster.jupiter.rest.util.ConcurrentModificationInfo;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.google.common.collect.ImmutableList;
@@ -15,6 +16,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.nio.file.Path;
@@ -71,6 +73,7 @@ public class FileImportScheduleResourceTest extends FileImportApplicationTest {
         assertThat(jsonModel.<String>get("$.application")).isEqualTo("Admin");
         assertThat(jsonModel.<Number>get("$.scanFrequency")).isEqualTo(1);
         assertThat(jsonModel.<List<?>>get("$.properties")).isEmpty();
+        assertThat(jsonModel.<Number>get("$.version")).isEqualTo(1);
     }
 
     @Test
@@ -100,7 +103,7 @@ public class FileImportScheduleResourceTest extends FileImportApplicationTest {
         when(importerFactory.getDestinationName()).thenReturn("Test destination");
 
         ImportSchedule importSchedule = mockImportSchedule(12L);
-        when(builder.build()).thenReturn(importSchedule);
+        when(builder.create()).thenReturn(importSchedule);
 
         Response response = target("/importservices").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
@@ -117,10 +120,12 @@ public class FileImportScheduleResourceTest extends FileImportApplicationTest {
         info.importerInfo.name = "Test importer";
         info.importerInfo.displayName = "Display test importer";
         info.importerInfo.properties = ImmutableList.of();
+        info.version = 1;
         Entity<FileImportScheduleInfo> json = Entity.json(info);
 
         ImportSchedule schedule = mockImportSchedule(1);
-        when(fileImportService.getImportSchedule(1)).thenReturn(Optional.of(schedule));
+        when(fileImportService.findAndLockImportScheduleByIdAndVersion(1L, 1L)).thenReturn(Optional.of(schedule));
+        when(fileImportService.getImportSchedule(1L)).thenReturn(Optional.of(schedule));
 
         FileImporterFactory importerFactory = mock(FileImporterFactory.class);
         when(fileImportService.getImportFactory(any(String.class))).thenReturn(Optional.of(importerFactory));
@@ -131,12 +136,63 @@ public class FileImportScheduleResourceTest extends FileImportApplicationTest {
     }
 
     @Test
+    public void testEditImportScheduleBadVersion() {
+        FileImportScheduleInfo info = new FileImportScheduleInfo();
+        info.importerInfo = new FileImporterInfo();
+        info.id = 1;
+        info.scanFrequency = 0;
+        info.version = 1;
+        Entity<FileImportScheduleInfo> json = Entity.json(info);
+
+        when(fileImportService.findAndLockImportScheduleByIdAndVersion(1L, 1L)).thenReturn(Optional.empty());
+        when(fileImportService.getImportSchedule(1L)).thenReturn(Optional.empty());
+        Response response = target("/importservices/1").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
     public void testRemoveImportSchedule() {
         ImportSchedule schedule = mockImportSchedule(1);
         when(fileImportService.getImportSchedule(1)).thenReturn(Optional.of(schedule));
+        when(fileImportService.findAndLockImportScheduleByIdAndVersion(1L, 1L)).thenReturn(Optional.of(schedule));
+        FileImportScheduleInfo info = new FileImportScheduleInfo();
+        info.id = 1;
+        info.version = 1;
+        Entity<FileImportScheduleInfo> json = Entity.json(info);
 
-        Response response = target("/importservices/1").request().delete();
+        Response response = target("/importservices/1").request().build(HttpMethod.DELETE, json).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void testRemoveImportScheduleBadVersion() {
+        ImportSchedule schedule = mockImportSchedule(1);
+        when(fileImportService.getImportSchedule(1)).thenReturn(Optional.of(schedule));
+        when(fileImportService.findAndLockImportScheduleByIdAndVersion(1L, 1L)).thenReturn(Optional.empty());
+        FileImportScheduleInfo info = new FileImportScheduleInfo();
+        info.id = 1;
+        info.version = 1;
+        Entity<FileImportScheduleInfo> json = Entity.json(info);
+
+        Response response = target("/importservices/1").request().build(HttpMethod.DELETE, json).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
+    public void testRemoveImportScheduleBadVersionButAlreadyDeleted() {
+        ImportSchedule schedule = mockImportSchedule(1);
+        when(schedule.isDeleted()).thenReturn(true);
+        when(fileImportService.getImportSchedule(1)).thenReturn(Optional.empty());
+        when(fileImportService.findAndLockImportScheduleByIdAndVersion(1L, 1L)).thenReturn(Optional.empty());
+        FileImportScheduleInfo info = new FileImportScheduleInfo();
+        info.id = 1;
+        info.version = 1;
+        Entity<FileImportScheduleInfo> json = Entity.json(info);
+
+        Response response = target("/importservices/1").request().build(HttpMethod.DELETE, json).invoke();
+        ConcurrentModificationInfo responseInfo = response.readEntity(ConcurrentModificationInfo.class);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+        assertThat(responseInfo.version).isNull();
     }
 
     private void mockTransaction() {
@@ -188,6 +244,7 @@ public class FileImportScheduleResourceTest extends FileImportApplicationTest {
         when(schedule.isImporterAvailable()).thenReturn(true);
         when(schedule.isDeleted()).thenReturn(false);
         when(schedule.isActive()).thenReturn(true);
+        when(schedule.getVersion()).thenReturn(1L);
 
         return  schedule;
     }
