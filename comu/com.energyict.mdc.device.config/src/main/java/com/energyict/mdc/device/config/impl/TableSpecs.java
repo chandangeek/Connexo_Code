@@ -186,7 +186,7 @@ public enum TableSpecs {
             table.map(DeviceConfigurationImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
-            table.column("NAME").varChar().notNull().map("name").add();
+            Column nameColumn = table.column("NAME").varChar().notNull().map("name").add();
             table.column("DESCRIPTION").varChar().map("description").add();
             Column deviceType = table.column("DEVICETYPEID").number().notNull().add();
             table.column("ACTIVE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("active").add();
@@ -203,6 +203,7 @@ public enum TableSpecs {
                     composition().
                     onDelete(CASCADE).
                     add();
+            table.unique("UQ_DTC_DEVICECONFIG_NAME").on(deviceType, nameColumn).add();
         }
     },
 
@@ -342,7 +343,7 @@ public enum TableSpecs {
             table.addAuditColumns();
             Column deviceConfiguration = table.column("DEVICECONFIGURATION").number().notNull().add();
             table.column("DEVICEPROTOCOLDIALECT").varChar().notNull().map("protocolDialectName").add();
-            table.column("NAME").varChar().notNull().map("name").add();
+            Column nameColumn = table.column("NAME").varChar().notNull().map("name").add();
             table.foreignKey("FK_DTC_DIALECTCONFPROPS_CONFIG").
                     on(deviceConfiguration).
                     references(DTC_DEVICECONFIG.name()).
@@ -352,6 +353,7 @@ public enum TableSpecs {
                     composition().
                     add();
             table.primaryKey("PK_DTC_DIALECTCONFIGPROPS").on(id).add();
+            table.unique("UQ_DTC_CONFIGPROPS_NAME").on(deviceConfiguration, nameColumn).add();
         }
     },
 
@@ -404,7 +406,7 @@ public enum TableSpecs {
             table.map(PartialConnectionTaskImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
-            table.column("NAME").varChar().notNull().map("name").add();
+            Column nameColumn = table.column("NAME").varChar().notNull().map("name").add();
             table.addDiscriminatorColumn("DISCRIMINATOR", "number");
             Column deviceConfiguration = table.column("DEVICECONFIG").number().add();
             Column connectionType = table.column("CONNECTIONTYPE").number().conversion(NUMBER2LONG).map("pluggableClassId").add();
@@ -448,6 +450,7 @@ public enum TableSpecs {
                     references(DTC_PARTIALCONNECTIONTASK.name()).
                     map("initiator").
                     add();
+            table.unique("UQ_DTC_PARTIALCT_NAME").on(deviceConfiguration, nameColumn).add();
         }
     },
 
