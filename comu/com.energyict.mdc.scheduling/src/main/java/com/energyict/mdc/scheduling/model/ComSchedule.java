@@ -19,6 +19,8 @@ public interface ComSchedule extends HasId, HasName, DataCollectionConfiguration
 
     public void setName(String name);
 
+    public long getVersion();
+
     public SchedulingStatus getSchedulingStatus();
 
     public void setSchedulingStatus(SchedulingStatus status);
@@ -39,7 +41,7 @@ public interface ComSchedule extends HasId, HasName, DataCollectionConfiguration
 
     public void setTemporalExpression(TemporalExpression temporalExpression);
 
-    public void save();
+    public void update();
 
     public void delete();
 
@@ -77,7 +79,7 @@ public interface ComSchedule extends HasId, HasName, DataCollectionConfiguration
      *
      * @return This ComSchedule's master resource identifier
      */
-    public String getmRID();
+    public Optional<String> getmRID();
 
     public void setmRID(String mRID);
 

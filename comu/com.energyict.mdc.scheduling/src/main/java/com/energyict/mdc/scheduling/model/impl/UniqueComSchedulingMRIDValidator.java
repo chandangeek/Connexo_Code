@@ -24,16 +24,15 @@ public class UniqueComSchedulingMRIDValidator implements ConstraintValidator<Uni
 
     @Override
     public boolean isValid(ComScheduleImpl value, ConstraintValidatorContext context) {
-        if (Checks.is(value.getmRID()).emptyOrOnlyWhiteSpace()) {
-            return true;
-        }
-        for (ComSchedule comSchedule : schedulingService.findAllSchedules()) {
-            if (Checks.is(comSchedule.getmRID()).equalTo(value.getmRID()) && comSchedule.getId()!=value.getId()) {
-                context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(message)
-                        .addPropertyNode(ComScheduleImpl.Fields.MRID.fieldName())
-                        .addConstraintViolation();
-                return false;
+        if (value.getmRID().isPresent()) {
+            for (ComSchedule comSchedule : schedulingService.getAllSchedules()) {
+                if (Checks.is(comSchedule.getmRID()).equalTo(value.getmRID()) && comSchedule.getId() != value.getId()) {
+                    context.disableDefaultConstraintViolation();
+                    context.buildConstraintViolationWithTemplate(message)
+                            .addPropertyNode(ComScheduleImpl.Fields.MRID.fieldName())
+                            .addConstraintViolation();
+                    return false;
+                }
             }
         }
 

@@ -7,13 +7,10 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import java.time.Clock;
-import java.time.Instant;
-
+import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
-import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.scheduling.events.DeleteEventType;
 import com.energyict.mdc.scheduling.events.EventType;
 import com.energyict.mdc.scheduling.events.UpdateEventType;
@@ -31,19 +28,23 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+
 import javax.inject.Inject;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.Clock;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @UniqueName(groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.NOT_UNIQUE+"}")
 @UniqueMRID(groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.NOT_UNIQUE+"}")
-public class ComScheduleImpl implements ComSchedule {
+public final class ComScheduleImpl implements ComSchedule {
 
     private final Clock clock;
     private final SchedulingService schedulingService;
@@ -88,7 +89,7 @@ public class ComScheduleImpl implements ComSchedule {
     @Size(min=1, groups = { NotObsolete.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.COM_TASK_USAGES_NOT_FOUND+"}")
     private List<ComTaskInComSchedule> comTaskUsages = new ArrayList<>();
     @IsPresent
-    private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
+    private Reference<NextExecutionSpecsImpl> nextExecutionSpecs = ValueReference.absent();
     private SchedulingStatus schedulingStatus;
     @NotNull(groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     private Instant startDate;
@@ -113,6 +114,11 @@ public class ComScheduleImpl implements ComSchedule {
         this.name = Checks.is(name).emptyOrOnlyWhiteSpace() ? null : name.trim();
     }
 
+    @Override
+    public long getVersion() {
+        return version;
+    }
+
     @Valid
     @Override
     public NextExecutionSpecs getNextExecutionSpecs() {
@@ -125,8 +131,8 @@ public class ComScheduleImpl implements ComSchedule {
     }
 
     @Override
-    public String getmRID() {
-        return mRID;
+    public Optional<String> getmRID() {
+        return mRID==null?Optional.empty():Optional.of(mRID);
     }
 
     @Override
@@ -166,30 +172,35 @@ public class ComScheduleImpl implements ComSchedule {
     @Override
     public void setTemporalExpression(TemporalExpression temporalExpression) {
         if (!this.nextExecutionSpecs.isPresent()) {
-            NextExecutionSpecs nextExecutionSpecs = schedulingService.newNextExecutionSpecs(temporalExpression);
+            NextExecutionSpecsImpl nextExecutionSpecs = dataModel.getInstance(NextExecutionSpecsImpl.class);
+            nextExecutionSpecs.setTemporalExpression(temporalExpression);
             this.nextExecutionSpecs.set(nextExecutionSpecs);
         } else  {
             this.nextExecutionSpecs.get().setTemporalExpression(temporalExpression);
         }
     }
 
-    @Override
-    public void save() {
-        Save actionToPerform = Save.action(this.getId());
+    private void validate() {
         if (this.isObsolete()) {
-            actionToPerform.validate(dataModel, this, Obsolete.class);
+            Save.CREATE.validate(dataModel, this, Obsolete.class);
         }
         else {
-            actionToPerform.validate(dataModel, this, NotObsolete.class);
+            Save.CREATE.validate(dataModel, this, NotObsolete.class);
         }
-        this.nextExecutionSpecs.get().save();
+    }
 
-        if (Save.UPDATE.equals(actionToPerform)) {
-            dataModel.update(this);
-            this.eventService.postEvent(UpdateEventType.COMSCHEDULES.topic(), this);
-        } else{
-            dataModel.persist(this);
-        }
+    void save() {
+        validate();
+        this.nextExecutionSpecs.get().save();
+        dataModel.persist(this);
+    }
+
+    @Override
+    public void update() {
+        validate();
+        this.nextExecutionSpecs.get().save();
+        dataModel.update(this);
+        this.eventService.postEvent(UpdateEventType.COMSCHEDULES.topic(), this);
     }
 
     @Override
@@ -344,4 +355,22 @@ public class ComScheduleImpl implements ComSchedule {
 
     private interface Obsolete {}
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        ComScheduleImpl that = (ComScheduleImpl) o;
+
+        return this.id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

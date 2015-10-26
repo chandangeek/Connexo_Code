@@ -1,18 +1,19 @@
 package com.energyict.mdc.scheduling.model.impl;
 
-import com.energyict.mdc.scheduling.model.ComSchedule;
-import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
-import com.energyict.mdc.tasks.ComTask;
-
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
+import com.energyict.mdc.tasks.ComTask;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import java.time.Instant;
-
-import org.junit.*;
-import org.junit.rules.*;
 
 /**
  * Integration test for the {@link ComTaskDeletionEventHandler} component.
@@ -51,9 +52,7 @@ public class ComTaskDeletionEventHandlerIT extends PersistenceTest {
                                 "testCannotDeleteComTaskWhenUsedByComSchedule",
                                 new TemporalExpression(TimeDuration.minutes(15)),
                                 Instant.now());
-        ComSchedule comSchedule = builder.build();
-        comSchedule.addComTask(comTask);
-        comSchedule.save();
+        ComSchedule comSchedule = builder.addComTask(comTask).build();
 
         // Business method
         comTask.delete();

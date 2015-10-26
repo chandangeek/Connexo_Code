@@ -1,6 +1,7 @@
 package com.energyict.mdc.scheduling;
 
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
@@ -22,7 +23,8 @@ public interface SchedulingService {
     public NextExecutionSpecs findNextExecutionSpecs(long id);
     public NextExecutionSpecs newNextExecutionSpecs(TemporalExpression temporalExpression);
 
-    public List<ComSchedule> findAllSchedules();
+    public List<ComSchedule> getAllSchedules();
+    public Finder<ComSchedule> findAllSchedules();
     public Optional<ComSchedule> findSchedule(long id);
 
     /**
@@ -36,4 +38,6 @@ public interface SchedulingService {
 
 
     public ComScheduleBuilder newComSchedule(String name, TemporalExpression temporalExpression, Instant startDate);
+
+    public Optional<ComSchedule> findAndLockComScheduleByIdAndVersion(long id, long version);
 }

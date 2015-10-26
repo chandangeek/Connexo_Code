@@ -1,5 +1,7 @@
 package com.energyict.mdc.scheduling.model.impl;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -153,18 +155,31 @@ public class SchedulingServiceImpl implements ServerSchedulingService, InstallSe
     public NextExecutionSpecs newNextExecutionSpecs(TemporalExpression temporalExpression) {
         NextExecutionSpecsImpl instance = dataModel.getInstance(NextExecutionSpecsImpl.class);
         instance.setTemporalExpression(temporalExpression);
+        instance.save();
         return instance;
     }
 
     @Override
-    public List<ComSchedule> findAllSchedules() {
+    public List<ComSchedule> getAllSchedules() {
         return this.dataModel.query(ComSchedule.class, NextExecutionSpecs.class).select(where(ComScheduleImpl.Fields.OBSOLETE_DATE.fieldName()).isNull());
+    }
+
+    @Override
+    public Finder<ComSchedule> findAllSchedules() {
+        return DefaultFinder.of(ComSchedule.class, where(ComScheduleImpl.Fields.OBSOLETE_DATE.fieldName()).isNull(), this.dataModel).defaultSortColumn(ComScheduleImpl.Fields.NAME.fieldName());
     }
 
     @Override
     public Optional<ComSchedule> findSchedule(long id) {
         return this.findUniqueSchedule("id", id);
     }
+
+
+    @Override
+    public Optional<ComSchedule> findAndLockComScheduleByIdAndVersion(long id, long version) {
+        return this.dataModel.mapper(ComSchedule.class).lockObjectIfVersion(version, id);
+    }
+
 
     private Optional<ComSchedule> findUniqueSchedule(String fieldName, Object value) {
         Condition condition = where(fieldName).isEqualTo(value).and(where(ComScheduleImpl.Fields.OBSOLETE_DATE.fieldName()).isNull());
@@ -214,7 +229,8 @@ public class SchedulingServiceImpl implements ServerSchedulingService, InstallSe
     }
 
     class ComScheduleBuilderImpl implements ComScheduleBuilder {
-        private ComSchedule instance;
+
+        private ComScheduleImpl instance;
 
         ComScheduleBuilderImpl(String name, TemporalExpression temporalExpression, Instant startDate) {
             instance = dataModel.getInstance(ComScheduleImpl.class);
@@ -231,7 +247,14 @@ public class SchedulingServiceImpl implements ServerSchedulingService, InstallSe
         }
 
         @Override
+        public ComScheduleBuilder addComTask(ComTask comTask) {
+            instance.addComTask(comTask);
+            return this;
+        }
+
+        @Override
         public ComSchedule build() {
+            instance.save();
             return instance;
         }
     }
