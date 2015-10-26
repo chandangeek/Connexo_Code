@@ -173,7 +173,7 @@ public class Installer {
     }
 
     private Set<MicroAction> applicableActionsFor(StateTransition transition) {
-        return TransitionType.from(transition).get().supportedActions();
+        return TransitionType.from(transition).get().requiredActions();
     }
 
 }
