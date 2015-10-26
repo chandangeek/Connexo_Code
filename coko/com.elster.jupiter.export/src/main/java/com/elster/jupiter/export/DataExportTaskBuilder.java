@@ -15,13 +15,15 @@ public interface DataExportTaskBuilder {
 
     DataExportTaskBuilder scheduleImmediately();
 
-    ExportTask build();
+    ExportTask create();
 
     DataExportTaskBuilder setName(String string);
 
     DataExportTaskBuilder setDataFormatterName(String dataFormatter);
 
-    StandardSelectorBuilder selectingStandard();
+    ReadingTypeSelectorBuilder selectingReadingTypes();
+
+    EventSelectorBuilder selectingEventTypes();
 
     CustomSelectorBuilder selectingCustom(String dataSelector);
 
@@ -39,24 +41,40 @@ public interface DataExportTaskBuilder {
         DataExportTaskBuilder endSelection();
     }
 
-    interface StandardSelectorBuilder {
+    interface ReadingTypeSelectorBuilder {
 
-        StandardSelectorBuilder fromExportPeriod(RelativePeriod relativePeriod);
+        ReadingTypeSelectorBuilder fromExportPeriod(RelativePeriod relativePeriod);
 
-        StandardSelectorBuilder fromUpdatePeriod(RelativePeriod relativePeriod);
+        ReadingTypeSelectorBuilder fromUpdatePeriod(RelativePeriod relativePeriod);
 
-        StandardSelectorBuilder fromReadingType(ReadingType readingType);
+        ReadingTypeSelectorBuilder fromReadingType(ReadingType readingType);
 
-        StandardSelectorBuilder fromReadingType(String readingType);
+        ReadingTypeSelectorBuilder fromReadingType(String readingType);
 
-        StandardSelectorBuilder withValidatedDataOption(ValidatedDataOption validatedDataOption);
+        ReadingTypeSelectorBuilder withValidatedDataOption(ValidatedDataOption validatedDataOption);
 
-        StandardSelectorBuilder fromEndDeviceGroup(EndDeviceGroup endDeviceGroup);
+        ReadingTypeSelectorBuilder fromEndDeviceGroup(EndDeviceGroup endDeviceGroup);
 
-        StandardSelectorBuilder exportUpdate(boolean exportUpdate);
+        ReadingTypeSelectorBuilder exportUpdate(boolean exportUpdate);
 
-        StandardSelectorBuilder continuousData(boolean exportContinuousData);
+        ReadingTypeSelectorBuilder continuousData(boolean exportContinuousData);
 
         DataExportTaskBuilder endSelection();
+
+        ReadingTypeSelectorBuilder withUpdateWindow(RelativePeriod updateWindow);
+
+        ReadingTypeSelectorBuilder exportComplete(boolean exportComplete);
+    }
+
+    interface EventSelectorBuilder {
+
+        EventSelectorBuilder fromExportPeriod(RelativePeriod relativePeriod);
+
+        EventSelectorBuilder fromEventType(String filterCode);
+
+        EventSelectorBuilder fromEndDeviceGroup(EndDeviceGroup endDeviceGroup);
+
+        DataExportTaskBuilder endSelection();
+
     }
 }

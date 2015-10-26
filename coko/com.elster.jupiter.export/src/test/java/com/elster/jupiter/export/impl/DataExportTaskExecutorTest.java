@@ -8,6 +8,7 @@ import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportStrategy;
 import com.elster.jupiter.export.DataFormatterFactory;
+import com.elster.jupiter.export.DataSelector;
 import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.ExportData;
 import com.elster.jupiter.export.FatalDataExportException;
@@ -135,7 +136,7 @@ public class DataExportTaskExecutorTest {
     @Mock
     private PropertySpec propertySpec;
     @Mock
-    private IReadingTypeDataSelector readingTypeDataSelector;
+    private IStandardDataSelector readingTypeDataSelector;
     @Mock
     private MeteringService meteringService;
     @Mock
@@ -146,6 +147,10 @@ public class DataExportTaskExecutorTest {
     private FormattedData formattedData;
     @Mock
     private Destination destination;
+    @Mock
+    private DataSelector dataSelector;
+
+    private Logger logger = Logger.getAnonymousLogger();
 
     public static final Predicate<IntervalReading> READING_1 = r -> r.getSource().equals("reading1");
     public static final Predicate<IntervalReading> READING_2 = r -> r.getSource().equals("reading2");
@@ -165,19 +170,20 @@ public class DataExportTaskExecutorTest {
         when(readingTypeDataSelector.getEndDeviceGroup()).thenReturn(group);
         when(readingTypeDataSelector.getReadingTypes()).thenReturn(ImmutableSet.of(readingType1));
         when(readingTypeDataSelector.addExportItem(meter1, readingType1)).thenReturn(newItem);
+        when(readingTypeDataSelector.adjustedExportPeriod(eq(dataExportOccurrence), any(ReadingTypeDataExportItem.class))).thenReturn(Range.all());
         when(task.getReadingTypeDataSelector()).thenReturn(Optional.of(readingTypeDataSelector));
         when(occurrence.createTaskLogHandler()).thenReturn(taskLogHandler);
         when(taskLogHandler.asHandler()).thenReturn(logRecorder);
         when(dataExportService.createExportOccurrence(occurrence)).thenReturn(dataExportOccurrence);
         when(dataExportService.findDataExportOccurrence(occurrence)).thenReturn(Optional.of(dataExportOccurrence));
         when(dataExportService.getDataFormatterFactory("CSV")).thenReturn(Optional.of(dataFormatterFactory));
-        when(dataExportService.getDataSelectorFactory(DataExportService.STANDARD_DATA_SELECTOR)).thenReturn(Optional.of(new StandardDataSelectorFactory(transactionService, meteringService, thesaurus)));
+        when(dataExportService.getDataSelectorFactory(DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR)).thenReturn(Optional.of(new StandardDataSelectorFactory(thesaurus)));
         when(dataExportOccurrence.getTask()).thenReturn(task);
         when(dataExportOccurrence.getDefaultSelectorOccurrence()).thenReturn(Optional.of((DefaultSelectorOccurrence) dataExportOccurrence));
         when(((DefaultSelectorOccurrence) dataExportOccurrence).getExportedDataInterval()).thenReturn(exportPeriod);
         when(dataExportOccurrence.getTriggerTime()).thenReturn(triggerTime.toInstant());
         when(task.getDataFormatter()).thenReturn("CSV");
-        when(task.getDataSelector()).thenReturn(DataExportService.STANDARD_DATA_SELECTOR);
+        when(task.getDataSelector()).thenReturn(DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR);
         when(task.getDataExportProperties()).thenReturn(Arrays.asList(dataExportProperty));
         when(task.getCompositeDestination()).thenReturn(destination);
         when(task.hasDefaultSelector()).thenReturn(true);
@@ -191,6 +197,7 @@ public class DataExportTaskExecutorTest {
         when(meter2.getMeter(any())).thenReturn(Optional.of(meter2));
         when(meter3.getMeter(any())).thenReturn(Optional.of(meter3));
         doReturn(Arrays.asList(existingItem, obsoleteItem)).when(readingTypeDataSelector).getExportItems();
+        doReturn(ImmutableSet.of(existingItem, newItem)).when(readingTypeDataSelector).getActiveItems(dataExportOccurrence);
         when(existingItem.getReadingType()).thenReturn(readingType1);
         when(existingItem.getReadingContainer()).thenReturn(meter2);
         when(meter2.getMeter(any())).thenReturn(Optional.of(meter2));
@@ -225,7 +232,10 @@ public class DataExportTaskExecutorTest {
         when(reading2.getSource()).thenReturn("reading2");
         MeterReadingData newItemData = new MeterReadingData(this.newItem, MeterReadingImpl.of(ReadingImpl.reading(reading1, readingType1)), DefaultStructureMarker.createRoot(clock, "newItem"));
         MeterReadingData existItemData = new MeterReadingData(this.existingItem, MeterReadingImpl.of(ReadingImpl.reading(reading2, readingType1)), DefaultStructureMarker.createRoot(clock, "newItem"));
-        when(readingTypeDataSelector.selectData(dataExportOccurrence)).thenReturn(Arrays.<ExportData>asList(newItemData, existItemData).stream());
+        when(readingTypeDataSelector.asReadingTypeDataSelector(any(), eq(thesaurus))).thenReturn(dataSelector);
+        when(dataSelector.selectData(dataExportOccurrence)).thenReturn(Arrays.<ExportData>asList(newItemData, existItemData).stream());
+        when(strategy.adjustedExportPeriod(eq(dataExportOccurrence), any())).thenReturn(exportPeriod);
+        when(readingTypeDataSelector.adjustedExportPeriod(eq(dataExportOccurrence), any())).thenReturn(exportPeriod);
     }
 
     @After
@@ -269,7 +279,7 @@ public class DataExportTaskExecutorTest {
         assertThat(readingList2).hasSize(1);
         assertThat(readingList2.get(0).getMeterReading().getReadings()).has(new ReadingFor(reading2));
 
-        verify(destination).send(any(), any());
+        verify(destination).send(any(), any(), any(), any());
     }
 
     @Test
@@ -279,7 +289,7 @@ public class DataExportTaskExecutorTest {
         MeterReadingData newItemData = new MeterReadingData(this.newItem, meterReading1, DefaultStructureMarker.createRoot(clock, "newItem"));
         MeterReadingImpl meterReading2 = getMeterReadingWithIntervalBlock(existingItem, Collections.singletonList(reading2));
         MeterReadingData existItemData = new MeterReadingData(this.existingItem, meterReading2, DefaultStructureMarker.createRoot(clock, "newItem"));
-        when(readingTypeDataSelector.selectData(dataExportOccurrence)).thenReturn(Arrays.<ExportData>asList(newItemData, existItemData).stream());
+        when(dataSelector.selectData(dataExportOccurrence)).thenReturn(Arrays.<ExportData>asList(newItemData, existItemData).stream());
 
         DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus, clock);
 
@@ -317,7 +327,7 @@ public class DataExportTaskExecutorTest {
         assertThat(readingList2.get(0).getMeterReading().getIntervalBlocks()).hasSize(1);
         assertThat(readingList2.get(0).getMeterReading().getIntervalBlocks().get(0).getIntervals()).has(new IntervalReadingFor(reading2));
 
-        verify(destination).send(any(), any());
+        verify(destination).send(any(), any(), any(), any());
     }
 
     @Test
@@ -346,7 +356,7 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(4).wasCommitted();
         transactionService.assertThatTransaction(5).wasCommitted();
 
-        verify(destination).send(any(), any());
+        verify(destination).send(any(), any(), any(), any());
     }
 
     @Test
@@ -373,7 +383,7 @@ public class DataExportTaskExecutorTest {
         verify(dataFormatter, never()).endItem(existingItem);
         verify(dataFormatter, never()).endExport();
 
-        verify(destination, never()).send(any(), any());
+        verify(destination, never()).send(any(), any(), any(), any());
 
     }
 
@@ -401,7 +411,7 @@ public class DataExportTaskExecutorTest {
         verify(dataFormatter, never()).endItem(existingItem);
         verify(dataFormatter, never()).endExport();
 
-        verify(destination, never()).send(any(), any());
+        verify(destination, never()).send(any(), any(), any(), any());
     }
 
     @Test
@@ -435,7 +445,7 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(4).wasNotCommitted(); // existingItem
         transactionService.assertThatTransaction(5).wasCommitted(); // log failure of existingItem
 
-        verify(destination, never()).send(any(), any());
+        verify(destination, never()).send(any(), any(), any(), any());
     }
 
     Predicate<List<? extends List<ExportData>>> hasStreamContainingReadingFor(String source) {
@@ -475,7 +485,7 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(3).wasCommitted();
         transactionService.assertThatTransaction(4).wasNotCommitted();
 
-        verify(destination, never()).send(any(), any());
+        verify(destination, never()).send(any(), any(), any(), any());
     }
 
     @Test
@@ -501,7 +511,7 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(2).wasNotCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
 
-        verify(destination).send(any(), any());
+        verify(destination).send(any(), any(), any(), any());
     }
 
     @Test
@@ -540,7 +550,7 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(3).wasCommitted();
         transactionService.assertThatTransaction(4).wasNotCommitted();
 
-        verify(destination, never()).send(any(), any());
+        verify(destination, never()).send(any(), any(), any(), any());
     }
 
     @Test
@@ -580,7 +590,7 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(4).wasNotCommitted();
         transactionService.assertThatTransaction(5).wasCommitted();
 
-        verify(destination, never()).send(any(), any());
+        verify(destination, never()).send(any(), any(), any(), any());
     }
 
     @Test
@@ -613,7 +623,7 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(2).wasNotCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
 
-        verify(destination).send(any(), any());
+        verify(destination).send(any(), any(), any(), any());
     }
 
     @Test
@@ -646,7 +656,7 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(4).wasNotCommitted();
         transactionService.assertThatTransaction(5).wasCommitted();
 
-        verify(destination, never()).send(any(), any());
+        verify(destination, never()).send(any(), any(), any(), any());
     }
 
     @Test
@@ -679,7 +689,7 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(4).wasNotCommitted();
         transactionService.assertThatTransaction(5).wasCommitted();
 
-        verify(destination, never()).send(any(), any());
+        verify(destination, never()).send(any(), any(), any(), any());
     }
 
     @Test
@@ -705,7 +715,31 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(2).wasNotCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
 
-        verify(destination).send(any(), any());
+        verify(destination).send(any(), any(), any(), any());
+    }
+
+    @Test
+    public void testActiveItemsHaveLastRunUpdated() {
+        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus, clock);
+
+        try (TransactionContext context = transactionService.getContext()) {
+            executor.execute(occurrence);
+        }
+        executor.postExecute(occurrence);
+
+        {
+            InOrder inOrder = inOrder(existingItem);
+
+            inOrder.verify(existingItem).setLastRun(triggerTime.toInstant());
+            inOrder.verify(existingItem).update();
+        }
+
+        {
+            InOrder inOrder = inOrder(newItem);
+
+            inOrder.verify(newItem).setLastRun(triggerTime.toInstant());
+            inOrder.verify(newItem).update();
+        }
     }
 
     private static class IntervalReadingFor extends Condition<List<? extends IntervalReading>> {

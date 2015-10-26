@@ -2,6 +2,7 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportProperty;
+import com.elster.jupiter.export.EndDeviceEventTypeFilter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.orm.Column;
@@ -12,7 +13,9 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
 
+import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
@@ -24,7 +27,7 @@ enum TableSpecs {
             table.map(ExportTaskImpl.class);
             table.setJournalTableName("DES_DATAEXPORTTASKJRNL");
             Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
+            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.column("DATAFORMATTER").varChar(NAME_LENGTH).notNull().map("dataFormatter").add();
             table.column("DATASELECTOR").varChar(NAME_LENGTH).notNull().map("dataSelector").add();
             Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
@@ -38,19 +41,22 @@ enum TableSpecs {
                     .map("recurrentTask")
                     .add();
             table.primaryKey("DES_PK_DATAEXPORTTASK").on(idColumn).add();
+            table.unique("DES_UQ_TASK_NAME").on(nameColumn).add();
         }
     },
-    DES_RTDATASELECTOR(IReadingTypeDataSelector.class) {
+    DES_RTDATASELECTOR(IStandardDataSelector.class) {
         @Override
         void describeTable(Table table) {
-            table.map(ReadingTypeDataSelectorImpl.class);
+            table.map(StandardDataSelectorImpl.class);
             table.setJournalTableName("DES_RTDATASELECTORJRNL");
             Column idColumn = table.addAutoIdColumn();
             Column taskColumn = table.column("EXPORTTASK").number().notNull().add();
             Column exportPeriod = table.column("EXPORT_PERIOD").number().notNull().add();
             Column updatePeriod = table.column("UPDATE_PERIOD").number().add();
+            Column updateWindow = table.column("UPDATE_WINDOW").number().add();
             Column endDeviceGroupId = table.column("ENDDEVICEGROUP").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("EXPORT_UPDATE").bool().map("exportUpdate").add();
+            table.column("EXPORT_COMPLETE").bool().map("exportOnlyIfComplete").add();
             table.column("EXPORT_CONTINUOUS_DATA").bool().map("exportContinuousData").add();
             table.column("VALIDATED_DATA_OPTION").number().conversion(ColumnConversion.NUMBER2ENUM).map("validatedDataOption").add();
 
@@ -72,6 +78,11 @@ enum TableSpecs {
                     .on(updatePeriod)
                     .references(TimeService.COMPONENT_NAME, "TME_RELATIVEPERIOD")
                     .map("updatePeriod")
+                    .add();
+            table.foreignKey("DES_FK_RTDS_UPDATEWINDOW")
+                    .on(updateWindow)
+                    .references(TimeService.COMPONENT_NAME, "TME_RELATIVEPERIOD")
+                    .map("updateWindow")
                     .add();
             table.foreignKey("DES_FK_RTDS_ENDDEVICEFROUP")
                     .on(endDeviceGroupId)
@@ -95,6 +106,24 @@ enum TableSpecs {
                     .map("readingTypeDataSelector").reverseMap("readingTypes").composition().add();
             table.foreignKey("DES_FK_RTINET_READINGTYPE").on(readingType).references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").onDelete(DeleteRule.RESTRICT)
                     .map("readingType").add();
+        }
+    },
+    DES_EVENTFILTER(EndDeviceEventTypeFilter.class) {
+        @Override
+        void describeTable(Table table) {
+            table.map(FieldBasedEndDeviceEventTypeFilter.class);
+            table.setJournalTableName("DES_EVENTFILTERJRNL");
+            Column dataSelector = table.column("RTDATASELECTOR").number().notNull().add();
+            Column code = table.column("CODE").varChar(15).notNull().map("code").add();
+
+            table.addAuditColumns();
+            table.primaryKey("DES_PK_EVENTFILTER").on(dataSelector, code).add();
+            table.foreignKey("DES_FK_EV_IN_SELECTOR").on(dataSelector)
+                    .references(DES_RTDATASELECTOR.name())
+                    .map("dataSelector")
+                    .reverseMap("eventTypeFilters")
+                    .composition()
+                    .add();
         }
     },
     DES_PROPERTY_IN_TASK(DataExportProperty.class) {
@@ -121,7 +150,8 @@ enum TableSpecs {
             table.addIntervalColumns("exportedDataInterval");
             table.column("INTERVALENDPTBEHAVIOUR").number().conversion(ColumnConversion.NUMBER2ENUM).map("exportedDataBoundaryType").add();
             table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map("status").add();
-            table.column("MESSAGE").varChar(Table.SHORT_DESCRIPTION_LENGTH).map("failureReason").add();
+            table.column("MESSAGE").varChar(Table.DESCRIPTION_LENGTH).map("failureReason").add();
+            table.column("SUMMARY").type("CLOB").conversion(CLOB2STRING).map("summary").add();
 
             table.primaryKey("DES_PK_EXPOCC").on(taskOccurrence).add();
             table.foreignKey("DES_FK_EXPOCC_TSKOCC").on(taskOccurrence).references(TaskService.COMPONENTNAME, "TSK_TASK_OCCURRENCE")
@@ -177,6 +207,12 @@ enum TableSpecs {
             table.column("SUBJECT").varChar(Table.NAME_LENGTH).map("subject").add();
             table.column("ATTACHMENTNAME").varChar(Table.NAME_LENGTH).map("attachmentName").add();
             table.column("ATTACHMENTEXTENSION").varChar(Table.NAME_LENGTH).map("attachmentExtension").add();
+
+            table.column("SERVER").varChar(Table.DESCRIPTION_LENGTH).map("server").add();
+            table.column("USERID").varChar(Table.DESCRIPTION_LENGTH).map("user").add();
+            table.column("PASSWORD").varChar(Table.DESCRIPTION_LENGTH).map("password").add();
+            table.column("PORT").type("NUMBER").conversion(NUMBER2INT).map("port").add();
+
             table.addAuditColumns();
 
             table.primaryKey("DES_PK_DESTINATION").on(idColumn).add();

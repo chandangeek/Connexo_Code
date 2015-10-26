@@ -4,7 +4,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ExportTask;
-import com.elster.jupiter.export.ReadingTypeDataSelector;
+import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingType;
@@ -12,9 +12,12 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem {
@@ -27,7 +30,7 @@ public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem
     private Instant lastExportedDate;
     private String readingTypeMRId;
     private RefAny readingContainer;
-    private Reference<IReadingTypeDataSelector> selector = ValueReference.absent();
+    private Reference<IStandardDataSelector> selector = ValueReference.absent();
     private boolean active = true;
 
     private transient DataModel dataModel;
@@ -41,11 +44,11 @@ public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem
         dataModel = model;
     }
 
-    static ReadingTypeDataExportItemImpl from(DataModel model, IReadingTypeDataSelector dataSelector, ReadingContainer readingContainer, ReadingType readingType) {
+    static ReadingTypeDataExportItemImpl from(DataModel model, IStandardDataSelector dataSelector, ReadingContainer readingContainer, ReadingType readingType) {
         return model.getInstance(ReadingTypeDataExportItemImpl.class).init(dataSelector, readingContainer, readingType);
     }
 
-    private ReadingTypeDataExportItemImpl init(IReadingTypeDataSelector dataSelector, ReadingContainer readingContainer, ReadingType readingType) {
+    private ReadingTypeDataExportItemImpl init(IStandardDataSelector dataSelector, ReadingContainer readingContainer, ReadingType readingType) {
         this.selector.set(dataSelector);
         this.readingTypeMRId = readingType.getMRID();
         this.readingType = readingType;
@@ -77,7 +80,7 @@ public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem
     }
 
     @Override
-    public ReadingTypeDataSelector getSelector() {
+    public StandardDataSelector getSelector() {
         return selector.orElseThrow(IllegalStateException::new);
     }
 
@@ -114,6 +117,12 @@ public class ReadingTypeDataExportItemImpl implements IReadingTypeDataExportItem
     @Override
     public Optional<? extends DataExportOccurrence> getLastOccurrence() {
         return getLastRun().flatMap(trigger -> dataExportService.findDataExportOccurrence(getTask(), trigger));
+    }
+
+    @Override
+    public Optional<Range<Instant>> getLastExportPeriod() {
+        return getLastRun()
+                .map(instant -> getSelector().getExportPeriod().getOpenClosedInterval(ZonedDateTime.ofInstant(instant, ZoneId.systemDefault())));
     }
 
     private ExportTask getTask() {

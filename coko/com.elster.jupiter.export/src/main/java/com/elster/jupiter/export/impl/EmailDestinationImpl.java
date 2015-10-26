@@ -1,14 +1,18 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.EmailDestination;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.mail.MailAddress;
 import com.elster.jupiter.mail.MailMessageBuilder;
 import com.elster.jupiter.mail.MailService;
+import com.elster.jupiter.mail.OutboundMailMessage;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 
 import javax.inject.Inject;
 import java.nio.file.FileSystem;
@@ -17,6 +21,8 @@ import java.time.Clock;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 class EmailDestinationImpl extends AbstractDataExportDestination implements EmailDestination {
@@ -24,32 +30,66 @@ class EmailDestinationImpl extends AbstractDataExportDestination implements Emai
     private class Sender {
 
         private final TagReplacerFactory tagReplacerFactory;
+        private final Logger logger;
+        private final Thesaurus thesaurus;
 
-        private Sender(TagReplacerFactory tagReplacerFactory) {
+        private Sender(TagReplacerFactory tagReplacerFactory, Logger logger, Thesaurus thesaurus) {
             this.tagReplacerFactory = tagReplacerFactory;
+            this.logger = logger;
+            this.thesaurus = thesaurus;
         }
 
         private void send(Map<StructureMarker, Path> files) {
-            sendMail(files.entrySet().stream()
-                    .collect(Collectors.toMap(entry -> toFileName(entry.getKey()), Map.Entry::getValue)));
+            if (files.isEmpty()) {
+                return;
+            }
+            ClassLoader tcl = Thread.currentThread().getContextClassLoader();
+            try {
+                Thread.currentThread().setContextClassLoader(javax.mail.Session.class.getClassLoader());
+
+                sendMail(files.entrySet().stream()
+                        .collect(Collectors.toMap(entry -> toFileName(entry.getKey()), Map.Entry::getValue)));
+
+            } finally {
+                Thread.currentThread().setContextClassLoader(tcl);
+            }
         }
 
         private void sendMail(Map<String, Path> files) {
-            List<String> recipients = getRecipientsList();
-            if (recipients.isEmpty()) {
-                return;
+            String fileNames = "";
+            Object[] fileNamesArray = files.keySet().toArray();
+            for (int i = 0; i < fileNamesArray.length; i++) {
+                fileNames = fileNames + fileNamesArray[i].toString();
+                if (i < (fileNamesArray.length - 1)) {
+                    fileNames = fileNames + ",";
+                }
             }
-            MailAddress primary = mailService.mailAddress(recipients.get(0));
-            MailMessageBuilder mailBuilder = mailService.messageBuilder(primary)
-                    .withSubject(subject);
+            try {
+                List<String> recipients = getRecipientsList();
+                if (recipients.isEmpty()) {
+                    return;
+                }
+                MailAddress primary = mailService.mailAddress(recipients.get(0));
+                MailMessageBuilder mailBuilder = mailService.messageBuilder(primary)
+                        .withSubject(subject);
 
-            files.forEach((fileName, path) -> mailBuilder.withAttachment(path, fileName));
+                files.forEach((fileName, path) -> mailBuilder.withAttachment(path, fileName));
 
-            recipients.stream()
-                    .skip(1)
-                    .map(mailService::mailAddress)
-                    .forEach(mailBuilder::addRecipient);
-            mailBuilder.build().send();
+                recipients.stream()
+                        .skip(1)
+                        .map(mailService::mailAddress)
+                        .forEach(mailBuilder::addRecipient);
+
+                mailBuilder.build().send();
+            } catch (Exception e) {
+                throw new DestinationFailedException(
+                        thesaurus, MessageSeeds.MAIL_DESTINATION_FAILED, e, EmailDestinationImpl.this.recipients, e.toString() + " " + e.getMessage());
+            }
+            try (TransactionContext context = getTransactionService().getContext()) {
+                MessageSeeds.DATA_MAILED_TO.log(logger, thesaurus, EmailDestinationImpl.this.recipients, fileNames);
+                context.commit();
+            }
+
         }
 
         private String toFileName(StructureMarker structureMarker) {
@@ -63,12 +103,14 @@ class EmailDestinationImpl extends AbstractDataExportDestination implements Emai
 
     private String recipients;
     private String subject;
+    @ValidFileName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALIDCHARS_EXCEPTION + "}")
     private String attachmentName;
+    @ValidFileName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALIDCHARS_EXCEPTION + "}")
     private String attachmentExtension;
 
     @Inject
-    EmailDestinationImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, AppService appService, FileSystem fileSystem, MailService mailService) {
-        super(dataModel, clock, thesaurus, dataExportService, appService, fileSystem);
+    EmailDestinationImpl(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, AppService appService, FileSystem fileSystem, MailService mailService, TransactionService transactionService) {
+        super(dataModel, clock, thesaurus, dataExportService, fileSystem, transactionService);
         this.mailService = mailService;
     }
 
@@ -86,8 +128,8 @@ class EmailDestinationImpl extends AbstractDataExportDestination implements Emai
     }
 
     @Override
-    public void send(Map<StructureMarker, Path> files, TagReplacerFactory tagReplacerFactory) {
-        new Sender(tagReplacerFactory).send(files);
+    public void send(Map<StructureMarker, Path> files, TagReplacerFactory tagReplacerFactory, Logger logger, Thesaurus thesaurus) {
+        new Sender(tagReplacerFactory, logger, thesaurus).send(files);
     }
 
     @Override
@@ -111,7 +153,7 @@ class EmailDestinationImpl extends AbstractDataExportDestination implements Emai
     }
 
     private List<String> getRecipientsList() {
-        return Arrays.asList(recipients.split(","));
+        return Arrays.asList(recipients.split(";"));
     }
 
     @Override

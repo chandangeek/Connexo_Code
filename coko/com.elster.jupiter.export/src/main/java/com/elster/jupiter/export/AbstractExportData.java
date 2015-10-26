@@ -15,7 +15,7 @@ public class AbstractExportData<T> implements ExportData {
         return structureMarker;
     }
 
-    protected final T getData(Class<T> clazz) {
+    protected final T getData() {
         return data;
     }
 }

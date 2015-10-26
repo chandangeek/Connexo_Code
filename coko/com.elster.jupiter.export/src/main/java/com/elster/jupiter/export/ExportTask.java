@@ -11,17 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Copyrights EnergyICT
- * Date: 8/05/2015
- * Time: 14:53
- */
 public interface ExportTask extends HasName, HasAuditInfo {
     long getId();
-
-    void activate(); // resume
-
-    void deactivate(); // suspend
 
     Optional<Instant> getLastRun();
 
@@ -33,7 +24,7 @@ public interface ExportTask extends HasName, HasAuditInfo {
 
     DataExportOccurrenceFinder getOccurrencesFinder();
 
-    void save();
+    void update();
 
     void delete();
 
@@ -78,13 +69,19 @@ public interface ExportTask extends HasName, HasAuditInfo {
 
     Optional<ScheduleExpression> getScheduleExpression(Instant at);
 
-    Optional<ReadingTypeDataSelector> getReadingTypeDataSelector();
+    Optional<? extends StandardDataSelector> getReadingTypeDataSelector();
 
-    Optional<ReadingTypeDataSelector> getReadingTypeDataSelector(Instant at);
+    Optional<EventDataSelector> getEventDataSelector();
+
+    Optional<StandardDataSelector> getReadingTypeDataSelector(Instant at);
 
     FileDestination addFileDestination(String fileLocation, String fileName, String fileExtension);
 
     EmailDestination addEmailDestination(String recipients, String subject, String attachmentName, String attachmentExtension);
+
+    FtpDestination addFtpDestination(String server, int port, String user, String password, String fileLocation, String fileName, String fileExtension);
+
+    FtpsDestination addFtpsDestination(String server, int port, String user, String password, String fileLocation, String fileName, String fileExtension);
 
     void removeDestination(DataExportDestination destination);
 

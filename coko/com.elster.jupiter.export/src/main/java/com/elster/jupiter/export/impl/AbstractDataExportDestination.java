@@ -1,18 +1,22 @@
 package com.elster.jupiter.export.impl;
 
-import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.export.DataExportDestination;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.EmailDestination;
 import com.elster.jupiter.export.FileDestination;
+import com.elster.jupiter.export.FtpDestination;
+import com.elster.jupiter.export.FtpsDestination;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.FileSystem;
 import java.time.Clock;
 import java.time.Instant;
@@ -21,14 +25,19 @@ import java.util.Map;
 
 public abstract class AbstractDataExportDestination implements IDataExportDestination {
 
-    static final Map<String, Class<? extends DataExportDestination>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends DataExportDestination>>of(FileDestination.TYPE_IDENTIFIER, FileDestinationImpl.class, EmailDestination.TYPE_IDENTIFIER, EmailDestinationImpl.class);
+    static final Map<String, Class<? extends DataExportDestination>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends DataExportDestination>>of(
+            FileDestination.TYPE_IDENTIFIER, FileDestinationImpl.class,
+            EmailDestination.TYPE_IDENTIFIER, EmailDestinationImpl.class,
+            FtpDestination.TYPE_IDENTIFIER, FtpDestinationImpl.class,
+            FtpsDestination.TYPE_IDENTIFIER, FtpsDestinationImpl.class
+    );
 
     private long id;
     private Reference<IExportTask> task = ValueReference.absent();
     private final DataModel dataModel;
     private final Thesaurus thesaurus;
     private final DataExportService dataExportService;
-    private final AppService appService;
+    private final TransactionService transactionService;
     private final FileSystem fileSystem;
     private final Clock clock;
     private long version;
@@ -37,13 +46,13 @@ public abstract class AbstractDataExportDestination implements IDataExportDestin
     private String userName;
 
     @Inject
-    AbstractDataExportDestination(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, AppService appService, FileSystem fileSystem) {
+    AbstractDataExportDestination(DataModel dataModel, Clock clock, Thesaurus thesaurus, DataExportService dataExportService, FileSystem fileSystem, TransactionService transactionService) {
         this.dataModel = dataModel;
         this.clock = clock;
         this.thesaurus = thesaurus;
         this.dataExportService = dataExportService;
-        this.appService = appService;
         this.fileSystem = fileSystem;
+        this.transactionService = transactionService;
     }
 
     public IExportTask getTask() {
@@ -83,10 +92,6 @@ public abstract class AbstractDataExportDestination implements IDataExportDestin
         return this.thesaurus;
     }
 
-    final AppService getAppService() {
-        return appService;
-    }
-
     final DataExportService getDataExportService() {
         return dataExportService;
     }
@@ -118,4 +123,9 @@ public abstract class AbstractDataExportDestination implements IDataExportDestin
     public String getUserName() {
         return userName;
     }
+
+    protected TransactionService getTransactionService() {
+        return this.transactionService;
+    }
+
 }

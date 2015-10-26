@@ -6,13 +6,11 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataSelector;
 import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.ExportData;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.transaction.TransactionService;
 
 import java.util.Collections;
 import java.util.List;
@@ -21,20 +19,17 @@ import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 public class StandardDataSelectorFactory implements DataSelectorFactory {
-
-    private final TransactionService transactionService;
+    static final String TRANSLATION_KEY = DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR;
+    static final String DISPLAY_NAME = "Device readings data selector";
     private final Thesaurus thesaurus;
-    private final MeteringService meteringService;
 
-    public StandardDataSelectorFactory(TransactionService transactionService, MeteringService meteringService, Thesaurus thesaurus) {
-        this.transactionService = transactionService;
-        this.meteringService = meteringService;
+    public StandardDataSelectorFactory(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
     }
 
     @Override
     public DataSelector createDataSelector(Map<String, Object> properties, Logger logger) {
-        return DelegatingDataSelector.INSTANCE;
+        return new DelegatingDataSelector(logger);
     }
 
     @Override
@@ -48,12 +43,12 @@ public class StandardDataSelectorFactory implements DataSelectorFactory {
 
     @Override
     public String getName() {
-        return DataExportService.STANDARD_DATA_SELECTOR;
+        return DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR;
     }
 
     @Override
     public String getDisplayName() {
-        return thesaurus.getString(getNlsKey().getKey(), getName());
+        return thesaurus.getString(getNlsKey().getKey(), DISPLAY_NAME);
     }
 
     @Override
@@ -62,16 +57,24 @@ public class StandardDataSelectorFactory implements DataSelectorFactory {
     }
 
     private NlsKey getNlsKey() {
-        return SimpleNlsKey.key(DataExportService.COMPONENTNAME, Layer.DOMAIN, ReadingTypeDataSelectorImpl.class.getName());
+        return SimpleNlsKey.key(DataExportService.COMPONENTNAME, Layer.DOMAIN, TRANSLATION_KEY);
     }
 
-    private static enum DelegatingDataSelector implements DataSelector {
+    private class DelegatingDataSelector implements DataSelector {
 
-        INSTANCE;
+        private final Logger logger;
+
+        private DelegatingDataSelector(Logger logger) {
+            this.logger = logger;
+        }
+
 
         @Override
         public Stream<ExportData> selectData(DataExportOccurrence dataExportOccurrence) {
-            return dataExportOccurrence.getTask().getReadingTypeDataSelector().orElseThrow(IllegalStateException::new).selectData(dataExportOccurrence);
+            return dataExportOccurrence.getTask().getReadingTypeDataSelector()
+                    .map(IStandardDataSelector.class::cast)
+                    .map(readingTypeDataSelector -> readingTypeDataSelector.asReadingTypeDataSelector(logger, thesaurus))
+                    .orElseThrow(IllegalStateException::new).selectData(dataExportOccurrence);
         }
     }
 }

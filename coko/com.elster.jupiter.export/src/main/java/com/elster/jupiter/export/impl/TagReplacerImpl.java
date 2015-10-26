@@ -67,25 +67,25 @@ class TagReplacerImpl implements TagReplacer {
         private UnaryOperator<String> replaceDataYearAndMonth() {
             return dataTime()
                     .map(dataTime -> (UnaryOperator<String>) (string -> string.replace("<datayearandmonth>", YEAR_MONTH_FORMAT.format(dataTime))))
-                    .orElse(string -> string);
+                    .orElse(string -> string.replace("<datayearandmonth>", ""));
         }
 
         private UnaryOperator<String> replaceDataDate() {
             return dataTime()
                     .map(dataTime -> (UnaryOperator<String>) (string -> string.replace("<datadate>", DATE_FORMAT.format(dataTime))))
-                    .orElse(string -> string);
+                    .orElse(string -> string.replace("<datadate>", ""));
         }
 
         private UnaryOperator<String> replaceDataEndDate() {
             return dataEndTime()
                     .map(dataTime -> (UnaryOperator<String>) (string -> string.replace("<dataenddate>", DATE_FORMAT.format(dataTime))))
-                    .orElse(string -> string);
+                    .orElse(string -> string.replace("<dataenddate>", ""));
         }
 
         private UnaryOperator<String> replaceDataEndTime() {
             return dataEndTime()
                     .map(dataTime -> (UnaryOperator<String>) (string -> string.replace("<dataendtime>", TIME_FORMAT.format(dataTime))))
-                    .orElse(string -> string);
+                    .orElse(string -> string.replace("<dataendtime>", ""));
         }
 
         private Optional<ZonedDateTime> dataTime() {
@@ -105,7 +105,7 @@ class TagReplacerImpl implements TagReplacer {
         private UnaryOperator<String> replaceDataTime() {
             return dataTime()
                     .map(dataTime -> (UnaryOperator<String>) (string -> string.replace("<datatime>", TIME_FORMAT.format(dataTime))))
-                    .orElse(string -> string);
+                    .orElse(string -> string.replace("<datatime>", ""));
         }
 
         public TagReplacerForNow(ZonedDateTime now) {

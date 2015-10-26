@@ -3,6 +3,7 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.tests.ProgrammableClock;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
@@ -16,11 +17,15 @@ import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.EmailDestination;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.FileDestination;
+import com.elster.jupiter.export.FtpDestination;
+import com.elster.jupiter.export.FtpsDestination;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
-import com.elster.jupiter.export.ReadingTypeDataSelector;
+import com.elster.jupiter.export.StandardDataSelector;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.ftpclient.impl.FtpModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.mail.impl.MailModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -46,7 +51,12 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.tasks.impl.TaskModule;
-import com.elster.jupiter.time.*;
+import com.elster.jupiter.time.RelativeDate;
+import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.RelativePeriodCategory;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -54,12 +64,17 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.time.Never;
+import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
@@ -195,22 +210,27 @@ public class ExportTaskImplIT {
                     new AppServiceModule(),
                     new BasicPropertiesModule(),
                     new MailModule(),
-                    new BpmModule()
+                    new BpmModule(),
+                    new ValidationModule(),
+                    new DataVaultModule(),
+                    new FtpModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
+            injector.getInstance(FiniteStateMachineService.class);
             dataExportService = (DataExportServiceImpl) injector.getInstance(DataExportService.class);
             timeService = injector.getInstance(TimeService.class);
             meteringService = injector.getInstance(MeteringService.class);
             meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
             return null;
         });
+
         readingType = meteringService.getReadingType("0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
         anotherReadingType = meteringService.getReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0").get();
-        dataExportService.addFormatter(dataFormatterFactory, ImmutableMap.of(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_DATA_TYPE));
+        dataExportService.addFormatter(dataFormatterFactory, ImmutableMap.of(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_READING_DATA_TYPE));
         when(dataFormatterFactory.getName()).thenReturn(FORMATTER);
         when(dataFormatterFactory.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
         when(propertySpec.getName()).thenReturn("propy");
@@ -218,10 +238,12 @@ public class ExportTaskImplIT {
         try (TransactionContext context = transactionService.getContext()) {
             lastYear = timeService.createRelativePeriod("last year", startOfLastYear, startOfThisYear, Collections.<RelativePeriodCategory>emptyList());
             oneYearBeforeLastYear = timeService.createRelativePeriod("the year before last year", startOfTheYearBeforeLastYear, startOfLastYear, Collections.emptyList());
-            endDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("none");
-            endDeviceGroup.save();
-            anotherEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("also none");
-            anotherEndDeviceGroup.save();
+            endDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup()
+                    .setName("none")
+                    .create();
+            anotherEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup()
+                    .setName("also none")
+                    .create();
             context.commit();
         }
     }
@@ -238,6 +260,8 @@ public class ExportTaskImplIT {
         try (TransactionContext context = transactionService.getContext()) {
             exportTask.addFileDestination("tmp", "file", "csv");
             exportTask.addEmailDestination("info@elster.com", "test report", "file", "csv");
+            exportTask.addFtpDestination("ftpServer", 30, "ftpUser", "ftpPassword", "ftpLocation", "ftpFile", "txt");
+            exportTask.addFtpsDestination("ftpsServer", 55, "ftpsUser", "ftpsPassword", "ftpsLocation", "ftpsFile", "csv");
 
             context.commit();
         }
@@ -248,7 +272,7 @@ public class ExportTaskImplIT {
 
         ExportTask taskFromDB = found.get();
 
-        assertThat(taskFromDB.getDestinations()).hasSize(2);
+        assertThat(taskFromDB.getDestinations()).hasSize(4);
 
         assertThat(taskFromDB.getDestinations().get(0)).isInstanceOf(FileDestination.class);
         FileDestination fileDestination = (FileDestination) taskFromDB.getDestinations().get(0);
@@ -262,6 +286,26 @@ public class ExportTaskImplIT {
         assertThat(emailDestination.getFileName()).isEqualTo("file");
         assertThat(emailDestination.getFileExtension()).isEqualTo("csv");
         assertThat(emailDestination.getSubject()).isEqualTo("test report");
+
+        assertThat(taskFromDB.getDestinations().get(2)).isInstanceOf(FtpDestination.class);
+        FtpDestination ftpDestination = (FtpDestination) taskFromDB.getDestinations().get(2);
+        assertThat(ftpDestination.getServer()).isEqualTo("ftpServer");
+        assertThat(ftpDestination.getPort()).isEqualTo(30);
+        assertThat(ftpDestination.getUser()).isEqualTo("ftpUser");
+        assertThat(ftpDestination.getPassword()).isEqualTo("ftpPassword");
+        assertThat(ftpDestination.getFileLocation()).isEqualTo("ftpLocation");
+        assertThat(ftpDestination.getFileName()).isEqualTo("ftpFile");
+        assertThat(ftpDestination.getFileExtension()).isEqualTo("txt");
+
+        assertThat(taskFromDB.getDestinations().get(3)).isInstanceOf(FtpsDestination.class);
+        FtpsDestination ftpsDestination = (FtpsDestination) taskFromDB.getDestinations().get(3);
+        assertThat(ftpsDestination.getServer()).isEqualTo("ftpsServer");
+        assertThat(ftpsDestination.getPort()).isEqualTo(55);
+        assertThat(ftpsDestination.getUser()).isEqualTo("ftpsUser");
+        assertThat(ftpsDestination.getPassword()).isEqualTo("ftpsPassword");
+        assertThat(ftpsDestination.getFileLocation()).isEqualTo("ftpsLocation");
+        assertThat(ftpsDestination.getFileName()).isEqualTo("ftpsFile");
+        assertThat(ftpsDestination.getFileExtension()).isEqualTo("csv");
 
     }
 
@@ -298,6 +342,66 @@ public class ExportTaskImplIT {
     }
 
     @Test
+    public void testAddFtpDestination() {
+        ExportTask exportTask = createAndSaveTask();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            exportTask.addFtpDestination("elster.com", 21, "user", "password", "testreport", "file", "csv");
+
+            context.commit();
+        }
+
+        Optional<? extends ExportTask> found = dataExportService.findExportTask(exportTask.getId());
+
+        assertThat(found).isPresent();
+
+        ExportTask taskFromDB = found.get();
+
+        assertThat(taskFromDB.getDestinations()).hasSize(1);
+
+        assertThat(taskFromDB.getDestinations().get(0)).isInstanceOf(FtpDestination.class);
+        FtpDestination ftpDestination = (FtpDestination) taskFromDB.getDestinations().get(0);
+
+        assertThat(ftpDestination.getServer()).isEqualTo("elster.com");
+        assertThat(ftpDestination.getUser()).isEqualTo("user");
+        assertThat(ftpDestination.getPassword()).isEqualTo("password");
+        assertThat(ftpDestination.getFileLocation()).isEqualTo("testreport");
+        assertThat(ftpDestination.getFileName()).isEqualTo("file");
+        assertThat(ftpDestination.getFileExtension()).isEqualTo("csv");
+        assertThat(ftpDestination.getPort()).isEqualTo(21);
+    }
+
+    @Test
+    public void testAddFtpsDestination() {
+        ExportTask exportTask = createAndSaveTask();
+
+        try (TransactionContext context = transactionService.getContext()) {
+            exportTask.addFtpsDestination("elster.com", 20, "user", "password", "testreport", "file", "csv");
+
+            context.commit();
+        }
+
+        Optional<? extends ExportTask> found = dataExportService.findExportTask(exportTask.getId());
+
+        assertThat(found).isPresent();
+
+        ExportTask taskFromDB = found.get();
+
+        assertThat(taskFromDB.getDestinations()).hasSize(1);
+
+        assertThat(taskFromDB.getDestinations().get(0)).isInstanceOf(FtpsDestination.class);
+        FtpsDestination ftpsDestination = (FtpsDestination) taskFromDB.getDestinations().get(0);
+
+        assertThat(ftpsDestination.getServer()).isEqualTo("elster.com");
+        assertThat(ftpsDestination.getUser()).isEqualTo("user");
+        assertThat(ftpsDestination.getPassword()).isEqualTo("password");
+        assertThat(ftpsDestination.getFileLocation()).isEqualTo("testreport");
+        assertThat(ftpsDestination.getFileName()).isEqualTo("file");
+        assertThat(ftpsDestination.getFileExtension()).isEqualTo("csv");
+        assertThat(ftpsDestination.getPort()).isEqualTo(20);
+    }
+
+    @Test
     public void testCreation() {
 
         ExportTask exportTask = createAndSaveTask();
@@ -309,10 +413,11 @@ public class ExportTaskImplIT {
         ExportTask readingTypeDataExportTask = found.get();
 
         assertThat(readingTypeDataExportTask.getReadingTypeDataSelector()).isPresent();
+        assertThat(readingTypeDataExportTask.getEventDataSelector()).isEmpty();
         assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getEndDeviceGroup().getId()).isEqualTo(endDeviceGroup.getId());
         assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getExportPeriod().getId()).isEqualTo(lastYear.getId());
-        assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getUpdatePeriod()).isPresent();
-        assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getUpdatePeriod().get().getId()).isEqualTo(oneYearBeforeLastYear.getId());
+        assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getStrategy().getUpdatePeriod()).isPresent();
+        assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getStrategy().getUpdatePeriod().get().getId()).isEqualTo(oneYearBeforeLastYear.getId());
         assertThat(readingTypeDataExportTask.getLastRun()).isEmpty();
         assertThat(readingTypeDataExportTask.getNextExecution()).isEqualTo(NOW.truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant());
         assertThat(readingTypeDataExportTask.getOccurrences(/*Range.<Instant>all()*/)).isEmpty();
@@ -322,6 +427,45 @@ public class ExportTaskImplIT {
         assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getStrategy().isExportUpdate()).isTrue();
         assertThat(readingTypeDataExportTask.getReadingTypeDataSelector().get().getReadingTypes()).containsExactly(readingType);
         assertThat(readingTypeDataExportTask.getProperties()).hasSize(1).contains(entry("propy", BigDecimal.valueOf(100, 0)));
+    }
+
+    @Test
+    public void testCreationForEvents() {
+
+        ExportTask exportTask = null;
+        try (TransactionContext context = transactionService.getContext()) {
+            exportTask = dataExportService.newBuilder()
+                    .scheduleImmediately()
+                    .setDataFormatterName(FORMATTER)
+                    .setName(NAME)
+                    .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
+                    .selectingEventTypes()
+                    .fromExportPeriod(lastYear)
+                    .fromEndDeviceGroup(endDeviceGroup)
+                    .fromEventType("4.*.*.*")
+                    .endSelection()
+                    .create();
+
+            context.commit();
+        }
+
+        Optional<? extends ExportTask> found = dataExportService.findExportTask(exportTask.getId());
+
+        assertThat(found).isPresent();
+
+        ExportTask readingTypeDataExportTask = found.get();
+
+        assertThat(readingTypeDataExportTask.getReadingTypeDataSelector()).isEmpty();
+        assertThat(readingTypeDataExportTask.getEventDataSelector()).isPresent();
+        assertThat(readingTypeDataExportTask.getEventDataSelector().get().getEndDeviceGroup().getId()).isEqualTo(endDeviceGroup.getId());
+        assertThat(readingTypeDataExportTask.getEventDataSelector().get().getExportPeriod().getId()).isEqualTo(lastYear.getId());
+        assertThat(readingTypeDataExportTask.getLastRun()).isEmpty();
+        assertThat(readingTypeDataExportTask.getNextExecution()).isEqualTo(NOW.truncatedTo(ChronoUnit.DAYS).plusDays(1).toInstant());
+        assertThat(readingTypeDataExportTask.getOccurrences(/*Range.<Instant>all()*/)).isEmpty();
+        assertThat(readingTypeDataExportTask.getEventDataSelector().get().getEventStrategy()).isNotNull();
+        assertThat(readingTypeDataExportTask.getEventDataSelector().get().getEventStrategy().isExportContinuousData()).isFalse();
+        assertThat(readingTypeDataExportTask.getEventDataSelector().get().getEventTypeFilters()).hasSize(1);
+        assertThat(readingTypeDataExportTask.getEventDataSelector().get().getEventTypeFilters().get(0).getCode()).isEqualTo("4.*.*.*");
     }
 
     @Test
@@ -353,14 +497,14 @@ public class ExportTaskImplIT {
         exportTask.setProperty("propy", value1);
 
         try (TransactionContext context = transactionService.getContext()) {
-            exportTask.save(); // version 4
+            exportTask.update(); // version 4
             context.commit();
         }
 
         BigDecimal value2 = new BigDecimal("102");
         exportTask.setProperty("propy", value2);
         try (TransactionContext context = transactionService.getContext()) {
-            exportTask.save(); // version 5
+            exportTask.update(); // version 5
             context.commit();
         }
         try (TransactionContext context = transactionService.getContext()) {
@@ -406,7 +550,7 @@ public class ExportTaskImplIT {
         ExportTask task = createAndSaveTask("NAME2");
         task.setName(NAME);
         try (TransactionContext context = transactionService.getContext()) {
-            task.save();
+            task.update();
             context.commit();
         } catch (ConstraintViolationException ex) {
             assertThat(ex.getConstraintViolations()).hasSize(1);
@@ -431,14 +575,14 @@ public class ExportTaskImplIT {
             readingTypeDataExportTask.setScheduleExpression(Never.NEVER);
             readingTypeDataExportTask.setProperty("propy", BigDecimal.valueOf(20000, 2));
             readingTypeDataExportTask.setName("New name!");
-            ReadingTypeDataSelector selector = readingTypeDataExportTask.getReadingTypeDataSelector().get();
+            StandardDataSelector selector = readingTypeDataExportTask.getReadingTypeDataSelector().get();
             selector.setExportPeriod(oneYearBeforeLastYear);
             selector.setUpdatePeriod(null);
             selector.setEndDeviceGroup(anotherEndDeviceGroup);
             selector.addReadingType(anotherReadingType);
             selector.removeReadingType(readingType);
             selector.save();
-            readingTypeDataExportTask.save();
+            readingTypeDataExportTask.update();
             context.commit();
         }
 
@@ -449,7 +593,7 @@ public class ExportTaskImplIT {
         assertThat(found.get().getNextExecution()).isEqualTo(instant);
         assertThat(found.get().getScheduleExpression()).isEqualTo(Never.NEVER);
         assertThat(found.get().getReadingTypeDataSelector().get().getExportPeriod().getId()).isEqualTo(oneYearBeforeLastYear.getId());
-        assertThat(found.get().getReadingTypeDataSelector().get().getUpdatePeriod()).isEmpty();
+        assertThat(found.get().getReadingTypeDataSelector().get().getStrategy().getUpdatePeriod()).isEmpty();
         assertThat(found.get().getReadingTypeDataSelector().get().getEndDeviceGroup().getId()).isEqualTo(anotherEndDeviceGroup.getId());
         assertThat(found.get().getProperties().get("propy")).isEqualTo(BigDecimal.valueOf(20000, 2));
         assertThat(found.get().getReadingTypeDataSelector().get().getReadingTypes()).containsExactly(anotherReadingType);
@@ -465,7 +609,6 @@ public class ExportTaskImplIT {
         try (TransactionContext context = transactionService.getContext()) {
             exportTask = createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup, name);
 
-            exportTask.save();
             context.commit();
         }
         return exportTask;
@@ -482,7 +625,7 @@ public class ExportTaskImplIT {
                 .setDataFormatterName(FORMATTER)
                 .setName(name)
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
-                .selectingStandard()
+                .selectingReadingTypes()
                 .fromExportPeriod(lastYear)
                 .fromEndDeviceGroup(endDeviceGroup)
                 .fromReadingType(readingType)
@@ -492,7 +635,7 @@ public class ExportTaskImplIT {
                 .continuousData(true)
                 .endSelection()
                 .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
-                .build();
+                .create();
     }
 
     @Test
@@ -519,13 +662,13 @@ public class ExportTaskImplIT {
 
     @Test
     public void testReadingTypeDataExportItemPersistence() throws Exception {
-        Meter meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalArgumentException::new).newMeter("test");
+        Meter meter;
 
         ExportTaskImpl task = createDataExportTask();
         try (TransactionContext context = transactionService.getContext()) {
-            meter.save();
-            task.getReadingTypeDataSelector().get().addExportItem(meter, readingType);
-            task.save();
+            meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalArgumentException::new).newMeter("test").create();
+            ((IStandardDataSelector) task.getReadingTypeDataSelector().get()).addExportItem(meter, readingType);
+            task.update();
             context.commit();
         }
 
@@ -544,14 +687,14 @@ public class ExportTaskImplIT {
 
     @Test
     public void testReadingTypeDataExportItemInactivePersistence() throws Exception {
-        Meter meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalArgumentException::new).newMeter("test");
+        Meter meter;
 
         ExportTaskImpl task = createDataExportTask();
         try (TransactionContext context = transactionService.getContext()) {
-            meter.save();
-            IReadingTypeDataExportItem item = (IReadingTypeDataExportItem) task.getReadingTypeDataSelector().get().addExportItem(meter, readingType);
+            meter = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(IllegalArgumentException::new).newMeter("test").create();
+            IReadingTypeDataExportItem item = ((IStandardDataSelector) task.getReadingTypeDataSelector().get()).addExportItem(meter, readingType);
             item.deactivate();
-            task.save();
+            item.update();
             context.commit();
         }
 

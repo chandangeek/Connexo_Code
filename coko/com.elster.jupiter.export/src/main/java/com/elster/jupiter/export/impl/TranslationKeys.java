@@ -3,11 +3,20 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.nls.TranslationKey;
 
+import java.util.logging.Level;
+
 public enum TranslationKeys implements TranslationKey {
     RELATIVE_PERIOD_CATEGORY(Installer.RELATIVE_PERIOD_CATEGORY, "Data Export"),
-    STANDARD_DATA_SELECTOR_FACTORY(StandardDataSelectorFactory.class.getName(), DataExportService.STANDARD_DATA_SELECTOR),
+    RELATIVE_PERIOD_UPDATEWINDOW_CATEGORY(Installer.RELATIVE_PERIOD_UPDATEWINDOW_CATEGORY, "Update window"),
+    RELATIVE_PERIOD_UPDATETIMEFRAME_CATEGORY(Installer.RELATIVE_PERIOD_UPDATETIMEFRAME_CATEGORY, "Update timeframe"),
+    STANDARD_DATA_SELECTOR_FACTORY(StandardDataSelectorFactory.class.getName(), DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR),
     SUBSCRIBER_NAME(Installer.SUBSCRIBER_NAME, DataExportServiceImpl.SUBSCRIBER_DISPLAYNAME),
-    ;
+
+    NUMBER_OF_DATASOURCES_SUCCESSFULLY_EXPORTED("dataexport.dataSourcesSuccessfullyExported", "{0} data source(s) successfully exported"),
+    NUMBER_OF_DATASOURCES_SKIPPED("dataexport.dataSourcesSkipped", "{0} data source(s) skipped"),
+    NUMBER_OF_DEVICES_WITH_EVENTS_SUCCESSFULLY_EXPORTED("dataexport.devicesWithEventsSuccessfullyExported", "{0} device(s) with events successfully exported"),
+    NUMBER_OF_EVENTS_EXPORTED("dataexport.eventsSuccessfullyExported", "{0} event(s) successfully exported")
+   ;
 
     private String key;
     private String defaultFormat;

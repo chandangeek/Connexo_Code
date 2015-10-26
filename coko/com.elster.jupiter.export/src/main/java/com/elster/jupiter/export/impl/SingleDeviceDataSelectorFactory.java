@@ -3,7 +3,6 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.DataSelector;
 import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.ExportData;
@@ -27,9 +26,10 @@ import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-@Component(name = "com.elster.jupiter.export.processor.SingleDeviceDataSelectorFactory",
-        service = DataSelectorFactory.class, property = { DataExportService.DATA_TYPE_PROPERTY + "="+ DataExportService.STANDARD_DATA_TYPE},
-        immediate = true)
+// Please don't add this ever again on the master
+//@Component(name = "com.elster.jupiter.export.processor.SingleDeviceDataSelectorFactory",
+//        service = DataSelectorFactory.class, property = { DataExportService.DATA_TYPE_PROPERTY + "="+ DataExportService.STANDARD_DATA_TYPE},
+//        immediate = true)
 public class SingleDeviceDataSelectorFactory implements DataSelectorFactory {
 
     private volatile TransactionService transactionService;
@@ -90,7 +90,7 @@ public class SingleDeviceDataSelectorFactory implements DataSelectorFactory {
     }
 
     private NlsKey getNlsKey() {
-        return SimpleNlsKey.key(DataExportService.COMPONENTNAME, Layer.DOMAIN, ReadingTypeDataSelectorImpl.class.getName());
+        return SimpleNlsKey.key(DataExportService.COMPONENTNAME, Layer.DOMAIN, StandardDataSelectorImpl.class.getName());
     }
 
     private static enum DelegatingDataSelector implements DataSelector {
@@ -99,8 +99,7 @@ public class SingleDeviceDataSelectorFactory implements DataSelectorFactory {
 
         @Override
         public Stream<ExportData> selectData(DataExportOccurrence dataExportOccurrence) {
-            //todo: to be implemented
-            return dataExportOccurrence.getTask().getReadingTypeDataSelector().orElseThrow(IllegalStateException::new).selectData(dataExportOccurrence);
+            return null;
         }
     }
 }

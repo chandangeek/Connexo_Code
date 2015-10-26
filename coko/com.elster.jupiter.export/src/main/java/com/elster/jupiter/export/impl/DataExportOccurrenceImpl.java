@@ -7,6 +7,8 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.logging.LogEntry;
 import com.elster.jupiter.util.logging.LogEntryFinder;
 import com.elster.jupiter.util.time.Interval;
@@ -16,38 +18,48 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelectorOccurrence {
 
     private Reference<TaskOccurrence> taskOccurrence = ValueReference.absent();
     private Reference<IExportTask> readingTask = ValueReference.absent();
-    private Interval exportedDataInterval = Interval.forever();
+    private Interval exportedDataInterval;
     private Interval.EndpointBehavior exportedDataBoundaryType;
     private DataExportStatus status = DataExportStatus.BUSY;
     private String failureReason;
+    private String summary;
 
     private final DataModel dataModel;
     private final TaskService taskService;
+    private final TransactionService transactionService;
 
     private transient Range<Instant> exportedDataRange;
 
     @Inject
-    DataExportOccurrenceImpl(DataModel dataModel, TaskService taskService) {
+    DataExportOccurrenceImpl(DataModel dataModel, TaskService taskService, TransactionService transactionService) {
         this.dataModel = dataModel;
         this.taskService = taskService;
+        this.transactionService = transactionService;
     }
 
     static DataExportOccurrenceImpl from(DataModel model, TaskOccurrence occurrence, IExportTask task) {
         return model.getInstance(DataExportOccurrenceImpl.class).init(occurrence, task);
     }
 
-    private DataExportOccurrenceImpl init(TaskOccurrence occurrence, IExportTask task) {
+    DataExportOccurrenceImpl init(TaskOccurrence occurrence, IExportTask task) {
         taskOccurrence.set(occurrence);
         readingTask.set(task);
         //TODO ZoneId !!
 
         task.getReadingTypeDataSelector()
+                .map(selector -> selector.getExportPeriod().getOpenClosedInterval(occurrence.getTriggerTime().atZone(ZoneId.systemDefault())))
+                .ifPresent(instantRange -> {
+                    exportedDataInterval = Interval.of(instantRange);
+                    exportedDataBoundaryType = Interval.EndpointBehavior.fromRange(instantRange);
+                });
+        task.getEventDataSelector()
                 .map(selector -> selector.getExportPeriod().getOpenClosedInterval(occurrence.getTriggerTime().atZone(ZoneId.systemDefault())))
                 .ifPresent(instantRange -> {
                     exportedDataInterval = Interval.of(instantRange);
@@ -88,6 +100,11 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
     }
 
     @Override
+    public String getSummary() {
+        return this.summary;
+    }
+
+    @Override
     public String getFailureReason() {
         return this.failureReason;
     }
@@ -116,6 +133,15 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
         this.status = status;
         this.failureReason = message;
         getTask().updateLastRun(getTriggerTime());
+    }
+
+    @Override
+    public void summarize(String summaryMessage) {
+        try (TransactionContext context = transactionService.getContext()) {
+            this.summary = summaryMessage;
+            update();
+            context.commit();
+        }
     }
 
     @Override
@@ -150,7 +176,24 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
 
     @Override
     public int nthSince(Instant since) {
-        List<TaskOccurrence> occurrences = taskService.getOccurrences(taskOccurrence.get().getRecurrentTask(), Range.closedOpen(since, getTriggerTime()));
+        Instant triggerTime = getTriggerTime();
+        if (triggerTime.isBefore(since)) {
+            triggerTime = Instant.now();
+        }
+        List<TaskOccurrence> occurrences = taskService.getOccurrences(taskOccurrence.get().getRecurrentTask(), Range.closedOpen(since, triggerTime));
         return occurrences.size() + 1;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DataExportOccurrenceImpl)) return false;
+        DataExportOccurrenceImpl that = (DataExportOccurrenceImpl) o;
+        return Objects.equals(taskOccurrence, that.taskOccurrence);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(taskOccurrence);
     }
 }

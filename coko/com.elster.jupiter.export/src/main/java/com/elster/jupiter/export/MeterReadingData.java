@@ -12,7 +12,7 @@ public class MeterReadingData extends AbstractExportData<MeterReading> {
     }
 
     public MeterReading getMeterReading() {
-        return getData(MeterReading.class);
+        return getData();
     }
 
     public ReadingTypeDataExportItem getItem() {

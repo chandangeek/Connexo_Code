@@ -36,7 +36,7 @@ class LoggingItemExporter implements ItemExporter {
     private final Logger logger;
     private final Thesaurus thesaurus;
     private final TransactionService transactionService;
-    private final DateTimeFormatter timeFormatter = DefaultDateTimeFormatters.mediumDate().withLongTime().build().withZone(ZoneId.systemDefault());
+    private final DateTimeFormatter timeFormatter = DefaultDateTimeFormatters.longDate().withLongTime().build().withZone(ZoneId.systemDefault());
 
     public LoggingItemExporter(Thesaurus thesaurus, TransactionService transactionService, Logger logger, ItemExporter decorated) {
         this.transactionService = transactionService;
@@ -51,10 +51,12 @@ class LoggingItemExporter implements ItemExporter {
         String mrid = item.getReadingContainer().getMeter(occurrence.getTriggerTime()).map(Meter::getMRID).orElse("");
         String readingType = item.getReadingType().getAliasName();
         try {
-            List<FormattedExportData> data = decorated.exportItem(occurrence, meterReadingData);
-            Range<Instant> range = determineExportInterval(occurrence, item);
+            Range<Instant> range = ((IStandardDataSelector) occurrence.getTask().getReadingTypeDataSelector().get()).adjustedExportPeriod(occurrence, item);
             String fromDate = range.hasLowerBound() ? timeFormatter.format(range.lowerEndpoint()) : "";
             String toDate = range.hasUpperBound() ? timeFormatter.format(range.upperEndpoint()) : "";
+
+            List<FormattedExportData> data = decorated.exportItem(occurrence, meterReadingData);
+
             transactionService.execute(VoidTransaction.of(() -> MessageSeeds.ITEM_EXPORTED_SUCCESFULLY.log(logger, thesaurus, mrid, readingType, fromDate, toDate)));
             return data;
         } catch (DataExportException e) {
@@ -68,7 +70,7 @@ class LoggingItemExporter implements ItemExporter {
 
     private Range<Instant> determineExportInterval(DataExportOccurrence occurrence, ReadingTypeDataExportItem item) {
         return occurrence.getTask().getReadingTypeDataSelector()
-                .map(IReadingTypeDataSelector.class::cast)
+                .map(IStandardDataSelector.class::cast)
                 .map(selector -> selector.adjustedExportPeriod(occurrence, item))
                 .orElseGet(Range::all);
     }

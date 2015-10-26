@@ -2,3 +2,5 @@
 -dsannotations: *
 Private-Package: com.elster.jupiter.export.impl
 Export-Package: com.elster.jupiter.export, com.elster.jupiter.export.security
+Import-Package: javax.mail,\
+	*

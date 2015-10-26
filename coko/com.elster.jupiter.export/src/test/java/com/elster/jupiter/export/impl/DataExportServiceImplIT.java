@@ -3,6 +3,7 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -13,7 +14,9 @@ import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.ftpclient.impl.FtpModule;
 import com.elster.jupiter.ids.impl.IdsModule;
 import com.elster.jupiter.mail.impl.MailModule;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
@@ -41,15 +44,20 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.tasks.impl.TaskModule;
-import com.elster.jupiter.time.*;
+import com.elster.jupiter.time.RelativeDate;
+import com.elster.jupiter.time.RelativePeriod;
+import com.elster.jupiter.time.RelativePeriodCategory;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.impl.TimeModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -83,7 +91,6 @@ import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.ass
 import static com.elster.jupiter.time.RelativeField.*;
 import static org.assertj.core.api.Fail.fail;
 import static org.fest.reflect.core.Reflection.field;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -178,6 +185,7 @@ public class DataExportServiceImplIT {
                     new FiniteStateMachineModule(),
                     new MeteringModule("0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0"),
                     new PartyModule(),
+                    new DataVaultModule(),
                     new EventsModule(),
                     new DomainUtilModule(),
                     new OrmModule(),
@@ -193,7 +201,10 @@ public class DataExportServiceImplIT {
                     new AppServiceModule(),
                     new BasicPropertiesModule(),
                     new MailModule(),
+                    new ValidationModule(),
                     new BpmModule(),
+                    new DataVaultModule(),
+                    new FtpModule(),
                     new UserModule()
             );
         } catch (Exception e) {
@@ -201,16 +212,18 @@ public class DataExportServiceImplIT {
         }
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
+            meteringService = injector.getInstance(MeteringService.class);
             dataExportService = (DataExportServiceImpl) injector.getInstance(DataExportService.class);
             timeService = injector.getInstance(TimeService.class);
-            meteringService = injector.getInstance(MeteringService.class);
             meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
-            ((NlsServiceImpl)(injector.getInstance(NlsService.class))).addTranslationProvider(dataExportService);
             return null;
         });
+        NlsServiceImpl nlsService = (NlsServiceImpl) injector.getInstance(NlsService.class);
+        nlsService.addTranslationKeyProvider(dataExportService);
+        nlsService.addMessageSeedProvider(dataExportService);
         readingType = meteringService.getReadingType("0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
         anotherReadingType = meteringService.getReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0").get();
-        dataExportService.addFormatter(dataFormatterFactory, ImmutableMap.of(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_DATA_TYPE));
+        dataExportService.addFormatter(dataFormatterFactory, ImmutableMap.of(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_READING_DATA_TYPE));
         when(dataFormatterFactory.getName()).thenReturn(FORMATTER);
         when(dataFormatterFactory.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
         when(propertySpec.getName()).thenReturn("propy");
@@ -219,10 +232,12 @@ public class DataExportServiceImplIT {
         try (TransactionContext context = transactionService.getContext()) {
             lastYear = timeService.createRelativePeriod("last year", startOfLastYear, startOfThisYear, Collections.<RelativePeriodCategory>emptyList());
             oneYearBeforeLastYear = timeService.createRelativePeriod("the year before last year", startOfTheYearBeforeLastYear, startOfLastYear, Collections.emptyList());
-            endDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("none");
-            endDeviceGroup.save();
-            anotherEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("also none");
-            anotherEndDeviceGroup.save();
+            endDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup()
+                    .setName("none")
+                    .create();
+            anotherEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup()
+                    .setName("also none")
+                    .create();
             context.commit();
         }
     }
@@ -234,7 +249,7 @@ public class DataExportServiceImplIT {
 
     @Test
     public void testCreateExportTaskWithoutReadingTypes() throws Exception {
-        ExportTask exportTask1 = null;
+        ExportTask exportTask1;
         try (TransactionContext context = transactionService.getContext()) {
             exportTask1 = dataExportService.newBuilder()
                     .scheduleImmediately()
@@ -242,7 +257,7 @@ public class DataExportServiceImplIT {
                     .setName(NAME)
                     .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
                     .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
-                    .selectingStandard()
+                    .selectingReadingTypes()
                     .fromExportPeriod(lastYear)
                     .fromEndDeviceGroup(endDeviceGroup)
                     .fromUpdatePeriod(oneYearBeforeLastYear)
@@ -250,9 +265,9 @@ public class DataExportServiceImplIT {
                     .exportUpdate(true)
                     .continuousData(true)
                     .endSelection()
-                    .build();
+                    .create();
 
-            exportTask1.save();
+            exportTask1.update();
             context.commit();
             fail("expected constraint violation");
         } catch (ConstraintViolationException e) {
@@ -300,7 +315,7 @@ public class DataExportServiceImplIT {
                 .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
                 .setName(name)
                 .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
-                .selectingStandard()
+                .selectingReadingTypes()
                 .fromExportPeriod(lastYear)
                 .fromEndDeviceGroup(endDeviceGroup)
                 .fromReadingType(readingType)
@@ -309,7 +324,7 @@ public class DataExportServiceImplIT {
                 .exportUpdate(true)
                 .continuousData(true)
                 .endSelection()
-                .build();
+                .create();
     }
 
     private ExportTask createAndSaveTask() {
@@ -321,7 +336,7 @@ public class DataExportServiceImplIT {
         try (TransactionContext context = transactionService.getContext()) {
             exportTask = createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup, name);
 
-            exportTask.save();
+            exportTask.update();
             context.commit();
         }
         return exportTask;

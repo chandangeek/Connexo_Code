@@ -3,6 +3,7 @@ package com.elster.jupiter.export;
 import com.google.common.collect.ImmutableList;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -37,10 +38,14 @@ public class SimpleFormattedData implements FormattedData {
     }
 
     private ImmutableList<FormattedExportData> mergedData(SimpleFormattedData other) {
-        return ImmutableList.<FormattedExportData>builder()
-                    .addAll(data)
-                    .addAll(other.data)
-                    .build();
+        ArrayList<FormattedExportData> datas = new ArrayList<>(data);
+        datas.addAll(other.data);
+        datas.sort(Comparator.comparing(this::toSortKey));
+        return ImmutableList.copyOf(datas);
+    }
+
+    private String toSortKey(FormattedExportData data) {
+        return data.getStructureMarker().getStructurePath().get(0);
     }
 
     @Override

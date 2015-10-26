@@ -8,4 +8,8 @@ public class FatalDataExportException extends RuntimeException {
     public FatalDataExportException(RuntimeException cause) {
         super(cause.getMessage(), cause);
     }
+
+    public String getLocalizedMessage() {
+        return getCause().getLocalizedMessage();
+    }
 }

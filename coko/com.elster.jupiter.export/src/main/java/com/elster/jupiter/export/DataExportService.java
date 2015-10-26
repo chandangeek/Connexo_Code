@@ -1,5 +1,6 @@
 package com.elster.jupiter.export;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.properties.PropertySpec;
@@ -10,18 +11,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+@ProviderType
 public interface DataExportService {
 
     String COMPONENTNAME = "DES";
-    String STANDARD_DATA_SELECTOR = "Standard Data Selector";
+    String STANDARD_READINGTYPE_DATA_SELECTOR = "Standard Data Selector";
+    String STANDARD_EVENT_DATA_SELECTOR = "Standard Event Data Selector";
     String DATA_TYPE_PROPERTY = "dataType";
-    String STANDARD_DATA_TYPE = "standardDataType";
+    String STANDARD_READING_DATA_TYPE = "standardReadingDataType";
+    String STANDARD_EVENT_DATA_TYPE = "standardEventDataType";
 
     Optional<DataFormatterFactory> getDataFormatterFactory(String name);
 
     DataExportTaskBuilder newBuilder();
 
     Optional<? extends ExportTask> findExportTask(long id);
+
+    Optional<? extends ExportTask> findAndLockExportTask(long id, long version);
 
     Query<? extends ExportTask> getReadingTypeDataExportTaskQuery();
 

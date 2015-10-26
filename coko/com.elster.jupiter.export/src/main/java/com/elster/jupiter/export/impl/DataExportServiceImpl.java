@@ -2,6 +2,7 @@ package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.export.DataExportService;
@@ -12,13 +13,16 @@ import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.export.security.Privileges;
+import com.elster.jupiter.ftpclient.FtpClientService;
 import com.elster.jupiter.mail.MailService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
@@ -37,6 +41,8 @@ import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
@@ -70,10 +76,10 @@ import static com.elster.jupiter.util.conditions.Operator.EQUAL;
 
 @Component(
         name = "com.elster.jupiter.export",
-        service = {DataExportService.class, IDataExportService.class, InstallService.class, PrivilegesProvider.class, TranslationKeyProvider.class},
+        service = {DataExportService.class, IDataExportService.class, InstallService.class, PrivilegesProvider.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         property = "name=" + DataExportService.COMPONENTNAME,
         immediate = true)
-public class DataExportServiceImpl implements IDataExportService, InstallService, PrivilegesProvider, TranslationKeyProvider {
+public class DataExportServiceImpl implements IDataExportService, InstallService, PrivilegesProvider, TranslationKeyProvider, MessageSeedProvider {
 
     public static final String DESTINATION_NAME = "DataExport";
     public static final String SUBSCRIBER_NAME = "DataExport";
@@ -95,6 +101,10 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     private volatile MailService mailService;
     private volatile FileSystem fileSystem;
     private volatile Path tempDirectory;
+    private volatile ValidationService validationService;
+    private volatile DataVaultService dataVaultService;
+
+    private volatile FtpClientService ftpClientService;
 
     private Map<DataFormatterFactory, List<String>> dataFormatterFactories = new ConcurrentHashMap<>();
     private Map<DataSelectorFactory, String> dataSelectorFactories = new ConcurrentHashMap<>();
@@ -105,7 +115,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     }
 
     @Inject
-    public DataExportServiceImpl(OrmService ormService, TimeService timeService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, NlsService nlsService, MeteringService meteringService, QueryService queryService, Clock clock, UserService userService, AppService appService, TransactionService transactionService, PropertySpecService propertySpecService, MailService mailService, BundleContext context, FileSystem fileSystem) {
+    public DataExportServiceImpl(OrmService ormService, TimeService timeService, TaskService taskService, MeteringGroupsService meteringGroupsService, MessageService messageService, NlsService nlsService, MeteringService meteringService, QueryService queryService, Clock clock, UserService userService, AppService appService, TransactionService transactionService, PropertySpecService propertySpecService, MailService mailService, BundleContext context, FileSystem fileSystem, ValidationService validationService, DataVaultService dataVaultService, FtpClientService ftpClientService) {
         setOrmService(ormService);
         setTimeService(timeService);
         setTaskService(taskService);
@@ -121,6 +131,9 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         setMailService(mailService);
         setPropertySpecService(propertySpecService);
         setFileSystem(fileSystem);
+        setValidationService(validationService);
+        setDataVaultService(dataVaultService);
+        setFtpClientService(ftpClientService);
         activate(context);
         if (!dataModel.isInstalled()) {
             install();
@@ -143,9 +156,9 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
 
     @Override
     public List<DataSelectorFactory> getAvailableSelectors() {
-        ArrayList<DataSelectorFactory> dataSelectorfactories = new ArrayList<>(this.dataSelectorFactories.keySet());
-        dataSelectorfactories.sort(Comparator.comparing(HasName::getName));
-        return dataSelectorfactories;
+        ArrayList<DataSelectorFactory> dataSelectorFactories = new ArrayList<>(this.dataSelectorFactories.keySet());
+        dataSelectorFactories.sort(Comparator.comparing(HasName::getName));
+        return dataSelectorFactories;
     }
 
     @Override
@@ -156,6 +169,11 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     @Override
     public Optional<? extends ExportTask> findExportTask(long id) {
         return dataModel.mapper(IExportTask.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<? extends ExportTask> findAndLockExportTask(long id, long version) {
+        return dataModel.mapper(IExportTask.class).lockObjectIfVersion(version, id);
     }
 
     @Override
@@ -193,7 +211,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList(OrmService.COMPONENTNAME, TimeService.COMPONENT_NAME, MeteringService.COMPONENTNAME, TaskService.COMPONENTNAME, MeteringGroupsService.COMPONENTNAME, MessageService.COMPONENTNAME, NlsService.COMPONENTNAME, AppService.COMPONENT_NAME);
+        return Arrays.asList(OrmService.COMPONENTNAME, TimeService.COMPONENT_NAME, MeteringService.COMPONENTNAME, TaskService.COMPONENTNAME, MeteringGroupsService.COMPONENTNAME, MessageService.COMPONENTNAME, NlsService.COMPONENTNAME, AppService.COMPONENT_NAME, DataVaultService.COMPONENT_NAME);
     }
 
     @Override
@@ -256,6 +274,16 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         this.userService = userService;
     }
 
+    @Reference
+    public void setDataVaultService(DataVaultService dataVaultService) {
+        this.dataVaultService = dataVaultService;
+    }
+
+    @Reference
+    public void setFtpClientService(FtpClientService ftpClientService) {
+        this.ftpClientService = ftpClientService;
+    }
+
     public void removeFormatter(DataFormatterFactory dataFormatterFactory) {
         dataFormatterFactories.remove(dataFormatterFactory);
     }
@@ -284,10 +312,13 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
                     bind(FileSystem.class).toInstance(FileSystems.getDefault());
                     bind(MailService.class).toInstance(mailService);
                     bind(FileSystem.class).toInstance(fileSystem);
+                    bind(ValidationService.class).toInstance(validationService);
+                    bind(DataVaultService.class).toInstance(dataVaultService);
+                    bind(FtpClientService.class).toInstance(ftpClientService);
                 }
             });
-            addSelector(new StandardDataSelectorFactory(transactionService, meteringService, thesaurus), ImmutableMap.of(DATA_TYPE_PROPERTY, STANDARD_DATA_TYPE));
-//            addSelector(new SingleDeviceDataSelectorFactory(transactionService, meteringService, thesaurus, propertySpecService, timeService));
+            addSelector(new StandardDataSelectorFactory(thesaurus), ImmutableMap.of(DATA_TYPE_PROPERTY, STANDARD_READING_DATA_TYPE));
+            addSelector(new StandardEventDataSelectorFactory(thesaurus), ImmutableMap.of(DATA_TYPE_PROPERTY, STANDARD_EVENT_DATA_TYPE));
             String tempDirectoryPath = context.getProperty(JAVA_TEMP_DIR_PROPERTY);
             if (tempDirectoryPath == null) {
                 tempDirectory = fileSystem.getRootDirectories().iterator().next();
@@ -359,6 +390,11 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         this.fileSystem = fileSystem;
     }
 
+    @Reference
+    public void setValidationService(ValidationService validationService) {
+        this.validationService = validationService;
+    }
+
     @Override
     public IDataExportOccurrence createExportOccurrence(TaskOccurrence taskOccurrence) {
         IExportTask task = getReadingTypeDataExportTaskForRecurrentTask(taskOccurrence.getRecurrentTask()).orElseThrow(IllegalArgumentException::new);
@@ -388,7 +424,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     @Override
     public void removeExportDirectory(AppServer appServer) {
         Optional<DirectoryForAppServer> appServerRef = dataModel.mapper(DirectoryForAppServer.class).getOptional(appServer.getName());
-        appServerRef.ifPresent(as -> dataModel.remove(as));
+        appServerRef.ifPresent(dataModel::remove);
     }
 
     @Override
@@ -410,9 +446,9 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
 
     @Override
     public List<ExportTask> findExportTaskUsing(RelativePeriod relativePeriod) {
-        return dataModel.stream(IExportTask.class)
-                .join(IReadingTypeDataSelector.class)
-                .filter(EQUAL.compare("readingTypeDataSelector.exportPeriod", relativePeriod).or(EQUAL.compare("readingTypeDataSelector.updatePeriod", relativePeriod)))
+        return dataModel.stream(IStandardDataSelector.class)
+                .filter(EQUAL.compare("exportPeriod", relativePeriod).or(EQUAL.compare("updatePeriod", relativePeriod)))
+                .map(IStandardDataSelector::getExportTask)
                 .collect(Collectors.toList());
     }
 
@@ -471,12 +507,20 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
 
     @Override
     public List<TranslationKey> getKeys() {
+        SimpleTranslationKey standardDataSelectorKey = new SimpleTranslationKey(StandardDataSelectorFactory.TRANSLATION_KEY, StandardDataSelectorFactory.DISPLAY_NAME);
+        SimpleTranslationKey standardEventDataSelectorKey = new SimpleTranslationKey(StandardEventDataSelectorFactory.TRANSLATION_KEY, StandardEventDataSelectorFactory.DISPLAY_NAME);
         return Stream.of(
-                Arrays.stream(MessageSeeds.values()),
-                Arrays.stream(TranslationKeys.values()),
-                Arrays.stream(DataExportStatus.values()),
-                Arrays.stream(Privileges.values()))
+                Stream.of(TranslationKeys.values()),
+                Stream.of(DataExportStatus.values()),
+                Stream.of(Privileges.values()),
+                Stream.of(standardDataSelectorKey, standardEventDataSelectorKey))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
+    }
+
 }

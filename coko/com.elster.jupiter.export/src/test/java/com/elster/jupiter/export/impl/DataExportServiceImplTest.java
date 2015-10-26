@@ -1,13 +1,17 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.export.*;
+import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.DataExportTaskBuilder;
+import com.elster.jupiter.export.DataFormatterFactory;
+import com.elster.jupiter.export.DataSelectorFactory;
+import com.elster.jupiter.export.EventDataSelector;
+import com.elster.jupiter.export.ExportTask;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
-
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
@@ -15,17 +19,15 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
-
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
-
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TimeService;
-
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import org.junit.Before;
@@ -37,6 +39,10 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.osgi.framework.BundleContext;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
@@ -48,16 +54,19 @@ import java.util.Optional;
 
 import static com.elster.jupiter.export.DataExportService.DATA_TYPE_PROPERTY;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DataExportServiceImplTest {
     private static final long ID = 15;
-    private DataExportServiceImpl dataExportService;
     private static final Instant NOW = ZonedDateTime.of(2013, 9, 10, 14, 47, 24, 0, ZoneId.of("Europe/Paris")).toInstant();
+    private static final Instant nextExecution = ZonedDateTime.of(2013, 9, 10, 14, 47, 24, 0, ZoneId.of("Europe/Paris")).toInstant();
+    private static String NAME = "task";
+    private static String DATA_FORMATTER = "factory";
+
+    private DataExportServiceImpl dataExportService;
 
     @Mock
     private DataModel dataModel;
@@ -110,28 +119,39 @@ public class DataExportServiceImplTest {
     @Mock
     private PropertySpec propertySpec1, propertySpec2, propertySpec3;
     @Mock
-    private ReadingTypeDataSelector readingTypeDataSelector;
+    private IStandardDataSelector standardDataSelector;
     @Mock
     private EndDeviceGroup endDeviceGroup;
-
-    private static final Instant nextExecution = ZonedDateTime.of(2013, 9, 10, 14, 47, 24, 0, ZoneId.of("Europe/Paris")).toInstant();
-    private static String NAME = "task";
-    private static String DATA_FOMRATTER = "factory";
+    @Mock
+    private ValidationService validationService;
+    @Mock
+    private DestinationSpec destinationSpec;
+    @Mock
+    private ValidatorFactory validatorFactory;
+    @Mock
+    private Validator validator;
 
     @Before
     public void setUp() throws SQLException {
-        when(dataFormatterFactory.getName()).thenReturn(DATA_FOMRATTER);
-        when(iExportTask.getReadingTypeDataSelector()).thenReturn(Optional.of(readingTypeDataSelector));
+        when(dataFormatterFactory.getName()).thenReturn(DATA_FORMATTER);
+        when(iExportTask.getReadingTypeDataSelector()).thenReturn(Optional.of(standardDataSelector));
+        when(iExportTask.getEventDataSelector()).thenReturn(Optional.<EventDataSelector>empty());
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(dataModel);
         when(dataModel.addTable(anyString(), any())).thenReturn(table);
         when(dataModel.<ExportTask>mapper(any())).thenReturn(readingTypeDataExportTaskFactory);
         when(dataModel.<IExportTask>mapper(any())).thenReturn(iReadingTypeDataExportTaskFactory);
+        when(dataModel.getInstance(DataExportOccurrenceImpl.class)).thenReturn(dataExportOccurrence);
+        when(dataExportOccurrence.init(any(), any())).thenReturn(dataExportOccurrence);
         when(transactionService.execute(any())).thenAnswer(new Answer<Object>() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
                 return ((Transaction<?>) invocationOnMock.getArguments()[0]).perform();
             }
         });
+        when(messageService.getDestinationSpec("DataExport")).thenReturn(Optional.of(destinationSpec));
+        when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
+        when(validatorFactory.getValidator()).thenReturn(validator);
+        when(validator.validate(any(), anyVararg())).thenReturn(Collections.<ConstraintViolation<Object>>emptySet());
         when(clock.instant()).thenReturn(NOW);
         dataExportService = new DataExportServiceImpl();
         dataExportService.setOrmService(ormService);
@@ -144,25 +164,25 @@ public class DataExportServiceImplTest {
         dataExportService.setQueryService(queryService);
         dataExportService.setClock(clock);
         dataExportService.setUserService(userService);
-        dataExportService.addFormatter(dataFormatterFactory, ImmutableMap.of(DATA_TYPE_PROPERTY, DataExportService.STANDARD_DATA_TYPE));
+        dataExportService.addFormatter(dataFormatterFactory, ImmutableMap.of(DATA_TYPE_PROPERTY, DataExportService.STANDARD_READING_DATA_TYPE));
     }
 
     @Test
     public void testNewBuilder() {
         ExportTaskImpl readingTypeDataExportTaskImpl = new ExportTaskImpl(dataModel, dataExportService, taskService, thesaurus);
         when(dataModel.getInstance(ExportTaskImpl.class)).thenReturn(readingTypeDataExportTaskImpl);
-        ReadingTypeDataSelectorImpl selectorImpl = new ReadingTypeDataSelectorImpl(dataModel, transactionService, meteringService, clock);
-        when(dataModel.getInstance(ReadingTypeDataSelectorImpl.class)).thenReturn(selectorImpl);
+        StandardDataSelectorImpl selectorImpl = new StandardDataSelectorImpl(dataModel, meteringService);
+        when(dataModel.getInstance(StandardDataSelectorImpl.class)).thenReturn(selectorImpl);
         DataExportTaskBuilderImpl dataExportTaskBuilder = new DataExportTaskBuilderImpl(dataModel)
                 .setName(NAME)
-                .setDataFormatterName(DATA_FOMRATTER)
+                .setDataFormatterName(DATA_FORMATTER)
                 .setNextExecution(nextExecution)
-                .selectingStandard()
+                .selectingReadingTypes()
                 .fromEndDeviceGroup(endDeviceGroup)
                 .fromExportPeriod(relativePeriod)
                 .endSelection();
         assertThat(dataExportService.newBuilder()).isInstanceOf(DataExportTaskBuilder.class);
-        assertThat(dataExportTaskBuilder.build()).isEqualTo(readingTypeDataExportTaskImpl);
+        assertThat(dataExportTaskBuilder.create()).isEqualTo(readingTypeDataExportTaskImpl);
         assertThat(readingTypeDataExportTaskImpl.getName()).isEqualTo(NAME);
     }
 
@@ -171,10 +191,10 @@ public class DataExportServiceImplTest {
         when(taskOccurrence.getRecurrentTask()).thenReturn(recurrentTask);
         when(iReadingTypeDataExportTaskFactory.getUnique("recurrentTask", recurrentTask)).thenReturn(Optional.of(iExportTask));
 
-        DataExportOccurrenceImpl dataExportOccurrence1 = new DataExportOccurrenceImpl(dataModel, taskService);
+        DataExportOccurrenceImpl dataExportOccurrence1 = new DataExportOccurrenceImpl(dataModel, taskService, transactionService);
         when(dataModel.getInstance(DataExportOccurrenceImpl.class)).thenReturn(dataExportOccurrence1);
         when(taskOccurrence.getTriggerTime()).thenReturn(NOW);
-        when(readingTypeDataSelector.getExportPeriod()).thenReturn(relativePeriod);
+        when(standardDataSelector.getExportPeriod()).thenReturn(relativePeriod);
         when(relativePeriod.getOpenClosedInterval(any())).thenReturn(Range.openClosed(NOW, NOW));
 
         assertThat(dataExportService.createExportOccurrence(taskOccurrence)).isEqualTo(dataExportOccurrence1);
@@ -230,9 +250,9 @@ public class DataExportServiceImplTest {
 
         dataExportService.addFormatter(nonMatch, ImmutableMap.of(DATA_TYPE_PROPERTY, "nope"));
         dataExportService.addFormatter(trivialMatch, ImmutableMap.of(DATA_TYPE_PROPERTY, requiredType));
-        dataExportService.addFormatter(complexMatch, ImmutableMap.of(DATA_TYPE_PROPERTY, new String[] {"nope", requiredType, "anotherNope"}));
+        dataExportService.addFormatter(complexMatch, ImmutableMap.of(DATA_TYPE_PROPERTY, new String[]{"nope", requiredType, "anotherNope"}));
         dataExportService.addFormatter(noDataTypes, Collections.emptyMap());
-        dataExportService.addFormatter(complexNonMatch, ImmutableMap.of(DATA_TYPE_PROPERTY, new String[] {"nope", "anotherNope", "andYetAnother"}));
+        dataExportService.addFormatter(complexNonMatch, ImmutableMap.of(DATA_TYPE_PROPERTY, new String[]{"nope", "anotherNope", "andYetAnother"}));
 
         assertThat(dataExportService.formatterFactoriesMatching(dataSelector)).hasSize(2).containsOnly(complexMatch, trivialMatch);
     }

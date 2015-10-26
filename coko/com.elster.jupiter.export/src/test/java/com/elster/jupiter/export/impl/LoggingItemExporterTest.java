@@ -36,8 +36,7 @@ import java.util.logging.Logger;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class LoggingItemExporterTest {
 
@@ -78,7 +77,7 @@ public class LoggingItemExporterTest {
     @Mock
     private ExportTask task;
     @Mock
-    private IReadingTypeDataSelector dataSelector;
+    private IStandardDataSelector dataSelector;
 
     public LoggingItemExporterTest() {
     }
@@ -92,9 +91,9 @@ public class LoggingItemExporterTest {
 
         from = ZonedDateTime.of(2013, 4, 18, 13, 2, 19, 0, ZoneId.systemDefault());
         to = ZonedDateTime.of(2013, 4, 18, 18, 2, 19, 0, ZoneId.systemDefault());
-        range =  Range.closed(from.toInstant(), to.toInstant());
+        range = Range.closed(from.toInstant(), to.toInstant());
 
-        when(task.getReadingTypeDataSelector()).thenReturn(Optional.of(dataSelector));
+        doReturn(Optional.of(dataSelector)).when(task).getReadingTypeDataSelector();
         when(meterReadingData.getItem()).thenReturn(item);
         when(decorated.exportItem(occurrence, meterReadingData)).thenReturn(Collections.emptyList());
         when(item.getReadingType()).thenReturn(readingType);
@@ -137,7 +136,7 @@ public class LoggingItemExporterTest {
         LogRecord logRecord = logRecorder.getRecords().get(0);
 
         assertThat(logRecord.getLevel()).isEqualTo(Level.INFO);
-        assertThat(logRecord.getMessage()).isEqualTo("Item MRID4711:The Speed Of Pain exported successfully for period Thu, 18 Apr 2013 13:02:19 NZST - Thu, 18 Apr 2013 18:02:19 NZST");
+        assertThat(logRecord.getMessage()).isEqualTo("Item MRID4711:The Speed Of Pain exported successfully for period Thu, Apr-18-'13 01:02:19 PM - Thu, Apr-18-'13 06:02:19 PM");
     }
 
     @Test

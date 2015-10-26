@@ -4,6 +4,7 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportOccurrenceFinder;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -31,13 +32,13 @@ class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinder {
     }
 
     @Override
-    public DataExportOccurrenceFinder setStart(Integer start) {
+    public DataExportOccurrenceFinder setStart(int start) {
         this.start = start;
         return this;
     }
 
     @Override
-    public DataExportOccurrenceFinder setLimit(Integer limit) {
+    public DataExportOccurrenceFinder setLimit(int limit) {
         this.limit = limit;
         return this;
     }
@@ -63,13 +64,22 @@ class DataExportOccurrenceFinderImpl implements DataExportOccurrenceFinder {
 
     @Override
     public List<? extends DataExportOccurrence> find() {
-        return dataModel.stream(DataExportOccurrence.class)
+        return stream().select();
+    }
+
+    @Override
+    public QueryStream<DataExportOccurrence> stream() {
+        QueryStream<DataExportOccurrence> queryStream = dataModel.stream(DataExportOccurrence.class)
                 .join(TaskOccurrence.class)
                 .filter(condition)
-                .sorted(order)
-                .skip(start)
-                .limit(limit)
-                .select();
+                .sorted(order);
+        if (start != null) {
+            queryStream.skip(start);
+        }
+        if (limit != null) {
+            queryStream.limit(limit);
+        }
+        return queryStream;
     }
 
     // documentation only
