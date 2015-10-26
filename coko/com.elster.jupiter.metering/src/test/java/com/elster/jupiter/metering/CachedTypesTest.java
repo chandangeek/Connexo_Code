@@ -2,6 +2,7 @@ package com.elster.jupiter.metering;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
@@ -69,6 +70,7 @@ public class CachedTypesTest {
                 new TransactionModule(printSql),
                 new BpmModule(),
                 new FiniteStateMachineModule(),
+                new DataVaultModule(),
                 new NlsModule());
     }
 

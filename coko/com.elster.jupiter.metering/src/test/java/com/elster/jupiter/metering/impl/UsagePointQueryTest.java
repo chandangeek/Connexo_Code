@@ -8,6 +8,7 @@ import java.security.Principal;
 import java.sql.SQLException;
 import java.time.Instant;
 
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -129,6 +130,7 @@ public class UsagePointQueryTest {
         			new TransactionModule(false),
                     new BpmModule(),
                     new FiniteStateMachineModule(),
+                    new DataVaultModule(),
                     new NlsModule()
                 );
         injector.getInstance(TransactionService.class).execute(() -> {

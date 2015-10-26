@@ -38,6 +38,8 @@ public interface MeteringService {
 
     Optional<UsagePoint> findUsagePoint(long id);
 
+    Optional<UsagePoint> findAndLockUsagePointByIdAndVersion(long id, long version);
+
     Optional<Meter> findMeter(long id);
 
     Optional<Meter> findMeter(String mRid);

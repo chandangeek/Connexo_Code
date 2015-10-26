@@ -503,19 +503,16 @@ public class EndDeviceImplIT {
         FiniteStateMachineServiceImpl finiteStateMachineService = this.injector.getInstance(FiniteStateMachineServiceImpl.class);
         FiniteStateMachineBuilder builder = finiteStateMachineService.newFiniteStateMachine("Tiny");
         FiniteStateMachine stateMachine = builder.complete(builder.newCustomState("TheOneAndOnly").complete());
-        stateMachine.save();
         return stateMachine;
     }
 
     private FiniteStateMachine createBiggerFiniteStateMachine() {
         FiniteStateMachineServiceImpl finiteStateMachineService = this.injector.getInstance(FiniteStateMachineServiceImpl.class);
         CustomStateTransitionEventType eventType = finiteStateMachineService.newCustomStateTransitionEventType("#whatever");
-        eventType.save();
         FiniteStateMachineBuilder builder = finiteStateMachineService.newFiniteStateMachine("Bigger");
         State second = builder.newCustomState("Second").complete();
         State first = builder.newCustomState("First").on(eventType).transitionTo(second).complete();
         FiniteStateMachine stateMachine = builder.complete(first);
-        stateMachine.save();
         return stateMachine;
     }
 

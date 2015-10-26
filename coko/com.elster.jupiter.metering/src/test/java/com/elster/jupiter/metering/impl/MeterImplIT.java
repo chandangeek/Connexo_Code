@@ -233,7 +233,6 @@ public class MeterImplIT {
         FiniteStateMachineServiceImpl finiteStateMachineService = this.injector.getInstance(FiniteStateMachineServiceImpl.class);
         FiniteStateMachineBuilder builder = finiteStateMachineService.newFiniteStateMachine("Tiny");
         FiniteStateMachine stateMachine = builder.complete(builder.newCustomState("TheOneAndOnly").complete());
-        stateMachine.save();
         return stateMachine;
     }
 
