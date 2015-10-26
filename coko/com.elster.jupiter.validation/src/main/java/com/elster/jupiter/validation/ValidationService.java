@@ -37,8 +37,9 @@ public interface ValidationService {
 
     Optional<? extends ValidationRuleSet> getValidationRuleSet(long id);
 
-    Optional<ValidationRuleSet> getValidationRuleSet(String name);
+    Optional<? extends ValidationRuleSet> findAndLockValidationRuleSetByIdAndVersion(long id, long version);
 
+    Optional<ValidationRuleSet> getValidationRuleSet(String name);
 
     boolean isValidationRuleSetInUse(ValidationRuleSet validationRuleSet);
 
@@ -99,6 +100,8 @@ public interface ValidationService {
 
     Optional<DataValidationTask> findValidationTask(long id);
 
+    Optional<DataValidationTask> findAndLockValidationTaskByIdAndVersion(long id, long version);
+
     Optional<DataValidationTask> findValidationTaskByName(String name);
 
     Thesaurus getThesaurus();
@@ -108,4 +111,12 @@ public interface ValidationService {
     Optional<DataValidationOccurrence> findDataValidationOccurrence(TaskOccurrence occurrence);
 
     Optional<SqlBuilder> getValidationResults(long endDeviceGroupId, Optional<Integer> start, Optional<Integer> limit);
+
+    Optional<? extends ValidationRuleSetVersion> findValidationRuleSetVersion(long id);
+
+    Optional<? extends ValidationRuleSetVersion> findAndLockValidationRuleSetVersionByIdAndVersion(long id, long version);
+
+    Optional<? extends ValidationRule> findValidationRule(long id);
+
+    Optional<? extends ValidationRule> findAndLockValidationRuleByIdAndVersion(long id, long version);
 }

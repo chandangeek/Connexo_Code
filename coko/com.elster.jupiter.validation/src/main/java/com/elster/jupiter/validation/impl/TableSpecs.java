@@ -2,13 +2,29 @@ package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DeleteRule;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.tasks.TaskService;
-import com.elster.jupiter.validation.*;
+import com.elster.jupiter.validation.DataValidationOccurrence;
+import com.elster.jupiter.validation.DataValidationTask;
+import com.elster.jupiter.validation.ReadingTypeInValidationRule;
+import com.elster.jupiter.validation.ValidationRule;
+import com.elster.jupiter.validation.ValidationRuleProperties;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationRuleSetVersion;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
-import static com.elster.jupiter.orm.Table.*;
+import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 
 public enum TableSpecs {
 
@@ -20,13 +36,14 @@ public enum TableSpecs {
             table.setJournalTableName("VAL_VALIDATIONRULESETJRNL");
             Column idColumn = table.addAutoIdColumn();
             Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
-            table.column("NAME").varChar(NAME_LENGTH).map("name").add();
+            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
             table.column("DESCRIPTION").varChar(DESCRIPTION_LENGTH).map("description").add();
-            table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
+            Column obsoleteColumn = table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
             table.addAuditColumns();
             table.primaryKey("VAL_PK_VALIDATIONRULESET").on(idColumn).add();
             table.unique("VAL_U_VALIDATIONRULESET").on(mRIDColumn).add();
+            table.unique("VAL_UQ_RULESET_NAME").on(nameColumn, obsoleteColumn).add();
         }
     },
     VAL_VALIDATIONRULESETVERSION {
@@ -59,14 +76,15 @@ public enum TableSpecs {
             Column ruleSetVersionIdColumn = table.column("RULESETVERSIONID").number().notNull().conversion(NUMBER2LONG).add();
             Column ruleSetIdColumn = table.column("RULESETID").number().notNull().conversion(NUMBER2LONG).add();
             table.column("POSITION").number().notNull().conversion(NUMBER2INT).map("position").add();
-            table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
-            table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
+            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
+            Column obsoleteColumn = table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
             table.addAuditColumns();
             table.primaryKey("VAL_PK_VALIDATIONRULE").on(idColumn).add();
             table.foreignKey("VAL_FK_RULESETVERSION").references("VAL_VALIDATIONRULESETVERSION").on(ruleSetVersionIdColumn).onDelete(RESTRICT)
                     .map("ruleSetVersion").reverseMap("rules").composition().reverseMapOrder("position").add();
             table.foreignKey("VAL_FK_RULESET").references("VAL_VALIDATIONRULESET").on(ruleSetIdColumn).onDelete(RESTRICT)
                     .map("ruleSet").reverseMap("rules").composition().add();
+            table.unique("VAL_UQ_RULE_NAME").on(nameColumn, obsoleteColumn).add();
         }
     },
     VAL_VALIDATIONRULEPROPS {
@@ -148,7 +166,7 @@ public enum TableSpecs {
             table.map(DataValidationTaskImpl.class);
             table.setJournalTableName("VAL_DATAVALIDATIONTASKJRNL");
             Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
+            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             Column endDeviceGroupId = table.column("ENDDEVICEGROUP").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
@@ -166,6 +184,7 @@ public enum TableSpecs {
                     .references(TaskService.COMPONENTNAME, "TSK_RECURRENT_TASK")
                     .map("recurrentTask")
                     .add();
+            table.unique("VAL_UQ_TASK_NAME").on(nameColumn).add();
         }
     },
     VAL_OCCURRENCE{

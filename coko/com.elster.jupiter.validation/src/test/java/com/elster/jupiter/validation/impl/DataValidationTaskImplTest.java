@@ -1,40 +1,34 @@
 package com.elster.jupiter.validation.impl;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
+import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.swing.text.html.Option;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.fest.reflect.core.Reflection.field;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
@@ -111,11 +105,7 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
 
     @Before
     public void setUp() {
-        when(taskService.newBuilder()).thenReturn(taskBuilder);
-        when(taskBuilder.setName(any(String.class))).thenReturn(taskBuilder);
-        when(taskBuilder.setDestination(any(DestinationSpec.class))).thenReturn(taskBuilder);
-        when(taskBuilder.setScheduleExpression(any(ScheduleExpression.class))).thenReturn(taskBuilder);
-        when(taskBuilder.setPayLoad(any(String.class))).thenReturn(taskBuilder);
+        when(taskService.newBuilder()).thenReturn(FakeBuilder.initBuilderStub(recurrentTask, RecurrentTaskBuilder.class));
         when(taskBuilder.build()).thenReturn(recurrentTask);
         when(recurrentTask.getLastOccurrence()).thenReturn(Optional.empty());
 

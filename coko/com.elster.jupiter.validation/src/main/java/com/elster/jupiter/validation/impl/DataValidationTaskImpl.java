@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.impl;
 
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
@@ -11,17 +12,18 @@ import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.tasks.RecurrentTask;
-import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.validation.*;
 import com.elster.jupiter.util.time.ScheduleExpression;
+import com.elster.jupiter.validation.CannotDeleteWhileBusyException;
 import com.elster.jupiter.validation.DataValidationOccurrence;
-import com.elster.jupiter.util.conditions.Condition;
-import org.hibernate.validator.constraints.NotEmpty;
-
+import com.elster.jupiter.validation.DataValidationOccurrenceFinder;
+import com.elster.jupiter.validation.DataValidationTask;
+import com.elster.jupiter.validation.DataValidationTaskStatus;
+import com.elster.jupiter.validation.ValidationService;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
@@ -275,19 +277,13 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     }
 
     private void persistRecurrentTask() {
-        RecurrentTaskBuilder builder = taskService.newBuilder()
+        RecurrentTask task = taskService.newBuilder()
                 .setName(uuid)
                 .setDestination(dataValidationService.getDestination())
                 .setScheduleExpression(scheduleExpression)
-                .setPayLoad(uuid);
-        if (scheduleImmediately) {
-            builder.scheduleImmediately();
-        }
-        RecurrentTask task = builder.build();
-        if (nextExecution != null) {
-            task.setNextExecution(nextExecution);
-        }
-        task.save();
+                .setPayLoad(uuid)
+                .scheduleImmediately(scheduleImmediately)
+                .setFirstExecution(nextExecution).build();
         recurrentTask.set(task);
     }
 
