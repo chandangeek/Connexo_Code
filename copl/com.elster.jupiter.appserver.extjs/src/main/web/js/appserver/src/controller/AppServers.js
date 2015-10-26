@@ -145,7 +145,8 @@ Ext.define('Apr.controller.AppServers', {
                 click: this.addEditAppServer
             },
             'appservers-add message-services-grid': {
-                edit: this.onCellEdit
+                edit: this.onCellEdit,
+                msgServiceRemoveEvent: this.onRemoveMessageService
             },
             '#btn-add-message-services': {
                 click: this.addMessageServices
@@ -176,15 +177,15 @@ Ext.define('Apr.controller.AppServers', {
             },
             'appserver-message-services #message-services-grid':{
                 edit: this.messageServiceDataChanged,
-                select: this.showMessageServicePreview
+                select: this.showMessageServicePreview,
+                msgServiceRemoveEvent: this.onRemoveMessageService
             },
             '#save-import-services-settings-button': {
                 click: this.saveImportSettings
             },
             'preview-container apr-import-services-grid': {
                 select: this.showImportServicesPreview
-            },
-
+            }
         });
     },
 
@@ -252,7 +253,6 @@ Ext.define('Apr.controller.AppServers', {
             me.getApplication().fireEvent('changecontentevent', view);
             view.down('preview-container').updateOnChange(!servedMessageServicesStore.getCount()); // to autoselect the 1st item
             view.down('#apr-msg-service-preview').setVisible(servedMessageServicesStore.getCount());
-            me.getMessageServicesGrid().on('apr-msg-service-remove-event', me.onRemoveMessageService, me);
             me.updateMessageServiceCounter();
             unservedMessageServicesStore.load(function (unservedMessages) {
                 if(unservedMessages.length === 0){
@@ -451,7 +451,6 @@ Ext.define('Apr.controller.AppServers', {
                                     me.getAddImportServicesButton().setDisabled(unservedImportStore.getCount() === 0);
                                     me.changeImportGridVisibility(servedImportStore.getCount() !== 0);
                                     me.changeMessageGridVisibility(servedMessageServicesStore.getCount() !== 0);
-                                    me.getMessageServicesGrid().on('apr-msg-service-remove-event', me.onRemoveMessageService, me);
                                 }
                             });
 
@@ -500,7 +499,6 @@ Ext.define('Apr.controller.AppServers', {
                     me.getAddImportServicesButton().setDisabled(unservedImportStore.getCount() === 0);
                     me.changeImportGridVisibility(servedImportStore.getCount() !== 0);
                     me.changeMessageGridVisibility(servedMessageServicesStore.getCount() !== 0);
-                    me.getMessageServicesGrid().on('apr-msg-service-remove-event', me.onRemoveMessageService, me);
                 });
 
             });
@@ -557,7 +555,6 @@ Ext.define('Apr.controller.AppServers', {
             me.getAddMessageServicesButton().enable();
         }
         me.getAddImportServicesButton().setDisabled(unservedImportStore.getCount() === 0);
-        me.getMessageServicesGrid().on('apr-msg-service-remove-event', me.onRemoveMessageService, me);
     },
 
     returnToMessageServiceDetailView: function () {
@@ -576,7 +573,6 @@ Ext.define('Apr.controller.AppServers', {
         me.getApplication().fireEvent('appserverload', me.appServer.get('name'));
         me.getApplication().fireEvent('changecontentevent', view);
         view.down('preview-container').updateOnChange(!servedMessageServicesStore.getCount()); // to autoselect the 1st item
-        me.getMessageServicesGrid().on('apr-msg-service-remove-event', me.onRemoveMessageService, me);
         me.messageServiceDataChanged();
     },
 
