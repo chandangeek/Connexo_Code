@@ -1,23 +1,9 @@
 package com.energyict.mdc.masterdata.impl;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.pubsub.Publisher;
-import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.nls.*;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.ObisCode;
-import com.elster.jupiter.domain.util.DefaultFinder;
-import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -29,23 +15,33 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.impl.finders.LoadProfileTypeFinder;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
+
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.pubsub.Publisher;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import javax.inject.Inject;
-import javax.validation.MessageInterpolator;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import com.energyict.mdc.masterdata.security.Privileges;
+
 
 /**
  * Provides an implementation for the {@link MasterDataService} interface.
@@ -53,8 +49,8 @@ import com.energyict.mdc.masterdata.security.Privileges;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-04-11 (16:41)
  */
-@Component(name = "com.energyict.mdc.masterdata", service = {MasterDataService.class, ReferencePropertySpecFinderProvider.class, InstallService.class, TranslationKeyProvider.class}, property = "name=" + MasterDataService.COMPONENTNAME, immediate = true)
-public class MasterDataServiceImpl implements MasterDataService, ReferencePropertySpecFinderProvider, InstallService, TranslationKeyProvider {
+@Component(name = "com.energyict.mdc.masterdata", service = {MasterDataService.class, ReferencePropertySpecFinderProvider.class, InstallService.class, MessageSeedProvider.class}, property = "name=" + MasterDataService.COMPONENTNAME, immediate = true)
+public class MasterDataServiceImpl implements MasterDataService, ReferencePropertySpecFinderProvider, InstallService, MessageSeedProvider {
 
     private volatile DataModel dataModel;
     private volatile Thesaurus thesaurus;
@@ -103,6 +99,11 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     }
 
     @Override
+    public Optional<LogBookType> findAndLockLogBookTypeByIdAndVersion(long id, long version) {
+        return this.getDataModel().mapper(LogBookType.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public Optional<LogBookType> findLogBookTypeByName(String name) {
         return this.getDataModel().mapper(LogBookType.class).getUnique("name", name);
     }
@@ -115,6 +116,11 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     @Override
     public Optional<RegisterGroup> findRegisterGroup(long id) {
         return this.getDataModel().mapper(RegisterGroup.class).getUnique("id", id);
+    }
+
+    @Override
+    public Optional<RegisterGroup> findAndLockRegisterGroupByIdAndVersion(long id, long version) {
+        return this.getDataModel().mapper(RegisterGroup.class).lockObjectIfVersion(version, id);
     }
 
     @Override
@@ -147,6 +153,11 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     @Override
     public Optional<RegisterType> findRegisterType(long id) {
         return this.getDataModel().mapper(RegisterType.class).getUnique("id", id);
+    }
+
+    @Override
+    public Optional<RegisterType> findAndLockRegisterTypeByIdAndVersion(long id, long version) {
+        return this.getDataModel().mapper(RegisterType.class).lockObjectIfVersion(version, id);
     }
 
     @Override
@@ -195,6 +206,11 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     }
 
     @Override
+    public Optional<LoadProfileType> findAndLockLoadProfileTypeByIdAndVersion(long id, long version) {
+        return this.getDataModel().mapper(LoadProfileType.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public List<LoadProfileType> findLoadProfileTypesByName(String name) {
         return this.getDataModel().mapper(LoadProfileType.class).find("name", name);
     }
@@ -222,22 +238,13 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     }
 
     @Override
-    public String getComponentName() {
-        return COMPONENTNAME;
-    }
-
-    @Override
     public Layer getLayer() {
         return Layer.DOMAIN;
     }
 
     @Override
-    public List<TranslationKey> getKeys() {
-        return Stream.of(
-                Arrays.stream(MessageSeeds.values()),
-                Arrays.stream(Privileges.values()))
-                .flatMap(Function.identity())
-                .collect(Collectors.toList());
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Reference

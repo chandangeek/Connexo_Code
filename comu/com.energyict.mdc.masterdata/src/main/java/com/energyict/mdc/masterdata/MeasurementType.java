@@ -2,7 +2,7 @@ package com.energyict.mdc.masterdata;
 
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ReadingType;
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 
@@ -72,4 +72,5 @@ public interface MeasurementType extends HasId {
 
     public void delete ();
 
+    long getVersion();
 }

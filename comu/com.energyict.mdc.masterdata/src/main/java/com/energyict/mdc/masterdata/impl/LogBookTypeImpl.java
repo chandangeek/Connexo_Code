@@ -1,15 +1,14 @@
 package com.energyict.mdc.masterdata.impl;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
-
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
-import org.hibernate.validator.constraints.NotEmpty;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;

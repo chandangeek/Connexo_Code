@@ -36,6 +36,8 @@ public interface MasterDataService {
      */
     public Optional<LogBookType> findLogBookType(long id);
 
+    Optional<LogBookType> findAndLockLogBookTypeByIdAndVersion(long id, long version);
+
     public Optional<LogBookType> findLogBookTypeByName(String name);
 
     /**
@@ -53,8 +55,9 @@ public interface MasterDataService {
      * @param id The unique identifier
      * @return The RegisterGroup or <code>null</code> if there is no such RegisterGroup
      */
-    public Optional<RegisterGroup> findRegisterGroup(long id);
+    Optional<RegisterGroup> findRegisterGroup(long id);
 
+    Optional<RegisterGroup> findAndLockRegisterGroupByIdAndVersion(long id, long version);
     /**
      * Creates a new {@link RegisterGroup} with the specified name.
      * Note that the RegisterGroup is only saved in the database
@@ -79,7 +82,10 @@ public interface MasterDataService {
      * @param id The unique identifier
      * @return The RegisterType or <code>null</code> if there is no such RegisterType
      */
-    public Optional<RegisterType> findRegisterType(long id);
+    Optional<RegisterType> findRegisterType(long id);
+
+    Optional<RegisterType> findAndLockRegisterTypeByIdAndVersion(long id, long version);
+
     public Optional<ChannelType> findChannelTypeById(long id);
 
 
@@ -135,6 +141,8 @@ public interface MasterDataService {
      * @return the LoadProfileType or <code>null</code> if there is no such LoadProfileType
      */
     public Optional<LoadProfileType> findLoadProfileType(long loadProfileTypeId);
+
+    public Optional<LoadProfileType> findAndLockLoadProfileTypeByIdAndVersion(long id, long version);
 
     public List<LoadProfileType> findLoadProfileTypesByName(String name);
 

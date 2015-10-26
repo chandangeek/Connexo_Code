@@ -1,6 +1,6 @@
 package com.energyict.mdc.masterdata;
 
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.ObisCode;
 
 import aQute.bnd.annotation.ProviderType;
@@ -73,4 +73,5 @@ public interface LoadProfileType extends HasId, HasName {
 
     Optional<ChannelType> findChannelType(RegisterType measurementTypeWithoutInterval);
 
+    long getVersion();
 }

@@ -1,5 +1,6 @@
 package com.energyict.mdc.masterdata.impl;
 
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
 
@@ -71,6 +72,7 @@ public class InMemoryPersistence {
                 new MockModule(),
                 bootstrapModule,
                 new ThreadSecurityModule(this.principal),
+                new DataVaultModule(),
                 new PartyModule(),
                 new UserModule(),
                 new IdsModule(),

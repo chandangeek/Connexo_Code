@@ -1,6 +1,6 @@
 package com.energyict.mdc.masterdata;
 
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.HasName;
@@ -29,4 +29,5 @@ public interface RegisterGroup extends HasId, HasName {
 
     public void updateRegisterTypes(List<RegisterType> registerTypes);
 
+    long getVersion();
 }
