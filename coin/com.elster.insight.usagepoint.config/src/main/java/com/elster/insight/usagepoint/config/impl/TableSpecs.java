@@ -25,19 +25,21 @@ public enum TableSpecs {
 			table.primaryKey("UPC_PK_METROLOGYCONFIGURATION").on(id).add();
 		}
 	},
-	UPC_USGPNTMETROLOGYCONFIG() {
+	UPC_UPMC() {
 	    void addTo(DataModel dataModel) {
 	        Table<UsagePointMetrologyConfiguration> table = dataModel.addTable(name(), UsagePointMetrologyConfiguration.class);
 	        table.map(UsagePointMetrologyConfigurationImpl.class);
+	        Column id = table.addAutoIdColumn();
             Column usagePointIdColumn = table.column("USAGEPOINTID").number().notNull().conversion(NUMBER2LONG).add();
             Column metrologyConfigIdColumn = table.column("METROLOGYCONFIGID").number().notNull().conversion(NUMBER2LONG).add();
-            //table.addAuditColumns();
-	        table.primaryKey("UPC_PK_USGPNTMETROLOGYCONFIG").on(usagePointIdColumn).add();
-	        table.foreignKey("UPC_FK_USGPNTMETROLOGYCONFIGUP").on(usagePointIdColumn).references(UsagePoint.class).onDelete(DeleteRule.RESTRICT).map("usagePoint").add();
-	        table.foreignKey("UPC_FK_USGPNTMETROLOGYCONFIGMC").on(metrologyConfigIdColumn).references(UPC_METROLOGYCONFIG.name()).onDelete(DeleteRule.RESTRICT).map("metrologyConfiguration").add();
+            table.addAuditColumns();
+	        table.primaryKey("UPC_PK_UPMC").on(id).add();
+	        table.unique("UPC_UK_UPMCUP").on(usagePointIdColumn).add();
+	        table.foreignKey("UPC_FK_UPMCUP").on(usagePointIdColumn).references(UsagePoint.class).onDelete(DeleteRule.RESTRICT).map("usagePoint").add();
+	        table.foreignKey("UPC_FK_UPMCMC").on(metrologyConfigIdColumn).references(UPC_METROLOGYCONFIG.name()).onDelete(DeleteRule.RESTRICT).map("metrologyConfiguration").add();
 	    }
 	},
-    UPC_MTRLGYCFGVALRULESETUSAGE() {
+    UPC_MCVALRULESETUSAGE() {
         void addTo(DataModel dataModel) {
             Table<MetrologyConfValidationRuleSetUsage> table = dataModel.addTable(name(), MetrologyConfValidationRuleSetUsage.class);
             table.map(MetrologyConfValidationRuleSetUsageImpl.class);

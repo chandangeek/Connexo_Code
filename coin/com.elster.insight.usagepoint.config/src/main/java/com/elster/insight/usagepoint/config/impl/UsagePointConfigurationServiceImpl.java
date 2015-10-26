@@ -152,6 +152,12 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
 
     @Override
     public UsagePointMetrologyConfiguration link(UsagePoint up, MetrologyConfiguration mc) {
+        Optional<UsagePointMetrologyConfiguration> link = this.getDataModel().query(UsagePointMetrologyConfiguration.class).getOptional(up.getId());
+        if (link.isPresent()) {
+            link.get().setMetrologyConfiguration(mc);
+            link.get().update();           
+            return link.get();
+        }
         UsagePointMetrologyConfigurationImpl candidate = new UsagePointMetrologyConfigurationImpl(dataModel, eventService);
         candidate.init(up, mc);
         candidate.update();

@@ -1,11 +1,10 @@
 package com.elster.insight.usagepoint.config.impl;
 
+import static com.elster.jupiter.domain.util.Save.action;
 import static com.google.common.base.MoreObjects.toStringHelper;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.Instant;
 import java.util.Objects;
-import java.util.Optional;
 
 import javax.inject.Inject;
 
@@ -18,11 +17,13 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
+//@Unique(fields = "usagePoint.id", groups = {Save.Create.class, Save.Update.class})
 public class UsagePointMetrologyConfigurationImpl implements UsagePointMetrologyConfiguration {	
-//    private long version;
-//    private Instant createTime;
-//    private Instant modTime;
-//    private String userName;
+    private long id;
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
+    private String userName;
     
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
 	private Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
@@ -41,6 +42,11 @@ public class UsagePointMetrologyConfigurationImpl implements UsagePointMetrology
 		return this;
 	}
 	
+    @Override
+    public long getId() {
+        return id;
+    }
+	
 	@Override
 	public UsagePoint getUsagePoint() {
 		return usagePoint.get();
@@ -51,18 +57,19 @@ public class UsagePointMetrologyConfigurationImpl implements UsagePointMetrology
 		return metrologyConfiguration.get();
 	}
 
+	@Override
+	public void setMetrologyConfiguration(MetrologyConfiguration mc) {
+	    this.metrologyConfiguration.set(mc);
+	}
+	
     @Override
     public void update() {
-        Save s = Save.CREATE;
-        Optional<UsagePointMetrologyConfiguration> existing = dataModel.query(UsagePointMetrologyConfiguration.class).getOptional(getUsagePoint().getId());
-        if (existing.isPresent()) {
-            s = Save.UPDATE;
-        }
+        Save s = action(getId());
         s.save(dataModel, this);
         if (s == Save.CREATE) {
             eventService.postEvent(EventType.USAGEPOINTMETROLOGYCONFIGURATION_CREATED.topic(), this);
         } else {
-            eventService.postEvent(EventType.USAGEPOINTMETROLOGYCONFIGURATION_UPDATED.topic(), this);            
+            eventService.postEvent(EventType.USAGEPOINTMETROLOGYCONFIGURATION_UPDATED.topic(), this);
         }
     }
     
@@ -77,22 +84,22 @@ public class UsagePointMetrologyConfigurationImpl implements UsagePointMetrology
     	return toStringHelper(this).add("UsagePoint", usagePoint).add("metrologyConfiguration", metrologyConfiguration).toString();
     }
 
-//    @Override
-//    public long getVersion() {
-//        return version;
-//    }
-//
-//    public String getUserName() {
-//        return userName;
-//    }
-//
-//    public Instant getCreateTime() {
-//        return createTime;
-//    }
-//
-//    public Instant getModTime() {
-//        return modTime;
-//    }
+    @Override
+    public long getVersion() {
+        return version;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public Instant getCreateTime() {
+        return createTime;
+    }
+
+    public Instant getModTime() {
+        return modTime;
+    }
 
     @Override
     public boolean equals(Object o) {

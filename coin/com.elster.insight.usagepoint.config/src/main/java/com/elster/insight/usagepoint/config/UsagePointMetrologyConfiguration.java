@@ -7,11 +7,13 @@ import com.elster.jupiter.metering.UsagePoint;
 public interface UsagePointMetrologyConfiguration {
 	UsagePoint getUsagePoint();
 	MetrologyConfiguration getMetrologyConfiguration();
+	void setMetrologyConfiguration(MetrologyConfiguration mc);
 	public void update();
 	public void delete();
 
-//    long getVersion();
-//    Instant getCreateTime();
-//    Instant getModTime();
-//    String getUserName();
+	long getId();
+    long getVersion();
+    Instant getCreateTime();
+    Instant getModTime();
+    String getUserName();
 }
