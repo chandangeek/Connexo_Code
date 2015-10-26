@@ -4,6 +4,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.protocol.api.device.data.identifiers.LoadProfileIdentifierType;
@@ -54,7 +55,7 @@ public class LoadProfileIdentifierByObisCodeAndDevice implements LoadProfileIden
                                     .stream()
                                     .filter(loadProfile -> loadProfile.getDeviceObisCode().equals(loadProfileObisCode))
                                     .findFirst()
-                                    .orElseThrow(() -> CanNotFindForIdentifier.loadProfile(this));
+                                    .orElseThrow(() -> CanNotFindForIdentifier.loadProfile(this, MessageSeeds.CAN_NOT_FIND_FOR_LOADPROFILE_IDENTIFIER));
         }
         return loadProfile;
     }

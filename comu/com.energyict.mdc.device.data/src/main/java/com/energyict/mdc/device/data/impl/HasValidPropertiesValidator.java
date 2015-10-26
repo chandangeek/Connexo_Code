@@ -1,20 +1,19 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.properties.InvalidValueException;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
+
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
 
 /**
  * Validates the {@link HasValidProperties} constraint against a {@link ProtocolDialectPropertiesImpl}.

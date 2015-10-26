@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 
 import javax.validation.Constraint;

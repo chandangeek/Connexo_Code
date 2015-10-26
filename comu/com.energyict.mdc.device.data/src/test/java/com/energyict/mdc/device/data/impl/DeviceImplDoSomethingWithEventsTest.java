@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -17,6 +19,7 @@ import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -112,8 +115,8 @@ import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
@@ -271,6 +274,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new ThreadSecurityModule(this.principal),
                     new PubSubModule(),
                     new TransactionModule(showSqlLogging),
+                    new CustomPropertySetsModule(),
                     new EventsModule(),
                     new NlsModule(),
                     new DomainUtilModule(),
@@ -306,6 +310,7 @@ public class DeviceImplDoSomethingWithEventsTest {
             this.transactionService = injector.getInstance(TransactionService.class);
             try (TransactionContext ctx = this.transactionService.getContext()) {
                 this.ormService = injector.getInstance(OrmService.class);
+                injector.getInstance(CustomPropertySetService.class);
                 this.transactionService = injector.getInstance(TransactionService.class);
                 this.eventService = new SpyEventService(injector.getInstance(EventService.class));
                 this.nlsService = injector.getInstance(NlsService.class);
@@ -330,6 +335,8 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 injector.getInstance(KpiService.class),
                                 injector.getInstance(TaskService.class),
                                 this.issueService,
+                                mock(PropertySpecService.class),
+                                mock(com.elster.jupiter.properties.PropertySpecService.class),
                                 this.relationService, this.protocolPluggableService, this.engineConfigurationService,
                                 this.deviceConfigurationService, this.meteringService, this.validationService, this.estimationService, this.schedulingService,
                                 injector.getInstance(MessageService.class),
@@ -464,6 +471,11 @@ public class DeviceImplDoSomethingWithEventsTest {
             @Override
             public Optional<EventType> getEventType(String topic) {
                 return eventService.getEventType(topic);
+            }
+
+            @Override
+            public Optional<EventType> findAndLockEventTypeByNameAndVersion(String topic, long version) {
+                return eventService.findAndLockEventTypeByNameAndVersion(topic, version);
             }
 
         }

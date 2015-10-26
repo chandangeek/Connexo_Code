@@ -108,7 +108,7 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
     protected static OutboundComPortPool createOutboundIpComPortPool(String name) {
         OutboundComPortPool ipComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool(name, ComPortType.TCP, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
         ipComPortPool.setActive(true);
-        ipComPortPool.save();
+        ipComPortPool.update();
         return ipComPortPool;
     }
 
@@ -185,26 +185,26 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
     }
 
     protected ComSchedule createComSchedule(String name, ComTask comTask, TemporalExpression temporalExpression) {
-        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule(name, temporalExpression, Instant.now()).build();
-        comSchedule.addComTask(comTask);
-        comSchedule.save();
-        return comSchedule;
+        return inMemoryPersistence.getSchedulingService()
+                .newComSchedule(name, temporalExpression, Instant.now())
+                .addComTask(comTask)
+                .build();
     }
 
     protected OutboundComPort createOutboundComPort() {
-        OnlineComServer onlineComServer = inMemoryPersistence.getEngineConfigurationService().newOnlineComServerInstance();
-        onlineComServer.setName("ComServer");
-        onlineComServer.setStoreTaskQueueSize(1);
-        onlineComServer.setStoreTaskThreadPriority(1);
-        onlineComServer.setChangesInterPollDelay(TimeDuration.minutes(5));
-        onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.DEBUG);
-        onlineComServer.setSchedulingInterPollDelay(TimeDuration.minutes(1));
-        onlineComServer.setServerLogLevel(ComServer.LogLevel.DEBUG);
-        onlineComServer.setNumberOfStoreTaskThreads(2);
+        OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = inMemoryPersistence.getEngineConfigurationService().newOnlineComServerBuilder();
+        onlineComServerBuilder.name("ComServer");
+        onlineComServerBuilder.storeTaskQueueSize(1);
+        onlineComServerBuilder.storeTaskThreadPriority(1);
+        onlineComServerBuilder.changesInterPollDelay(TimeDuration.minutes(5));
+        onlineComServerBuilder.communicationLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServerBuilder.schedulingInterPollDelay(TimeDuration.minutes(1));
+        onlineComServerBuilder.serverLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServerBuilder.numberOfStoreTaskThreads(2);
+        final OnlineComServer onlineComServer = onlineComServerBuilder.create();
         OutboundComPort.OutboundComPortBuilder outboundComPortBuilder = onlineComServer.newOutboundComPort("ComPort", 1);
         outboundComPortBuilder.comPortType(ComPortType.TCP);
         OutboundComPort outboundComPort = outboundComPortBuilder.add();
-        onlineComServer.save();
         return outboundComPort;
     }
 

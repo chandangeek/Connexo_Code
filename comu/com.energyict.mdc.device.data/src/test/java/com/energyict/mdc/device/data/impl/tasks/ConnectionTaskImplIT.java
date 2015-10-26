@@ -264,21 +264,21 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     private static OutboundComPortPool createOutboundIpComPortPool(String name) {
         OutboundComPortPool ipComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool(name, ComPortType.TCP, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
         ipComPortPool.setActive(true);
-        ipComPortPool.save();
+        ipComPortPool.update();
         return ipComPortPool;
     }
 
     private static OutboundComPortPool createOutboundModemComPortPool(String name) {
         OutboundComPortPool modemComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool(name, ComPortType.SERIAL, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
         modemComPortPool.setActive(true);
-        modemComPortPool.save();
+        modemComPortPool.update();
         return modemComPortPool;
     }
 
     private static InboundComPortPool createInboundIpComPortPool(String name) {
         InboundComPortPool ipComPortPool = inMemoryPersistence.getEngineConfigurationService().newInboundComPortPool(name, ComPortType.TCP, discoveryProtocolPluggableClass);
         ipComPortPool.setActive(true);
-        ipComPortPool.save();
+        ipComPortPool.update();
         return ipComPortPool;
     }
 
@@ -289,17 +289,16 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     protected OnlineComServer createComServer(String name) {
-        OnlineComServer onlineComServer = inMemoryPersistence.getEngineConfigurationService().newOnlineComServerInstance();
-        onlineComServer.setName(name);
-        onlineComServer.setNumberOfStoreTaskThreads(ComServer.MINIMUM_NUMBER_OF_STORE_TASK_THREADS);
-        onlineComServer.setStoreTaskQueueSize(ComServer.MINIMUM_STORE_TASK_QUEUE_SIZE);
-        onlineComServer.setStoreTaskThreadPriority(ComServer.MINIMUM_STORE_TASK_THREAD_PRIORITY);
-        onlineComServer.setChangesInterPollDelay(TimeDuration.minutes(5));
-        onlineComServer.setSchedulingInterPollDelay(TimeDuration.minutes(5));
-        onlineComServer.setCommunicationLogLevel(ComServer.LogLevel.DEBUG);
-        onlineComServer.setServerLogLevel(ComServer.LogLevel.DEBUG);
-        onlineComServer.save();
-        return onlineComServer;
+        OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServer = inMemoryPersistence.getEngineConfigurationService().newOnlineComServerBuilder();
+        onlineComServer.name(name);
+        onlineComServer.numberOfStoreTaskThreads(ComServer.MINIMUM_NUMBER_OF_STORE_TASK_THREADS);
+        onlineComServer.storeTaskQueueSize(ComServer.MINIMUM_STORE_TASK_QUEUE_SIZE);
+        onlineComServer.storeTaskThreadPriority(ComServer.MINIMUM_STORE_TASK_THREAD_PRIORITY);
+        onlineComServer.changesInterPollDelay(TimeDuration.minutes(5));
+        onlineComServer.schedulingInterPollDelay(TimeDuration.minutes(5));
+        onlineComServer.communicationLogLevel(ComServer.LogLevel.DEBUG);
+        onlineComServer.serverLogLevel(ComServer.LogLevel.DEBUG);
+        return onlineComServer.create();
     }
 
     @Before
@@ -467,10 +466,10 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
     }
 
     private ComSchedule createComSchedule(ComTask comTask) {
-        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule(comTask.getName(), new TemporalExpression(TimeDuration.days(1)), Instant.now()).build();
-        comSchedule.addComTask(comTask);
-        comSchedule.save();
-        return comSchedule;
+        return inMemoryPersistence.getSchedulingService()
+                .newComSchedule(comTask.getName(), new TemporalExpression(TimeDuration.days(1)), Instant.now())
+                .addComTask(comTask)
+                .build();
     }
 
     protected ComTaskExecution getReloadedComTaskExecution(Device device) {

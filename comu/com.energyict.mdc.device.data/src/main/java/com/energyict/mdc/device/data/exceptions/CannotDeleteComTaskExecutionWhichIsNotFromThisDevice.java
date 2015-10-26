@@ -1,9 +1,11 @@
 package com.energyict.mdc.device.data.exceptions;
 
-import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when an attempt was made to delete a
@@ -15,8 +17,8 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
  */
 public class CannotDeleteComTaskExecutionWhichIsNotFromThisDevice extends LocalizedException {
 
-    public CannotDeleteComTaskExecutionWhichIsNotFromThisDevice(Thesaurus thesaurus, ComTaskExecution comTaskExecution, Device device) {
-        super(thesaurus, MessageSeeds.COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE, comTaskExecution.getId(), device.getName());
+    public CannotDeleteComTaskExecutionWhichIsNotFromThisDevice(ComTaskExecution comTaskExecution, Device device, Thesaurus thesaurus, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed, comTaskExecution.getId(), device.getName());
         this.set("comTask", comTaskExecution.getId());
         this.set("device", device.getName());
     }

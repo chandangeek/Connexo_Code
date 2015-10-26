@@ -1,5 +1,11 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
+import com.energyict.mdc.common.TranslatableApplicationException;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
+import com.energyict.mdc.device.data.impl.constraintvalidators.MustHaveUniqueEndDeviceGroup;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
+
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiBuilder;
@@ -22,11 +28,6 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.ScheduleExpression;
-import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
-import com.energyict.mdc.device.data.impl.constraintvalidators.MustHaveUniqueEndDeviceGroup;
-import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
-import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -212,6 +213,11 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     }
 
     @Override
+    public long getVersion() {
+        return this.version;
+    }
+
+    @Override
     public void updateDisplayRange(TimeDuration displayPeriod) {
         this.displayRange = new TimeDuration(displayPeriod.getCount(), displayPeriod.getTimeUnit());
         this.save();
@@ -281,8 +287,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     }
 
     void connectionKpiBuilder(KpiBuilder builder) {
-        Kpi kpi = builder.build();
-        kpi.save();
+        Kpi kpi = builder.create();
         this.connectionKpi.set(kpi);
     }
 
@@ -325,8 +330,7 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
     }
 
     void communicationKpiBuilder(KpiBuilder builder) {
-        Kpi kpi = builder.build();
-        kpi.save();
+        Kpi kpi = builder.create();
         this.communicationKpi.set(kpi);
     }
 
@@ -417,9 +421,8 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
                 taskBuilder.setScheduleExpression(this.toScheduleExpression(this.kpi.get()));
                 taskBuilder.setDestination(destination);
                 taskBuilder.setPayLoad(scheduledExcutionPayload());
-                taskBuilder.scheduleImmediately();
+                taskBuilder.scheduleImmediately(true);
                 RecurrentTask recurrentTask = taskBuilder.build();
-                recurrentTask.save();
                 this.setRecurrentTask(recurrentTask);
             }
         }

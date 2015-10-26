@@ -1,41 +1,8 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.impl.events.EndDeviceGroupDeletionVetoEventHandler;
-import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
-import com.energyict.mdc.device.data.impl.security.SecurityPropertyServiceImpl;
-import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
-import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.relation.RelationService;
-import com.energyict.mdc.engine.config.impl.EngineModelModule;
-import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.impl.MasterDataModule;
-import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
-import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
-import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
-import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
-import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
-import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
-import com.energyict.mdc.scheduling.SchedulingModule;
-import com.energyict.mdc.tasks.impl.TasksModule;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.impl.EstimationModule;
@@ -74,13 +41,54 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
-import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.impl.events.EndDeviceGroupDeletionVetoEventHandler;
+import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
+import com.energyict.mdc.device.data.impl.security.SecurityPropertyServiceImpl;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.relation.RelationService;
+import com.energyict.mdc.engine.config.impl.EngineModelModule;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.impl.MasterDataModule;
+import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
+import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.DeviceProtocol;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
+import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.scheduling.SchedulingModule;
+import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.assertj.core.api.Assertions;
 import org.joda.time.DateTime;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -89,21 +97,14 @@ import java.math.BigDecimal;
 import java.security.Principal;
 import java.sql.SQLException;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.assertj.core.api.Assertions;
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceGroupTest {
@@ -189,6 +190,7 @@ public class DeviceGroupTest {
         injector = Guice.createInjector(
                 new ThreadSecurityModule(principal),
                 this.inMemoryBootstrapModule,
+                new CustomPropertySetsModule(),
                 new OrmModule(),
                 new DataVaultModule(),
                 new EventsModule(),
@@ -224,6 +226,7 @@ public class DeviceGroupTest {
                 new MockModule()
         );
         injector.getInstance(TransactionService.class).execute(() -> {
+            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringGroupsService.class);
             injector.getInstance(ThreadPrincipalService.class);
@@ -234,7 +237,7 @@ public class DeviceGroupTest {
 
             MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
             MeteringService meteringService = injector.getInstance(MeteringService.class);
-            DeviceService deviceService = injector.getInstance(DeviceServiceImpl.class);
+            DeviceServiceImpl deviceService = injector.getInstance(DeviceServiceImpl.class);
 
             DeviceEndDeviceQueryProvider endDeviceQueryProvider = new DeviceEndDeviceQueryProvider();
             endDeviceQueryProvider.setMeteringService(meteringService);
@@ -283,10 +286,10 @@ public class DeviceGroupTest {
 
 
             QueryEndDeviceGroup queryEndDeviceGroup =
-                    meteringGroupsService.createQueryEndDeviceGroup(conditionDevice);
-            queryEndDeviceGroup.setMRID("dynamic");
-            queryEndDeviceGroup.setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPROVIDER);
-            queryEndDeviceGroup.save();
+                    meteringGroupsService.createQueryEndDeviceGroup(conditionDevice)
+                            .setMRID("dynamic")
+                            .setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPROVIDER)
+                    .create();
             ctx.commit();
         }
 
@@ -313,10 +316,8 @@ public class DeviceGroupTest {
 
         MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup("enumerated");
-            enumeratedEndDeviceGroup.setMRID("enumerated");
-            enumeratedEndDeviceGroup.add(endDevice, Interval.sinceEpoch().toClosedRange());
-            enumeratedEndDeviceGroup.save();
+            EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(endDevice)
+            .setName("enumerated").setMRID("enumerated").at(Instant.EPOCH).create();
             ctx.commit();
         }
 
@@ -327,10 +328,10 @@ public class DeviceGroupTest {
 
 
             QueryEndDeviceGroup queryEndDeviceGroup =
-                    meteringGroupsService.createQueryEndDeviceGroup(conditionDevice);
-            queryEndDeviceGroup.setMRID("dynamic");
-            queryEndDeviceGroup.setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPROVIDER);
-            queryEndDeviceGroup.save();
+                    meteringGroupsService.createQueryEndDeviceGroup(conditionDevice)
+                            .setMRID("dynamic")
+                            .setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPROVIDER)
+                            .create();
             ctx.commit();
         }
 
@@ -354,10 +355,10 @@ public class DeviceGroupTest {
         DataCollectionKpiService kpiService = injector.getInstance(DataCollectionKpiService.class);
         QueryEndDeviceGroup queryEndDeviceGroup;
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            queryEndDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup(Operator.EQUAL.compare("id", 15).or(Operator.EQUAL.compare("mRID", ED_MRID)));
-            queryEndDeviceGroup.setMRID("mine");
-            queryEndDeviceGroup.setQueryProviderName(SimpleEndDeviceQueryProvider.SIMPLE_ENDDEVICE_QUERYPRVIDER);
-            queryEndDeviceGroup.save();
+            queryEndDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup(Operator.EQUAL.compare("id", 15).or(Operator.EQUAL.compare("mRID", ED_MRID)))
+                    .setMRID("mine")
+                    .setQueryProviderName(SimpleEndDeviceQueryProvider.SIMPLE_ENDDEVICE_QUERYPRVIDER)
+            .create();
             ctx.commit();
         }
 

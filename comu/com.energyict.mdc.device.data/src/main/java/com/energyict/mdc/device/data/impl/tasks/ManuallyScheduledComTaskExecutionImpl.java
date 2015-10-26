@@ -1,17 +1,9 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpdater;
@@ -28,6 +20,15 @@ import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.RegistersTask;
 import com.energyict.mdc.tasks.StatusInformationTask;
 import com.energyict.mdc.tasks.TopologyTask;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.time.TemporalExpression;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -91,14 +92,6 @@ public class ManuallyScheduledComTaskExecutionImpl extends ComTaskExecutionImpl 
     }
 
     @Override
-    public void prepareForSaving() {
-        if (this.nextExecutionSpecs.isPresent()) {
-            this.nextExecutionSpecs.get().save();
-        }
-        super.prepareForSaving();
-    }
-
-    @Override
     public void doDelete() {
         super.doDelete();
         if (!this.isAdHoc()) {
@@ -136,9 +129,9 @@ public class ManuallyScheduledComTaskExecutionImpl extends ComTaskExecutionImpl 
         } else {
             if (this.nextExecutionSpecs.isPresent()) {
                 this.nextExecutionSpecs.get().setTemporalExpression(temporalExpression);
+                this.nextExecutionSpecs.get().update();
             } else {
                 NextExecutionSpecs nextExecutionSpecs1 = this.getSchedulingService().newNextExecutionSpecs(temporalExpression);
-                nextExecutionSpecs1.save();
                 this.nextExecutionSpecs.set(nextExecutionSpecs1);
                 this.recalculateNextAndPlannedExecutionTimestamp();
             }

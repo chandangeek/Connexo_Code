@@ -1,23 +1,12 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
@@ -35,6 +24,18 @@ import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
+
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -94,7 +95,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     @Override
     protected void validateAndCreate() {
         if (this.nextExecutionSpecs.isPresent()) {
-            this.getNextExecutionSpecs().save();
+            this.getNextExecutionSpecs().update();
         }
         super.validateAndCreate();
         if (this.getNextExecutionSpecs() != null) {
@@ -280,6 +281,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     @Override
     public void scheduledComTaskRescheduled(ComTaskExecution comTask) {
         if (ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(this.getConnectionStrategy())) {
+            doNotTouchParentDevice();
             this.schedule(comTask.getNextExecutionTimestamp());
         }
     }
@@ -287,6 +289,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     @Override
     public void scheduledComTaskChangedPriority(ComTaskExecution comTask) {
         if (this.needToSynchronizePriorityChanges()) {
+            doNotTouchParentDevice();
             EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimeStampAndPriority = this.getEarliestNextExecutionTimeStampAndPriority();
 
             /* earliestNextExecutionTimeStampAndPriority is only null when there are
@@ -719,6 +722,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
      * and new NextExecutionSpecs need to be created.
      */
     private class CreateSchedule extends DefaultStrategy {
+
         private final NextExecutionSpecs nextExecutionSpecs;
 
         protected CreateSchedule(TemporalExpression temporalExpression) {
@@ -727,7 +731,6 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
         @Override
         public void prepare() {
-            this.nextExecutionSpecs.save();
             ScheduledConnectionTaskImpl.this.setNextExecutionSpecs(this.nextExecutionSpecs);
         }
 
@@ -779,7 +782,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
         @Override
         public void prepare() {
-            this.getNextExecutionSpecs().save();
+            this.getNextExecutionSpecs().update();
             doUpdateNextExecutionTimestamp(PostingMode.LATER);
         }
 

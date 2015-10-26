@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.exceptions;
 
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when
@@ -15,8 +16,8 @@ import com.elster.jupiter.nls.Thesaurus;
  */
 public class NoAttributesExpectedException extends LocalizedException {
 
-    public NoAttributesExpectedException(Thesaurus thesaurus, String propertyName) {
-        super(thesaurus, MessageSeeds.CODING_NO_PROPERTIES_EXPECTED);
+    public NoAttributesExpectedException(Thesaurus thesaurus, String propertyName, MessageSeed messageSeed) {
+        super(thesaurus, messageSeed);
         this.set("propertyName", propertyName);
     }
 

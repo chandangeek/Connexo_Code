@@ -1,54 +1,8 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.datavault.impl.DataVaultModule;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.estimation.EstimationService;
-import com.elster.jupiter.estimation.impl.EstimationModule;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
-import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.kpi.impl.KpiModule;
-import com.elster.jupiter.license.License;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
-import com.elster.jupiter.metering.impl.MeteringModule;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.properties.impl.BasicPropertiesModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.tasks.impl.TaskModule;
-import com.elster.jupiter.time.impl.TimeModule;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.beans.BeanService;
-import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
-import com.elster.jupiter.util.cron.CronExpressionParser;
-import com.elster.jupiter.util.json.JsonService;
-import com.elster.jupiter.util.json.impl.JsonServiceImpl;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.impl.ValidationModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
@@ -91,6 +45,55 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.estimation.impl.EstimationModule;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.kpi.impl.KpiModule;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
+import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
+import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
+import com.elster.jupiter.time.impl.TimeModule;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.PrivilegesProvider;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.impl.UserModule;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.beans.BeanService;
+import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
+import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.json.impl.JsonServiceImpl;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -116,7 +119,10 @@ import java.util.Properties;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 /**
  * Copyrights EnergyICT
@@ -192,6 +198,7 @@ public class InMemoryIntegrationPersistence {
                 new MockModule(),
                 bootstrapModule,
                 new ThreadSecurityModule(this.principal),
+                new CustomPropertySetsModule(),
                 new EventsModule(),
                 new PubSubModule(),
                 new TransactionModule(showSqlLogging),
@@ -238,6 +245,7 @@ public class InMemoryIntegrationPersistence {
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.jsonService = injector.getInstance(JsonService.class);
             this.ormService = injector.getInstance(OrmService.class);
+            injector.getInstance(CustomPropertySetService.class);
             this.transactionService = injector.getInstance(TransactionService.class);
             this.eventService = injector.getInstance(EventService.class);
             this.nlsService = injector.getInstance(NlsService.class);

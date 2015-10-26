@@ -11,13 +11,13 @@ import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsAlreadyObsoleteE
 import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsExecutingAndCannotBecomeObsoleteException;
 import com.energyict.mdc.device.data.exceptions.DuplicateConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.IncompatiblePartialConnectionTaskException;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.NestedRelationTransactionException;
 import com.energyict.mdc.device.data.exceptions.PartialConnectionTaskNotPartOfDeviceConfigurationException;
 import com.energyict.mdc.device.data.exceptions.RelationIsAlreadyObsoleteException;
 import com.energyict.mdc.device.data.impl.CreateEventType;
 import com.energyict.mdc.device.data.impl.DeleteEventType;
 import com.energyict.mdc.device.data.impl.EventType;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.PersistentIdObject;
 import com.energyict.mdc.device.data.impl.PropertyCache;
 import com.energyict.mdc.device.data.impl.PropertyFactory;
@@ -139,6 +139,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private final ProtocolPluggableService protocolPluggableService;
 
     private boolean allowIncomplete = true;
+    private boolean doNotTouchParentDevice = true;
 
     protected ConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, ProtocolPluggableService protocolPluggableService) {
         super(ConnectionTask.class, dataModel, eventService, thesaurus);
@@ -182,7 +183,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private void validatePartialConnectionTaskType(PCTT partialConnectionTask) {
         Class<PCTT> partialConnectionTaskType = this.getPartialConnectionTaskType();
         if (!partialConnectionTaskType.isAssignableFrom(partialConnectionTask.getClass())) {
-            throw new IncompatiblePartialConnectionTaskException(this.getThesaurus(), partialConnectionTask, partialConnectionTaskType);
+            throw new IncompatiblePartialConnectionTaskException(partialConnectionTask, partialConnectionTaskType, this.getThesaurus(), MessageSeeds.CONNECTION_TASK_INCOMPATIBLE_PARTIAL);
         }
     }
 
@@ -192,10 +193,8 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
             ConnectionTask connectionTaskWithSamePartialConnectionTaskDeviceCombination = result.get();
             if (this.getId() != connectionTaskWithSamePartialConnectionTaskDeviceCombination.getId()) {
                 throw new DuplicateConnectionTaskException(
-                        this.getThesaurus(),
-                        device,
-                        partialConnectionTask,
-                        connectionTaskWithSamePartialConnectionTaskDeviceCombination);
+                        device, partialConnectionTask, connectionTaskWithSamePartialConnectionTaskDeviceCombination, this.getThesaurus(),
+                        MessageSeeds.DUPLICATE_CONNECTION_TASK);
             }
         }
     }
@@ -209,7 +208,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
      */
     private void validateSameConfiguration(PCTT partialConnectionTask, Device device) {
         if (!is(this.getDeviceConfigurationId(device)).equalTo(partialConnectionTask.getConfiguration().getId())) {
-            throw new PartialConnectionTaskNotPartOfDeviceConfigurationException(this.getThesaurus(), partialConnectionTask, device);
+            throw new PartialConnectionTaskNotPartOfDeviceConfigurationException(partialConnectionTask, device, this.getThesaurus(), MessageSeeds.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_NOT_IN_CONFIGURATION);
         }
     }
 
@@ -266,6 +265,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.validateNotObsolete();
         super.save();
         this.saveAllProperties();
+        getDataModel().touch(device.get());
     }
 
     protected void saveAllProperties() {
@@ -290,11 +290,11 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
             try {
                 relation.makeObsolete();
             } catch (BusinessException e) {
-                throw new NestedRelationTransactionException(this.getThesaurus(), e, this.findRelationType().getName());
+                throw new NestedRelationTransactionException(e, this.findRelationType().getName(), this.getThesaurus(), MessageSeeds.UNEXPECTED_RELATION_TRANSACTION_ERROR);
             }
             // Cannot collapse catch blocks because of the constructor
             catch (SQLException e) {
-                throw new NestedRelationTransactionException(this.getThesaurus(), e, this.findRelationType().getName());
+                throw new NestedRelationTransactionException(this.getThesaurus(), e, this.findRelationType().getName(), MessageSeeds.UNEXPECTED_RELATION_TRANSACTION_ERROR);
             }
         }
     }
@@ -311,7 +311,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     protected void validateNotObsolete() {
         if (this.obsoleteDate != null) {
-            throw new CannotUpdateObsoleteConnectionTaskException(this.getThesaurus(), this);
+            throw new CannotUpdateObsoleteConnectionTaskException(this, this.getThesaurus(), MessageSeeds.CONNECTION_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE);
         }
     }
 
@@ -349,16 +349,16 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
             try {
                 relation.makeObsolete();
             } catch (BusinessException | SQLException e) {
-                throw new RelationIsAlreadyObsoleteException(this.getThesaurus(), relation.getRelationType().getName());
+                throw new RelationIsAlreadyObsoleteException(relation.getRelationType().getName(), this.getThesaurus(), MessageSeeds.CODING_RELATION_IS_ALREADY_OBSOLETE);
             }
         }
     }
 
     private void validateMakeObsolete() {
         if (this.isObsolete()) {
-            throw new ConnectionTaskIsAlreadyObsoleteException(this.getThesaurus(), this);
+            throw new ConnectionTaskIsAlreadyObsoleteException(this, this.getThesaurus(), MessageSeeds.CONNECTION_TASK_IS_ALREADY_OBSOLETE);
         } else if (this.comServer.isPresent()) {
-            throw new ConnectionTaskIsExecutingAndCannotBecomeObsoleteException(this.getThesaurus(), this, this.getExecutingComServer());
+            throw new ConnectionTaskIsExecutingAndCannotBecomeObsoleteException(this, this.getExecutingComServer(), this.getThesaurus(), MessageSeeds.CONNECTION_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE);
         }
     }
 
@@ -374,7 +374,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private void validateNoDependentComTaskExecutions() {
         List<ComTaskExecution> dependents = this.findDependentComTaskExecutions();
         if (!dependents.isEmpty()) {
-            throw new CannotDeleteUsedDefaultConnectionTaskException(this.getThesaurus(), this);
+            throw new CannotDeleteUsedDefaultConnectionTaskException(this, this.getThesaurus(), MessageSeeds.DEFAULT_CONNECTION_TASK_IS_INUSE_AND_CANNOT_DELETE);
         }
     }
 
@@ -396,6 +396,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     public void executionCompleted() {
+        this.doNotTouchParentDevice();
         this.doExecutionCompleted();
         this.update();
     }
@@ -868,6 +869,9 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
             this.loadPluggableClass();
         }
         super.update();
+        if (!doNotTouchParentDevice) {
+            getDataModel().touch(device.get());
+        }
     }
 
     @Override
@@ -920,6 +924,19 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
             return false;
         }
         return true;
+    }
+
+    @Override
+    public long getVersion() {
+        return this.version;
+    }
+
+    /**
+     * Sometimes it is necessary do not touch the parent device during an update process,
+     * because otherwise we will receive optimistic lock exception (for example when topology handler updates all com task executions)
+     */
+    public void doNotTouchParentDevice() {
+        this.doNotTouchParentDevice = true;
     }
 
     /**

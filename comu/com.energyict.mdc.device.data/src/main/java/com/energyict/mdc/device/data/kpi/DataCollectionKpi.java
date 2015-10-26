@@ -3,7 +3,7 @@ package com.energyict.mdc.device.data.kpi;
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -136,4 +136,5 @@ public interface DataCollectionKpi extends HasId {
      */
     public void dropConnectionSetupKpi();
 
+    long getVersion();
 }

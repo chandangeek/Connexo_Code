@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.impl.constraintvalidators;
 
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
 
 import javax.validation.Constraint;
 import javax.validation.Payload;
@@ -25,7 +25,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Constraint(validatedBy = { UniqueComTaskSchedulingValidator.class })
 public @interface UniqueComTaskScheduling {
 
-    String message() default "{" + MessageSeeds.Keys.DUPLICATE_COMTASK_SCHEDULING + "}";
+    String message() default "{" + MessageSeeds.Keys.DUPLICATE_COMTASK + "}";
 
     Class<?>[] groups() default { };
 

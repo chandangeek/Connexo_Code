@@ -1,12 +1,12 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.LoadProfileReading;
+
 import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.google.common.collect.Range;
-
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.LoadProfileReading;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -73,4 +73,11 @@ public class LoadProfileReadingImpl implements LoadProfileReading {
         return Collections.unmodifiableList(flags);
     }
 
+    @Override
+    public String toString() {
+        return "LoadProfileReadingImpl{" +
+                "readingTime=" + readingTime +
+                ", interval=" + interval +
+                '}';
+    }
 }

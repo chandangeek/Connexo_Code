@@ -1,16 +1,17 @@
 package com.energyict.mdc.device.data.impl.messagehandlers;
 
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.exceptions.DefaultTranslationKey;
+import com.energyict.mdc.device.data.impl.ComScheduleOnDeviceQueueMessage;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.model.ComSchedule;
+
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.exceptions.DefaultTranslationKey;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
-import com.energyict.mdc.device.data.impl.ComScheduleOnDeviceQueueMessage;
-import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import java.util.Optional;
 import java.util.logging.Level;
@@ -44,10 +45,10 @@ public class ComScheduleOnDeviceMessageHandler implements MessageHandler {
 
         switch (queueMessage.action) {
             case Add: device.get().newScheduledComTaskExecution(comSchedule.get()).add();
-                LOGGER.info(thesaurus.getSimpleFormat(DefaultTranslationKey.COM_SCHEDULE_ADDED).format(queueMessage.comScheduleId, queueMessage.mRID));
+                LOGGER.info(thesaurus.getFormat(DefaultTranslationKey.COM_SCHEDULE_ADDED).format(queueMessage.comScheduleId, queueMessage.mRID));
                 break;
             case Remove: device.get().removeComSchedule(comSchedule.get());
-                LOGGER.info(thesaurus.getSimpleFormat(DefaultTranslationKey.COM_SCHEDULE_REMOVED).format(queueMessage.comScheduleId, queueMessage.mRID));
+                LOGGER.info(thesaurus.getFormat(DefaultTranslationKey.COM_SCHEDULE_REMOVED).format(queueMessage.comScheduleId, queueMessage.mRID));
                 break;
             default: LOGGER.log(Level.WARNING, "Unknown action for ComSchedule on device: "+ queueMessage.action);
         }

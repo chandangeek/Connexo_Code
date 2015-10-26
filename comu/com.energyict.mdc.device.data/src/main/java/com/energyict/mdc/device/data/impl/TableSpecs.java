@@ -155,10 +155,7 @@ public enum TableSpecs {
             Table<ConnectionTask> table = dataModel.addTable(name(), ConnectionTask.class);
             table.map(ConnectionTaskImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
-//            table.addAuditColumns();
-            table.addCreateTimeColumn("CREATETIME", "createTime");
-            table.addModTimeColumn("MODTIME", "modTime");
-            table.addUserNameColumn("USERNAME", "userName");
+            table.addAuditColumns();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             // Common columns
             Column device = table.column("DEVICE").number().notNull().add();
@@ -260,10 +257,7 @@ public enum TableSpecs {
             Table<ComTaskExecution> table = dataModel.addTable(name(), ComTaskExecution.class);
             table.map(ComTaskExecutionImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
-//            table.addAuditColumns();
-            table.addCreateTimeColumn("CREATETIME", "createTime");
-            table.addModTimeColumn("MODTIME", "modTime");
-            table.addUserNameColumn("USERNAME", "userName");
+            table.addAuditColumns();
             table.addDiscriminatorColumn("DISCRIMINATOR", "number");
             Column device = table.column("DEVICE").number().notNull().add();
             Column comTask = table.column("COMTASK").number().add();

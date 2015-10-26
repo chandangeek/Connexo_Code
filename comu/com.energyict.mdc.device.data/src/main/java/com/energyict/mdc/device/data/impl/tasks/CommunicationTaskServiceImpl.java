@@ -1,23 +1,5 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.KnownAmrSystem;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.orm.DataMapper;
-import com.elster.jupiter.orm.QueryExecutor;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.ListOperator;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.sql.Fetcher;
-import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.domain.util.DefaultFinder;
-import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -50,7 +32,28 @@ import com.energyict.mdc.engine.config.OutboundComPort;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.KnownAmrSystem;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.sql.Fetcher;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.google.common.collect.Range;
+import org.joda.time.DateTimeConstants;
+
 import javax.inject.Inject;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -73,7 +76,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.joda.time.DateTimeConstants;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -274,7 +276,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     private Map<ComSchedule, Map<TaskStatus, Long>> injectComSchedulesAndAddMissing(Map<Long, Map<TaskStatus, Long>> breakdown) {
         Map<Long, ComSchedule> comSchedules =
-                this.deviceDataModelService.schedulingService().findAllSchedules().stream().
+                this.deviceDataModelService.schedulingService().getAllSchedules().stream().
                         collect(Collectors.toMap(ComSchedule::getId, Function.identity()));
         return this.injectBreakDownsAndAddMissing(breakdown, comSchedules);
     }
@@ -690,6 +692,11 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
+    public Optional<ComTaskExecution> findAndLockComTaskExecutionByIdAndVersion(long id, long version) {
+        return this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public List<ComTaskExecution> findComTaskExecutionsByDevice(Device device) {
         Condition condition = where(ComTaskExecutionFields.DEVICE.name()).isEqualTo(device.getId()).and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
         return this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class).select(condition);
@@ -842,6 +849,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
             from DDC_COMTASKEXEC cte
             join DDC_COMTASKEXECSESSION ctes on cte.lastsession = ctes.id
             join DDC_DEVICE dev on cte.device = dev.id
+           where cte.obsolete_date is null
            group by dev.DEVICETYPE, ctes.highestPrioCompletionCode
          */
         return this.getComTasksDeviceTypeHeatMap(null);
@@ -854,7 +862,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         sqlBuilder.append(" cte join ");
         sqlBuilder.append(TableSpecs.DDC_DEVICE.name());
         sqlBuilder.append(" dev on cte.device = dev.id ");
-        this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
+        this.appendDeviceGroupConditions(deviceGroup, sqlBuilder, "where");
         this.appendRestrictedStatesCondition(sqlBuilder);
         sqlBuilder.append(" group by dev.devicetype, cte.lastsess_highestpriocomplcode");
         Map<Long, Map<CompletionCode, Long>> partialCounters = this.fetchComTaskHeatMapCounters(sqlBuilder);
@@ -944,26 +952,30 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     @Override
     public Map<CompletionCode, Long> getComTaskLastComSessionHighestPriorityCompletionCodeCount() {
-        SqlBuilder sqlBuilder = new SqlBuilder("select cte.lastsess_highestpriocomplcode, count(*) from ");
-        sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
-        sqlBuilder.append(" cte where obsolete_date is null and lastsession is not null group by cte.lastsess_highestpriocomplcode");
-        return this.addMissingCompletionCodeCounters(this.fetchCompletionCodeCounters(sqlBuilder));
+        return this.doGetComTaskLastComSessionHighestPriorityCompletionCodeCount(null);
     }
 
     @Override
     public Map<CompletionCode, Long> getComTaskLastComSessionHighestPriorityCompletionCodeCount(EndDeviceGroup deviceGroup) {
+        return this.doGetComTaskLastComSessionHighestPriorityCompletionCodeCount(deviceGroup);
+    }
+
+    private Map<CompletionCode, Long> doGetComTaskLastComSessionHighestPriorityCompletionCodeCount(EndDeviceGroup deviceGroup) {
         SqlBuilder sqlBuilder = new SqlBuilder("select cte.lastsess_highestpriocomplcode, count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
         sqlBuilder.append(" cte where obsolete_date is null and lastsession is not null");
-        this.appendDeviceGroupConditions(deviceGroup, sqlBuilder);
+        if (deviceGroup != null) {
+            this.appendDeviceGroupConditions(deviceGroup, sqlBuilder, " and");
+        }
         this.appendRestrictedStatesCondition(sqlBuilder);
         sqlBuilder.append(" group by cte.lastsess_highestpriocomplcode");
         return this.addMissingCompletionCodeCounters(this.fetchCompletionCodeCounters(sqlBuilder));
     }
 
-    private void appendDeviceGroupConditions(EndDeviceGroup deviceGroup, SqlBuilder sqlBuilder) {
+    private void appendDeviceGroupConditions(EndDeviceGroup deviceGroup, SqlBuilder sqlBuilder, final String whereOrAnd) {
         if (deviceGroup != null) {
-            sqlBuilder.append(" and cte.device in (");
+            sqlBuilder.append(whereOrAnd);
+            sqlBuilder.append(" cte.device in (");
             if (deviceGroup instanceof QueryEndDeviceGroup) {
                 QueryExecutor<Device> queryExecutor = this.deviceFromDeviceGroupQueryExecutor();
                 sqlBuilder.add(queryExecutor.asFragment(((QueryEndDeviceGroup)deviceGroup).getCondition(), "id"));
@@ -985,17 +997,17 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
      */
     private void appendRestrictedStatesCondition(SqlBuilder sqlBuilder) {
         long currentTime = this.clock.millis();
-        sqlBuilder.append(" and cte.device in");
-        sqlBuilder.append(" (select ED.amrid");
-        sqlBuilder.append(" from MTR_ENDDEVICESTATUS ES, (select FS.ID from FSM_STATE FS where FS.OBSOLETE_TIMESTAMP IS NULL and ");
-        sqlBuilder.append("FS.NAME NOT IN ('");
-        sqlBuilder.append(DefaultState.IN_STOCK.getKey());
-        sqlBuilder.append("', '");
-        sqlBuilder.append(DefaultState.DECOMMISSIONED.getKey());
-        sqlBuilder.append("')) FS, MTR_ENDDEVICE ED where ES.STARTTIME <= ");
-        sqlBuilder.append(String.valueOf(currentTime));
+        sqlBuilder.append(" and cte.device in (");
+        sqlBuilder.append("select ED.amrid");
+        sqlBuilder.append("  from MTR_ENDDEVICESTATUS ES,");
+        sqlBuilder.append("       (select FS.ID from FSM_STATE FS where FS.OBSOLETE_TIMESTAMP IS NULL and FS.NAME NOT IN (");
+        sqlBuilder.addObject(DefaultState.IN_STOCK.getKey());
+        sqlBuilder.append(", ");
+        sqlBuilder.addObject(DefaultState.DECOMMISSIONED.getKey());
+        sqlBuilder.append(")) FS, MTR_ENDDEVICE ED where ES.STARTTIME <= ");
+        sqlBuilder.addLong(currentTime);
         sqlBuilder.append(" and ES.ENDTIME > ");
-        sqlBuilder.append(String.valueOf(currentTime));
+        sqlBuilder.addLong(currentTime);
         sqlBuilder.append(" and ED.ID = ES.ENDDEVICE and ES.STATE = FS.ID)");
     }
 

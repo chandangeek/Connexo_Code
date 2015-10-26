@@ -48,6 +48,8 @@ public interface DataCollectionKpiService {
      * @return The DataCollectionKpi
      */
     public Optional<DataCollectionKpi> findDataCollectionKpi(long id);
+    
+    Optional<DataCollectionKpi> findAndLockDataCollectionKpiByIdAndVersion(long id, long version);
 
     /**
      * Finds the {@link DataCollectionKpi} for the specified {@link EndDeviceGroup}.

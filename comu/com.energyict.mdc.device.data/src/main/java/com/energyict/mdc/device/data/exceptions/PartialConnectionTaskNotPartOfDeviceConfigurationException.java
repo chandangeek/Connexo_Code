@@ -1,10 +1,12 @@
 package com.energyict.mdc.device.data.exceptions;
 
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.device.config.PartialConnectionTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.Device;
+import com.elster.jupiter.util.exception.MessageSeed;
 
 /**
  * Models the exceptional situation that occurs when
@@ -17,9 +19,9 @@ import com.energyict.mdc.device.data.Device;
  */
 public class PartialConnectionTaskNotPartOfDeviceConfigurationException extends LocalizedException {
 
-    public PartialConnectionTaskNotPartOfDeviceConfigurationException(Thesaurus thesaurus, PartialConnectionTask partialConnectionTask, Device device) {
+    public PartialConnectionTaskNotPartOfDeviceConfigurationException(PartialConnectionTask partialConnectionTask, Device device, Thesaurus thesaurus, MessageSeed messageSeed) {
         super(thesaurus,
-                MessageSeeds.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_NOT_IN_CONFIGURATION,
+                messageSeed,
                 partialConnectionTask.getId(),
                 partialConnectionTask.getConfiguration().getId());
         this.set("partialConnectionTaskId", partialConnectionTask.getId());

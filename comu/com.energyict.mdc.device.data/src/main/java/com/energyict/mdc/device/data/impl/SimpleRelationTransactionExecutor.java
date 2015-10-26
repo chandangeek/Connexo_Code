@@ -1,7 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.HasDynamicProperties;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.device.data.exceptions.NestedRelationTransactionException;
 import com.energyict.mdc.device.data.exceptions.NoAttributesExpectedException;
@@ -9,6 +7,9 @@ import com.energyict.mdc.dynamic.relation.DefaultRelationParticipant;
 import com.energyict.mdc.dynamic.relation.RelationTransaction;
 import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
+
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.HasDynamicProperties;
 
 import java.sql.SQLException;
 import java.time.Instant;
@@ -41,7 +42,7 @@ public class SimpleRelationTransactionExecutor<T extends HasDynamicProperties> i
             this.transaction.set(property.getName(), property.getValue());
         }
         else {
-            throw new NoAttributesExpectedException(this.thesaurus, property.getName());
+            throw new NoAttributesExpectedException(this.thesaurus, property.getName(), MessageSeeds.CODING_NO_PROPERTIES_EXPECTED);
         }
     }
 
@@ -62,11 +63,11 @@ public class SimpleRelationTransactionExecutor<T extends HasDynamicProperties> i
                 this.transaction.execute();   // Use doExecute now that we are in Jupiter orbit
             }
             catch (BusinessException e) {
-                throw new NestedRelationTransactionException(this.thesaurus, e, this.transaction.getRelationType().getName());
+                throw new NestedRelationTransactionException(e, this.transaction.getRelationType().getName(), this.thesaurus, MessageSeeds.UNEXPECTED_RELATION_TRANSACTION_ERROR);
             }
             // Cannot collapse catch blocks because of the constructor
             catch (SQLException e) {
-                throw new NestedRelationTransactionException(this.thesaurus, e, this.transaction.getRelationType().getName());
+                throw new NestedRelationTransactionException(this.thesaurus, e, this.transaction.getRelationType().getName(), MessageSeeds.UNEXPECTED_RELATION_TRANSACTION_ERROR);
             }
         }
     }

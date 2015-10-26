@@ -1,23 +1,23 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.impl.TranslationKeys;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementConnectionMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementPriorityMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.events.ComTaskEnablementStatusMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.events.ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiCalculatorHandlerFactory;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
+import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
@@ -26,6 +26,7 @@ import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -44,7 +45,9 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
@@ -55,6 +58,8 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.inject.AbstractModule;
@@ -90,8 +95,8 @@ import java.util.stream.Stream;
  * @since 2014-09-30 (17:33)
  */
 @Component(name = "com.energyict.mdc.device.data", service = {DeviceDataModelService.class, ReferencePropertySpecFinderProvider.class,
-        InstallService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, property = {"name=" + DeviceDataServices.COMPONENT_NAME, "osgi.command.scope=mdc.service.testing", "osgi.command.function=testSearch",}, immediate = true)
-public class DeviceDataModelServiceImpl implements DeviceDataModelService, ReferencePropertySpecFinderProvider, InstallService, TranslationKeyProvider, PrivilegesProvider {
+        InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class}, property = {"name=" + DeviceDataServices.COMPONENT_NAME, "osgi.command.scope=mdc.service.testing", "osgi.command.function=testSearch",}, immediate = true)
+public class DeviceDataModelServiceImpl implements DeviceDataModelService, ReferencePropertySpecFinderProvider, InstallService, TranslationKeyProvider, MessageSeedProvider, PrivilegesProvider {
 
     private volatile DataModel dataModel;
     private volatile EventService eventService;
@@ -105,6 +110,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private volatile com.elster.jupiter.tasks.TaskService taskService;
     private volatile Clock clock;
     private volatile KpiService kpiService;
+    private volatile com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
+    private volatile PropertySpecService propertySpecService;
 
     private volatile RelationService relationService;
     private volatile ProtocolPluggableService protocolPluggableService;
@@ -123,6 +130,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private DataCollectionKpiService dataCollectionKpiService;
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private BatchService batchService;
+    private DeviceMessageService deviceMessageService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
 
@@ -135,6 +143,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     @Inject
     public DeviceDataModelServiceImpl(BundleContext bundleContext,
                                       OrmService ormService, EventService eventService, NlsService nlsService, Clock clock, KpiService kpiService, com.elster.jupiter.tasks.TaskService taskService, IssueService issueService,
+                                      PropertySpecService propertySpecService, com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService,
                                       RelationService relationService, ProtocolPluggableService protocolPluggableService,
                                       EngineConfigurationService engineConfigurationService, DeviceConfigurationService deviceConfigurationService,
                                       MeteringService meteringService, ValidationService validationService, EstimationService estimationService,
@@ -150,6 +159,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.setKpiService(kpiService);
         this.setTaskService(taskService);
         this.setIssueService(issueService);
+        this.setPropertySpecService(propertySpecService);
+        this.setJupiterPropertySpecService(jupiterPropertySpecService);
         this.setProtocolPluggableService(protocolPluggableService);
         this.setEngineConfigurationService(engineConfigurationService);
         this.setDeviceConfigurationService(deviceConfigurationService);
@@ -223,6 +234,16 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     @Reference
     public void setIssueService(IssueService issueService) {
         this.issueService = issueService;
+    }
+
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
+    @Reference
+    public void setJupiterPropertySpecService(com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService) {
+        this.jupiterPropertySpecService = jupiterPropertySpecService;
     }
 
     @Reference
@@ -386,6 +407,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
                 bind(IssueService.class).toInstance(issueService);
+                bind(com.elster.jupiter.properties.PropertySpecService.class).toInstance(jupiterPropertySpecService);
+                bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(Clock.class).toInstance(clock);
                 bind(MeteringService.class).toInstance(meteringService);
@@ -425,11 +448,12 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private void createRealServices() {
         this.connectionTaskService = new ConnectionTaskServiceImpl(this, eventService, meteringService, protocolPluggableService, clock);
         this.communicationTaskService = new CommunicationTaskServiceImpl(this, meteringService, clock);
-        this.deviceService = new DeviceServiceImpl(this, protocolPluggableService, queryService, thesaurus);
+        this.deviceService = new DeviceServiceImpl(this, protocolPluggableService, queryService, thesaurus, meteringGroupsService);
         this.loadProfileService = new LoadProfileServiceImpl(this);
         this.logBookService = new LogBookServiceImpl(this);
         this.dataCollectionKpiService = new DataCollectionKpiServiceImpl(this);
         this.batchService = new BatchServiceImpl(this);
+        this.deviceMessageService = new DeviceMessageServiceImpl(this);
     }
 
     private void registerRealServices(BundleContext bundleContext) {
@@ -440,6 +464,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.registerLogBookService(bundleContext);
         this.registerDataCollectionKpiService(bundleContext);
         this.registerBatchService(bundleContext);
+        this.registerDeviceMessageService(bundleContext);
     }
 
     private void registerConnectionTaskService(BundleContext bundleContext) {
@@ -473,6 +498,10 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.serviceRegistrations.add(bundleContext.registerService(BatchService.class, this.batchService, null));
     }
 
+    private void registerDeviceMessageService(BundleContext bundleContext) {
+        this.serviceRegistrations.add(bundleContext.registerService(DeviceMessageService.class, this.deviceMessageService, null));
+    }
+
     @Deactivate
     public void stop() throws Exception {
         this.serviceRegistrations.forEach(ServiceRegistration::unregister);
@@ -495,28 +524,35 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> translationKeys = new ArrayList<>(Arrays.asList(MessageSeeds.values()));
-        translationKeys.add(new SimpleTranslationKey(DataCollectionKpiCalculatorHandlerFactory.TASK_SUBSCRIBER, DataCollectionKpiCalculatorHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME));
-        translationKeys.add(new SimpleTranslationKey(ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory.TASK_SUBSCRIBER, ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory.TASK_SUBSCRIBER_DISPLAY_NAME));
-        translationKeys.add(new SimpleTranslationKey(Installer.COMSCHEDULE_RECALCULATOR_MESSAGING_NAME, Installer.COMSCHEDULE_RECALCULATOR_MESSAGING_DISPLAYNAME));
-        translationKeys.add(new SimpleTranslationKey(Installer.COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_NAME, Installer.COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_DISPLAYNAME));
-        translationKeys.add(new SimpleTranslationKey(ComTaskEnablementConnectionMessageHandlerFactory.SUBSCRIBER_NAME, ComTaskEnablementConnectionMessageHandlerFactory.SUBSCRIBER_DISPLAYNAME));
-        translationKeys.add(new SimpleTranslationKey(ComTaskEnablementPriorityMessageHandlerFactory.SUBSCRIBER_NAME, ComTaskEnablementPriorityMessageHandlerFactory.SUBSCRIBER_DISPLAYNAME));
-        translationKeys.add(new SimpleTranslationKey(ComTaskEnablementStatusMessageHandlerFactory.SUBSCRIBER_NAME, ComTaskEnablementStatusMessageHandlerFactory.SUBSCRIBER_DISPLAYNAME));
-        translationKeys.add(new SimpleTranslationKey(CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_SUBSCRIBER, CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DISPLAYNAME));
-        translationKeys.add(new SimpleTranslationKey(CommunicationTaskService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER, CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DISPLAYNAME));
-        translationKeys.add(new SimpleTranslationKey(ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_SUBSCRIBER, ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DISPLAY_NAME));
-        translationKeys.add(new SimpleTranslationKey(ConnectionTaskService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER, ConnectionTaskService.FILTER_ITEMIZER_QUEUE_DISPLAYNAME));
-        translationKeys.add(new SimpleTranslationKey(ConnectionTaskService.CONNECTION_PROP_UPDATER_QUEUE_SUBSCRIBER, ConnectionTaskService.CONNECTION_PROP_UPDATER_QUEUE_DISPLAY_NAME));
-        translationKeys.add(new SimpleTranslationKey(ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_SUBSCRIBER, ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_DISPLAY_NAME));
-        translationKeys.add(new SimpleTranslationKey(SchedulingService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER, SchedulingService.FILTER_ITEMIZER_QUEUE_DISPLAYNAME));
-        translationKeys.add(new SimpleTranslationKey(SchedulingService.COM_SCHEDULER_QUEUE_SUBSCRIBER, SchedulingService.COM_SCHEDULER_QUEUE_DISPLAYNAME));
-        Arrays.stream(Privileges.values()).forEach(translationKeys::add);
-        return translationKeys;
+        List<TranslationKey> keys = new ArrayList<>();
+        keys.addAll(Arrays.asList(PropertyTranslationKeys.values()));
+        keys.addAll(Arrays.asList(
+                new SimpleTranslationKey(DataCollectionKpiCalculatorHandlerFactory.TASK_SUBSCRIBER, DataCollectionKpiCalculatorHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME),
+                new SimpleTranslationKey(ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory.TASK_SUBSCRIBER, ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory.TASK_SUBSCRIBER_DISPLAY_NAME),
+                new SimpleTranslationKey(Installer.COMSCHEDULE_RECALCULATOR_MESSAGING_NAME, Installer.COMSCHEDULE_RECALCULATOR_MESSAGING_DISPLAYNAME),
+                new SimpleTranslationKey(Installer.COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_NAME, Installer.COMSCHEDULE_BACKGROUND_OBSOLETION_MESSAGING_DISPLAYNAME),
+                new SimpleTranslationKey(ComTaskEnablementConnectionMessageHandlerFactory.SUBSCRIBER_NAME, ComTaskEnablementConnectionMessageHandlerFactory.SUBSCRIBER_DISPLAYNAME),
+                new SimpleTranslationKey(ComTaskEnablementPriorityMessageHandlerFactory.SUBSCRIBER_NAME, ComTaskEnablementPriorityMessageHandlerFactory.SUBSCRIBER_DISPLAYNAME),
+                new SimpleTranslationKey(ComTaskEnablementStatusMessageHandlerFactory.SUBSCRIBER_NAME, ComTaskEnablementStatusMessageHandlerFactory.SUBSCRIBER_DISPLAYNAME),
+                new SimpleTranslationKey(CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_SUBSCRIBER, CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DISPLAYNAME),
+                new SimpleTranslationKey(CommunicationTaskService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER, CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DISPLAYNAME),
+                new SimpleTranslationKey(ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_SUBSCRIBER, ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DISPLAY_NAME),
+                new SimpleTranslationKey(ConnectionTaskService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER, ConnectionTaskService.FILTER_ITEMIZER_QUEUE_DISPLAYNAME),
+                new SimpleTranslationKey(ConnectionTaskService.CONNECTION_PROP_UPDATER_QUEUE_SUBSCRIBER, ConnectionTaskService.CONNECTION_PROP_UPDATER_QUEUE_DISPLAY_NAME),
+                new SimpleTranslationKey(ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_SUBSCRIBER, ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_DISPLAY_NAME),
+                new SimpleTranslationKey(SchedulingService.FILTER_ITEMIZER_QUEUE_SUBSCRIBER, SchedulingService.FILTER_ITEMIZER_QUEUE_DISPLAYNAME),
+                new SimpleTranslationKey(SchedulingService.COM_SCHEDULER_QUEUE_SUBSCRIBER, SchedulingService.COM_SCHEDULER_QUEUE_DISPLAYNAME)));
+        keys.addAll(Arrays.asList(Privileges.values()));
+        return keys;
     }
 
-    private void install(boolean exeuteDdl) {
-        new Installer(this.dataModel, this.eventService, messagingService).install(exeuteDdl);
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
+    }
+
+    private void install(boolean executeDdl) {
+        new Installer(this.dataModel, this.eventService, messagingService).install(executeDdl);
     }
 
     @Override
@@ -526,7 +562,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 statement.executeUpdate();
                 // Don't care about how many rows were updated and if that matches the expected number of updates
             }
-        } catch (SQLException e) {
+        }
+        catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
     }
@@ -591,11 +628,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private EnumSet<TaskStatus> taskStatusComplement(Set<TaskStatus> taskStatuses) {
         if (taskStatuses.isEmpty()) {
             return EnumSet.allOf(TaskStatus.class);
-        } else {
+        }
+        else {
             return EnumSet.complementOf(EnumSet.copyOf(taskStatuses));
         }
     }
-
 
     @Override
     public String getModuleName() {

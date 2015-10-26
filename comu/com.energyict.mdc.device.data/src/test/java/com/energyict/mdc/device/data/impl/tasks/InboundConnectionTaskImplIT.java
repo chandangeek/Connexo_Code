@@ -1,16 +1,12 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.google.common.collect.Range;
-
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.DuplicateConnectionTaskException;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.device.data.exceptions.PartialConnectionTaskNotPartOfDeviceConfigurationException;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
@@ -18,16 +14,22 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OnlineComServer;
-import org.junit.Ignore;
-import org.junit.Test;
+
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.google.common.collect.Range;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.*;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests for the {@link InboundConnectionTaskImpl} component.

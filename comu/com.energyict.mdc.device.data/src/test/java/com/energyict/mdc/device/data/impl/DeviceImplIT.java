@@ -42,7 +42,6 @@ import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.Reading;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
-import com.energyict.mdc.device.data.exceptions.MessageSeeds;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.RegisterType;
@@ -134,6 +133,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
     private void createTestDefaultTimeZone() {
         TimeZone.setDefault(this.testDefaultTimeZone);
+        when(inMemoryPersistence.getClock().getZone()).thenReturn(this.testDefaultTimeZone.toZoneId());
     }
 
     private void setupReadingTypes() {
@@ -358,7 +358,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         device.save();
 
         Device reloadedDevice = getReloadedDevice(device);
-        reloadedDevice.setTimeZone(null);
+        reloadedDevice.setZone(null);
         reloadedDevice.save();
 
         Device updatedDevice = getReloadedDevice(reloadedDevice);
@@ -577,10 +577,8 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
 
         ComScheduleBuilder builder = inMemoryPersistence.getSchedulingService().newComSchedule(mRIDAndName, new TemporalExpression(TimeDuration.days(1)), inMemoryPersistence.getClock().instant());
         builder.mrid(mRIDAndName);
-        ComSchedule comSchedule = builder.build();
-        comSchedule.addComTask(simpleComTask);
-        comSchedule.save();
-        return comSchedule;
+        builder.addComTask(simpleComTask);
+        return builder.build();
     }
 
     @Test

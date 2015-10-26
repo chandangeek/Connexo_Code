@@ -2,7 +2,7 @@ package com.energyict.mdc.device.data.tasks;
 
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.HasName;
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -331,4 +331,5 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
 
     public void save();
 
+    long getVersion();
 }

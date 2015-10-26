@@ -1,8 +1,6 @@
 package com.energyict.mdc.device.data.tasks.history;
 
-import com.energyict.mdc.common.HasId;
-
-import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -20,7 +18,6 @@ import java.util.Set;
  * Date: 23/04/12
  * Time: 14:25
  */
-@ProviderType
 public interface ComTaskExecutionSession extends HasId {
 
     public enum SuccessIndicator {
