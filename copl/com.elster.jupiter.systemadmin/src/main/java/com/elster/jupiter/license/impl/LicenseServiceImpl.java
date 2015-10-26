@@ -6,15 +6,16 @@ import com.elster.jupiter.license.License;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.license.security.Privileges;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.PrivilegesProvider;
-import com.elster.jupiter.users.Resource;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.framework.BundleContext;
@@ -53,10 +54,10 @@ import java.util.stream.Stream;
  */
 @Component(
         name = "com.elster.jupiter.license",
-        service = {InstallService.class, LicenseService.class, PrivilegesProvider.class, TranslationKeyProvider.class},
+        service = {InstallService.class, LicenseService.class, PrivilegesProvider.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = {"name=" + LicenseService.COMPONENTNAME},
         immediate = true)
-public class LicenseServiceImpl implements LicenseService, InstallService, PrivilegesProvider, TranslationKeyProvider {
+public class LicenseServiceImpl implements LicenseService, InstallService, PrivilegesProvider, MessageSeedProvider, TranslationKeyProvider {
 
     private volatile DataModel dataModel;
     private volatile OrmService ormService;
@@ -72,6 +73,7 @@ public class LicenseServiceImpl implements LicenseService, InstallService, Privi
 
     @Inject
     public LicenseServiceImpl(OrmService ormService, UserService userService, EventService eventService) {
+        this();
         setOrmService(ormService);
         setUserService(userService);
         setEventService(eventService);
@@ -153,7 +155,7 @@ public class LicenseServiceImpl implements LicenseService, InstallService, Privi
         if (dataModel.isInstalled()) {
             List<License> licenses = dataModel.mapper(License.class).find();
             for (License license : licenses) {
-                Dictionary<String, String> props = new Hashtable<String, String>();
+                Dictionary<String, String> props = new Hashtable<>();
                 props.put("com.elster.jupiter.license.application.key", license.getApplicationKey());
                 if (license.getStatus().equals(License.Status.ACTIVE) || license.getGracePeriodInDays() > 0) {
                     props.put("com.elster.jupiter.license.rest.key", license.getApplicationKey());
@@ -230,7 +232,7 @@ public class LicenseServiceImpl implements LicenseService, InstallService, Privi
     @Override
     public Set<String> addLicense(SignedObject licensedObjects) throws InvalidLicenseException, IOException {
         LicenseVerifier licenseVerifier = new LicenseVerifier();
-        Object licensedMap = null;
+        Object licensedMap;
         try {
             licensedMap = licenseVerifier.extract(licensedObjects);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException | IOException | SignatureException | ClassNotFoundException e) {
@@ -266,7 +268,7 @@ public class LicenseServiceImpl implements LicenseService, InstallService, Privi
 
     @Override
     public String getComponentName() {
-        return COMPONENTNAME;
+        return LicenseService.COMPONENTNAME;
     }
 
     @Override
@@ -277,10 +279,14 @@ public class LicenseServiceImpl implements LicenseService, InstallService, Privi
     @Override
     public List<TranslationKey> getKeys() {
         return Stream.of(
-                Arrays.stream(MessageSeeds.values()),
                 Arrays.stream(Privileges.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     class LicenseCheckTask extends TimerTask {
@@ -290,4 +296,5 @@ public class LicenseServiceImpl implements LicenseService, InstallService, Privi
             reloadApps();
         }
     }
+
 }
