@@ -59,11 +59,11 @@ public class UsagePointResource {
     }
 
     @GET
-    @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
+//    @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public UsagePointInfos getUsagePoints(@Context UriInfo uriInfo, @Context SecurityContext securityContext) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<UsagePoint> list = queryUsagePoints(maySeeAny(securityContext), params);
+        List<UsagePoint> list = queryUsagePoints(true, params);
         return toUsagePointInfos(params.clipToLimit(list), params.getStartInt(), params.getLimit());
     }
 
@@ -86,12 +86,12 @@ public class UsagePointResource {
         return queryService.wrap(query).select(queryParameters);
     }
 
-    private boolean maySeeAny(SecurityContext securityContext) {
-        return securityContext.isUserInRole(Privileges.BROWSE_ANY);
-    }
+//    private boolean maySeeAny(SecurityContext securityContext) {
+//        return securityContext.isUserInRole(Privileges.BROWSE_ANY);
+//    }
 
     @PUT
-    @RolesAllowed({Privileges.ADMIN_OWN, Privileges.ADMIN_ANY})
+//    @RolesAllowed({Privileges.ADMIN_OWN, Privileges.ADMIN_ANY})
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public UsagePointInfos updateUsagePoint(@PathParam("id") String id, UsagePointInfo info, @Context SecurityContext securityContext) {
@@ -100,7 +100,7 @@ public class UsagePointResource {
     }
 
     @GET
-    @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
+//    @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
     @Path("/{mrid}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public UsagePointInfos getUsagePoint(@PathParam("mrid") String mRid, @Context SecurityContext securityContext) {
@@ -111,7 +111,7 @@ public class UsagePointResource {
     }
 
     @POST
-    @RolesAllowed({Privileges.ADMIN_ANY})
+//    @RolesAllowed({Privileges.ADMIN_ANY})
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public UsagePointInfos createUsagePoint(UsagePointInfo info) {
@@ -121,7 +121,7 @@ public class UsagePointResource {
     }
 
     @GET
-    @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
+//    @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
     @Path("/{mrid}/meteractivations")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public MeterActivationInfos getMeterActivations(@PathParam("mrid") String mRid, @Context SecurityContext securityContext) {
@@ -131,7 +131,7 @@ public class UsagePointResource {
 
 
     @GET
-    @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
+//    @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
     @Path("/{id}/readingtypes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public ReadingTypeInfos getReadingTypes(@PathParam("id") long id, @Context SecurityContext securityContext) {
@@ -173,7 +173,8 @@ public class UsagePointResource {
     private UsagePoint fetchUsagePoint(long id, SecurityContext securityContext) {
         Optional<UsagePoint> found = meteringService.findUsagePoint(id);
         UsagePoint usagePoint = found.orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal()) && !((User) securityContext.getUserPrincipal()).hasPrivilege("MTR",Privileges.BROWSE_ANY)) {
+        if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal())) {
+//                && !((User) securityContext.getUserPrincipal()).hasPrivilege("MTR",Privileges.BROWSE_ANY)) {
             throw new WebApplicationException(Response.Status.FORBIDDEN);
         }
         return usagePoint;
@@ -182,7 +183,8 @@ public class UsagePointResource {
     private UsagePoint fetchUsagePoint(String mRid, SecurityContext securityContext) {
         Optional<UsagePoint> found = meteringService.findUsagePoint(mRid);
         UsagePoint usagePoint = found.orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal()) && !((User) securityContext.getUserPrincipal()).hasPrivilege("MTR",Privileges.BROWSE_ANY)) {
+        if (!usagePoint.hasAccountability((User) securityContext.getUserPrincipal()) ) {
+//                && !((User) securityContext.getUserPrincipal()).hasPrivilege("MTR",Privileges.BROWSE_ANY)) {
             throw new WebApplicationException(Response.Status.FORBIDDEN);
         }
         return usagePoint;

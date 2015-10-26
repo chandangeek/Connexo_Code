@@ -56,7 +56,7 @@ public class RegisterResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
     public Response getRegisters(@PathParam("mrid") String mrid, @BeanParam JsonQueryParameters queryParameters) {
         return registerHelper.getRegisters(mrid, queryParameters);
     }
@@ -64,7 +64,7 @@ public class RegisterResource {
     @GET
     @Path("/{rt_mrid}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
     public Response getRegister(@PathParam("mrid") String mrid, @PathParam("rt_mrid") String rt_mrid) {
         Channel channel = registerHelper.findRegisterOnUsagePoint(mrid, rt_mrid)
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_REGISTER_FOR_USAGE_POINT_FOR_MRID, mrid, rt_mrid));
@@ -74,7 +74,7 @@ public class RegisterResource {
     @GET
     @Path("/{rt_mrid}/data")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
+    @RolesAllowed({Privileges.Constants.BROWSE_ANY, Privileges.Constants.BROWSE_OWN})
     public Response getRegisterData(
             @PathParam("mrid") String mrid,
             @PathParam("rt_mrid") String rt_mrid,
