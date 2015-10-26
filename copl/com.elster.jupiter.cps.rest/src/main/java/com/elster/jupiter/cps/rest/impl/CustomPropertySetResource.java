@@ -49,7 +49,7 @@ public class CustomPropertySetResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTER_PRIVILEGES, Privileges.VIEW_PRIVILEGES})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_PRIVILEGES, Privileges.Constants.VIEW_PRIVILEGES})
     public PagedInfoList getCustomAttributeSets(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         String domainExtension = filter.getString("domainExtension");
         List<RegisteredCustomPropertySet> customPropertySets;
@@ -69,7 +69,7 @@ public class CustomPropertySetResource {
     @Path("/domains")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTER_PRIVILEGES, Privileges.VIEW_PRIVILEGES})
+    @RolesAllowed({Privileges.Constants.ADMINISTER_PRIVILEGES, Privileges.Constants.VIEW_PRIVILEGES})
     public PagedInfoList getDomains(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         Set<String> domainExtensions = new HashSet<>(customPropertySetService.findActiveCustomPropertySets()
                 .stream()
@@ -83,7 +83,7 @@ public class CustomPropertySetResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTER_PRIVILEGES)
+    @RolesAllowed(Privileges.Constants.ADMINISTER_PRIVILEGES)
     public Response updatePrivileges(@PathParam("id") long id, CustomPropertySetInfo customPropertySetInfo) {
         RegisteredCustomPropertySet registeredCustomPropertySet = customPropertySetService.findActiveCustomPropertySets()
                 .stream()
