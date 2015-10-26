@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.Translator;
@@ -221,6 +223,7 @@ public class ComSessionCrudIT {
                     new MockModule(),
                     bootstrapModule,
                     new ThreadSecurityModule(principal),
+                    new CustomPropertySetsModule(),
                     new EventsModule(),
                     new PubSubModule(),
                     new TransactionModule(showSqlLogging),
@@ -263,6 +266,7 @@ public class ComSessionCrudIT {
         transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             ormService = injector.getInstance(OrmService.class);
+            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringGroupsService.class);
             injector.getInstance(MasterDataService.class);
@@ -317,7 +321,7 @@ public class ComSessionCrudIT {
 
             outboundTcpipComPortPool = engineConfigurationService.newOutboundComPortPool("outTCPIPPool", ComPortType.TCP, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
             outboundTcpipComPortPool.setActive(true);
-            outboundTcpipComPortPool.save();
+            outboundTcpipComPortPool.update();
 
             connectionTask = this.device.getScheduledConnectionTaskBuilder(this.partialScheduledConnectionTask)
                     .setComPortPool(outboundTcpipComPortPool)

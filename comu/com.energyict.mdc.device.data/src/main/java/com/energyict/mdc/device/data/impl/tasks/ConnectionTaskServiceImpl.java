@@ -149,6 +149,11 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     }
 
     @Override
+    public Optional<ConnectionTask> findAndLockConnectionTaskByIdAndVersion(long id, long version) {
+        return this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public Optional<OutboundConnectionTask> findOutboundConnectionTask(long id) {
         return this.deviceDataModelService.dataModel().mapper(OutboundConnectionTask.class).getOptional(id);
     }

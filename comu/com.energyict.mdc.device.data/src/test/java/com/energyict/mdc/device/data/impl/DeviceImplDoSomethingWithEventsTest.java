@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -272,6 +274,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                     new ThreadSecurityModule(this.principal),
                     new PubSubModule(),
                     new TransactionModule(showSqlLogging),
+                    new CustomPropertySetsModule(),
                     new EventsModule(),
                     new NlsModule(),
                     new DomainUtilModule(),
@@ -307,6 +310,7 @@ public class DeviceImplDoSomethingWithEventsTest {
             this.transactionService = injector.getInstance(TransactionService.class);
             try (TransactionContext ctx = this.transactionService.getContext()) {
                 this.ormService = injector.getInstance(OrmService.class);
+                injector.getInstance(CustomPropertySetService.class);
                 this.transactionService = injector.getInstance(TransactionService.class);
                 this.eventService = new SpyEventService(injector.getInstance(EventService.class));
                 this.nlsService = injector.getInstance(NlsService.class);
@@ -467,6 +471,11 @@ public class DeviceImplDoSomethingWithEventsTest {
             @Override
             public Optional<EventType> getEventType(String topic) {
                 return eventService.getEventType(topic);
+            }
+
+            @Override
+            public Optional<EventType> findAndLockEventTypeByNameAndVersion(String topic, long version) {
+                return eventService.findAndLockEventTypeByNameAndVersion(topic, version);
             }
 
         }

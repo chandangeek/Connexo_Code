@@ -2,10 +2,12 @@ package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.impl.TranslationKeys;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
@@ -128,6 +130,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private DataCollectionKpiService dataCollectionKpiService;
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private BatchService batchService;
+    private DeviceMessageService deviceMessageService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
 
@@ -450,6 +453,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.logBookService = new LogBookServiceImpl(this);
         this.dataCollectionKpiService = new DataCollectionKpiServiceImpl(this);
         this.batchService = new BatchServiceImpl(this);
+        this.deviceMessageService = new DeviceMessageServiceImpl(this);
     }
 
     private void registerRealServices(BundleContext bundleContext) {
@@ -460,6 +464,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.registerLogBookService(bundleContext);
         this.registerDataCollectionKpiService(bundleContext);
         this.registerBatchService(bundleContext);
+        this.registerDeviceMessageService(bundleContext);
     }
 
     private void registerConnectionTaskService(BundleContext bundleContext) {
@@ -493,6 +498,10 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.serviceRegistrations.add(bundleContext.registerService(BatchService.class, this.batchService, null));
     }
 
+    private void registerDeviceMessageService(BundleContext bundleContext) {
+        this.serviceRegistrations.add(bundleContext.registerService(DeviceMessageService.class, this.deviceMessageService, null));
+    }
+
     @Deactivate
     public void stop() throws Exception {
         this.serviceRegistrations.forEach(ServiceRegistration::unregister);
@@ -515,7 +524,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys = Arrays.asList(PropertyTranslationKeys.values());
+        List<TranslationKey> keys = new ArrayList<>();
+        keys.addAll(Arrays.asList(PropertyTranslationKeys.values()));
         keys.addAll(Arrays.asList(
                 new SimpleTranslationKey(DataCollectionKpiCalculatorHandlerFactory.TASK_SUBSCRIBER, DataCollectionKpiCalculatorHandlerFactory.TASK_SUBSCRIBER_DISPLAYNAME),
                 new SimpleTranslationKey(ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory.TASK_SUBSCRIBER, ConnectionTaskValidatorAfterPropertyRemovalMessageHandlerFactory.TASK_SUBSCRIBER_DISPLAY_NAME),

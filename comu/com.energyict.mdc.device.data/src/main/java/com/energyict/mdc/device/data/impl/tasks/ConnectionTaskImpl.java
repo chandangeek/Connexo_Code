@@ -139,6 +139,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private final ProtocolPluggableService protocolPluggableService;
 
     private boolean allowIncomplete = true;
+    private boolean doNotTouchParentDevice = true;
 
     protected ConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, ProtocolPluggableService protocolPluggableService) {
         super(ConnectionTask.class, dataModel, eventService, thesaurus);
@@ -264,6 +265,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.validateNotObsolete();
         super.save();
         this.saveAllProperties();
+        getDataModel().touch(device.get());
     }
 
     protected void saveAllProperties() {
@@ -394,6 +396,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     public void executionCompleted() {
+        this.doNotTouchParentDevice();
         this.doExecutionCompleted();
         this.update();
     }
@@ -866,6 +869,9 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
             this.loadPluggableClass();
         }
         super.update();
+        if (!doNotTouchParentDevice) {
+            getDataModel().touch(device.get());
+        }
     }
 
     @Override
@@ -918,6 +924,19 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
             return false;
         }
         return true;
+    }
+
+    @Override
+    public long getVersion() {
+        return this.version;
+    }
+
+    /**
+     * Sometimes it is necessary do not touch the parent device during an update process,
+     * because otherwise we will receive optimistic lock exception (for example when topology handler updates all com task executions)
+     */
+    public void doNotTouchParentDevice() {
+        this.doNotTouchParentDevice = true;
     }
 
     /**

@@ -95,7 +95,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     @Override
     protected void validateAndCreate() {
         if (this.nextExecutionSpecs.isPresent()) {
-            this.getNextExecutionSpecs().save();
+            this.getNextExecutionSpecs().update();
         }
         super.validateAndCreate();
         if (this.getNextExecutionSpecs() != null) {
@@ -281,6 +281,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     @Override
     public void scheduledComTaskRescheduled(ComTaskExecution comTask) {
         if (ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(this.getConnectionStrategy())) {
+            doNotTouchParentDevice();
             this.schedule(comTask.getNextExecutionTimestamp());
         }
     }
@@ -288,6 +289,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     @Override
     public void scheduledComTaskChangedPriority(ComTaskExecution comTask) {
         if (this.needToSynchronizePriorityChanges()) {
+            doNotTouchParentDevice();
             EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimeStampAndPriority = this.getEarliestNextExecutionTimeStampAndPriority();
 
             /* earliestNextExecutionTimeStampAndPriority is only null when there are
@@ -720,6 +722,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
      * and new NextExecutionSpecs need to be created.
      */
     private class CreateSchedule extends DefaultStrategy {
+
         private final NextExecutionSpecs nextExecutionSpecs;
 
         protected CreateSchedule(TemporalExpression temporalExpression) {
@@ -728,7 +731,6 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
         @Override
         public void prepare() {
-            this.nextExecutionSpecs.save();
             ScheduledConnectionTaskImpl.this.setNextExecutionSpecs(this.nextExecutionSpecs);
         }
 
@@ -780,7 +782,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
         @Override
         public void prepare() {
-            this.getNextExecutionSpecs().save();
+            this.getNextExecutionSpecs().update();
             doUpdateNextExecutionTimestamp(PostingMode.LATER);
         }
 

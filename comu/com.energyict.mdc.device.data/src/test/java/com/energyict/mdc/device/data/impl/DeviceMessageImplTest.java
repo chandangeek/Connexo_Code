@@ -81,10 +81,10 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         group.grant("MDC", Privileges.EXECUTE_DEVICE_MESSAGE_2);
         group.grant("MDC", Privileges.EXECUTE_DEVICE_MESSAGE_3);
         group.grant("MDC", Privileges.EXECUTE_DEVICE_MESSAGE_4);
-        group.save();
+        group.update();
         testUser = inMemoryPersistence.getUserService().createUser("TestUser", "This user is just to satisfy the foreign key ...");
         testUser.join(group);
-        testUser.save();
+        testUser.update();
         inMemoryPersistence.getThreadPrincipalService().set(testUser);
         freezeClock(1970, Calendar.JANUARY, 1); // Experiencing timing issues in tests that set clock back in time and the respective devices need their device life cycle
         deviceType = inMemoryPersistence.getDeviceConfigurationService().newDeviceType("MyTestDeviceType", deviceProtocolPluggableClass);
@@ -625,10 +625,10 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
     private void createAndSetPrincipleForUserWithLimitedPrivileges() {
         Group group = inMemoryPersistence.getUserService().createGroup("MyPrimitiveGroup", "Useless group");
         group.grant("MDC", Privileges.EXECUTE_DEVICE_MESSAGE_4);
-        group.save();
+        group.update();
         User primitiveUser = inMemoryPersistence.getUserService().createUser("PrimitiveUser", "User with incorrect privilege");
         primitiveUser.join(group);
-        primitiveUser.save();
+        primitiveUser.update();
         inMemoryPersistence.getThreadPrincipalService().set(primitiveUser);
     }
 

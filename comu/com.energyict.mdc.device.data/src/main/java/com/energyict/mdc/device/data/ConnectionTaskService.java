@@ -50,6 +50,8 @@ public interface ConnectionTaskService {
 
     public Optional<ConnectionTask> findConnectionTask(long id);
 
+    Optional<ConnectionTask> findAndLockConnectionTaskByIdAndVersion(long id, long version);
+
     public Optional<OutboundConnectionTask> findOutboundConnectionTask(long id);
 
     public Optional<InboundConnectionTask> findInboundConnectionTask(long id);

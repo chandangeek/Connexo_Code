@@ -48,6 +48,11 @@ public class DataCollectionKpiServiceImpl implements DataCollectionKpiService {
     }
 
     @Override
+    public Optional<DataCollectionKpi> findAndLockDataCollectionKpiByIdAndVersion(long id, long version) {
+        return this.deviceDataModelService.dataModel().mapper(DataCollectionKpi.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public Optional<DataCollectionKpi> findDataCollectionKpi(EndDeviceGroup group) {
         return this.deviceDataModelService.dataModel().mapper(DataCollectionKpi.class).getUnique(DataCollectionKpiImpl.Fields.END_DEVICE_GROUP
                 .fieldName(), group);

@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.TranslationKey;
  */
 public enum PropertyTranslationKeys implements TranslationKey {
 
+    DEVICE_DOMAIN("device.search.domain", "Device"),
     DEVICE_MRID("device.mRID", "MRID"),
     DEVICE_SERIAL_NUMBER("device.serial.number", "Serial number"),
     DEVICE_TYPE("device.type", "Device type"),

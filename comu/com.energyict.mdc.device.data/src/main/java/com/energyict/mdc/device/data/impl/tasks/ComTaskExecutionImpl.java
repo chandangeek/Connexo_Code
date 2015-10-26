@@ -640,6 +640,11 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     }
 
     @Override
+    public long getVersion() {
+        return this.version;
+    }
+
+    @Override
     public void executionStarted(ComPort comPort) {
         this.doExecutionStarted(comPort);
         this.update();

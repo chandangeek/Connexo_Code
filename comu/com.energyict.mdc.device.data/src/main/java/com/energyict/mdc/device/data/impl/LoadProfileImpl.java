@@ -100,6 +100,11 @@ public class LoadProfileImpl implements LoadProfile {
     }
 
     @Override
+    public long getVersion() {
+        return this.version;
+    }
+
+    @Override
     public long getId() {
         return id;
     }
