@@ -6,7 +6,6 @@ import com.elster.jupiter.orm.DataModel;
 
 import javax.inject.Inject;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
 
 public class ImportFolderForAppServerImpl implements ImportFolderForAppServer {

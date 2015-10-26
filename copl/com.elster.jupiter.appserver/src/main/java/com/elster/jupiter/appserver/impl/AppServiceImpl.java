@@ -1,11 +1,19 @@
 package com.elster.jupiter.appserver.impl;
 
-import com.elster.jupiter.appserver.*;
+import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.appserver.AppServerCommand;
+import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.appserver.Command;
+import com.elster.jupiter.appserver.ImportFolderForAppServer;
+import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
+import com.elster.jupiter.appserver.MessageSeeds;
+import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.appserver.security.Privileges;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
@@ -27,8 +35,6 @@ import com.elster.jupiter.util.Registration;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
-import static com.elster.jupiter.util.conditions.Where.where;
-
 import com.elster.jupiter.util.streams.Functions;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
@@ -44,7 +50,13 @@ import javax.validation.MessageInterpolator;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -52,7 +64,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-@Component(name = "com.elster.jupiter.appserver", service = {InstallService.class, AppService.class, PrivilegesProvider.class}, property = {"name=" + AppService.COMPONENT_NAME}, immediate = true)
+import static com.elster.jupiter.util.conditions.Where.where;
+
+@Component(name = "com.elster.jupiter.appserver", service = {InstallService.class, AppService.class, Subscriber.class, PrivilegesProvider.class}, property = {"name=" + AppService.COMPONENT_NAME}, immediate = true)
 public class AppServiceImpl implements InstallService, IAppService, Subscriber, PrivilegesProvider {
 
     private static final Logger LOGGER = Logger.getLogger(AppServiceImpl.class.getName());
@@ -75,7 +89,6 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
 
     private volatile AppServerImpl appServer;
     private volatile List<? extends SubscriberExecutionSpec> subscriberExecutionSpecs = Collections.emptyList();
-    private SubscriberSpec allServerSubscriberSpec;
     private final List<Runnable> deactivateTasks = new ArrayList<>();
     private List<CommandListener> commandListeners = new CopyOnWriteArrayList<>();
     private final ThreadGroup threadGroup;
@@ -176,7 +189,6 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
         launchTaskService();
         listenForMessagesToAppServer();
         listenForMesssagesToAllServers();
-        listenForInvalidateCacheRequests();
     }
 
     private void launchTaskService() {
@@ -197,7 +209,7 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
             return;
         }
         appServerImportFolder.flatMap(ImportFolderForAppServer::getImportFolder)
-                .ifPresent(path -> fileImportService.setBasePath(path));
+                .ifPresent(fileImportService::setBasePath);
 
         List<ImportScheduleOnAppServer> importScheduleOnAppServers = dataModel.mapper(ImportScheduleOnAppServer.class).find("appServer", appServer);
         importScheduleOnAppServers.stream()
@@ -216,16 +228,11 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
         return thesaurus;
     }
 
-    private void listenForInvalidateCacheRequests() {
-        context.registerService(Subscriber.class, this, null);
-    }
-
     private void listenForMesssagesToAllServers() {
         Optional<SubscriberSpec> subscriberSpec = messageService.getSubscriberSpec(ALL_SERVERS, messagingName());
         if (subscriberSpec.isPresent()) {
-            allServerSubscriberSpec = subscriberSpec.get();
             final ExecutorService executorService = new CancellableTaskExecutorService(1, new AppServerThreadFactory(threadGroup, new LoggingUncaughtExceptionHandler(thesaurus), this, () -> "All Server messages"));
-            final Future<?> cancellableTask = executorService.submit(new MessageHandlerTask(allServerSubscriberSpec, new CommandHandler(), transactionService, thesaurus));
+            final Future<?> cancellableTask = executorService.submit(new MessageHandlerTask(subscriberSpec.get(), new CommandHandler(), transactionService, thesaurus));
             deactivateTasks.add(() -> {
                 cancellableTask.cancel(false);
                 executorService.shutdownNow();
@@ -335,6 +342,11 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
         List<AppServer> appServers = dataModel.mapper(AppServer.class).select(where("name").isEqualToIgnoreCase(name));
         return appServers.isEmpty() ? Optional.<AppServer>empty() : Optional.of(appServers.get(0));
     }
+    
+    @Override
+    public Optional<AppServer> findAndLockAppServerByNameAndVersion(String name, long version) {
+        return dataModel.mapper(AppServer.class).lockObjectIfVersion(version, name);
+    }
 
     @Reference
     public void setJsonService(JsonService jsonService) {
@@ -360,7 +372,12 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
             properties.put(TABLE_NAME, invalidateCacheRequest.getTableName());
             AppServerCommand command = new AppServerCommand(Command.INVALIDATE_CACHE, properties);
 
-            allServerSubscriberSpec.getDestination().message(jsonService.serialize(command)).send();
+            Optional<DestinationSpec> allServerDestination = messageService.getDestinationSpec(ALL_SERVERS);
+            if (allServerDestination.isPresent()) {
+                allServerDestination.get().message(jsonService.serialize(command)).send();
+            } else {
+                LOGGER.log(Level.SEVERE, "Could not notify other servers of InvalidateCacheRequest. AllServers queue does not exist!");
+            }
         }
 
     }

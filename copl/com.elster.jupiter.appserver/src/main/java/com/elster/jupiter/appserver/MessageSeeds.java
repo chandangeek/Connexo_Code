@@ -3,13 +3,12 @@ package com.elster.jupiter.appserver;
 
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
 
     SERVER_MESSAGE_QUEUE_MISSING(1001, "server.messagequeue.missing", "Server's message queue with name \"{0}\" not found", Level.SEVERE),
     APPSERVER_NAME_UNKNOWN(1002, "appserver.name.unknown", "AppServer with name \"{0}\" is unknown", Level.SEVERE),
@@ -21,7 +20,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     APPSERVER_NAME_MUST_BE_UNIQUE(3003, Keys.NAME_MUST_BE_UNIQUE, "Name must be unique", Level.SEVERE),
     FIELD_SIZE_BETWEEN_1_AND_14(3004, Keys.FIELD_SIZE_BETWEEN_1_AND_14, "Field's text length should be between 1 and 14 characters", Level.SEVERE),
     FIELD_SIZE_BETWEEN_1_AND_80(3005, Keys.FIELD_SIZE_BETWEEN_1_AND_80, "Field's text length should be between 1 and 80 symbols", Level.SEVERE),
-        ;
+    ;
 
     private final int number;
     private final String key;

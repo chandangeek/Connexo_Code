@@ -50,9 +50,9 @@ class Installer {
     private void createBatchExecutor() {
         try {
             User user = userService.createUser(BATCH_EXECUTOR, "User to execute batch tasks.");
-            user.save();
+            user.update();
             Group group = userService.createGroup(UserService.BATCH_EXECUTOR_ROLE, UserService.BATCH_EXECUTOR_ROLE_DESCRIPTION);
-            group.save();
+            group.update();
             user.join(group);
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);

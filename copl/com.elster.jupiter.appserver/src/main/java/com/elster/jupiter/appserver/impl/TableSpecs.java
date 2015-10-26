@@ -8,7 +8,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.Table;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2PATH;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
@@ -24,6 +27,7 @@ public enum TableSpecs {
             table.column("RECURRENTTASKSACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("recurrentTaskActive").add();
             table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add();
             table.primaryKey("APS_PK_APPSERVER").on(idColumn).add();
+            table.addAuditColumns();
         }
 
     },
