@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImportOccurrenceFinderBuilder;
 import com.elster.jupiter.fileimport.FileImportService;
@@ -88,15 +89,17 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
 
     private CronExpressionScheduler cronExpressionScheduler;
     private Path basePath;
+    private EventService eventService;
 
-    public FileImportServiceImpl(){
+    public FileImportServiceImpl() {
     }
 
     @Inject
-    public FileImportServiceImpl(OrmService ormService, MessageService messageService, NlsService nlsService,  QueryService queryService, Clock clock, UserService userService, JsonService jsonService, TransactionService transactionService, CronExpressionParser cronExpressionParser, FileSystem fileSystem) {
+    public FileImportServiceImpl(OrmService ormService, MessageService messageService, EventService eventService, NlsService nlsService, QueryService queryService, Clock clock, UserService userService, JsonService jsonService, TransactionService transactionService, CronExpressionParser cronExpressionParser, FileSystem fileSystem) {
         this();
         setOrmService(ormService);
         setMessageService(messageService);
+        setEventService(eventService);
         setNlsService(nlsService);
         setQueryService(queryService);
         setClock(clock);
@@ -114,7 +117,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
 
     @Override
     public void install() {
-        new InstallerImpl(dataModel).install();
+        new InstallerImpl(dataModel, eventService).install();
         createScheduler();
     }
 
@@ -141,6 +144,11 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
     }
 
     @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
+    }
+
+    @Reference
     public void setScheduleExpressionParser(CronExpressionParser cronExpressionParser) {
         CompositeScheduleExpressionParser scheduleExpressionParser = new CompositeScheduleExpressionParser();
         scheduleExpressionParser.add(PeriodicalScheduleExpressionParser.INSTANCE);
@@ -155,6 +163,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
     }
+
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
@@ -164,9 +173,10 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
     public void setFileSystem(FileSystem fileSystem) {
         this.fileSystem = fileSystem;
     }
+
     @Reference
     public void setQueryService(QueryService queryService) {
-        this.queryService= queryService;
+        this.queryService = queryService;
     }
 
     @Reference
@@ -213,6 +223,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
                 bind(FileSystem.class).toInstance(fileSystem);
                 bind(UserService.class).toInstance(userService);
                 bind(MessageService.class).toInstance(messageService);
+                bind(EventService.class).toInstance(eventService);
                 bind(DataModel.class).toInstance(dataModel);
                 bind(ScheduleExpressionParser.class).toInstance(scheduleExpressionParser);
                 bind(CronExpressionParser.class).toInstance(cronExpressionParser);
@@ -233,9 +244,15 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
                     this, importSchedule.getId(), transactionService, thesaurus, cronExpressionParser, clock));
         }
     }
+
     @Override
-    public void unSchedule(ImportSchedule importSchedule) {
+    public void unschedule(ImportSchedule importSchedule) {
         cronExpressionScheduler.unschedule(importSchedule.getId(), false);
+    }
+
+    @Override
+    public void unscheduleAll() {
+        cronExpressionScheduler.unscheduleAll(false);
     }
 
     @Override
@@ -320,7 +337,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
     }
 
     @Override
-    public Optional<FileImportOccurrence> getFileImportOccurrence(Long id){
+    public Optional<FileImportOccurrence> getFileImportOccurrence(Long id) {
         Optional<FileImportOccurrence> fileImportOccurence = dataModel.mapper(FileImportOccurrence.class).getOptional(id);
         fileImportOccurence.map(FileImportOccurrenceImpl.class::cast).ifPresent(fio -> fio.setClock(clock));
         return fileImportOccurence;

@@ -1,6 +1,7 @@
 package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.FileImporterFactory;
@@ -74,6 +75,8 @@ public class ImportScheduleImplTest extends EqualsContractTest {
     private JsonService jsonService;
     @Mock
     private Clock clock;
+    @Mock
+    private EventService eventService;
 
     private java.nio.file.FileSystem testFileSystem;
 
@@ -122,9 +125,9 @@ public class ImportScheduleImplTest extends EqualsContractTest {
             when(fileImporterFactory.getDestinationName()).thenReturn("DEST_1");
             when(fileImporterFactory.getApplicationName()).thenReturn("SYS");
             when(dataModel.getInstance(ImportScheduleImpl.class)).thenAnswer(invocation -> new ImportScheduleImpl(dataModel, fileImportService,
-                    messageService, cronParser, nameResolver, fileSystem,jsonService, thesaurus, testFileSystem));
+                    messageService, eventService, cronParser, nameResolver, fileSystem, jsonService, thesaurus, testFileSystem));
             when(fileImportService.getImportFactory("importerName")).thenReturn(Optional.empty());
-            importSchedule = ImportScheduleImpl.from(dataModel, "TEST_IMPORT_SCHEDULE", false, scheduleExpression,"SYS","importerName",
+            importSchedule = ImportScheduleImpl.from(dataModel, "TEST_IMPORT_SCHEDULE", false, scheduleExpression, "SYS", "importerName",
                     DESTINATION_NAME, sourceDirectory, ".", inProcessDirectory, failureDirectory, successDirectory);
             super.equalsContractSetUp();
         } catch (IOException e) {
@@ -139,7 +142,7 @@ public class ImportScheduleImplTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (instanceA == null) {
-            instanceA = ImportScheduleImpl.from(dataModel, "TEST_IMPORT_SCHEDULE", false, scheduleExpression,"SYS","importerName",
+            instanceA = ImportScheduleImpl.from(dataModel, "TEST_IMPORT_SCHEDULE", false, scheduleExpression, "SYS", "importerName",
                     DESTINATION_NAME, sourceDirectory, ".", inProcessDirectory, failureDirectory, successDirectory);
             field("id").ofType(Long.TYPE).in(instanceA).set(INSTANCE_A_ID);
         }

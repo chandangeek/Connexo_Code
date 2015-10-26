@@ -28,15 +28,19 @@ public interface FileImportService {
 
     /**
      * Submits the given importSchedule for executing according to its schedule.
+     *
      * @param importSchedule
      */
     void schedule(ImportSchedule importSchedule);
 
     /**
      * Cancel job execution of the given importSchedule.
+     *
      * @param importSchedule
      */
-    void unSchedule(ImportSchedule importSchedule);
+    void unschedule(ImportSchedule importSchedule);
+
+    void unscheduleAll();
 
     /**
      * @param id
@@ -51,8 +55,8 @@ public interface FileImportService {
     Optional<FileImporterFactory> getImportFactory(String importerName);
 
     /**
-     * @return the list of importers
      * @param applicationName
+     * @return the list of importers
      */
     List<FileImporterFactory> getAvailableImporters(String applicationName);
 

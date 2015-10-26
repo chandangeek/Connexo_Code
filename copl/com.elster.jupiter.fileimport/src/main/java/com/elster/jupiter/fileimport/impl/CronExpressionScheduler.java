@@ -1,6 +1,7 @@
 package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.util.time.ScheduleExpression;
+import com.google.common.collect.ImmutableSet;
 
 import javax.annotation.concurrent.GuardedBy;
 import java.time.Clock;
@@ -23,10 +24,11 @@ class CronExpressionScheduler {
     @GuardedBy("jobHandleLock")
     private HashMap<Long, ScheduledFuture<?>> scheduledJobHandles = new HashMap<>();
     private AtomicLong threadCounter = new AtomicLong(0);
-    private Object jobHandleLock = new Object();
+    private final Object jobHandleLock = new Object();
 
     /**
      * Creates a new CronExpressionScheduler with the given size of thread pool.
+     *
      * @param clock
      * @param threadPoolSize
      */
@@ -41,6 +43,7 @@ class CronExpressionScheduler {
 
     /**
      * Schedules the given CronJob to execute once, at the next time its CronExpression matches.
+     *
      * @param cronJob
      */
     public void submitOnce(CronJob cronJob) {
@@ -58,6 +61,7 @@ class CronExpressionScheduler {
 
     /**
      * Schedules the given CronJob to execute every time its CronExpression matches.
+     *
      * @param cronJob
      */
     public void submit(CronJob cronJob) {
@@ -69,6 +73,13 @@ class CronExpressionScheduler {
             if (scheduledJobHandles.containsKey(cronJobId)) {
                 scheduledJobHandles.remove(cronJobId).cancel(mayInterruptIfRunning);
             }
+        }
+    }
+
+    public void unscheduleAll(boolean mayInterruptIfRunning) {
+        synchronized (jobHandleLock) {
+            ImmutableSet.copyOf(scheduledJobHandles.keySet())
+                    .forEach(id -> unschedule(id, mayInterruptIfRunning));
         }
     }
 
