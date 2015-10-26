@@ -271,6 +271,8 @@ public class DataExportTaskResource {
                 }
             }
 
+            task.setDataFormatter(info.dataProcessor.name);
+
             updateProperties(info, task);
             updateDestinations(info, task);
 
@@ -405,6 +407,7 @@ public class DataExportTaskResource {
         List<PropertySpec> propertiesSpecsForDataProcessor = dataExportService.getPropertiesSpecsForFormatter(info.dataProcessor.name);
         propertiesSpecsForDataProcessor.stream()
                 .forEach(spec -> {
+                    task.removeProperty(spec);
                     Object value = propertyUtils.findPropertyValue(spec, info.dataProcessor.properties);
                     task.setProperty(spec.getName(), value);
                 });
