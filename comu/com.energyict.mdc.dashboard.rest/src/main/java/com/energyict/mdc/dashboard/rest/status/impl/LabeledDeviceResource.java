@@ -43,7 +43,7 @@ public class LabeledDeviceResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE, Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response getLabeledDevices(@QueryParam("category") String categoryId, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext context) {
         if (Checks.is(categoryId).emptyOrOnlyWhiteSpace()) {
             return Response.status(Response.Status.BAD_REQUEST).build();
