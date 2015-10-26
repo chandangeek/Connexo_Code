@@ -19,12 +19,7 @@ import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -168,6 +163,7 @@ public class DeviceMessagesResourceTest extends BaseLoadProfileTest {
         when(deviceConfigurationService.findAndLockDeviceType(1L, OK_VERSION)).thenReturn(Optional.of(deviceType));
 
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1);
+        when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
         when(deviceMessageSpecificationService.findMessageSpecById(1L)).thenReturn(Optional.empty());
         when(deviceMessageSpecificationService.findMessageSpecById(13L)).thenReturn(Optional.empty());
 
@@ -210,6 +206,7 @@ public class DeviceMessagesResourceTest extends BaseLoadProfileTest {
         when(deviceConfigurationService.findAndLockDeviceType(1L, OK_VERSION)).thenReturn(Optional.of(deviceType));
 
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1);
+        when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
         DeviceMessageSpec message1 = mock(DeviceMessageSpec.class);
         DeviceMessageSpec message2 = mock(DeviceMessageSpec.class);
         when(deviceMessageSpecificationService.findMessageSpecById(1)).thenReturn(Optional.of(message1));

@@ -159,11 +159,12 @@ public class ResourceHelper {
     public DeviceConfiguration lockDeviceConfigurationOrThrowException(DeviceConfigurationInfo info, Function<ConcurrentModificationExceptionBuilder, ConcurrentModificationExceptionBuilder> customMessageProvider) {
         Optional<DeviceType> deviceType = getLockedDeviceType(info.parent.id, info.parent.version);
         if (deviceType.isPresent()) {
-            return getLockedDeviceConfiguration(info.id, info.version)
-                    .orElseThrow(customMessageProvider.apply(conflictFactory.contextDependentConflictOn(info.name))
-                            .withActualParent(() -> getCurrentDeviceTypeVersion(info.parent.id), info.parent.id)
-                            .withActualVersion(() -> getCurrentDeviceConfigurationVersion(info.id))
-                            .supplier());
+            // if the deviceType lock succeeds, then we are 'sure' that the config is the same as well
+            return deviceType.get().getConfigurations().stream()
+                    .filter(deviceConfiguration -> (deviceConfiguration.getId() == info.id) && (deviceConfiguration.getVersion() == info.version)).findAny().orElseThrow(customMessageProvider.apply(conflictFactory.contextDependentConflictOn(info.name))
+                    .withActualParent(() -> getCurrentDeviceTypeVersion(info.parent.id), info.parent.id)
+                    .withActualVersion(() -> getCurrentDeviceConfigurationVersion(info.id))
+                    .supplier());
         }
         throw customMessageProvider.apply(conflictFactory.contextDependentConflictOn(info.name))
                 .withActualParent(() -> getCurrentDeviceTypeVersion(info.parent.id), info.parent.id)
