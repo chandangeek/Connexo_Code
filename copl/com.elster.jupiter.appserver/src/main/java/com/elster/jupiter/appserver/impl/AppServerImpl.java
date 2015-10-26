@@ -253,7 +253,6 @@ public class AppServerImpl implements AppServer {
         @Override
         public void removeImportScheduleOnAppServer(ImportScheduleOnAppServer importScheduleOnAppServer){
             ImportScheduleOnAppServerImpl found = getImportScheduleOnAppServer(importScheduleOnAppServer);
-            importScheduleOnAppServer.getImportSchedule().ifPresent(importSchedule ->  fileImportService.unSchedule(importSchedule));
             getImportScheduleOnAppServerFactory().remove(found);
             importSchedulesOnAppServer.remove(found);
         }

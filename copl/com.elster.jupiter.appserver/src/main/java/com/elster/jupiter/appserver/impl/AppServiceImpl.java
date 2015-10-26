@@ -45,6 +45,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.net.InetAddress;
@@ -53,18 +54,22 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
+import static com.elster.jupiter.util.streams.Predicates.not;
 
 @Component(name = "com.elster.jupiter.appserver", service = {InstallService.class, AppService.class, Subscriber.class, PrivilegesProvider.class}, property = {"name=" + AppService.COMPONENT_NAME}, immediate = true)
 public class AppServiceImpl implements InstallService, IAppService, Subscriber, PrivilegesProvider {
@@ -93,6 +98,9 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
     private List<CommandListener> commandListeners = new CopyOnWriteArrayList<>();
     private final ThreadGroup threadGroup;
     private QueryService queryService;
+    @GuardedBy("reconfigureLock")
+    private Set<ImportSchedule> servedImportSchedules = new HashSet<>();
+    private final Object reconfigureLock = new Object();
 
     public AppServiceImpl() {
         threadGroup = new ThreadGroup("AppServer message listeners");
@@ -188,7 +196,7 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
         launchFileImports();
         launchTaskService();
         listenForMessagesToAppServer();
-        listenForMesssagesToAllServers();
+        listenForMessagesToAllServers();
     }
 
     private void launchTaskService() {
@@ -211,12 +219,49 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
         appServerImportFolder.flatMap(ImportFolderForAppServer::getImportFolder)
                 .ifPresent(fileImportService::setBasePath);
 
-        List<ImportScheduleOnAppServer> importScheduleOnAppServers = dataModel.mapper(ImportScheduleOnAppServer.class).find("appServer", appServer);
-        importScheduleOnAppServers.stream()
+        synchronized (reconfigureLock) {
+            importSchedulesOnCurrentAppServer()
+                    .forEach(this::serveImportSchedule);
+        }
+
+        deactivateTasks.add(() -> {
+            importSchedulesOnCurrentAppServer()
+                    .forEach(this::unserveImportSchedule);
+        });
+    }
+
+    private void unserveImportSchedule(ImportSchedule importSchedule) {
+        fileImportService.unSchedule(importSchedule);
+        servedImportSchedules.remove(importSchedule);
+    }
+
+    private void serveImportSchedule(ImportSchedule importSchedule) {
+        fileImportService.schedule(importSchedule);
+        servedImportSchedules.add(importSchedule);
+    }
+
+    private void reconfigure() {
+        Set<ImportSchedule> shouldServe = importSchedulesOnCurrentAppServer().collect(Collectors.toSet());
+        synchronized (reconfigureLock) {
+            servedImportSchedules.stream()
+                    .filter(not(shouldServe::contains))
+                    .collect(Collectors.toSet()) // we must collect, since unserve will modify the underlying collection
+                    .forEach(this::unserveImportSchedule);
+            shouldServe.stream()
+                    .filter(not(servedImportSchedules::contains))
+                    .forEach(this::serveImportSchedule);
+        }
+    }
+
+    private Stream<ImportSchedule> importSchedulesOnCurrentAppServer() {
+        if (!appServer.isActive()) {
+            return Stream.empty();
+        }
+        return dataModel.mapper(ImportScheduleOnAppServer.class).find("appServer", appServer).stream()
                 .map(ImportScheduleOnAppServer::getImportSchedule)
                 .flatMap(Functions.asStream())
-                .filter(is -> is.getObsoleteTime() == null)
-                .forEach(fileImportService::schedule);
+                .filter(ImportSchedule::isActive)
+                .filter(not(ImportSchedule::isObsolete));
     }
 
     @Override
@@ -228,7 +273,7 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
         return thesaurus;
     }
 
-    private void listenForMesssagesToAllServers() {
+    private void listenForMessagesToAllServers() {
         Optional<SubscriberSpec> subscriberSpec = messageService.getSubscriberSpec(ALL_SERVERS, messagingName());
         if (subscriberSpec.isPresent()) {
             final ExecutorService executorService = new CancellableTaskExecutorService(1, new AppServerThreadFactory(threadGroup, new LoggingUncaughtExceptionHandler(thesaurus), this, () -> "All Server messages"));
@@ -422,6 +467,8 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
                     subscriberExecutionSpecs = appServer == null ? Collections.emptyList() : appServer.getSubscriberExecutionSpecs();
                     if (appServer == null) {
                         stopAppServer();
+                    } else {
+                        reconfigure();
                     }
                 default:
             }
