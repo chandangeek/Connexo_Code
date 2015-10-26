@@ -7,7 +7,6 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
@@ -44,19 +43,9 @@ import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableC
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
-import com.elster.jupiter.domain.util.DefaultFinder;
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.HasId;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.sql.SqlBuilder;
 
 import javax.inject.Inject;
 import java.sql.PreparedStatement;
@@ -285,8 +274,12 @@ public class DeviceServiceImpl implements ServerDeviceService {
     }
 
     @Override
-    public void changeDeviceConfigurationForDevices(DeviceConfiguration destinationDeviceConfiguration, Device... device) {
+    public void changeDeviceConfigurationForDevices(DeviceConfiguration destinationDeviceConfiguration, DevicesForConfigChangeSearch devicesForConfigChangeSearch, String... deviceMRIDs) {
+        final DeviceConfigChangeRequestImpl deviceConfigChangeRequest = deviceDataModelService.dataModel().getInstance(DeviceConfigChangeRequestImpl.class).init(destinationDeviceConfiguration);
+        deviceConfigChangeRequest.save();
+        ItemizeConfigChangeQueueMessage itemizeConfigChangeQueueMessage = new ItemizeConfigChangeQueueMessage(destinationDeviceConfiguration.getId(), Arrays.asList(deviceMRIDs), devicesForConfigChangeSearch);
 
+        //TODO create the destinationSpec and fetch it here to put the message on!
     }
 
     @Override

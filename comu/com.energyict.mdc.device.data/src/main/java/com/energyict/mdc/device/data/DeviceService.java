@@ -2,8 +2,6 @@ package com.energyict.mdc.device.data;
 
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -126,10 +124,10 @@ public interface DeviceService {
     /**
      * Change the DeviceConfiguration for the given set of Devices to the provided destinationDeviceConfiguration.
      * The action will be queued and the processing is asynchronously.
-     *
      * @param destinationDeviceConfiguration the configuration which should be applied
-     * @param device                         the Devices to change their configuration
+     * @param devicesForConfigChangeSearch
+     * @param deviceMRIDs a list of device MRIDs
      */
-    public void changeDeviceConfigurationForDevices(DeviceConfiguration destinationDeviceConfiguration, Device... device);
+    public void changeDeviceConfigurationForDevices(DeviceConfiguration destinationDeviceConfiguration, DevicesForConfigChangeSearch devicesForConfigChangeSearch, String... deviceMRIDs);
 
 }
