@@ -104,6 +104,14 @@ Ext.define('Apr.controller.AppServers', {
         {
             ref: 'messageServicesOverview',
             selector: 'appserver-message-services'
+        },
+        {
+            ref: 'noImportServicesSaveSettingsButton',
+            selector: '#apr-no-imp-services-save-settings-btn'
+        },
+        {
+            ref: 'noImportServicesUndoSettingsButton',
+            selector: '#apr-no-imp-services-undo-btn'
         }
     ],
     appServer: null,
@@ -139,7 +147,10 @@ Ext.define('Apr.controller.AppServers', {
                 click: this.removeMessageServiceViaMenu
             },
             'apr-import-services-action-menu': {
-                click: this.removeImportService
+                click: this.removeImportServiceFromActionMenu
+            },
+            'apr-import-services-grid actioncolumn': {
+                removeEvent: this.removeImportServiceFromGrid
             },
             'appservers-add #add-edit-button': {
                 click: this.addEditAppServer
@@ -185,7 +196,13 @@ Ext.define('Apr.controller.AppServers', {
             },
             'preview-container apr-import-services-grid': {
                 select: this.showImportServicesPreview
+            },'#apr-no-imp-services-save-settings-btn': {
+                click: this.saveImportSettings
+            },
+            '#apr-no-imp-services-undo-btn': {
+                click: this.undoImportServiceChanges
             }
+
         });
     },
 
@@ -611,7 +628,7 @@ Ext.define('Apr.controller.AppServers', {
         });
         if(me.fromDetail){
             me.returnToImportServiceDetailView();
-            me.getSaveImportServicesButton().enable();
+            me.importServicesDataChanged();
         } else {
             me.returnToAddEditViewWithoutRouter();
         }
@@ -725,10 +742,20 @@ Ext.define('Apr.controller.AppServers', {
         }
     },
 
-    removeImportService: function (menu) {
+    removeImportServiceFromActionMenu: function (menu) {
+        var me = this;
+       me.removeImportService(menu.record);
+    },
+
+    removeImportServiceFromGrid: function (record) {
+        var me = this;
+
+        me.removeImportService(record);
+    },
+
+    removeImportService: function (removedRecord) {
         var me = this,
-            grid = me.getImportServicesGrid(),
-            removedRecord = menu.record;
+            grid = me.getImportServicesGrid();
 
         grid.getStore().remove(removedRecord);
         var unservedImportStore = me.getStore('Apr.store.UnservedImportServices');
@@ -741,9 +768,10 @@ Ext.define('Apr.controller.AppServers', {
                 me.changeImportGridVisibility(false);
             }
         } else if (me.getAddImportServicesButtonFromDetails()) {
-            me.getSaveImportServicesButton().enable();
+            me.importServicesDataChanged();
             me.getAddImportServicesButtonFromDetails().enable();
         }
+
     },
 
     saveImportSettings: function () {
@@ -772,7 +800,7 @@ Ext.define('Apr.controller.AppServers', {
                 me.getImportServicesGrid().setLoading(false);
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('appServers.configureImportServicesSuccess', 'APR', 'Import services saved'));
                 me.appServer = record;
-                me.getSaveImportServicesButton().disable()
+                me.getSaveImportServicesButton().disable();
             },
             failure: function (record, operation) {
                 me.getImportServicesGrid().setLoading(false);
@@ -937,10 +965,32 @@ Ext.define('Apr.controller.AppServers', {
         me.updateMessageServiceCounter();
     },
 
+    importServicesDataChanged: function() {
+      var me = this,
+          store = me.getImportServicesGrid().getStore(),
+          itemsAdded = store.getNewRecords().length > 0,
+          itemsRemoved = store.getRemovedRecords().length > 0,
+          disable = !(itemsAdded || itemsRemoved);
+            if (me.getSaveImportServicesButton()) {
+                me.getSaveImportServicesButton().setDisabled(disable);
+            }
+            if (me.getNoImportServicesUndoSettingsButton()) {
+                me.getNoImportServicesUndoSettingsButton().setDisabled(disable);
+            }
+            if (me.getNoImportServicesSaveSettingsButton()) {
+                me.getNoImportServicesSaveSettingsButton().setDisabled(disable);
+            }
+
+    },
+
     updateMessageServiceCounter: function() {
         var me =this;
         me.getMessageServicesGrid().down('pagingtoolbartop #displayItem').setText(
             Uni.I18n.translatePlural('general.messageServicesCount', me.getMessageServicesGrid().getStore().getCount(), 'APR', 'No message services', '{0} message service', '{0} message services')
         );
+    },
+
+    undoImportServiceChanges: function () {
+
     }
 });
