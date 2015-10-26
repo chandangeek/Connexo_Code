@@ -137,7 +137,7 @@ public class UserResource {
     @Path("/{id}/activate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE})
     public UserInfos activateUser(UserInfo info, @PathParam("id") long id) {
         Optional<User> user = userService.getUser(id);
         if(!userService.findUserDirectory(user.get().getDomain()).get().getType().equals("INT")  &&
@@ -153,7 +153,7 @@ public class UserResource {
     @Path("/{id}/deactivate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE})
     public UserInfos deactivateUser(UserInfo info, @PathParam("id") long id) {
         info.active = false;
         info.id = id;

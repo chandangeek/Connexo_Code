@@ -40,7 +40,7 @@ public class UserDirectoryResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE, Privileges.VIEW_USER_ROLE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE})
     public UserDirectoryInfos getUserDirectory(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<AbstractLdapDirectoryImpl> userDirectory = (List<AbstractLdapDirectoryImpl>)(List<?>)getUserDirectoriesQuery().select(queryParameters, Order.ascending("domain").toLowerCase());
@@ -66,7 +66,7 @@ public class UserDirectoryResource {
     @GET
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE, Privileges.VIEW_USER_ROLE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE})
     public UserDirectoryInfo getUserDirectory(@PathParam("id") long id,@Context SecurityContext securityContext) {
         LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
         return new UserDirectoryInfo(ldapUserDirectory);
@@ -75,7 +75,7 @@ public class UserDirectoryResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_USER_ROLE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_USER_ROLE)
     public UserDirectoryInfo createUserDirectory(UserDirectoryInfo info,@PathParam("id") long id ){
         try (TransactionContext context = transactionService.getContext()) {
             LdapUserDirectory ldapUserDirectory;
@@ -103,7 +103,7 @@ public class UserDirectoryResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_USER_ROLE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_USER_ROLE)
     public UserDirectoryInfo editUserDirectory(UserDirectoryInfo info, @PathParam("id") long id,@Context SecurityContext securityContext) {
         transactionService.execute(new VoidTransaction() {
             @Override
@@ -148,7 +148,7 @@ public class UserDirectoryResource {
     @DELETE
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_USER_ROLE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_USER_ROLE)
     public Response deleteUserDirectory(UserDirectoryInfo info, @PathParam("id") long id) {
         try (TransactionContext context = transactionService.getContext()) {
             LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
@@ -161,7 +161,7 @@ public class UserDirectoryResource {
     @GET
     @Path("/{id}/extusers")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE, Privileges.VIEW_USER_ROLE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE})
     public PagedInfoList getExtUsers(@BeanParam JsonQueryParameters queryParameters,@PathParam("id") long id,@Context SecurityContext securityContext) {
         LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
         List<LdapUser> ldapUsers = ldapUserDirectory.getLdapUsers();
@@ -178,7 +178,7 @@ public class UserDirectoryResource {
     @GET
     @Path("/{id}/users")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE, Privileges.VIEW_USER_ROLE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE})
     public PagedInfoList getUsers(@BeanParam JsonQueryParameters queryParameters,@PathParam("id") long id,@Context SecurityContext securityContext) {
         List<User> users = userService.getAllUsers(id);
         List<LdapUsersInfo> ldapUsersInfos = ListPager.of(users)
@@ -194,7 +194,7 @@ public class UserDirectoryResource {
     @Path("/{id}/users")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_USER_ROLE, Privileges.VIEW_USER_ROLE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE})
     public Response saveUsers(LdapUsersInfos infos ,@PathParam("id") long id,@Context SecurityContext securityContext) {
         try (TransactionContext context = transactionService.getContext()) {
             LdapUserDirectory ldapUserDirectory = userService.getLdapUserDirectory(id);
