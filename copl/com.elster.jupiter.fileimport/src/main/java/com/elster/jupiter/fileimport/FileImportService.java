@@ -1,5 +1,6 @@
 package com.elster.jupiter.fileimport;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
@@ -12,6 +13,7 @@ import java.util.Optional;
 /**
  * Main FIM service that allows managing schedules for FileImports
  */
+@ProviderType
 public interface FileImportService {
 
     String COMPONENT_NAME = "FIM";
@@ -43,6 +45,8 @@ public interface FileImportService {
      * @return the ImportSchedule with the given id, optionally, as it may not exist
      */
     Optional<ImportSchedule> getImportSchedule(long id);
+
+    Optional<ImportSchedule> findAndLockImportScheduleByIdAndVersion(long id, long version);
 
     /**
      * @param importerName

@@ -17,7 +17,7 @@ enum TableSpecs {
             table.map(ImportScheduleImpl.class);
             Column idColumn = table.addAutoIdColumn();
             table.setJournalTableName("FIM_IMPORT_SCHEDULEJRNL");
-            table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
+            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.column("ACTIVE").type("char(1)").notNull().conversion(CHAR2BOOLEAN).map("active").add();
             table.column("APPLICATION").varChar(NAME_LENGTH).notNull().map("applicationName").add();
             table.column("IMPORTERNAME").varChar(NAME_LENGTH).notNull().map("importerName").add();
@@ -28,9 +28,10 @@ enum TableSpecs {
             table.column("INPROCESSDIR").varChar(DESCRIPTION_LENGTH).notNull().conversion(CHAR2PATH).map("inProcessDirectory").add();
             table.column("SUCCESSDIR").varChar(DESCRIPTION_LENGTH).notNull().conversion(CHAR2PATH).map("successDirectory").add();
             table.column("FAILDIR").varChar(DESCRIPTION_LENGTH).notNull().conversion(CHAR2PATH).map("failureDirectory").add();
-            table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
+            Column obsoleteColumn = table.column("OBSOLETE_TIME").map("obsoleteTime").number().conversion(NUMBER2INSTANT).add();
             table.addAuditColumns();
             table.primaryKey("FIM_PK_IMPORT_SCHEDULE").on(idColumn).add();
+            table.unique("FIM_UQ_SCHEDULE_NAME").on(nameColumn, obsoleteColumn).add();
         }
 
     },

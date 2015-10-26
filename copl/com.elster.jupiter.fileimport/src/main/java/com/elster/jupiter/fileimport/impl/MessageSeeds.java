@@ -3,13 +3,12 @@ package com.elster.jupiter.fileimport.impl;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
     FILE_IO(1001, "file.io.reading.failure", "Failure while doing IO on file {0}", Level.SEVERE),
     FAILED_TO_START_IMPORT_SCHEDULES(2001, "importschedule.start.failed", "Could not start Import schedules, please check if FIM is installed properly.", Level.SEVERE),
     NO_SUCH_IMPORTER(2002, "importschedule.noSuchImporter", "Importer {0} does not exist.", Level.SEVERE),
@@ -22,7 +21,8 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     IMPORT_SCHEDULE_PROPERTY_INVALID_VALUE(1006, Constants.IMPORT_SCHEDULE_PROPERTY_INVALID_VALUE_KEY, "This property contains an invalid value", Level.SEVERE),
     IMPORT_SCHEDULE_REQUIRED_PROPERTY_MISSING(1007, Constants.IMPORT_SCHEDULE_REQUIRED_PROPERTY_MISSING_KEY, "This field is required", Level.SEVERE),
     FILE_IMPORT_STARTED(1008, Constants.FILE_IMPORT_STARTED, "Start importing file", Level.INFO),
-    FILE_IMPORT_FINISHED(1008, Constants.FILE_IMPORT_FINISHED, "Finish importing file", Level.INFO)
+    FILE_IMPORT_FINISHED(1008, Constants.FILE_IMPORT_FINISHED, "Finish importing file", Level.INFO),
+    CAN_NOT_BE_THE_SAME_AS_IMPORT_FOLDER(1009, Constants.CAN_NOT_BE_THE_SAME_AS_IMPORT_FOLDER, "Import folder can not be the same as in process, success or failure folders", Level.INFO)
         ;
 
     private final int number;
@@ -86,6 +86,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String IMPORT_SCHEDULE_REQUIRED_PROPERTY_MISSING_KEY = "ImportSchedulePropertyRequired";
         public static final String FILE_IMPORT_STARTED = "StartImportingFile";
         public static final String FILE_IMPORT_FINISHED = "FinishImportingFile";
+        public static final String CAN_NOT_BE_THE_SAME_AS_IMPORT_FOLDER = "CanNotBeTheSameAsImportFolder";
     }
 
 }

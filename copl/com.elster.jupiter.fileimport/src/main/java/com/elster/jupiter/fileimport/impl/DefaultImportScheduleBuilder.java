@@ -1,19 +1,15 @@
 package com.elster.jupiter.fileimport.impl;
 
-import com.elster.jupiter.fileimport.*;
+import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fileimport.ImportSchedule;
+import com.elster.jupiter.fileimport.ImportScheduleBuilder;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.InvalidValueException;
-import com.elster.jupiter.time.PeriodicalScheduleExpression;
-import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 
 class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
 
@@ -38,7 +34,7 @@ class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
     }
 
     @Override
-    public ImportSchedule build() {
+    public ImportSchedule create() {
 
         String applicationName = null;
         if(fileImportService.getImportFactory(importerName).isPresent()){
@@ -48,6 +44,7 @@ class DefaultImportScheduleBuilder implements ImportScheduleBuilder {
 
         ImportScheduleImpl importSchedule = ImportScheduleImpl.from(dataModel, name, false, scheduleExpression, applicationName, importerName, destination, importDirectory, pathMatcher, inProcessDirectory, failureDirectory, successDirectory);
         properties.stream().forEach(p -> importSchedule.setProperty(p.name, p.value));
+        importSchedule.save();
         return importSchedule;
     }
 
