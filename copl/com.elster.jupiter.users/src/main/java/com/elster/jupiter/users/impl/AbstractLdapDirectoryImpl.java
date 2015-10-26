@@ -1,21 +1,40 @@
 package com.elster.jupiter.users.impl;
 
+import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.datavault.impl.DataVaultServiceImpl;
+import com.elster.jupiter.domain.util.NotEmpty;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.users.LdapUserDirectory;
+import com.elster.jupiter.users.MessageSeeds;
 import com.elster.jupiter.users.UserService;
 
 import javax.naming.Context;
+import javax.validation.constraints.Size;
 import java.util.Hashtable;
 
 public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImpl implements LdapUserDirectory{
+    @Size(max = 128, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_128 + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private String directoryUser;
+    @Size(max = 128, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_128 + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private String password;
+    private String description;
+    @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private String url;
-    private String backupurl;
-    private String security;
+    @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
+    private String backupUrl;
+    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    private String securityProtocol;
+    @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String baseUser;
+    @Size(max = Table.DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_4000 + "}")
     private String baseGroup;
     private boolean manageGroupsInternal;
+
 
     final Hashtable<String, Object> commonEnvLDAP = new Hashtable<String, Object>(){{
         put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
@@ -29,6 +48,11 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
     @Override
     public boolean isManageGroupsInternal() {
         return manageGroupsInternal;
+    }
+
+    @Override
+    public void setManageGroupsInternal(boolean manageGroupsInternal){
+        this.manageGroupsInternal = manageGroupsInternal;
     }
 
     @Override
@@ -48,22 +72,32 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
 
     @Override
     public String getSecurity(){
-        return security;
+        return securityProtocol;
     }
 
     @Override
     public String getBackupUrl(){
-        return backupurl;
+        return backupUrl;
+    }
+
+    @Override
+    public String getDescription(){
+        return description;
     }
 
     @Override
     public void setSecurity(String security){
-        this.security = security;
+        this.securityProtocol = security;
+    }
+
+    @Override
+    public void setDescription(String description){
+        this.description = description;
     }
 
     @Override
     public void setBackupUrl(String backupUrl){
-        this.backupurl = backupUrl;
+        this.backupUrl = backupUrl;
     }
 
     @Override
@@ -78,7 +112,9 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
 
     @Override
     public void setPassword(String password) {
-        this.password = password;
+        if(!"".equals(password)) {
+            this.password = userService.getDataVaultService().encrypt(password.getBytes());
+        }
     }
 
     @Override
@@ -99,5 +135,9 @@ public abstract class AbstractLdapDirectoryImpl extends AbstractUserDirectoryImp
     @Override
     public void setBaseGroup(String baseGroup) {
         this.baseGroup = baseGroup;
+    }
+
+    protected String getPasswordDecrypt(){
+        return new String(userService.getDataVaultService().decrypt(getPassword()));
     }
 }

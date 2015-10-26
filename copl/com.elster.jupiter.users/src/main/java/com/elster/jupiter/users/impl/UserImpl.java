@@ -18,7 +18,7 @@ import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Checks.is;
 
-public class UserImpl implements User {
+public final class UserImpl implements User {
 
     private static final int MINIMAL_PASSWORD_STRENGTH = 4;
     // persistent fields
@@ -27,6 +27,7 @@ public class UserImpl implements User {
     private String description;
     private String ha1;
     private long version;
+    private boolean status;
     private Instant createTime;
     private Instant modTime;
     private String languageTag;
@@ -50,16 +51,17 @@ public class UserImpl implements User {
         return dataModel.getInstance(UserImpl.class).init(userDirectory, authenticationName, description, false);
     }*/
 
-    static UserImpl from(DataModel dataModel, UserDirectory userDirectory, String authenticationName, boolean allowPwdChange) {
-        return from(dataModel, userDirectory, authenticationName, null, allowPwdChange);
+    static UserImpl from(DataModel dataModel, UserDirectory userDirectory, String authenticationName, boolean allowPwdChange,boolean status) {
+        return from(dataModel, userDirectory, authenticationName, null, allowPwdChange,status);
     }
 
-    static UserImpl from(DataModel dataModel, UserDirectory userDirectory, String authenticationName, String description, boolean allowPwdChange) {
-        return dataModel.getInstance(UserImpl.class).init(userDirectory, authenticationName, description, allowPwdChange);
+    static UserImpl from(DataModel dataModel, UserDirectory userDirectory, String authenticationName, String description, boolean allowPwdChange,boolean status) {
+        return dataModel.getInstance(UserImpl.class).init(userDirectory, authenticationName, description, allowPwdChange,status);
     }
 
-    UserImpl init(UserDirectory userDirectory, String authenticationName, String description, boolean allowPwdChange) {
+    UserImpl init(UserDirectory userDirectory, String authenticationName, String description, boolean allowPwdChange,boolean status) {
         validateAuthenticationName(authenticationName);
+        this.status = status;
         this.userDirectory.set(userDirectory);
         this.authenticationName = authenticationName;
         this.description = description;
@@ -166,7 +168,12 @@ public class UserImpl implements User {
         return builder.build();
     }
 
-    public void save() {
+    @Override
+    public long getUserDirectoryId(){
+        return userDirectory.get().getId();
+    }
+
+    public void update() {
         if (id == 0) {
             dataModel.mapper(User.class).persist(this);
         } else {
@@ -299,6 +306,16 @@ public class UserImpl implements User {
     @Override
     public String getDomain() {
         return userDirectory.get().getDomain();
+    }
+
+    @Override
+    public boolean getStatus(){
+        return status;
+    }
+
+    @Override
+    public void setStatus(boolean status){
+        this.status = status;
     }
 
     @Override

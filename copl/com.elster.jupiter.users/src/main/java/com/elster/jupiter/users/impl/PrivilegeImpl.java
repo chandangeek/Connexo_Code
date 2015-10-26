@@ -7,7 +7,7 @@ import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.Resource;
 import javax.inject.Inject;
 
-class PrivilegeImpl implements Privilege {
+final class PrivilegeImpl implements Privilege {
 	// persistent fields
 	private String name;
     private Reference<Resource> resource = ValueReference.absent();

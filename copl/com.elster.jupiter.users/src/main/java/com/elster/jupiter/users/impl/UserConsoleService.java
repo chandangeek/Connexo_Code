@@ -11,7 +11,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.security.Principal;
-import java.util.Locale;
 
 /**
  * Created by albertv on 12/16/2014.
@@ -31,9 +30,9 @@ public class UserConsoleService {
          try ( TransactionContext context = transactionService.getContext()){
 
              UserDirectory userDirectory = userService.findDefaultUserDirectory();
-             User user = userDirectory.newUser(name, "", false);
+             User user = userDirectory.newUser(name, "", false,true);
              user.setPassword(pass);
-             user.save();
+             user.update();
              context.commit();
          }
 
@@ -47,11 +46,11 @@ public class UserConsoleService {
         createApacheDirectory(domain,dirUser,password,url,baseUser,baseGroup,security,backupUrl);
     }
 
-    public void addActiveUserDirectory(String domain, String dirUser,String password, String url, String baseUser, String baseGroup){
-        createActiveDirectory(domain,dirUser,password,url,baseUser,baseGroup);
+    public void addActiveUserDirectory(String domain, String dirUser,String password, String url, String baseUser, String baseGroup,String security,String backupUrl){
+        createActiveDirectory(domain,dirUser,password,url,baseUser,baseGroup,security,backupUrl);
     }
 
-    public void createActiveDirectory(String domain, String dirUser,String password, String url, String baseUser, String baseGroup){
+    public void createActiveDirectory(String domain, String dirUser,String password, String url, String baseUser, String baseGroup, String security, String backupUrl){
         try (TransactionContext context = transactionService.getContext()) {
             LdapUserDirectory activeDirectory = userService.createActiveDirectory(domain);
             activeDirectory.setDefault(false);
@@ -59,9 +58,11 @@ public class UserConsoleService {
             activeDirectory.setUrl(url);
             activeDirectory.setBaseGroup(baseGroup);
             activeDirectory.setDirectoryUser(dirUser);
+            activeDirectory.setBackupUrl(backupUrl);
+            activeDirectory.setSecurity(security);
             activeDirectory.setPassword(password);
             threadPrincipalService.set(getPrincipal());
-            activeDirectory.save();
+            activeDirectory.update();
             context.commit();
         }
     }
@@ -78,7 +79,7 @@ public class UserConsoleService {
             activeDirectory.setSecurity(security);
             activeDirectory.setPassword(password);
             threadPrincipalService.set(getPrincipal());
-            activeDirectory.save();
+            activeDirectory.update();
             context.commit();
         }
 
@@ -91,8 +92,8 @@ public class UserConsoleService {
     }
 
     public void addActiveUserDirectory(){
-        System.out.println("Please add domain, dirUser, password, url, baseUser, baseGroup!\n  " +
-                " Exemple: addActiveUserDirectory \"MyDomain\" \"user\" \"password\" \"url\" \"baseUser\" \"baseGroup\"");
+        System.out.println("Please add domain, dirUser, password, url, baseUser, baseGroup, security, backupUrl!\n  " +
+                " Exemple: addActiveUserDirectory \"MyDomain\" \"user\" \"password\" \"url\" \"baseUser\" \"baseGroup\" \"NONE\" \"backupURL\"");
     }
 
     private Principal getPrincipal() {

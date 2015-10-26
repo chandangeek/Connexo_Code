@@ -1,6 +1,11 @@
 package com.elster.jupiter.users;
 
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.users.impl.AbstractLdapDirectoryImpl;
+import com.elster.jupiter.users.impl.UserImpl;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,9 +21,9 @@ public interface UserService {
 
     User createUser(String name, String description);
 
-    User createApacheDirectoryUser(String name, String domain);
+    User createApacheDirectoryUser(String name, String domain,boolean status);
 
-    User createActiveDirectoryUser(String name, String domain);
+    User createActiveDirectoryUser(String name, String domain,boolean status);
 
     Group createGroup(String name, String description);
 
@@ -32,6 +37,7 @@ public interface UserService {
 
     Optional<Group> getGroup(long id);
 
+    Optional<Group> findAndLockGroupByIdAndVersion(long id, long version);
     /**
      * @return the group with specified name
      */
@@ -44,6 +50,8 @@ public interface UserService {
     Query<Group> getGroupsQuery();
 
     Optional<User> getUser(long id);
+
+    Optional<User> findAndLockUserByIdAndVersion(long id, long version);
 
     Optional<Privilege> getPrivilege(String privilegeName);
 
@@ -69,6 +77,9 @@ public interface UserService {
 
     List<Privilege> getPrivileges(String applicationName);
 
+    public QueryService getQueryService();
+
+    public DataVaultService getDataVaultService();
 
     List<Resource> getResources();
 
@@ -78,17 +89,29 @@ public interface UserService {
 
     Optional<UserDirectory> findUserDirectory(String domain);
 
+    Optional<UserDirectory> findUserDirectoryIgnoreCase(String domain);
+
     UserDirectory findDefaultUserDirectory();
+
+    List<User> getAllUsers(long id);
 
     LdapUserDirectory createActiveDirectory(String domain);
 
     LdapUserDirectory createApacheDirectory(String domain);
+
+    User findOrCreateUser(String name, String domain, String directoryType,boolean status);
 
     User findOrCreateUser(String name, String domain, String directoryType);
 
     Group findOrCreateGroup(String group);
 
     List<UserDirectory> getUserDirectories();
+
+    Query<UserDirectory> getLdapDirectories();
+
+    LdapUserDirectory getLdapUserDirectory(long id);
+
+    Thesaurus getThesaurus();
 
     UserPreferencesService getUserPreferencesService();
 

@@ -1,5 +1,6 @@
 package com.elster.jupiter.users.impl;
 
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.domain.util.Save;
@@ -10,7 +11,6 @@ import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.MessageSeeds;
 import com.elster.jupiter.users.Privilege;
 import com.google.common.collect.ImmutableList;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
@@ -50,7 +50,7 @@ final class GroupImpl implements Group {
     private final DataModel dataModel;
 
     @Inject
-	private GroupImpl(QueryService queryService, DataModel dataModel) {
+    GroupImpl(QueryService queryService, DataModel dataModel) {
         this.queryService = queryService;
         this.dataModel = dataModel;
     }
@@ -181,7 +181,7 @@ final class GroupImpl implements Group {
 		grant(applicationName, privilege);
 	}
 
-	public void save() {
+	public void update() {
         Save.action(this.id).save(this.dataModel, this);
 	}
 

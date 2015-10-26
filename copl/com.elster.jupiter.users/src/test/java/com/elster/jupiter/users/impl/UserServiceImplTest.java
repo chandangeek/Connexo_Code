@@ -4,7 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 import java.sql.SQLException;
+import java.util.Optional;
 
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.users.UserDirectory;
 
 import org.junit.AfterClass;
@@ -63,7 +66,8 @@ public class UserServiceImplTest {
         			new ThreadSecurityModule(), 
         			new PubSubModule(), 
         			new TransactionModule(printSql),
-        			new NlsModule());
+        			new NlsModule(),
+                    new DataVaultModule());
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
         	injector.getInstance(UserService.class);
         	ctx.commit();
@@ -80,8 +84,8 @@ public class UserServiceImplTest {
     	UserService userService = injector.getInstance(UserService.class);
     	try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             UserDirectory userDirectory = userService.findDefaultUserDirectory();
-    		User user = userDirectory.newUser(AUTH_NAME, DESCRIPTION, false);
-            user.save();
+    		User user = userDirectory.newUser(AUTH_NAME, DESCRIPTION, false,true);
+            user.update();
 
     		assertThat(user.getName()).isEqualTo(AUTH_NAME);
     		assertThat(user.getDescription()).isEqualTo(DESCRIPTION);
@@ -95,14 +99,62 @@ public class UserServiceImplTest {
     	UserService userService = injector.getInstance(UserService.class);
     	try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext() ) {
             UserDirectory userDirectory = userService.findDefaultUserDirectory();
-            User user = userDirectory.newUser(AUTH_NAME, DESCRIPTION, false);
-    		user.save();
+            User user = userDirectory.newUser(AUTH_NAME, DESCRIPTION, false,true);
+    		user.update();
 
     		assertThat(userService.findUser(AUTH_NAME).isPresent()).isTrue();
     		// skip ctx.commit()
     	}
-
     }
 
+    @Test
+    public void testLockUserOkCase() {
+        UserService userService = injector.getInstance(UserService.class);
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            UserDirectory userDirectory = userService.findDefaultUserDirectory();
+            User user = userDirectory.newUser(AUTH_NAME, DESCRIPTION, false, true);
+            user.update();
+
+            Optional<User> lockedUser = userService.findAndLockUserByIdAndVersion(user.getId(), user.getVersion());
+            assertThat(lockedUser.isPresent()).isTrue();
+        }
+    }
+
+    @Test
+    public void testLockUserAlreadyModified() {
+        UserService userService = injector.getInstance(UserService.class);
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            UserDirectory userDirectory = userService.findDefaultUserDirectory();
+            User user = userDirectory.newUser(AUTH_NAME, DESCRIPTION, false, true);
+            user.update();
+
+            Optional<User> lockedUser = userService.findAndLockUserByIdAndVersion(user.getId(), user.getVersion()+1);
+            assertThat(lockedUser.isPresent()).isFalse();
+        }
+    }
+
+    @Test
+    public void testLockGroupOkCase() {
+        UserService userService = injector.getInstance(UserService.class);
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            Group group = userService.createGroup("name", "description");
+            group.update();
+
+            Optional<Group> lockedGroup = userService.findAndLockGroupByIdAndVersion(group.getId(), group.getVersion());
+            assertThat(lockedGroup.isPresent()).isTrue();
+        }
+    }
+
+    @Test
+    public void testLockGroupAlreadyModified() {
+        UserService userService = injector.getInstance(UserService.class);
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            Group group = userService.createGroup("name", "description");
+            group.update();
+
+            Optional<Group> lockedGroup = userService.findAndLockGroupByIdAndVersion(group.getId(), group.getVersion() + 1);
+            assertThat(lockedGroup.isPresent()).isFalse();
+        }
+    }
 
 }
