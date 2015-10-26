@@ -44,7 +44,7 @@ public class ProtocolDialectConfigurationPropertiesResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{id}")
-    @RolesAllowed(Privileges.PUBLIC_REST_API)
+    @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     public ProtocolDialectConfigurationPropertiesInfo getProtocolDialectConfigurationProperty(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigId") long devicConfigId,
@@ -69,7 +69,7 @@ public class ProtocolDialectConfigurationPropertiesResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed(Privileges.PUBLIC_REST_API)
+    @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     public PagedInfoList<ProtocolDialectConfigurationPropertiesInfo> getProtocolDialectConfigurationProperties(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigId") long deviceConfigId,
@@ -96,7 +96,7 @@ public class ProtocolDialectConfigurationPropertiesResource {
 
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed(Privileges.PUBLIC_REST_API)
+    @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     public List<String> getFields() {
         return protocolDialectConfigurationPropertiesInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }

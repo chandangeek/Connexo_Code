@@ -49,7 +49,7 @@ public class ComTaskExecutionResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{comTaskExecutionId}")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public ComTaskExecutionInfo getComTaskExecution(@PathParam("mrid") String mRID, @PathParam("comTaskExecutionId") long comTaskExecutionId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
          return deviceService.findByUniqueMrid(mRID)
                  .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE))
@@ -62,7 +62,7 @@ public class ComTaskExecutionResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<ComTaskExecutionInfo> getComTaskExecutions(@PathParam("mrid") String mRID, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
         List<ComTaskExecutionInfo> infoList = deviceService.findByUniqueMrid(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE))
@@ -78,7 +78,7 @@ public class ComTaskExecutionResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public Response createComTaskExecution(@PathParam("mrid") String mrid, ComTaskExecutionInfo comTaskExecutionInfo, @Context UriInfo uriInfo) {
         Device device = deviceService.findByUniqueMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
@@ -96,7 +96,7 @@ public class ComTaskExecutionResource {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Path("/{comTaskExecutionId}")
     public Response updateComTaskExecution(@PathParam("mrid") String mrid, @PathParam("comTaskExecutionId") long comTaskExecutionId,
                                            ComTaskExecutionInfo comTaskExecutionInfo, @Context UriInfo uriInfo) {
@@ -122,7 +122,7 @@ public class ComTaskExecutionResource {
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{comTaskExecutionId}")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public Response deleteComTaskExecution(@PathParam("mrid") String mrid, @PathParam("comTaskExecutionId") long comTaskExecutionid) {
         Device device = deviceService.findByUniqueMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
@@ -138,7 +138,7 @@ public class ComTaskExecutionResource {
 
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public List<String> getFields() {
         return comTaskExecutionInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }

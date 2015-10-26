@@ -45,7 +45,7 @@ public class ProtocolTaskResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{protocolTaskId}")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public ProtocolTaskInfo getProtocolTask(@PathParam("protocolTaskId") long protocolTaskId, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
          return taskService.findProtocolTask(protocolTaskId)
                  .map(ct-> protocolTaskInfoFactory.from(ct, uriInfo, fieldSelection.getFields()))
@@ -54,7 +54,7 @@ public class ProtocolTaskResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<ProtocolTaskInfo> getProtocolTasks(@BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
         List<ProtocolTaskInfo> infos = taskService.findAllProtocolTasks().from(queryParameters).stream()
                 .map(protocolTask -> protocolTaskInfoFactory.from(protocolTask, uriInfo, fieldSelection.getFields()))
@@ -66,7 +66,7 @@ public class ProtocolTaskResource {
 
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public List<String> getFields() {
         return protocolTaskInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }

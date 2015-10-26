@@ -46,7 +46,7 @@ public class DeviceMessageCategoryResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{messageCategoryId}")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public DeviceMessageCategoryInfo getDeviceMessageCategory(@PathParam("messageCategoryId") int messageCategoryId,
                                   @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         return deviceMessageSpecificationService.findCategoryById(messageCategoryId)
@@ -56,7 +56,7 @@ public class DeviceMessageCategoryResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<DeviceMessageCategoryInfo> getDeviceMessageCategories(@PathParam("comTaskId") long comTaskId,
                                   @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo,
                                   @BeanParam JsonQueryParameters queryParameters) {
@@ -72,7 +72,7 @@ public class DeviceMessageCategoryResource {
 
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public List<String> getFields() {
         return deviceMessageCategoriesInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }

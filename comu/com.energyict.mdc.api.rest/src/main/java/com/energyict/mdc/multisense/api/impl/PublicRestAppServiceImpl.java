@@ -18,7 +18,7 @@ import java.util.List;
 public class PublicRestAppServiceImpl implements TranslationKeyProvider, ApplicationPrivilegesProvider {
     @Override
     public List<String> getApplicationPrivileges() {
-        return Collections.singletonList(Privileges.PUBLIC_REST_API);
+        return Collections.singletonList(Privileges.Constants.PUBLIC_REST_API);
     }
 
     @Override

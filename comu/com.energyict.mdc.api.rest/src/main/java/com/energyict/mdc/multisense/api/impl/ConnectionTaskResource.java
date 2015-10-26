@@ -57,7 +57,7 @@ public class ConnectionTaskResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<ConnectionTaskInfo> getConnectionTasks(@PathParam("mrid") String mrid,
                                               @Context UriInfo uriInfo,
                                               @BeanParam FieldSelection fieldSelection,
@@ -75,7 +75,7 @@ public class ConnectionTaskResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{connectionTaskId}")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public ConnectionTaskInfo getConnectionTask(@PathParam("mrid") String mrid,
                                                 @PathParam("connectionTaskId") long id,
                                                 @Context UriInfo uriInfo,
@@ -92,7 +92,7 @@ public class ConnectionTaskResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public Response createConnectionTask(@PathParam("mrid") String mrid, ConnectionTaskInfo connectionTaskInfo, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         if (connectionTaskInfo.connectionMethod == null || connectionTaskInfo.connectionMethod.id == null) {
@@ -119,7 +119,7 @@ public class ConnectionTaskResource {
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{connectionTaskId}")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public ConnectionTaskInfo updateConnectionTask(@PathParam("mrid") String mrid, @PathParam("connectionTaskId") long connectionTaskId,
                                                            ConnectionTaskInfo connectionTaskInfo, @Context UriInfo uriInfo) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
@@ -134,7 +134,7 @@ public class ConnectionTaskResource {
 
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public List<String> getFields() {
         return connectionTaskInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }

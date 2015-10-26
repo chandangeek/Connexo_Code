@@ -64,7 +64,7 @@ public class DeviceTypeResource {
 
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public List<String> getFields() {
         return deviceTypeInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }

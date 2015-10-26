@@ -44,7 +44,7 @@ public class AuthenticationDeviceAccessLevelResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{authenticationDeviceAccessLevelId}")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public DeviceAccessLevelInfo getAuthenticationDeviceAccessLevel(
             @PathParam("deviceProtocolPluggableClassId") long deviceProtocolPluggableClassId,
             @PathParam("authenticationDeviceAccessLevelId") long authenticationDeviceAccessLevelId,
@@ -62,7 +62,7 @@ public class AuthenticationDeviceAccessLevelResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<DeviceAccessLevelInfo> getAuthenticationDeviceAccessLevels(
             @PathParam("deviceProtocolPluggableClassId") long deviceProtocolPluggableClassId,
             @PathParam("authenticationDeviceAccessLevelId") long authenticationDeviceAccessLevelId,
@@ -83,7 +83,7 @@ public class AuthenticationDeviceAccessLevelResource {
 
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public List<String> getFields() {
         return authenticationDeviceAccessLevelInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }

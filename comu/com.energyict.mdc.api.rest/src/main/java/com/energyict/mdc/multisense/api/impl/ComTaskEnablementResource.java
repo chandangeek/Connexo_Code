@@ -44,7 +44,7 @@ public class ComTaskEnablementResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<ComTaskEnablementInfo> getComTaskEnablements(
             @PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigId") long deviceConfigId,
             @BeanParam JsonQueryParameters queryParameters,
@@ -71,7 +71,7 @@ public class ComTaskEnablementResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{comTaskEnablementId}")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public ComTaskEnablementInfo getComTaskEnablement(
             @PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigId") long deviceConfigId,
             @PathParam("comTaskEnablementId") long comTaskEnablementId,
@@ -95,7 +95,7 @@ public class ComTaskEnablementResource {
 
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public List<String> getFields() {
         return comTaskEnablementInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }

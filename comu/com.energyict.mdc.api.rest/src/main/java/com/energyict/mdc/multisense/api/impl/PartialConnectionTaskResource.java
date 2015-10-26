@@ -47,7 +47,7 @@ public class PartialConnectionTaskResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{id}")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PartialConnectionTaskInfo getPartialConnectionTask(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigId") long deviceConfigId, @PathParam("id") long id,
                                                               @Context UriInfo uriInfo, @BeanParam FieldSelection fieldSelection) {
         PartialConnectionTask partialConnectionTask = deviceConfigurationService.
@@ -66,7 +66,7 @@ public class PartialConnectionTaskResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<PartialConnectionTaskInfo> getPartialConnectionTasks(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigId") long deviceConfigId,
                                                                               @Context UriInfo uriInfo, @BeanParam FieldSelection fieldSelection, @BeanParam JsonQueryParameters queryParameters) {
         List<PartialConnectionTask> partialConnectionTasks = deviceConfigurationService.
@@ -91,7 +91,7 @@ public class PartialConnectionTaskResource {
 
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public List<String> getPartialConnectionTasks() {
         return partialConnectionTypeInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }

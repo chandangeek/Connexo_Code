@@ -44,7 +44,7 @@ public class ComPortPoolResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<ComPortPoolInfo> getComPortPools(@BeanParam JsonQueryParameters queryParameters, @Context UriInfo uriInfo, @BeanParam FieldSelection fieldSelection) {
         List<ComPortPoolInfo> page = ListPager.
                 of(engineConfigurationService.findAllComPortPools()).
@@ -58,7 +58,7 @@ public class ComPortPoolResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{id}")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public ComPortPoolInfo getComPortPool(@PathParam("id") long id, @Context UriInfo uriInfo, @BeanParam FieldSelection fieldSelection) {
         ComPortPool comPortPool = engineConfigurationService.findComPortPool(id).orElseThrow(() -> exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.NOT_FOUND));
         return comPortPoolFactory.asHypermedia(comPortPool, uriInfo, fieldSelection.getFields());

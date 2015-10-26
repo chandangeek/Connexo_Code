@@ -67,7 +67,7 @@ public class DeviceContactorResource {
     @PUT
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed(Privileges.PUBLIC_REST_API)
+    @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     public Response updateContactor(@PathParam("mrid") String mRID, ContactorInfo contactorInfo, @Context UriInfo uriInfo) {
         Device device = deviceService.findByUniqueMrid(mRID).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         DeviceMessageId deviceMessageId = getMessageId(contactorInfo);
@@ -93,7 +93,7 @@ public class DeviceContactorResource {
      */
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed({Privileges.PUBLIC_REST_API})
+    @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public List<String> getFields() { // Needs to be hardcoded: no GET method => No factory to read fields from
         return Arrays.asList("status", "loadLimit", "activationDate", "loadTolerance", "callback").stream().sorted().collect(toList());
     }

@@ -44,7 +44,7 @@ public class DeviceMessageResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{messageId}")
-    @RolesAllowed(Privileges.PUBLIC_REST_API)
+    @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     public Response getDeviceMessage(@PathParam("mrid") String mRID, @PathParam("messageId") long id,
                                      @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         Device device = deviceService.findByUniqueMrid(mRID).orElseThrow(exceptionFactory
@@ -58,7 +58,7 @@ public class DeviceMessageResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed(Privileges.PUBLIC_REST_API)
+    @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     public PagedInfoList<DeviceMessageInfo> getDeviceMessages(@PathParam("mrid") String mRID,
                                                               @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo,
                                                               @BeanParam JsonQueryParameters queryParameters) {
@@ -75,7 +75,7 @@ public class DeviceMessageResource {
 
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @RolesAllowed(Privileges.PUBLIC_REST_API)
+    @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     public List<String> getFields() {
         return deviceMessageInfoFactory.getAvailableFields().stream().sorted().collect(toList());
     }
