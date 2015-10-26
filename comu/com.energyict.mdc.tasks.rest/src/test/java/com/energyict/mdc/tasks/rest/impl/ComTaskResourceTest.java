@@ -1,19 +1,33 @@
 package com.energyict.mdc.tasks.rest.impl;
 
+import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.rest.Categories;
+import com.jayway.jsonpath.JsonModel;
 import org.junit.Test;
 
-import com.jayway.jsonpath.JsonModel;
-
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by gde on 5/05/2015.
  */
 public class ComTaskResourceTest extends ComTasksApplicationJerseyTest {
+
+    public static final long OK_VERSION = 58L;
+    public static final long BAD_VERSION = 43L;
+    public static final long COM_TASK_ID = 17L;
 
     @Test
     public void testGetCategories() throws Exception {
@@ -98,5 +112,57 @@ public class ComTaskResourceTest extends ComTasksApplicationJerseyTest {
     public void testGetActionsWithoutCategory() throws Exception {
         final Response response = target("/comtasks/actions").request().get(Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
+    private ComTask mockComTask() {
+        ComTask comTask = mock(ComTask.class);
+        when(comTask.getId()).thenReturn(COM_TASK_ID);
+        when(comTask.getVersion()).thenReturn(OK_VERSION);
+        when(comTask.getProtocolTasks()).thenReturn(new ArrayList<ProtocolTask>());
+        when(taskService.findComTask(COM_TASK_ID)).thenReturn(Optional.of(comTask));
+        when(taskService.findAndLockComTaskByIdAndVersion(COM_TASK_ID, OK_VERSION)).thenReturn(Optional.of(comTask));
+        when(taskService.findAndLockComTaskByIdAndVersion(COM_TASK_ID, BAD_VERSION)).thenReturn(Optional.empty());
+        return comTask;
+    }
+
+
+    @Test
+    public void testUpdateComTaskOkVersion() {
+        ComTask comTask = mockComTask();
+        ComTaskInfo info = ComTaskInfo.from(comTask);
+        info.name = "new name";
+        info.version = OK_VERSION;
+        info.commands = new ArrayList<>();
+        Response response = target("/comtasks/" + COM_TASK_ID).request().build(HttpMethod.PUT, Entity.json(info)).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(comTask, times(1)).setName("new name");
+    }
+    @Test
+    public void testUpdateComTaskBadVersion() {
+        ComTask comTask = mockComTask();
+        ComTaskInfo info = ComTaskInfo.from(comTask);
+        info.version = BAD_VERSION;
+        Response response = target("/comtasks/" + COM_TASK_ID).request().build(HttpMethod.PUT, Entity.json(info)).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+        verify(comTask, never()).setName("new name");
+    }
+    @Test
+    public void testDeleteComTaskOkVersion() {
+        ComTask comTask = mockComTask();
+        ComTaskInfo info = ComTaskInfo.from(comTask);
+        info.version = OK_VERSION;
+        Response response = target("/comtasks/" + COM_TASK_ID).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(comTask, times(1)).delete();
+    }
+    @Test
+    public void testDeleteComTaskBadVersion() {
+        ComTask comTask = mockComTask();
+        ComTaskInfo info = ComTaskInfo.from(comTask);
+        info.name = "new name";
+        info.version = BAD_VERSION;
+        Response response = target("/comtasks/" + COM_TASK_ID).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+        verify(comTask, never()).delete();
     }
 }

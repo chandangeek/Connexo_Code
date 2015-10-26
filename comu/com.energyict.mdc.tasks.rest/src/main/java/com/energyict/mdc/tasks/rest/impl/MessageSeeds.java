@@ -1,11 +1,10 @@
 package com.energyict.mdc.tasks.rest.impl;
 
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
 
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
 
     LOGBOOKS(1, "logbooks", "Logbooks"),
     REGISTERS(2, "registers", "Registers"),
@@ -26,7 +25,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     private final String key;
     private final String format;
 
-    private MessageSeeds(int number, String key, String format) {
+    MessageSeeds(int number, String key, String format) {
         this.number = number;
         this.key = key;
         this.format = format;
