@@ -787,6 +787,7 @@ Ext.define('Apr.controller.AppServers', {
     changeImportGridVisibility: function (visibility) {
         var me = this;
         me.getAddPage().down('apr-import-services-grid').setVisible(visibility);
+        me.getAddPage().down('#apr-add-imp-services-push-to-right-component').setVisible(visibility);
         me.getAddPage().down('#import-empty-text-grid').setVisible(!visibility);
     },
 
