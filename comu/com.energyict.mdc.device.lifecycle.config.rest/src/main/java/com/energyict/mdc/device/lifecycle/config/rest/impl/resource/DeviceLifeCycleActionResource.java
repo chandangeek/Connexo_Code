@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -101,11 +100,11 @@ public class DeviceLifeCycleActionResource {
     @Path("/{actionId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
-    public Response editAuthorizedAction(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, AuthorizedActionInfo actionForEdit) {
-        validateInfo(actionForEdit);
+    public Response editAuthorizedAction(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, AuthorizedActionInfo info) {
+        validateInfo(info);
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
         AuthorizedActionRequestFactory factory = new AuthorizedActionRequestFactory(this.resourceHelper);
-        AuthorizedActionChangeRequest editRequest = factory.from(deviceLifeCycle, actionForEdit, AuthorizedActionRequestFactory.Operation.MODIFY);
+        AuthorizedActionChangeRequest editRequest = factory.from(deviceLifeCycle, info, AuthorizedActionRequestFactory.Operation.MODIFY);
         AuthorizedAction authorizedAction = editRequest.perform();
         return Response.ok(authorizedActionInfoFactory.from(authorizedAction)).build();
     }
@@ -124,10 +123,14 @@ public class DeviceLifeCycleActionResource {
     @Path("/{actionId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
-    public Response deleteAuthorizedAction(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("actionId") Long actionId, @BeanParam JsonQueryParameters queryParams) {
+    public Response deleteAuthorizedAction(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId,
+                                           @PathParam("actionId") Long actionId,
+                                           @BeanParam JsonQueryParameters queryParams,
+                                           AuthorizedActionInfo info) {
+        info.id = actionId;
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
         AuthorizedActionRequestFactory factory = new AuthorizedActionRequestFactory(this.resourceHelper);
-        AuthorizedActionChangeRequest deleteRequest = factory.from(deviceLifeCycle, actionId, AuthorizedActionRequestFactory.Operation.DELETE);
+        AuthorizedActionChangeRequest deleteRequest = factory.from(deviceLifeCycle, info, AuthorizedActionRequestFactory.Operation.DELETE);
         AuthorizedAction authorizedAction = deleteRequest.perform();
         return Response.ok(authorizedActionInfoFactory.from(authorizedAction)).build();
     }

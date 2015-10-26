@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
+import com.elster.jupiter.datavault.DataVaultService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -93,6 +94,7 @@ public class InMemoryPersistence {
     private IssueService issueService;
     private PropertySpecService propertySpecService;
     private TopologyService topologyService;
+    private DataVaultService dataVaultService;
 
     /**
      * Returns a new InMemoryPersistence that uses all the defaults
@@ -173,6 +175,7 @@ public class InMemoryPersistence {
         this.issueService = mock(IssueService.class);
         this.propertySpecService = mock(PropertySpecService.class);
         this.topologyService = mock(TopologyService.class);
+        this.dataVaultService = mock(DataVaultService.class);
     }
 
     public void cleanUpDataBase() throws SQLException {
@@ -209,6 +212,7 @@ public class InMemoryPersistence {
             bind(IssueService.class).toInstance(issueService);
             bind(PropertySpecService.class).toInstance(propertySpecService);
             bind(TopologyService.class).toInstance(topologyService);
+            bind(DataVaultService.class).toInstance(dataVaultService);
         }
 
     }

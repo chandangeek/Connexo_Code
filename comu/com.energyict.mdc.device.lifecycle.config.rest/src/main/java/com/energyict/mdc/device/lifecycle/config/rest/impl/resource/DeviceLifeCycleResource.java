@@ -90,10 +90,11 @@ public class DeviceLifeCycleResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
-    public Response editDeviceLifeCycleById(@PathParam("id") Long id, DeviceLifeCycleInfo deviceLifeCycleInfo) {
-        DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(id);
+    public Response editDeviceLifeCycleById(@PathParam("id") Long id, DeviceLifeCycleInfo info) {
+        info.id = id;
+        DeviceLifeCycle deviceLifeCycle = resourceHelper.lockDeviceLifeCycleOrThrowException(info);
         DeviceLifeCycleUpdater deviceLifeCycleUpdater = deviceLifeCycle.startUpdate();
-        deviceLifeCycleUpdater.setName(deviceLifeCycleInfo.name).complete().save();
+        deviceLifeCycleUpdater.setName(info.name).complete().save();
         return Response.ok(deviceLifeCycleFactory.from(deviceLifeCycle)).build();
     }
 
@@ -112,8 +113,9 @@ public class DeviceLifeCycleResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
-    public Response deleteDeviceLifeCycle(@PathParam("id") Long id) {
-        DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(id);
+    public Response deleteDeviceLifeCycle(@PathParam("id") Long id, DeviceLifeCycleInfo info) {
+        info.id = id;
+        DeviceLifeCycle deviceLifeCycle = resourceHelper.lockDeviceLifeCycleOrThrowException(info);
         resourceHelper.checkDeviceLifeCycleUsages(deviceLifeCycle);
         FiniteStateMachine finiteStateMachine = deviceLifeCycle.getFiniteStateMachine();
         deviceLifeCycle.makeObsolete();

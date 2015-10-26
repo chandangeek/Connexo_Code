@@ -1,14 +1,5 @@
 package com.energyict.mdc.device.lifecycle.config.rest;
 
-import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.fsm.*;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
@@ -22,12 +13,27 @@ import com.energyict.mdc.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.config.impl.DefaultLifeCycleTranslationKey;
 import com.energyict.mdc.device.lifecycle.config.rest.impl.DeviceLifeCycleConfigApplication;
-import com.energyict.mdc.device.lifecycle.config.rest.impl.i18n.MessageSeeds;
-
-import java.util.*;
-import javax.ws.rs.core.Application;
-
 import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCheckTranslationKey;
+
+import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.ProcessReference;
+import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.StateChangeBusinessProcess;
+import com.elster.jupiter.fsm.StateTransition;
+import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.users.UserService;
+
+import javax.ws.rs.core.Application;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+
 import org.mockito.Matchers;
 import org.mockito.Mock;
 
@@ -37,6 +43,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplicationJerseyTest {
+
+    public static final long OK_VERSION = 6L;
 
     @Mock
     protected RestQueryService restQueryService;
@@ -75,11 +83,6 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
     }
 
     @Override
-    protected MessageSeed[] getMessageSeeds() {
-        return MessageSeeds.values();
-    }
-
-    @Override
     public void setupMocks() {
         super.setupMocks();
         when(thesaurus.getStringBeyondComponent(anyString(), anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[1]);
@@ -92,7 +95,7 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
             if (EnumSet.of(MicroCheck.CONNECTION_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.GENERAL_PROTOCOL_PROPERTIES_ARE_ALL_VALID,
                     MicroCheck.PROTOCOL_DIALECT_PROPERTIES_ARE_ALL_VALID,
-                    MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID).contains(microCheck)){
+                    MicroCheck.SECURITY_PROPERTIES_ARE_ALL_VALID).contains(microCheck)) {
                 return MicroCheckTranslationKey.MICRO_CHECK_NAME_MANDATORY_COMMUNICATION_ATTRIBUTES_AVAILABLE.getKey();
             }
             return microCheck.name();
@@ -106,6 +109,9 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         DeviceLifeCycle dlc = mock(DeviceLifeCycle.class);
         when(dlc.getId()).thenReturn(id);
         when(dlc.getName()).thenReturn(name);
+        when(dlc.getVersion()).thenReturn(OK_VERSION);
+        when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(id)).thenReturn(Optional.of(dlc));
+        when(deviceLifeCycleConfigurationService.findAndLockDeviceLifeCycleByIdAndVersion(id, OK_VERSION)).thenReturn(Optional.of(dlc));
         return  dlc;
     }
 
@@ -115,6 +121,9 @@ public class DeviceLifeCycleConfigApplicationJerseyTest extends FelixRestApplica
         when(state.getName()).thenReturn(name);
         when(state.isCustom()).thenReturn(false);
         when(state.isInitial()).thenReturn(false);
+        when(state.getVersion()).thenReturn(OK_VERSION);
+        when(finiteStateMachineService.findFiniteStateById(id)).thenReturn(Optional.of(state));
+        when(finiteStateMachineService.findAndLockStateByIdAndVersion(id, OK_VERSION)).thenReturn(Optional.of(state));
         return state;
     }
 

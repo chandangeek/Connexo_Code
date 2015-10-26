@@ -26,6 +26,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceLifeCycleConfigAppl
     public void testDeviceLifeCycleActionJsonModel(){
         List<AuthorizedAction> actions = mockDefaultActions();
         DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
+        actions.stream().forEach(action -> when(action.getDeviceLifeCycle()).thenReturn(dlc));
         when(dlc.getAuthorizedActions()).thenReturn(actions);
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
 
@@ -70,6 +71,7 @@ public class DeviceLifeCycleActionResourceTest extends DeviceLifeCycleConfigAppl
     public void testGetDeviceLifeCycleActionById(){
         List<AuthorizedAction> actions = mockDefaultActions();
         DeviceLifeCycle dlc = mockSimpleDeviceLifeCycle(1L, "Standard");
+        actions.stream().forEach(action -> when(action.getDeviceLifeCycle()).thenReturn(dlc));
         when(dlc.getAuthorizedActions()).thenReturn(actions);
         when(deviceLifeCycleConfigurationService.findDeviceLifeCycle(Matchers.anyLong())).thenReturn(Optional.of(dlc));
 
