@@ -1,19 +1,18 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
-import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.util.Ranges;
+import com.elster.jupiter.util.streams.Functions;
+import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileReading;
 import com.energyict.mdc.device.data.security.Privileges;
-
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.Ranges;
-import com.elster.jupiter.util.streams.Functions;
-import com.elster.jupiter.validation.DataValidationStatus;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Range;
 
@@ -25,12 +24,8 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -105,10 +100,8 @@ public class LoadProfileResource {
                 .collect(Collectors.toList());
 
         loadProfileInfo.validationInfo = validationInfoFactory.createDetailedValidationInfo(isValidationActive(loadProfile), states, lastChecked(loadProfile));
-        if (states.isEmpty()) {
-            loadProfileInfo.validationInfo.dataValidated = loadProfile.getChannels().stream()
-                    .allMatch(c -> c.getDevice().forValidation().allDataValidated(c, clock.instant()));
-        }
+        loadProfileInfo.validationInfo.dataValidated = loadProfile.getChannels().stream()
+                .allMatch(c -> c.getDevice().forValidation().allDataValidated(c, clock.instant()));
     }
 
     private boolean isValidationActive(LoadProfile loadProfile) {
@@ -171,10 +164,12 @@ public class LoadProfileResource {
     @PUT
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(com.elster.jupiter.validation.security.Privileges.Constants.VALIDATE_MANUAL)
-    public Response validateDeviceData(TriggerValidationInfo validationInfo, @PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId) {
-
-        Instant start = validationInfo.lastChecked == null ? null : Instant.ofEpochMilli(validationInfo.lastChecked);
-        validateLoadProfile(doGetLoadProfile(mrid, loadProfileId), start);
+    public Response validateDeviceData(LoadProfileTriggerValidationInfo info, @PathParam("mRID") String mrid, @PathParam("lpid") long loadProfileId) {
+        info.id = loadProfileId;
+        LoadProfile loadProfile = resourceHelper.lockLoadProfileOrThrowException(info);
+        Instant start = info.lastChecked == null ? null : Instant.ofEpochMilli(info.lastChecked);
+        validateLoadProfile(loadProfile, start);
+        loadProfile.getDevice().getLoadProfileUpdaterFor(loadProfile).update();
 
         return Response.status(Response.Status.OK).build();
     }

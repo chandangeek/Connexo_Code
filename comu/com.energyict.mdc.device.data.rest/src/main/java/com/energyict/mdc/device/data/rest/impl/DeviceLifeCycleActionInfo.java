@@ -11,5 +11,5 @@ public class DeviceLifeCycleActionInfo {
     public Instant effectiveTimestamp;
     public boolean transitionNow = true;
     public List<PropertyInfo> properties;
-    public long deviceVersion;
+    public DeviceInfo device;
 }

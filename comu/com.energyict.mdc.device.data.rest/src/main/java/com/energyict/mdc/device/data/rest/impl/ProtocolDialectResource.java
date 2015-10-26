@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
@@ -12,8 +12,6 @@ import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 
-import java.util.List;
-import java.util.Optional;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -29,6 +27,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.List;
+import java.util.Optional;
 
 @DeviceStatesRestricted(value = {DefaultState.DECOMMISSIONED}, methods = {HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE})
 public class ProtocolDialectResource {
@@ -60,7 +60,7 @@ public class ProtocolDialectResource {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         ProtocolDialectConfigurationProperties protocolDialect = findProtocolDialectOrThrowException(mRID, protocolDialectId);
         Optional<ProtocolDialectProperties> protocolDialectProperties = device.getProtocolDialectProperties(protocolDialect.getDeviceProtocolDialectName());
-        return ProtocolDialectInfo.from(protocolDialect, protocolDialectProperties , uriInfo, mdcPropertyUtils);
+        return ProtocolDialectInfo.from(protocolDialect, protocolDialectProperties , uriInfo, mdcPropertyUtils, device);
     }
 
     @PUT
@@ -72,11 +72,11 @@ public class ProtocolDialectResource {
                                                       @PathParam("protocolDialectId") long protocolDialectId,
                                                       @Context UriInfo uriInfo,
                                                       ProtocolDialectInfo protocolDialectInfo) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        Device device = resourceHelper.lockDeviceOrThrowException(protocolDialectInfo.device);
         ProtocolDialectConfigurationProperties protocolDialect = findProtocolDialectOrThrowException(mRID, protocolDialectId);
         updateProperties(protocolDialectInfo, protocolDialect, device);
         device.save();
-        return ProtocolDialectInfo.from(protocolDialect, device.getProtocolDialectProperties(protocolDialect.getDeviceProtocolDialectName()), uriInfo, mdcPropertyUtils);
+        return ProtocolDialectInfo.from(protocolDialect, device.getProtocolDialectProperties(protocolDialect.getDeviceProtocolDialectName()), uriInfo, mdcPropertyUtils, device);
     }
 
 

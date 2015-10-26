@@ -5,12 +5,12 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.util.streams.DecoratedStream;
-import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.InvalidLastCheckedException;
@@ -101,8 +101,7 @@ public class DeviceLifeCycleActionResource {
             @PathParam("actionId") long actionId,
             @BeanParam JsonQueryParameters queryParameters,
             DeviceLifeCycleActionInfo info){
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        resourceHelper.findDeviceAndLock(device.getId(), info.deviceVersion);
+        Device device = resourceHelper.lockDeviceOrThrowException(info.device);
         ExecutableAction requestedAction = getExecuteActionByIdOrThrowException(actionId, device);
         DeviceLifeCycleActionResultInfo wizardResult = new DeviceLifeCycleActionResultInfo();
         info.effectiveTimestamp=info.effectiveTimestamp==null?clock.instant():info.effectiveTimestamp;

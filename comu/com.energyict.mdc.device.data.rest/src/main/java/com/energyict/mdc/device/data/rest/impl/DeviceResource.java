@@ -1,21 +1,18 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
-import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.GatewayType;
-import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.rest.DeviceInfoFactory;
@@ -31,19 +28,16 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
-import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
@@ -174,10 +168,7 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADD_DEVICE)
     public DeviceInfo addDevice(DeviceInfo info, @Context SecurityContext securityContext) {
-        Optional<DeviceConfiguration> deviceConfiguration = Optional.empty();
-        if (info.deviceConfigurationId != null) {
-            deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfigurationId);
-        }
+        Optional<DeviceConfiguration> deviceConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfigurationId);
         Device newDevice;
         if (!is(info.batch).emptyOrOnlyWhiteSpace()) {
             newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mRID, info.mRID, info.batch);
@@ -185,7 +176,7 @@ public class DeviceResource {
             newDevice = deviceService.newDevice(deviceConfiguration.orElse(null), info.mRID, info.mRID);
         }
         newDevice.setSerialNumber(info.serialNumber);
-        newDevice.setYearOfCertification(Integer.valueOf(info.yearOfCertification));
+        newDevice.setYearOfCertification(info.yearOfCertification);
         newDevice.save();
 
         //TODO: Device Date should go on the device wharehouse (future development) - or to go on Batch - creation date
@@ -197,9 +188,10 @@ public class DeviceResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION)
-    public DeviceInfo updateDevice(@PathParam("id") long id, DeviceInfo info, @Context SecurityContext securityContext) {
-        Device device = deviceService.findAndLockDeviceByIdAndVersion(id, info.version).orElseThrow(() -> new WebApplicationException(Status.CONFLICT));
+    public DeviceInfo updateDevice(@PathParam("id") long id, DeviceInfo info) {
+        Device device = resourceHelper.lockDeviceOrThrowException(info);
         updateGateway(info, device);
+        device.save();
         return deviceInfoFactory.from(device, getSlaveDevicesForDevice(device));
     }
 
@@ -262,8 +254,7 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_ATTRIBUTE})
     public Response editDeviceAttributes(@PathParam("mRID") String id, DeviceAttributesInfo info) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
-        resourceHelper.findDeviceAndLock(device.getId(), info.deviceVersion);
+        Device device = resourceHelper.lockDeviceOrThrowException(info.device);
         deviceAttributesInfoFactory.validateOn(device, info);
         deviceAttributesInfoFactory.writeTo(device, info);
         return Response.ok(deviceAttributesInfoFactory.from(device)).build();

@@ -1,8 +1,16 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.users.User;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.rest.DeviceLabelInfo;
+import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.favorites.DeviceLabel;
+import com.energyict.mdc.favorites.FavoritesService;
+import com.energyict.mdc.favorites.LabelCategory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -18,26 +26,17 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
-
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.users.User;
-import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.rest.DeviceLabelInfo;
-import com.energyict.mdc.device.data.security.Privileges;
-import com.energyict.mdc.favorites.DeviceLabel;
-import com.energyict.mdc.favorites.FavoritesService;
-import com.energyict.mdc.favorites.LabelCategory;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class DeviceLabelResource {
-    
+
     private final ResourceHelper resourceHelper;
     private final FavoritesService favoritesService;
     private final ExceptionFactory exceptionFactory;
     private final Thesaurus thesaurus;
-    
+
     @Inject
     public DeviceLabelResource(ResourceHelper resourceHelper, FavoritesService favoritesService, ExceptionFactory exceptionFactory, Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
@@ -45,7 +44,7 @@ public class DeviceLabelResource {
         this.exceptionFactory = exceptionFactory;
         this.thesaurus = thesaurus;
     }
-    
+
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
@@ -73,8 +72,9 @@ public class DeviceLabelResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
-    public Response deleteDeviceLabel(@PathParam("mRID") String id, @PathParam("categoryId") String categoryId, @Context SecurityContext securityContext) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(id);
+    public Response deleteDeviceLabel(@PathParam("mRID") String id, @PathParam("categoryId") String categoryId, @Context SecurityContext securityContext, DeviceLabelInfo info) {
+        info.mRID = id;
+        Device device = resourceHelper.lockDeviceOrThrowException(info);
         User user = (User) securityContext.getUserPrincipal();
         LabelCategory category = findLabelCategoryOrThrowException(categoryId);
         Optional<DeviceLabel> deviceLabel = favoritesService.findDeviceLabel(device, user, category);
@@ -82,6 +82,7 @@ public class DeviceLabelResource {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_LABEL, thesaurus.getString(category.getName(), category.getName()), device.getmRID());
         }
         favoritesService.removeDeviceLabel(deviceLabel.get());
+        device.save();
         return Response.ok().build();
     }
 
@@ -89,4 +90,5 @@ public class DeviceLabelResource {
         Optional<LabelCategory> category = favoritesService.findLabelCategory(categoryId);
         return category.orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_LABEL_CATEGORY));
     }
+
 }

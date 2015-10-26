@@ -1,10 +1,10 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import java.time.Instant;
-
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.device.data.rest.BaseComTaskExecutionInfo;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo.ConnectionStrategyInfo;
+
+import java.time.Instant;
 
 public class DeviceComTaskExecutionInfo extends BaseComTaskExecutionInfo {
 

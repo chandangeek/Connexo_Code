@@ -13,32 +13,37 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
-import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.kpi.rest.DataCollectionKpiInfoFactory;
 import com.energyict.mdc.device.data.kpi.rest.KpiResource;
-import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfoFactory;
 import com.energyict.mdc.device.data.rest.DeviceInfoFactory;
+import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.device.data.rest.SecurityPropertySetInfoFactory;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
@@ -67,12 +72,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
 
-@Component(name = "com.energyict.ddr.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/ddr", "app=MDC", "name=" + DeviceApplication.COMPONENT_NAME})
-public class DeviceApplication extends Application implements TranslationKeyProvider {
-
-    private final Logger logger = Logger.getLogger(DeviceApplication.class.getName());
+@Component(name = "com.energyict.ddr.rest", service = {Application.class, TranslationKeyProvider.class, MessageSeedProvider.class}, immediate = true, property = {"alias=/ddr", "app=MDC", "name=" + DeviceApplication.COMPONENT_NAME})
+public class DeviceApplication extends Application implements TranslationKeyProvider, MessageSeedProvider {
 
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "DDR";
@@ -110,6 +112,9 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile DeviceLifeCycleService deviceLifeCycleService;
     private volatile AppService appService;
     private volatile MessageService messageService;
+    private volatile SearchService searchService;
+    private volatile LoadProfileService loadProfileService;
+    private volatile DeviceMessageService deviceMessageService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -129,7 +134,6 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 DeviceComTaskResource.class,
                 LogBookResource.class,
                 DeviceFieldResource.class,
-                ChannelResource.class,
                 ChannelResource.class,
                 DeviceGroupResource.class,
                 SecurityPropertySetResource.class,
@@ -220,6 +224,16 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
     }
 
+    @Reference
+    public void setLoadProfileService(LoadProfileService loadProfileService) {
+        this.loadProfileService = loadProfileService;
+    }
+
+    @Reference
+    public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
+        this.deviceMessageService = deviceMessageService;
+    }
+
     @Override
     public String getComponentName() {
         return COMPONENT_NAME;
@@ -231,15 +245,14 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     }
 
     @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
+    }
+
+    @Override
     public List<TranslationKey> getKeys() {
         Set<String> uniqueIds = new HashSet<>();
         List<TranslationKey> keys = new ArrayList<>();
-        for (MessageSeeds messageSeed : MessageSeeds.values()) {
-            if (uniqueIds.add(messageSeed.getKey())) {
-                keys.add(messageSeed);
-            }
-        }
-
         for (EndDeviceType type : EndDeviceType.values()) {
             if (uniqueIds.add(type.toString())) {
                 keys.add(new SimpleTranslationKey(type.toString(), type.getMnemonic()));
@@ -260,8 +273,13 @@ public class DeviceApplication extends Application implements TranslationKeyProv
                 keys.add(new SimpleTranslationKey(eventOrAction.toString(), eventOrAction.getMnemonic()));
             }
         }
-        Arrays.stream(DefaultTranslationKey.values())
-                .forEach(keys::add);
+        keys.addAll(Arrays.asList(DefaultTranslationKey.values()));
+        keys.addAll(Arrays.asList(TaskStatusTranslationKeys.values()));
+        keys.addAll(Arrays.asList(ConnectionTaskSuccessIndicatorTranslationKeys.values()));
+        keys.addAll(Arrays.asList(ComSessionSuccessIndicatorTranslationKeys.values()));
+        keys.addAll(Arrays.asList(CompletionCodeTranslationKeys.values()));
+        keys.addAll(Arrays.asList(DeviceMessageStatusTranslationKeys.values()));
+        keys.addAll(Arrays.asList(ConnectionStrategyTranslationKeys.values()));
         return keys;
     }
 
@@ -360,6 +378,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         this.deviceLifeCycleService = deviceLifeCycleService;
     }
 
+    @Reference
+    public void setSearchService(SearchService searchService) {
+        this.searchService = searchService;
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -428,6 +451,9 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(AppServerHelper.class).to(AppServerHelper.class);
             bind(appService).to(AppService.class);
             bind(messageService).to(MessageService.class);
+            bind(loadProfileService).to(LoadProfileService.class);
+            bind(searchService).to(SearchService.class);
+            bind(deviceMessageService).to(DeviceMessageService.class);
         }
     }
 }

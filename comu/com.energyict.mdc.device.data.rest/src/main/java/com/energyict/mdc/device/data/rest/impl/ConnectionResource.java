@@ -1,20 +1,19 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo;
-import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfoFactory;
 import com.energyict.mdc.device.data.rest.DeviceStatesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 import com.energyict.mdc.engine.config.ComPortPool;
-import java.util.List;
-import java.util.stream.Collectors;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -29,6 +28,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @DeviceStatesRestricted(value = {DefaultState.DECOMMISSIONED}, methods = {HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE})
 public class ConnectionResource {
@@ -36,12 +37,14 @@ public class ConnectionResource {
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
     private final DeviceConnectionTaskInfoFactory connectionTaskInfoFactory;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public ConnectionResource(ResourceHelper resourceHelper, DeviceConnectionTaskInfoFactory connectionTaskInfoFactory, ExceptionFactory exceptionFactory) {
+    public ConnectionResource(ResourceHelper resourceHelper, DeviceConnectionTaskInfoFactory connectionTaskInfoFactory, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory) {
         this.resourceHelper = resourceHelper;
         this.connectionTaskInfoFactory = connectionTaskInfoFactory;
         this.exceptionFactory = exceptionFactory;
+        this.conflictFactory = conflictFactory;
     }
 
     @GET
@@ -63,8 +66,8 @@ public class ConnectionResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response activateDeactivateConnection(@PathParam("mRID") String mrid, @PathParam("id") long connectionTaskId, @Context UriInfo uriInfo, DeviceConnectionTaskInfo connectionTaskInfo) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        ConnectionTask<?, ?> task = resourceHelper.findConnectionTaskOrThrowException(device, connectionTaskId);
+        connectionTaskInfo.id = connectionTaskId;
+        ConnectionTask<?, ?> task = resourceHelper.lockConnectionTaskOrThrowException(connectionTaskInfo);
         switch (connectionTaskInfo.connectionMethod.status) {
             case ACTIVE:
                 task.activate();
@@ -83,14 +86,19 @@ public class ConnectionResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response runConnectionTask(@PathParam("mRID") String mrid, @PathParam("id") long connectionTaskId, @Context UriInfo uriInfo) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        ConnectionTask<? extends ComPortPool, ? extends PartialConnectionTask> task = resourceHelper.findConnectionTaskOrThrowException(device, connectionTaskId);
+    public Response runConnectionTask(@PathParam("mRID") String mrid, @PathParam("id") long connectionTaskId, @Context UriInfo uriInfo, DeviceConnectionTaskInfo connectionTaskInfo) {
+        ConnectionTask task = resourceHelper.getLockedConnectionTask(connectionTaskId, connectionTaskInfo.version)
+                .orElseThrow(conflictFactory.conflict()
+                        .withActualVersion(() -> resourceHelper.getCurrentConnectionTaskVersion(connectionTaskId))
+                        .withMessageTitle(MessageSeeds.CONCURRENT_RUN_TITLE, connectionTaskInfo.name)
+                        .withMessageBody(MessageSeeds.CONCURRENT_RUN_BODY, connectionTaskInfo.name)
+                        .supplier());;
         if (task instanceof ScheduledConnectionTask) {
             ((ScheduledConnectionTask) task).scheduleNow();
         } else {
             throw exceptionFactory.newException(MessageSeeds.RUN_CONNECTIONTASK_IMPOSSIBLE);
         }
+        task.save();
         return Response.status(Response.Status.OK).entity(connectionTaskInfoFactory.from(task, task.getLastComSession())).build();
     }
 }

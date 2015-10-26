@@ -3,8 +3,10 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.estimation.security.Privileges;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.KorePagedInfoList;
 import com.elster.jupiter.rest.util.ListPager;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
@@ -31,24 +33,22 @@ import java.util.stream.Collectors;
 public class DeviceEstimationResource {
     
     private final ResourceHelper resourceHelper;
-    private final DeviceService deviceService;
-    private final EstimationService estimationService;
-    
+
     @Inject
-    public DeviceEstimationResource(ResourceHelper resourceHelper, DeviceService deviceService, EstimationService estimationService) {
+    public DeviceEstimationResource(ResourceHelper resourceHelper) {
         this.resourceHelper = resourceHelper;
-        this.deviceService = deviceService;
-        this.estimationService = estimationService;
     }
     
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE})
-    public KorePagedInfoList getEstimationRuleSetsForDevice(@PathParam("mRID") String mRID, @BeanParam QueryParameters queryParameters) {
+    public PagedInfoList getEstimationRuleSetsForDevice(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-        List<DeviceEstimationRuleSetActivation> pagedRuleSets = ListPager.of(device.forEstimation().getEstimationRuleSetActivations()).from(queryParameters).find();
-        List<DeviceEstimationRuleSetRefInfo> infos = pagedRuleSets.stream().map(rs -> new DeviceEstimationRuleSetRefInfo(rs, device)).collect(Collectors.toList());
-        return KorePagedInfoList.asJson("estimationRuleSets", infos, queryParameters);
+        List<DeviceEstimationRuleSetRefInfo> infos = device.forEstimation().getEstimationRuleSetActivations()
+                .stream()
+                .map(rs -> new DeviceEstimationRuleSetRefInfo(rs, device))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromCompleteList("estimationRuleSets", infos, queryParameters);
     }
 
     @PUT
@@ -58,8 +58,9 @@ public class DeviceEstimationResource {
     @RolesAllowed(Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE)
     @DeviceStatesRestricted({DefaultState.DECOMMISSIONED})
     public Response toggleEstimationRuleSetActivation(@PathParam("mRID") String mRID, @PathParam("ruleSetId") long ruleSetId, DeviceEstimationRuleSetRefInfo info) {
-        Device device = deviceService.findAndLockDeviceByIdAndVersion(info.parent.id, info.parent.version).orElseThrow(() -> new WebApplicationException(Status.CONFLICT));
-        EstimationRuleSet estimationRuleSet = estimationService.getEstimationRuleSet(ruleSetId).orElseThrow(() -> new WebApplicationException(Status.NOT_FOUND));
+        info.id = ruleSetId;
+        EstimationRuleSet estimationRuleSet = resourceHelper.lockEstimationRuleSetOrThrowException(info);
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         if (info.active) {
             device.forEstimation().activateEstimationRuleSet(estimationRuleSet);
         } else {
@@ -75,8 +76,7 @@ public class DeviceEstimationResource {
     @RolesAllowed(com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION)
     @DeviceStatesRestricted({DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED})
     public Response toggleEstimationActivationForDevice(@PathParam("mRID") String mrid, DeviceInfo info) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        resourceHelper.findDeviceAndLock(device.getId(), info.version);
+        Device device = resourceHelper.lockDeviceOrThrowException(info);
         if (info.estimationStatus != null) {
             updateEstimationStatus(info.estimationStatus, device);
         }

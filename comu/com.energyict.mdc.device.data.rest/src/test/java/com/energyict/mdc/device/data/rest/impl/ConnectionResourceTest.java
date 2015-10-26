@@ -1,26 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.time.temporal.ChronoField;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
-import org.junit.Test;
-import org.mockito.internal.verification.VerificationModeFactory;
-
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -42,17 +22,50 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.ConnectionType.Direction;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.internal.verification.VerificationModeFactory;
+
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoField;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest {
+
+    @Mock
+    Device device;
 
     Instant comSessionStart = Instant.now();
     Instant comSessionEnd = comSessionStart.plus(Duration.ofMinutes(1));
     Instant nextExecution = Instant.now();
 
+    @Override
+    @Before
+    public void setUp() throws Exception {
+        super.setUp();
+        when(device.getmRID()).thenReturn("ZABF0000000");
+        when(device.getVersion()).thenReturn(1L);
+        when(deviceService.findByUniqueMrid(device.getmRID())).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceBymRIDAndVersion(device.getmRID(), device.getVersion())).thenReturn(Optional.of(device));
+    }
+
     @Test
     public void testGetAllConnections() {
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(Optional.of(device));
         ConnectionTask<?, ?> connectionTask = mockConnectionTask();
         when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
 
@@ -64,7 +77,7 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
         assertThat(jsonModel.<Integer>get("$.connections[0].id")).isEqualTo(13);
         assertThat(jsonModel.<String>get("$.connections[0].currentState.id")).isEqualTo("Pending");
         assertThat(jsonModel.<String>get("$.connections[0].currentState.displayValue")).isEqualTo("Pending");
-        assertThat(jsonModel.<String>get("$.connections[0].latestStatus.id")).isEqualTo("Failure");
+        assertThat(jsonModel.<String>get("$.connections[0].latestStatus.id")).isEqualTo("FAILURE");
         assertThat(jsonModel.<String>get("$.connections[0].latestStatus.displayValue")).isEqualTo("Failure");
         assertThat(jsonModel.<String>get("$.connections[0].latestResult.id")).isEqualTo("Success");
         assertThat(jsonModel.<String>get("$.connections[0].latestResult.displayValue")).isEqualTo("Success");
@@ -89,22 +102,22 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
         assertThat(jsonModel.<Boolean>get("$.connections[0].connectionMethod.isDefault")).isTrue();
         assertThat(jsonModel.<String>get("$.connections[0].connectionMethod.status")).isEqualTo("active");
         assertThat(jsonModel.<String>get("$.connections[0].window")).isEqualTo("00:01 - 00:02");
-        assertThat(jsonModel.<String>get("$.connections[0].connectionStrategy.id")).isEqualTo("asSoonAsPossible");
-        assertThat(jsonModel.<String>get("$.connections[0].connectionStrategy.displayValue")).isEqualTo("As soon as possible");
+        assertThat(jsonModel.<String>get("$.connections[0].connectionStrategy.id")).isEqualTo(ConnectionStrategy.AS_SOON_AS_POSSIBLE.name());
+        assertThat(jsonModel.<String>get("$.connections[0].connectionStrategy.displayValue")).isEqualTo(ConnectionStrategyTranslationKeys.AS_SOON_AS_POSSIBLE.getDefaultFormat());
         assertThat(jsonModel.<Long>get("$.connections[0].nextExecution")).isEqualTo(nextExecution.toEpochMilli());
         assertThat(jsonModel.<Integer>get("$.connections[0].comSessionId")).isEqualTo(1);
     }
 
     @Test
     public void testActivateConnection() {
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(Optional.of(device));
         ConnectionTask<?, ?> connectionTask = mockConnectionTask();
         when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
 
         DeviceConnectionTaskInfo info = new DeviceConnectionTaskInfo();
         info.connectionMethod = new ConnectionMethodInfo();
         info.connectionMethod.status = ConnectionTaskLifecycleStatus.ACTIVE;
+        info.version = connectionTask.getVersion();
+        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         Entity<?> payload = Entity.entity(info, MediaType.APPLICATION_JSON);
         Response response = target("/devices/ZABF0000000/connections/13").request().put(payload);
 
@@ -114,14 +127,14 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
 
     @Test
     public void testDeactivateConnection() {
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(Optional.of(device));
         ConnectionTask<?, ?> connectionTask = mockConnectionTask();
         when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
 
         DeviceConnectionTaskInfo info = new DeviceConnectionTaskInfo();
         info.connectionMethod = new ConnectionMethodInfo();
         info.connectionMethod.status = ConnectionTaskLifecycleStatus.INACTIVE;
+        info.version = connectionTask.getVersion();
+        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         Entity<?> payload = Entity.entity(info, MediaType.APPLICATION_JSON);
         Response response = target("/devices/ZABF0000000/connections/13").request().put(payload);
 
@@ -131,14 +144,15 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
 
     @Test
     public void testActivateDeactivateWrongStatus() {
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(Optional.of(device));
         ConnectionTask<?, ?> connectionTask = mockConnectionTask();
         when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
 
         DeviceConnectionTaskInfo info = new DeviceConnectionTaskInfo();
         info.connectionMethod = new ConnectionMethodInfo();
         info.connectionMethod.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
+        info.version = connectionTask.getVersion();
+        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+
         Entity<?> payload = Entity.json(info);
         Response response = target("/devices/ZABF0000000/connections/13").request().put(payload);
 
@@ -149,25 +163,47 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
 
     @Test
     public void testRunConnection() {
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(Optional.of(device));
         ScheduledConnectionTask connectionTask = mockConnectionTask();
         when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
 
-        Response response = target("/devices/ZABF0000000/connections/13/run").request().put(Entity.json(""));
+        DeviceConnectionTaskInfo info = new DeviceConnectionTaskInfo();
+        info.connectionMethod = new ConnectionMethodInfo();
+        info.connectionMethod.status = ConnectionTaskLifecycleStatus.INCOMPLETE;
+        info.version = connectionTask.getVersion();
+        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+
+        Response response = target("/devices/ZABF0000000/connections/13/run").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(connectionTask).scheduleNow();
     }
 
     @Test
+    public void testRunConnectionBadVersion() {
+        ScheduledConnectionTask connectionTask = mockConnectionTask();
+        long badVersion = connectionTask.getVersion() + 1;
+        when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(connectionTask.getId(), badVersion)).thenReturn(Optional.empty());
+        DeviceConnectionTaskInfo info = new DeviceConnectionTaskInfo();
+        info.version = badVersion;
+        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+
+        Response response = target("/devices/ZABF0000000/connections/13/run").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+        verify(connectionTask, never()).scheduleNow();
+    }
+
+    @Test
     public void testRunConnectionWrongConnectionType() {
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZABF0000000")).thenReturn(Optional.of(device));
         InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
         when(connectionTask.getId()).thenReturn(12L);
+        when(connectionTask.getVersion()).thenReturn(1L);
         when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
+        when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(connectionTask.getId(), connectionTask.getVersion())).thenReturn(Optional.of(connectionTask));
 
-        Response response = target("/devices/ZABF0000000/connections/12/run").request().put(Entity.json(""));
+        DeviceConnectionTaskInfo info = new DeviceConnectionTaskInfo();
+        info.version = connectionTask.getVersion();
+        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+
+        Response response = target("/devices/ZABF0000000/connections/12/run").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
 
@@ -192,6 +228,10 @@ public class ConnectionResourceTest extends DeviceDataRestApplicationJerseyTest 
         when(connectionTask.getNextExecutionTimestamp()).thenReturn(nextExecution);
         OutboundComPortPool comPortPool = mockComPortPool();
         when(connectionTask.getComPortPool()).thenReturn(comPortPool);
+        when(connectionTask.getDevice()).thenReturn(device);
+        when(connectionTask.isObsolete()).thenReturn(false);
+        when(connectionTaskService.findAndLockConnectionTaskByIdAndVersion(connectionTask.getId(), connectionTask.getVersion())).thenReturn(Optional.of(connectionTask));
+        when(connectionTaskService.findConnectionTask(connectionTask.getId())).thenReturn(Optional.of(connectionTask));
         return connectionTask;
     }
 

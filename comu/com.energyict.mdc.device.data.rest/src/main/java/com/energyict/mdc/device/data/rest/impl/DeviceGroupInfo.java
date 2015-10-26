@@ -18,6 +18,8 @@ public class DeviceGroupInfo {
     public List<SearchCriteriaInfo> criteria = new ArrayList<>(); //backend => frontend
     public List<Long> deviceConfigurationIds = new ArrayList<>(); //backend => frontend
 
+    public long version;
+
     public DeviceGroupInfo() {
     }
 

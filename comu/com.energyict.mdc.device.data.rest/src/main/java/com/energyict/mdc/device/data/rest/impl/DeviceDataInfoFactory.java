@@ -1,23 +1,21 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.metering.IntervalReadingRecord;
-import com.elster.jupiter.metering.ReadingQualityRecord;
-import com.elster.jupiter.metering.readings.ReadingQuality;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
-import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.rest.IntervalInfo;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
 import com.energyict.mdc.device.config.RegisterSpec;
 import com.energyict.mdc.device.data.BillingReading;
 import com.energyict.mdc.device.data.BillingRegister;
 import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceValidation;
 import com.energyict.mdc.device.data.FlagsReading;
 import com.energyict.mdc.device.data.FlagsRegister;
@@ -33,7 +31,6 @@ import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -43,13 +40,6 @@ import java.util.stream.Collectors;
  * Groups functionality to create info objects for different sorts of data of a device
  */
 public class DeviceDataInfoFactory {
-
-    private static final List<QualityCodeCategory> QUALITY_CODE_CATEGORIES = Arrays.asList(
-            QualityCodeCategory.DIAGNOSTICS,
-            QualityCodeCategory.POWERQUALITY,
-            QualityCodeCategory.TAMPER,
-            QualityCodeCategory.DATACOLLECTION
-    );
 
     private final ValidationInfoFactory validationInfoFactory;
     private final EstimationRuleInfoFactory estimationRuleInfoFactory;
@@ -77,7 +67,6 @@ public class DeviceDataInfoFactory {
 
         channelReading.ifPresent(reading -> {
             channelIntervalInfo.value = getRoundedBigDecimal(reading.getValue(), channel);
-            channelIntervalInfo.readingQualities = getReadingQualities(reading);
             channel.getReadingType().getCalculatedReadingType().ifPresent(calculatedReadingType -> {
                 channelIntervalInfo.isBulk = true;
                 channelIntervalInfo.collectedValue = channelIntervalInfo.value;
@@ -92,32 +81,20 @@ public class DeviceDataInfoFactory {
 
         Optional<DataValidationStatus> dataValidationStatus = loadProfileReading.getChannelValidationStates().entrySet().stream().map(Map.Entry::getValue).findFirst();
         dataValidationStatus.ifPresent(status -> {
-            channelIntervalInfo.validationInfo = validationInfoFactory.createVeeReadingInfoWithModificationFlags(channel, status, deviceValidation, channelReading.orElse(null));
+            channelIntervalInfo.mainValidationInfo = validationInfoFactory.createMainVeeReadingInfo(status, deviceValidation, channelReading.orElse(null));
+            channelIntervalInfo.bulkValidationInfo = validationInfoFactory.createBulkVeeReadingInfo(channel, status, deviceValidation, channelReading.orElse(null));
         });
         if (!channelReading.isPresent() && !dataValidationStatus.isPresent()) {
             // we have a reading with no data and no validation result => it's a placeholder (missing value) which hasn't validated ( = detected ) yet
-            channelIntervalInfo.validationInfo = new VeeReadingInfo();
-            channelIntervalInfo.validationInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
+            channelIntervalInfo.mainValidationInfo = new MinimalVeeReadingValueInfo();
+            channelIntervalInfo.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
             if(channelIntervalInfo.isBulk) {
-                channelIntervalInfo.validationInfo.bulkValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
+                channelIntervalInfo.bulkValidationInfo = new MinimalVeeReadingValueInfo();
+                channelIntervalInfo.bulkValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
             }
-            channelIntervalInfo.validationInfo.dataValidated = false;
+            channelIntervalInfo.dataValidated = false;
         }
         return channelIntervalInfo;
-    }
-
-    private List<IdWithNameInfo> getReadingQualities(IntervalReadingRecord intervalReadingRecord) {
-        return intervalReadingRecord.getReadingQualities().stream()
-                .filter(ReadingQualityRecord::isActual)
-                .map(ReadingQuality::getType)
-                .distinct()
-                .filter(type -> type.system().isPresent())
-                .filter(type -> type.qualityIndex().isPresent())
-                .filter(type -> QUALITY_CODE_CATEGORIES.contains(type.category().get()))
-                .map(type -> Pair.of(type.getCode(), type.qualityIndex().get()))
-                .map(pair -> new IdWithNameInfo(pair.getFirst(),
-                        thesaurus.getStringBeyondComponent(pair.getLast().getTranslationKey().getKey(), pair.getLast().getTranslationKey().getDefaultFormat())))
-                .collect(Collectors.toList());
     }
 
     private static BigDecimal getRoundedBigDecimal(BigDecimal value, Channel channel) {
@@ -155,14 +132,14 @@ public class DeviceDataInfoFactory {
         }
 
         for (Map.Entry<Channel, DataValidationStatus> entry : loadProfileReading.getChannelValidationStates().entrySet()) {
-            channelIntervalInfo.channelValidationData.put(entry.getKey().getId(), validationInfoFactory.createVeeReadingInfo(entry.getKey(), entry.getValue(), deviceValidation));
+            channelIntervalInfo.channelValidationData.put(entry.getKey().getId(), validationInfoFactory.createMinimalVeeReadingInfo(entry.getKey(), entry.getValue(), deviceValidation));
         }
 
         for (Channel channel : channels) {
             if (channelIntervalInfo.channelData.containsKey(channel.getId()) && channelIntervalInfo.channelData.get(channel.getId()) == null
                     && !channelIntervalInfo.channelValidationData.containsKey(channel.getId())) {
                 // This means it is a missing value what hasn't been validated( = detected ) yet
-                VeeReadingInfo notValidatedMissing = new VeeReadingInfo();
+                MinimalVeeReadingInfo notValidatedMissing = new MinimalVeeReadingInfo();
                 notValidatedMissing.dataValidated = false;
                 notValidatedMissing.mainValidationInfo.validationResult = ValidationStatus.NOT_VALIDATED;
                 if(channel.getReadingType().isCumulative()) {
@@ -170,10 +147,6 @@ public class DeviceDataInfoFactory {
                 }
                 channelIntervalInfo.channelValidationData.put(channel.getId(), notValidatedMissing);
             }
-        }
-
-        for (Channel channel : loadProfileReading.getChannelValues().keySet()) {
-            channelIntervalInfo.validationActive |= deviceValidation.isValidationActive(channel, clock.instant());
         }
 
         return channelIntervalInfo;
@@ -284,6 +257,7 @@ public class DeviceDataInfoFactory {
 
     private void addCommonRegisterInfo(Register register, RegisterInfo registerInfo) {
         RegisterSpec registerSpec = register.getRegisterSpec();
+        Device device = register.getDevice();
         registerInfo.id = registerSpec.getId();
         registerInfo.registerType = registerSpec.getRegisterType().getId();
         registerInfo.readingType = new ReadingTypeInfo(registerSpec.getRegisterType().getReadingType());
@@ -293,6 +267,10 @@ public class DeviceDataInfoFactory {
         registerInfo.obisCodeDescription = registerSpec.getObisCode().getDescription();
         registerInfo.unitOfMeasure = registerSpec.getUnit();
         registerInfo.isCumulative = registerSpec.getReadingType().isCumulative();
+        registerInfo.mRID = device.getmRID();
+        registerInfo.version = device.getVersion();
+        DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
+        registerInfo.parent = new VersionInfo(deviceConfiguration.getId(), deviceConfiguration.getVersion());
         Optional<? extends Reading> lastReading = register.getLastReading();
         lastReading.ifPresent(reading -> registerInfo.lastReading = createReadingInfo(reading, registerSpec, false));
     }

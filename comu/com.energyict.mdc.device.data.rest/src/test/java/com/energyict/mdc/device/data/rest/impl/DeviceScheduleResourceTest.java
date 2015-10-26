@@ -1,31 +1,41 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpdater;
+import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.tasks.ComTask;
 import com.jayway.jsonpath.JsonModel;
-import java.time.Instant;
 import org.junit.Test;
 
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyTest {
 
@@ -81,6 +91,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
         when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
         when(comTaskExecution.isAdHoc()).thenReturn(true);
+        when(comTaskExecution.getDevice()).thenReturn(device);
 
         Map<String, Object> response = target("/devices/1/schedules").request().get(Map.class);
         assertThat(response).hasSize(2).containsKey("total").containsKey("schedules");
@@ -109,6 +120,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         NextExecutionSpecs nextExecutionSpecs = mock(NextExecutionSpecs.class);
         when(nextExecutionSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.hours(5), TimeDuration.minutes(5)));
         when(comTaskExecution.getNextExecutionSpecs()).thenReturn(Optional.of(nextExecutionSpecs));
+        when(comTaskExecution.getDevice()).thenReturn(device);
 
         Map<String, Object> response = target("/devices/1/schedules").request().get(Map.class);
         assertThat(response).hasSize(2).containsKey("total").containsKey("schedules");
@@ -142,6 +154,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         when(comTaskExecution.getNextExecutionSpecs()).thenReturn(Optional.of(nextExecutionSpecs));
         when(comTaskExecution.getPlannedNextExecutionTimestamp()).thenReturn(Instant.now());
         when(comTaskExecution.getNextExecutionTimestamp()).thenReturn(Instant.now());
+        when(comTaskExecution.getDevice()).thenReturn(device);
 
         Map<String, Object> response = target("/devices/1/schedules").request().get(Map.class);
         assertThat(response).hasSize(2).containsKey("total").containsKey("schedules");
@@ -169,7 +182,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
 
     @Test
     public void testCreateScheduledComTaskExecutionFromEnablement() throws Exception {
-        SchedulingInfo schedulingInfo = new SchedulingInfo();
+        DeviceSchedulesInfo schedulingInfo = new DeviceSchedulesInfo();
         schedulingInfo.id = 111;
         schedulingInfo.schedule = TemporalExpressionInfo.from(new TemporalExpression(TimeDuration.hours(5), TimeDuration.minutes(5)));
 
@@ -198,12 +211,16 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
     @Test
     public void testChangeScheduleOnManuallyScheduledComTaskExecution() throws Exception {
         long comTaskId = 111;
-        SchedulingInfo schedulingInfo = new SchedulingInfo();
+        DeviceSchedulesInfo schedulingInfo = new DeviceSchedulesInfo();
         schedulingInfo.id = comTaskId;
         schedulingInfo.schedule = TemporalExpressionInfo.from(new TemporalExpression(TimeDuration.hours(5), TimeDuration.minutes(5)));
+        schedulingInfo.version = 1L;
+        schedulingInfo.parent = new VersionInfo<>("1", 1L);
+
 
         Device device = mock(Device.class);
         when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceBymRIDAndVersion("1", 1L)).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
 
@@ -222,7 +239,10 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
 
         ManuallyScheduledComTaskExecutionUpdater scheduledComTaskExecutionUpdater = mock(ManuallyScheduledComTaskExecutionUpdater.class);
         when(comTaskExecution.getUpdater()).thenReturn(scheduledComTaskExecutionUpdater);
+        when(comTaskExecution.getDevice()).thenReturn(device);
         when(scheduledComTaskExecutionUpdater.scheduleAccordingTo(schedulingInfo.schedule.asTemporalExpression())).thenReturn(scheduledComTaskExecutionUpdater);
+        when(communicationTaskService.findComTaskExecution(comTaskExecution.getId())).thenReturn(Optional.of(comTaskExecution));
+        when(communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(comTaskExecution.getId(), 1L)).thenReturn(Optional.of(comTaskExecution));
 
         Response response = target("/devices/1/schedules").request().put(Entity.json(schedulingInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -233,11 +253,14 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
     @Test
     public void testRemoveScheduleOnManuallyScheduledComTaskExecution() throws Exception {
         long comTaskId = 111;
-        SchedulingInfo schedulingInfo = new SchedulingInfo();
-        schedulingInfo.id = comTaskId;
+        DeviceSchedulesInfo info = new DeviceSchedulesInfo();
+        info.id = comTaskId;
+        info.version = 1L;
+        info.parent = new VersionInfo<>("1", 1L);
 
         Device device = mock(Device.class);
         when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceBymRIDAndVersion("1", 1L)).thenReturn(Optional.of(device));
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
 
@@ -253,16 +276,18 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         NextExecutionSpecs nextExecutionSpecs = mock(NextExecutionSpecs.class);
         when(nextExecutionSpecs.getTemporalExpression()).thenReturn(new TemporalExpression(TimeDuration.hours(5), TimeDuration.minutes(5)));
         when(comTaskExecution.getNextExecutionSpecs()).thenReturn(Optional.of(nextExecutionSpecs));
+        when(comTaskExecution.getDevice()).thenReturn(device);
+        when(communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(comTaskId, 1L)).thenReturn(Optional.of(comTaskExecution));
 
 
-        Response response = target("/devices/1/schedules").request().put(Entity.json(schedulingInfo));
+        Response response = target("/devices/1/schedules").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(device, times(1)).removeComTaskExecution(comTaskExecution);
     }
 
     @Test
     public void testRunAdHocComTaskFromEnablement() throws Exception {
-        SchedulingInfo schedulingInfo = new SchedulingInfo();
+        DeviceSchedulesInfo schedulingInfo = new DeviceSchedulesInfo();
         schedulingInfo.id = 111;
 
         Device device = mock(Device.class);
@@ -292,19 +317,29 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
     @Test
     public void testDeleteComTaskExecution() throws Exception {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZAFB001")).thenReturn(Optional.of(device));
+        String deviceMrid = "ZAFB001";
+        when(deviceService.findByUniqueMrid(deviceMrid)).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceBymRIDAndVersion(deviceMrid, 1L)).thenReturn(Optional.of(device));
         long comTaskId = 12L;
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
         mockComTask(comTaskEnablement, comTaskId);
 
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getId()).thenReturn(12L);
+        when(comTaskExecution.getDevice()).thenReturn(device);
         ComTaskExecution comTaskExecution2 = mock(ComTaskExecution.class);
         when(comTaskExecution2.getId()).thenReturn(13L);
+        when(comTaskExecution2.getDevice()).thenReturn(device);
+        when(communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(12L, 1L)).thenReturn(Optional.of(comTaskExecution));
+        when(communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(13L, 1L)).thenReturn(Optional.of(comTaskExecution2));
 
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution2, comTaskExecution));
 
-        Response response = target("/devices/ZAFB001/schedules/" + comTaskId).request().delete();
+        DeviceSchedulesInfo info = new DeviceSchedulesInfo();
+        info.id = 12L;
+        info.version = 1L;
+        info.parent = new VersionInfo<>(deviceMrid, 1L);
+        Response response = target("/devices/ZAFB001/schedules/" + comTaskId).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(device).removeComTaskExecution(comTaskExecution);
     }
@@ -312,25 +347,29 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
     @Test
     public void testDeleteNonExistingComTaskExecution() throws Exception {
         Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("ZAFB001")).thenReturn(Optional.of(device));
+        String deviceMrid = "ZAFB001";
+        when(deviceService.findByUniqueMrid(deviceMrid)).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceBymRIDAndVersion(deviceMrid, 1L)).thenReturn(Optional.of(device));
 
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.getId()).thenReturn(12L);
-        ComTaskExecution comTaskExecution2 = mock(ComTaskExecution.class);
-        when(comTaskExecution2.getId()).thenReturn(13L);
+        when(comTaskExecution.getDevice()).thenReturn(device);
+        when(communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(12L, 1L)).thenReturn(Optional.empty());
+        when(communicationTaskService.findComTaskExecution(12L)).thenReturn(Optional.of(comTaskExecution));
 
-        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution2, comTaskExecution));
+        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
 
-        Response response = target("/devices/ZAFB001/schedules/666").request().delete();
-        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<Boolean>get("$.success")).isEqualTo(false);
-        assertThat(jsonModel.<String>get("$.message")).isEqualTo(MessageSeeds.NO_SUCH_COM_TASK_EXEC.getDefaultFormat());
-        assertThat(jsonModel.<String>get("$.error")).isEqualTo(MessageSeeds.NO_SUCH_COM_TASK_EXEC.getKey());
+        DeviceSchedulesInfo info = new DeviceSchedulesInfo();
+        info.id = 12L;
+        info.version = 1L;
+        info.parent = new VersionInfo<>(deviceMrid, 1L);
+        Response response = target("/devices/ZAFB001/schedules/12").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+        verify(device, never()).removeComTaskExecution(comTaskExecution);
     }
 
-    private SchedulingInfo mockDataForFirmwareComTaskTests() {
-        SchedulingInfo schedulingInfo = new SchedulingInfo();
+    private DeviceSchedulesInfo mockDataForFirmwareComTaskTests() {
+        DeviceSchedulesInfo schedulingInfo = new DeviceSchedulesInfo();
         schedulingInfo.id = firmwareComTaskId;
 
         Device device = mock(Device.class);
@@ -355,7 +394,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
 
     @Test
     public void canNotCreateForFirmwareComTaskTest() throws IOException {
-        SchedulingInfo schedulingInfo = mockDataForFirmwareComTaskTests();
+        DeviceSchedulesInfo schedulingInfo = mockDataForFirmwareComTaskTests();
 
         Response response = target("/devices/1/schedules").request().post(Entity.json(schedulingInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -365,7 +404,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
 
     @Test
     public void canNotUpdateForFirmwareComTaskTest() throws IOException {
-        SchedulingInfo schedulingInfo = mockDataForFirmwareComTaskTests();
+        DeviceSchedulesInfo schedulingInfo = mockDataForFirmwareComTaskTests();
 
         Response response = target("/devices/1/schedules").request().put(Entity.json(schedulingInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -375,9 +414,9 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
 
     @Test
     public void canNotDeleteFirmwareComTaskTest() throws IOException {
-        mockDataForFirmwareComTaskTests();
+        DeviceSchedulesInfo info = mockDataForFirmwareComTaskTests();
 
-        Response response = target("/devices/1/schedules/"+firmwareComTaskId).request().delete();
+        Response response = target("/devices/1/schedules/" + firmwareComTaskId).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<String>get("$.error")).isEqualTo(MessageSeeds.CAN_NOT_PERFORM_ACTION_ON_SYSTEM_COMTASK.getKey());

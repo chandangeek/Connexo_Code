@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -18,6 +17,9 @@ import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -27,14 +29,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

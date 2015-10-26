@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
@@ -45,6 +46,9 @@ public abstract class RegisterInfo<R extends Register, RE extends Reading> {
     @JsonProperty("lastReading")
     public ReadingInfo lastReading;
     public boolean isCumulative;
+    public String mRID;
+    public long version;
+    public VersionInfo<Long> parent;
 
     public RegisterInfo() {}
 

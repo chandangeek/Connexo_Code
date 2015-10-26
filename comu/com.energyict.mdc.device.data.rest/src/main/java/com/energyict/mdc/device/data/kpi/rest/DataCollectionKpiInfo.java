@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.kpi.rest;
 
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
+
 import java.math.BigDecimal;
 import java.time.Instant;
 
@@ -17,6 +18,7 @@ public class DataCollectionKpiInfo {
     public BigDecimal connectionTarget;
     public BigDecimal communicationTarget;
     public Instant latestCalculationDate;
+    public long version;
 }
 
 

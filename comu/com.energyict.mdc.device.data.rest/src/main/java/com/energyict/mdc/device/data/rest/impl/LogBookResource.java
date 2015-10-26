@@ -1,19 +1,18 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.energyict.mdc.common.services.ListPager;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.LogBook;
-import com.energyict.mdc.device.data.security.Privileges;
-
 import com.elster.jupiter.cbo.IllegalEnumValueException;
 import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.LogBook;
+import com.energyict.mdc.device.data.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;

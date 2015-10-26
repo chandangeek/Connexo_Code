@@ -9,31 +9,23 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.security.Privileges;
-import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import com.google.common.collect.Range;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -51,6 +43,15 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Functions.asStream;
@@ -65,9 +66,10 @@ public class DeviceGroupResource {
     private final DeviceService deviceService;
     private final ExceptionFactory exceptionFactory;
     private final DeviceGroupInfoFactory deviceGroupInfoFactory;
+    private final ResourceHelper resourceHelper;
 
     @Inject
-    public DeviceGroupResource(MeteringGroupsService meteringGroupsService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, RestQueryService restQueryService, DeviceService deviceService, ExceptionFactory exceptionFactory, DeviceGroupInfoFactory deviceGroupInfoFactory) {
+    public DeviceGroupResource(MeteringGroupsService meteringGroupsService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, RestQueryService restQueryService, DeviceService deviceService, ExceptionFactory exceptionFactory, DeviceGroupInfoFactory deviceGroupInfoFactory, ResourceHelper resourceHelper) {
         this.meteringGroupsService = meteringGroupsService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.meteringService = meteringService;
@@ -75,27 +77,28 @@ public class DeviceGroupResource {
         this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
         this.deviceGroupInfoFactory = deviceGroupInfoFactory;
+        this.resourceHelper = resourceHelper;
     }
 
     @GET
     @Path("/{id}/")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_GROUP, Privileges.Constants.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL})
     public DeviceGroupInfo getDeviceGroup(@PathParam("id") long id) {
-        return deviceGroupInfoFactory.from(fetchDeviceGroup(id));
+        return deviceGroupInfoFactory.from(resourceHelper.findEndDeviceGroupOrThrowException(id));
     }
 
     @GET
     @Path("/{id}/devices")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({ Privileges.Constants.ADMINISTRATE_DEVICE_GROUP, Privileges.Constants.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL })
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_GROUP, Privileges.Constants.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL})
     public PagedInfoList getDevices(@PathParam("id") long deviceGroupId, @BeanParam JsonQueryParameters queryParameters) {
-        EndDeviceGroup endDeviceGroup = fetchDeviceGroup(deviceGroupId);
+        EndDeviceGroup endDeviceGroup = resourceHelper.findEndDeviceGroupOrThrowException(deviceGroupId);
         List<? extends EndDevice> endDevices;
         if (queryParameters.getStart().isPresent() && queryParameters.getLimit().isPresent()) {
-            endDevices= endDeviceGroup.getMembers(Instant.now(), queryParameters.getStart().get(), queryParameters.getLimit().get());
+            endDevices = endDeviceGroup.getMembers(Instant.now(), queryParameters.getStart().get(), queryParameters.getLimit().get());
         } else {
-            endDevices= endDeviceGroup.getMembers(Instant.now());
+            endDevices = endDeviceGroup.getMembers(Instant.now());
         }
         List<Device> devices = Collections.emptyList();
         if (!endDevices.isEmpty()) {
@@ -106,7 +109,7 @@ public class DeviceGroupResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     // not protected by privileges yet because a combo-box containing all the groups needs to be shown when creating an export task
     public PagedInfoList getDeviceGroups(@BeanParam JsonQueryParameters queryParameters, @QueryParam("type") String typeName, @Context UriInfo uriInfo) {
@@ -126,41 +129,40 @@ public class DeviceGroupResource {
     }
 
     @PUT
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_GROUP, Privileges.Constants.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL})
     @Path("/{id}")
-    public Response editDeviceGroup(DeviceGroupInfo deviceGroupInfo, @PathParam("id") long id) {
-        EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup(id)
-                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    public Response editDeviceGroup(DeviceGroupInfo info, @PathParam("id") long id) {
+        info.id = id;
+        EndDeviceGroup endDeviceGroup = resourceHelper.lockEndDeviceGroupOrThrowException(info);
 
-        endDeviceGroup.setName(deviceGroupInfo.name);
-        endDeviceGroup.setMRID("MDC:" + deviceGroupInfo.name);
+        endDeviceGroup.setName(info.name);
+        endDeviceGroup.setMRID("MDC:" + info.name);
 
-        if (deviceGroupInfo.dynamic) {
-            ((QueryEndDeviceGroup) endDeviceGroup).setCondition(getCondition(deviceGroupInfo));
+        if (info.dynamic) {
+            ((QueryEndDeviceGroup) endDeviceGroup).setCondition(getCondition(info));
         } else {
-            syncListWithInfo((EnumeratedEndDeviceGroup) endDeviceGroup, deviceGroupInfo);
+            syncListWithInfo((EnumeratedEndDeviceGroup) endDeviceGroup, info);
         }
         endDeviceGroup.save();
         return Response.status(Response.Status.CREATED).entity(deviceGroupInfoFactory.from(endDeviceGroup)).build();
     }
 
     @DELETE
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_GROUP)
     @Path("/{id}")
-    public Response removeDeviceGroup(@PathParam("id") long id) {
-        EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup(id)
-                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-
+    public Response removeDeviceGroup(@PathParam("id") long id, DeviceGroupInfo info) {
+        info.id = id;
+        EndDeviceGroup endDeviceGroup = resourceHelper.lockEndDeviceGroupOrThrowException(info);
         endDeviceGroup.delete();
         return Response.ok().build();
     }
 
     @POST
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_GROUP)
     public Response createDeviceGroup(DeviceGroupInfo deviceGroupInfo) {
@@ -172,23 +174,24 @@ public class DeviceGroupResource {
 
         EndDeviceGroup endDeviceGroup;
         if (dynamic) {
-            endDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup(getCondition(deviceGroupInfo));
-            endDeviceGroup.setName(name);
-            endDeviceGroup.setQueryProviderName("com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider");
+            endDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup(getCondition(deviceGroupInfo))
+                    .setName(name)
+                    .setQueryProviderName("com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider")
+                    .setLabel("MDC")
+                    .setMRID("MDC:" + name)
+                    .create();
         } else {
-            EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(name);
+            EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup()
+                    .setName(name)
+                    .setLabel("MDC")
+                    .setMRID("MDC:" + name)
+                    .create();
             syncListWithInfo(enumeratedEndDeviceGroup, deviceGroupInfo);
+            enumeratedEndDeviceGroup.save();
             endDeviceGroup = enumeratedEndDeviceGroup;
         }
-        endDeviceGroup.setLabel("MDC");
-        endDeviceGroup.setMRID("MDC:" + endDeviceGroup.getName());
-        endDeviceGroup.save();
 
         return Response.status(Response.Status.CREATED).entity(deviceGroupInfoFactory.from(endDeviceGroup)).build();
-    }
-
-    private EndDeviceGroup fetchDeviceGroup(long id) {
-        return meteringGroupsService.findEndDeviceGroup(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     private void syncListWithInfo(EnumeratedEndDeviceGroup enumeratedEndDeviceGroup, DeviceGroupInfo deviceGroupInfo) {
@@ -198,8 +201,7 @@ public class DeviceGroupResource {
                     .findAllDevices(getCondition(deviceGroupInfo))
                     .stream()
                     .map(HasId::getId);
-        }
-        else {
+        } else {
             deviceIds = deviceGroupInfo.devices.stream();
         }
         AmrSystem amrSystem = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
@@ -218,7 +220,7 @@ public class DeviceGroupResource {
         // add new ones
         endDevices.stream()
                 .filter(device -> !currentEntries.containsKey(device.getId()))
-                .forEach(device -> enumeratedEndDeviceGroup.add(device, Interval.sinceEpoch().toClosedRange()));
+                .forEach(device -> enumeratedEndDeviceGroup.add(device, Range.atLeast(Instant.EPOCH)));
     }
 
     private Collector<EnumeratedEndDeviceGroup.Entry, ?, Map<Long, EnumeratedEndDeviceGroup.Entry>> toMap() {

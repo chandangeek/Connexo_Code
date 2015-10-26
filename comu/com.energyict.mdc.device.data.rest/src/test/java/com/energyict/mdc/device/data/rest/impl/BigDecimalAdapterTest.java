@@ -1,8 +1,9 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.energyict.mdc.device.data.rest.BigDecimalAsStringAdapter;
-import java.math.BigDecimal;
 import org.junit.Test;
+
+import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

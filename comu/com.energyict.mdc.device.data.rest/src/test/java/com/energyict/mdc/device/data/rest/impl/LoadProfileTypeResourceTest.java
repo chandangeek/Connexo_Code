@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.units.Quantity;
 import com.elster.jupiter.validation.ValidationEvaluator;
@@ -45,7 +46,9 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJerseyTest {
 
@@ -86,6 +89,8 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
     private EstimationRuleSet estimationRuleSet;
     @Mock
     private ValidationEvaluator evaluator;
+    @Mock
+    private LoadProfile.LoadProfileUpdater loadProfileUpdater;
 
     private ReadingQualityType readingQualityType = new ReadingQualityType("3.0.1");
 
@@ -95,8 +100,10 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
     @Before
     public void setUpStubs() {
         when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceBymRIDAndVersion("1", 1L)).thenReturn(Optional.of(device));
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile));
         when(loadProfile.getId()).thenReturn(1L);
+        when(loadProfile.getVersion()).thenReturn(1L);
         Range<Instant> interval = Ranges.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd));
         when(loadProfile.getChannelData(interval)).thenReturn(asList(loadProfileReading));
         when(loadProfileReading.getRange()).thenReturn(interval);
@@ -156,6 +163,9 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         doReturn(Optional.of(estimationRule)).when(estimationService).findEstimationRuleByQualityType(readingQualityType);
 
         when(loadProfileReading.getChannelValidationStates()).thenReturn(ImmutableMap.of(channel1, state1, channel2, state2));
+        when(loadProfileService.findById(loadProfile.getId())).thenReturn(Optional.of(loadProfile));
+        when(loadProfileService.findAndLockLoadProfileByIdAndVersion(loadProfile.getId(), loadProfile.getVersion())).thenReturn(Optional.of(loadProfile));
+        when(device.getLoadProfileUpdaterFor(loadProfile)).thenReturn(loadProfileUpdater);
     }
 
     @Test
@@ -184,17 +194,10 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         assertThat(validations).hasSize(2).containsKeys(String.valueOf(CHANNEL_ID1), String.valueOf(CHANNEL_ID2));
         assertThat(jsonModel.<Boolean>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".dataValidated")).isTrue();
         assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".mainValidationInfo.validationResult")).isEqualTo("validationStatus.suspect");
-        assertThat(jsonModel.<List<?>>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".mainValidationInfo.validationRules")).hasSize(1);
-        assertThat(jsonModel.<Boolean>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".mainValidationInfo.validationRules[0].active")).isTrue();
-        assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".mainValidationInfo.validationRules[0].implementation")).isEqualTo("isPrime");
-        assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID1 + ".mainValidationInfo.validationRules[0].displayName")).isEqualTo("Primes only");
+
 
         assertThat(jsonModel.<Boolean>get("$.data[0].channelValidationData." + CHANNEL_ID2 + ".dataValidated")).isTrue();
         assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID2 + ".mainValidationInfo.validationResult")).isEqualTo("validationStatus.suspect");
-        assertThat(jsonModel.<List<?>>get("$.data[0].channelValidationData." + CHANNEL_ID2 + ".mainValidationInfo.validationRules")).isEmpty();
-        assertThat(jsonModel.<Number>get("$.data[0].channelValidationData." + CHANNEL_ID2 + ".mainValidationInfo.estimatedByRule.id")).isEqualTo(13);
-        assertThat(jsonModel.<Number>get("$.data[0].channelValidationData." + CHANNEL_ID2 + ".mainValidationInfo.estimatedByRule.ruleSetId")).isEqualTo(15);
-        assertThat(jsonModel.<String>get("$.data[0].channelValidationData." + CHANNEL_ID2 + ".mainValidationInfo.estimatedByRule.name")).isEqualTo("EstimationRule");
     }
 
     @Test
@@ -233,9 +236,13 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         when(device.forValidation()).thenReturn(deviceValidation);
         when(loadProfile.getLastReading()).thenReturn(Optional.of(LAST_READING));
 
+        LoadProfileTriggerValidationInfo entity = new LoadProfileTriggerValidationInfo();
+        entity.id = 1L;
+        entity.version = 1L;
+        entity.parent = new VersionInfo<>("1", 1L);
         Response response = target("devices/1/loadprofiles/1/validate")
                 .request()
-                .put(Entity.json(new TriggerValidationInfo()));
+                .put(Entity.json(entity));
 
         assertThat(response.getEntity()).isNotNull();
         verify(deviceValidation).validateLoadProfile(loadProfile);
@@ -247,8 +254,11 @@ public class LoadProfileTypeResourceTest extends DeviceDataRestApplicationJersey
         when(device.forValidation()).thenReturn(deviceValidation);
         when(loadProfile.getLastReading()).thenReturn(Optional.of(LAST_READING));
 
-        TriggerValidationInfo triggerValidationInfo = new TriggerValidationInfo();
+        LoadProfileTriggerValidationInfo triggerValidationInfo = new LoadProfileTriggerValidationInfo();
         triggerValidationInfo.lastChecked = LAST_CHECKED.getTime();
+        triggerValidationInfo.id = 1L;
+        triggerValidationInfo.version = 1L;
+        triggerValidationInfo.parent = new VersionInfo<>("1", 1L);
         Response response = target("devices/1/loadprofiles/1/validate")
                 .request()
                 .put(Entity.json(triggerValidationInfo));

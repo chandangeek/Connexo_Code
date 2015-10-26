@@ -3,7 +3,17 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
-import com.elster.jupiter.cbo.*;
+import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.Aggregate;
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.FlowDirection;
+import com.elster.jupiter.cbo.MacroPeriod;
+import com.elster.jupiter.cbo.MeasurementKind;
+import com.elster.jupiter.cbo.MetricMultiplier;
+import com.elster.jupiter.cbo.Phase;
+import com.elster.jupiter.cbo.RationalNumber;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
@@ -16,7 +26,7 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
@@ -24,7 +34,9 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
@@ -129,6 +141,12 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     AppService appService;
     @Mock
     MessageService messageService;
+    @Mock
+    LoadProfileService loadProfileService;
+    @Mock
+    SearchService searchService;
+    @Mock
+    DeviceMessageService deviceMessageService;
 
     @Before
     public void setup() {
@@ -137,11 +155,6 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         when(taskService.findComTask(firmwareComTaskId)).thenReturn(Optional.of(firmwareComTask));
         when(firmwareComTask.isSystemComTask()).thenReturn(true);
         when(firmwareComTask.isUserComTask()).thenReturn(false);
-    }
-
-    @Override
-    protected MessageSeed[] getMessageSeeds() {
-        return MessageSeeds.values();
     }
 
     protected boolean disableDeviceConstraintsBasedOnDeviceState(){
@@ -190,6 +203,9 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setDeviceLifeCycleService(deviceLifeCycleService);
         application.setAppService(appService);
         application.setMessageService(messageService);
+        application.setSearchService(searchService);
+        application.setLoadProfileService(loadProfileService);
+        application.setDeviceMessageService(deviceMessageService);
         return application;
     }
 

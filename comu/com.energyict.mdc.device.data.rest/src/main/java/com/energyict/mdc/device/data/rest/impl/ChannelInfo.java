@@ -1,10 +1,12 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
@@ -31,6 +33,8 @@ public class ChannelInfo {
     public String flowUnit;
     public Integer nbrOfFractionDigits;
     public long loadProfileId;
+    public long version;
+    public VersionInfo<String> parent;
 
     // optionally filled if requesting details
     public DetailedValidationInfo validationInfo;
@@ -53,6 +57,9 @@ public class ChannelInfo {
         info.obisCode = channel.getObisCode();
         info.nbrOfFractionDigits = channel.getChannelSpec().getNbrOfFractionDigits();
         info.loadProfileId = channel.getLoadProfile().getId();
+        info.version = channel.getLoadProfile().getVersion();
+        Device device = channel.getDevice();
+        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         return info;
     }
 

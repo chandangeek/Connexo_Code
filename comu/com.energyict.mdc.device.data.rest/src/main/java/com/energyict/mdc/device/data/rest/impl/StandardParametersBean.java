@@ -1,9 +1,9 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import java.util.List;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
+import java.util.List;
 
 public class StandardParametersBean {
 

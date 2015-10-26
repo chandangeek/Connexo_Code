@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -73,16 +74,19 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
         assertThat(jsonModel.<Boolean>get("$.comTasks[0].isOnHold")).isTrue();
         assertThat(jsonModel.<Instant>get("$.comTasks[0].successfulFinishTime")).isNotNull();
-        assertThat(jsonModel.<String>get("$.comTasks[0].latestResult.id")).isEqualTo("IoError");
+        assertThat(jsonModel.<String>get("$.comTasks[0].latestResult.id")).isEqualTo("IOError");
     }
 
     @Test
     public void testActivateComTask() {
         Device device = mock(Device.class);
         when(deviceService.findByUniqueMrid("mrid")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceBymRIDAndVersion("mrid", 1L)).thenReturn(Optional.of(device));
 
         DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(1L, 1L)).thenReturn(Optional.of(deviceConfiguration));
+        when(deviceConfigurationService.findDeviceConfiguration(1L)).thenReturn(Optional.of(deviceConfiguration));
 
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
@@ -103,7 +107,12 @@ public class CommunicationResourceTest extends DeviceDataRestApplicationJerseyTe
         when(connectionTask.getName()).thenReturn("connectionMethod");
         when(device.getConnectionTasks()).thenReturn(Arrays.asList(connectionTask));
 
-        Response response = target("/devices/mrid/comtasks/1/activate").request().put(Entity.json(""));
+        ComTaskConnectionMethodInfo info = new ComTaskConnectionMethodInfo();
+        info.device = new DeviceInfo();
+        info.device.mRID = "mrid";
+        info.device.version = 1L;
+        info.device.parent = new VersionInfo<>(1L, 1L);
+        Response response = target("/devices/mrid/comtasks/1/activate").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
     }
 

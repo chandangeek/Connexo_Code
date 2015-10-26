@@ -1,21 +1,42 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.energyict.mdc.device.data.Channel;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.LoadProfile;
-import com.energyict.mdc.device.data.Register;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-
+import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.SecurityPropertySet;
+import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceEstimationRuleSetActivation;
+import com.energyict.mdc.device.data.DeviceMessageService;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LoadProfile;
+import com.energyict.mdc.device.data.LoadProfileService;
+import com.energyict.mdc.device.data.Register;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
+import com.energyict.mdc.device.data.kpi.rest.DataCollectionKpiInfo;
+import com.energyict.mdc.device.data.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.pluggable.rest.impl.DeviceCommunicationProtocolInfo;
+import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import java.util.List;
+import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -23,20 +44,220 @@ public class ResourceHelper {
 
     private final DeviceService deviceService;
     private final ExceptionFactory exceptionFactory;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final DeviceConfigurationService deviceConfigurationService;
+    private final LoadProfileService loadProfileService;
+    private final CommunicationTaskService communicationTaskService;
+    private final MeteringGroupsService meteringGroupsService;
+    private final ConnectionTaskService connectionTaskService;
+    private final DeviceMessageService deviceMessageService;
+    private final ProtocolPluggableService protocolPluggableService;
+    private final DataCollectionKpiService dataCollectionKpiService;
+    private final EstimationService estimationService;
 
     @Inject
-    public ResourceHelper(DeviceService deviceService, ExceptionFactory exceptionFactory) {
+    public ResourceHelper(DeviceService deviceService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory, DeviceConfigurationService deviceConfigurationService, LoadProfileService loadProfileService, CommunicationTaskService communicationTaskService, MeteringGroupsService meteringGroupsService, ConnectionTaskService connectionTaskService, DeviceMessageService deviceMessageService, ProtocolPluggableService protocolPluggableService, DataCollectionKpiService dataCollectionKpiService, EstimationService estimationService) {
         super();
         this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
+        this.conflictFactory = conflictFactory;
+        this.deviceConfigurationService = deviceConfigurationService;
+        this.loadProfileService = loadProfileService;
+        this.communicationTaskService = communicationTaskService;
+        this.meteringGroupsService = meteringGroupsService;
+        this.connectionTaskService = connectionTaskService;
+        this.deviceMessageService = deviceMessageService;
+        this.protocolPluggableService = protocolPluggableService;
+        this.dataCollectionKpiService = dataCollectionKpiService;
+        this.estimationService = estimationService;
+    }
+
+    public DeviceConfiguration findDeviceConfigurationByIdOrThrowException(long id) {
+        return deviceConfigurationService.findDeviceConfiguration(id)
+                .orElseThrow(() -> new WebApplicationException("No DeviceConfiguration with id " + id, Response.Status.NOT_FOUND));
+    }
+
+    public Long getCurrentDeviceConfigurationVersion(long id){
+        return deviceConfigurationService.findDeviceConfiguration(id).map(DeviceConfiguration::getVersion).orElse(null);
+    }
+
+    public Optional<DeviceConfiguration> getLockedDeviceConfiguration(long id, long version){
+        return deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(id, version);
     }
 
     public Device findDeviceByMrIdOrThrowException(String mRID) {
         return deviceService.findByUniqueMrid(mRID).orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE, mRID));
     }
 
-    public Device findDeviceAndLock(long id, long version) {
-        return deviceService.findAndLockDeviceByIdAndVersion(id, version).orElseThrow(() -> new WebApplicationException(Response.Status.CONFLICT));
+    public Long getCurrentDeviceVersion(String mRID){
+        return deviceService.findByUniqueMrid(mRID).map(Device::getVersion).orElse(null);
+    }
+
+    public Optional<Device> getLockedDevice(String mRID, long version) {
+        return deviceService.findAndLockDeviceBymRIDAndVersion(mRID, version);
+    }
+
+    public Device lockDeviceOrThrowException(DeviceVersionInfo info){
+        Optional<DeviceConfiguration> deviceConfiguration = getLockedDeviceConfiguration(info.parent.id, info.parent.version);
+        if (deviceConfiguration.isPresent()) {
+            return getLockedDevice(info.mRID, info.version)
+                    .orElseThrow(conflictFactory.contextDependentConflictOn(info.mRID)
+                            .withActualParent(() -> getCurrentDeviceConfigurationVersion(info.parent.id), info.parent.version)
+                            .withActualVersion(() -> getCurrentDeviceVersion(info.mRID))
+                            .supplier());
+        }
+        throw conflictFactory.contextDependentConflictOn(info.mRID)
+                .withActualParent(() -> getCurrentDeviceConfigurationVersion(info.parent.id), info.parent.version)
+                .withActualVersion(() -> getCurrentDeviceVersion(info.mRID))
+                .build();
+    }
+
+    public LoadProfile findLoadProfileOrThrowException(long id){
+        return loadProfileService.findById(id)
+                .orElseThrow(() -> new WebApplicationException("No LoadProfile with id " + id, Response.Status.NOT_FOUND));
+    }
+
+    public Long getCurrentLoadProfileVersion(long id){
+        return loadProfileService.findById(id).map(LoadProfile::getVersion).orElse(null);
+    }
+
+    public Optional<LoadProfile> getLockedLoadProfile(long id, long version) {
+        return loadProfileService.findAndLockLoadProfileByIdAndVersion(id, version);
+    }
+
+    public LoadProfile lockLoadProfileOrThrowException(LoadProfileTriggerValidationInfo info){
+        Optional<Device> device = getLockedDevice(info.parent.id, info.parent.version);
+        if (device.isPresent()) {
+            return getLockedLoadProfile(info.id, info.version)
+                    .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                            .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.version)
+                            .withActualVersion(() -> getCurrentLoadProfileVersion(info.id))
+                            .supplier());
+        }
+        throw conflictFactory.contextDependentConflictOn(info.name)
+                .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.version)
+                .withActualVersion(() -> getCurrentLoadProfileVersion(info.id))
+                .build();
+    }
+
+    public ComTaskExecution findComTaskExecutionOrThrowException(long id) {
+        return communicationTaskService.findComTaskExecution(id)
+                .orElseThrow(() -> new WebApplicationException("No ComTaskExecution with id " + id, Response.Status.NOT_FOUND));
+    }
+
+    public Long getCurrentComTaskExecutionVersion(long id){
+        return communicationTaskService.findComTaskExecution(id)
+                .filter(candidate -> !candidate.isObsolete())
+                .map(ComTaskExecution::getVersion)
+                .orElse(null);
+    }
+
+    public Optional<ComTaskExecution> getLockedComTaskExecution(long id, long version){
+        return communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(id, version)
+                .filter(candidate -> !candidate.isObsolete());
+    }
+
+    public ComTaskExecution lockComTaskExecutionOrThrowException(DeviceSchedulesInfo info) {
+        Optional<Device> device = getLockedDevice(info.parent.id, info.parent.version);
+        if (device.isPresent()) {
+            return getLockedComTaskExecution(info.id, info.version)
+                    .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                            .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.version)
+                            .withActualVersion(() -> getCurrentComTaskExecutionVersion(info.id))
+                            .supplier());
+        }
+        throw conflictFactory.contextDependentConflictOn(info.name)
+                .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.version)
+                .withActualVersion(() -> getCurrentComTaskExecutionVersion(info.id))
+                .build();
+    }
+
+    public SecurityPropertySet findSecurityPropertySetOrThrowException(long id) {
+        return deviceConfigurationService.findSecurityPropertySet(id)
+                .orElseThrow(() -> new WebApplicationException("No SecurityPropertySet with id " + id, Response.Status.NOT_FOUND));
+    }
+
+    public Long getCurrentSecurityPropertySetVersion(long id){
+        return deviceConfigurationService.findSecurityPropertySet(id).map(SecurityPropertySet::getVersion).orElse(null);
+    }
+
+    public Optional<SecurityPropertySet> getLockedSecurityPropertySet(long id, long version){
+        return deviceConfigurationService.findAndLockSecurityPropertySetByIdAndVersion(id, version);
+    }
+
+    public SecurityPropertySet lockSecurityPropertySetOrThrowException(SecurityPropertySetInfo info) {
+        Optional<Device> device = getLockedDevice(info.parent.id, info.parent.version);
+        if (device.isPresent()) {
+            return getLockedSecurityPropertySet(info.id, info.version)
+                    .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                            .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.version)
+                            .withActualVersion(() -> getCurrentSecurityPropertySetVersion(info.id))
+                            .supplier());
+        }
+        throw conflictFactory.contextDependentConflictOn(info.name)
+                .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.version)
+                .withActualVersion(() -> getCurrentSecurityPropertySetVersion(info.id))
+                .build();
+    }
+
+    public ConnectionTask findConnectionTaskOrThrowException(long id) {
+        return connectionTaskService.findConnectionTask(id)
+                .filter(candidate -> !candidate.isObsolete())
+                .orElseThrow(() -> new WebApplicationException("No ConnectionTask with id " + id, Response.Status.NOT_FOUND));
+    }
+
+    public Long getCurrentConnectionTaskVersion(long id) {
+        return connectionTaskService.findConnectionTask(id)
+                .filter(candidate -> !candidate.isObsolete())
+                .map(ConnectionTask::getVersion)
+                .orElse(null);
+    }
+
+    public Optional<ConnectionTask> getLockedConnectionTask(long id, long version){
+        return connectionTaskService.findAndLockConnectionTaskByIdAndVersion(id, version);
+    }
+
+    public ConnectionTask lockConnectionTaskOrThrowException(ConnectionTaskVersionInfo info) {
+        Optional<Device> device = getLockedDevice(info.parent.id, info.parent.version);
+        if (device.isPresent()) {
+            return getLockedConnectionTask(info.id, info.version)
+                    .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                            .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.version)
+                            .withActualVersion(() -> getCurrentConnectionTaskVersion(info.id))
+                            .supplier());
+        }
+        throw conflictFactory.contextDependentConflictOn(info.name)
+                .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.version)
+                .withActualVersion(() -> getCurrentConnectionTaskVersion(info.id))
+                .build();
+    }
+
+    public DeviceMessage findDeviceMessageOrThrowException(long id) {
+        return deviceMessageService.findDeviceMessageById(id)
+                .orElseThrow(() -> new WebApplicationException("No DeviceMessage with id " + id, Response.Status.NOT_FOUND));
+    }
+
+    public Long getCurrentDeviceMessageVersion(long id) {
+        return deviceMessageService.findDeviceMessageById(id).map(DeviceMessage::getVersion).orElse(null);
+    }
+
+    public Optional<DeviceMessage> getLockedDeviceMessage(long id, long version){
+        return deviceMessageService.findAndLockDeviceMessageByIdAndVersion(id, version);
+    }
+
+    public DeviceMessage lockDeviceMessageOrThrowException(DeviceMessageInfo info) {
+        Optional<Device> device = getLockedDevice(info.parent.id, info.parent.version);
+        if (device.isPresent()) {
+            return getLockedDeviceMessage(info.id, info.version)
+                    .orElseThrow(conflictFactory.contextDependentConflictOn(info.messageSpecification.name)
+                            .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.version)
+                            .withActualVersion(() -> getCurrentDeviceMessageVersion(info.id))
+                            .supplier());
+        }
+        throw conflictFactory.contextDependentConflictOn(info.messageSpecification.name)
+                .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.version)
+                .withActualVersion(() -> getCurrentDeviceMessageVersion(info.id))
+                .build();
     }
 
     public Register findRegisterOrThrowException(Device device, long registerSpecId) {
@@ -66,6 +287,107 @@ public class ResourceHelper {
                 .filter(c -> c.getId() == channelId)
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CHANNEL_ON_DEVICE, device.getmRID(), channelId));
+    }
+
+
+    public EndDeviceGroup findEndDeviceGroupOrThrowException(long id) {
+        return meteringGroupsService.findEndDeviceGroup(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    public Long getCurrentEndDeviceGroupVersion(long id){
+        return meteringGroupsService.findEndDeviceGroup(id).map(EndDeviceGroup::getVersion).orElse(null);
+    }
+
+    public Optional<EndDeviceGroup> getLockedEndDeviceGroup(long id, long version) {
+        return meteringGroupsService.findAndLockEndDeviceGroupByIdAndVersion(id, version);
+    }
+
+    public EndDeviceGroup lockEndDeviceGroupOrThrowException(DeviceGroupInfo info) {
+        return getLockedEndDeviceGroup(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> getCurrentEndDeviceGroupVersion(info.id))
+                        .supplier());
+    }
+
+    public DeviceProtocolPluggableClass findDeviceProtocolPluggableClassOrThrowException(long id) {
+        return protocolPluggableService.findDeviceProtocolPluggableClass(id)
+                .orElseThrow(() -> new WebApplicationException("No DeviceProtocolPluggableClass with id " + id, Response.Status.NOT_FOUND));
+    }
+
+    public Long getCurrentDeviceProtocolPluggableClassVersion(long id) {
+        return protocolPluggableService.findDeviceProtocolPluggableClass(id).map(DeviceProtocolPluggableClass::getEntityVersion).orElse(null);
+    }
+
+    public Optional<DeviceProtocolPluggableClass> getLockedDeviceProtocolPluggableClass(long id, long version) {
+        return protocolPluggableService.findAndLockDeviceProtocolPluggableClassByIdAndVersion(id, version);
+    }
+
+    public DeviceProtocolPluggableClass lockDeviceProtocolPluggableClassOrThrowException(DeviceProtocolInfo info) {
+        Optional<Device> device = getLockedDevice(info.parent.id, info.parent.version);
+        if (device.isPresent()) {
+            return getLockedDeviceProtocolPluggableClass(info.id, info.version)
+                    .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                            .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.version)
+                            .withActualVersion(() -> getCurrentDeviceProtocolPluggableClassVersion(info.id))
+                            .supplier());
+        }
+        throw conflictFactory.contextDependentConflictOn(info.name)
+                .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.version)
+                .withActualVersion(() -> getCurrentDeviceProtocolPluggableClassVersion(info.id))
+                .build();
+    }
+
+    public DataCollectionKpi findDataCollectionKpiByIdOrThrowException(long id) {
+        return dataCollectionKpiService.findDataCollectionKpi(id)
+                .orElseThrow(() -> new WebApplicationException("No DeviceProtocolPluggableClass with id " + id, Response.Status.NOT_FOUND));
+    }
+
+    public Long getCurrentDataCollectionKpiVersion(long id) {
+        return dataCollectionKpiService.findDataCollectionKpi(id).map(DataCollectionKpi::getVersion).orElse(null);
+    }
+
+    public Optional<DataCollectionKpi> getLockedDataCollectionKpi(long id, long version) {
+        return dataCollectionKpiService.findAndLockDataCollectionKpiByIdAndVersion(id, version);
+    }
+
+    public DataCollectionKpi lockDataCollectionKpiOrThrowException(DataCollectionKpiInfo info) {
+            return getLockedDataCollectionKpi(info.id, info.version)
+                    .orElseThrow(conflictFactory.contextDependentConflictOn(info.deviceGroup.name)
+                            .withActualVersion(() -> getCurrentDataCollectionKpiVersion(info.id))
+                            .supplier());
+    }
+
+
+    public EstimationRuleSet findEstimationRuleSetOrThrowException(long id) {
+        return estimationService.getEstimationRuleSet(id)
+                .filter(candidate -> candidate.getObsoleteDate() != null)
+                .orElseThrow(() -> new WebApplicationException("No DeviceMessage with id " + id, Response.Status.NOT_FOUND));
+    }
+
+    public Long getCurrentEstimationRuleSetVersion(long id) {
+        return estimationService.getEstimationRuleSet(id)
+                .filter(candidate -> candidate.getObsoleteDate() != null)
+                .map(EstimationRuleSet::getVersion)
+                .orElse(null);
+    }
+
+    public Optional<? extends EstimationRuleSet> getLockedEstimationRuleSet(long id, long version){
+        return estimationService.findAndLockEstimationRuleSet(id, version);
+    }
+
+    public EstimationRuleSet lockEstimationRuleSetOrThrowException(DeviceEstimationRuleSetRefInfo info) {
+        Optional<Device> device = getLockedDevice(info.parent.id, info.parent.version);
+        if (device.isPresent()) {
+            return getLockedEstimationRuleSet(info.id, info.version)
+                    .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                            .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.version)
+                            .withActualVersion(() -> getCurrentEstimationRuleSetVersion(info.id))
+                            .supplier());
+        }
+        throw conflictFactory.contextDependentConflictOn(info.name)
+                .withActualParent(() -> getCurrentDeviceVersion(info.parent.id), info.parent.version)
+                .withActualVersion(() -> getCurrentEstimationRuleSetVersion(info.id))
+                .build();
     }
 
     public Condition getQueryConditionForDevice(StandardParametersBean params) {

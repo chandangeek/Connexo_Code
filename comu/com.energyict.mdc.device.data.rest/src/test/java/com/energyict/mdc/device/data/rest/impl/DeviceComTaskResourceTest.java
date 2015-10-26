@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -29,23 +29,75 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
 import com.energyict.mdc.tasks.ComTask;
 import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mock;
 
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.*;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-
-import org.junit.Test;
-import org.mockito.Matchers;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTest {
+
+    public static final long DEVICE_CONFIGURATION_ID = 58L;
+    public static final String DEVICE_MRID = "mrid";
+
+    public static final long OK_VERSION = 1L;
+    public static final long BAD_VERSION = 5L;
+
+    @Mock
+    private DeviceConfiguration deviceConfiguration;
+
+    @Mock
+    private Device device;
+
+    @Override
+    public void setupMocks() {
+        super.setupMocks();
+        when(deviceConfigurationService.findDeviceConfiguration(DEVICE_CONFIGURATION_ID)).thenReturn(Optional.of(deviceConfiguration));
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(DEVICE_CONFIGURATION_ID, OK_VERSION)).thenReturn(Optional.of(deviceConfiguration));
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(DEVICE_CONFIGURATION_ID, BAD_VERSION)).thenReturn(Optional.empty());
+
+        when(deviceService.findByUniqueMrid(DEVICE_MRID)).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceBymRIDAndVersion(DEVICE_MRID, OK_VERSION)).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceBymRIDAndVersion(DEVICE_MRID, BAD_VERSION)).thenReturn(Optional.empty());
+
+        when(device.getmRID()).thenReturn(DEVICE_MRID);
+        when(device.getVersion()).thenReturn(OK_VERSION);
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
+        when(device.getComTaskExecutions()).thenReturn(comTaskExecutions);
+
+        when(deviceConfiguration.getId()).thenReturn(DEVICE_CONFIGURATION_ID);
+        when(deviceConfiguration.getVersion()).thenReturn(OK_VERSION);
+        List<ComTaskEnablement> comTaskEnablements = new ArrayList<>();
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(comTaskEnablements);
+    }
+
+    public DeviceInfo getDeviceInfo(){
+        DeviceInfo info = new DeviceInfo();
+        info.mRID = DEVICE_MRID;
+        info.version = OK_VERSION;
+        info.parent = new VersionInfo<>(DEVICE_CONFIGURATION_ID, OK_VERSION);
+        return info;
+    }
 
     @Test
     public void testGetAllcomTaskExecutionsOneEnablementOneExecution() throws Exception {
@@ -105,12 +157,6 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
 
     @Test
     public void testRunComTaskFromEnablement() throws Exception {
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
-
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
 
@@ -123,7 +169,9 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         ManuallyScheduledComTaskExecution comTaskExecution = mock(ManuallyScheduledComTaskExecution.class);
         when(comTaskExecutionBuilder.add()).thenReturn(comTaskExecution);
 
-        Response response = target("/devices/1/comtasks/111/run").request().put(Entity.json(""));
+        ComTaskConnectionMethodInfo info = new ComTaskConnectionMethodInfo();
+        info.device = getDeviceInfo();
+        Response response = target("/devices/"+DEVICE_MRID+"/comtasks/111/run").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(comTaskExecutionBuilder, times(1)).add();
         verify(comTaskExecution, times(1)).scheduleNow();
@@ -131,12 +179,6 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
 
     @Test
     public void testRunNowComTaskFromEnablement() throws Exception {
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
-
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
 
@@ -149,7 +191,9 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         ManuallyScheduledComTaskExecution comTaskExecution = mock(ManuallyScheduledComTaskExecution.class);
         when(comTaskExecutionBuilder.add()).thenReturn(comTaskExecution);
 
-        Response response = target("/devices/1/comtasks/111/runnow").request().put(Entity.json(""));
+        ComTaskConnectionMethodInfo info = new ComTaskConnectionMethodInfo();
+        info.device = getDeviceInfo();
+        Response response = target("/devices/"+DEVICE_MRID+"/comtasks/111/runnow").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(comTaskExecutionBuilder, times(1)).add();
         verify(comTaskExecution, times(1)).runNow();
@@ -157,38 +201,28 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
 
     @Test
     public void testRunComTaskFromExecution() throws Exception {
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
-
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
-        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
+        deviceConfiguration.getComTaskEnablements().add(comTaskEnablement);
 
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
 
         ComTask comTask = mockComTask(comTaskEnablement, 111L);
         when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
 
-        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
+        device.getComTaskExecutions().add(comTaskExecution);
 
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
         when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
 
-        Response response = target("/devices/1/comtasks/111/run").request().put(Entity.json(""));
+        ComTaskConnectionMethodInfo info = new ComTaskConnectionMethodInfo();
+        info.device = getDeviceInfo();
+        Response response = target("/devices/"+DEVICE_MRID+"/comtasks/111/run").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(comTaskExecution, times(1)).scheduleNow();
     }
 
     @Test
     public void testRunNowComTaskFromExecution() throws Exception {
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
-
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
 
@@ -202,24 +236,38 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties = mock(ProtocolDialectConfigurationProperties.class);
         when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
 
-        Response response = target("/devices/1/comtasks/111/runnow").request().put(Entity.json(""));
+        ComTaskConnectionMethodInfo info = new ComTaskConnectionMethodInfo();
+        info.device = getDeviceInfo();
+        Response response = target("/devices/"+DEVICE_MRID+"/comtasks/111/runnow").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(comTaskExecution, times(1)).runNow();
+    }
+
+
+    @Test
+    public void testRunNowComTaskFromExecutionBadVersion() throws Exception {
+        ComTaskConnectionMethodInfo info = new ComTaskConnectionMethodInfo();
+        info.device = getDeviceInfo();
+        info.device.version = BAD_VERSION;
+
+        ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
+        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
+        ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
+        ComTask comTask = mockComTask(comTaskEnablement, 111L);
+        when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
+
+        Response response = target("/devices/"+DEVICE_MRID+"/comtasks/111/runnow").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
     @Test
     public void testChangeUrgencyFromManualExecution() throws Exception {
         ComTaskUrgencyInfo comTaskUrgencyInfo = new ComTaskUrgencyInfo();
         comTaskUrgencyInfo.urgency = 50;
-
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
-
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        comTaskUrgencyInfo.device = getDeviceInfo();
 
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
-        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
+        deviceConfiguration.getComTaskEnablements().add(comTaskEnablement);
 
         ManuallyScheduledComTaskExecution comTaskExecution = mock(ManuallyScheduledComTaskExecution.class);
         when(comTaskExecution.isScheduledManually()).thenReturn(true);
@@ -227,7 +275,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         ComTask comTask = mockComTask(comTaskEnablement, 111L);
         when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
 
-        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
+        device.getComTaskExecutions().add(comTaskExecution);
 
         ManuallyScheduledComTaskExecutionUpdater manuallyScheduledComTaskExecutionUpdater = mock(ManuallyScheduledComTaskExecutionUpdater.class);
         when(device.getComTaskExecutionUpdater(comTaskExecution)).thenReturn(manuallyScheduledComTaskExecutionUpdater);
@@ -237,25 +285,31 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
 
 
-        Response response = target("/devices/1/comtasks/111/urgency").request().put(Entity.json(comTaskUrgencyInfo));
+        Response response = target("/devices/"+DEVICE_MRID+"/comtasks/111/urgency").request().put(Entity.json(comTaskUrgencyInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(manuallyScheduledComTaskExecutionUpdater, times(1)).priority(comTaskUrgencyInfo.urgency);
         verify(manuallyScheduledComTaskExecutionUpdater, times(1)).update();
     }
 
     @Test
+    public void testChangeUrgencyFromManualExecutionBadVersion() throws Exception {
+        ComTaskUrgencyInfo comTaskUrgencyInfo = new ComTaskUrgencyInfo();
+        comTaskUrgencyInfo.urgency = 50;
+        comTaskUrgencyInfo.device = getDeviceInfo();
+        comTaskUrgencyInfo.device.version = BAD_VERSION;
+
+        Response response = target("/devices/"+DEVICE_MRID+"/comtasks/111/urgency").request().put(Entity.json(comTaskUrgencyInfo));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
     public void testChangeUrgencyFromSharedExecution() throws Exception {
         ComTaskUrgencyInfo comTaskUrgencyInfo = new ComTaskUrgencyInfo();
         comTaskUrgencyInfo.urgency = 50;
-
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
-
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        comTaskUrgencyInfo.device = getDeviceInfo();
 
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
-        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
+        deviceConfiguration.getComTaskEnablements().add(comTaskEnablement);
 
         ScheduledComTaskExecution comTaskExecution = mock(ScheduledComTaskExecution.class);
         when(comTaskExecution.usesSharedSchedule()).thenReturn(true);
@@ -263,7 +317,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         ComTask comTask = mockComTask(comTaskEnablement, 111L);
         when(comTaskExecution.getComTasks()).thenReturn(Arrays.asList(comTask));
 
-        when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
+        device.getComTaskExecutions().add(comTaskExecution);
 
         ScheduledComTaskExecutionUpdater scheduledComTaskExecutionUpdater = mock(ScheduledComTaskExecutionUpdater.class);
         when(device.getComTaskExecutionUpdater(comTaskExecution)).thenReturn(scheduledComTaskExecutionUpdater);
@@ -273,7 +327,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
 
 
-        Response response = target("/devices/1/comtasks/111/urgency").request().put(Entity.json(comTaskUrgencyInfo));
+        Response response = target("/devices/"+DEVICE_MRID+"/comtasks/111/urgency").request().put(Entity.json(comTaskUrgencyInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(scheduledComTaskExecutionUpdater, times(1)).priority(comTaskUrgencyInfo.urgency);
         verify(scheduledComTaskExecutionUpdater, times(1)).update();
@@ -290,12 +344,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
     public void testChangeConnectionMethodFromManualExecutionWithExistingConnectionMethodOnDevice() throws Exception {
         ComTaskConnectionMethodInfo comTaskConnectionMethodInfo = new ComTaskConnectionMethodInfo();
         comTaskConnectionMethodInfo.connectionMethod = "connectionMethod";
-
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
-
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        comTaskConnectionMethodInfo.device = getDeviceInfo();
 
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
@@ -321,7 +370,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
 
 
-        Response response = target("/devices/1/comtasks/111/connectionmethod").request().put(Entity.json(comTaskConnectionMethodInfo));
+        Response response = target("/devices/"+DEVICE_MRID+"/comtasks/111/connectionmethod").request().put(Entity.json(comTaskConnectionMethodInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(manuallyScheduledComTaskExecutionUpdater, times(1)).connectionTask(connectionTask);
         verify(manuallyScheduledComTaskExecutionUpdater, times(1)).update();
@@ -332,12 +381,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
     public void testChangeConnectionMethodFromSharedExecutionWithExistingConnectionMethodOnDevice() throws Exception {
         ComTaskConnectionMethodInfo comTaskConnectionMethodInfo = new ComTaskConnectionMethodInfo();
         comTaskConnectionMethodInfo.connectionMethod = "connectionMethod";
-
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
-
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        comTaskConnectionMethodInfo.device = getDeviceInfo();
 
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
@@ -363,7 +407,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
 
 
-        Response response = target("/devices/1/comtasks/111/connectionmethod").request().put(Entity.json(comTaskConnectionMethodInfo));
+        Response response = target("/devices/"+DEVICE_MRID+"/comtasks/111/connectionmethod").request().put(Entity.json(comTaskConnectionMethodInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(scheduledComTaskExecutionUpdater, times(1)).connectionTask(connectionTask);
         verify(scheduledComTaskExecutionUpdater, times(1)).update();
@@ -373,12 +417,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
     public void testChangeConnectionMethodFromManualExecutionWithNoExistingConnectionMethodOnDevice() throws Exception {
         ComTaskConnectionMethodInfo comTaskConnectionMethodInfo = new ComTaskConnectionMethodInfo();
         comTaskConnectionMethodInfo.connectionMethod = "connectionMethod";
-
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
-
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        comTaskConnectionMethodInfo.device = getDeviceInfo();
 
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
@@ -400,7 +439,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
 
 
-        Response response = target("/devices/1/comtasks/111/connectionmethod").request().put(Entity.json(comTaskConnectionMethodInfo));
+        Response response = target("/devices/"+DEVICE_MRID+"/comtasks/111/connectionmethod").request().put(Entity.json(comTaskConnectionMethodInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(manuallyScheduledComTaskExecutionUpdater, times(1)).useDefaultConnectionTask(true);
         verify(manuallyScheduledComTaskExecutionUpdater, times(1)).update();
@@ -411,12 +450,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
     public void testChangeConnectionMethodFromSharedExecutionWithNoExistingConnectionMethodOnDevice() throws Exception {
         ComTaskConnectionMethodInfo comTaskConnectionMethodInfo = new ComTaskConnectionMethodInfo();
         comTaskConnectionMethodInfo.connectionMethod = "connectionMethod";
-
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
-
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        comTaskConnectionMethodInfo.device = getDeviceInfo();
 
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
@@ -438,7 +472,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
 
 
-        Response response = target("/devices/1/comtasks/111/connectionmethod").request().put(Entity.json(comTaskConnectionMethodInfo));
+        Response response = target("/devices/"+DEVICE_MRID+"/comtasks/111/connectionmethod").request().put(Entity.json(comTaskConnectionMethodInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(scheduledComTaskExecutionUpdater, times(1)).useDefaultConnectionTask(true);
         verify(scheduledComTaskExecutionUpdater, times(1)).update();
@@ -448,12 +482,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
     public void testChangeProtocolDialectForMananualExecution() throws Exception {
         ComTaskProtocolDialectInfo comTaskProtocolDialectInfo = new ComTaskProtocolDialectInfo();
         comTaskProtocolDialectInfo.protocolDialect = "protocolDialect";
-
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
-
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        comTaskProtocolDialectInfo.device = getDeviceInfo();
 
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
@@ -479,7 +508,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(scheduledComTaskExecutionUpdater.protocolDialectConfigurationProperties(dialectConfigurationProperties)).thenReturn(scheduledComTaskExecutionUpdater);
 
 
-        Response response = target("/devices/1/comtasks/111/protocoldialect").request().put(Entity.json(comTaskProtocolDialectInfo));
+        Response response = target("/devices/"+DEVICE_MRID+"/comtasks/111/protocoldialect").request().put(Entity.json(comTaskProtocolDialectInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(scheduledComTaskExecutionUpdater, times(1)).protocolDialectConfigurationProperties(dialectConfigurationProperties);
         verify(scheduledComTaskExecutionUpdater, times(1)).update();
@@ -612,7 +641,9 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
 
     @Test
     public void canNotRunFirmwareComTaskTest() throws IOException {
-        Response response = target("/devices/1/comtasks/" + firmwareComTaskId + "/run").request().put(Entity.json(""));
+        ComTaskConnectionMethodInfo info = new ComTaskConnectionMethodInfo();
+        info.device = getDeviceInfo();
+        Response response = target("/devices/1/comtasks/" + firmwareComTaskId + "/run").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<String>get("$.error")).isEqualTo(MessageSeeds.CAN_NOT_PERFORM_ACTION_ON_SYSTEM_COMTASK.getKey());
@@ -620,7 +651,9 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
 
     @Test
     public void canNotRunNowOnFirmwareComTaskTest() throws IOException {
-        Response response = target("/devices/1/comtasks/" + firmwareComTaskId + "/runnow").request().put(Entity.json(""));
+        ComTaskConnectionMethodInfo info = new ComTaskConnectionMethodInfo();
+        info.device = getDeviceInfo();
+        Response response = target("/devices/1/comtasks/" + firmwareComTaskId + "/runnow").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<String>get("$.error")).isEqualTo(MessageSeeds.CAN_NOT_PERFORM_ACTION_ON_SYSTEM_COMTASK.getKey());
@@ -628,7 +661,9 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
 
     @Test
     public void canNotActivateOnFirmwareComTaskTest() throws IOException {
-        Response response = target("/devices/1/comtasks/" + firmwareComTaskId + "/activate").request().put(Entity.json(""));
+        ComTaskConnectionMethodInfo info = new ComTaskConnectionMethodInfo();
+        info.device = getDeviceInfo();
+        Response response = target("/devices/1/comtasks/" + firmwareComTaskId + "/activate").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<String>get("$.error")).isEqualTo(MessageSeeds.CAN_NOT_PERFORM_ACTION_ON_SYSTEM_COMTASK.getKey());
@@ -636,7 +671,9 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
 
     @Test
     public void canNotDeactivateOnFirmwareComTaskTest() throws IOException {
-        Response response = target("/devices/1/comtasks/" + firmwareComTaskId + "/deactivate").request().put(Entity.json(""));
+        ComTaskConnectionMethodInfo info = new ComTaskConnectionMethodInfo();
+        info.device = getDeviceInfo();
+        Response response = target("/devices/1/comtasks/" + firmwareComTaskId + "/deactivate").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
         assertThat(jsonModel.<String>get("$.error")).isEqualTo(MessageSeeds.CAN_NOT_PERFORM_ACTION_ON_SYSTEM_COMTASK.getKey());
@@ -647,6 +684,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
     public void canNotChangeFrequencyOnFirmwareComTaskTest() throws IOException {
         ComTaskFrequencyInfo comTaskFrequencyInfo = new ComTaskFrequencyInfo();
         comTaskFrequencyInfo.temporalExpression = new TemporalExpressionInfo();
+        comTaskFrequencyInfo.device = getDeviceInfo();
 
         Response response = target("/devices/1/comtasks/" + firmwareComTaskId + "/frequency").request().put(Entity.json(comTaskFrequencyInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -663,10 +701,6 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
 
     @Test
     public void activateAllWithoutFirmwareComTaskTest() {
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.isOnHold()).thenReturn(Boolean.TRUE);
         ComTaskEnablement comTaskEnablement1 = mock(ComTaskEnablement.class);
@@ -686,11 +720,9 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getComTaskExecutions()).thenReturn(Collections.singletonList(comTaskExecution));
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement1, comTaskEnablement2));
 
-        DeviceInfo info = new DeviceInfo();
-        info.id = 1L;
-        info.version = 13L;
-
-        Response response = target("/devices/1/comtasks/activate").request().put(Entity.json(info));
+        ComTaskConnectionMethodInfo info = new ComTaskConnectionMethodInfo();
+        info.device = getDeviceInfo();
+        Response response = target("/devices/"+DEVICE_MRID+"/comtasks/activate").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(comTaskExecution).updateNextExecutionTimestamp();
         verify(newComTaskExecution).updateNextExecutionTimestamp();
@@ -699,10 +731,6 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
 
     @Test
     public void activateAllWithFirmwareComTaskTest() {
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.isOnHold()).thenReturn(Boolean.TRUE);
         ComTaskExecution firmwareComTaskExecution = mock(ComTaskExecution.class);
@@ -727,11 +755,9 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution, firmwareComTaskExecution));
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement1, comTaskEnablement2, comTaskEnablement3));
 
-        DeviceInfo info = new DeviceInfo();
-        info.id = 1L;
-        info.version = 13L;
-
-        Response response = target("/devices/1/comtasks/activate").request().put(Entity.json(info));
+        ComTaskConnectionMethodInfo info = new ComTaskConnectionMethodInfo();
+        info.device = getDeviceInfo();
+        Response response = target("/devices/"+DEVICE_MRID+"/comtasks/activate").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(comTaskExecution).updateNextExecutionTimestamp();
         verify(newComTaskExecution).updateNextExecutionTimestamp();
@@ -740,10 +766,6 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
     }
     @Test
     public void deActivateAllWithoutFirmwareComTaskTest() {
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.isOnHold()).thenReturn(Boolean.FALSE);
         ComTaskEnablement comTaskEnablement1 = mock(ComTaskEnablement.class);
@@ -763,11 +785,9 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getComTaskExecutions()).thenReturn(Collections.singletonList(comTaskExecution));
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement1, comTaskEnablement2));
 
-        DeviceInfo info = new DeviceInfo();
-        info.id = 1L;
-        info.version = 13L;
-
-        Response response = target("/devices/1/comtasks/deactivate").request().put(Entity.json(info));
+        ComTaskConnectionMethodInfo info = new ComTaskConnectionMethodInfo();
+        info.device = getDeviceInfo();
+        Response response = target("/devices/"+DEVICE_MRID+"/comtasks/deactivate").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(comTaskExecution).putOnHold();
         verify(newComTaskExecution).putOnHold();
@@ -776,10 +796,6 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
 
     @Test
     public void deActivateAllWithFirmwareComTaskTest() {
-        Device device = mock(Device.class);
-        when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(comTaskExecution.isOnHold()).thenReturn(Boolean.FALSE);
         ComTaskExecution firmwareComTaskExecution = mock(ComTaskExecution.class);
@@ -804,11 +820,9 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution, firmwareComTaskExecution));
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement1, comTaskEnablement2, comTaskEnablement3));
 
-        DeviceInfo info = new DeviceInfo();
-        info.id = 1L;
-        info.version = 13L;
-
-        Response response = target("/devices/1/comtasks/deactivate").request().put(Entity.json(info));
+        ComTaskConnectionMethodInfo info = new ComTaskConnectionMethodInfo();
+        info.device = getDeviceInfo();
+        Response response = target("/devices/"+DEVICE_MRID+"/comtasks/deactivate").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(comTaskExecution).putOnHold();
         verify(newComTaskExecution).putOnHold();

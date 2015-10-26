@@ -5,6 +5,7 @@ import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyTypeInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
@@ -14,6 +15,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.rest.DeviceMessageStatusTranslationKeys;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.io.ComChannel;
@@ -28,7 +30,13 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
-import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
@@ -71,7 +79,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by bvn on 10/22/14.
@@ -123,7 +135,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(model.<String>get("$.deviceMessages[0].trackingId")).isEqualTo("T14");
         assertThat(model.<String>get("$.deviceMessages[0].category")).isEqualTo("Device actions");
         assertThat(model.<String>get("$.deviceMessages[0].status.displayValue")).isEqualTo("Pending");
-        assertThat(model.<String>get("$.deviceMessages[0].status.value")).isEqualTo("CommandPending");
+        assertThat(model.<String>get("$.deviceMessages[0].status.value")).isEqualTo("PENDING");
         assertThat(model.<Long>get("$.deviceMessages[0].releaseDate")).isEqualTo(created.plusSeconds(10).toEpochMilli());
         assertThat(model.<Long>get("$.deviceMessages[0].creationDate")).isEqualTo(created.toEpochMilli());
         assertThat(model.<Long>get("$.deviceMessages[0].sentDate")).isNull();
@@ -443,6 +455,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
     public void testDeleteDeviceMessage() throws Exception {
         Device device = mockDevice();
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceBymRIDAndVersion("ZABF010000080004", 1L)).thenReturn(Optional.of(device));
         DeviceMessageSpec deviceMessageSpecification = mock(DeviceMessageSpec.class);
         when(deviceMessageSpecification.getId()).thenReturn(DeviceMessageId.CONTACTOR_OPEN);
         DeviceMessageCategory deviceMessageCategory = mock(DeviceMessageCategory.class);
@@ -452,6 +465,9 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(msg1.getId()).thenReturn(1L);
         when(msg1.getSpecification()).thenReturn(deviceMessageSpecification);
         DeviceMessage msg2 = mockCommand(device, 2L, DeviceMessageId.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_TYPE, "spec", "error", DeviceMessageStatus.REVOKED, "tracker", "admin", null, null, null, deviceMessageCategoryActivityCalendar);
+        when(deviceMessageService.findDeviceMessageById(2)).thenReturn(Optional.of(msg2));
+        when(deviceMessageService.findAndLockDeviceMessageByIdAndVersion(2, 1L)).thenReturn(Optional.of(msg2));
+
         DeviceMessage msg3 = mock(DeviceMessage.class);
         when(msg3.getId()).thenReturn(3L);
         when(msg3.getSpecification()).thenReturn(deviceMessageSpecification);
@@ -459,9 +475,15 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getMessages()).thenReturn(Arrays.asList(msg1, msg2, msg3));
         when(device.getComTaskExecutions()).thenReturn(Collections.emptyList());
         when(device.getComTaskExecutions()).thenReturn(Collections.emptyList());
+
         DeviceMessageInfo deviceMessageInfo = new DeviceMessageInfo();
-        deviceMessageInfo.status=new StatusInfo();
-        deviceMessageInfo.status.value=MessageStatusAdapter.REVOKED;
+        deviceMessageInfo.status=new DeviceMessageInfo.StatusInfo();
+        deviceMessageInfo.status.value = DeviceMessageStatusTranslationKeys.REVOKED.getDeviceMessageStatus().name();
+        deviceMessageInfo.version = 1L;
+        deviceMessageInfo.parent = new VersionInfo<>("ZABF010000080004", 1L);
+        deviceMessageInfo.messageSpecification = new DeviceMessageSpecInfo();
+        deviceMessageInfo.messageSpecification.name = "some";
+
         Response response = target("/devices/ZABF010000080004/devicemessages/2").request().put(Entity.json(deviceMessageInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(msg2, times(1)).revoke();
@@ -472,6 +494,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
     public void testUpdateDeviceMessage() throws Exception {
         Device device = mockDevice();
         when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceBymRIDAndVersion("ZABF010000080004", 1L)).thenReturn(Optional.of(device));
         DeviceMessage msg1 = mock(DeviceMessage.class);
         when(msg1.getId()).thenReturn(1L);
         DeviceMessage msg2 = mock(DeviceMessage.class);
@@ -480,6 +503,10 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(device.getMessages()).thenReturn(Arrays.asList(msg1, msg2, msg3));
 
         DeviceMessageInfo deviceMessageInfo = new DeviceMessageInfo();
+        deviceMessageInfo.version = 1L;
+        deviceMessageInfo.parent = new VersionInfo<>("ZABF010000080004", 1L);
+        deviceMessageInfo.messageSpecification = new DeviceMessageSpecInfo();
+        deviceMessageInfo.messageSpecification.name = "some";
 
         Response response = target("/devices/ZABF010000080004/devicemessages/3").request().put(Entity.json(deviceMessageInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -489,6 +516,25 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         assertThat(argumentCaptor.getValue()).isEqualTo(deviceMessageInfo.releaseDate);
 
         verify(msg3, times(1)).save();
+    }
+
+    @Test
+    public void testUpdateDeviceMessageBadVersion() throws Exception {
+        Device device = mockDevice();
+        when(deviceService.findByUniqueMrid("ZABF010000080004")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceBymRIDAndVersion("ZABF010000080004", 1L)).thenReturn(Optional.of(device));
+
+        DeviceMessage msg3 = mockDeviceMessage(3L, device);
+        when(deviceMessageService.findAndLockDeviceMessageByIdAndVersion(3L, 2L)).thenReturn(Optional.empty());
+
+        DeviceMessageInfo deviceMessageInfo = new DeviceMessageInfo();
+        deviceMessageInfo.version = 2L;
+        deviceMessageInfo.parent = new VersionInfo<>("ZABF010000080004", 1L);
+        deviceMessageInfo.messageSpecification = new DeviceMessageSpecInfo();
+        deviceMessageInfo.messageSpecification.name = "some";
+
+        Response response = target("/devices/ZABF010000080004/devicemessages/3").request().put(Entity.json(deviceMessageInfo));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
     private Device mockDevice() {
@@ -513,6 +559,9 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(deviceMessage.getId()).thenReturn(id);
         when(deviceMessage.getDevice()).thenReturn(device);
         when(deviceMessage.getUser()).thenReturn("username");
+        when(deviceMessage.getVersion()).thenReturn(1L);
+        when(deviceMessageService.findDeviceMessageById(id)).thenReturn(Optional.of(deviceMessage));
+        when(deviceMessageService.findAndLockDeviceMessageByIdAndVersion(id, deviceMessage.getVersion())).thenReturn(Optional.of(deviceMessage));
         return deviceMessage;
     }
 

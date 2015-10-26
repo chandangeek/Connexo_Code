@@ -2,9 +2,9 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.rest.ExceptionFactory;
-import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
@@ -16,13 +16,9 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -36,6 +32,12 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Comparator.comparing;
 import static java.util.Comparator.nullsLast;
@@ -138,17 +140,14 @@ public class DeviceMessageResource {
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
             com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
     public DeviceMessageInfo updateDeviceMessage(@PathParam("mRID") String mrid, @PathParam("deviceMessageId") long deviceMessageId, DeviceMessageInfo deviceMessageInfo) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        DeviceMessage<?> deviceMessage = findDeviceMessageOrThrowException(device, deviceMessageId);
+        deviceMessageInfo.id = deviceMessageId;
+        DeviceMessage deviceMessage = resourceHelper.lockDeviceMessageOrThrowException(deviceMessageInfo);
         deviceMessage.setReleaseDate(deviceMessageInfo.releaseDate);
-        if (deviceMessageInfo.status!=null && MessageStatusAdapter.REVOKED.equals(deviceMessageInfo.status.value)) {
+        if (deviceMessageInfo.status != null && DeviceMessageStatus.REVOKED.name().equals(deviceMessageInfo.status.value)) {
             deviceMessage.revoke();
         }
         deviceMessage.save();
-
-        // refresh and return
-        device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        deviceMessage = findDeviceMessageOrThrowException(device, deviceMessageId);
+        deviceMessage = resourceHelper.findDeviceMessageOrThrowException(deviceMessageId);
         return deviceMessageInfoFactory.asInfo(deviceMessage);
     }
 
