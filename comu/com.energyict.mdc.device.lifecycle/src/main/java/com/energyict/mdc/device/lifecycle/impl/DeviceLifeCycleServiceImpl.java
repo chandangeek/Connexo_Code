@@ -1,5 +1,26 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
+import com.elster.jupiter.fsm.CustomStateTransitionEventType;
+import com.elster.jupiter.fsm.StateTimeSlice;
+import com.elster.jupiter.fsm.StateTransitionEventType;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.FormatKey;
+import com.elster.jupiter.users.Privilege;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserPreference;
+import com.elster.jupiter.users.UserPreferencesService;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleActionViolation;
@@ -18,22 +39,6 @@ import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.MicroAction;
-
-import com.elster.jupiter.fsm.CustomStateTransitionEventType;
-import com.elster.jupiter.fsm.StateTimeSlice;
-import com.elster.jupiter.fsm.StateTransitionEventType;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.properties.InvalidValueException;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.Privilege;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroActionTranslationKey;
 import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCategoryTranslationKey;
@@ -44,12 +49,14 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.security.Principal;
-import java.time.Clock;
 import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -63,16 +70,16 @@ import com.energyict.mdc.device.lifecycle.config.Privileges;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-20 (15:57)
  */
-@Component(name = "com.energyict.device.lifecycle", service = {DeviceLifeCycleService.class, TranslationKeyProvider.class}, property = "name=" + DeviceLifeCycleService.COMPONENT_NAME)
+@Component(name = "com.energyict.device.lifecycle", service = {DeviceLifeCycleService.class, TranslationKeyProvider.class, MessageSeedProvider.class}, property = "name=" + DeviceLifeCycleService.COMPONENT_NAME)
 @SuppressWarnings("unused")
-public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, TranslationKeyProvider {
+public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, TranslationKeyProvider, MessageSeedProvider {
 
-    private volatile Clock clock;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile PropertySpecService propertySpecService;
     private volatile ServerMicroCheckFactory microCheckFactory;
     private volatile ServerMicroActionFactory microActionFactory;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile UserService userService;
     private Thesaurus thesaurus;
 
     // For OSGi purposes
@@ -82,25 +89,26 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
 
     // For testing purposes
     @Inject
-    public DeviceLifeCycleServiceImpl(NlsService nlsService, Clock clock, ThreadPrincipalService threadPrincipalService, PropertySpecService propertySpecService, ServerMicroCheckFactory microCheckFactory, ServerMicroActionFactory microActionFactory, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public DeviceLifeCycleServiceImpl(NlsService nlsService,
+                                      ThreadPrincipalService threadPrincipalService,
+                                      PropertySpecService propertySpecService,
+                                      ServerMicroCheckFactory microCheckFactory,
+                                      ServerMicroActionFactory microActionFactory,
+                                      DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
+                                      UserService userService) {
         this();
         this.setNlsService(nlsService);
-        this.setClock(clock);
         this.setThreadPrincipalService(threadPrincipalService);
         this.setPropertySpecService(propertySpecService);
         this.setMicroCheckFactory(microCheckFactory);
         this.setMicroActionFactory(microActionFactory);
         this.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        this.setUserService(userService);
     }
 
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(DeviceLifeCycleService.COMPONENT_NAME, Layer.DOMAIN);
-    }
-
-    @Reference
-    public void setClock(Clock clock) {
-        this.clock = clock;
     }
 
     @Reference
@@ -128,6 +136,11 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         this.microActionFactory = microActionFactory;
     }
 
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
     @Override
     public String getComponentName() {
         return COMPONENT_NAME;
@@ -141,13 +154,17 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     @Override
     public List<TranslationKey> getKeys() {
         return Stream.of(
-                Arrays.stream(MessageSeeds.values()),
                 Arrays.stream(MicroCategoryTranslationKey.values()),
                 Arrays.stream(MicroActionTranslationKey.values()),
                 Arrays.stream(MicroCheckTranslationKey.values()),
                 Arrays.stream(Privileges.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Override
@@ -241,9 +258,8 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
      * @throws SecurityException Thrown when the user is not allowed to execute the action
      */
     private void validateUserHasExecutePrivilege(AuthorizedAction action) throws SecurityException {
-        MessageSeeds messageSeed = MessageSeeds.NOT_ALLOWED_2_EXECUTE;
         if (!this.userHasExecutePrivilege(action)) {
-            throw newSecurityException(messageSeed);
+            throw newSecurityException(MessageSeeds.NOT_ALLOWED_2_EXECUTE);
         }
     }
 
@@ -279,7 +295,8 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         Instant upperBound = deviceLifeCycle.getMaximumFutureEffectiveTimestamp().truncatedTo(ChronoUnit.DAYS).plus(1, ChronoUnit.DAYS);
         Range<Instant> range = Range.closedOpen(lowerBound, upperBound);
         if (!range.contains(effectiveTimestamp)) {
-            throw new EffectiveTimestampNotInRangeException(this.thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_IN_RANGE, lowerBound, upperBound);
+            throw new EffectiveTimestampNotInRangeException(this.thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_IN_RANGE,
+                    lowerBound, upperBound, getLongDateFormatForCurrentUser());
         }
     }
 
@@ -300,7 +317,8 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
 
     private void effectiveTimestampAfterLastStateChange(Instant effectiveTimestamp, Device device, StateTimeSlice lastStateTimeSlice) {
         if (!effectiveTimestamp.isAfter(lastStateTimeSlice.getPeriod().lowerEndpoint())) {
-            throw new EffectiveTimestampNotAfterLastStateChangeException(this.thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_AFTER_LAST_STATE_CHANGE, device, effectiveTimestamp,  lastStateTimeSlice.getPeriod().lowerEndpoint());
+            throw new EffectiveTimestampNotAfterLastStateChangeException(this.thesaurus, MessageSeeds.EFFECTIVE_TIMESTAMP_NOT_AFTER_LAST_STATE_CHANGE,
+                    device, effectiveTimestamp,  lastStateTimeSlice.getPeriod().lowerEndpoint(), getLongDateFormatForCurrentUser());
         }
     }
 
@@ -337,7 +355,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     }
 
     private SecurityException newSecurityException(MessageSeeds messageSeed) {
-        return new SecurityException(this.thesaurus.getString(messageSeed.getKey(), messageSeed.getDefaultFormat()));
+        return new SecurityException(this.thesaurus.getFormat(messageSeed).format());
     }
 
     private void triggerExecution(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) throws DeviceLifeCycleActionViolationException {
@@ -428,5 +446,21 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     @Override
     public String getCategoryName(MicroAction microAction) {
         return this.microActionFactory.from(microAction).getCategoryName();
+    }
+
+    private DateTimeFormatter getLongDateFormatForCurrentUser(){
+        UserPreferencesService preferencesService = this.userService.getUserPreferencesService();
+        Principal principal = threadPrincipalService.getPrincipal();
+        String dateFormat = "HH:mm:ss EEE dd MMM ''yy"; // default backend date format
+        Locale locale = Locale.ENGLISH;
+        if (principal instanceof User){
+            Optional<UserPreference> dateFormatPref = preferencesService.getPreferenceByKey((User) principal, FormatKey.LONG_DATETIME);
+            if (dateFormatPref.isPresent()){
+                dateFormat = dateFormatPref.get().getFormatBE();
+            }
+            locale = ((User) principal).getLocale().orElse(locale);
+        }
+        DateTimeFormatterBuilder formatterBuilder = new DateTimeFormatterBuilder();
+        return formatterBuilder.appendPattern(dateFormat).toFormatter(locale);
     }
 }

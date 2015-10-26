@@ -1,12 +1,11 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.checks;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.energyict.mdc.device.lifecycle.config.MicroCategory;
-import com.energyict.mdc.device.lifecycle.config.MicroCheck;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroCheck;
 import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCategoryTranslationKey;
 import com.energyict.mdc.device.lifecycle.impl.micro.i18n.MicroCheckTranslationKey;
+
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 
 public abstract class ConsolidatedServerMicroCheck implements ServerMicroCheck {
     protected final Thesaurus thesaurus;
@@ -31,6 +30,7 @@ public abstract class ConsolidatedServerMicroCheck implements ServerMicroCheck {
     }
 
     protected String getTranslated(TranslationKey translationKey){
-        return thesaurus.getString(translationKey.getKey(), translationKey.getDefaultFormat());
+        return thesaurus.getFormat(translationKey).format();
     }
+
 }

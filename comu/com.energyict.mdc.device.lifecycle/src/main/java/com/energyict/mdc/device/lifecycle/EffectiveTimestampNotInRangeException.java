@@ -1,12 +1,13 @@
 package com.energyict.mdc.device.lifecycle;
 
-import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
-
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
 
 import java.time.Instant;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Models the exceptional situation that occurs when
@@ -21,15 +22,17 @@ public class EffectiveTimestampNotInRangeException extends DeviceLifeCycleAction
 
     private final Thesaurus thesaurus;
     private final MessageSeed messageSeed;
-    private final Date lowerBound;
-    private final Date upperBound;
+    private final Instant lowerBound;
+    private final Instant upperBound;
+    private final DateTimeFormatter formatter;
 
-    public EffectiveTimestampNotInRangeException(Thesaurus thesaurus, MessageSeed messageSeed, Instant lowerBound, Instant upperBound) {
+    public EffectiveTimestampNotInRangeException(Thesaurus thesaurus, MessageSeed messageSeed, Instant lowerBound, Instant upperBound, DateTimeFormatter formatter) {
         super();
         this.thesaurus = thesaurus;
         this.messageSeed = messageSeed;
-        this.lowerBound = Date.from(lowerBound);
-        this.upperBound = Date.from(upperBound);
+        this.lowerBound = lowerBound;
+        this.upperBound = upperBound;
+        this.formatter = formatter;
     }
 
     @Override
@@ -37,8 +40,11 @@ public class EffectiveTimestampNotInRangeException extends DeviceLifeCycleAction
         return this.thesaurus
                 .getFormat(this.messageSeed)
                 .format(
-                    this.lowerBound,
-                    this.upperBound);
+                    getFormattedInstant(this.formatter, this.lowerBound),
+                    getFormattedInstant(this.formatter, this.upperBound));
     }
 
+    private String getFormattedInstant(DateTimeFormatter formatter, Instant time){
+        return formatter.format(LocalDateTime.ofInstant(time, ZoneId.systemDefault()));
+    }
 }

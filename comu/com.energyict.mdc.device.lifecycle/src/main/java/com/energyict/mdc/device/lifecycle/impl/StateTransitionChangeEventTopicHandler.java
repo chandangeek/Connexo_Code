@@ -77,7 +77,7 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
             }
             case ACTIVE: {
                 lifecycleDates.setInstalledDate(effectiveTimestamp);
-                device.save();
+                device.update();
                 break;
             }
             case INACTIVE: {
@@ -88,7 +88,7 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
             }
             case DECOMMISSIONED: {
                 lifecycleDates.setRetiredDate(effectiveTimestamp);
-                device.save();
+                device.update();
                 break;
             }
             default: {
@@ -100,7 +100,7 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
     private void handleDeactivation(EndDevice device, DefaultState oldState, LifecycleDates lifecycleDates, Instant effectiveTimestamp) {
         if (DefaultState.ACTIVE.equals(oldState)) {
             lifecycleDates.setRemovedDate(effectiveTimestamp);
-            device.save();
+            device.update();
         }
     }
 

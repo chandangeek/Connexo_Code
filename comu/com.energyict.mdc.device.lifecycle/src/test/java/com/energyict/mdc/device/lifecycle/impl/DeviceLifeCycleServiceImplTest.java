@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.lifecycle.impl;
 
+import com.elster.jupiter.users.FormatKey;
+import com.elster.jupiter.users.UserPreference;
+import com.elster.jupiter.users.UserPreferencesService;
+import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.ActionDoesNotRelateToDeviceStateException;
@@ -44,7 +48,7 @@ import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
 import java.security.Principal;
-import java.time.Clock;
+import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
@@ -52,6 +56,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -64,11 +69,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyMap;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -115,6 +120,10 @@ public class DeviceLifeCycleServiceImplTest {
     @Mock
     private DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     @Mock
+    private UserService userService;
+    @Mock
+    private UserPreferencesService userPreferencesService;
+    @Mock
     private Privilege privilege;
     @Mock
     private StateTransition stateTransition;
@@ -128,11 +137,10 @@ public class DeviceLifeCycleServiceImplTest {
     @Before
     public void initializeMocks() {
         // Mock thesaurus such that it returns the key as the translation
-        when(this.thesaurus.getString(anyString(), anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
-        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
-        when(messageFormat.format(anyVararg())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
-        when(messageFormat.format(anyString())).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
-        when(this.thesaurus.getFormat(MessageSeeds.MULTIPLE_MICRO_CHECKS_FAILED)).thenReturn(messageFormat);
+        when(this.thesaurus.getFormat(any(TranslationKey.class)))
+                .thenAnswer(invocationOnMock -> new NoTranslation((TranslationKey) invocationOnMock.getArguments()[0]));
+        when(this.thesaurus.getFormat(any(MessageSeed.class)))
+                .thenAnswer(invocationOnMock -> new NoTranslation((MessageSeed) invocationOnMock.getArguments()[0]));
         when(this.nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(this.thesaurus);
         when(this.lifeCycle.getId()).thenReturn(DEVICE_LIFE_CYCLE_ID);
         when(this.lifeCycle.getFiniteStateMachine()).thenReturn(this.finiteStateMachine);
@@ -154,6 +162,7 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.device.getStateTimeline()).thenReturn(stateTimeline);
         when(this.stateTransition.getEventType()).thenReturn(this.eventType);
         when(this.user.getName()).thenReturn(DeviceLifeCycleServiceImplTest.class.getSimpleName());
+        when(user.getLocale()).thenReturn(Optional.<Locale>empty());
         when(this.threadPrincipleService.getPrincipal()).thenReturn(this.user);
         when(this.deviceLifeCycleConfigurationService.findInitiateActionPrivilege(anyString())).thenReturn(Optional.of(this.privilege));
         when(this.eventType.newInstance(any(FiniteStateMachine.class), anyString(), anyString(), any(Instant.class), anyMap())).thenReturn(this.event);
@@ -167,6 +176,8 @@ public class DeviceLifeCycleServiceImplTest {
             ServerMicroAction serverMicroAction = mock(ServerMicroAction.class);
             when(this.microActionFactory.from(microAction)).thenReturn(serverMicroAction);
         }
+        when(userService.getUserPreferencesService()).thenReturn(userPreferencesService);
+        when(userPreferencesService.getPreferenceByKey(any(User.class), any(FormatKey.class))).thenReturn(Optional.<UserPreference>empty());
     }
 
     @Test
@@ -349,6 +360,11 @@ public class DeviceLifeCycleServiceImplTest {
 
     @Test(expected = MultipleMicroCheckViolationsException.class)
     public void allFailingChecksAreReported() {
+        reset(this.thesaurus);
+        when(this.thesaurus.getFormat(any(TranslationKey.class)))
+                .thenAnswer(invocationOnMock -> new TranslationArgumentsOnly((TranslationKey) invocationOnMock.getArguments()[0]));
+        when(this.thesaurus.getFormat(any(MessageSeed.class)))
+                .thenAnswer(invocationOnMock -> new TranslationArgumentsOnly((MessageSeed) invocationOnMock.getArguments()[0]));
         DeviceLifeCycleServiceImpl service = this.getTestInstance();
         when(this.action.getLevels()).thenReturn(EnumSet.of(AuthorizedAction.Level.FOUR));
         when(this.user.hasPrivilege("MDC", this.privilege)).thenReturn(true);
@@ -475,7 +491,6 @@ public class DeviceLifeCycleServiceImplTest {
         Instant effectiveTimeStamp = Instant.ofEpochMilli(123456789);
         when(this.lifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(effectiveTimeStamp);
         when(this.lifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(effectiveTimeStamp);
-        when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(mock(NlsMessageFormat.class));
 
         // Business method
         service.execute(this.action, this.device, effectiveTimeStamp.minus(7, ChronoUnit.DAYS), Collections.emptyList());
@@ -494,7 +509,6 @@ public class DeviceLifeCycleServiceImplTest {
         Instant effectiveTimeStamp = Instant.ofEpochMilli(123456789);
         when(this.lifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(effectiveTimeStamp);
         when(this.lifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(effectiveTimeStamp);
-        when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(mock(NlsMessageFormat.class));
 
         // Business method
         service.execute(this.action, this.device, effectiveTimeStamp.plus(7, ChronoUnit.DAYS), Collections.emptyList());
@@ -512,7 +526,6 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.microActionFactory.from(MicroAction.SET_LAST_READING)).thenReturn(setLastReading);
         when(this.lifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.ofEpochMilli(100000L));
         when(this.lifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.ofEpochMilli(10000L));
-        when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(mock(NlsMessageFormat.class));
         StateTimeline stateTimeline = mock(StateTimeline.class);
         StateTimeSlice timeSlice = mock(StateTimeSlice.class);
         Instant timeSliceStart = Instant.ofEpochMilli(60000L);
@@ -536,7 +549,6 @@ public class DeviceLifeCycleServiceImplTest {
         when(this.microActionFactory.from(MicroAction.SET_LAST_READING)).thenReturn(setLastReading);
         when(this.lifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.ofEpochMilli(100000L));
         when(this.lifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(Instant.ofEpochMilli(10000L));
-        when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(mock(NlsMessageFormat.class));
         StateTimeline stateTimeline = mock(StateTimeline.class);
         StateTimeSlice timeSlice = mock(StateTimeSlice.class);
         Instant timeSliceStart = Instant.ofEpochMilli(60000L);
@@ -788,7 +800,48 @@ public class DeviceLifeCycleServiceImplTest {
     }
 
     private DeviceLifeCycleServiceImpl getTestInstance() {
-        return new DeviceLifeCycleServiceImpl(this.nlsService, Clock.systemDefaultZone(), this.threadPrincipleService, this.propertySpecService, this.microCheckFactory, this.microActionFactory, this.deviceLifeCycleConfigurationService);
+        return new DeviceLifeCycleServiceImpl(this.nlsService, this.threadPrincipleService, this.propertySpecService, this.microCheckFactory, this.microActionFactory, this.deviceLifeCycleConfigurationService, this.userService);
+    }
+
+    public static class NoTranslation implements NlsMessageFormat {
+        private final String defaultFormat;
+
+        public NoTranslation(TranslationKey translationKey) {
+            this.defaultFormat = translationKey.getKey();
+        }
+
+        public NoTranslation(MessageSeed messageSeed) {
+            this.defaultFormat = messageSeed.getKey();
+        }
+
+        @Override
+        public String format(Object... args) {
+            return MessageFormat.format(this.defaultFormat, args);
+        }
+
+        @Override
+        public String format(Locale locale, Object... args) {
+            return MessageFormat.format(this.defaultFormat, args);
+        }
+
+    }
+
+    public static class TranslationArgumentsOnly implements NlsMessageFormat {
+
+        public TranslationArgumentsOnly(TranslationKey translationKey) {}
+
+        public TranslationArgumentsOnly(MessageSeed messageSeed) {}
+
+        @Override
+        public String format(Object... args) {
+            return MessageFormat.format("{0}", args);
+        }
+
+        @Override
+        public String format(Locale locale, Object... args) {
+            return this.format(args);
+        }
+
     }
 
 }

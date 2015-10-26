@@ -1,12 +1,13 @@
 package com.energyict.mdc.device.lifecycle;
 
-import com.energyict.mdc.device.data.Device;
-
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.device.data.Device;
 
 import java.time.Instant;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 /**
  * Models the exceptional situation that occurs when
@@ -26,16 +27,18 @@ public class EffectiveTimestampNotAfterLastStateChangeException extends DeviceLi
     private final Thesaurus thesaurus;
     private final MessageSeed messageSeed;
     private final String mRID;
-    private final Date effectiveTimestamp;
-    private final Date lastStateChange;
+    private final Instant effectiveTimestamp;
+    private final Instant lastStateChange;
+    private final DateTimeFormatter formatter;
 
-    public EffectiveTimestampNotAfterLastStateChangeException(Thesaurus thesaurus, MessageSeed messageSeed, Device device, Instant effectiveTimestamp, Instant lastStateChange) {
+    public EffectiveTimestampNotAfterLastStateChangeException(Thesaurus thesaurus, MessageSeed messageSeed, Device device, Instant effectiveTimestamp, Instant lastStateChange, DateTimeFormatter formatter) {
         super();
         this.thesaurus = thesaurus;
         this.messageSeed = messageSeed;
         this.mRID = device.getmRID();
-        this.effectiveTimestamp = Date.from(effectiveTimestamp);
-        this.lastStateChange = Date.from(lastStateChange);
+        this.effectiveTimestamp = effectiveTimestamp;
+        this.lastStateChange = lastStateChange;
+        this.formatter = formatter;
     }
 
     @Override
@@ -43,9 +46,12 @@ public class EffectiveTimestampNotAfterLastStateChangeException extends DeviceLi
         return this.thesaurus
                 .getFormat(this.messageSeed)
                 .format(
-                    this.mRID,
-                    this.effectiveTimestamp,
-                    this.lastStateChange);
+                        this.mRID,
+                        getFormattedInstant(this.formatter, this.effectiveTimestamp),
+                        getFormattedInstant(this.formatter, this.lastStateChange));
     }
 
+    private String getFormattedInstant(DateTimeFormatter formatter, Instant time){
+        return formatter.format(LocalDateTime.ofInstant(time, ZoneId.systemDefault()));
+    }
 }
