@@ -111,15 +111,7 @@ public class CommunicationResource {
     @Path("/{comTaskExecId}/run")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-<<<<<<< HEAD
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response runCommunication(@PathParam("comTaskExecId") long comTaskExecId) {
-        ComTaskExecution comTaskExecution = communicationTaskService.findComTaskExecution(comTaskExecId)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_COMMUNICATION_TASK, comTaskExecId));
-            comTaskExecution.scheduleNow();
-                return Response.status(Response.Status.OK).build();
-=======
-    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response runCommunication(@PathParam("comTaskExecId") long comTaskExecId, ComTaskExecutionInfo info) {
         info.id = comTaskExecId;
         ComTaskExecution comTaskExecution = resourceHelper.getLockedComTaskExecution(info.id, info.version)
@@ -130,21 +122,13 @@ public class CommunicationResource {
                         .supplier());
         comTaskExecution.scheduleNow();
         return Response.status(Response.Status.OK).build();
->>>>>>> master
     }
 
     @PUT
     @Path("/{comTaskExecId}/runnow")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-<<<<<<< HEAD
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response runCommunicationNow(@PathParam("comTaskExecId") long comTaskExecId) {
-        ComTaskExecution comTaskExecution = communicationTaskService.findComTaskExecution(comTaskExecId)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_COMMUNICATION_TASK, comTaskExecId));
-            comTaskExecution.runNow();
-=======
-    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response runCommunicationNow(@PathParam("comTaskExecId") long comTaskExecId, ComTaskExecutionInfo info) {
         info.id = comTaskExecId;
         ComTaskExecution comTaskExecution = resourceHelper.getLockedComTaskExecution(info.id, info.version)
@@ -154,7 +138,6 @@ public class CommunicationResource {
                         .withMessageBody(MessageSeeds.CONCURRENT_RUN_BODY, info.name)
                         .supplier());
         comTaskExecution.runNow();
->>>>>>> master
         return Response.status(Response.Status.OK).build();
     }
 
