@@ -1,5 +1,8 @@
 package com.elster.jupiter.yellowfin.impl;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.Resource;
@@ -32,8 +35,8 @@ import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Component(name = "com.elster.jupiter.yellowfin", service = {YellowfinService.class, InstallService.class, PrivilegesProvider.class}, immediate = true, property = "name=" + YellowfinService.COMPONENTNAME)
-public class YellowfinServiceImpl implements YellowfinService, InstallService, PrivilegesProvider {
+@Component(name = "com.elster.jupiter.yellowfin", service = {YellowfinService.class, InstallService.class, TranslationKeyProvider.class, PrivilegesProvider.class}, immediate = true, property = "name=" + YellowfinService.COMPONENTNAME)
+public class YellowfinServiceImpl implements YellowfinService, InstallService, TranslationKeyProvider, PrivilegesProvider {
     private static final String YELLOWFIN_URL = "com.elster.jupiter.yellowfin.url";
     private static final String YELLOWFIN_EXTERNAL_URL = "com.elster.jupiter.yellowfin.externalurl";
     private static final String YELLOWFIN_WEBSERVICES_USER = "com.elster.jupiter.yellowfin.user";
@@ -506,4 +509,18 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService, P
     }
 
 
+    @Override
+    public String getComponentName() {
+        return YellowfinService.COMPONENTNAME;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(Privileges.values());
+    }
 }
