@@ -103,8 +103,7 @@ public class MeterTest {
         Instant installDate2 = ZonedDateTime.of(2015, 4, 12, 0, 0, 0, 0, ZoneId.of("UTC")).toInstant();
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            meter = amrSystem.newMeter("myMeter");
-            meter.save();
+            meter = amrSystem.newMeter("myMeter").create();
             ctx.commit();
         }
         assertThat(meter.getMeterActivations()).isEmpty();

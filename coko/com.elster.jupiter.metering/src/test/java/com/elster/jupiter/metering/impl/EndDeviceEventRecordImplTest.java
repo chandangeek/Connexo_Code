@@ -31,23 +31,15 @@ import com.elster.jupiter.pubsub.Subscriber;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.pubsub.impl.PublisherImpl;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
-
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Optional;
-
 import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
 import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
@@ -62,6 +54,10 @@ import org.osgi.service.event.EventAdmin;
 
 import java.security.Principal;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -153,8 +149,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
                 EndDeviceEventTypeImpl eventType = meteringService.createEndDeviceEventType(code);
 
                 AmrSystem amrSystem = getMeteringService().findAmrSystem(1).get();
-                EndDevice endDevice = amrSystem.newEndDevice("amrID", "mRID");
-                endDevice.save();
+                EndDevice endDevice = amrSystem.createEndDevice("amrID", "mRID");
                 EndDeviceEventRecord endDeviceEventRecord = endDevice.addEventRecord(eventType, date);
                 endDeviceEventRecord.save();
 
@@ -186,8 +181,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
                 EndDeviceEventTypeImpl eventType = meteringService.createEndDeviceEventType(code);
 
                 AmrSystem amrSystem = getMeteringService().findAmrSystem(1).get();
-                EndDevice endDevice = amrSystem.newEndDevice("amrID", "mRID");
-                endDevice.save();
+                EndDevice endDevice = amrSystem.createEndDevice("amrID", "mRID");
                 EndDeviceEventRecord endDeviceEventRecord = endDevice.addEventRecord(eventType, date);
                 endDeviceEventRecord.addProperty("A", "C");
                 endDeviceEventRecord.addProperty("D", "C");

@@ -3,7 +3,9 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointBuilder;
 import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.util.time.Interval;
@@ -28,11 +30,13 @@ public class ServiceCategoryImpl implements ServiceCategory {
 	private String userName;
 
     private final DataModel dataModel;
+    private final Thesaurus thesaurus;
     private final Provider<UsagePointImpl> usagePointFactory;
 	
     @Inject
-	ServiceCategoryImpl(DataModel dataModel,Provider<UsagePointImpl> usagePointFactory) {
+	ServiceCategoryImpl(DataModel dataModel,Provider<UsagePointImpl> usagePointFactory, Thesaurus thesaurus) {
         this.dataModel = dataModel;
+        this.thesaurus = thesaurus;
         this.usagePointFactory = usagePointFactory;
     }
 	
@@ -51,7 +55,7 @@ public class ServiceCategoryImpl implements ServiceCategory {
 
 	@Override
 	public String getName() {
-		return kind.getDisplayName();
+		return kind.getDisplayName(thesaurus);
 	}
 	
 	@Override
@@ -80,10 +84,10 @@ public class ServiceCategoryImpl implements ServiceCategory {
         dataModel.update(this);
     }
 
-    public UsagePoint newUsagePoint(String mRid) {
-		return usagePointFactory.get().init(mRid,this);
+    public UsagePointBuilder newUsagePoint(String mRid) {
+		return new UsagePointBuilderImpl(dataModel, mRid, this);
 	}
-
+    
     @Override
     public String getTranslationKey() {
         return ServiceKind.getTranslationKey(this.kind);

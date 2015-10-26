@@ -120,8 +120,7 @@ public class ReadingEstimateTest {
         Instant newDate = ZonedDateTime.of(2014, 2, 2, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            meter = amrSystem.newMeter("myMeter");
-            meter.save();
+            meter = amrSystem.newMeter("myMeter").create();
             ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
                     .accumulate(Accumulation.BULKQUANTITY)
                     .flow(FlowDirection.FORWARD)
@@ -169,8 +168,7 @@ public class ReadingEstimateTest {
         Instant newDate = ZonedDateTime.of(2014, 2, 2, 0, 0, 0, 0, ZoneId.systemDefault()).toInstant();
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-            meter = amrSystem.newMeter("myMeter");
-            meter.save();
+            meter = amrSystem.newMeter("myMeter").create();
             ReadingTypeCodeBuilder builder = ReadingTypeCodeBuilder.of(Commodity.ELECTRICITY_SECONDARY_METERED)
                     .accumulate(Accumulation.BULKQUANTITY)
                     .period(TimeAttribute.MINUTE15)

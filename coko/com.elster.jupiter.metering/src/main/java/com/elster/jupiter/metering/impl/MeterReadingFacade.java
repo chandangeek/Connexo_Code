@@ -1,12 +1,5 @@
 package com.elster.jupiter.metering.impl;
 
-import java.time.Instant;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 import com.elster.jupiter.metering.readings.EndDeviceEvent;
 import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.elster.jupiter.metering.readings.IntervalReading;
@@ -14,6 +7,13 @@ import com.elster.jupiter.metering.readings.MeterReading;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.util.time.RangeBuilder;
 import com.google.common.collect.Range;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.lang.Math.max;
 
 
 public class MeterReadingFacade {
@@ -27,7 +27,7 @@ public class MeterReadingFacade {
 	}
 	
 	private long millisToSubtract(String readingTypeCode) {
-		return ReadingTypeImpl.extractTimeAttribute(readingTypeCode).getMinutes() * MILLIS_PER_MINUTE;		
+		return max(ReadingTypeImpl.extractTimeAttribute(readingTypeCode).getMinutes() * MILLIS_PER_MINUTE, MILLIS_PER_MINUTE);
 	}
 	
 	private Range<Instant> createRange() {

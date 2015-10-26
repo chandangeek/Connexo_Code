@@ -2,6 +2,8 @@ package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.cbo.IdentifiedObject;
 import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
+import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -11,7 +13,15 @@ import com.elster.jupiter.util.conditions.Condition;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.metering.console", service = ConsoleCommands.class, property = {
         "osgi.command.scope=metering",
@@ -28,7 +38,8 @@ import java.time.Instant;
         "osgi.command.function=addUsagePointToCurrentMeterActivation",
         "osgi.command.function=endCurrentMeterActivation",
         "osgi.command.function=advanceStartDate",
-        "osgi.command.function=explain"
+        "osgi.command.function=explain",
+        "osgi.command.function=addEvents"
 }, immediate = true)
 public class ConsoleCommands {
 
@@ -83,8 +94,9 @@ public class ConsoleCommands {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             AmrSystem amrSystem = meteringService.findAmrSystem(amrSystemId).orElseThrow(() -> new IllegalArgumentException("amr System not found"));
-            Meter meter = amrSystem.newMeter(amrid, mrId);
-            meter.save();
+            amrSystem.newMeter(amrid)
+                    .setMRID(mrId)
+                    .create();
             context.commit();
         } finally {
             threadPrincipalService.clear();
@@ -96,7 +108,7 @@ public class ConsoleCommands {
         try (TransactionContext context = transactionService.getContext()) {
             Meter meter = meteringService.findMeter(mrId).get();
             meter.setName(newName);
-            meter.save();
+            meter.update();
             context.commit();
         } finally {
             threadPrincipalService.clear();
@@ -109,18 +121,22 @@ public class ConsoleCommands {
             Meter meter = meteringService.findMeter(mrId).get();
             Instant activationDate = Instant.ofEpochMilli(epochMilli);
             meter.activate(activationDate);
-            meter.save();
+            meter.update();
             context.commit();
         } finally {
             threadPrincipalService.clear();
         }
     }
+    public void addUsagePointToCurrentMeterActivation() {
+        System.out.println("usage:");
+        System.out.println("       addUsagePointToCurrentMeterActivation <mrid> <usagepoint id>");
+    }
 
-    public void addUsagePointToCurrentMeterActivation(String mrId, long usagePointId) {
+    public void addUsagePointToCurrentMeterActivation(String mrId, String usagePointmrId) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             Meter meter = meteringService.findMeter(mrId).get();
-            UsagePoint usagePoint = meteringService.findUsagePoint(usagePointId).get();
+            UsagePoint usagePoint = meteringService.findUsagePoint(usagePointmrId).get();
             ((UsagePointImpl) usagePoint).adopt((MeterActivationImpl) meter.getCurrentMeterActivation().get());
             context.commit();
         } finally {
@@ -134,7 +150,6 @@ public class ConsoleCommands {
             Meter meter = meteringService.findMeter(mrId).get();
             Instant endDate = Instant.ofEpochMilli(epochMilli);
             meter.getCurrentMeterActivation().get().endAt(endDate);
-//            meter.save();
             context.commit();
         } finally {
             threadPrincipalService.clear();
@@ -147,18 +162,20 @@ public class ConsoleCommands {
             Meter meter = meteringService.findMeter(mrId).get();
             Instant newStartDate = Instant.ofEpochMilli(epochMilli);
             meter.getCurrentMeterActivation().get().advanceStartDate(newStartDate);
-//            meter.save();
             context.commit();
         } finally {
             threadPrincipalService.clear();
         }
     }
 
+    public void createUsagePoint() {
+        System.out.println("Usage: createUsagePoint <mRID>");
+
+    }
     public void createUsagePoint(String mrId) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            UsagePointImpl usagePoint = (UsagePointImpl) meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get().newUsagePoint(mrId);
-            usagePoint.save();
+            UsagePointImpl usagePoint = (UsagePointImpl) meteringService.getServiceCategory(ServiceKind.ELECTRICITY).get().newUsagePoint(mrId).create();
             context.commit();
         } finally {
             threadPrincipalService.clear();
@@ -169,6 +186,34 @@ public class ConsoleCommands {
         meteringService.getAvailableReadingTypes().stream()
                 .map(IdentifiedObject::getMRID)
                 .forEach(System.out::println);
+    }
+
+    public void addEvents(String mrId, String dataFile) {
+        threadPrincipalService.set(() -> "Console");
+        try (TransactionContext context = transactionService.getContext()) {
+            File eventData = new File(dataFile);
+            try (Scanner scanner = new Scanner(eventData)) {
+                List<String> lines = new ArrayList<>();
+                while (scanner.hasNextLine()){
+                    lines.add(scanner.nextLine());
+                }
+
+                List<EndDeviceEventImpl> deviceEvents = lines.stream()
+                        .map(line -> line.split(";"))
+                        .map(line -> EndDeviceEventImpl.of(line[1], ZonedDateTime.parse(line[0], DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssxxx")).toInstant()))
+                        .collect(Collectors.toList());
+
+                MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+                meterReading.addAllEndDeviceEvents(deviceEvents);
+                meteringService.findMeter(mrId).get().store(meterReading);
+
+                context.commit();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        } finally {
+            threadPrincipalService.clear();
+        }
     }
 
     @Reference

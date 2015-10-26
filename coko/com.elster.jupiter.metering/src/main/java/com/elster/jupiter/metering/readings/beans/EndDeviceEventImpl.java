@@ -37,9 +37,9 @@ public class EndDeviceEventImpl implements EndDeviceEvent {
         this.eventTypeCode = eventTypeCode;
         this.eventOccurredDate = eventTime;
     }
-    
-    public static EndDeviceEventImpl of(String mRID, Instant eventTime) {
-    	return new EndDeviceEventImpl(mRID, eventTime);
+
+    public static EndDeviceEventImpl of(String eventTypeCode, Instant eventTime) {
+        return new EndDeviceEventImpl(eventTypeCode, eventTime);
     }
 
     @Override

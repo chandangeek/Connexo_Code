@@ -1,10 +1,10 @@
 package com.elster.jupiter.metering.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-
-import javax.inject.Provider;
-
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,10 +12,16 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.orm.DataModel;
+import javax.inject.Provider;
+import javax.validation.ValidatorFactory;
+
+import java.util.Collections;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ServiceCategoryImplTest {
@@ -25,12 +31,18 @@ public class ServiceCategoryImplTest {
     @Mock
     private DataModel dataModel;
     @Mock
+    private Thesaurus thesaurus;
+    @Mock
     private EventService eventService;
     @Mock
     private Provider<MeterActivationImpl> meterActivationFactory;
     @Mock
     private Provider<UsagePointAccountabilityImpl> accountabilityFactory;
-    
+    @Mock
+    private ValidatorFactory validatorFactory;
+    @Mock
+    private javax.validation.Validator validator;
+
 
     @Before
     public void setUp() {
@@ -40,7 +52,10 @@ public class ServiceCategoryImplTest {
 				return new UsagePointImpl(dataModel, eventService, meterActivationFactory, accountabilityFactory);
 			}
     	};
-        serviceCategory = new ServiceCategoryImpl(dataModel,usagePointFactory).init(ServiceKind.ELECTRICITY);
+        serviceCategory = new ServiceCategoryImpl(dataModel,usagePointFactory,thesaurus).init(ServiceKind.ELECTRICITY);
+        when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
+        when(validatorFactory.getValidator()).thenReturn(validator);
+        when(validator.validate(any(), anyVararg())).thenReturn(Collections.emptySet());
     }
 
     @After
@@ -81,10 +96,9 @@ public class ServiceCategoryImplTest {
 
     @Test
     public void testNewUsagePoint() {
-        UsagePoint usagePoint = serviceCategory.newUsagePoint("mrId");
+        when(dataModel.getInstance(UsagePointImpl.class)).thenReturn(new UsagePointImpl(dataModel, eventService, () -> null, () -> null));
+
+        UsagePoint usagePoint = serviceCategory.newUsagePoint("mrId").create();
         assertThat(usagePoint).isInstanceOf(UsagePointImpl.class);
-
-
     }
-
 }

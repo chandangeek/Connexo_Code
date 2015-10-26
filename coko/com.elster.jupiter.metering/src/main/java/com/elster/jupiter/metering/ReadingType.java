@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering;
 
+import java.time.temporal.TemporalAmount;
 import java.util.Currency;
 import java.util.Optional;
 
@@ -33,6 +34,7 @@ public interface ReadingType extends IdentifiedObject {
 	MetricMultiplier getMultiplier();
 	ReadingTypeUnit getUnit();
 	Currency getCurrency();
+	Optional<TemporalAmount> getIntervalLength();
 
     Optional<ReadingType> getBulkReadingType();
 

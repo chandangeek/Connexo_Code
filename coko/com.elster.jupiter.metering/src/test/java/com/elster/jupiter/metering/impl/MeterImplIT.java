@@ -117,10 +117,13 @@ public class MeterImplIT {
         MeteringService meteringService = injector.getInstance(MeteringService.class);
         try (TransactionContext context = transactionService.getContext()) {
             FiniteStateMachine stateMachine = this.createTinyFiniteStateMachine();
-            Meter meter = meteringService.findAmrSystem(1).get().newMeter(stateMachine, "amrID", "mRID");
 
             // Business method
-            meter.save();
+            Meter meter = meteringService.findAmrSystem(1).get()
+                    .newMeter("amrID")
+                    .setMRID("mRID")
+                    .setStateMachine(stateMachine)
+                    .create();
 
             // Asserts
             assertThat(meter.getFiniteStateMachine().isPresent()).isTrue();
@@ -142,8 +145,10 @@ public class MeterImplIT {
 
         Meter meter;
         try (TransactionContext context = transactionService.getContext()) {
-            meter = meteringService.findAmrSystem(1).get().newMeter("amrID", "mRID");
-            meter.save();
+            meter = meteringService.findAmrSystem(1).get().newMeter("amrID")
+                    .setMRID("mRID")
+                    .create();
+            meter.update();
             meter.activate(activation.toInstant());
             context.commit();
         }
@@ -188,8 +193,10 @@ public class MeterImplIT {
 
         Meter meter;
         try (TransactionContext context = transactionService.getContext()) {
-            meter = meteringService.findAmrSystem(1).get().newMeter("amrID", "mRID");
-            meter.save();
+            meter = meteringService.findAmrSystem(1).get().newMeter("amrID")
+                    .setMRID("mRID")
+                    .create();
+            meter.update();
             meter.activate(activation.toInstant());
             context.commit();
         }
@@ -226,7 +233,6 @@ public class MeterImplIT {
         FiniteStateMachineServiceImpl finiteStateMachineService = this.injector.getInstance(FiniteStateMachineServiceImpl.class);
         FiniteStateMachineBuilder builder = finiteStateMachineService.newFiniteStateMachine("Tiny");
         FiniteStateMachine stateMachine = builder.complete(builder.newCustomState("TheOneAndOnly").complete());
-        stateMachine.save();
         return stateMachine;
     }
 
