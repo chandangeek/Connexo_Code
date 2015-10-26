@@ -10,5 +10,4 @@ public class ContactorInfo {
     public Integer loadLimit;
     public Instant activationDate;
     public Integer loadTolerance;
-    public String callback;
 }

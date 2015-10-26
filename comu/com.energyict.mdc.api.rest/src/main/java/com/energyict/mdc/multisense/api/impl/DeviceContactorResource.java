@@ -52,6 +52,16 @@ public class DeviceContactorResource {
         this.exceptionFactory = exceptionFactory;
     }
 
+    /**
+     * Change the device's contactor state. A device command will be created to put the requested state on the
+     * contactor. The comTask responsible of sending the command to the device will be triggered to run (runnow).
+     * Note: loadLimit and loadTolerance are not currently supported.
+     * @param mRID             The device's mrid
+     * @param contactorInfo     The requested contactor state
+     * @param uriInfo
+     * @return HTTP 202 upon success
+     * @responseheader location href to device message/command. Poll this resource to follow up on message state
+     */
     @PUT
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
