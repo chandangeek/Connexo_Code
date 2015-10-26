@@ -17,6 +17,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -40,7 +42,8 @@ public class FirmwareManagementOptionsResourceTest extends BaseFirmwareTest {
         when(firmwareService.getSupportedFirmwareOptionsFor(deviceType)).thenReturn(set);
         when(firmwareService.getAllowedFirmwareManagementOptionsFor(deviceType)).thenReturn(set);
 
-        when(firmwareService.getFirmwareManagementOptions(deviceType)).thenReturn(Optional.of(options));
+        when(firmwareService.findFirmwareManagementOptions(deviceType)).thenReturn(Optional.of(options));
+        when(firmwareService.findAndLockFirmwareManagementOptionsByIdAndVersion(eq(deviceType), anyLong())).thenReturn(Optional.of(options));
 
     }
 
@@ -59,7 +62,7 @@ public class FirmwareManagementOptionsResourceTest extends BaseFirmwareTest {
 
     @Test
     public void testGetFirmwareManagementOptionsAllowed() {
-        when(firmwareService.getAllowedFirmwareManagementOptionsFor(deviceType)).thenReturn(set);
+        when(options.getOptions()).thenReturn(set);
         String json = target(URI).request().get(String.class);
 
         System.out.println(json);

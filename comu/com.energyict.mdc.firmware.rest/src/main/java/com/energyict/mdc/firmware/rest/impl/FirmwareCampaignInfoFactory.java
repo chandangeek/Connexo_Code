@@ -84,6 +84,7 @@ public class FirmwareCampaignInfoFactory {
                 .stream()
                 .map(status -> new DeviceInFirmwareCampaignStatusInfo(status.getKey(), status.getValue(), thesaurus))
                 .collect(Collectors.toList());
+        info.version = campaign.getVersion();
         return info;
     }
 

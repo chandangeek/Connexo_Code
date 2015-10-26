@@ -1,17 +1,15 @@
 package com.energyict.mdc.firmware.rest.impl;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceStatus;
+import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.rest.FirmwareApplication;
 import com.energyict.mdc.protocol.api.firmware.ProtocolSupportedFirmwareOptions;
 
-import java.text.MessageFormat;
+import com.elster.jupiter.util.exception.MessageSeed;
+
 import java.util.logging.Level;
 
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
     // firmware versions
     VERSION_IN_USE(1, Keys.VERSION_IN_USE, "This version is in use and can''t be modified"),
     VERSION_IS_DEPRECATED(2, Keys.VERSION_IS_DEPRECATED, "This version is deprecated and can''t be modified"),
@@ -29,7 +27,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     UPGRADE_OPTION_ACTIVATE_ON_DATE(11, Keys.UPGRADE_OPTION_ACTIVATE_ON_DATE, "Upload firmware with activation date"),
     // firmware upgrade options
     UPGRADE_OPTIONS_REQUIRED(12, Keys.UPGRADE_OPTIONS_REQUIRED, "At least one option should be selected"),
-   
+
     DEVICE_TYPE_NOT_FOUND(13, Keys.DEVICE_TYPE_NOT_FOUND, "No device type with id {0} could be found"),
     DEVICE_NOT_FOUND(14, Keys.DEVICE_NOT_FOUND, "No device with id {0} could be found"),
     MAX_FILE_SIZE_EXCEEDED(15, Keys.MAX_FILE_SIZE_EXCEEDED, "File size should be less than " + FirmwareService.MAX_FIRMWARE_FILE_SIZE/1024/1024 + " Mb"),
@@ -53,7 +51,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     FIRMWARE_MANAGEMENT_DEVICE_STATUS_CONFIGURATION_ERROR(105, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.CONFIGURATION_ERROR, "Configuration error"),
     FIRMWARE_MANAGEMENT_DEVICE_STATUS_CANCELLED(106, Keys.FIRMWARE_MANAGEMENT_DEVICE_STATUS_PREFIX + FirmwareManagementDeviceStatus.Constants.CANCELLED, "Cancelled"),
 
-
     SUPPORTED_FIRMWARE_UPGRADE_OPTIONS_NOT_FOUND(1001, "SupportedFirmwareUpgradeOptionsNotFound", "There is no such supported firmware upgrade option"),
     FIRMWARE_UPGRADE_OPTIONS_ARE_DISABLED_FOR_DEVICE_TYPE(1002, "FirmwareUpgradeOptionsAreDisabledForDeviceType", "Firmware upgrade options are disabled for device type"),
     DEFAULT_FIRMWARE_MANAGEMENT_TASK_CAN_NOT_BE_FOUND(1003, "DefaultFirmwareManagementTaskCanNotBeFound", "The default firmware management communication task cannot be found"),
@@ -65,6 +62,10 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     FIRMWARE_CHECK_TASK_IS_NOT_ACTIVE(1009, "FirmwareCheckTaskIsNotActive", "It is impossible to check firmware version because Check firmware version communication task is not active on device configuration"),
     COM_TASK_IS_NOT_ENABLED_FOR_THIS_DEVICE(1010, "comTaskNotFound", "Could not find communication task with id {0}"),
     FIRMWARE_ACTIVATION_DATE_IS_BEFORE_UPLOAD(1011, "FirmwareActivationDateIsBeforeUpload", "This date should be after the ''Upload file'' date"),
+
+    FIRMWARE_CHECK_TASK_CONCURRENT_FAIL_TITLE (1012, "FirmwareCheckTaskConcurrentFail", "Failed to run ''{0}''"),
+    FIRMWARE_CHECK_TASK_CONCURRENT_FAIL_BODY (1013, "FirmwareCheckTaskConcurrentBody", "{0} has changed since the page was last updated."),
+    FIRMWARE_COMMUNICATION_TASK_NAME (1014, "FirmwareTaskName", "Firmware communication task"),
     ;
     private final int number;
     private final String key;
@@ -96,13 +97,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         return format;
     }
 
-    public String format(Thesaurus thesaurus, Object... args){
-        if (thesaurus == null){
-            throw new IllegalArgumentException("Thesaurus can't be null");
-        }
-        String translated = thesaurus.getString(this.getKey(), this.getDefaultFormat());
-        return MessageFormat.format(translated, args);
-    }
     @Override
     public Level getLevel() {
         return Level.SEVERE;

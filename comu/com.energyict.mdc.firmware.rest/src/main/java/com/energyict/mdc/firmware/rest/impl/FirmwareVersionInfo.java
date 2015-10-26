@@ -11,5 +11,5 @@ public class FirmwareVersionInfo {
     public FirmwareStatusInfo firmwareStatus;
     public Integer fileSize;
     public Boolean isInUse;
-
+    public long version;
 }
