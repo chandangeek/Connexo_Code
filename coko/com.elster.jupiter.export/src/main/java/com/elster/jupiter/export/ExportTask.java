@@ -60,6 +60,10 @@ public interface ExportTask extends HasName, HasAuditInfo {
 
     void updateLastRun(Instant triggerTime);
 
+    void setDataFormatter(String formatter);
+
+    void removeProperty(PropertySpec propertySpec);
+
     /**
      * @since v1.1
      */
