@@ -9,7 +9,8 @@
         "com.elster.jupiter.time.extjs",
         "com.elster.jupiter.yellowfin.extjs",
         "com.elster.jupiter.appserver.extjs",
-        "com.elster.jupiter.fileimport.extjs"
+        "com.elster.jupiter.fileimport.extjs",
+        "com.elster.jupiter.cps.extjs"
     ],
 
     "id": "7cde7b38-a4d1-4e19-aed4-8b4b3e92293e"

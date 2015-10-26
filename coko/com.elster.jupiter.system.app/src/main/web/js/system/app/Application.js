@@ -7,7 +7,8 @@ Ext.define('SystemApp.Application', {
         'Apr.privileges.AppServer',
         'Yfn.privileges.Yellowfin',
         'Tme.privileges.Period',
-        'Fim.privileges.DataImport'
+        'Fim.privileges.DataImport',
+        'Cps.privileges.CustomAttributeSets'
     ],
 
     controllers: [
