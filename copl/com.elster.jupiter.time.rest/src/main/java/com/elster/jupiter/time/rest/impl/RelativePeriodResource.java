@@ -3,10 +3,11 @@ package com.elster.jupiter.time.rest.impl;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ConcurrentModificationException;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.time.security.Privileges;
 import com.elster.jupiter.time.RelativeDate;
 import com.elster.jupiter.time.RelativeOperation;
 import com.elster.jupiter.time.RelativePeriod;
@@ -17,9 +18,12 @@ import com.elster.jupiter.time.rest.RelativePeriodInfo;
 import com.elster.jupiter.time.rest.RelativePeriodInfos;
 import com.elster.jupiter.time.rest.RelativePeriodPreviewInfo;
 import com.elster.jupiter.time.rest.impl.i18n.MessageSeeds;
+import com.elster.jupiter.time.security.Privileges;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.conditions.*;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Where;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -57,13 +61,15 @@ public class RelativePeriodResource {
     private final RestQueryService restQueryService;
     private final TransactionService transactionService;
     private final Thesaurus thesaurus;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public RelativePeriodResource(TimeService timeService, RestQueryService restQueryService, TransactionService transactionService, Thesaurus thesaurus) {
+    public RelativePeriodResource(TimeService timeService, RestQueryService restQueryService, TransactionService transactionService, Thesaurus thesaurus, ConcurrentModificationExceptionFactory conflictFactory) {
         this.timeService = timeService;
         this.restQueryService = restQueryService;
         this.transactionService = transactionService;
         this.thesaurus = thesaurus;
+        this.conflictFactory = conflictFactory;
     }
 
     @GET
@@ -116,38 +122,39 @@ public class RelativePeriodResource {
     @PUT
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_RELATIVE_PERIOD)
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/{id}")
     public RelativePeriodInfo setRelativePeriod(@PathParam("id") long id, RelativePeriodInfo relativePeriodInfo) {
-        RelativePeriod relativePeriod = getRelativePeriodOrThrowException(id);
-        RelativeDate relativeDateFrom = new RelativeDate(relativePeriodInfo.from.convertToRelativeOperations());
-        RelativeDate relativeDateTo = new RelativeDate(relativePeriodInfo.to.convertToRelativeOperations());
-        verifyDateRangeOrThrowException(relativeDateFrom, relativeDateTo);
-        List<RelativePeriodCategory> categories = getRelativePeriodCategoriesList(relativePeriodInfo);
-        RelativePeriod period;
+        relativePeriodInfo.id = id;
         try (TransactionContext context = transactionService.getContext()) {
+            RelativePeriod relativePeriod = findRelativePeriodAndLock(relativePeriodInfo);
+            RelativeDate relativeDateFrom = new RelativeDate(relativePeriodInfo.from.convertToRelativeOperations());
+            RelativeDate relativeDateTo = new RelativeDate(relativePeriodInfo.to.convertToRelativeOperations());
+            verifyDateRangeOrThrowException(relativeDateFrom, relativeDateTo);
+            List<RelativePeriodCategory> categories = getRelativePeriodCategoriesList(relativePeriodInfo);
+            RelativePeriod period;
             period = timeService.updateRelativePeriod(relativePeriod.getId(), relativePeriodInfo.name, relativeDateFrom, relativeDateTo, categories);
             context.commit();
+            return new RelativePeriodInfo(period, thesaurus);
         }
-        return new RelativePeriodInfo(period, thesaurus);
     }
 
     @Path("/{id}")
     @DELETE
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_RELATIVE_PERIOD)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public Response removeRelativePeriod(@PathParam("id") long id) {
-        try {
-            RelativePeriod relativePeriod = getRelativePeriodOrThrowException(id);
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response removeRelativePeriod(@PathParam("id") long id, RelativePeriodInfo info) {
+        info.id = id;
+        try (TransactionContext context = transactionService.getContext()) {
+            RelativePeriod relativePeriod = findRelativePeriodAndLock(info);
             List<RelativePeriodCategory> categories = relativePeriod.getRelativePeriodCategories();
-            try (TransactionContext context = transactionService.getContext()) {
-                for (RelativePeriodCategory category : categories) {
-                    relativePeriod.removeRelativePeriodCategory(category);
-                }
-                relativePeriod.delete();
-                context.commit();
+            for (RelativePeriodCategory category : categories) {
+                relativePeriod.removeRelativePeriodCategory(category);
             }
+            relativePeriod.delete();
+            context.commit();
             return Response.status(Response.Status.OK).build();
-        } catch (WebApplicationException e) {
+        } catch (WebApplicationException | ConcurrentModificationException e) {
             throw e;
         } catch (RuntimeException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
@@ -157,6 +164,13 @@ public class RelativePeriodResource {
 
     private RelativePeriod getRelativePeriodOrThrowException(long id) {
         return timeService.findRelativePeriod(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    private RelativePeriod findRelativePeriodAndLock(RelativePeriodInfo info) {
+        return timeService.findAndLockRelativePeriodByIdAndVersion(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> timeService.findRelativePeriod(info.id).map(RelativePeriod::getVersion).orElse(null))
+                        .supplier());
     }
 
     @Path("/{id}/preview")

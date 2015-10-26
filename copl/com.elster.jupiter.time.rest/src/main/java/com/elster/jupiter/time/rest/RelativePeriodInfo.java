@@ -1,5 +1,6 @@
 package com.elster.jupiter.time.rest;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.rest.impl.RelativePeriodCategoryInfo;
@@ -7,20 +8,21 @@ import com.elster.jupiter.time.rest.impl.RelativePeriodCategoryInfo;
 import java.util.ArrayList;
 import java.util.List;
 
+@ProviderType
 public class RelativePeriodInfo {
     public Long id;
     public String name;
     public RelativeDateInfo from;
     public RelativeDateInfo to;
     public List<RelativePeriodCategoryInfo> categories = new ArrayList<>();
+    public long version;
 
-    public RelativePeriodInfo() {
-
-    }
+    public RelativePeriodInfo() {}
 
     public RelativePeriodInfo(RelativePeriod relativePeriod) {
         this.id = relativePeriod.getId();
         this.name = relativePeriod.getName();
+        this.version = relativePeriod.getVersion();
     }
 
     public RelativePeriodInfo(RelativePeriod relativePeriod, Thesaurus thesaurus) {
@@ -29,6 +31,7 @@ public class RelativePeriodInfo {
         this.from = new RelativeDateInfo(relativePeriod.getRelativeDateFrom());
         this.to = new RelativeDateInfo(relativePeriod.getRelativeDateTo());
         this.categories = RelativePeriodCategoryInfo.from(relativePeriod.getRelativePeriodCategories(), thesaurus);
+        this.version = relativePeriod.getVersion();
     }
 
     public RelativePeriodInfo(Long id, String name, RelativeDateInfo from, RelativeDateInfo to, List<RelativePeriodCategoryInfo> categories) {

@@ -2,7 +2,6 @@ package com.elster.jupiter.time.rest.impl.i18n;
 
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.exception.MessageSeed;
 
@@ -10,7 +9,7 @@ import java.text.MessageFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public enum MessageSeeds implements MessageSeed, TranslationKey {
+public enum MessageSeeds implements MessageSeed {
     INVALID_RANGE (0001, Keys.INVALID_RANGE, "Invalid date range: start date is later than end date", Level.SEVERE);
 
     private final int number;
