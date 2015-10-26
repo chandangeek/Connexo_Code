@@ -53,7 +53,7 @@ public class DeviceContactorResource {
     }
 
     /**
-     * Change the device's contactor state. A device command will be created to put the requested state on the
+     * Change the device's contacter state. A device command will be created to put the requested state on the
      * contactor. The comTask responsible of sending the command to the device will be triggered to run (runnow).
      * Note: loadLimit and loadTolerance are not currently supported.
      * @param mRID             The device's mrid
@@ -85,6 +85,10 @@ public class DeviceContactorResource {
         return Response.accepted().location(uri).build();
     }
 
+    /**
+     * Returns a list for all known device contacter properties
+     * @return
+     */
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed({Privileges.PUBLIC_REST_API})
