@@ -20,7 +20,6 @@ Ext.define('Apr.view.appservers.AppServerMessageServices', {
                     grid: {
                         xtype: 'message-services-grid',
                         itemId: 'message-services-grid',
-                        minHeight: 250,
                         dockedItems: [
                             {
                                 xtype: 'pagingtoolbartop',
@@ -55,7 +54,33 @@ Ext.define('Apr.view.appservers.AppServerMessageServices', {
                         ],
                         store: this.store
                     },
-                    hasNotEmptyComponent: true,
+                    emptyComponent: {
+                        xtype: 'no-items-found-panel',
+                        itemId: 'ctr-no-app-server',
+                        title: Uni.I18n.translate('addMessageServices.empty.title', 'APR', 'No message services found'),
+                        reasons: [
+                            Uni.I18n.translate('addMessageServices.empty.list.item1', 'APR', 'No message services have been added yet')
+                        ],
+                        stepItems: [
+                            {
+                                text: Uni.I18n.translate('general.saveMessageServicesSettings', 'APR', 'Save settings'),
+                                privileges: Apr.privileges.AppServer.admin,
+                                itemId: 'apr-no-msg-services-save-settings-btn',
+                                disabled: true
+                            },
+                            {
+                                text: Uni.I18n.translate('general.undo', 'APR', 'Undo'),
+                                privileges: Apr.privileges.AppServer.admin,
+                                itemId: 'apr-no-msg-services-undo-btn',
+                                disabled: true
+                            },
+                            {
+                                text: Uni.I18n.translate('general.addMessageServices', 'APR', 'Add message services'),
+                                privileges: Apr.privileges.AppServer.admin,
+                                itemId: 'apr-no-msg-services-add-one-btn'
+                            }
+                        ]
+                    },
                     previewComponent: {
                         xtype: 'msg-service-preview',
                         itemId: 'apr-msg-service-preview'

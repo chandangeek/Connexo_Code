@@ -10,6 +10,9 @@ Ext.define('Apr.store.ServedMessageServices', {
             type: 'json',
             root: 'executionSpecs'
         },
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined,
 
         setUrl: function (appServerName) {
             this.url = this.urlTpl.replace('{appServerName}', appServerName);

@@ -78,8 +78,16 @@ Ext.define('Apr.controller.AppServers', {
             selector: '#save-message-services-settings'
         },
         {
+            ref: 'noMessageServicesSaveSettingsButton',
+            selector: '#apr-no-msg-services-save-settings-btn'
+        },
+        {
             ref: 'undoSettingsButton',
             selector: '#undo-message-services-settings'
+        },
+        {
+            ref: 'noMessageServicesUndoSettingsButton',
+            selector: '#apr-no-msg-services-undo-btn'
         },
         {
             ref: 'addImportServicesButtonFromDetails',
@@ -115,6 +123,9 @@ Ext.define('Apr.controller.AppServers', {
             '#add-message-services-button-from-details': {
                 click: this.showAddMessageServiceViewFromDetails
             },
+            '#apr-no-msg-services-add-one-btn': {
+                click: this.showAddMessageServiceViewFromDetails
+            },
             '#add-import-services-button': {
                 click: this.showAddImportServiceView
             },
@@ -125,7 +136,7 @@ Ext.define('Apr.controller.AppServers', {
                 click: this.showAddImportServiceViewFromDetails
             },
             'message-services-action-menu': {
-                click: this.removeMessageService
+                click: this.removeMessageServiceViaMenu
             },
             'apr-import-services-action-menu': {
                 click: this.removeImportService
@@ -154,7 +165,13 @@ Ext.define('Apr.controller.AppServers', {
             '#save-message-services-settings':{
                 click: this.saveMessageServerSettings
             },
+            '#apr-no-msg-services-save-settings-btn': {
+                click: this.saveMessageServerSettings
+            },
             '#undo-message-services-settings':{
+                click: this.undoMessageServiceChanges
+            },
+            '#apr-no-msg-services-undo-btn': {
                 click: this.undoMessageServiceChanges
             },
             'appserver-message-services #message-services-grid':{
@@ -235,6 +252,7 @@ Ext.define('Apr.controller.AppServers', {
             me.getApplication().fireEvent('changecontentevent', view);
             view.down('preview-container').updateOnChange(!servedMessageServicesStore.getCount()); // to autoselect the 1st item
             view.down('#apr-msg-service-preview').setVisible(servedMessageServicesStore.getCount());
+            me.getMessageServicesGrid().on('apr-msg-service-remove-event', me.onRemoveMessageService, me);
             me.updateMessageServiceCounter();
             unservedMessageServicesStore.load(function (unservedMessages) {
                 if(unservedMessages.length === 0){
@@ -640,9 +658,16 @@ Ext.define('Apr.controller.AppServers', {
         }
     },
 
-    removeMessageService: function (menu) {
+    onRemoveMessageService: function (event) {
+        this.doRemoveMessageService(event);
+    },
+
+    removeMessageServiceViaMenu: function (menu) {
+        this.doRemoveMessageService(menu.record);
+    },
+
+    doRemoveMessageService: function(recordToRemove) {
         var me = this,
-            recordToRemove = menu.record,
             grid = me.getMessageServicesGrid(),
             unserved = this.convertToUnservedMessageServiceModel(recordToRemove),
             unservedMessageServicesStore = me.getStore('Apr.store.UnservedMessageServices');
@@ -875,15 +900,7 @@ Ext.define('Apr.controller.AppServers', {
     },
 
     undoMessageServiceChanges: function(){
-        var store = this.getStore('Apr.store.ServedMessageServices'),
-            updatedRecords = store.getUpdatedRecords();
-        Ext.each(updatedRecords, function(record){
-            Ext.iterate(record.modified, function(key,value){
-                record.set(key,value);
-            });
-        });
-        this.getSaveSettingsButton().disable();
-        this.getUndoSettingsButton().disable();
+        this.showMessageServices(this.getMessageServicesOverview().appServerName);
     },
 
     onCellEdit: function (editor, e) {
@@ -891,7 +908,7 @@ Ext.define('Apr.controller.AppServers', {
     },
 
     messageServiceDataChanged: function(){
-        if (!this.getSaveSettingsButton()) { // We're not @ the details view
+        if (!this.getSaveSettingsButton() && !this.getNoMessageServicesSaveSettingsButton()) { // We're not @ the details view
             return; // ... so nothing to update
         }
 
@@ -902,8 +919,18 @@ Ext.define('Apr.controller.AppServers', {
             itemsRemoved = store.getRemovedRecords().length > 0;
 
         if (itemsUpdated || itemsAdded || itemsRemoved) {
-            me.getSaveSettingsButton().enable();
-            me.getUndoSettingsButton().enable();
+            if (me.getSaveSettingsButton()) {
+                me.getSaveSettingsButton().enable();
+            }
+            if (me.getNoMessageServicesSaveSettingsButton()) {
+                me.getNoMessageServicesSaveSettingsButton().enable();
+            }
+            if (me.getUndoSettingsButton()) {
+                me.getUndoSettingsButton().enable();
+            }
+            if (me.getNoMessageServicesUndoSettingsButton()) {
+                me.getNoMessageServicesUndoSettingsButton().enable();
+            }
         }
         me.updateMessageServiceCounter();
     },
