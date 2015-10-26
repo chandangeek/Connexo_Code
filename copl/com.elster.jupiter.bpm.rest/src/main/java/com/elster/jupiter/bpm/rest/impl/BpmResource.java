@@ -185,7 +185,7 @@ public class BpmResource {
     @GET
     @Path("/tasks")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_TASK, Privileges.ASSIGN_TASK, Privileges.EXECUTE_TASK})
+    @RolesAllowed({Privileges.Constants.VIEW_TASK, Privileges.Constants.ASSIGN_TASK, Privileges.Constants.EXECUTE_TASK})
     public TaskInfos getTask(@Context UriInfo uriInfo, @BeanParam JsonQueryFilter filterX) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters(false));
         String jsonContent;
@@ -218,7 +218,7 @@ public class BpmResource {
     @GET
     @Path("/tasks/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_TASK, Privileges.ASSIGN_TASK, Privileges.EXECUTE_TASK})
+    @RolesAllowed({Privileges.Constants.VIEW_TASK, Privileges.Constants.ASSIGN_TASK, Privileges.Constants.EXECUTE_TASK})
     public TaskInfo getTask(@PathParam("id")long id) {
         String jsonContent;
         TaskInfo taskInfo= new TaskInfo();
@@ -240,7 +240,7 @@ public class BpmResource {
     @GET
     @Path("/processes")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_TASK, Privileges.ASSIGN_TASK, Privileges.EXECUTE_TASK})
+    @RolesAllowed({Privileges.Constants.VIEW_TASK, Privileges.Constants.ASSIGN_TASK, Privileges.Constants.EXECUTE_TASK})
     public ProcessDefinitionInfos getProcesses(@Context UriInfo uriInfo) {
         String jsonContent;
         JSONArray arr = null;
@@ -262,7 +262,7 @@ public class BpmResource {
     @GET
     @Path("/assignees/users")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_TASK, Privileges.ASSIGN_TASK, Privileges.EXECUTE_TASK})
+    @RolesAllowed({Privileges.Constants.VIEW_TASK, Privileges.Constants.ASSIGN_TASK, Privileges.Constants.EXECUTE_TASK})
     public Response getUsers(@BeanParam StandardParametersBean params){
         String searchText = params.getFirst(LIKE);
         Condition condition = Condition.TRUE;
@@ -278,7 +278,7 @@ public class BpmResource {
     @POST
     @Path("tasks/{id}/assign")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.ASSIGN_TASK)
+    @RolesAllowed(Privileges.Constants.ASSIGN_TASK)
     public Response assignUser(@Context UriInfo uriInfo,@PathParam("id") long id,@Context SecurityContext securityContext){
         String userName = getQueryValue(uriInfo, "username");
         String rest = "/rest/tasks/";
@@ -295,7 +295,7 @@ public class BpmResource {
     @GET
     @Path("/assignees")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_TASK, Privileges.ASSIGN_TASK, Privileges.EXECUTE_TASK})
+    @RolesAllowed({Privileges.Constants.VIEW_TASK, Privileges.Constants.ASSIGN_TASK, Privileges.Constants.EXECUTE_TASK})
     public PagedInfoListCustomized getAllAssignees(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext) {
         if (Boolean.parseBoolean(params.getFirst(ME))) {
             AssigneeFilterListInfo assigneeFilterListInfo = AssigneeFilterListInfo.defaults((User) securityContext.getUserPrincipal(), thesaurus, true);
