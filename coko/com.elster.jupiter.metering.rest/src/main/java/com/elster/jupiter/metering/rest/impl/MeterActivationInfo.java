@@ -15,7 +15,7 @@ public class MeterActivationInfo {
 
     public MeterActivationInfo() {
     }
-
+    
     public MeterActivationInfo(MeterActivation meterActivation) {
         this.id = meterActivation.getId();
         this.start = meterActivation.getStart() == null ? null : meterActivation.getStart().toEpochMilli();

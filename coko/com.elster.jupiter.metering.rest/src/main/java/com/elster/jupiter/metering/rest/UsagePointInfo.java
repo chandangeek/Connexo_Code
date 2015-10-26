@@ -1,18 +1,25 @@
-package com.elster.jupiter.metering.rest.impl;
+package com.elster.jupiter.metering.rest;
 
 import com.elster.jupiter.cbo.PhaseCode;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.AmiBillingReadyKind;
+import com.elster.jupiter.metering.ElectricityDetail;
+import com.elster.jupiter.metering.ServiceKind;
+import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.metering.UsagePointConnectedKind;
+import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.metering.rest.impl.ServiceLocationInfo;
 import com.elster.jupiter.util.units.Quantity;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.time.Clock;
 import java.util.Optional;
-import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
 
 public class UsagePointInfo {
+
     private UsagePoint usagePoint;
 
     public long id;
@@ -43,6 +50,7 @@ public class UsagePointInfo {
     public long createTime;
     public long modTime;
     public ServiceLocationInfo serviceLocation;
+    public long openIssues;
 
     public UsagePointInfo() {
     }
@@ -83,11 +91,11 @@ public class UsagePointInfo {
                 ratedPower = eDetail.getRatedPower();
             }
         }
+
     }
 
-    void addServiceLocationInfo() {
-        if (usagePoint.getServiceLocation().isPresent()) {
-            serviceLocation = new ServiceLocationInfo(usagePoint.getServiceLocation().get());
-        }
+    public void addServiceLocationInfo() {
+        usagePoint.getServiceLocation().ifPresent(location -> serviceLocation = new ServiceLocationInfo(location));
     }
+
 }

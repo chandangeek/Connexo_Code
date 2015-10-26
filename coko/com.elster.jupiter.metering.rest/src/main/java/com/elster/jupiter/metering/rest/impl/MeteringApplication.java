@@ -1,7 +1,24 @@
 package com.elster.jupiter.metering.rest.impl;
 
-import com.elster.jupiter.cbo.MacroPeriod;
-import com.elster.jupiter.cbo.TimeAttribute;
+import java.time.Clock;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import javax.validation.MessageInterpolator;
+import javax.ws.rs.core.Application;
+
+import com.elster.jupiter.cbo.*;
+import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -9,6 +26,7 @@ import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.google.common.collect.ImmutableSet;
@@ -28,7 +46,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Component(name = "com.elster.jupiter.metering.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/mtr", "app=SYS", "name=" + MeteringApplication.COMPONENT_NAME})
+@Component(name = "com.elster.jupiter.metering.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true,
+        property = {"alias=/mtr", "app=SYS", "name=" + MeteringApplication.COMPONENT_NAME})
 public class MeteringApplication extends Application implements TranslationKeyProvider {
     public static final String COMPONENT_NAME = "MTR";
 
@@ -41,9 +60,10 @@ public class MeteringApplication extends Application implements TranslationKeyPr
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
                 UsagePointResource.class,
+                DeviceResource.class,
                 ReadingTypeResource.class,
-                ReadingTypeFieldResource.class
-        );
+                ReadingTypeFieldResource.class,
+                EndDeviceEventTypeResource.class);
     }
 
     @Reference
@@ -99,15 +119,28 @@ public class MeteringApplication extends Application implements TranslationKeyPr
 
     @Override
     public List<TranslationKey> getKeys() {
-        List<TranslationKey> keys = new ArrayList<>(Arrays.asList(MessageSeeds.values()));
+        List<TranslationKey> keys = new ArrayList<>(Arrays.asList(TranslationKeys.values()));
         for (int i = 1; i < TimeAttribute.values().length; i++) {
             TimeAttribute ta = TimeAttribute.values()[i];
-            keys.add(new SimpleTranslationKey(MessageSeeds.Keys.TIME_ATTRIBUTE_KEY_PREFIX + ta.getId(), ta.getDescription()));
+            keys.add(new SimpleTranslationKey(TranslationKeys.Keys.TIME_ATTRIBUTE_KEY_PREFIX + ta.getId(), ta.getDescription()));
         }
         for (int i = 1; i < MacroPeriod.values().length; i++) {
             MacroPeriod mp = MacroPeriod.values()[i];
-            keys.add(new SimpleTranslationKey(MessageSeeds.Keys.MACRO_PERIOD_KEY_PREFIX + mp.getId(), mp.getDescription()));
+            keys.add(new SimpleTranslationKey(TranslationKeys.Keys.MACRO_PERIOD_KEY_PREFIX + mp.getId(), mp.getDescription()));
         }
+        for (EndDeviceType type : EndDeviceType.values()) {
+            keys.add(new SimpleTranslationKey(type.name(), type.getMnemonic()));
+        }
+        for (EndDeviceDomain domain : EndDeviceDomain.values()) {
+            keys.add(new SimpleTranslationKey(domain.name(), domain.getMnemonic()));
+        }
+        for (EndDeviceSubDomain subDomain : EndDeviceSubDomain.values()) {
+            keys.add(new SimpleTranslationKey(subDomain.name(), subDomain.getMnemonic()));
+        }
+        for (EndDeviceEventorAction eventOrAction : EndDeviceEventorAction.values()) {
+            keys.add(new SimpleTranslationKey(eventOrAction.name(), eventOrAction.getMnemonic()));
+        }
+        keys.addAll(Arrays.asList(TranslationSeeds.values()));
         return keys;
     }
 
@@ -116,12 +149,11 @@ public class MeteringApplication extends Application implements TranslationKeyPr
         protected void configure() {
             bind(restQueryService).to(RestQueryService.class);
             bind(transactionService).to(TransactionService.class);
+            bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(meteringService).to(MeteringService.class);
             bind(clock).to(Clock.class);
             bind(thesaurus).to(Thesaurus.class);
             bind(thesaurus).to(MessageInterpolator.class);
         }
-
-        ;
     }
 }
