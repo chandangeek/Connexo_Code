@@ -1,33 +1,49 @@
 Ext.define('Bpm.controller.history.BpmManagement', {
     extend: 'Uni.controller.history.Converter',
-
+    requires: [
+        'Bpm.privileges.BpmManagement'
+    ],
     rootToken: 'workspace',
     previousPath: '',
     currentPath: null,
 
-
-
     routeConfig: {
-        bpm: {
-            title: Uni.I18n.translate('bpm.instance.workspace', 'BPM', 'Workspace'),
+        workspace: {
+            title: Uni.I18n.translate('general.workspace','BPM','Workspace'),
             route: 'workspace',
             disabled: true,
             items: {
-                processes: {
-                    title: Uni.I18n.translate('bpm.instance.title', 'BPM', 'Processes'),
-                    route: 'processes',
-                    controller: 'Bpm.controller.ProcessInstances',
-                    action: 'showProcessInstances',
+                taksmanagementtasks: {
+                    title: Uni.I18n.translate('bpm.task.title', 'BPM', 'Tasks'),
+                    route: 'taksmanagementtasks',
+                    controller: 'Bpm.controller.Task',
+                    action: 'showTasks',
+                    privileges: Bpm.privileges.BpmManagement.all,
+                    params: {
+                        use: false,
+                        sort: '',
+                        user: '',
+                        dueDate:'',
+                        status:'',
+                        process: ''
+                    },
                     items: {
-                        view: {
-                            title: Uni.I18n.translate('bpm.process', 'BPM', 'Process'),
-                            route: '{deploymentId}/{instanceId}',
-                            controller: 'Bpm.controller.ProcessInstances',
-                            action: 'showProcessInstanceOverview',
-                            callback: function(route) {
-                                this.getApplication().on('viewProcessInstance', function(record) {
-                                    var title = Uni.I18n.translate('bpm.instance.overview.title',  'BPM', 'Process {0} of \'{1}\'');
-                                    route.setTitle(Ext.String.format(title, record.get('id'), Ext.String.htmlEncode(record.get('name'))));
+                        openTask: {
+                            title: Uni.I18n.translate('bpm.task.openTask', 'BPM', 'Open task'),
+                            route: '{taskId}/openTask',
+                            controller: 'Bpm.controller.OpenTask',
+                            privileges: Bpm.privileges.BpmManagement.execute,
+                            action: 'showOpenTask',
+                            params: {
+                                sort: '',
+                                user: '',
+                                dueDate:'',
+                                status:'',
+                                process: ''
+                            },
+                            callback: function (route) {
+                                this.getApplication().on('openTask', function (record) {
+                                    route.setTitle(record.get('name'));
                                     return true;
                                 }, {single: true});
 

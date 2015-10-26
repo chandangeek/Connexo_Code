@@ -5,18 +5,15 @@ Ext.define('Bpm.controller.Main', {
         'Ext.window.Window',
         'Uni.controller.Navigation',
         'Uni.store.MenuItems',
-        'Bpm.controller.ProcessInstances',
-        'Bpm.controller.history.BpmManagement'
+        'Bpm.controller.Task',
+        'Bpm.controller.history.BpmManagement',
+        'Bpm.privileges.BpmManagement'
     ],
 
     controllers: [
-        'Bpm.controller.ProcessInstances',
-        'Bpm.controller.history.BpmManagement'
+        'Bpm.controller.history.BpmManagement',
+        'Bpm.controller.Task'
     ],
-
-    config: {
-        navigationController: null
-    },
 
     refs: [
         {
@@ -30,38 +27,56 @@ Ext.define('Bpm.controller.Main', {
     ],
 
     init: function () {
-        var me = this;
-        this.initNavigation();
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            dataCollection = null,
+            historian = me.getController('Bpm.controller.history.BpmManagement'); // Forces route registration.
 
-        var response = Ext.Ajax.request({
-            async: false,
-            url: '../../api/bpm/runtime/startup'
-        });
-        var items = Ext.decode(response.responseText);
+        if (Bpm.privileges.BpmManagement.all()) {
+            Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
+                text: Uni.I18n.translate('general.workspace', 'BPM', 'Workspace'),
+                glyph: 'workspace',
+                portal: 'workspace',
+                index: 30
+            }));
+        }
 
-        var bpm = Ext.create('Uni.model.PortalItem', {
-            title: Uni.I18n.translate('bpm.instance.title', 'BPM', 'Processes'),
-            portal: 'workspace',
-            route: 'workspace',
-            items: [
-                {
-                    text: Uni.I18n.translate('bpm.console', 'BPM', 'Console'),
-                    href: items.url,
-                    hrefTarget: '_blank'
-                },
-                {
-                    text: Uni.I18n.translate('bpm.instance.title', 'BPM', 'Processes'),
-                    href: '#workspace/processes'
-                }
-            ]
-        });
+        if (Bpm.privileges.BpmManagement.all()) {
+            dataCollection = Ext.create('Uni.model.PortalItem', {
+                title: Uni.I18n.translate('general.taskManagement', 'BPM', 'Task management'),
+                portal: 'workspace',
+                route: 'taksmanagement',
+                items: [
+                    {
+                        text: Uni.I18n.translate('general.taksmanagement.tasks', 'BPM', 'Tasks'),
+                        itemId: 'tasks',
+                        href: router.getRoute('workspace/taksmanagementtasks').buildUrl({}, {param: 'noFilter'})
+                    },
+                    {
+                        text: Uni.I18n.translate('general.taksmanagement.myopentasks', 'BPM', 'My open tasks'),
+                        itemId: 'my-open-tasks',
+                        href: router.getRoute('workspace/taksmanagementtasks').buildUrl({}, {param: 'myopentasks'})
+                    },
+                    {
+                        text: Uni.I18n.translate('general.taksmanagement.unassignedtask', 'BPM', 'Unassigned tasks'),
+                        itemId: 'unassigned-tasks',
+                        href: router.getRoute('workspace/taksmanagementtasks').buildUrl({}, {param: 'unassign'})
+                    },
+                    {
+                        text: Uni.I18n.translate('general.taksmanagement.overduetasks', 'BPM', 'Overdue tasks'),
+                        itemId: 'overdue-tasks',
+                        href: router.getRoute('workspace/taksmanagementtasks').buildUrl({}, {param: 'dueDate'})
+                    }
+                ]
+            });
+        }
 
-        Uni.store.PortalItems.add(
-            bpm
-        );
+        if (dataCollection !== null) {
+            Uni.store.PortalItems.add(dataCollection);
+        }
     },
 
-    initNavigation: function () {
+    initNavigtaion: function () {
         var controller = this.getController('Uni.controller.Navigation');
         this.setNavigationController(controller);
     },
