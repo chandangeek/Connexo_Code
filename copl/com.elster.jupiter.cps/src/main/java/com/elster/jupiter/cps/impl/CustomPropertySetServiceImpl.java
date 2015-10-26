@@ -46,6 +46,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link CustomPropertySetService}.
@@ -119,7 +120,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         List<ResourceDefinition> resources = new ArrayList<>();
         resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
                 "customPropertySet.customPropertySets", "customPropertySet.customPropertySets.description",
-                Arrays.asList(Privileges.ADMINISTER_PRIVILEGES, Privileges.VIEW_PRIVILEGES)));
+                Arrays.asList(Privileges.Constants.ADMINISTER_PRIVILEGES, Privileges.Constants.VIEW_PRIVILEGES)));
         return resources;
     }
 
@@ -206,7 +207,11 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(MessageSeeds.values());
+        return Stream.of(
+                Arrays.stream(MessageSeeds.values()),
+                Arrays.stream(Privileges.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
     @Override

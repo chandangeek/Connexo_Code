@@ -11,10 +11,10 @@ import java.util.Optional;
  * @since 2015-07-20 (15:51)
  */
 public enum EditPrivilege {
-    LEVEL_1(Privileges.EDIT_CUSTOM_PROPERTIES_1),
-    LEVEL_2(Privileges.EDIT_CUSTOM_PROPERTIES_2),
-    LEVEL_3(Privileges.EDIT_CUSTOM_PROPERTIES_3),
-    LEVEL_4(Privileges.EDIT_CUSTOM_PROPERTIES_4);
+    LEVEL_1(Privileges.Constants.EDIT_CUSTOM_PROPERTIES_1),
+    LEVEL_2(Privileges.Constants.EDIT_CUSTOM_PROPERTIES_2),
+    LEVEL_3(Privileges.Constants.EDIT_CUSTOM_PROPERTIES_3),
+    LEVEL_4(Privileges.Constants.EDIT_CUSTOM_PROPERTIES_4);
 
     public String getPrivilege() {
         return privilege;
