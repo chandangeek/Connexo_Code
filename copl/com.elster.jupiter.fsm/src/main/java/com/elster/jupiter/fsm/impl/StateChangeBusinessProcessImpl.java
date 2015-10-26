@@ -1,15 +1,16 @@
 package com.elster.jupiter.fsm.impl;
 
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateChangeBusinessProcess;
 import com.elster.jupiter.fsm.StateChangeBusinessProcessStartEvent;
 import com.elster.jupiter.orm.DataModel;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
+import java.util.Objects;
 
 /**
  * Provides an implementation for the {@link StateChangeBusinessProcess}.
@@ -17,7 +18,7 @@ import javax.validation.constraints.Size;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-06-29 (13:54)
  */
-public class StateChangeBusinessProcessImpl implements StateChangeBusinessProcess {
+public final class StateChangeBusinessProcessImpl implements StateChangeBusinessProcess {
 
     public enum Fields {
         NAME("name"),
@@ -97,6 +98,25 @@ public class StateChangeBusinessProcessImpl implements StateChangeBusinessProces
                 .getInstance(StateChangeBusinessProcessStartEventImpl.class)
                 .initialize(this, sourceId, state, changeType)
                 .publish();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        StateChangeBusinessProcessImpl that = (StateChangeBusinessProcessImpl) o;
+
+        return this.id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
 }

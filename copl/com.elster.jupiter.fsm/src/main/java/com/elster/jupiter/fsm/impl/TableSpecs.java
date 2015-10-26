@@ -1,6 +1,5 @@
 package com.elster.jupiter.fsm.impl;
 
-import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.ProcessReference;
 import com.elster.jupiter.fsm.State;
@@ -52,7 +51,7 @@ public enum TableSpecs {
             table.primaryKey("PK_FSM_EVENTTYPE").on(id).add();
             table.foreignKey("FK_FSM_EVENTTYPE")
                 .on(eventType)
-                .references(EventService.COMPONENTNAME, "EVT_EVENTTYPE")
+                .references(com.elster.jupiter.events.EventType.class)
                 .map(StateTransitionEventTypeImpl.Fields.EVENT_TYPE.fieldName())
                 .add();
         }

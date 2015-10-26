@@ -41,7 +41,7 @@ public interface StateTransitionEventType {
      */
     public Instant getModifiedTimestamp();
 
-    public void save();
+    public void update();
 
     public void delete();
 

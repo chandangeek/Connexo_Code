@@ -1,5 +1,6 @@
 package com.elster.jupiter.fsm.impl;
 
+import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
@@ -16,7 +17,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.streams.Predicates;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -26,6 +26,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -38,7 +39,7 @@ import java.util.stream.Collectors;
 @Unique(message = "{" + MessageSeeds.Keys.UNIQUE_FINITE_STATE_MACHINE_NAME + "}", groups = { Save.Create.class, Save.Update.class })
 @AtLeastOneState(groups = { Save.Create.class, Save.Update.class })
 @ExactlyOneInitialState(groups = { Save.Create.class, Save.Update.class })
-public class FiniteStateMachineImpl implements FiniteStateMachine {
+public final class FiniteStateMachineImpl implements FiniteStateMachine {
 
     public enum Fields {
         NAME("name"),
@@ -147,9 +148,17 @@ public class FiniteStateMachineImpl implements FiniteStateMachine {
                 () -> new IllegalStateException(this.thesaurus.getString(MessageSeeds.Keys.EXACTLY_ONE_INITIAL_STATE, "A finite state machine must have exactly one initial state")));
     }
 
-    void setInitialState(StateImpl state) {
-        this.findInitialState().ifPresent(s -> s.setInitial(false));
-        state.setInitial(true);
+    void setInitialState(State newInitialState) {
+        Optional<StateImpl> oldInitialState = findInitialState();
+        if (oldInitialState.isPresent()) {
+            oldInitialState.get().setInitial(false);
+        }
+        this.states
+                .stream()
+                .filter(Predicates.not(StateImpl::isObsolete))
+                .filter(candidate -> candidate == newInitialState || newInitialState.getId() > 0 && newInitialState.getId() == candidate.getId())
+                .findFirst()
+                .ifPresent(state -> state.setInitial(true));
     }
 
     private Optional<StateImpl> findInitialState() {
@@ -237,9 +246,13 @@ public class FiniteStateMachineImpl implements FiniteStateMachine {
         return new FiniteStateMachineUpdaterImpl(this.dataModel, this.thesaurus, this);
     }
 
+    void save() {
+        Save.CREATE.save(this.dataModel, this);
+    }
+
     @Override
-    public void save() {
-        Save.action(this.id).save(this.dataModel, this);
+    public void update() {
+        Save.UPDATE.save(this.dataModel, this);
     }
 
     @Override
@@ -270,4 +283,22 @@ public class FiniteStateMachineImpl implements FiniteStateMachine {
         this.states.clear();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        FiniteStateMachineImpl that = (FiniteStateMachineImpl) o;
+
+        return this.id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }

@@ -1,6 +1,7 @@
 package com.elster.jupiter.fsm;
 
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.util.HasId;
 
 import java.time.Instant;
 import java.util.List;
@@ -18,9 +19,7 @@ import java.util.List;
  * @since 2015-03-02 (11:54)
  */
 @ProviderType
-public interface State {
-
-    public long getId();
+public interface State extends HasId {
 
     /**
      * Tests if this State is the initial state of the FiniteStateMachine it is part of.

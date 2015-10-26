@@ -35,7 +35,7 @@ public enum EventType {
                 .component(FiniteStateMachineServiceImpl.COMPONENT_NAME)
                 .category("Crud")
                 .scope("System");
-        this.shouldPublish(builder).create().save();
+        this.shouldPublish(builder).create();
     }
 
     EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {

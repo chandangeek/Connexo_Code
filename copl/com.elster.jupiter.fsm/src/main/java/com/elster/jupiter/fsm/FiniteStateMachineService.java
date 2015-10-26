@@ -22,23 +22,23 @@ public interface FiniteStateMachineService {
      *
      * @return The topic
      */
-    public String stateTransitionChangeEventTopic();
+    String stateTransitionChangeEventTopic();
 
-    public void addStandardEventPredicate(StandardEventPredicate predicate);
+    void addStandardEventPredicate(StandardEventPredicate predicate);
 
     /**
      * Gets the List of {@link StateChangeBusinessProcess}es.
      *
      * @return The List of StateChangeBusinessProcess
      */
-    public List<StateChangeBusinessProcess> findStateChangeBusinessProcesses();
+    List<StateChangeBusinessProcess> findStateChangeBusinessProcesses();
 
     /**
      * Gets the {@link StateChangeBusinessProcess} with given id.
      * @param id to find
      * @return The Optional StateChangeBusinessProcess with given id
      */
-    public Optional<StateChangeBusinessProcess> findStateChangeBusinessProcessById(long id);
+    Optional<StateChangeBusinessProcess> findStateChangeBusinessProcessById(long id);
 
     /**
      * Enables the external business process identified by the specified
@@ -50,7 +50,7 @@ public interface FiniteStateMachineService {
      * @param processId The process id of the external process
      * @return The StateChangeBusinessProcess
      */
-    public StateChangeBusinessProcess enableAsStateChangeBusinessProcess(String name,String deploymentId, String processId);
+    StateChangeBusinessProcess enableAsStateChangeBusinessProcess(String name,String deploymentId, String processId);
 
     /**
      * Disables the external business process identified by the specified
@@ -62,25 +62,23 @@ public interface FiniteStateMachineService {
      * @param deploymentId The deployment id of the external process
      * @param processId The process id of the external process
      */
-    public void disableAsStateChangeBusinessProcess(String deploymentId, String processId);
+    void disableAsStateChangeBusinessProcess(String deploymentId, String processId);
 
     /**
      * Creates a new {@link CustomStateTransitionEventType} with the specified symbol.
-     * Note that you are responsible for saving the CustomStateTransitionEventType.
      *
      * @param symbol The symbolic representation of the event
      * @return The CustomStateTransitionEventType
      */
-    public CustomStateTransitionEventType newCustomStateTransitionEventType(String symbol);
+    CustomStateTransitionEventType newCustomStateTransitionEventType(String symbol);
 
     /**
      * Creates a new {@link StandardStateTransitionEventType} with the specified symbol.
-     * Note that you are responsible for saving the StandardStateTransitionEventType.
      *
      * @param eventType The standard EventType
      * @return The StandardStateTransitionEventType
      */
-    public StandardStateTransitionEventType newStandardStateTransitionEventType(EventType eventType);
+    StandardStateTransitionEventType newStandardStateTransitionEventType(EventType eventType);
 
     /**
      * Finds the {@link CustomStateTransitionEventType} with the specified symbolic representation
@@ -89,7 +87,7 @@ public interface FiniteStateMachineService {
      * @param symbol The symbolic representation
      * @return The CustomStateTransitionEventType
      */
-    public Optional<CustomStateTransitionEventType> findCustomStateTransitionEventType(String symbol);
+    Optional<CustomStateTransitionEventType> findCustomStateTransitionEventType(String symbol);
 
     /**
      * Finds the {@link StandardStateTransitionEventType} for the specified {@link EventType}
@@ -98,7 +96,7 @@ public interface FiniteStateMachineService {
      * @param eventType The standard EventType
      * @return The StandardStateTransitionEventType
      */
-    public Optional<StandardStateTransitionEventType> findStandardStateTransitionEventType(EventType eventType);
+    Optional<StandardStateTransitionEventType> findStandardStateTransitionEventType(EventType eventType);
 
     /**
      * Finds the {@link StateTransitionEventType} with the specified unique symbolic representation.
@@ -107,14 +105,14 @@ public interface FiniteStateMachineService {
      * @see StateTransitionEventType#getSymbol()
      * @return The StateTransitionEventType
      */
-    public Optional<StateTransitionEventType> findStateTransitionEventTypeBySymbol(String symbol);
+    Optional<StateTransitionEventType> findStateTransitionEventTypeBySymbol(String symbol);
 
     /**
      * Gets all the {@link StateTransitionEventType} that have been defined in the system.
      *
      * @return The List of StateTransitionEventType
      */
-    public List<StateTransitionEventType> getStateTransitionEventTypes();
+    List<StateTransitionEventType> getStateTransitionEventTypes();
 
     /**
      * Starts the building process for a new {@link FiniteStateMachine}
@@ -124,7 +122,7 @@ public interface FiniteStateMachineService {
      * @param name The name
      * @return The FiniteStateMachineBuilder
      */
-    public FiniteStateMachineBuilder newFiniteStateMachine(String name);
+    FiniteStateMachineBuilder newFiniteStateMachine(String name);
 
     /**
      * Clones the specified {@link FiniteStateMachine} with the specified name.
@@ -136,7 +134,7 @@ public interface FiniteStateMachineService {
      * @param name The name
      * @return The cloned FiniteStateMachine
      */
-    public FiniteStateMachine cloneFiniteStateMachine(FiniteStateMachine source, String name);
+    FiniteStateMachine cloneFiniteStateMachine(FiniteStateMachine source, String name);
 
     /**
      * Finds the {@link FiniteStateMachine} that is uniquely identified
@@ -145,7 +143,7 @@ public interface FiniteStateMachineService {
      * @param id The unique identifier
      * @return The FiniteStateMachine
      */
-    public Optional<FiniteStateMachine> findFiniteStateMachineById(long id);
+    Optional<FiniteStateMachine> findFiniteStateMachineById(long id);
 
     /**
      * Finds the {@link FiniteStateMachine} with the specified name
@@ -154,6 +152,16 @@ public interface FiniteStateMachineService {
      * @param name The name
      * @return The FiniteStateMachine
      */
-    public Optional<FiniteStateMachine> findFiniteStateMachineByName(String name);
+    Optional<FiniteStateMachine> findFiniteStateMachineByName(String name);
 
+    /**
+     * Finds the {@link State} that is uniquely identified
+     * by the specified id.
+     *
+     * @param id The unique identifier
+     * @return The State
+     */
+    Optional<State> findFiniteStateById(long id);
+
+    Optional<State> findAndLockStateByIdAndVersion(long id, long version);
 }

@@ -1,6 +1,7 @@
 package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -11,6 +12,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
@@ -56,6 +58,7 @@ public class InMemoryPersistence {
     private EventAdmin eventAdmin;
     private DataModel dataModel;
     private FiniteStateMachineServiceImpl finiteStateMachineService;
+    private ThreadPrincipalService threadPrincipalService;
 
     /**
      * Returns a new InMemoryPersistence that uses all the defaults
@@ -77,7 +80,8 @@ public class InMemoryPersistence {
                 new UserModule(),
                 new UtilModule(),
                 new DomainUtilModule(),
-                new NlsModule()
+                new NlsModule(),
+                new DataVaultModule()
         );
     }
 
@@ -91,6 +95,7 @@ public class InMemoryPersistence {
         this.threadSecurityModule = new ThreadSecurityModule(this.principal);
         this.injector = Guice.createInjector(this.guiceModules());
         this.transactionService = this.injector.getInstance(TransactionService.class);
+        this.threadPrincipalService = this.injector.getInstance(ThreadPrincipalService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.injector.getInstance(OrmService.class);
             this.injector.getInstance(UserService.class);
@@ -123,6 +128,10 @@ public class InMemoryPersistence {
 
     public TransactionService getTransactionService() {
         return this.transactionService;
+    }
+
+    public ThreadPrincipalService getThreadPrincipalService(){
+        return threadPrincipalService;
     }
 
     public FiniteStateMachineServiceImpl getFiniteStateMachineService() {
