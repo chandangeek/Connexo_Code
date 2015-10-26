@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.KorePagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
@@ -59,16 +60,23 @@ public class DataValidationTaskResource {
     private final TransactionService transactionService;
     private final Thesaurus thesaurus;
     private final TimeService timeService;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public DataValidationTaskResource(RestQueryService queryService, ValidationService validationService, TransactionService transactionService,
-                                      MeteringGroupsService meteringGroupsService, TimeService timeService, Thesaurus thesaurus) {
+    public DataValidationTaskResource(RestQueryService queryService,
+                                      ValidationService validationService,
+                                      TransactionService transactionService,
+                                      MeteringGroupsService meteringGroupsService,
+                                      TimeService timeService,
+                                      Thesaurus thesaurus,
+                                      ConcurrentModificationExceptionFactory conflictFactory) {
         this.queryService = queryService;
         this.validationService = validationService;
         this.transactionService = transactionService;
         this.meteringGroupsService = meteringGroupsService;
         this.thesaurus = thesaurus;
         this.timeService = timeService;
+        this.conflictFactory = conflictFactory;
     }
 
     @POST
@@ -109,16 +117,9 @@ public class DataValidationTaskResource {
     @Path("/{dataValidationTaskId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
-    public Response deleteDataValidationTask(@PathParam("dataValidationTaskId") final long dataValidationTaskId, @Context final SecurityContext securityContext) {
-        transactionService.execute(new VoidTransaction() {
-            @Override
-            protected void doPerform() {
-
-                validationService.findValidationTask(dataValidationTaskId).
-                        orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND)).
-                        delete();
-            }
-        });
+    public Response deleteDataValidationTask(@PathParam("dataValidationTaskId") long dataValidationTaskId, DataValidationTaskInfo info) {
+        info.id = dataValidationTaskId;
+        transactionService.execute(VoidTransaction.of(() -> findAndLockDataValidationTask(info).delete()));
         return Response.status(Response.Status.NO_CONTENT).build();
     }
 
@@ -136,26 +137,32 @@ public class DataValidationTaskResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION)
     public Response updateReadingTypeDataValidationTask(@PathParam("dataValidationTaskId") long dataValidationTaskId, DataValidationTaskInfo info) {
-        DataValidationTask task = validationService.findValidationTask(dataValidationTaskId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-
+        info.id = dataValidationTaskId;
         try (TransactionContext context = transactionService.getContext()) {
+            DataValidationTask task = findAndLockDataValidationTask(info);
             task.setName(info.name);
             task.setScheduleExpression(getScheduleExpression(info));
             task.setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id));
             task.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
             task.save();
             context.commit();
+            return Response.status(Response.Status.CREATED).entity(new DataValidationTaskInfo(task, thesaurus, timeService)).build();
         }
-        return Response.status(Response.Status.CREATED).entity(new DataValidationTaskInfo(task, thesaurus, timeService)).build();
-
     }
 
-    @POST
+    @PUT
     @Path("/{id}/trigger")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-    public Response triggerDataValidationTask(@PathParam("id") long id, @Context SecurityContext securityContext) {
-        transactionService.execute(VoidTransaction.of(() -> fetchDataValidationTask(id).triggerNow()));
+    public Response triggerDataValidationTask(@PathParam("id") long id, DataValidationTaskInfo info) {
+        info.id = id;
+        transactionService.execute(VoidTransaction.of(() -> validationService.findAndLockValidationTaskByIdAndVersion(info.id, info.version)
+                .orElseThrow(conflictFactory.conflict()
+                        .withMessageTitle(MessageSeeds.RUN_TASK_CONCURRENT_TITLE, info.name)
+                        .withMessageBody(MessageSeeds.RUN_TASK_CONCURRENT_BODY, info.name)
+                        .withActualVersion(() -> validationService.findValidationTask(info.id).map(DataValidationTask::getVersion).orElse(null))
+                        .supplier())
+                .triggerNow()));
         return Response.status(Response.Status.OK).build();
     }
 
@@ -163,6 +170,7 @@ public class DataValidationTaskResource {
     @Path("/{id}/history")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
     public DataValidationTaskHistoryInfos getDataValidationTaskHistory(@PathParam("id") long id, @Context SecurityContext securityContext,
                                                                    @BeanParam JsonQueryFilter filter, @Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
@@ -200,6 +208,7 @@ public class DataValidationTaskResource {
     @GET
     @Path("/{id}/history/{occurrenceId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION})
     public DataValidationOccurrenceLogInfos getDataValidationTaskHistory(@PathParam("id") long id, @PathParam("occurrenceId") long occurrenceId,
                                                                      @Context SecurityContext securityContext, @Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
@@ -235,5 +244,12 @@ public class DataValidationTaskResource {
     private RestQuery<DataValidationTask> getValidationTaskRestQuery() {
         Query<DataValidationTask> query = validationService.findValidationTasksQuery();
         return queryService.wrap(query);
+    }
+
+    private DataValidationTask findAndLockDataValidationTask(DataValidationTaskInfo info) {
+        return validationService.findAndLockValidationTaskByIdAndVersion(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> validationService.findValidationTask(info.id).map(DataValidationTask::getVersion).orElse(null))
+                        .supplier());
     }
 }

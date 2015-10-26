@@ -2,9 +2,7 @@ package com.elster.jupiter.validation.rest;
 
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.domain.util.Query;
-
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.util.conditions.Order;
@@ -12,37 +10,34 @@ import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.DataValidationOccurrenceFinder;
 import com.elster.jupiter.validation.DataValidationTask;
-
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
-import com.elster.jupiter.validation.ValidationRuleSet;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
-
 import java.io.InputStream;
 import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DataValidationTaskResourceTest extends BaseValidationRestTest {
 
-    public static final ZonedDateTime NEXT_EXECUTION = ZonedDateTime.of(2015, 1, 13, 0, 0, 0, 0, ZoneId.systemDefault());
     public static final int TASK_ID = 750;
-
-
+    public static final long OK_VERSION = 23L;
+    public static final long BAD_VERSION = 21L;
 
     @Mock
     protected EndDeviceGroup endDeviceGroup;
@@ -90,14 +85,6 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
 
-
-    @Test
-    public void deleteTaskTest() {
-        DataValidationTaskInfo info = new DataValidationTaskInfo();
-        info.name = "newName";
-        info.lastRun = 250L;
-    }
-
     @Test
     public void updateTasksTest() {
         DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
@@ -111,10 +98,36 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
     }
 
     @Test
+    public void updateTasksTestBadVersion() {
+        DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
+        info.id = TASK_ID;
+        info.deviceGroup = new MeterGroupInfo();
+        info.deviceGroup.id = 1;
+        info.version = BAD_VERSION;
+
+        Entity<DataValidationTaskInfo> json = Entity.json(info);
+        Response response = target("/validationtasks/" + TASK_ID).request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
+    public void deleteTasksTestBadVersion() {
+        DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
+        info.id = TASK_ID;
+        info.deviceGroup = new MeterGroupInfo();
+        info.deviceGroup.id = 1;
+        info.version = BAD_VERSION;
+
+        Entity<DataValidationTaskInfo> json = Entity.json(info);
+        Response response = target("/validationtasks/" + TASK_ID).request().build(HttpMethod.DELETE, json).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
     public void testHistorySearchWithInvertedStaredRange() throws Exception {
 
         Response response = target("/validationtasks/1/history")
-                .queryParam("filter", ExtjsFilter.filter().property("startedOnFrom",1441490400000L).property("startedOnTo", 1441058400000L).create())
+                .queryParam("filter", ExtjsFilter.filter().property("startedOnFrom", 1441490400000L).property("startedOnTo", 1441058400000L).create())
                 .queryParam("start", "0")
                 .queryParam("limit", "10")
                 .request().get();
@@ -129,7 +142,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
     public void testHistorySearchWithInvertedEndedRange() throws Exception {
 
         Response response = target("/validationtasks/1/history")
-                .queryParam("filter", ExtjsFilter.filter().property("finishedOnFrom",1441490400000L).property("finishedOnTo", 1441058400000L).create())
+                .queryParam("filter", ExtjsFilter.filter().property("finishedOnFrom", 1441490400000L).property("finishedOnTo", 1441058400000L).create())
                 .queryParam("start", "0")
                 .queryParam("limit", "10")
                 .request().get();
@@ -160,8 +173,9 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
     }
 
     private DataValidationTask mockDataValidationTask(int id) {
+        Long lid = Long.valueOf(id);
         DataValidationTask validationTask = mock(DataValidationTask.class);
-        when(validationTask.getId()).thenReturn(Long.valueOf(id));
+        when(validationTask.getId()).thenReturn(lid);
         when(validationTask.getScheduleExpression()).thenReturn(Never.NEVER);
         when(validationTask.getName()).thenReturn("Name");
         when(validationTask.getLastRun()).thenReturn(Optional.<Instant>empty());
@@ -171,7 +185,11 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         when(finder.setStart(anyInt())).thenReturn(finder);
         when(validationTask.getOccurrencesFinder()).thenReturn(finder);
         when(validationTask.getLastOccurrence()).thenReturn(Optional.<DataValidationOccurrence>empty());
-        doReturn(Optional.of(validationTask)).when(validationService).findValidationTask(id);
+        when(validationTask.getVersion()).thenReturn(OK_VERSION);
+
+        doReturn(Optional.of(validationTask)).when(validationService).findValidationTask(lid);
+        doReturn(Optional.of(validationTask)).when(validationService).findAndLockValidationTaskByIdAndVersion(lid, OK_VERSION);
+        doReturn(Optional.empty()).when(validationService).findAndLockValidationTaskByIdAndVersion(lid, BAD_VERSION);
 
         return validationTask;
     }

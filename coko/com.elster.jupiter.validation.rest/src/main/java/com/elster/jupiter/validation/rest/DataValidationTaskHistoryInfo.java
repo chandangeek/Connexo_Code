@@ -45,7 +45,7 @@ public class DataValidationTaskHistoryInfo {
     private void populate(History<DataValidationTask> history, DataValidationOccurrence dataValidationOccurrence, Thesaurus thesaurus, TimeService timeService) {
         this.id = dataValidationOccurrence.getId();
 
-        this.trigger = thesaurus.getSimpleFormat(dataValidationOccurrence.wasScheduled() ? TranslationKeys.SCHEDULED : TranslationKeys.ON_REQUEST).format();
+        this.trigger = thesaurus.getFormat(dataValidationOccurrence.wasScheduled() ? TranslationKeys.SCHEDULED : TranslationKeys.ON_REQUEST).format();
         if (dataValidationOccurrence.wasScheduled()) {
             String scheduledTriggerDescription = this.getScheduledTriggerDescription(dataValidationOccurrence, thesaurus, timeService);
             if (scheduledTriggerDescription != null) {

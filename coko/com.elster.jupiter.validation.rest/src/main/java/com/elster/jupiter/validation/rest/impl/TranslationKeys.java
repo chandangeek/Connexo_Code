@@ -4,7 +4,7 @@ import com.elster.jupiter.nls.TranslationKey;
 
 public enum TranslationKeys implements TranslationKey{
     SCHEDULED("validationtask.occurrence.scheduled", "Scheduled"),
-    ON_REQUEST("validationtask.occurrence.onrequest", "On Request");
+    ON_REQUEST("validationtask.occurrence.onrequest", "On request");
     ;
 
     private String key;

@@ -17,6 +17,7 @@ public class ValidationRuleSetInfo {
     public Long endDate;
     public int numberOfVersions;
     public Boolean hasCurrent;
+    public long version;
 
 	public ValidationRuleSetInfo(ValidationRuleSet validationRuleSet) {
         id = validationRuleSet.getId();
@@ -32,6 +33,7 @@ public class ValidationRuleSetInfo {
                     this.hasCurrent = true;
                 });
         numberOfVersions = validationRuleSet.getRuleSetVersions().size();
+        version = validationRuleSet.getVersion();
     }
 
     public ValidationRuleSetInfo() {

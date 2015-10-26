@@ -1,5 +1,6 @@
 package com.elster.jupiter.validation.rest;
 
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationRuleSetVersion;
 import com.elster.jupiter.validation.ValidationVersionStatus;
@@ -10,6 +11,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 
@@ -30,6 +32,8 @@ import static org.mockito.Mockito.when;
 public class ValidationRuleSetVersionsResourceTest extends BaseValidationRestTest {
 
     public static final Instant JUN_2014 = LocalDateTime.of(2014, 6, 1, 10, 0, 0).toInstant(ZoneOffset.UTC);
+    public static final long OK_VERSION = 23L;
+    public static final long BAD_VERSION = 21L;
 
     @Test
     public void getCreateTasksTest() {
@@ -64,6 +68,8 @@ public class ValidationRuleSetVersionsResourceTest extends BaseValidationRestTes
         final ValidationRuleSetVersionInfo info = new ValidationRuleSetVersionInfo();
         info.startDate = JUN_2014.toEpochMilli();
         info.description = "blablabla";
+        info.version = OK_VERSION;
+        info.parent = new VersionInfo<>(ruleSet.getId(), ruleSet.getVersion());
         ValidationRuleSetVersion version = ruleSet.getRuleSetVersions().get(0);
         when(version.getDescription()).thenReturn("blablabla");
         when(ruleSet.updateRuleSetVersion(
@@ -83,9 +89,15 @@ public class ValidationRuleSetVersionsResourceTest extends BaseValidationRestTes
     }
 
     @Test
-    public void testPutRuleSetVersions(){
+    public void testDeleteRuleSetVersions(){
         ValidationRuleSet ruleSet = mockValidationRuleSet(10);
-        Response response = target("/validation/10/versions/11").request().delete();
+        final ValidationRuleSetVersionInfo info = new ValidationRuleSetVersionInfo();
+        info.startDate = JUN_2014.toEpochMilli();
+        info.description = "blablabla";
+        info.version = OK_VERSION;
+        info.parent = new VersionInfo<>(ruleSet.getId(), ruleSet.getVersion());
+
+        Response response = target("/validation/10/versions/11").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
     }
 
@@ -122,7 +134,10 @@ public class ValidationRuleSetVersionsResourceTest extends BaseValidationRestTes
         ValidationRuleSetVersion ruleSetVersion2 = mockValidationRuleSetVersion(12, ruleSet);
         List versions = Arrays.asList(ruleSetVersion1, ruleSetVersion2);
         when(ruleSet.getRuleSetVersions()).thenReturn(versions);
+        when(ruleSet.getVersion()).thenReturn(OK_VERSION);
         doReturn(Optional.of(ruleSet)).when(validationService).getValidationRuleSet(id);
+        doReturn(Optional.of(ruleSet)).when(validationService).findAndLockValidationRuleSetByIdAndVersion(id, OK_VERSION);
+        doReturn(Optional.empty()).when(validationService).findAndLockValidationRuleSetByIdAndVersion(id, BAD_VERSION);
         return ruleSet;
     }
 
@@ -133,6 +148,10 @@ public class ValidationRuleSetVersionsResourceTest extends BaseValidationRestTes
         when(ruleSetVersion.getStartDate()).thenReturn(JUN_2014);
         when(ruleSetVersion.getRuleSet()).thenReturn(ruleSet);
         when(ruleSetVersion.getStatus()).thenReturn(ValidationVersionStatus.CURRENT);
+        when(ruleSetVersion.getVersion()).thenReturn(OK_VERSION);
+        doReturn(Optional.of(ruleSetVersion)).when(validationService).findValidationRuleSetVersion(id);
+        doReturn(Optional.of(ruleSetVersion)).when(validationService).findAndLockValidationRuleSetVersionByIdAndVersion(id, OK_VERSION);
+        doReturn(Optional.empty()).when(validationService).findAndLockValidationRuleSetVersionByIdAndVersion(id, BAD_VERSION);
         return ruleSetVersion;
     }
 
