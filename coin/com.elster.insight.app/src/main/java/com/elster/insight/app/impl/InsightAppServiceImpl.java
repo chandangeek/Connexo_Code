@@ -98,16 +98,16 @@ public class InsightAppServiceImpl implements InsightAppService, InstallService,
     private List<String> getApplicationPrivileges(){
         return Arrays.asList(
             //validation
-            com.elster.jupiter.validation.security.Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,
-            com.elster.jupiter.validation.security.Privileges.VIEW_VALIDATION_CONFIGURATION,
-            com.elster.jupiter.validation.security.Privileges.VALIDATE_MANUAL,
-            com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE,
-            com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION,
+            com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
+            com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
+            com.elster.jupiter.validation.security.Privileges.Constants.VALIDATE_MANUAL,
+            com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE,
+            com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION,
             //com.elster.jupiter.metering.security - usage points
-            com.elster.jupiter.metering.security.Privileges.ADMIN_ANY,
-            com.elster.jupiter.metering.security.Privileges.ADMIN_OWN,
-            com.elster.jupiter.metering.security.Privileges.BROWSE_ANY,
-            com.elster.jupiter.metering.security.Privileges.BROWSE_OWN);
+            com.elster.jupiter.metering.security.Privileges.Constants.ADMIN_ANY,
+            com.elster.jupiter.metering.security.Privileges.Constants.ADMIN_OWN,
+            com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_ANY,
+            com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_OWN);
     }
 
     @Override
