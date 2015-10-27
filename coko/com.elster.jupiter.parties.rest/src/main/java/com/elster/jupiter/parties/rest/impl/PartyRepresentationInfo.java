@@ -1,10 +1,10 @@
 package com.elster.jupiter.parties.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.parties.PartyRepresentation;
 import com.elster.jupiter.users.rest.UserInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
-
 import java.time.Instant;
 
 @XmlRootElement
@@ -17,15 +17,16 @@ public class PartyRepresentationInfo {
     public long version;
 
     PartyRepresentationInfo() {
-
     }
 
-    public PartyRepresentationInfo(PartyRepresentation partyRepresentation) {
+    public PartyRepresentationInfo(Thesaurus thesaurus, PartyRepresentation partyRepresentation) {
+        this();
         partyId = partyRepresentation.getParty().getId();
         start = partyRepresentation.getInterval().getStart();
         end = partyRepresentation.getInterval().getEnd();
-        userInfo = new UserInfo(partyRepresentation.getDelegate());
+        userInfo = new UserInfo(thesaurus, partyRepresentation.getDelegate());
         parent = new PartyInfo(partyRepresentation.getParty());
         version = partyRepresentation.getVersion();
     }
+
 }

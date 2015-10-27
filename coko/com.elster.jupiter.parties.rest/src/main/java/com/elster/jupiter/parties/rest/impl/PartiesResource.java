@@ -1,6 +1,7 @@
 package com.elster.jupiter.parties.rest.impl;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyInRole;
 import com.elster.jupiter.parties.PartyRepresentation;
@@ -10,7 +11,6 @@ import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.UserService;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -37,7 +37,7 @@ public class PartiesResource {
 
     private final PartyService partyService;
     private final TransactionService transactionService;
-    private final UserService userService;
+    private final Thesaurus thesaurus;
     private final RestQueryService restQueryService;
     private final Clock clock;
     private final Fetcher fetcher;
@@ -45,13 +45,13 @@ public class PartiesResource {
     @Inject
     public PartiesResource(PartyService partyService,
                            TransactionService transactionService,
-                           UserService userService,
+                           Thesaurus thesaurus,
                            RestQueryService restQueryService,
                            Clock clock,
                            Fetcher fetcher) {
         this.partyService = partyService;
         this.transactionService = transactionService;
-        this.userService = userService;
+        this.thesaurus = thesaurus;
         this.restQueryService = restQueryService;
         this.clock = clock;
         this.fetcher = fetcher;
@@ -137,7 +137,7 @@ public class PartiesResource {
         try (TransactionContext context = transactionService.getContext()) {
             try {
                 Party party = partyWithId(id);
-                return new PartyRepresentationInfos(party.getCurrentDelegates());
+                return new PartyRepresentationInfos(party.getCurrentDelegates(), this.thesaurus);
             } finally {
                 context.commit();
             }
@@ -158,7 +158,7 @@ public class PartiesResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PartyRepresentationInfos updateRoles(@PathParam("id") long id, PartyRepresentationInfos infos) {
-        new UpdatePartyRepresentationsTransaction(id, infos, partyService, clock, fetcher); // doesn't work
+        new UpdatePartyRepresentationsTransaction(id, infos, clock, this.thesaurus, fetcher); // doesn't work
         return getDelegates(id);
     }
 
@@ -172,7 +172,7 @@ public class PartiesResource {
         try (TransactionContext context = transactionService.getContext()) {
             PartyRepresentation partyRepresentation = transactionService.execute(new UpdatePartyRepresentationTransaction(info, fetcher));
             context.commit();
-            return new PartyRepresentationInfos(partyRepresentation);
+            return new PartyRepresentationInfos(partyRepresentation, this.thesaurus);
         }
     }
 
@@ -181,4 +181,5 @@ public class PartiesResource {
         Query<Party> query = partyService.getPartyQuery();
         return restQueryService.wrap(query);
     }
+
 }

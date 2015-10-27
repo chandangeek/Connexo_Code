@@ -1,35 +1,33 @@
 package com.elster.jupiter.parties.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRepresentation;
-import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.transaction.Transaction;
 
+import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Objects;
-
-import javax.inject.Inject;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 public class UpdatePartyRepresentationsTransaction implements Transaction<List<? extends PartyRepresentation>> {
 
     private final PartyRepresentationInfos infos;
     private final long id;
     private final Clock clock;
+    private final Thesaurus thesaurus;
     private final Fetcher fetcher;
-    private final PartyService partyService;
 
     @Inject
-    public UpdatePartyRepresentationsTransaction(long id, PartyRepresentationInfos infos, PartyService partyService, Clock clock, Fetcher fetcher) {
+    public UpdatePartyRepresentationsTransaction(long id, PartyRepresentationInfos infos, Clock clock, Thesaurus thesaurus, Fetcher fetcher) {
         this.id = id;
         this.infos = infos;
         this.clock = clock;
+        this.thesaurus = thesaurus;
         this.fetcher = fetcher;
-        this.partyService = partyService;
     }
 
     @Override
@@ -45,7 +43,7 @@ public class UpdatePartyRepresentationsTransaction implements Transaction<List<?
     private void handleRemovals(List<PartyRepresentation> preEdit) {
         Instant now = clock.instant();
         for (PartyRepresentation partyRepresentation : preEdit) {
-            PartyRepresentationInfo delegate = new PartyRepresentationInfo(partyRepresentation);
+            PartyRepresentationInfo delegate = new PartyRepresentationInfo(this.thesaurus, partyRepresentation);
             delegate.end = now;
             new UpdatePartyRepresentationTransaction(delegate, fetcher).perform();
         }
