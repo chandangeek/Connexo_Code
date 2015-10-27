@@ -27,20 +27,25 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.validation.rest.DataValidationTaskInfo;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
+import com.elster.jupiter.validation.rest.ValidationRuleSetInfos;
 
 @Path("/metrologyconfigurations")
 public class MetrologyConfigurationResource {
 
     private final TransactionService transactionService;
+    private final ValidationService validationService;
     private final UsagePointConfigurationService usagePointConfigurationService;
     private final Clock clock;
 
     @Inject
-    public MetrologyConfigurationResource(TransactionService transactionService, Clock clock, UsagePointConfigurationService usagePointConfigurationService) {
+    public MetrologyConfigurationResource(TransactionService transactionService, Clock clock, UsagePointConfigurationService usagePointConfigurationService, ValidationService validationService) {
         this.transactionService = transactionService;
         this.clock = clock;
         this.usagePointConfigurationService = usagePointConfigurationService;
+        this.validationService = validationService;
     }
 
     @GET
@@ -53,9 +58,9 @@ public class MetrologyConfigurationResource {
                 .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("metrologyconfigurations", metrologyConfigurationsInfos, queryParameters);
     }
-    
+
     @GET
-//    @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
+    //    @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public MetrologyConfigurationInfo getMeterologyConfiguration(@PathParam("id") long id, @Context SecurityContext securityContext) {
@@ -83,7 +88,7 @@ public class MetrologyConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response updateMetrologyConfiguration(@PathParam("id") long id, MetrologyConfigurationInfo metrologyConfigurationInfo, @Context SecurityContext securityContext) {
         MetrologyConfiguration metrologyConfiguration = usagePointConfigurationService.findMetrologyConfiguration(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-        
+
         MetrologyConfiguration updatedMetrologyConfiguration = transactionService.execute(new Transaction<MetrologyConfiguration>() {
             @Override
             public MetrologyConfiguration perform() {
@@ -92,21 +97,75 @@ public class MetrologyConfigurationResource {
                 return metrologyConfiguration;
             }
         });
-        
-        
-        return  Response.status(Response.Status.CREATED).entity(new MetrologyConfigurationInfo(updatedMetrologyConfiguration)).build();
+
+        return Response.status(Response.Status.CREATED).entity(new MetrologyConfigurationInfo(updatedMetrologyConfiguration)).build();
     }
-    
+
     @GET
-//  @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
-  @Path("/{id}/validationrulesets")
-  @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-  public PagedInfoList getValidationRuleSetsForMetrologyConfiguration(@PathParam("id") long id, @Context SecurityContext securityContext, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
-      MetrologyConfiguration metrologyConfiguration = usagePointConfigurationService.findMetrologyConfiguration(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-      List<MetrologyConfiguration> allMetrologyConfigurations = usagePointConfigurationService.findAllMetrologyConfigurations();
-      List<MetrologyConfigurationInfo> metrologyConfigurationsInfos = ListPager.of(allMetrologyConfigurations).from(queryParameters).stream().map(m -> new MetrologyConfigurationInfo(m))
-              .collect(Collectors.toList());
-      return PagedInfoList.fromPagedList("metrologyconfigurations", metrologyConfigurationsInfos, queryParameters);
-  }
-    
+    //  @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
+    @Path("/{id}/assignedvalidationrulesets")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getAssignedValidationRuleSetsForMetrologyConfiguration(@PathParam("id") long id,
+            @Context SecurityContext securityContext,
+            @BeanParam JsonQueryParameters queryParameters,
+            @BeanParam JsonQueryFilter filter) {
+        MetrologyConfiguration metrologyConfiguration = usagePointConfigurationService.findMetrologyConfiguration(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        List<ValidationRuleSetInfo> validationRuleSetsInfos = ListPager.of(metrologyConfiguration.getValidationRuleSets()).from(queryParameters).stream().map(vrs -> new ValidationRuleSetInfo(vrs))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromPagedList("assignedvalidationrulesets", validationRuleSetsInfos, queryParameters);
+    }
+
+    @POST
+    //  @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
+    @Path("/{id}/assignedvalidationrulesets")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response setAssignedValidationRuleSetsForMetrologyConfiguration(@PathParam("id") long id,
+            ValidationRuleSetInfos validationRuleSetInfos,
+            @Context SecurityContext securityContext,
+            @BeanParam JsonQueryParameters queryParameters,
+            @BeanParam JsonQueryFilter filter) {
+        MetrologyConfiguration metrologyConfiguration = usagePointConfigurationService.findMetrologyConfiguration(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+
+        List<ValidationRuleSet> currentRules = metrologyConfiguration.getValidationRuleSets();
+
+        transactionService.execute(new Transaction<Boolean>() {
+            @Override
+            public Boolean perform() {
+                for (ValidationRuleSetInfo vrsi : validationRuleSetInfos.ruleSets) {
+                    ValidationRuleSet vrs = validationService.getValidationRuleSet(vrsi.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+                    if (currentRules.contains(vrs)) {
+                        currentRules.remove(vrs);
+                    } else {
+                        metrologyConfiguration.addValidationRuleSet(vrs);
+                    }
+                }
+
+                //remove rules that are no longer current
+                for (ValidationRuleSet vrs : currentRules) {
+                    metrologyConfiguration.removeValidationRuleSet(vrs);
+                }
+                return true;
+            }
+        });
+
+        return Response.status(Response.Status.CREATED).entity(new MetrologyConfigurationInfo(metrologyConfiguration)).build();
+    }
+
+    @GET
+    //  @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
+    @Path("/{id}/assignablevalidationrulesets")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getAssignableValidationRuleSetsForMetrologyConfiguration(@PathParam("id") long id,
+            @Context SecurityContext securityContext,
+            @BeanParam JsonQueryParameters queryParameters,
+            @BeanParam JsonQueryFilter filter) {
+        MetrologyConfiguration metrologyConfiguration = usagePointConfigurationService.findMetrologyConfiguration(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        List<ValidationRuleSet> assigned = metrologyConfiguration.getValidationRuleSets();
+        List<ValidationRuleSet> assignableValidationRuleSets = validationService.getValidationRuleSets().stream().filter(vrs -> !assigned.contains(vrs)).collect(Collectors.toList());
+
+        List<ValidationRuleSetInfo> validationRuleSetsInfos = ListPager.of(assignableValidationRuleSets).from(queryParameters).stream().map(vrs -> new ValidationRuleSetInfo(vrs))
+                .collect(Collectors.toList());
+        return PagedInfoList.fromPagedList("assignablevalidationrulesets", validationRuleSetsInfos, queryParameters);
+    }
+
 }

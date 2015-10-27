@@ -1,4 +1,4 @@
-package com.elster.insight.usagepoint.data.rest.impl;
+package com.elster.insight.usagepoint.config.rest.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

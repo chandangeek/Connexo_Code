@@ -29,6 +29,7 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableSet;
 
 @Component(name = "com.elster.insight.ucr.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/ucr", "app=INS", "name=" + UsagePointConfigurationApplication.COMPONENT_NAME})
@@ -44,11 +45,9 @@ public class UsagePointConfigurationApplication extends Application implements T
     private volatile NlsService nlsService;
     private volatile JsonService jsonService;
     private volatile Thesaurus thesaurus;
-//    private volatile MeteringService meteringService;
-//    private volatile RestQueryService restQueryService;
     private volatile Clock clock;
-//    private volatile MessageService messageService;
     private volatile UsagePointConfigurationService usagePointConfigurationService;
+    private volatile ValidationService validationService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -94,21 +93,10 @@ public class UsagePointConfigurationApplication extends Application implements T
         this.jsonService = jsonService;
     }
 
-//    @Reference
-//    public void setMeteringService(MeteringService meteringService) {
-//        this.meteringService = meteringService;
-//    }
-//    
-//    @Reference
-//    public void setMeteringGroupService(MeteringGroupsService meteringGroupsService) {
-//        this.meteringGroupsService = meteringGroupsService;
-//    }
-
-
-//    @Reference
-//    public void setRestQueryService(RestQueryService restQueryService) {
-//        this.restQueryService = restQueryService;
-//    }
+    @Reference
+    public void setValidationService(ValidationService validationService) {
+        this.validationService = validationService;
+    }
     
     @Reference
     public void setUsagePointConfigurationService(UsagePointConfigurationService usagePointConfigurationService) {
@@ -120,11 +108,6 @@ public class UsagePointConfigurationApplication extends Application implements T
         this.clock = clock;
     }
 
-//    @Reference
-//    public void setMessageService(MessageService messageService) {
-//        this.messageService = messageService;
-//    }
-    
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
@@ -141,13 +124,9 @@ public class UsagePointConfigurationApplication extends Application implements T
             bind(nlsService).to(NlsService.class);
             bind(jsonService).to(JsonService.class);
             bind(thesaurus).to(Thesaurus.class);
-//            bind(meteringService).to(MeteringService.class);
-//            bind(meteringGroupsService).to(MeteringGroupsService.class);
-//            bind(restQueryService).to(RestQueryService.class);
             bind(clock).to(Clock.class);
-//            bind(com.elster.jupiter.validation.rest.PropertyUtils.class).to(com.elster.jupiter.validation.rest.PropertyUtils.class);
-//            bind(messageService).to(MessageService.class);
             bind(usagePointConfigurationService).to(UsagePointConfigurationService.class);
+            bind(validationService).to(ValidationService.class);
         }
     }
 }

@@ -1,16 +1,13 @@
-package com.elster.insight.usagepoint.data.rest.impl;
+package com.elster.insight.usagepoint.config.rest.impl;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.util.Currency;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.ws.rs.core.Application;
 
-import org.junit.Before;
 import org.mockito.Mock;
 
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
@@ -27,13 +24,9 @@ import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
-import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.validation.ValidationService;
 
 /**
  */
@@ -46,15 +39,7 @@ public class UsagePointConfigurationRestApplicationJerseyTest extends FelixRestA
     @Mock
     JsonService jsonService;
     @Mock
-    MeteringService meteringService;
-//    @Mock
-//    RestQueryService restQueryService;
-    @Mock
-    PropertySpecService propertySpecService;
-    @Mock
-    MessageService messageService;
-    @Mock
-    MeteringGroupsService meteringGroupsService;
+    ValidationService validationService;
     @Mock
     UsagePointConfigurationService usagePointConfigurationService;
 
@@ -64,14 +49,9 @@ public class UsagePointConfigurationRestApplicationJerseyTest extends FelixRestA
         application.setNlsService(nlsService);
         application.setTransactionService(transactionService);
         application.setJsonService(jsonService);
-//        application.setMeteringService(meteringService);
-//        application.setRestQueryService(restQueryService);
-//        application.setMessageService(messageService);
+        application.setValidationService(validationService);
         application.setClockService(clock);
         application.setUsagePointConfigurationService(usagePointConfigurationService);
-        
-        
-//        application.setMeteringGroupService(meteringGroupsService);
         return application;
     }
 
