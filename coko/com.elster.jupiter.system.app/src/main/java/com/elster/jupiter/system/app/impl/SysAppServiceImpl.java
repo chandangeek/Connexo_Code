@@ -36,7 +36,7 @@ public class SysAppServiceImpl implements SysAppService, InstallService, Transla
     public static final String HTTP_RESOURCE_ALIAS = "/admin";
     public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/system";
 
-    public static final String APP_ICON = "connexo";
+    public static final String APPLICATION_ICON = "connexo";
 
     private volatile ServiceRegistration<App> registration;
     private volatile UserService userService;
@@ -52,8 +52,8 @@ public class SysAppServiceImpl implements SysAppService, InstallService, Transla
 
     @Activate
     public final void activate(BundleContext context) {
-        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context), new DefaultStartPage(APP_NAME));
-        App app = new App(APPLICATION_KEY, APP_NAME, APP_ICON, HTTP_RESOURCE_ALIAS, resource, user -> isAllowed(user));
+        HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context), new DefaultStartPage(APPLICATION_NAME));
+        App app = new App(APPLICATION_KEY, APPLICATION_NAME, APPLICATION_ICON, HTTP_RESOURCE_ALIAS, resource, user -> isAllowed(user));
 
         registration = context.registerService(App.class, app, null);
     }
@@ -105,7 +105,7 @@ public class SysAppServiceImpl implements SysAppService, InstallService, Transla
 
     @Override
     public String getComponentName() {
-        return APPLICATION_KEY;
+        return COMPONENTNAME;
     }
 
     @Override
@@ -116,7 +116,7 @@ public class SysAppServiceImpl implements SysAppService, InstallService, Transla
     @Override
     public List<TranslationKey> getKeys() {
         List<TranslationKey> translationKeys = new ArrayList<>();
-        translationKeys.add(new SimpleTranslationKey(APPLICATION_KEY, APP_NAME));
+        translationKeys.add(new SimpleTranslationKey(APPLICATION_KEY, APPLICATION_NAME));
         return translationKeys;
     }
 }
