@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.search;
 
+import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,20 +12,20 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RegisterReadingTypeUnitOfMeasureSearchablePropertyTest extends AbstractReadingTypeUnitOfMeasureSearchablePropertyTest {
+public class ChannelReadingTypeUnitOfMeasureSearchablePropertyTest extends AbstractReadingTypeUnitOfMeasureSearchablePropertyTest {
 
-    private RegisterSearchablePropertyGroup registerSearchablePropertyGroup;
+    private RegisterSearchablePropertyGroup channelGroup;
 
     @Before
     @Override
     public void initializeMocks() {
         super.initializeMocks();
-        this.registerSearchablePropertyGroup = new RegisterSearchablePropertyGroup(thesaurus);
+        this.channelGroup = new RegisterSearchablePropertyGroup(thesaurus);
     }
 
     @Test
     public void testGroup() {
-        RegisterReadingTypeUnitOfMeasureSearchableProperty property = this.getTestInstance();
+        SearchableProperty property = this.getTestInstance();
 
         // Business method
         Optional<SearchablePropertyGroup> group = property.getGroup();
@@ -34,7 +35,7 @@ public class RegisterReadingTypeUnitOfMeasureSearchablePropertyTest extends Abst
         assertThat(group.get().getId()).isEqualTo(RegisterSearchablePropertyGroup.GROUP_NAME);
     }
 
-    protected RegisterReadingTypeUnitOfMeasureSearchableProperty getTestInstance() {
-        return new RegisterReadingTypeUnitOfMeasureSearchableProperty(meteringService, propertySpecService, thesaurus).init(this.domain, registerSearchablePropertyGroup);
+    protected SearchableProperty getTestInstance() {
+        return new ChannelReadingTypeUnitOfMeasureSearchableProperty(meteringService, propertySpecService, thesaurus).init(this.domain, channelGroup);
     }
 }

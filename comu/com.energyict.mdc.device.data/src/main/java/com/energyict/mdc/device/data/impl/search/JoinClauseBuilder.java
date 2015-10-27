@@ -50,6 +50,8 @@ public interface JoinClauseBuilder {
 
     JoinClauseBuilder addChannelReadingType();
 
+    JoinClauseBuilder addChannelSpec();
+
     JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass);
 
     class Aliases {

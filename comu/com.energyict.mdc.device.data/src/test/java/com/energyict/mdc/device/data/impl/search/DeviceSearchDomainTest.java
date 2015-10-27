@@ -176,6 +176,7 @@ public class DeviceSearchDomainTest {
         verify(this.dataModel).getInstance(RegisterReadingTypeTimeOfUseSearchableProperty.class);
         verify(this.dataModel).getInstance(ProtocolDialectSearchableProperty.class);
         verify(this.dataModel).getInstance(ChannelReadingTypeNameSearchableProperty.class);
+        verify(this.dataModel).getInstance(ChannelReadingTypeUnitOfMeasureSearchableProperty.class);
     }
 
     @Test
@@ -949,14 +950,15 @@ public class DeviceSearchDomainTest {
 //                eq(RegisterReadingTypeTimeOfUseSearchableProperty.PROPERTY_NAME),
 //                eq(false),
 //                Matchers.<Long>anyVararg())).thenReturn(tou);
-//        PropertySpec unitOfMeasure = mock(PropertySpec.class);
-//        when(unitOfMeasure.getName()).thenReturn(RegisterReadingTypeUnitOfMeasureSearchableProperty.PROPERTY_NAME);
-//        when(this.propertySpecService.stringReferencePropertySpec(
-//                eq(RegisterReadingTypeUnitOfMeasureSearchableProperty.PROPERTY_NAME),
-//                eq(false),
-//                Matchers.anyObject(),
-//                Matchers.anyVararg())).thenReturn(unitOfMeasure);
+        PropertySpec unitOfMeasure = mock(PropertySpec.class);
+        when(unitOfMeasure.getName()).thenReturn(ChannelReadingTypeUnitOfMeasureSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.stringReferencePropertySpec(
+                eq(ChannelReadingTypeUnitOfMeasureSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                Matchers.anyObject(),
+                Matchers.anyVararg())).thenReturn(unitOfMeasure);
     }
+
     @Test
     public void getPropertiesWithDeviceConfigurationConstrictionsWithTheSamePluggableClassDoesNotCreateDuplicateConnectionTypeProperties() {
         PropertySpec deviceTypePropertySpec = mock(PropertySpec.class);
