@@ -1,8 +1,31 @@
 package com.elster.jupiter.validation.rest;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.InputStream;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Optional;
+
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.Response;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.util.conditions.Order;
@@ -12,26 +35,6 @@ import com.elster.jupiter.validation.DataValidationOccurrenceFinder;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-
-import javax.ws.rs.HttpMethod;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.core.Response;
-import java.io.InputStream;
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyInt;
-import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class DataValidationTaskResourceTest extends BaseValidationRestTest {
 
@@ -41,6 +44,9 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
 
     @Mock
     protected EndDeviceGroup endDeviceGroup;
+    
+    @Mock
+    protected UsagePointGroup usagePointGroup;
 
     @Mock
     DataValidationTaskBuilder taskBuilder;
@@ -85,6 +91,19 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
+    
+    @Test
+    public void getCreateTasksUsagePointGroupTest() {
+        DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
+        info.deviceGroup = null;
+        info.usagePointGroup = new UsagePointGroupInfo();
+        info.usagePointGroup.id = 1;
+        Entity<DataValidationTaskInfo> json = Entity.json(info);
+
+        Response response = target("/validationtasks").request().post(json);
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+    }
 
     @Test
     public void updateTasksTest() {
@@ -97,6 +116,19 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         Response response = target("/validationtasks/" + TASK_ID).request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
+    
+    @Test
+    public void updateTasksUsagePointGroupTest() {
+        DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
+        info.id = TASK_ID;
+        info.deviceGroup = null;
+        info.usagePointGroup = new UsagePointGroupInfo();
+        info.usagePointGroup.id = 1;
+
+        Entity<DataValidationTaskInfo> json = Entity.json(info);
+        Response response = target("/validationtasks/" + TASK_ID).request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+    }
 
     @Test
     public void updateTasksTestBadVersion() {
@@ -104,6 +136,20 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         info.id = TASK_ID;
         info.deviceGroup = new MeterGroupInfo();
         info.deviceGroup.id = 1;
+        info.version = BAD_VERSION;
+
+        Entity<DataValidationTaskInfo> json = Entity.json(info);
+        Response response = target("/validationtasks/" + TASK_ID).request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+    
+    @Test
+    public void updateTasksTestBadUsagePointGroupVersion() {
+        DataValidationTaskInfo info = new DataValidationTaskInfo(dataValidationTask1, thesaurus, timeService);
+        info.id = TASK_ID;
+        info.deviceGroup = null;
+        info.usagePointGroup = new UsagePointGroupInfo();
+        info.usagePointGroup.id = 1;
         info.version = BAD_VERSION;
 
         Entity<DataValidationTaskInfo> json = Entity.json(info);
