@@ -87,7 +87,7 @@ public class SharedScheduleSearchableProperty extends AbstractSearchableDevicePr
                 PROPERTY_NAME,
                 false,
                 FactoryIds.COMSCHEDULE,
-                this.schedulingService.findAllSchedules());
+                this.schedulingService.findAllSchedules().find());
     }
 
     @Override
