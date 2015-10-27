@@ -1,5 +1,6 @@
 package com.elster.jupiter.users.rest;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.rest.impl.LocaleInfo;
@@ -31,7 +32,7 @@ public class UserInfo {
     public UserInfo() {
     }
 
-    public UserInfo(User user) {
+    public UserInfo(Thesaurus thesaurus, User user) {
         id = user.getId();
         authenticationName = user.getName();
         description = user.getDescription();
@@ -42,7 +43,7 @@ public class UserInfo {
         createdOn = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(user.getCreationDate().atZone(ZoneId.systemDefault()));
         modifiedOn = DateTimeFormatter.ISO_LOCAL_DATE_TIME.format(user.getModifiedDate().atZone(ZoneId.systemDefault()));
         for (Group group : user.getGroups()) {
-            groups.add(new GroupInfo(group));
+            groups.add(new GroupInfo(thesaurus, group));
         }
 
         Collections.sort(groups, new Comparator<GroupInfo>() {

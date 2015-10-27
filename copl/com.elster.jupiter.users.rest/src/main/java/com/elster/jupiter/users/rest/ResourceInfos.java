@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.Resource;
 
 @XmlRootElement
@@ -17,24 +18,24 @@ public class ResourceInfos {
     public ResourceInfos() {
     }
 
-    public ResourceInfos(Resource resource) {
-        add(resource);
+    public ResourceInfos(Thesaurus thesaurus, Resource resource) {
+        add(thesaurus, resource);
     }
 
-    public ResourceInfos(Iterable<? extends Resource> resources) {
-        addAll(resources);
+    public ResourceInfos(Thesaurus thesaurus, Iterable<? extends Resource> resources) {
+        addAll(thesaurus, resources);
     }
 
-    public ResourceInfo add(Resource resource) {
-        ResourceInfo result = new ResourceInfo(resource);
+    public ResourceInfo add(Thesaurus thesaurus, Resource resource) {
+        ResourceInfo result = new ResourceInfo(thesaurus, resource);
         resources.add(result);
         total++;
         return result;
     }
 
-    public void addAll(Iterable<? extends Resource> resources) {
+    public void addAll(Thesaurus thesaurus, Iterable<? extends Resource> resources) {
         for (Resource each : resources) {
-            add(each);
+            add(thesaurus, each);
         }
     }
 

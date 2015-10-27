@@ -1,5 +1,6 @@
 package com.elster.jupiter.users.rest;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 
@@ -16,20 +17,20 @@ public class UserInGroupInfos {
     UserInGroupInfos() {
     }
 
-    UserInGroupInfos(User user, Group group) {
-        add(user, group);
+    UserInGroupInfos(Thesaurus thesaurus, User user, Group group) {
+        add(thesaurus, user, group);
     }
 
-    UserInGroupInfo add(User user, Group group) {
-        UserInGroupInfo result = new UserInGroupInfo(user, group);
+    UserInGroupInfo add(Thesaurus thesaurus, User user, Group group) {
+        UserInGroupInfo result = new UserInGroupInfo(thesaurus, user, group);
         userInGroupInfos.add(result);
         total++;
         return result;
     }
 
-    void addAll(User user, Iterable<? extends Group> groups) {
+    void addAll(Thesaurus thesaurus, User user, Iterable<? extends Group> groups) {
         for (Group each : groups) {
-            add(user, each);
+            add(thesaurus, user, each);
         }
     }
 

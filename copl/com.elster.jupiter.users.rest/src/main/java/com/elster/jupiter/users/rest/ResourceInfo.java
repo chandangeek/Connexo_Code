@@ -1,5 +1,6 @@
 package com.elster.jupiter.users.rest;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.Resource;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -20,13 +21,13 @@ public class ResourceInfo {
     public String description;
     public List<PrivilegeInfo> privileges = new ArrayList<>();
 
-    public ResourceInfo(Resource resource) {
+    public ResourceInfo(Thesaurus thesaurus, Resource resource) {
         componentName = resource.getComponentName();
         name = resource.getName();
         description = resource.getDescription();
         qualifiedName = resource.getComponentName()+"."+resource.getName();
         for (Privilege privilege : resource.getPrivileges()) {
-            privileges.add(new PrivilegeInfo(privilege));
+            privileges.add(new PrivilegeInfo(thesaurus, privilege));
         }
 
         Collections.sort(privileges, new Comparator<PrivilegeInfo>() {

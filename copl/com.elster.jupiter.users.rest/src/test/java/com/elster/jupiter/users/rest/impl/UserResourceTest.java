@@ -13,6 +13,7 @@ import java.util.Optional;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 
+import com.elster.jupiter.nls.Thesaurus;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -29,7 +30,7 @@ public class UserResourceTest extends UsersRestApplicationJerseyTest {
     @Test
     public void testNothingToUpdate() {
         User user = mockUser(1L);
-        UserInfo info = new UserInfo(user);
+        UserInfo info = new UserInfo(mock(Thesaurus.class), user);
         
         target("/users/1").request().put(Entity.json(info));
         
@@ -41,7 +42,7 @@ public class UserResourceTest extends UsersRestApplicationJerseyTest {
     @Test
     public void testUpdateUserLocale() {
         User user = mockUser(1L);
-        UserInfo info = new UserInfo(user);
+        UserInfo info = new UserInfo(mock(Thesaurus.class), user);
         info.language = new LocaleInfo();
         info.language.languageTag = Locale.US.toLanguageTag();
         
@@ -54,7 +55,7 @@ public class UserResourceTest extends UsersRestApplicationJerseyTest {
     @Test
     public void testReleaseUserLocale() {
         User user = mockUser(1L);
-        UserInfo info = new UserInfo(user);
+        UserInfo info = new UserInfo(mock(Thesaurus.class), user);
         info.language = null;
         
         target("/users/1").request().put(Entity.json(info));
@@ -66,7 +67,7 @@ public class UserResourceTest extends UsersRestApplicationJerseyTest {
     @Test
     public void testUpdateDescription() {
         User user = mockUser(1L);
-        UserInfo info = new UserInfo(user);
+        UserInfo info = new UserInfo(mock(Thesaurus.class), user);
         info.description = "new description";
         
         target("/users/1").request().put(Entity.json(info));
@@ -81,7 +82,7 @@ public class UserResourceTest extends UsersRestApplicationJerseyTest {
         reset(userService);
         when(userService.findAndLockUserByIdAndVersion(1L, 1L)).thenReturn(Optional.empty());
         when(userService.getUser(1L)).thenReturn(Optional.empty());
-        UserInfo info = new UserInfo(user);
+        UserInfo info = new UserInfo(mock(Thesaurus.class), user);
 
         Response response = target("/users/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());

@@ -11,6 +11,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserPreference;
 import com.elster.jupiter.users.UserService;
@@ -20,17 +21,19 @@ import com.elster.jupiter.users.rest.UserInfo;
 public class CurrentUserResource {
     
     private final UserService userService;
+    private final Thesaurus thesaurus;
     
     @Inject
-    public CurrentUserResource(UserService userService) {
+    public CurrentUserResource(UserService userService, Thesaurus thesaurus) {
         this.userService = userService;
+        this.thesaurus = thesaurus;
     }
     
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getCurrentUser(@Context SecurityContext securityContext) {
         User user = fetchUser((User) securityContext.getUserPrincipal());
-        return Response.ok(new UserInfo(user)).build();
+        return Response.ok(new UserInfo(thesaurus, user)).build();
     }
     
     @GET

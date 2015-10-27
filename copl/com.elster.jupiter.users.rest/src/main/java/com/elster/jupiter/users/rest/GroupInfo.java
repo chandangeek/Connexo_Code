@@ -1,5 +1,6 @@
 package com.elster.jupiter.users.rest;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -26,7 +27,7 @@ public class GroupInfo {
     public GroupInfo() {
     }
 
-    public GroupInfo(Group group) {
+    public GroupInfo(Thesaurus thesaurus, Group group) {
         id = group.getId();
         name = group.getName();
         version = group.getVersion();
@@ -36,7 +37,7 @@ public class GroupInfo {
         privileges.addAll(group.getPrivileges()
                 .entrySet()
                 .stream()
-                .flatMap(x->x.getValue().stream().map(p->PrivilegeInfo.asApllicationPrivilege(x.getKey(), p)))
+                .flatMap(x->x.getValue().stream().map(p->PrivilegeInfo.asApllicationPrivilege(thesaurus, x.getKey(), p)))
                 .collect(Collectors.toList()));
 
         Collections.sort(privileges, (p1, p2) -> {

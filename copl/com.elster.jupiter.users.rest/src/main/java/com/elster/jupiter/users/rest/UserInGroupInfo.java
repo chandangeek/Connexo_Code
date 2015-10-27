@@ -1,5 +1,6 @@
 package com.elster.jupiter.users.rest;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 
@@ -10,9 +11,9 @@ public class UserInGroupInfo {
     public long userId;
     public GroupInfo groupInfo;
 
-    public UserInGroupInfo(User user, Group group) {
+    public UserInGroupInfo(Thesaurus thesaurus, User user, Group group) {
         userId = user.getId();
-        groupInfo = new GroupInfo(group);
+        groupInfo = new GroupInfo(thesaurus, group);
     }
 
     public UserInGroupInfo() {

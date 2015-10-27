@@ -1,5 +1,6 @@
 package com.elster.jupiter.users.rest;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.users.Privilege;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -7,20 +8,26 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 public class PrivilegeInfo {
     
     public String name;
+    public String translatedName;
     public String applicationName;
+    public String translatedApplicationName;
 
-    public static PrivilegeInfo asApllicationPrivilege(String applicationName, Privilege privilege){
-        PrivilegeInfo privilegeInfo = new PrivilegeInfo(privilege);
+    public static PrivilegeInfo asApllicationPrivilege(Thesaurus thesaurus, String applicationName, Privilege privilege){
+        PrivilegeInfo privilegeInfo = new PrivilegeInfo(thesaurus, privilege);
         privilegeInfo.applicationName = applicationName;
+        privilegeInfo.translatedApplicationName = thesaurus.getStringBeyondComponent(applicationName, applicationName);
         return privilegeInfo;
     }
-    public PrivilegeInfo(Privilege privilege) {
-        name = privilege.getName();
+    public PrivilegeInfo(Thesaurus thesaurus, Privilege privilege) {
+        this.name = privilege.getName();
+        this.translatedName = thesaurus.getStringBeyondComponent(this.name, this.name);
     }
 
-    public PrivilegeInfo(String applicationName, Privilege privilege) {
+    public PrivilegeInfo(Thesaurus thesaurus, String applicationName, Privilege privilege) {
         this.applicationName = applicationName;
-        name = privilege.getName();
+        this.translatedApplicationName = thesaurus.getStringBeyondComponent(applicationName, applicationName);
+        this.name = privilege.getName();
+        this.translatedName = thesaurus.getStringBeyondComponent(this.name, this.name);
     }
 
     public PrivilegeInfo() {

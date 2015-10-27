@@ -42,13 +42,15 @@ public class UserResource {
     private final UserService userService;
     private final RestQueryService restQueryService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public UserResource(TransactionService transactionService, UserService userService, RestQueryService restQueryService, ConcurrentModificationExceptionFactory conflictFactory) {
+    public UserResource(TransactionService transactionService, UserService userService, RestQueryService restQueryService, ConcurrentModificationExceptionFactory conflictFactory, Thesaurus thesaurus) {
         this.transactionService = transactionService;
         this.userService = userService;
         this.restQueryService = restQueryService;
         this.conflictFactory = conflictFactory;
+        this.thesaurus = thesaurus;
     }
 
 // - To be added in the future?
@@ -85,7 +87,7 @@ public class UserResource {
                 throw new WebApplicationException(Response.Status.NOT_FOUND);
             }
             try {
-                return new UserInfos(party.get());
+                return new UserInfos(thesaurus, party.get());
             } finally {
                 context.commit();
             }
@@ -99,7 +101,7 @@ public class UserResource {
         try (TransactionContext context = transactionService.getContext()) {
             QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
             List<User> list = getUserRestQuery().select(queryParameters, Order.ascending("authenticationName").toLowerCase());
-            UserInfos infos = new UserInfos(queryParameters.clipToLimit(list));
+            UserInfos infos = new UserInfos(thesaurus, queryParameters.clipToLimit(list));
             infos.total = queryParameters.determineTotal(list.size());
             try {
                 return infos;
@@ -117,7 +119,7 @@ public class UserResource {
         Map<String, List<Privilege>> privileges = user.getApplicationPrivileges();
         PrivilegeInfos infos = new PrivilegeInfos();
         for(String application : privileges.keySet()){
-            infos.addAll(application, privileges.get(application));
+            infos.addAll(thesaurus, application, privileges.get(application));
         }
         return infos;
     }

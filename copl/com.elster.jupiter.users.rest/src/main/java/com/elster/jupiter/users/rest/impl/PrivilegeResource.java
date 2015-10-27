@@ -12,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -26,11 +27,13 @@ public class PrivilegeResource {
 
     private final UserService userService;
     private final RestQueryService restQueryService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public PrivilegeResource(UserService userService, RestQueryService restQueryService) {
+    public PrivilegeResource(UserService userService, RestQueryService restQueryService, Thesaurus thesaurus) {
         this.userService = userService;
         this.restQueryService = restQueryService;
+        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -39,7 +42,7 @@ public class PrivilegeResource {
     public PrivilegeInfos getPrivileges(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<Privilege> list = getPrivilegeRestQuery().select(queryParameters, Order.ascending("name"));
-        PrivilegeInfos infos = new PrivilegeInfos(queryParameters.clipToLimit(list));
+        PrivilegeInfos infos = new PrivilegeInfos(thesaurus, queryParameters.clipToLimit(list));
         infos.total = queryParameters.determineTotal(list.size());
         return infos;
     }

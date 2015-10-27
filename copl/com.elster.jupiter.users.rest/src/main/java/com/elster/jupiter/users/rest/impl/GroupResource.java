@@ -20,6 +20,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
@@ -42,13 +43,15 @@ public class GroupResource {
     private final UserService userService;
     private final RestQueryService restQueryService;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public GroupResource(TransactionService transactionService, UserService userService, RestQueryService restQueryService, ConcurrentModificationExceptionFactory conflictFactory) {
+    public GroupResource(TransactionService transactionService, UserService userService, RestQueryService restQueryService, ConcurrentModificationExceptionFactory conflictFactory, Thesaurus thesaurus) {
         this.transactionService = transactionService;
         this.userService = userService;
         this.restQueryService = restQueryService;
         this.conflictFactory = conflictFactory;
+        this.thesaurus = thesaurus;
     }
 
     @POST
@@ -57,7 +60,7 @@ public class GroupResource {
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_USER_ROLE)
     public GroupInfos createOrganization(GroupInfo info) {
         GroupInfos result = new GroupInfos();
-        result.add(transactionService.execute(new CreateGroupTransaction(info, userService)));
+        result.add(thesaurus, transactionService.execute(new CreateGroupTransaction(info, userService)));
         return result;
     }
 
@@ -78,7 +81,7 @@ public class GroupResource {
     public GroupInfos getGroup(@PathParam("id") long id) {
         Optional<Group> group = userService.getGroup(id);
         if (group.isPresent()) {
-            return new GroupInfos(group.get());
+            return new GroupInfos(thesaurus, group.get());
         }
         throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
@@ -89,7 +92,7 @@ public class GroupResource {
     public GroupInfos getGroups(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<Group> list = getGroupRestQuery().select(queryParameters, Order.ascending("name").toLowerCase());
-        GroupInfos infos = new GroupInfos(queryParameters.clipToLimit(list));
+        GroupInfos infos = new GroupInfos(thesaurus, queryParameters.clipToLimit(list));
         infos.total = queryParameters.determineTotal(list.size());
         return infos;
     }
