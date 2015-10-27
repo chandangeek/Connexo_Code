@@ -137,7 +137,8 @@ public class DeviceSearchDomain implements SearchDomain {
                 injector.getInstance(ProtocolDialectSearchableProperty.class).init(this, deviceTypeSearchableProperty),
                 injector.getInstance(ChannelReadingTypeNameSearchableProperty.class).init(this, channelGroup),
                 injector.getInstance(ChannelReadingTypeUnitOfMeasureSearchableProperty.class).init(this, channelGroup),
-                injector.getInstance(ChannelReadingTypeTimeOfUseSearchableProperty.class).init(this, channelGroup)
+                injector.getInstance(ChannelReadingTypeTimeOfUseSearchableProperty.class).init(this, channelGroup),
+                injector.getInstance(ChannelObisCodeSearchableProperty.class).init(this, channelGroup)
         );
     }
 

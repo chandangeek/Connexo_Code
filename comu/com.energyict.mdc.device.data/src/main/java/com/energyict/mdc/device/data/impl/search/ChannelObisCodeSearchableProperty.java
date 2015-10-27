@@ -9,13 +9,13 @@ import com.elster.jupiter.util.sql.SqlFragment;
 import javax.inject.Inject;
 import java.time.Instant;
 
-public class RegisterObisCodeSearchableProperty extends AbstractObisCodeSearchableProperty<RegisterObisCodeSearchableProperty> {
+public class ChannelObisCodeSearchableProperty extends AbstractObisCodeSearchableProperty<ChannelObisCodeSearchableProperty> {
 
-    static final String PROPERTY_NAME = "device.register.obiscode";
+    static final String PROPERTY_NAME = "device.channel.obiscode";
 
     @Inject
-    public RegisterObisCodeSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        super(RegisterObisCodeSearchableProperty.class, propertySpecService, thesaurus);
+    public ChannelObisCodeSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(ChannelObisCodeSearchableProperty.class, propertySpecService, thesaurus);
     }
 
     @Override
@@ -27,12 +27,12 @@ public class RegisterObisCodeSearchableProperty extends AbstractObisCodeSearchab
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
         SqlBuilder sqlBuilder = new SqlBuilder();
         sqlBuilder.openBracket();
-        sqlBuilder.add(this.toSqlFragment("reg_spec.deviceobiscode", condition, now));
+        sqlBuilder.add(this.toSqlFragment("ch_spec.obiscode", condition, now));
         sqlBuilder.append(" OR ");
         sqlBuilder.openBracket();
-        sqlBuilder.append(" reg_spec.deviceobiscode is null ");
+        sqlBuilder.append(" ch_spec.obiscode is null ");
         sqlBuilder.append(" AND ");
-        sqlBuilder.add(this.toSqlFragment("reg_msr_type.obiscode", condition, now));
+        sqlBuilder.add(this.toSqlFragment("ch_msr_type.obiscode", condition, now));
         sqlBuilder.closeBracket();
         sqlBuilder.closeBracket();
         return sqlBuilder;
@@ -40,7 +40,7 @@ public class RegisterObisCodeSearchableProperty extends AbstractObisCodeSearchab
 
     @Override
     public String getDisplayName() {
-        return getThesaurus().getFormat(PropertyTranslationKeys.REGISTER_OBISCODE).format();
+        return getThesaurus().getFormat(PropertyTranslationKeys.CHANNEL_OBISCODE).format();
     }
 
     @Override

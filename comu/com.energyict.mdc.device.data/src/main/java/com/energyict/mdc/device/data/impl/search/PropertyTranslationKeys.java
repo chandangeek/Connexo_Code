@@ -41,6 +41,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     READING_TYPE_TOU("reading.type.tou", "Reading type: Time of use"),
     PROTOCOL_DIALECT("protocol.dialect", "Protocol dialect"),
     CHANNEL("device.channel", "Channel"),
+    CHANNEL_OBISCODE("device.channel.obiscode", "OBIS code"),
     ;
 
     private String key;
