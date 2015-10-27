@@ -117,6 +117,11 @@ public class DynamicSearchResource {
             searchDomain.getProperties().stream().
                 filter(p -> jsonQueryFilter.hasProperty(p.getName())).
                 forEach(searchableProperty -> {
+                    List<SearchablePropertyConstriction> searchablePropertyConstrictions =
+                            searchableProperty.getConstraints().stream().
+                                    map(constrainingProperty -> asConstriction(constrainingProperty, jsonQueryFilter)).
+                                    collect(toList());
+                    searchableProperty.refreshWithConstrictions(searchablePropertyConstrictions);
                     try {
                         if (searchableProperty.getSelectionMode() == SearchableProperty.SelectionMode.MULTI) {
                             searchBuilder.where(searchableProperty).in(getQueryParameterAsObjectList(jsonQueryFilter, searchableProperty));
