@@ -30,14 +30,13 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
                 },
                 items: [
                     {
-                        fieldLabel: Uni.I18n.translate('validationTasks.general.deviceGroup', 'CFG', 'Device group'),
-                        name: 'deviceGroup',
-                        renderer: function (value) {
-                            if (value) {
-                                return Ext.String.htmlEncode(value.name);
-                            }
-                        }
-                    }
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.deviceGroup2', 'CFG', 'Group type'),
+                        name: 'groupType',
+                    },
+                    {
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.deviceGroup2', 'CFG', 'Group name'),
+                        name: 'groupName',
+                    },
                 ]
             },
             {

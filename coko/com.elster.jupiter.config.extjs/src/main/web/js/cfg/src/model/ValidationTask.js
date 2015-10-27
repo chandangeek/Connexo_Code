@@ -1,7 +1,7 @@
 Ext.define('Cfg.model.ValidationTask', {
     extend: 'Uni.model.Version',
     fields: [
-			'id', 'name', 'deviceGroup', 'schedule', 'nextRun', 'lastRun',
+			'id', 'name', 'deviceGroup', 'usagePointGroup', 'schedule', 'nextRun', 'lastRun',
         {
             name: 'schedule',
             defaultValue: null
@@ -115,6 +115,32 @@ Ext.define('Cfg.model.ValidationTask', {
                     return '-';
                 }
             }
+        },
+        {
+        	name: 'groupType',
+        	persist: false,
+        	mapping: function(data) {
+        		if (data.deviceGroup) {
+        			return 'device';
+        		} else if (data.usagePointGroup) {
+        			return 'usagepoint';
+        		} else {
+        			return '-';
+        		}
+        	}
+        },
+        {
+           	name: 'groupName',
+           	persist: false,
+           	mapping: function(data) {
+           		if (data.deviceGroup) {
+           			return data.deviceGroup.name;
+           		} else if (data.usagePointGroup) {
+           			return data.usagePointGroup.name;
+           		} else {
+           			return '-';
+           		}
+           	}
         }
     ],
     proxy: {

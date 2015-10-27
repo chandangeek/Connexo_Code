@@ -17,6 +17,7 @@ Ext.define('Cfg.controller.Tasks', {
 
     stores: [
         'Cfg.store.DeviceGroups',
+        'Cfg.store.UsagePointGroups',
         'Cfg.store.DaysWeeksMonths',
         'Cfg.store.ValidationTasks',
         'Cfg.store.ValidationTasksHistory'
@@ -24,6 +25,7 @@ Ext.define('Cfg.controller.Tasks', {
 
     models: [
         'Cfg.model.DeviceGroup',
+        'Cfg.model.UsagePointGroup',
         'Cfg.model.DayWeekMonth',
         'Cfg.model.ValidationTask',
         'Cfg.model.ValidationTaskHistory',
@@ -85,10 +87,9 @@ Ext.define('Cfg.controller.Tasks', {
             },
             'cfg-validation-tasks-history cfg-tasks-history-grid': {
                 select: this.showHistoryPreview
-            }
+            },
         });
     },
-
     showValidationTasks: function () {
         var me = this,
             view = Ext.widget('validation-tasks-setup', {
@@ -191,6 +192,7 @@ Ext.define('Cfg.controller.Tasks', {
         var me = this,
             view = Ext.create('Cfg.view.validationtask.Add'),
             deviceGroupCombo = view.down('#cbo-validation-task-device-group'),
+            usagepointGroupCombo = view.down('#cbo-validation-task-usagepoint-group'),
             recurrenceTypeCombo = view.down('#cbo-recurrence-type');
 
         me.getApplication().fireEvent('changecontentevent', view);
@@ -198,12 +200,18 @@ Ext.define('Cfg.controller.Tasks', {
         me.taskModel = null;
         me.taskId = null;
         me.fromEdit = false;
-
+        view.down('#cbo-validation-task-device-group').hide();
+        view.down('#cbo-validation-task-usagepoint-group').hide();
         deviceGroupCombo.store.load(function () {
+        	view.down('#cbo-validation-task-device-group').hide();
             if (this.getCount() === 0) {
                 deviceGroupCombo.allowBlank = true;
-                deviceGroupCombo.hide();
-                view.down('#no-device').show();
+            }
+        });
+        usagepointGroupCombo.store.load(function () {
+        	view.down('#cbo-validation-task-usagepoint-group').hide();
+             if (this.getCount() === 0) {
+                usagepointGroupCombo.allowBlank = true;
             }
         });
         recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(2));
@@ -514,10 +522,23 @@ Ext.define('Cfg.controller.Tasks', {
             }
 
             record.set('name', form.down('#txt-task-name').getValue());
-            record.set('deviceGroup', {
-                id: form.down('#cbo-validation-task-device-group').getValue(),
-                name: form.down('#cbo-validation-task-device-group').getRawValue()
-            });
+            var deviceGroupId = form.down('#cbo-validation-task-device-group').getValue();
+            var usagePointGroupId = form.down('#cbo-validation-task-usagepoint-group').getValue();
+
+            if (deviceGroupId != null) {
+            	record.set('deviceGroup', {
+            		id: form.down('#cbo-validation-task-device-group').getValue(),
+            		name: form.down('#cbo-validation-task-device-group').getRawValue()
+            	});
+            	record.set('usagePointGroup', null);
+            }
+            if (usagePointGroupId != null) {
+            	record.set('usagePointGroup', {
+            		id: form.down('#cbo-validation-task-usagepoint-group').getValue(),
+            		name: form.down('#cbo-validation-task-usagepoint-group').getRawValue()
+            	});
+            	record.set('deviceGroup', null);
+            }
             if (form.down('#rgr-validation-tasks-recurrence-trigger').getValue().recurrence) {
                 startOnDate = moment(form.down('#start-on').getValue()).valueOf();
                 timeUnitValue = form.down('#cbo-recurrence-type').getValue();
