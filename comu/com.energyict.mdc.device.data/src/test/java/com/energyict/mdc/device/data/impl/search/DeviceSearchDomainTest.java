@@ -177,6 +177,7 @@ public class DeviceSearchDomainTest {
         verify(this.dataModel).getInstance(ProtocolDialectSearchableProperty.class);
         verify(this.dataModel).getInstance(ChannelReadingTypeNameSearchableProperty.class);
         verify(this.dataModel).getInstance(ChannelReadingTypeUnitOfMeasureSearchableProperty.class);
+        verify(this.dataModel).getInstance(ChannelReadingTypeTimeOfUseSearchableProperty.class);
     }
 
     @Test
@@ -944,12 +945,12 @@ public class DeviceSearchDomainTest {
 //                eq(RegisterObisCodeSearchableProperty.PROPERTY_NAME),
 //                eq(false),
 //                Matchers.<StringFactory>anyObject())).thenReturn(readingTypeName);
-//        PropertySpec tou = mock(PropertySpec.class);
-//        when(tou.getName()).thenReturn(RegisterReadingTypeTimeOfUseSearchableProperty.PROPERTY_NAME);
-//        when(this.propertySpecService.longPropertySpecWithValues(
-//                eq(RegisterReadingTypeTimeOfUseSearchableProperty.PROPERTY_NAME),
-//                eq(false),
-//                Matchers.<Long>anyVararg())).thenReturn(tou);
+        PropertySpec tou = mock(PropertySpec.class);
+        when(tou.getName()).thenReturn(ChannelReadingTypeTimeOfUseSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.longPropertySpecWithValues(
+                eq(ChannelReadingTypeTimeOfUseSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                Matchers.<Long>anyVararg())).thenReturn(tou);
         PropertySpec unitOfMeasure = mock(PropertySpec.class);
         when(unitOfMeasure.getName()).thenReturn(ChannelReadingTypeUnitOfMeasureSearchableProperty.PROPERTY_NAME);
         when(this.propertySpecService.stringReferencePropertySpec(
