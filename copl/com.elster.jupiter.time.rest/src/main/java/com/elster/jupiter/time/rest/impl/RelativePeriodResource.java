@@ -96,14 +96,14 @@ public class RelativePeriodResource {
 
     @Path("/{id}")
     @GET
-    @RolesAllowed({Privileges.ADMINISTRATE_RELATIVE_PERIOD, Privileges.VIEW_RELATIVE_PERIOD})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_RELATIVE_PERIOD, Privileges.Constants.VIEW_RELATIVE_PERIOD})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public RelativePeriodInfo getRelativePeriod(@PathParam("id") long id) {
         return new RelativePeriodInfo(getRelativePeriodOrThrowException(id), thesaurus);
     }
 
     @POST
-    @RolesAllowed(Privileges.ADMINISTRATE_RELATIVE_PERIOD)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_RELATIVE_PERIOD)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response createRelativePeriod(RelativePeriodInfo relativePeriodInfo) {
@@ -120,7 +120,7 @@ public class RelativePeriodResource {
     }
 
     @PUT
-    @RolesAllowed(Privileges.ADMINISTRATE_RELATIVE_PERIOD)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_RELATIVE_PERIOD)
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{id}")
@@ -141,7 +141,7 @@ public class RelativePeriodResource {
 
     @Path("/{id}")
     @DELETE
-    @RolesAllowed(Privileges.ADMINISTRATE_RELATIVE_PERIOD)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_RELATIVE_PERIOD)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response removeRelativePeriod(@PathParam("id") long id, RelativePeriodInfo info) {
         info.id = id;
@@ -175,7 +175,7 @@ public class RelativePeriodResource {
 
     @Path("/{id}/preview")
     @PUT
-    @RolesAllowed({Privileges.ADMINISTRATE_RELATIVE_PERIOD, Privileges.VIEW_RELATIVE_PERIOD})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_RELATIVE_PERIOD, Privileges.Constants.VIEW_RELATIVE_PERIOD})
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public RelativePeriodPreviewInfo pregviewRelativePeriod(@PathParam("id") long id, RelativeDatePreviewInfo relativeDatePreviewInfo) {
@@ -188,7 +188,7 @@ public class RelativePeriodResource {
 
     @Path("/preview")
     @PUT
-    @RolesAllowed({Privileges.ADMINISTRATE_RELATIVE_PERIOD, Privileges.VIEW_RELATIVE_PERIOD})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_RELATIVE_PERIOD, Privileges.Constants.VIEW_RELATIVE_PERIOD})
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public RelativeDatePreviewInfo previewRelativeDate(RelativeDatePreviewInfo relativeDatePreviewInfo) {
@@ -205,7 +205,7 @@ public class RelativePeriodResource {
 
     @Path("/categories")
     @GET
-    @RolesAllowed({Privileges.ADMINISTRATE_RELATIVE_PERIOD, Privileges.VIEW_RELATIVE_PERIOD})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_RELATIVE_PERIOD, Privileges.Constants.VIEW_RELATIVE_PERIOD})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public RelativePeriodCategoryInfos getCategories(@Context UriInfo uriInfo) {
         return new RelativePeriodCategoryInfos(timeService.getRelativePeriodCategories(), thesaurus);
@@ -213,7 +213,7 @@ public class RelativePeriodResource {
 
     @Path("/weekstarts")
     @GET
-    @RolesAllowed({Privileges.ADMINISTRATE_RELATIVE_PERIOD, Privileges.VIEW_RELATIVE_PERIOD})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_RELATIVE_PERIOD, Privileges.Constants.VIEW_RELATIVE_PERIOD})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getFirstDayOfWeek() {
         return Response.ok(WeekFields.of(Locale.getDefault()).getFirstDayOfWeek().getValue()).build();
