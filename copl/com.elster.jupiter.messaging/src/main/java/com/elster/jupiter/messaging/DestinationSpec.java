@@ -6,6 +6,7 @@ import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 
+import java.time.Duration;
 import java.util.List;
 
 /**
@@ -81,7 +82,7 @@ public interface DestinationSpec extends HasName {
     SubscriberSpec subscribeSystemManaged(String name);
 
     void save();
-    
+
     boolean isBuffered();
 
     /**
@@ -97,6 +98,18 @@ public interface DestinationSpec extends HasName {
      * since 2.0
      */
     void delete();
+
+    long numberOfMessages();
+
+    int numberOfRetries();
+
+    Duration retryDelay();
+
+    void updateRetryBehavior(int numberOfRetries, Duration retryDelay);
+
+    void purgeErrors();
+
+    long errorCount();
 
     static Where whereCorrelationId() {
         return Where.where("corrid");
