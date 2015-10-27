@@ -82,7 +82,6 @@
             <modules>
                 <module>../com.elster.jupiter.appserver</module>
                 <module>../com.elster.jupiter.appserver.extjs</module>
-                <module>../com.elster.jupiter.appserver.rest</module>
                 <module>../com.elster.jupiter.bootstrap</module>
                 <module>../com.elster.jupiter.bootstrap.oracle</module>
                 <module>../com.elster.jupiter.bpm</module>
