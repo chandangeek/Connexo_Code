@@ -1,5 +1,6 @@
 package com.elster.jupiter.tasks;
 
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.google.common.collect.Range;
@@ -23,6 +24,8 @@ public interface TaskService {
     Optional<TaskOccurrence> getOccurrence(Long id);
 
     List<TaskOccurrence> getOccurrences(RecurrentTask recurrentTask, Range<Instant> period);
+
+    Query<? extends RecurrentTask> getTaskQuery();
 
     void launch();
 

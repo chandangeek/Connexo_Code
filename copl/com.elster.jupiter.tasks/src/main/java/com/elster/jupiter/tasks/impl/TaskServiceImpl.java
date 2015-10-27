@@ -1,5 +1,6 @@
 package com.elster.jupiter.tasks.impl;
 
+import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
@@ -129,6 +130,11 @@ public class TaskServiceImpl implements TaskService, InstallService, Translation
             }
             schedulerThread = null;
         }
+    }
+
+    @Override
+    public Query<? extends RecurrentTask> getTaskQuery() {
+        return queryService.wrap(dataModel.query(RecurrentTask.class));
     }
 
     @Override
