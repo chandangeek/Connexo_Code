@@ -35,8 +35,7 @@ class MdcAppPrivileges {
                 com.elster.jupiter.issue.security.Privileges.Constants.VIEW_CREATION_RULE,
 
                 //yellowfin reports
-                //com.elster.jupiter.yellowfin.security.Privileges.Constants.VIEW_REPORTS,
-                com.elster.jupiter.yellowfin.security.Privileges.VIEW_REPORTS,
+                com.elster.jupiter.yellowfin.security.Privileges.Constants.VIEW_REPORTS,
 
                 //mdc.engine.config
                 com.energyict.mdc.engine.config.security.Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION,

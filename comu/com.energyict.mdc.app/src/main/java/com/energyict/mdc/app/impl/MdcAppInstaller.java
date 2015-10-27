@@ -62,15 +62,12 @@ public class MdcAppInstaller implements InstallService {
     }
 
     private String[] getPrivilegesMeterExpert() {
-        //TODO: uncomment this
-        //return MdcAppPrivileges.getApplicationPrivileges().stream().filter(p -> !p.equals(com.elster.jupiter.yellowfin.security.Privileges.Constants.VIEW_REPORTS)).toArray(String[]::new);
-        return MdcAppPrivileges.getApplicationPrivileges().stream().filter(p -> !p.equals(com.elster.jupiter.yellowfin.security.Privileges.VIEW_REPORTS)).toArray(String[]::new);
+        return MdcAppPrivileges.getApplicationPrivileges().stream().filter(p -> !p.equals(com.elster.jupiter.yellowfin.security.Privileges.Constants.VIEW_REPORTS)).toArray(String[]::new);
     }
 
     private String[] getPrivilegesReportViewer() {
         return new String[]{
-                //com.elster.jupiter.yellowfin.security.Privileges.Constants.VIEW_REPORTS
-                com.elster.jupiter.yellowfin.security.Privileges.VIEW_REPORTS
+                com.elster.jupiter.yellowfin.security.Privileges.Constants.VIEW_REPORTS
         };
     }
 
