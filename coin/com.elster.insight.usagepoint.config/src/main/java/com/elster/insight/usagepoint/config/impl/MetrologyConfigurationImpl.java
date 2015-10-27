@@ -183,7 +183,11 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
 
     @Override
     public String toString() {
-        return toStringHelper(this).omitNullValues().add("id", id).add("name", name).toString();
+        return toStringHelper(this)
+                .omitNullValues()
+                .add("id", id)
+                .add("name", name)
+                .add("validationRuleSets", metrologyConfValidationRuleSetUsages.size() ==0?null:metrologyConfValidationRuleSetUsages.stream().map(vrs -> vrs.getValidationRuleSet().getName()).collect(java.util.stream.Collectors.joining(","))).toString();
     }
 
 }

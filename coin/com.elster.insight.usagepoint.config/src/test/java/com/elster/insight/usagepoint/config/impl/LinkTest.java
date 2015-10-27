@@ -229,7 +229,6 @@ public class LinkTest {
             ValidationService valService = getValidationService();
             mc = upcService.newMetrologyConfiguration("MC1");
             vrs1 = valService.createValidationRuleSet("Rule #1");
-            vrs1.save();
             mc.addValidationRuleSet(vrs1);
             context.commit();
         }
