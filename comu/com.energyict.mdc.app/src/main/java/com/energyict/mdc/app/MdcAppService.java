@@ -4,6 +4,7 @@ public interface MdcAppService {
 
     String COMPONENTNAME = "MDCAPP";
     String APPLICATION_KEY = "MDC";
+    String APPLICATION_NAME = "MultiSense";
 
     enum Roles {
         METER_EXPERT("Meter expert", "Full meter management privileges"),
