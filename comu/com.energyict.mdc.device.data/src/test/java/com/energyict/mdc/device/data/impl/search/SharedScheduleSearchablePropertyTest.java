@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -70,7 +71,9 @@ public class SharedScheduleSearchablePropertyTest {
         when(comScheduleFinder.valueDomain()).thenReturn(ComSchedule.class);
         when(referencePropertySpecFinderProvider.finders()).thenReturn(Arrays.asList(comScheduleFinder));
         ComSchedule comSchedule = mock(ComSchedule.class);
-        when(schedulingService.findAllSchedules()).thenReturn(Arrays.asList(comSchedule));
+        Finder finder = mock(Finder.class);
+        when(finder.find()).thenReturn(Arrays.asList(comSchedule));
+        when(schedulingService.findAllSchedules()).thenReturn(finder);
         this.propertySpecService.addFactoryProvider(this.referencePropertySpecFinderProvider);
     }
 

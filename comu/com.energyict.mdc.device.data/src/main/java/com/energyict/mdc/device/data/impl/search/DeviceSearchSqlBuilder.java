@@ -183,6 +183,12 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
     }
 
     @Override
+    public JoinClauseBuilder addDeviceType() {
+        this.joins.add(Joins.DeviceType);
+        return this;
+    }
+
+    @Override
     public JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass) {
         this.joins.add(new ConnectionTypePropertyJoinType(connectionTypePluggableClass));
         return this;
@@ -317,6 +323,34 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
             }
         },
 
+        DeviceType {
+            @Override
+            public void appendTo(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" join DTC_DEVICETYPE");
+                sqlBuilder.append(Aliases.DEVICE_TYPE);
+                sqlBuilder.append(" on ");
+                sqlBuilder.append(Aliases.DEVICE_TYPE);
+                sqlBuilder.append(".id = ");
+                sqlBuilder.append(Aliases.DEVICE);
+                sqlBuilder.append(".devicetype ");
+            }
+        },
+
+        PluggableClass {
+            @Override
+            public void appendTo(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" join CPC_PLUGGABLECLASS plug_class on dev_type.DEVICEPROTOCOLPLUGGABLEID = plug_class.id ");
+            }
+        },
+
+        ;
+
+        public static class Aliases {
+            private Aliases(){ /* constant class */}
+
+            public static final String DEVICE = "dev";
+            public static final String DEVICE_TYPE = "dev_Type";
+        }
     }
 
     private static class ConnectionTypePropertyJoinType implements JoinType {

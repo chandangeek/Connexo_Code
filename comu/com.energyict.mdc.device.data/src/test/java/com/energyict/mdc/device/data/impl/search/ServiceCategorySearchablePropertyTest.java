@@ -192,7 +192,7 @@ public class ServiceCategorySearchablePropertyTest {
         String displayValue = property.toDisplay(serviceCategory);
 
         // Asserts
-        assertThat(displayValue).isEqualTo("gas");
+        assertThat(displayValue).isEqualToIgnoringCase("gas");
     }
 
     private ServiceCategorySearchableProperty getTestInstance() {

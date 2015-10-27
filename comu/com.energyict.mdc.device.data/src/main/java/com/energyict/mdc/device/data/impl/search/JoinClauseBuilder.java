@@ -46,6 +46,8 @@ public interface JoinClauseBuilder {
 
     JoinClauseBuilder addRegisterReadingType();
 
+    JoinClauseBuilder addDeviceType();
+
     JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass);
 
 }

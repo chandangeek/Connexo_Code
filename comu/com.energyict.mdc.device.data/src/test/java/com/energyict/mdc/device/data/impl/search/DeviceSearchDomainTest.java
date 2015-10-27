@@ -101,6 +101,9 @@ public class DeviceSearchDomainTest {
         Finder<DeviceType> finder = mock(Finder.class);
         when(finder.find()).thenReturn(Collections.emptyList());
         when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(finder);
+        Finder scheduleFinder = mock(Finder.class);
+        when(scheduleFinder.find()).thenReturn(Collections.emptyList());
+        when(this.schedulingService.findAllSchedules()).thenReturn(scheduleFinder);
 
         mockMRIDPropertySpec();
         mockSerialNumberPropertySpec();
@@ -118,6 +121,7 @@ public class DeviceSearchDomainTest {
         mockEstimationStatusPropertySpec();
         mockSecurityNamePropertySpec();
         mockRegisterProperties();
+        mockProtocolDialectPropertySpec();
     }
 
     @Test
@@ -169,6 +173,7 @@ public class DeviceSearchDomainTest {
         verify(this.dataModel).getInstance(RegisterObisCodeSearchableProperty.class);
         verify(this.dataModel).getInstance(RegisterReadingTypeUnitOfMeasureSearchableProperty.class);
         verify(this.dataModel).getInstance(RegisterReadingTypeTimeOfUseSearchableProperty.class);
+        verify(this.dataModel).getInstance(ProtocolDialectSearchableProperty.class);
     }
 
     @Test
@@ -912,6 +917,15 @@ public class DeviceSearchDomainTest {
                 Matchers.anyVararg())).thenReturn(unitOfMeasure);
     }
 
+    private void mockProtocolDialectPropertySpec(){
+        PropertySpec propertySpec = mock(PropertySpec.class);
+        when(propertySpec.getName()).thenReturn(ProtocolDialectSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.stringReferencePropertySpec(
+                eq(ProtocolDialectSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                Matchers.anyObject(),
+                Matchers.anyVararg())).thenReturn(propertySpec);
+    }
     @Test
     public void getPropertiesWithDeviceConfigurationConstrictionsWithTheSamePluggableClassDoesNotCreateDuplicateConnectionTypeProperties() {
         PropertySpec deviceTypePropertySpec = mock(PropertySpec.class);
