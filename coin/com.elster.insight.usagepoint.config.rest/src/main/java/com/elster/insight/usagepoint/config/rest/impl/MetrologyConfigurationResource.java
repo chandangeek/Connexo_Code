@@ -27,6 +27,7 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.validation.rest.DataValidationTaskInfo;
 
 @Path("/metrologyconfigurations")
 public class MetrologyConfigurationResource {
@@ -66,21 +67,21 @@ public class MetrologyConfigurationResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     //    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
-    public MetrologyConfigurationInfo createMetrologyConfiguration(MetrologyConfigurationInfo metrologyConfigurationInfo) {
+    public Response createMetrologyConfiguration(MetrologyConfigurationInfo metrologyConfigurationInfo) {
         MetrologyConfiguration metrologyConfiguration = transactionService.execute(new Transaction<MetrologyConfiguration>() {
             @Override
             public MetrologyConfiguration perform() {
                 return usagePointConfigurationService.newMetrologyConfiguration(metrologyConfigurationInfo.name);
             }
         });
-        return new MetrologyConfigurationInfo(metrologyConfiguration);
+        return Response.status(Response.Status.CREATED).entity(new MetrologyConfigurationInfo(metrologyConfiguration)).build();
     }
 
     @PUT
     //  @RolesAllowed({Privileges.ADMIN_OWN, Privileges.ADMIN_ANY})
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public MetrologyConfigurationInfo updateMetrologyConfiguration(@PathParam("id") long id, MetrologyConfigurationInfo metrologyConfigurationInfo, @Context SecurityContext securityContext) {
+    public Response updateMetrologyConfiguration(@PathParam("id") long id, MetrologyConfigurationInfo metrologyConfigurationInfo, @Context SecurityContext securityContext) {
         MetrologyConfiguration metrologyConfiguration = usagePointConfigurationService.findMetrologyConfiguration(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         
         MetrologyConfiguration updatedMetrologyConfiguration = transactionService.execute(new Transaction<MetrologyConfiguration>() {
@@ -93,7 +94,19 @@ public class MetrologyConfigurationResource {
         });
         
         
-        return new MetrologyConfigurationInfo(updatedMetrologyConfiguration);
+        return  Response.status(Response.Status.CREATED).entity(new MetrologyConfigurationInfo(updatedMetrologyConfiguration)).build();
     }
+    
+    @GET
+//  @RolesAllowed({Privileges.BROWSE_ANY, Privileges.BROWSE_OWN})
+  @Path("/{id}/validationrulesets")
+  @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+  public PagedInfoList getValidationRuleSetsForMetrologyConfiguration(@PathParam("id") long id, @Context SecurityContext securityContext, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
+      MetrologyConfiguration metrologyConfiguration = usagePointConfigurationService.findMetrologyConfiguration(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+      List<MetrologyConfiguration> allMetrologyConfigurations = usagePointConfigurationService.findAllMetrologyConfigurations();
+      List<MetrologyConfigurationInfo> metrologyConfigurationsInfos = ListPager.of(allMetrologyConfigurations).from(queryParameters).stream().map(m -> new MetrologyConfigurationInfo(m))
+              .collect(Collectors.toList());
+      return PagedInfoList.fromPagedList("metrologyconfigurations", metrologyConfigurationsInfos, queryParameters);
+  }
     
 }
