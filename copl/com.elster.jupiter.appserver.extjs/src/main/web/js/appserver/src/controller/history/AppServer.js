@@ -38,6 +38,13 @@ Ext.define('Apr.controller.history.AppServer', {
                             }
                         }
                     }
+                },
+                taskoverview: {
+                    title: Uni.I18n.translate('general.taskOverview', 'APR', 'Task overview'),
+                    route: 'taskoverview',
+                    privileges: Apr.privileges.AppServer.view,
+                    controller: 'Apr.controller.TaskOverview',
+                    action: 'showTaskOverview'
                 }
             }
         }
