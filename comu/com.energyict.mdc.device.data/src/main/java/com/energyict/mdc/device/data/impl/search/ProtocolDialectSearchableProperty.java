@@ -72,7 +72,7 @@ public class ProtocolDialectSearchableProperty extends AbstractSearchableDeviceP
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
         SqlBuilder sqlBuilder = new SqlBuilder();
         sqlBuilder.openBracket();
-        sqlBuilder.add(this.toSqlFragment("dev_type.DEVICEPROTOCOLPLUGGABLEID", condition, now));
+        sqlBuilder.add(this.toSqlFragment(JoinClauseBuilder.Aliases.DEVICE_TYPE + ".DEVICEPROTOCOLPLUGGABLEID", condition, now));
         sqlBuilder.closeBracket();
         return sqlBuilder;
     }

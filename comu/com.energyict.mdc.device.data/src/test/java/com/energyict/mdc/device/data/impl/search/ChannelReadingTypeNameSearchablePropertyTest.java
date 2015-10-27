@@ -12,15 +12,15 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RegisterReadingTypeNameSearchablePropertyTest extends AbstractReadingTypeNameSearchablePropertyTest {
+public class ChannelReadingTypeNameSearchablePropertyTest extends AbstractReadingTypeNameSearchablePropertyTest {
 
-    private SearchablePropertyGroup registerSearchablePropertyGroup;
+    private SearchablePropertyGroup channelGroup;
 
     @Before
     @Override
     public void initializeMocks() {
         super.initializeMocks();
-        this.registerSearchablePropertyGroup = new RegisterSearchablePropertyGroup(thesaurus);
+        this.channelGroup = new ChannelSearchablePropertyGroup(thesaurus);
     }
 
     @Test
@@ -32,11 +32,11 @@ public class RegisterReadingTypeNameSearchablePropertyTest extends AbstractReadi
 
         // Asserts
         assertThat(group).isPresent();
-        assertThat(group.get().getId()).isEqualTo(RegisterSearchablePropertyGroup.GROUP_NAME);
+        assertThat(group.get().getId()).isEqualTo(ChannelSearchablePropertyGroup.GROUP_NAME);
     }
 
     @Override
-    protected RegisterReadingTypeNameSearchableProperty getTestInstance() {
-        return new RegisterReadingTypeNameSearchableProperty(propertySpecService, thesaurus).init(domain, registerSearchablePropertyGroup);
+    protected ChannelReadingTypeNameSearchableProperty getTestInstance() {
+        return new ChannelReadingTypeNameSearchableProperty(propertySpecService, thesaurus).init(domain, channelGroup);
     }
 }

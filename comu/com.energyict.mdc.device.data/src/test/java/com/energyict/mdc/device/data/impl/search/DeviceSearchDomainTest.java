@@ -122,6 +122,7 @@ public class DeviceSearchDomainTest {
         mockSecurityNamePropertySpec();
         mockRegisterProperties();
         mockProtocolDialectPropertySpec();
+        mockChannelPropertySpecs();
     }
 
     @Test
@@ -174,6 +175,7 @@ public class DeviceSearchDomainTest {
         verify(this.dataModel).getInstance(RegisterReadingTypeUnitOfMeasureSearchableProperty.class);
         verify(this.dataModel).getInstance(RegisterReadingTypeTimeOfUseSearchableProperty.class);
         verify(this.dataModel).getInstance(ProtocolDialectSearchableProperty.class);
+        verify(this.dataModel).getInstance(ChannelReadingTypeNameSearchableProperty.class);
     }
 
     @Test
@@ -925,6 +927,35 @@ public class DeviceSearchDomainTest {
                 eq(false),
                 Matchers.anyObject(),
                 Matchers.anyVararg())).thenReturn(propertySpec);
+    }
+
+
+    private void mockChannelPropertySpecs() {
+        PropertySpec readingTypeName = mock(PropertySpec.class);
+        when(readingTypeName.getName()).thenReturn(ChannelReadingTypeNameSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.basicPropertySpec(
+                eq(ChannelReadingTypeNameSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                Matchers.<StringFactory>anyObject())).thenReturn(readingTypeName);
+//        PropertySpec obisCode = mock(PropertySpec.class);
+//        when(obisCode.getName()).thenReturn(RegisterObisCodeSearchableProperty.PROPERTY_NAME);
+//        when(this.propertySpecService.basicPropertySpec(
+//                eq(RegisterObisCodeSearchableProperty.PROPERTY_NAME),
+//                eq(false),
+//                Matchers.<StringFactory>anyObject())).thenReturn(readingTypeName);
+//        PropertySpec tou = mock(PropertySpec.class);
+//        when(tou.getName()).thenReturn(RegisterReadingTypeTimeOfUseSearchableProperty.PROPERTY_NAME);
+//        when(this.propertySpecService.longPropertySpecWithValues(
+//                eq(RegisterReadingTypeTimeOfUseSearchableProperty.PROPERTY_NAME),
+//                eq(false),
+//                Matchers.<Long>anyVararg())).thenReturn(tou);
+//        PropertySpec unitOfMeasure = mock(PropertySpec.class);
+//        when(unitOfMeasure.getName()).thenReturn(RegisterReadingTypeUnitOfMeasureSearchableProperty.PROPERTY_NAME);
+//        when(this.propertySpecService.stringReferencePropertySpec(
+//                eq(RegisterReadingTypeUnitOfMeasureSearchableProperty.PROPERTY_NAME),
+//                eq(false),
+//                Matchers.anyObject(),
+//                Matchers.anyVararg())).thenReturn(unitOfMeasure);
     }
     @Test
     public void getPropertiesWithDeviceConfigurationConstrictionsWithTheSamePluggableClassDoesNotCreateDuplicateConnectionTypeProperties() {

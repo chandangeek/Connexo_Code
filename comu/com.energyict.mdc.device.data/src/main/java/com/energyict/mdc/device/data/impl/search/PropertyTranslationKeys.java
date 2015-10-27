@@ -40,6 +40,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     READING_TYPE_UNIT_OF_MEASURE("reading.type.unit.of.measure", "Reading type: Unit of measure"),
     READING_TYPE_TOU("reading.type.tou", "Reading type: Time of use"),
     PROTOCOL_DIALECT("protocol.dialect", "Protocol dialect"),
+    CHANNEL("device.channel", "Channel"),
     ;
 
     private String key;

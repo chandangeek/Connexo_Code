@@ -189,6 +189,14 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
     }
 
     @Override
+    public JoinClauseBuilder addChannelReadingType() {
+        this.joins.add(Joins.ChannelSpec);
+        this.joins.add(Joins.ChannelMeasurementType);
+        this.joins.add(Joins.ChannelReadingType);
+        return this;
+    }
+
+    @Override
     public JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass) {
         this.joins.add(new ConnectionTypePropertyJoinType(connectionTypePluggableClass));
         return this;
@@ -326,13 +334,34 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
         DeviceType {
             @Override
             public void appendTo(SqlBuilder sqlBuilder) {
-                sqlBuilder.append(" join DTC_DEVICETYPE");
+                sqlBuilder.append(" join DTC_DEVICETYPE ");
                 sqlBuilder.append(Aliases.DEVICE_TYPE);
                 sqlBuilder.append(" on ");
                 sqlBuilder.append(Aliases.DEVICE_TYPE);
                 sqlBuilder.append(".id = ");
                 sqlBuilder.append(Aliases.DEVICE);
                 sqlBuilder.append(".devicetype ");
+            }
+        },
+
+        ChannelSpec {
+            @Override
+            public void appendTo(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" join DTC_CHANNELSPEC ch_spec on ch_spec.deviceconfigid = dev.deviceconfigid ");
+            }
+        },
+
+        ChannelMeasurementType {
+            @Override
+            public void appendTo(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" join MDS_MEASUREMENTTYPE ch_msr_type on ch_msr_type.id = ch_spec.channeltypeid ");
+            }
+        },
+
+        ChannelReadingType {
+            @Override
+            public void appendTo(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" join MTR_READINGTYPE ch_rt on ch_rt.mrid = ch_msr_type.readingtype ");
             }
         },
 
@@ -345,12 +374,6 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
 
         ;
 
-        public static class Aliases {
-            private Aliases(){ /* constant class */}
-
-            public static final String DEVICE = "dev";
-            public static final String DEVICE_TYPE = "dev_Type";
-        }
     }
 
     private static class ConnectionTypePropertyJoinType implements JoinType {

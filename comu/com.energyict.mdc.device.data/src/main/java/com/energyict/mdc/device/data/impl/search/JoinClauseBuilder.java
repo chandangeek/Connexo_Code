@@ -48,6 +48,14 @@ public interface JoinClauseBuilder {
 
     JoinClauseBuilder addDeviceType();
 
+    JoinClauseBuilder addChannelReadingType();
+
     JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass);
 
+    class Aliases {
+        private Aliases(){ /* constant class */}
+
+        public static final String DEVICE = "dev";
+        public static final String DEVICE_TYPE = "dev_Type";
+    }
 }
