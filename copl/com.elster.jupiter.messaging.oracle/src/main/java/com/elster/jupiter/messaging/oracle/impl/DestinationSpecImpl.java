@@ -27,13 +27,34 @@ import javax.jms.QueueConnection;
 import javax.jms.Session;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 class DestinationSpecImpl implements DestinationSpec {
+
+    private static class RetryBehavior {
+        private final int retries;
+        private final Duration retryDelay;
+
+        public RetryBehavior(int retries, Duration retryDelay) {
+            this.retries = retries;
+            this.retryDelay = retryDelay;
+        }
+
+        public int getRetries() {
+            return retries;
+        }
+
+        public Duration getRetryDelay() {
+            return retryDelay;
+        }
+
+    }
 
     // persistent fields
     private String name;
@@ -60,6 +81,26 @@ class DestinationSpecImpl implements DestinationSpec {
     private final Thesaurus thesaurus;
     private boolean fromDB = true;
 
+    @Inject
+    DestinationSpecImpl(DataModel dataModel, AQFacade aqFacade, Publisher publisher, Thesaurus thesaurus) {
+        this.dataModel = dataModel;
+        this.aqFacade = aqFacade;
+        this.publisher = publisher;
+        this.thesaurus = thesaurus;
+    }
+
+    static DestinationSpecImpl from(DataModel dataModel, QueueTableSpec queueTableSpec, String name, int retryDelay, boolean buffered) {
+        return dataModel.getInstance(DestinationSpecImpl.class).init(queueTableSpec, name, retryDelay, buffered);
+    }
+
+    @Override
+    public QueueTableSpec getQueueTableSpec() {
+        if (queueTableSpec == null) {
+            queueTableSpec = dataModel.mapper(QueueTableSpec.class).getExisting(queueTableName);
+        }
+        return queueTableSpec;
+    }
+
 
     @Override
     public void activate() {
@@ -84,31 +125,8 @@ class DestinationSpecImpl implements DestinationSpec {
     }
 
     @Override
-    public List<SubscriberSpec> getSubscribers() {
-        return ImmutableList.copyOf(subscribers);
-    }
-
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public String getPayloadType() {
-        return getQueueTableSpec().getPayloadType();
-    }
-
-    @Override
-    public QueueTableSpec getQueueTableSpec() {
-        if (queueTableSpec == null) {
-            queueTableSpec = dataModel.mapper(QueueTableSpec.class).getExisting(queueTableName);
-        }
-        return queueTableSpec;
-    }
-
-    @Override
-    public boolean isActive() {
-        return active;
+    public boolean isTopic() {
+        return getQueueTableSpec().isMultiConsumer();
     }
 
     @Override
@@ -117,13 +135,13 @@ class DestinationSpecImpl implements DestinationSpec {
     }
 
     @Override
-    public boolean isTopic() {
-        return getQueueTableSpec().isMultiConsumer();
+    public String getPayloadType() {
+        return getQueueTableSpec().getPayloadType();
     }
 
     @Override
-    public MessageBuilder message(byte[] bytes) {
-        return new BytesMessageBuilder(dataModel, aqFacade, publisher, this, bytes);
+    public boolean isActive() {
+        return active;
     }
 
     @Override
@@ -133,6 +151,16 @@ class DestinationSpecImpl implements DestinationSpec {
         } else {
             return new BytesMessageBuilder(dataModel, aqFacade, publisher, this, text.getBytes());
         }
+    }
+
+    @Override
+    public MessageBuilder message(byte[] bytes) {
+        return new BytesMessageBuilder(dataModel, aqFacade, publisher, this, bytes);
+    }
+
+    @Override
+    public List<SubscriberSpec> getSubscribers() {
+        return ImmutableList.copyOf(subscribers);
     }
 
     @Override
@@ -150,28 +178,20 @@ class DestinationSpecImpl implements DestinationSpec {
         return subscribe(name, true);
     }
 
-    private SubscriberSpec subscribe(String name, boolean systemManaged) {
-        return subscribe(name, systemManaged, null);
+    @Override
+    public void save() {
+        if (fromDB) {
+            dataModel.mapper(DestinationSpec.class).update(this);
+        } else {
+            dataModel.mapper(DestinationSpec.class).persist(this);
+            fromDB = true;
+        }
+
     }
 
-    private SubscriberSpec subscribe(String name, boolean systemManaged, Condition filter) {
-        if (!isActive()) {
-            throw new InactiveDestinationException(thesaurus, this, name);
-        }
-        List<SubscriberSpec> currentConsumers = subscribers;
-        for (SubscriberSpec each : currentConsumers) {
-            if (each.getName().equals(name)) {
-                throw new DuplicateSubscriberNameException(thesaurus, name);
-            }
-        }
-        if (isQueue() && !currentConsumers.isEmpty()) {
-            throw new AlreadyASubscriberForQueueException(thesaurus, this);
-        }
-        SubscriberSpecImpl result = SubscriberSpecImpl.from(dataModel, this, name, systemManaged, filter);
-        result.subscribe();
-        subscribers.add(result);
-        dataModel.mapper(DestinationSpec.class).update(this);
-        return result;
+    @Override
+    public boolean isBuffered() {
+        return buffered;
     }
 
     @Override
@@ -197,7 +217,51 @@ class DestinationSpecImpl implements DestinationSpec {
         dataModel.mapper(DestinationSpec.class).remove(this);
     }
 
-    DestinationSpecImpl init(QueueTableSpec queueTableSpec, String name, int retryDelay,boolean buffered) {
+    @Override
+    public long numberOfMessages() {
+        return getCount(countMessagesSql());
+    }
+
+    @Override
+    public int numberOfRetries() {
+        return queryRetryBehavior().getRetries();
+    }
+
+    @Override
+    public Duration retryDelay() {
+        return queryRetryBehavior().getRetryDelay();
+    }
+
+    @Override
+    public void updateRetryBehavior(int numberOfRetries, Duration retryDelay) {
+        this.retryDelay = (int) retryDelay.getSeconds();
+        save();
+        updateRetryBehavior(new RetryBehavior(numberOfRetries, retryDelay));
+    }
+
+    @Override
+    public void purgeErrors() {
+        doPurgeErrors();
+    }
+
+    @Override
+    public long errorCount() {
+        return getCount(countErrorsSql());
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return "DestinationSpecImpl{" +
+                "name='" + name + '\'' +
+                '}';
+    }
+
+    DestinationSpecImpl init(QueueTableSpec queueTableSpec, String name, int retryDelay, boolean buffered) {
         this.name = name;
         this.queueTableSpec = queueTableSpec;
         this.queueTableName = queueTableSpec.getName();
@@ -207,27 +271,28 @@ class DestinationSpecImpl implements DestinationSpec {
         return this;
     }
 
-    @Inject
-    DestinationSpecImpl(DataModel dataModel, AQFacade aqFacade, Publisher publisher, Thesaurus thesaurus) {
-        this.dataModel = dataModel;
-        this.aqFacade = aqFacade;
-        this.publisher = publisher;
-        this.thesaurus = thesaurus;
+    private SubscriberSpec subscribe(String name, boolean systemManaged) {
+        return subscribe(name, systemManaged, null);
     }
 
-    @Override
-    public void save() {
-        if (fromDB) {
-            dataModel.mapper(DestinationSpec.class).update(this);
-        } else {
-            dataModel.mapper(DestinationSpec.class).persist(this);
-            fromDB = true;
+    private SubscriberSpec subscribe(String name, boolean systemManaged, Condition filter) {
+        if (!isActive()) {
+            throw new InactiveDestinationException(thesaurus, this, name);
         }
-
-    }
-
-    static DestinationSpecImpl from(DataModel dataModel, QueueTableSpec queueTableSpec, String name, int retryDelay, boolean buffered) {
-        return dataModel.getInstance(DestinationSpecImpl.class).init(queueTableSpec, name, retryDelay,buffered);
+        List<SubscriberSpec> currentConsumers = subscribers;
+        for (SubscriberSpec each : currentConsumers) {
+            if (each.getName().equals(name)) {
+                throw new DuplicateSubscriberNameException(thesaurus, name);
+            }
+        }
+        if (isQueue() && !currentConsumers.isEmpty()) {
+            throw new AlreadyASubscriberForQueueException(thesaurus, this);
+        }
+        SubscriberSpecImpl result = SubscriberSpecImpl.from(dataModel, this, name, systemManaged, filter);
+        result.subscribe();
+        subscribers.add(result);
+        dataModel.mapper(DestinationSpec.class).update(this);
+        return result;
     }
 
     private void doActivateAq() {
@@ -294,15 +359,83 @@ class DestinationSpecImpl implements DestinationSpec {
         return "begin dbms_aqadm.stop_queue(?); dbms_aqadm.drop_queue(?); end;";
     }
 
-    @Override
-    public String toString() {
-        return "DestinationSpecImpl{" +
-                "name='" + name + '\'' +
-                '}';
+    private long getCount(String countSql) {
+        try {
+            try (Connection connection = dataModel.getConnection(false)) {
+                try (PreparedStatement statement = connection.prepareStatement(countSql)) {
+                    statement.setString(1, name);
+                    try (ResultSet resultSet = statement.executeQuery()) {
+                        if (resultSet.next()) {
+                            return resultSet.getLong(1);
+                        } else {
+                            return 0;
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
     }
 
-    @Override
-    public boolean isBuffered() {
-        return buffered;
+    private String countMessagesSql() {
+        return "select count(*) from AQ$" + getQueueTableSpec().getName() + " where QUEUE = ?";
+    }
+
+    private String countErrorsSql() {
+        return "select count(*) from AQ$" + getQueueTableSpec().getName() + " where ORIGINAL_QUEUE_NAME = ?";
+    }
+
+    private RetryBehavior queryRetryBehavior() {
+        try {
+            try (Connection connection = dataModel.getConnection(false)) {
+                try (PreparedStatement statement = connection.prepareStatement(retryBehaviorSql())) {
+                    statement.setString(1, name);
+                    try (ResultSet resultSet = statement.executeQuery()) {
+                        if (resultSet.next()) {
+                            int retries = resultSet.getInt(1);
+                            long durationInSeconds = resultSet.getLong(2);
+                            return new RetryBehavior(retries, Duration.ofSeconds(durationInSeconds));
+                        } else {
+                            throw new IllegalStateException();
+                        }
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
+
+    private String retryBehaviorSql() {
+        return "select MAX_RETRIES, RETRY_DELAY from user_queues where NAME = ?";
+    }
+
+    private void updateRetryBehavior(RetryBehavior retryBehavior) {
+        String sql = "BEGIN DBMS_AQADM.ALTER_QUEUE(queue_name => ?, retry_delay => ?, max_retries => ?); END;";
+        try (Connection connection = dataModel.getConnection(false)) {
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                int parameterIndex = 0;
+                statement.setString(++parameterIndex, name);
+                statement.setLong(++parameterIndex, retryBehavior.getRetryDelay().getSeconds());
+                statement.setInt(++parameterIndex, retryBehavior.getRetries());
+                statement.execute();
+            }
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
+
+    private void doPurgeErrors() {
+        String sql = "DECLARE po dbms_aqadm.aq$_purge_options_t; BEGIN po.block := TRUE; DBMS_AQADM.PURGE_QUEUE_TABLE(queue_table => ?, purge_condition => 'qtview.original_queue_name = ''" + name + "''', purge_options => po); END;";
+        try (Connection connection = dataModel.getConnection(false)) {
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                int parameterIndex = 0;
+                statement.setString(++parameterIndex, getQueueTableSpec().getName());
+                statement.execute();
+            }
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
     }
 }
