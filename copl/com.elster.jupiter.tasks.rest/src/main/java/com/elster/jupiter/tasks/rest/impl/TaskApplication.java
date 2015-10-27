@@ -15,7 +15,7 @@ package com.elster.jupiter.tasks.rest.impl;
         import java.util.HashSet;
         import java.util.Set;
 
-@Component(name = "com.elster.jupiter.tasks.rest", service = Application.class, immediate = true, property = {"alias=/evt", "app=SYS", "name=" + TaskApplication.COMPONENT_NAME})
+@Component(name = "com.elster.jupiter.tasks.rest", service = Application.class, immediate = true, property = {"alias=/tsk", "app=SYS", "name=" + TaskApplication.COMPONENT_NAME})
 public class TaskApplication extends Application {
     public static final String COMPONENT_NAME = "TSK";
 
