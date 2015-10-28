@@ -97,7 +97,7 @@ public class MdcAppServiceImpl implements MdcAppService , TranslationKeyProvider
 
     @Override
     public String getComponentName() {
-        return COMPONENTNAME;
+        return APPLICATION_KEY;
     }
 
     @Override
