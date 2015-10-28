@@ -212,7 +212,7 @@ public class IEC1107SecuritySupport implements DeviceProtocolSecurityCapabilitie
 
         @Override
         public String getTranslation() {
-            return thesaurus.getFormat(TranslationKeys.IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_2).format();
+            return thesaurus.getFormat(TranslationKeys.IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_3).format();
         }
 
         @Override
