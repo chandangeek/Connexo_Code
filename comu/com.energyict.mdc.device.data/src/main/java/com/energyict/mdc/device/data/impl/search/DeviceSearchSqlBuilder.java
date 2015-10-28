@@ -225,6 +225,27 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
     }
 
     @Override
+    public JoinClauseBuilder addLoadProfile() {
+        this.joins.add(Joins.LoadProfile);
+        return this;
+    }
+
+    @Override
+    public JoinClauseBuilder addLoadProfileSpec() {
+        this.joins.add(Joins.LoadProfile);
+        this.joins.add(Joins.LoadProfileSpec);
+        return this;
+    }
+
+    @Override
+    public JoinClauseBuilder addLoadProfileType() {
+        this.joins.add(Joins.LoadProfile);
+        this.joins.add(Joins.LoadProfileSpec);
+        this.joins.add(Joins.LoadProfileType);
+        return this;
+    }
+
+    @Override
     public JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass) {
         this.joins.add(new ConnectionTypePropertyJoinType(connectionTypePluggableClass));
         return this;
@@ -429,6 +450,45 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
                 sqlBuilder.append(".id = ");
                 sqlBuilder.append(Aliases.LOGBOOK_SPEC);
                 sqlBuilder.append(".LOGBOOKTYPEID ");
+            }
+        },
+
+        LoadProfile {
+            @Override
+            public void appendTo(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" join DDC_LOADPROFILE ");
+                sqlBuilder.append(Aliases.DEVICE_LOADPROFILE);
+                sqlBuilder.append(" on ");
+                sqlBuilder.append(Aliases.DEVICE_LOADPROFILE);
+                sqlBuilder.append(".DEVICEID = ");
+                sqlBuilder.append(Aliases.DEVICE);
+                sqlBuilder.append(".id ");
+            }
+        },
+
+        LoadProfileSpec {
+            @Override
+            public void appendTo(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" join DTC_LOADPROFILESPEC ");
+                sqlBuilder.append(Aliases.LOADPROFILE_SPEC);
+                sqlBuilder.append(" on ");
+                sqlBuilder.append(Aliases.LOADPROFILE_SPEC);
+                sqlBuilder.append(".id = ");
+                sqlBuilder.append(Aliases.DEVICE_LOADPROFILE);
+                sqlBuilder.append(".LOADPROFILESPECID ");
+            }
+        },
+
+        LoadProfileType{
+            @Override
+            public void appendTo(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" join MDS_LOADPROFILETYPE ");
+                sqlBuilder.append(Aliases.LOADPROFILE_TYPE);
+                sqlBuilder.append(" on ");
+                sqlBuilder.append(Aliases.LOADPROFILE_TYPE);
+                sqlBuilder.append(".id = ");
+                sqlBuilder.append(Aliases.LOADPROFILE_SPEC);
+                sqlBuilder.append(".LOADPROFILETYPEID ");
             }
         },
 
