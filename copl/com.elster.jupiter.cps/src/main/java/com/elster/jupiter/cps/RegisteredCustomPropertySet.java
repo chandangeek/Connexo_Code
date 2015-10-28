@@ -19,6 +19,10 @@ public interface RegisteredCustomPropertySet {
 
     Set<EditPrivilege> getEditPrivileges();
 
+    boolean isEditableByCurrentUser();
+
+    boolean isViewableByCurrentUser();
+
     /**
      * Updates the view and edit privileges of this RegisteredCustomPropertySet.
      *
@@ -26,5 +30,4 @@ public interface RegisteredCustomPropertySet {
      * @param editPrivileges The new edit privileges
      */
     void updatePrivileges(Set<ViewPrivilege> viewPrivileges, Set<EditPrivilege> editPrivileges);
-
 }

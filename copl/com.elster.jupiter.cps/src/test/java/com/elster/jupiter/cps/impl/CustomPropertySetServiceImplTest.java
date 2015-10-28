@@ -17,6 +17,7 @@ import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.PrimaryKeyConstraint;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Condition;
@@ -30,8 +31,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.junit.*;
-import org.junit.runner.*;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -112,6 +114,8 @@ public class CustomPropertySetServiceImplTest {
     private DataMapper<RegisteredCustomPropertySet> registeredCustomPropertySetMapper;
     @Mock
     private RegisteredCustomPropertySet registeredCustomPropertySet;
+    @Mock
+    private ThreadPrincipalService threadPrincipalService;
 
     @Before
     public void initializeMocks() {

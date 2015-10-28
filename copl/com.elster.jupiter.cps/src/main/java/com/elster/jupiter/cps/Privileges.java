@@ -70,5 +70,4 @@ public enum Privileges implements TranslationKey {
         String EDIT_CUSTOM_PROPERTIES_3 = "edit.custom.properties.level3";
         String EDIT_CUSTOM_PROPERTIES_4 = "edit.custom.properties.level4";
     }
-
 }

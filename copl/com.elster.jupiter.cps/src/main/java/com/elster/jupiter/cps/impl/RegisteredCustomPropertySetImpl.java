@@ -9,13 +9,20 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.HasName;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.security.Principal;
+import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class RegisteredCustomPropertySetImpl implements RegisteredCustomPropertySet, PersistenceAware {
 
@@ -35,12 +42,14 @@ public class RegisteredCustomPropertySetImpl implements RegisteredCustomProperty
 
     }
     private final DataModel dataModel;
+    private final ThreadPrincipalService threadPrincipalService;
     private final ServerCustomPropertySetService customPropertySetService;
 
     @Inject
-    public RegisteredCustomPropertySetImpl(DataModel dataModel, ServerCustomPropertySetService customPropertySetService) {
+    public RegisteredCustomPropertySetImpl(DataModel dataModel, ThreadPrincipalService threadPrincipalService, ServerCustomPropertySetService customPropertySetService) {
         super();
         this.dataModel = dataModel;
+        this.threadPrincipalService = threadPrincipalService;
         this.customPropertySetService = customPropertySetService;
     }
 
@@ -158,16 +167,58 @@ public class RegisteredCustomPropertySetImpl implements RegisteredCustomProperty
         this.addAllViewPrivileges(viewPrivileges);
         this.clearEditPrivileges();
         this.addAllEditPrivileges(editPrivileges);
-        Save.UPDATE.save(this.dataModel, this);
+        update();
+    }
+
+    @Override
+    public boolean isEditableByCurrentUser() {
+        return currentUserIsAllowedToEditCustomPropertySet();
+    }
+
+    @Override
+    public boolean isViewableByCurrentUser() {
+        return currentUserIsAllowedToViewCustomPropertySet();
+    }
+
+    private List<String> getCurrentUserPrivileges() {
+        Principal principal = threadPrincipalService.getPrincipal();
+        if (!(principal instanceof User)) {
+            return new ArrayList<>();
+        }
+        return ((User) principal).getPrivileges().stream().map(HasName::getName).collect(Collectors.toList());
+    }
+
+    private boolean currentUserIsAllowedToViewCustomPropertySet() {
+        final List<String> currentUserPrivileges = getCurrentUserPrivileges();
+        return this.getViewPrivileges().isEmpty() ||
+                this.getViewPrivileges()
+                        .stream()
+                        .filter(f -> currentUserPrivileges.contains(f.getPrivilege()))
+                        .findFirst()
+                        .isPresent();
+    }
+
+    private boolean currentUserIsAllowedToEditCustomPropertySet() {
+        final List<String> currentUserPrivileges = getCurrentUserPrivileges();
+        return this.getEditPrivileges().isEmpty() ||
+                this.getEditPrivileges()
+                        .stream()
+                        .filter(f -> currentUserPrivileges.contains(f.getPrivilege()))
+                        .findFirst()
+                        .isPresent();
     }
 
     boolean isActive() {
         return this.customPropertySet.isPresent();
     }
 
-    void save() {
+    void create() {
         Save.CREATE.validate(this.dataModel, this);
         Save.CREATE.save(this.dataModel, this);
+    }
+
+    void update() {
+        Save.UPDATE.save(this.dataModel, this);
     }
 
     void delete() {
