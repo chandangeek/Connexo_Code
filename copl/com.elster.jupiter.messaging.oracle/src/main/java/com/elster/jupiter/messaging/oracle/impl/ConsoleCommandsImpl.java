@@ -120,14 +120,14 @@ public class ConsoleCommandsImpl {
         }
     }
 
-    public void createQueue(final String queueName, final int retryDelay) {
+    public void createQueue(final String queueName, final int retryDelay, final int retries) {
         try {
             transactionService.builder()
                     .principal(() -> "Command line")
                     .run(() -> {
                         Optional<QueueTableSpec> defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE");
                         if (defaultQueueTableSpec.isPresent()) {
-                            DestinationSpec destinationSpec = defaultQueueTableSpec.get().createDestinationSpec(queueName, retryDelay);
+                            DestinationSpec destinationSpec = defaultQueueTableSpec.get().createDestinationSpec(queueName, retryDelay, retries);
                             destinationSpec.activate();
                         } else {
                             System.err.println("RAWQUEUETABLE not present! Please create first");

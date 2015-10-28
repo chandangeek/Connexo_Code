@@ -7,7 +7,6 @@ import com.elster.jupiter.messaging.UnderlyingJmsException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
-
 import oracle.AQ.AQException;
 import oracle.AQ.AQQueueTable;
 import oracle.AQ.AQQueueTableProperty;
@@ -18,7 +17,6 @@ import javax.inject.Inject;
 import javax.jms.JMSException;
 import javax.jms.QueueConnection;
 import javax.jms.Session;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -186,17 +184,17 @@ public class QueueTableSpecImpl implements QueueTableSpec {
     }
 
     @Override
-    public DestinationSpec createDestinationSpec(String name, int retryDelay) {
-    	return createDestinationSpec(name,retryDelay,false);
+    public DestinationSpec createDestinationSpec(String name, int retryDelay, int retries) {
+        return createDestinationSpec(name, retryDelay, retries, false);
     }
 
     @Override
-    public DestinationSpec createBufferedDestinationSpec(String name, int retryDelay) {
-    	return createDestinationSpec(name,retryDelay,true);
+    public DestinationSpec createBufferedDestinationSpec(String name, int retryDelay, int retries) {
+        return createDestinationSpec(name, retryDelay, retries, true);
     }
-    
-    private DestinationSpec createDestinationSpec(String name , int retryDelay, boolean buffered)  {
-    	DestinationSpecImpl spec = DestinationSpecImpl.from(dataModel, this, name, retryDelay, buffered);
+
+    private DestinationSpec createDestinationSpec(String name, int retryDelay, int retries, boolean buffered) {
+        DestinationSpecImpl spec = DestinationSpecImpl.from(dataModel, this, name, retryDelay, retries, buffered);
         spec.save();
         return spec;
     }

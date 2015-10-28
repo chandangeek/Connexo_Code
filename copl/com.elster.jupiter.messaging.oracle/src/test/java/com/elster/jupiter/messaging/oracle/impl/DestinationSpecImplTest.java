@@ -47,6 +47,7 @@ public class DestinationSpecImplTest {
     private static final String RAW = "RAW";
     private static final String SUBSCRIBER = "SUBSCRIBER";
     private static final String QUEUE_TABLE_NAME = "QUEUE_TABLE_NAME";
+    public static final int RETRIES = 4;
 
     private DestinationSpecImpl destinationSpec;
 
@@ -99,7 +100,7 @@ public class DestinationSpecImplTest {
         when(aqFacade.createQueueConnection(connection)).thenReturn(queueConnection);
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(nlsMessageFormat);
 
-        destinationSpec = DestinationSpecImpl.from(dataModel, queueTableSpec, NAME, RETRY_DELAY,false);
+        destinationSpec = DestinationSpecImpl.from(dataModel, queueTableSpec, NAME, RETRY_DELAY, RETRIES, false);
     }
 
     @After
@@ -250,6 +251,5 @@ public class DestinationSpecImplTest {
         assertThat(subscriberSpec.getName()).isEqualTo(SUBSCRIBER);
         assertThat(subscriberSpec.getDestination()).isEqualTo(destinationSpec);
     }
-
 
 }

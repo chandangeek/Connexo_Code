@@ -31,6 +31,7 @@ public enum TableSpecs {
             Column nameColumn = table.column("NAME").varChar(30).notNull().map("name").add();
             Column queueTableNameColumn = table.column("QUEUETABLENAME").varChar(30).notNull().map("queueTableName").add();
             table.column("RETRYDELAY").number().notNull().conversion(NUMBER2INT).map("retryDelay").add();
+            table.column("RETRIES").number().notNull().conversion(NUMBER2INT).map("retries").add();
             table.column("ACTIVE").bool().map("active").add();
             table.column("BUFFERED").bool().map("buffered").add();
             table.addAuditColumns();

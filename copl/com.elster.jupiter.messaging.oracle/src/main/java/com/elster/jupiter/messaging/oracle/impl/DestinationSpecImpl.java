@@ -61,6 +61,7 @@ class DestinationSpecImpl implements DestinationSpec {
     private String queueTableName;
     private boolean active;
     private int retryDelay;
+    private int retries;
     private boolean buffered;
 
     @SuppressWarnings("unused")
@@ -89,8 +90,8 @@ class DestinationSpecImpl implements DestinationSpec {
         this.thesaurus = thesaurus;
     }
 
-    static DestinationSpecImpl from(DataModel dataModel, QueueTableSpec queueTableSpec, String name, int retryDelay, boolean buffered) {
-        return dataModel.getInstance(DestinationSpecImpl.class).init(queueTableSpec, name, retryDelay, buffered);
+    static DestinationSpecImpl from(DataModel dataModel, QueueTableSpec queueTableSpec, String name, int retryDelay, int retries, boolean buffered) {
+        return dataModel.getInstance(DestinationSpecImpl.class).init(queueTableSpec, name, retryDelay, retries, buffered);
     }
 
     @Override
@@ -224,17 +225,18 @@ class DestinationSpecImpl implements DestinationSpec {
 
     @Override
     public int numberOfRetries() {
-        return queryRetryBehavior().getRetries();
+        return retries;
     }
 
     @Override
     public Duration retryDelay() {
-        return queryRetryBehavior().getRetryDelay();
+        return Duration.ofSeconds(retryDelay);
     }
 
     @Override
     public void updateRetryBehavior(int numberOfRetries, Duration retryDelay) {
         this.retryDelay = (int) retryDelay.getSeconds();
+        this.retries = numberOfRetries;
         save();
         updateRetryBehavior(new RetryBehavior(numberOfRetries, retryDelay));
     }
@@ -261,11 +263,12 @@ class DestinationSpecImpl implements DestinationSpec {
                 '}';
     }
 
-    DestinationSpecImpl init(QueueTableSpec queueTableSpec, String name, int retryDelay, boolean buffered) {
+    DestinationSpecImpl init(QueueTableSpec queueTableSpec, String name, int retryDelay, int retries, boolean buffered) {
         this.name = name;
         this.queueTableSpec = queueTableSpec;
         this.queueTableName = queueTableSpec.getName();
         this.retryDelay = retryDelay;
+        this.retries = retries;
         this.buffered = buffered;
         this.fromDB = false;
         return this;
@@ -304,12 +307,13 @@ class DestinationSpecImpl implements DestinationSpec {
     }
 
     private void tryActivate(Connection connection) throws SQLException {
-        String sql = "BEGIN dbms_aqadm.create_queue(queue_name => ?, queue_table => ?, retry_delay => ?); dbms_aqadm.start_queue(?); END;";
+        String sql = "BEGIN dbms_aqadm.create_queue(queue_name => ?, queue_table => ?, retry_delay => ?, max_retries => ?); dbms_aqadm.start_queue(?); END;";
         try (PreparedStatement statement = connection.prepareStatement(sql)) {
             int parameterIndex = 0;
             statement.setString(++parameterIndex, name);
             statement.setString(++parameterIndex, queueTableName);
             statement.setInt(++parameterIndex, retryDelay);
+            statement.setInt(++parameterIndex, retries);
             statement.setString(++parameterIndex, name);
             statement.execute();
         }
