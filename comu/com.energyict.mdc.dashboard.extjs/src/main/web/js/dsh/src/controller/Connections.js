@@ -92,9 +92,6 @@ Ext.define('Dsh.controller.Connections', {
             'connections-list #generate-report': {
                 click: this.onGenerateReport
             },
-            'connections-list #btn-connections-bulk-action': {
-                click: this.forwardToBulk
-            },
             'connections-details uni-actioncolumn': {
                 run: this.connectionRun,
                 viewLog: this.viewLog,
