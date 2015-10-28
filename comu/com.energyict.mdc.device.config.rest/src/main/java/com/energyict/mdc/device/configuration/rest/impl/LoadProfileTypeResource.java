@@ -5,6 +5,7 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.energyict.mdc.common.TranslatableApplicationException;
 import com.energyict.mdc.common.services.ListPager;
+import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.LoadProfileType;
@@ -81,7 +82,7 @@ public class LoadProfileTypeResource {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         LoadProfileType loadProfileType = resourceHelper.findLoadProfileTypeByIdOrThrowException(loadProfileTypeId);
         deviceType.addLoadProfileTypeCustomPropertySet(loadProfileType, loadProfileTypeOnDeviceTypeInfo.customPropertySet.id > 0 ?
-                resourceHelper.findDeviceTypeCustomPropertySetByIdOrThrowException(loadProfileTypeOnDeviceTypeInfo.customPropertySet.id) : null);
+                resourceHelper.findDeviceTypeCustomPropertySetByIdOrThrowException(loadProfileTypeOnDeviceTypeInfo.customPropertySet.id, ChannelSpec.class) : null);
         return Response.ok().build();
     }
 
@@ -90,7 +91,7 @@ public class LoadProfileTypeResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public Response getLoadProfileCustomPropertySets() {
-        return Response.ok(DeviceTypeCustomPropertySetInfo.from(resourceHelper.findCustomPropertySets(LoadProfileType.class.getName()))).build();
+        return Response.ok(DeviceTypeCustomPropertySetInfo.from(resourceHelper.findAllCustomPropertySetsByDomain(ChannelSpec.class))).build();
     }
 
     private List<LoadProfileType> findAllAvailableLoadProfileTypesForDeviceType(List<LoadProfileType> loadProfilesOnDeviceType) {

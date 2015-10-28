@@ -10,7 +10,9 @@ import com.elster.jupiter.nls.TranslationKey;
  */
 public enum TranslationKeys implements TranslationKey {
 
-    DEFAULT("Default", "Default");
+    DEFAULT("Default", "Default"),
+    CHANNEL("com.energyict.mdc.device.config.Channel", "Channel"),
+    REGISTER("com.energyict.mdc.device.config.RegisterSpec", "Register");
 
     private final String key;
     private final String defaultFormat;
@@ -29,5 +31,4 @@ public enum TranslationKeys implements TranslationKey {
     public String getDefaultFormat() {
         return this.defaultFormat;
     }
-
 }
