@@ -15,7 +15,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.service.ActionMenuManager', {
                 itemId: 'action-menu-custom-attribute' + record.get('id'),
                 menuItemClass: 'customAttributeSet',
                 privileges: Mdc.privileges.Device.administrateDeviceData,
-                text: Uni.I18n.translate('general.editx', 'MDC', 'Edit \'{0}\'', [Ext.String.htmlEncode(record.get('name'))]),
+                text: Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [Ext.String.htmlEncode(record.get('name'))]),
                 handler: function () {
                     routeArguments.customAttributeSetId = record.get('id');
                     router.getRoute(route).forward();
