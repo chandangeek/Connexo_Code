@@ -10,7 +10,6 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.flags.Preview', {
     ],
     layout: 'column',
     defaults: {
-        //xtype: 'form',
         columnWidth: 0.5
     },
 

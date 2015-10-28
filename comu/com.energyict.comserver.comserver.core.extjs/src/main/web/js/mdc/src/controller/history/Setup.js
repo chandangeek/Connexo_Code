@@ -1212,7 +1212,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                 editcustomattributes: {
                                     title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
                                     route: '{customAttributeSetId}/edit',
-                                    privileges: Mdc.privileges.Device.editDeviceAttributes,
+                                    privileges: Mdc.privileges.Device.administrateDeviceData,
                                     controller: 'Mdc.controller.setup.DeviceAttributes',
                                     action: 'showEditCustomAttributeSetsView',
                                     callback: function (route) {
@@ -1331,7 +1331,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                         editcustomattributes: {
                                             route: 'customattributes/{customAttributeSetId}/edit',
                                             controller: 'Mdc.controller.setup.DeviceRegisterConfiguration',
-                                            //privileges: '',
+                                            privileges: Mdc.privileges.Device.administrateDeviceData,
                                             action: 'loadRegisterConfigurationCustomAttributes',
                                             callback: function (route) {
                                                 this.getApplication().on('loadRegisterConfigurationCustomAttributes', function (record) {
@@ -1601,7 +1601,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                         editcustomattributes: {
                                             route: 'customattributes/{customAttributeSetId}/edit',
                                             controller: 'Mdc.controller.setup.DeviceChannelData',
-                                            //privileges: '',
+                                            privileges: Mdc.privileges.Device.administrateDeviceData,
                                             action: 'showEditChannelOfLoadProfileCustomAttributes',
                                             callback: function (route) {
                                                 this.getApplication().on('channelOfLoadProfileCustomAttributes', function (record) {
