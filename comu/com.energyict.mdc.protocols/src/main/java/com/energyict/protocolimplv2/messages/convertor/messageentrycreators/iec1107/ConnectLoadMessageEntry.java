@@ -23,7 +23,7 @@ public class ConnectLoadMessageEntry implements MessageEntryCreator {
 
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
-        MessageTag messageTag = new MessageTag("CONTACTOR_OPEN");
+        MessageTag messageTag = new MessageTag("CONTACTOR_CLOSE");
         messageTag.add(new MessageValue(" "));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }

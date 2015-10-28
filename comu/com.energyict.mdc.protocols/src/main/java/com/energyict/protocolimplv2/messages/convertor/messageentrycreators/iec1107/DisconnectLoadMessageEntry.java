@@ -23,7 +23,7 @@ public class DisconnectLoadMessageEntry implements MessageEntryCreator {
 
     @Override
     public MessageEntry createMessageEntry(Messaging messagingProtocol, OfflineDeviceMessage offlineDeviceMessage) {
-        MessageTag messageTag = new MessageTag("CONTACTOR_CLOSE");
+        MessageTag messageTag = new MessageTag("CONTACTOR_OPEN");
         messageTag.add(new MessageValue(" "));
         return new MessageEntry(messagingProtocol.writeTag(messageTag), offlineDeviceMessage.getTrackingId());
     }
