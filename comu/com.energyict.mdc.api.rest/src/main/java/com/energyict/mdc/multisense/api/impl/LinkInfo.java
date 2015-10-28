@@ -14,5 +14,6 @@ public class LinkInfo {
     public Long id;
     @XmlJavaTypeAdapter(Link.JaxbAdapter.class)
     public Link link;
+    public Long version;
 
 }

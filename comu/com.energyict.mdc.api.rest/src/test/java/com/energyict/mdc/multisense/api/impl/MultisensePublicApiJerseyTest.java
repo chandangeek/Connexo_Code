@@ -36,6 +36,7 @@ import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -52,7 +53,9 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
@@ -115,6 +118,8 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     ProtocolPluggableService protocolPluggableService;
     @Mock
     SchedulingService schedulingService;
+    @Mock
+    DeviceMessageService deviceMessageService;
 
     @Override
     protected Application getApplication() {
@@ -135,6 +140,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         application.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         application.setProtocolPluggableService(protocolPluggableService);
         application.setSchedulingService(schedulingService);
+        application.setDeviceMessageService(deviceMessageService);
         return application;
     }
 
@@ -385,6 +391,14 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(mock.getMessageSpecifications()).thenReturn(Collections.emptyList());
         when(deviceMessageSpecificationService.findCategoryById(id)).thenReturn(Optional.of(mock));
         return mock;
+    }
+
+    DeviceMessageSpec mockDeviceMessageSpec(DeviceMessageId deviceMessageId, String name) {
+        DeviceMessageSpec deviceMessageSpec = mock(DeviceMessageSpec.class);
+        when(deviceMessageSpec.getId()).thenReturn(deviceMessageId);
+        when(deviceMessageSpec.getName()).thenReturn(name);
+        when(deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue())).thenReturn(Optional.of(deviceMessageSpec));
+        return deviceMessageSpec;
     }
 
     ClockTask mockClockTask(long id) {

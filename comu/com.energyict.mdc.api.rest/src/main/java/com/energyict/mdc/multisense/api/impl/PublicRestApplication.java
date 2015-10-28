@@ -16,6 +16,7 @@ import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.TopologyService;
@@ -70,6 +71,7 @@ public class PublicRestApplication extends Application implements TranslationKey
     private volatile ProtocolPluggableService protocolPluggableService;
     private volatile Clock clock;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private volatile DeviceMessageService deviceMessageService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -89,6 +91,7 @@ public class PublicRestApplication extends Application implements TranslationKey
                 DeviceContactorResource.class,
                 DeviceLifecycleActionResource.class,
                 DeviceMessageCategoryResource.class,
+                DeviceMessageSpecificationResource.class,
                 DeviceMessageResource.class,
                 DeviceProtocolPluggableClassResource.class,
                 DeviceResource.class,
@@ -155,6 +158,11 @@ public class PublicRestApplication extends Application implements TranslationKey
     @Reference
     public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
         this.connectionTaskService = connectionTaskService;
+    }
+
+    @Reference
+    public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
+        this.deviceMessageService = deviceMessageService;
     }
 
     @Reference
@@ -232,6 +240,7 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(clock).to(Clock.class);
             bind(protocolPluggableService).to(ProtocolPluggableService.class);
             bind(schedulingService).to(SchedulingService.class);
+            bind(deviceMessageService).to(DeviceMessageService.class);
 
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class).in(Singleton.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class).in(Singleton.class);
@@ -257,6 +266,7 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(ProtocolDialectConfigurationPropertiesInfoFactory.class).to(ProtocolDialectConfigurationPropertiesInfoFactory.class).in(Singleton.class);
             bind(DeviceMessageInfoFactory.class).to(DeviceMessageInfoFactory.class).in(Singleton.class);
             bind(ComScheduleInfoFactory.class).to(ComScheduleInfoFactory.class).in(Singleton.class);
+            bind(DeviceMessageSpecificationInfoFactory.class).to(DeviceMessageSpecificationInfoFactory.class).in(Singleton.class);
         }
     }
 

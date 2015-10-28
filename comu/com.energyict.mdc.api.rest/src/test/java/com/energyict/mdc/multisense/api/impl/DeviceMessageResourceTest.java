@@ -4,7 +4,10 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,6 +25,7 @@ import static org.mockito.Mockito.when;
 
 public class DeviceMessageResourceTest extends MultisensePublicApiJerseyTest {
 
+    public static final long id = 31L;
     private final Instant now = Instant.now();
 
     @Before
@@ -29,12 +33,21 @@ public class DeviceMessageResourceTest extends MultisensePublicApiJerseyTest {
         DeviceType deviceType = mockDeviceType(1L, "device type");
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(2L, "Default", deviceType);
         Device mockDevice = mockDevice("X01", "1001", deviceConfiguration);
+        DeviceMessageCategory category = mockDeviceMessageCategory(33, "category");
+        DeviceMessageSpec messageSpec = mockDeviceMessageSpec(DeviceMessageId.CLOCK_SET_DST, "dst");
+        when(messageSpec.getCategory()).thenReturn(category);
+        DeviceMessage deviceMessage = mockDeviceMessage(mockDevice, messageSpec);
+        when(mockDevice.getMessages()).thenReturn(Arrays.asList(deviceMessage));
+    }
+
+    protected DeviceMessage mockDeviceMessage(Device mockDevice, DeviceMessageSpec specification) {
         DeviceMessage deviceMessage = mock(DeviceMessage.class);
-        when(deviceMessage.getId()).thenReturn(31L);
+        when(deviceMessage.getId()).thenReturn(id);
         when(deviceMessage.getStatus()).thenReturn(DeviceMessageStatus.CONFIRMED);
         when(deviceMessage.getSentDate()).thenReturn(Optional.of(now));
         when(deviceMessage.getDevice()).thenReturn(mockDevice);
-        when(mockDevice.getMessages()).thenReturn(Arrays.asList(deviceMessage));
+        when(deviceMessage.getSpecification()).thenReturn(specification);
+        return deviceMessage;
     }
 
     @Test
@@ -67,10 +80,24 @@ public class DeviceMessageResourceTest extends MultisensePublicApiJerseyTest {
     }
 
     @Test
+    public void testGetSingleDeviceMessageAllFields() throws Exception {
+        Response response = target("/devices/X01/messages/31").request().get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel model = JsonModel.model((InputStream) response.getEntity());
+        assertThat(model.<Integer>get("$.id")).isEqualTo(31);
+        assertThat(model.<String>get("$.link.href")).isEqualTo("http://localhost:9998/devices/X01/messages/31");
+        assertThat(model.<Integer>get("$.device.id")).isEqualTo("X01".hashCode());
+        assertThat(model.<String>get("$.device.link.href")).isEqualTo("http://localhost:9998/devices/X01");
+        assertThat(model.<String>get("$.status")).isEqualTo("Confirmed");
+        assertThat(model.<Instant>get("$.sendDate")).isNull();
+    }
+
+    @Test
     public void testDeviceMessageFields() throws Exception {
         Response response = target("/devices/x/messages").request("application/json").method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<List>get("$")).hasSize(5);
-        assertThat(model.<List<String>>get("$")).containsOnly("id", "link", "status", "sentDate", "device");
+        assertThat(model.<List>get("$")).hasSize(12);
+        assertThat(model.<List<String>>get("$")).containsOnly("creationDate","device","id","link","messageSpecification","properties","protocolInfo",
+                "releaseDate","sentDate","status","trackingId","user");
     }
 }

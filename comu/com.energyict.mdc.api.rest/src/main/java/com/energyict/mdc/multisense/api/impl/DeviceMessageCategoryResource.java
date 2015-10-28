@@ -29,7 +29,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * Created by bvn on 7/17/15.
  */
-@Path("/categories")
+@Path("/devicemessagecategories")
 public class DeviceMessageCategoryResource {
 
     private final DeviceMessageCategoryInfoFactory deviceMessageCategoriesInfoFactory;
@@ -50,7 +50,7 @@ public class DeviceMessageCategoryResource {
     public DeviceMessageCategoryInfo getDeviceMessageCategory(@PathParam("messageCategoryId") int messageCategoryId,
                                   @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         return deviceMessageSpecificationService.findCategoryById(messageCategoryId)
-                .map(dmc -> deviceMessageCategoriesInfoFactory.asHypermedia(dmc, uriInfo, fieldSelection.getFields()))
+                .map(dmc -> deviceMessageCategoriesInfoFactory.from(dmc, uriInfo, fieldSelection.getFields()))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_MESSAGE_CATEGORY));
     }
 
@@ -63,7 +63,7 @@ public class DeviceMessageCategoryResource {
         List<DeviceMessageCategoryInfo> infos = ListPager.of(deviceMessageSpecificationService.allCategories(), (cat1, cat2) -> cat1.getName().compareToIgnoreCase(cat2.getName()))
                 .from(queryParameters)
                 .stream()
-                .map(dmc -> deviceMessageCategoriesInfoFactory.asHypermedia(dmc, uriInfo, fieldSelection.getFields()))
+                .map(dmc -> deviceMessageCategoriesInfoFactory.from(dmc, uriInfo, fieldSelection.getFields()))
                 .collect(toList());
         UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
                 .path(DeviceMessageCategoryResource.class);
