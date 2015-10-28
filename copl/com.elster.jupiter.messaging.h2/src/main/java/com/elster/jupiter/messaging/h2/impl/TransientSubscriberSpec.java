@@ -61,4 +61,8 @@ class TransientSubscriberSpec implements SubscriberSpec {
     public void addMessage(TransientMessage transientMessage) {
         messages.add(transientMessage);
     }
+
+    public long messageCount() {
+        return messages.size();
+    }
 }

@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.conditions.Condition;
 
 import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -143,6 +144,36 @@ class TransientDestinationSpec implements DestinationSpec {
     @Override
     public boolean isBuffered() {
     	return buffered;
+    }
+
+    @Override
+    public long numberOfMessages() {
+        return subscribers.stream()
+                .mapToLong(TransientSubscriberSpec::messageCount)
+                .sum();
+    }
+
+    @Override
+    public int numberOfRetries() {
+        return 0;
+    }
+
+    @Override
+    public Duration retryDelay() {
+        return Duration.of(0, ChronoUnit.SECONDS);
+    }
+
+    @Override
+    public void updateRetryBehavior(int numberOfRetries, Duration retryDelay) {
+    }
+
+    @Override
+    public void purgeErrors() {
+    }
+
+    @Override
+    public long errorCount() {
+        return 0;
     }
 
     private class TransientMessageBuilder implements MessageBuilder {

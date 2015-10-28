@@ -97,12 +97,12 @@ class TransientQueueTableSpec implements QueueTableSpec {
     }
 
     @Override
-    public DestinationSpec createDestinationSpec(String name, int retryDelay) {
-    	return createDestinationSpec(name, retryDelay, false);
+    public DestinationSpec createDestinationSpec(String name, int retryDelay, int retries) {
+        return createDestinationSpec(name, retryDelay, false);
     }
 
     @Override
-    public DestinationSpec createBufferedDestinationSpec(String name, int retryDelay) {
+    public DestinationSpec createBufferedDestinationSpec(String name, int retryDelay, int retries) {
         return createDestinationSpec(name, retryDelay, true);
     }
 
