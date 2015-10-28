@@ -43,7 +43,7 @@
         </dependency>
         <dependency>
             <groupId>com.elster</groupId>
-            <artifactId>insight.config</artifactId>
+            <artifactId>insight.usagepoint.config</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
