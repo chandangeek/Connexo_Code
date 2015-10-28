@@ -64,14 +64,6 @@ Ext.define('Usr.controller.GroupEdit', {
         });
     },
 
-//    getSelectApplicationsGrid: function () {
-//        return this.widget.down("#applicationList");
-//    },
-//
-//    getSelectFeaturesGrid: function () {
-//        return this.widget.down("#featureList");
-//    },
-
     backUrl: '#/administration/roles',
 
     back: function () {
@@ -134,8 +126,8 @@ Ext.define('Usr.controller.GroupEdit', {
                                     if (previousPermissions) {
                                         previousPermissions += ', ';
                                     }
-                                    name = currentPrivileges.data.items[k].data.name;
-                                    this.data.items[i].set('permissions', previousPermissions + Uni.I18n.translate(name, 'USR', name));
+                                    name = currentPrivileges.data.items[k].data.translatedName;
+                                    this.data.items[i].set('permissions', previousPermissions + name);
                                     this.data.items[i].set('selected', this.data.items[i].data.selected + 1);
                                 }
                             }
@@ -299,8 +291,8 @@ Ext.define('Usr.controller.GroupEdit', {
                     if (permissions != '') {
                         permissions += ', ';
                     }
-                    name = privileges.data.items[j].data.name;
-                    permissions += Uni.I18n.translate(name, 'USR', name);
+                    name = privileges.data.items[j].data.translatedName;
+                    permissions += name;
                 }
             }
             store.data.items[i].set('permissions', permissions);
@@ -378,7 +370,7 @@ Ext.define('Usr.controller.GroupEdit', {
         menu.add(
             {
                 xtype: 'menucheckitem',
-                text: Uni.I18n.translate(name, 'USR', name),
+                text: name,
                 code: code,
                 checked: selected,
                 listeners: {
@@ -419,7 +411,7 @@ Ext.define('Usr.controller.GroupEdit', {
 
             this.addPermissionMenuNoAccess(menu, (record.get('permissions') == ''));
             for (var i = 0; i < privileges.length; i++) {
-                this.addPermissionMenuItem(menu, privileges[i].data.name, privileges[i].data.id, privileges[i].data.selected);
+                this.addPermissionMenuItem(menu, privileges[i].data.translatedName, privileges[i].data.id, privileges[i].data.selected);
             }
             this.addPermissionMenuFullControl(menu, (record.get('selected') == privileges.length));
             Ext.resumeLayouts();

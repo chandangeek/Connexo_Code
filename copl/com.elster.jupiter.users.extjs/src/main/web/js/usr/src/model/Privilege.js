@@ -3,6 +3,8 @@ Ext.define('Usr.model.Privilege', {
     fields: [
         'name',
         'applicationName',
+        'translatedName',
+        'translatedApplicationName',
         {
             name: 'selected',
             type: 'boolean',
