@@ -1,6 +1,6 @@
 -classpath: target/classes
 -dsannotations: *
 Export-Package: com.elster.jupiter.yellowfin,com.elster.jupiter.yellowfin.security
-Import-Package: org.osgi.framework, javax.naming, javax.xml.namespace, javax.xml.parsers, javax.xml.transform, javax.xml.validation, javax.xml.xpath, org.w3c.dom, org.w3c.dom.bootstrap, org.w3c.dom.events, org.w3c.dom.ls, org.xml.sax, org.xml.sax.ext, org.xml.sax.helpers, javax.activation, javax.xml.transform.dom, com.elster.jupiter.messaging, com.elster.jupiter.messaging.subscriber, com.elster.jupiter.orm.callback, com.elster.jupiter.util, com.elster.jupiter.util.json, com.elster.jupiter.users, com.elster.jupiter.pubsub, com.elster.jupiter.events, com.elster.jupiter.nls
+Import-Package: org.osgi.framework, javax.naming, javax.xml.namespace, javax.xml.parsers, javax.xml.transform, javax.xml.validation, javax.xml.xpath, org.w3c.dom, org.w3c.dom.bootstrap, org.w3c.dom.events, org.w3c.dom.ls, org.xml.sax, org.xml.sax.ext, org.xml.sax.helpers, javax.activation, javax.xml.transform.dom, com.elster.jupiter.*
 Private-Package:  \
 	com.elster.jupiter.yellowfin.impl

@@ -40,6 +40,12 @@
         </plugins>
     </build>
 
+    <!--
+    WARNING:
+    THIRD PARTY DEPENDENCIES NEED TO BE EXPLICITLY ADDED TO THE bnd.bnd FILE
+    IN ORDER FOR OSGI TO BE ABLE TO IMPORT THE DEPENDENCIES!
+    -->
+
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
