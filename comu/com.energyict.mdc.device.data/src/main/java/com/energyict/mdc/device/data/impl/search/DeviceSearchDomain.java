@@ -143,7 +143,8 @@ public class DeviceSearchDomain implements SearchDomain {
                 injector.getInstance(ChannelObisCodeSearchableProperty.class).init(this, channelGroup),
                 injector.getInstance(ChannelIntervalSearchableProperty.class).init(this, channelGroup),
                 injector.getInstance(LogbookNameSearchableProperty.class).init(this, logbookGroup),
-                injector.getInstance(LogbookObisCodeSearchableProperty.class).init(this, logbookGroup)
+                injector.getInstance(LogbookObisCodeSearchableProperty.class).init(this, logbookGroup),
+                injector.getInstance(LoadProfileNameSearchableProperty.class).init(this, loadProfileGroup)
         );
     }
 
