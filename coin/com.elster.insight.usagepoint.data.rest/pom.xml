@@ -42,6 +42,10 @@
             <artifactId>insight.common</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.elster</groupId>
+            <artifactId>insight.config</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>time</artifactId>
         </dependency>
