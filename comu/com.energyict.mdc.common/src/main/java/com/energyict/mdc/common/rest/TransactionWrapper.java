@@ -37,21 +37,21 @@ public class TransactionWrapper implements ApplicationEventListener {
 
         @Override
         public void onEvent(final RequestEvent event) {
-            switch (event.getType()) {
-                case REQUEST_MATCHED:
-                    if (!event.getUriInfo().getMatchedResourceMethod().getInvocable().getHandlingMethod().isAnnotationPresent(Untransactional.class)) {
+            if (event.getUriInfo().getMatchedResourceMethod() != null && !event.getUriInfo().getMatchedResourceMethod().getInvocable().getHandlingMethod().isAnnotationPresent(Untransactional.class)) {
+                switch (event.getType()) {
+                    case REQUEST_MATCHED:
                         contextThreadLocal.set(transactionService.getContext());
-                    }
-                    break;
-                case FINISHED:
-                    TransactionContext context = contextThreadLocal.get();
-                    if (context!=null) { // context will be null if METHOD was never started, e.g. in case of 404
-                        if (event.isSuccess()) {
-                            context.commit();
+                        break;
+                    case FINISHED:
+                        TransactionContext context = contextThreadLocal.get();
+                        if (context != null) { // context will be null if METHOD was never started, e.g. in case of 404
+                            if (event.isSuccess()) {
+                                context.commit();
+                            }
+                            context.close(); // will rollback if called without commit()
                         }
-                        context.close(); // will rollback if called without commit()
-                    }
-                    break;
+                        break;
+                }
             }
         }
     }
