@@ -135,7 +135,17 @@ class MdcAppPrivileges {
                 //com.elster.jupiter.bpm.security
                 com.elster.jupiter.bpm.security.Privileges.Constants.EXECUTE_TASK,
                 com.elster.jupiter.bpm.security.Privileges.Constants.VIEW_TASK,
-                com.elster.jupiter.bpm.security.Privileges.Constants.ASSIGN_TASK);
+                com.elster.jupiter.bpm.security.Privileges.Constants.ASSIGN_TASK,
 
+                //com.elster.jupiter.cps
+                com.elster.jupiter.cps.Privileges.Constants.VIEW_CUSTOM_PROPERTIES_1,
+                com.elster.jupiter.cps.Privileges.Constants.VIEW_CUSTOM_PROPERTIES_2,
+                com.elster.jupiter.cps.Privileges.Constants.VIEW_CUSTOM_PROPERTIES_3,
+                com.elster.jupiter.cps.Privileges.Constants.VIEW_CUSTOM_PROPERTIES_4,
+
+                com.elster.jupiter.cps.Privileges.Constants.EDIT_CUSTOM_PROPERTIES_1,
+                com.elster.jupiter.cps.Privileges.Constants.EDIT_CUSTOM_PROPERTIES_2,
+                com.elster.jupiter.cps.Privileges.Constants.EDIT_CUSTOM_PROPERTIES_3,
+                com.elster.jupiter.cps.Privileges.Constants.EDIT_CUSTOM_PROPERTIES_4);
     }
 }

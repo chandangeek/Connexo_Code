@@ -30,7 +30,7 @@ public class MdcAppInstaller implements InstallService {
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList(UserService.COMPONENTNAME, "APS", "ISU", "DTC", "DDC", "MDC", "SCH", "VAL", "YFN", "BPM", "DES", "FIM", "FWC");
+        return Arrays.asList(UserService.COMPONENTNAME, "APS", "ISU", "DTC", "DDC", "MDC", "SCH", "VAL", "YFN", "BPM", "DES", "FIM", "FWC", "CPS");
     }
 
     @Reference
@@ -92,5 +92,4 @@ public class MdcAppInstaller implements InstallService {
                 com.energyict.mdc.device.lifecycle.config.Privileges.Constants.INITIATE_ACTION_3
         };
     }
-    
 }

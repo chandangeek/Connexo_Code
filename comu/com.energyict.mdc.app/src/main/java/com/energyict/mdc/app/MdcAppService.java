@@ -26,7 +26,5 @@ public interface MdcAppService {
         public String description() {
             return description;
         }
-
     }
-
 }
