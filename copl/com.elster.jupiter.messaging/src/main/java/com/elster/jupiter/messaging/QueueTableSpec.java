@@ -1,10 +1,12 @@
 package com.elster.jupiter.messaging;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.HasName;
 
 /**
  * Abstraction for the space in which queues and topics exist.
  */
+@ProviderType
 public interface QueueTableSpec extends HasName {
 
     /**
@@ -23,11 +25,19 @@ public interface QueueTableSpec extends HasName {
 
     boolean isActive();
 
-    DestinationSpec createDestinationSpec(String name, int retryDelay);
+    default DestinationSpec createDestinationSpec(String name, int retryDelay) {
+        return createDestinationSpec(name, retryDelay, 5);
+    }
+
+    DestinationSpec createDestinationSpec(String name, int retryDelay, int retries);
 
     boolean isJms();
 
     void save();
 
-	DestinationSpec createBufferedDestinationSpec(String name, int retryDelay);
+    default DestinationSpec createBufferedDestinationSpec(String name, int retryDelay) {
+        return createBufferedDestinationSpec(name, retryDelay, 5);
+    }
+
+    DestinationSpec createBufferedDestinationSpec(String name, int retryDelay, int retries);
 }
