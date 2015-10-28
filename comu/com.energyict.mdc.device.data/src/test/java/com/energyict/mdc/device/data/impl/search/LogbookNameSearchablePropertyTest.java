@@ -1,73 +1,33 @@
 package com.energyict.mdc.device.data.impl.search;
 
-import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.nls.NlsMessageFormat;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
-import com.elster.jupiter.time.TimeService;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class LogbookNameSearchablePropertyTest {
-
-    @Mock
-    private DataVaultService dataVaultService;
-    @Mock
-    private DataModel dataModel;
-    @Mock
-    private TimeService timeService;
-    @Mock
-    private OrmService ormService;
-    @Mock
-    private DeviceSearchDomain domain;
-    @Mock
-    private Thesaurus thesaurus;
-
-    private PropertySpecService propertySpecService;
-    
+public class LogbookNameSearchablePropertyTest extends AbstractNameSearchablePropertyTest {
     private SearchablePropertyGroup parentGroup;
 
     @Before
     public void initializeMocks() {
+        super.initializeMocks();
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
         when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.LOGBOOK_NAME.getDefaultFormat());
         when(thesaurus.getFormat(PropertyTranslationKeys.LOGBOOK_NAME)).thenReturn(messageFormat);
-        when(ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        com.elster.jupiter.properties.impl.PropertySpecServiceImpl jupterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(timeService);
-        this.propertySpecService = new PropertySpecServiceImpl(jupterPropertySpecService, dataVaultService, timeService, ormService);
+
         this.parentGroup = new LogbookSearchablePropertyGroup(thesaurus);
-    }
-
-    @Test
-    public void testGetDomain() {
-        SearchableProperty property = this.getTestInstance();
-
-        // Business method
-        SearchDomain domain = property.getDomain();
-
-        // Asserts
-        assertThat(domain).isEqualTo(this.domain);
     }
 
     @Test
@@ -83,28 +43,6 @@ public class LogbookNameSearchablePropertyTest {
     }
 
     @Test
-    public void testVisibility() {
-        SearchableProperty property = this.getTestInstance();
-
-        // Business method
-        SearchableProperty.Visibility visibility = property.getVisibility();
-
-        // Asserts
-        assertThat(visibility).isEqualTo(SearchableProperty.Visibility.REMOVABLE);
-    }
-
-    @Test
-    public void testSelectionMode() {
-        SearchableProperty property = this.getTestInstance();
-
-        // Business method
-        SearchableProperty.SelectionMode selectionMode = property.getSelectionMode();
-
-        // Asserts
-        assertThat(selectionMode).isEqualTo(SearchableProperty.SelectionMode.SINGLE);
-    }
-
-    @Test
     public void testTranslation() {
         SearchableProperty property = this.getTestInstance();
 
@@ -115,42 +53,7 @@ public class LogbookNameSearchablePropertyTest {
         verify(this.thesaurus).getFormat(PropertyTranslationKeys.LOGBOOK_NAME);
     }
 
-    @Test
-    public void testSpecification() {
-        SearchableProperty property = this.getTestInstance();
-
-        // Business method
-        PropertySpec specification = property.getSpecification();
-
-        // Asserts
-        assertThat(specification).isNotNull();
-        assertThat(specification.isReference()).isFalse();
-        assertThat(specification.getValueFactory().getValueType()).isEqualTo(String.class);
-    }
-
-    @Test
-    public void testPossibleValues() {
-        SearchableProperty property = this.getTestInstance();
-
-        // Business method
-        PropertySpec specification = property.getSpecification();
-
-        // Asserts
-        assertThat(specification.getPossibleValues()).isNull();
-    }
-
-    @Test
-    public void testPropertyHasNoConstraints() {
-        SearchableProperty property = this.getTestInstance();
-
-        // Business method
-        List<SearchableProperty> constraints = property.getConstraints();
-
-        // Asserts
-        assertThat(constraints).hasSize(0);
-    }
-
-    private SearchableProperty getTestInstance() {
+    protected SearchableProperty getTestInstance() {
         return new LogbookNameSearchableProperty(propertySpecService, thesaurus).init(this.domain, this.parentGroup);
     }
 }

@@ -46,6 +46,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     LOGBOOK("device.logbook", "Logbook"),
     LOGBOOK_NAME("device.logbook.name", "Name"),
     LOGBOOK_OBISCODE("device.logbook.obiscode", "OBIS code"),
+    LOADPROFILE("device.loadprofile", "Load profile"),
     ;
 
     private String key;
