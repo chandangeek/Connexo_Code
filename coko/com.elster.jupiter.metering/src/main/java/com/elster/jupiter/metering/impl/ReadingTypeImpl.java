@@ -63,6 +63,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	private String mRID;
 	private String aliasName;
     private String description;
+    private boolean active;
 	private long version;
 	@SuppressWarnings("unused")
 	private Instant createTime;
@@ -445,6 +446,26 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
     public Currency getCurrency() {
 		return currency;
 	}
+
+    @Override
+    public boolean getActive() {
+        return active;
+    }
+
+    @Override
+    public void activate() {
+        this.active = true;
+    }
+
+    @Override
+    public void deactivate() {
+        this.active = false;
+    }
+
+    @Override
+    public void update() {
+        dataModel.mapper(ReadingType.class).update(this);
+    }
 
     static TimeAttribute extractTimeAttribute(String mRID) {
 		String[] parts = mRID.split("\\.");
