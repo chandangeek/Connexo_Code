@@ -8,15 +8,18 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -25,34 +28,35 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public abstract class AbstractReadingTypeNameSearchablePropertyTest {
+@RunWith(MockitoJUnitRunner.class)
+public class LogbookNameSearchablePropertyTest {
 
     @Mock
-    DataVaultService dataVaultService;
+    private DataVaultService dataVaultService;
     @Mock
-    DataModel dataModel;
+    private DataModel dataModel;
     @Mock
-    TimeService timeService;
+    private TimeService timeService;
     @Mock
-    OrmService ormService;
+    private OrmService ormService;
     @Mock
-    DeviceSearchDomain domain;
+    private DeviceSearchDomain domain;
     @Mock
-    Thesaurus thesaurus;
-    @Mock
-    ReferencePropertySpecFinderProvider referencePropertySpecFinderProvider;
+    private Thesaurus thesaurus;
 
-    com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
-    PropertySpecService propertySpecService;
+    private PropertySpecService propertySpecService;
+    
+    private SearchablePropertyGroup parentGroup;
 
     @Before
     public void initializeMocks() {
         NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
-        when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.READING_TYPE_NAME.getDefaultFormat());
-        when(thesaurus.getFormat(PropertyTranslationKeys.READING_TYPE_NAME)).thenReturn(messageFormat);
+        when(messageFormat.format(anyVararg())).thenReturn(PropertyTranslationKeys.LOGBOOK_NAME.getDefaultFormat());
+        when(thesaurus.getFormat(PropertyTranslationKeys.LOGBOOK_NAME)).thenReturn(messageFormat);
         when(ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
-        this.jupiterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(timeService);
-        this.propertySpecService = new PropertySpecServiceImpl(jupiterPropertySpecService, dataVaultService, timeService, ormService);
+        com.elster.jupiter.properties.impl.PropertySpecServiceImpl jupterPropertySpecService = new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(timeService);
+        this.propertySpecService = new PropertySpecServiceImpl(jupterPropertySpecService, dataVaultService, timeService, ormService);
+        this.parentGroup = new LogbookSearchablePropertyGroup(thesaurus);
     }
 
     @Test
@@ -64,6 +68,18 @@ public abstract class AbstractReadingTypeNameSearchablePropertyTest {
 
         // Asserts
         assertThat(domain).isEqualTo(this.domain);
+    }
+
+    @Test
+    public void testGroup() {
+        SearchableProperty property = this.getTestInstance();
+
+        // Business method
+        Optional<SearchablePropertyGroup> group = property.getGroup();
+
+        // Asserts
+        assertThat(group).isPresent();
+        assertThat(group.get().getId()).isEqualTo(LogbookSearchablePropertyGroup.GROUP_NAME);
     }
 
     @Test
@@ -96,7 +112,7 @@ public abstract class AbstractReadingTypeNameSearchablePropertyTest {
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getFormat(PropertyTranslationKeys.READING_TYPE_NAME);
+        verify(this.thesaurus).getFormat(PropertyTranslationKeys.LOGBOOK_NAME);
     }
 
     @Test
@@ -131,8 +147,10 @@ public abstract class AbstractReadingTypeNameSearchablePropertyTest {
         List<SearchableProperty> constraints = property.getConstraints();
 
         // Asserts
-        assertThat(constraints).isEmpty();
+        assertThat(constraints).hasSize(0);
     }
 
-    protected abstract SearchableProperty getTestInstance();
+    private SearchableProperty getTestInstance() {
+        return new LogbookNameSearchableProperty(propertySpecService, thesaurus).init(this.domain, this.parentGroup);
+    }
 }

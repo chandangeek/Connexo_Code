@@ -52,6 +52,12 @@ public interface JoinClauseBuilder {
 
     JoinClauseBuilder addChannelSpec();
 
+    JoinClauseBuilder addLogbook();
+
+    JoinClauseBuilder addLogbookSpec();
+
+    JoinClauseBuilder addLogbookType();
+
     JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass);
 
     class Aliases {
@@ -59,5 +65,8 @@ public interface JoinClauseBuilder {
 
         public static final String DEVICE = "dev";
         public static final String DEVICE_TYPE = "dev_Type";
+        public static final String DEVICE_LOGBOOK = "dev_lb";
+        public static final String LOGBOOK_SPEC = "lb_spec";
+        public static final String LOGBOOK_TYPE = "lb_type";
     }
 }

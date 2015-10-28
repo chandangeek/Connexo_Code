@@ -204,6 +204,27 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
     }
 
     @Override
+    public JoinClauseBuilder addLogbook() {
+        this.joins.add(Joins.LogBook);
+        return this;
+    }
+
+    @Override
+    public JoinClauseBuilder addLogbookSpec() {
+        this.joins.add(Joins.LogBook);
+        this.joins.add(Joins.LogbookSpec);
+        return this;
+    }
+
+    @Override
+    public JoinClauseBuilder addLogbookType() {
+        this.joins.add(Joins.LogBook);
+        this.joins.add(Joins.LogbookSpec);
+        this.joins.add(Joins.LogbookType);
+        return this;
+    }
+
+    @Override
     public JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass) {
         this.joins.add(new ConnectionTypePropertyJoinType(connectionTypePluggableClass));
         return this;
@@ -369,6 +390,45 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
             @Override
             public void appendTo(SqlBuilder sqlBuilder) {
                 sqlBuilder.append(" join MTR_READINGTYPE ch_rt on ch_rt.mrid = ch_msr_type.readingtype ");
+            }
+        },
+
+        LogBook {
+            @Override
+            public void appendTo(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" join DDC_LOGBOOK ");
+                sqlBuilder.append(Aliases.DEVICE_LOGBOOK);
+                sqlBuilder.append(" on ");
+                sqlBuilder.append(Aliases.DEVICE_LOGBOOK);
+                sqlBuilder.append(".DEVICEID = ");
+                sqlBuilder.append(Aliases.DEVICE);
+                sqlBuilder.append(".id ");
+            }
+        },
+
+        LogbookSpec {
+            @Override
+            public void appendTo(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" join DTC_LOGBOOKSPEC ");
+                sqlBuilder.append(Aliases.LOGBOOK_SPEC);
+                sqlBuilder.append(" on ");
+                sqlBuilder.append(Aliases.LOGBOOK_SPEC);
+                sqlBuilder.append(".id = ");
+                sqlBuilder.append(Aliases.DEVICE_LOGBOOK);
+                sqlBuilder.append(".LOGBOOKSPECID ");
+            }
+        },
+
+        LogbookType{
+            @Override
+            public void appendTo(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" join MDS_LOGBOOKTYPE ");
+                sqlBuilder.append(Aliases.LOGBOOK_TYPE);
+                sqlBuilder.append(" on ");
+                sqlBuilder.append(Aliases.LOGBOOK_TYPE);
+                sqlBuilder.append(".id = ");
+                sqlBuilder.append(Aliases.LOGBOOK_SPEC);
+                sqlBuilder.append(".LOGBOOKTYPEID ");
             }
         },
 

@@ -43,6 +43,8 @@ public enum PropertyTranslationKeys implements TranslationKey {
     CHANNEL("device.channel", "Channel"),
     CHANNEL_OBISCODE("device.channel.obiscode", "OBIS code"),
     CHANNEL_INTERVAL("device.channel.interval", "Interval"),
+    LOGBOOK("device.logbook", "Logbook"),
+    LOGBOOK_NAME("device.logbook.name", "Name"),
     ;
 
     private String key;

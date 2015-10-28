@@ -112,6 +112,7 @@ public class DeviceSearchDomain implements SearchDomain {
         SecuritySearchablePropertyGroup securityGroup = injector.getInstance(SecuritySearchablePropertyGroup.class);
         RegisterSearchablePropertyGroup registerGroup = injector.getInstance(RegisterSearchablePropertyGroup.class);
         ChannelSearchablePropertyGroup channelGroup = injector.getInstance(ChannelSearchablePropertyGroup.class);
+        LogbookSearchablePropertyGroup logbookGroup = injector.getInstance(LogbookSearchablePropertyGroup.class);
         return Arrays.asList(
                 injector.getInstance(MasterResourceIdentifierSearchableProperty.class).init(this),
                 injector.getInstance(SerialNumberSearchableProperty.class).init(this),
@@ -139,7 +140,8 @@ public class DeviceSearchDomain implements SearchDomain {
                 injector.getInstance(ChannelReadingTypeUnitOfMeasureSearchableProperty.class).init(this, channelGroup),
                 injector.getInstance(ChannelReadingTypeTimeOfUseSearchableProperty.class).init(this, channelGroup),
                 injector.getInstance(ChannelObisCodeSearchableProperty.class).init(this, channelGroup),
-                injector.getInstance(ChannelIntervalSearchableProperty.class).init(this, channelGroup)
+                injector.getInstance(ChannelIntervalSearchableProperty.class).init(this, channelGroup),
+                injector.getInstance(LogbookNameSearchableProperty.class).init(this, logbookGroup)
         );
     }
 

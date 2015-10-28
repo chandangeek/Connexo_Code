@@ -20,7 +20,7 @@ public class ChannelObisCodeSearchableProperty extends AbstractObisCodeSearchabl
 
     @Override
     public void appendJoinClauses(JoinClauseBuilder builder) {
-        builder.addRegisterSpec();
+        builder.addChannelSpec();
     }
 
     @Override

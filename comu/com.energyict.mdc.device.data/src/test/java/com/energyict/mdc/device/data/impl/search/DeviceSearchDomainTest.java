@@ -53,7 +53,10 @@ import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.anyBoolean;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyLong;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Tests the {@link DeviceSearchDomain} component.
@@ -123,6 +126,7 @@ public class DeviceSearchDomainTest {
         mockRegisterProperties();
         mockProtocolDialectPropertySpec();
         mockChannelPropertySpecs();
+        mockLogbookPropertySpecs();
     }
 
     @Test
@@ -179,6 +183,7 @@ public class DeviceSearchDomainTest {
         verify(this.dataModel).getInstance(ChannelReadingTypeUnitOfMeasureSearchableProperty.class);
         verify(this.dataModel).getInstance(ChannelReadingTypeTimeOfUseSearchableProperty.class);
         verify(this.dataModel).getInstance(ChannelIntervalSearchableProperty.class);
+        verify(this.dataModel).getInstance(LogbookNameSearchableProperty.class);
     }
 
     @Test
@@ -932,7 +937,6 @@ public class DeviceSearchDomainTest {
                 Matchers.anyVararg())).thenReturn(propertySpec);
     }
 
-
     private void mockChannelPropertySpecs() {
         PropertySpec readingTypeName = mock(PropertySpec.class);
         when(readingTypeName.getName()).thenReturn(ChannelReadingTypeNameSearchableProperty.PROPERTY_NAME);
@@ -965,6 +969,40 @@ public class DeviceSearchDomainTest {
                 eq(ChannelIntervalSearchableProperty.PROPERTY_NAME),
                 eq(false),
                 anyLong())).thenReturn(channelInterval);
+    }
+
+    private void mockLogbookPropertySpecs() {
+        PropertySpec nameSpec = mock(PropertySpec.class);
+        when(nameSpec.getName()).thenReturn(LogbookNameSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.basicPropertySpec(
+                eq(LogbookNameSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                Matchers.<StringFactory>anyObject())).thenReturn(nameSpec);
+//        PropertySpec obisCode = mock(PropertySpec.class);
+//        when(obisCode.getName()).thenReturn(ChannelObisCodeSearchableProperty.PROPERTY_NAME);
+//        when(this.propertySpecService.basicPropertySpec(
+//                eq(ChannelObisCodeSearchableProperty.PROPERTY_NAME),
+//                eq(false),
+//                Matchers.<StringFactory>anyObject())).thenReturn(obisCode);
+//        PropertySpec tou = mock(PropertySpec.class);
+//        when(tou.getName()).thenReturn(ChannelReadingTypeTimeOfUseSearchableProperty.PROPERTY_NAME);
+//        when(this.propertySpecService.longPropertySpecWithValues(
+//                eq(ChannelReadingTypeTimeOfUseSearchableProperty.PROPERTY_NAME),
+//                eq(false),
+//                Matchers.<Long>anyVararg())).thenReturn(tou);
+//        PropertySpec unitOfMeasure = mock(PropertySpec.class);
+//        when(unitOfMeasure.getName()).thenReturn(ChannelReadingTypeUnitOfMeasureSearchableProperty.PROPERTY_NAME);
+//        when(this.propertySpecService.stringReferencePropertySpec(
+//                eq(ChannelReadingTypeUnitOfMeasureSearchableProperty.PROPERTY_NAME),
+//                eq(false),
+//                Matchers.anyObject(),
+//                Matchers.anyVararg())).thenReturn(unitOfMeasure);
+//        PropertySpec channelInterval = mock(PropertySpec.class);
+//        when(channelInterval.getName()).thenReturn(ChannelIntervalSearchableProperty.PROPERTY_NAME);
+//        when(this.propertySpecService.longPropertySpec(
+//                eq(ChannelIntervalSearchableProperty.PROPERTY_NAME),
+//                eq(false),
+//                anyLong())).thenReturn(channelInterval);
     }
 
     @Test
