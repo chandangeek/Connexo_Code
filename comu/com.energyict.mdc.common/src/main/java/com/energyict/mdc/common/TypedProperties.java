@@ -364,8 +364,7 @@ public class TypedProperties {
             if (value instanceof Boolean) {
                 Boolean flag = (Boolean) value;
                 newProps.setProperty(propertyName, flag ? "1" : "0");
-            }
-            else  {
+            } else if(value != null){
                 newProps.setProperty(propertyName, String.valueOf(value));
             }
         }
