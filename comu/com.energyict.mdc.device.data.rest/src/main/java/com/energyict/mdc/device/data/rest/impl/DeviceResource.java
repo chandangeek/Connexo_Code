@@ -191,7 +191,7 @@ public class DeviceResource {
     @Path("/{id}/changedeviceconfig")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_COMMUNICATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION)
     public Response updateDeviceConfig(@PathParam("id") long id, DeviceInfo info, @Context SecurityContext securityContext) {
         if(info.deviceConfigurationId==0){
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY, "deviceConfigurationId");
