@@ -56,7 +56,7 @@ public class SecurityPropertySetResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getSecurityPropertySets(@PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam JsonQueryParameters queryParameters) {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         List<Group> groups = this.userService.getGroups();
@@ -74,7 +74,7 @@ public class SecurityPropertySetResource {
     @GET
     @Path("/{securityPropertySetId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public Response getSecurityPropertySet(@PathParam("securityPropertySetId") long securityPropertySetId) {
         SecurityPropertySet securityPropertySet = resourceHelper.findSecurityPropertySetByIdOrThrowException(securityPropertySetId);
 
@@ -85,7 +85,7 @@ public class SecurityPropertySetResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response createSecurityPropertySet(@PathParam("deviceConfigurationId") long deviceConfigurationId, SecurityPropertySetInfo info) {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
 
@@ -119,7 +119,7 @@ public class SecurityPropertySetResource {
     @Path("/{securityPropertySetId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response updateSecurityPropertySet(@PathParam("securityPropertySetId") long securityPropertySetId, SecurityPropertySetInfo info) {
         info.id = securityPropertySetId;
         SecurityPropertySet securityPropertySet = resourceHelper.lockSecurityPropertySetOrThrowException(info);
@@ -133,7 +133,7 @@ public class SecurityPropertySetResource {
     @DELETE
     @Path("/{securityPropertySetId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response deleteSecurityPropertySet(@PathParam("securityPropertySetId") long securityPropertySetId, SecurityPropertySetInfo info) {
         info.id = securityPropertySetId;
         SecurityPropertySet securityPropertySet = resourceHelper.lockSecurityPropertySetOrThrowException(info);
@@ -145,7 +145,7 @@ public class SecurityPropertySetResource {
     @GET
     @Path("/authlevels")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getSecurityPropertySetAuthLevels(@PathParam("deviceTypeId") long deviceTypeId, @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceProtocolPluggableClass protocolPluggableClass = deviceType.getDeviceProtocolPluggableClass();
@@ -159,7 +159,7 @@ public class SecurityPropertySetResource {
     @GET
     @Path("/enclevels")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getSecurityPropertySetEncLevels(@PathParam("deviceTypeId") long deviceTypeId, @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         DeviceProtocolPluggableClass protocolPluggableClass = deviceType.getDeviceProtocolPluggableClass();

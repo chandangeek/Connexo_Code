@@ -49,7 +49,7 @@ public class ExecutionLevelResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public Response getPrivileges(@PathParam("securityPropertySetId") long securityPropertySetId, @QueryParam("available") Boolean filterAvailable) {
         SecurityPropertySet securityPropertySet = resourceHelper.findSecurityPropertySetByIdOrThrowException(securityPropertySetId);
 
@@ -74,7 +74,7 @@ public class ExecutionLevelResource {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response linkDeviceConfigToPrivilege(@PathParam("securityPropertySetId") long securityPropertySetId, List<String> privilegeIds) {
         SecurityPropertySet securityPropertySet = resourceHelper.findSecurityPropertySetByIdOrThrowException(securityPropertySetId);
         List<String> unknownPrivileges = new ArrayList<>();
@@ -90,7 +90,7 @@ public class ExecutionLevelResource {
     @DELETE
     @Path("/{executionLevelId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response unlinkDeviceConfigFromPrivilege(@PathParam("securityPropertySetId") long securityPropertySetId, @PathParam("executionLevelId") String privilegeId, ExecutionLevelInfo info) {
         SecurityPropertySet securityPropertySet = resourceHelper.getLockedSecurityPropertySet(info.parent.id, info.parent.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)

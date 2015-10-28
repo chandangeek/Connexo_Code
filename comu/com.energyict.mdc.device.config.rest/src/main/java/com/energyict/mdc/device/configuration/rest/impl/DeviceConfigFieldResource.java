@@ -49,7 +49,7 @@ public class DeviceConfigFieldResource extends FieldResource {
 
     @GET
     @Path("/connectionStrategy")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Map<String, Object> getConnectionStrategies() {
         return asJsonArrayObjectWithTranslation("connectionStrategies", "connectionStrategy", this.clientSideConnectionStrategyValues());

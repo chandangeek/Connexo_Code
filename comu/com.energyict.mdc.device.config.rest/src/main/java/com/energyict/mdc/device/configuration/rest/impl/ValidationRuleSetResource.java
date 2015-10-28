@@ -51,7 +51,7 @@ public class ValidationRuleSetResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response getValidationsRuleSets(
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @BeanParam JsonQueryParameters queryParameters) {
@@ -68,7 +68,7 @@ public class ValidationRuleSetResource {
     @DELETE
     @Path("/{validationRuleSetId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response deleteValidationRuleSetFromDeviceConfiguration(
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @PathParam("validationRuleSetId") long validationRuleSetId,
@@ -82,7 +82,7 @@ public class ValidationRuleSetResource {
 
     @POST
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response addRuleSetsToDeviceConfiguration(
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             List<Long> ids,

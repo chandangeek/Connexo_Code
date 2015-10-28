@@ -40,7 +40,7 @@ public class DeviceConfigConflictMappingResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getDeviceConfigConflictMappingsForDeviceType(@PathParam("deviceTypeId") long id, @QueryParam("all") boolean hasAll, @BeanParam JsonQueryParameters queryParameters) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(id);
         List<DeviceConfigConflictMappingInfo> deviceConfigConflictMappingInfos = DeviceConfigConflictMappingInfo.from(deviceType.getDeviceConfigConflictMappings(), thesaurus);
@@ -52,7 +52,7 @@ public class DeviceConfigConflictMappingResource {
     @GET
     @Path("/{conflictId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public DeviceConfigSolutionMappingInfo getDeviceConfigConflictById(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("conflictId") long conflictId) {
         return new DeviceConfigSolutionMappingInfo(resourceHelper.findDeviceConfigConflictMappingById(conflictId));
     }
@@ -61,7 +61,7 @@ public class DeviceConfigConflictMappingResource {
     @Path("/{conflictId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response editConflictForDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("conflictId") long conflictId,

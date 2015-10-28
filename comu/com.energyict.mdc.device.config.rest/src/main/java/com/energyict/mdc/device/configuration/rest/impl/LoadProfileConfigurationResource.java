@@ -56,7 +56,7 @@ public class LoadProfileConfigurationResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public Response getLoadProfileSpecsForDeviceConfiguration(
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @BeanParam JsonQueryParameters queryParameters) {
@@ -73,7 +73,7 @@ public class LoadProfileConfigurationResource {
     @GET
     @Path("/available")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public Response getAvailableLoadProfileSpecsForDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -87,7 +87,7 @@ public class LoadProfileConfigurationResource {
     @GET
     @Path("/{loadProfileSpecId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public Response getLoadProfileSpec(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -100,7 +100,7 @@ public class LoadProfileConfigurationResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response createLoadProfileSpecForDeviceConfiguartion(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -123,7 +123,7 @@ public class LoadProfileConfigurationResource {
     @Path("/{loadProfileSpecId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response editLoadProfileSpecOnDeviceConfiguration(@PathParam("loadProfileSpecId") long loadProfileSpecId, LoadProfileSpecInfo info) {
         info.id = loadProfileSpecId;
         LoadProfileSpec loadProfileSpec = resourceHelper.lockLoadProfileSpecOrThrowException(info);
@@ -135,7 +135,7 @@ public class LoadProfileConfigurationResource {
     @DELETE
     @Path("/{loadProfileSpecId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response deleteLoadProfileSpecFromDeviceConfiguration(
             @PathParam("loadProfileSpecId") long loadProfileSpecId,
             @BeanParam JsonQueryParameters queryParameters, LoadProfileSpecInfo info) {
@@ -148,7 +148,7 @@ public class LoadProfileConfigurationResource {
     @GET
     @Path("{loadProfileSpecId}/channels")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public Response getAllChannelsForDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -162,7 +162,7 @@ public class LoadProfileConfigurationResource {
     @GET
     @Path("{loadProfileSpecId}/channels/{channelId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public Response getChannelForDeviceConfiguration(
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @PathParam("loadProfileSpecId") long loadProfileSpecId,
@@ -178,7 +178,7 @@ public class LoadProfileConfigurationResource {
     @Path("{loadProfileSpecId}/channels")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response createChannelForDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
@@ -202,7 +202,7 @@ public class LoadProfileConfigurationResource {
     @Path("{loadProfileSpecId}/channels/{channelId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response editChannelSpecOnDeviceConfiguration(
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @PathParam("channelId") long channelId,
@@ -225,7 +225,7 @@ public class LoadProfileConfigurationResource {
     @DELETE
     @Path("{loadProfileSpecId}/channels/{channelId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response deleteChannelSpecFromDeviceConfiguration(
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @PathParam("loadProfileSpecId") long loadProfileSpecId,
@@ -239,7 +239,7 @@ public class LoadProfileConfigurationResource {
     @GET
     @Path("{loadProfileSpecId}/measurementTypes")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE,Privileges.VIEW_DEVICE_TYPE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE,Privileges.Constants.VIEW_DEVICE_TYPE})
     public Response getAvailableMeasurementTypesForChannel(
             @PathParam("loadProfileSpecId") long loadProfileSpecId,
             @BeanParam JsonQueryParameters queryParameters) {

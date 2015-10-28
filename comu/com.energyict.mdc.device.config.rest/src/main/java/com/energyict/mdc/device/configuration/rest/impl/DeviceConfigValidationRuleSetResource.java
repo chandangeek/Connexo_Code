@@ -55,7 +55,7 @@ public class DeviceConfigValidationRuleSetResource {
     @GET
     @Path("/{validationRuleSetId}/deviceconfigurations")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response getLinkedDeviceConfigurations(@PathParam("validationRuleSetId") long validationRuleSetId, @BeanParam JsonQueryParameters queryParameters) {
         List<DeviceConfiguration> configs = deviceConfigurationService.findDeviceConfigurationsForValidationRuleSet(validationRuleSetId);
         DeviceConfigurationInfos.DeviceConfigAndTypeInfo[] infos = new DeviceConfigurationInfos.DeviceConfigAndTypeInfo[configs.size()];
@@ -72,7 +72,7 @@ public class DeviceConfigValidationRuleSetResource {
     @POST
     @Path("/{validationRuleSetId}/deviceconfigurations")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public DeviceConfigurationInfos addDeviceConfigurationsToRuleSet(@PathParam("validationRuleSetId") long validationRuleSetId,
                                                                      List<Long> ids, @Context UriInfo uriInfo) {
         boolean addAll = getBoolean(uriInfo, ALL);
@@ -110,7 +110,7 @@ public class DeviceConfigValidationRuleSetResource {
     @GET
     @Path("/{validationRuleSetId}/linkabledeviceconfigurations")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response getLinkableDeviceConfigurations(@PathParam("validationRuleSetId") long validationRuleSetId,
                                                     @BeanParam JsonQueryParameters queryParameters) {
         DeviceConfigurationInfos result = new DeviceConfigurationInfos();

@@ -54,7 +54,7 @@ public class ComTaskEnablementResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getComTaskEnablements(@PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam JsonQueryParameters queryParameters) {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         List<ComTaskEnablementInfo> comTaskEnablements = ComTaskEnablementInfo.from(ListPager.of(deviceConfiguration.getComTaskEnablements(), new ComTaskEnablementComparator()).find(), thesaurus);
@@ -65,7 +65,7 @@ public class ComTaskEnablementResource {
     @GET
     @Path("/{comTaskEnablementId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public Response getComTaskEnablement(@PathParam("comTaskEnablementId") long comTaskEnablementId) {
         ComTaskEnablement comTaskEnablement = resourceHelper.findComTaskEnablementByIdOrThrowException(comTaskEnablementId);
         return Response.ok(ComTaskEnablementInfo.from(comTaskEnablement, thesaurus)).build();
@@ -74,7 +74,7 @@ public class ComTaskEnablementResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response createComTaskEnablement(@PathParam("deviceConfigurationId") long deviceConfigurationId, ComTaskEnablementInfo info) {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
 
@@ -106,7 +106,7 @@ public class ComTaskEnablementResource {
     @Path("/{comTaskEnablementId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response updateComTaskEnablement(@PathParam("comTaskEnablementId") long comTaskEnablementId, ComTaskEnablementInfo info) {
         info.id = comTaskEnablementId;
         ComTaskEnablement comTaskEnablement = resourceHelper.lockComTaskEnablementOrThrowException(info);
@@ -134,7 +134,7 @@ public class ComTaskEnablementResource {
     @Path("/{comTaskEnablementId}/activate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response activateComTaskEnablement(@PathParam("comTaskEnablementId") long comTaskEnablementId, ComTaskEnablementInfo info) {
         info.id = comTaskEnablementId;
         ComTaskEnablement comTaskEnablement = resourceHelper.getLockedComTaskEnablement(info.id, info.version)
@@ -151,7 +151,7 @@ public class ComTaskEnablementResource {
     @Path("/{comTaskEnablementId}/deactivate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response deactivateComTaskEnablement(@PathParam("comTaskEnablementId") long comTaskEnablementId, ComTaskEnablementInfo info) {
         info.id = comTaskEnablementId;
         ComTaskEnablement comTaskEnablement = resourceHelper.getLockedComTaskEnablement(info.id, info.version)
@@ -167,7 +167,7 @@ public class ComTaskEnablementResource {
     @DELETE
     @Path("/{comTaskEnablementId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response deleteComTaskEnablement(@PathParam("comTaskEnablementId") long comTaskEnablementId, ComTaskEnablementInfo info) {
         ComTaskEnablement comTaskEnablement = resourceHelper.lockComTaskEnablementOrThrowException(info);
         comTaskEnablement.getDeviceConfiguration().disableComTask(comTaskEnablement.getComTask());

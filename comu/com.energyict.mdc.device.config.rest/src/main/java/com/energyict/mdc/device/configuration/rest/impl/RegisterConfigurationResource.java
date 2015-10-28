@@ -43,7 +43,7 @@ public class RegisterConfigurationResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getRegisterConfigs(@PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam JsonQueryParameters queryParameters) {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         List<RegisterSpec> pagedRegisterSpecs = ListPager.of(deviceConfiguration.getRegisterSpecs(), new RegisterConfigurationComparator()).from(queryParameters).find();
@@ -54,14 +54,14 @@ public class RegisterConfigurationResource {
     @GET
     @Path("/{registerId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_TYPE, Privileges.VIEW_DEVICE_TYPE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public RegisterConfigInfo getRegisterConfigs(@PathParam("registerId") long registerId) {
         return RegisterConfigInfo.from(resourceHelper.findRegisterSpecByIdOrThrowException(registerId));
     }
 
     @POST
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response createRegisterConfig(@PathParam("deviceConfigurationId") long deviceConfigurationId, RegisterConfigInfo registerConfigInfo) {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         RegisterType registerType = registerConfigInfo.registerType ==null?null: findRegisterTypeOrThrowException(registerConfigInfo.registerType);
@@ -89,7 +89,7 @@ public class RegisterConfigurationResource {
     @PUT
     @Path("/{registerConfigId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public RegisterConfigInfo updateRegisterConfig(@PathParam("registerConfigId") long registerConfigId, RegisterConfigInfo info) {
         info.id = registerConfigId;
         RegisterSpec registerSpec = resourceHelper.lockRegisterSpecOrThrowException(info);
@@ -112,7 +112,7 @@ public class RegisterConfigurationResource {
     @DELETE
     @Path("/{registerConfigId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_TYPE)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response deleteRegisterConfig(@PathParam("registerConfigId") long registerConfigId, RegisterConfigInfo info) {
         info.id = registerConfigId;
         RegisterSpec registerSpec = resourceHelper.lockRegisterSpecOrThrowException(info);
