@@ -63,6 +63,9 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_ESTIMATOR_PROPERTY_VALUE(244, "invalidEstimatorPropertyValue", "Invalid property value"),
     CONCURRENT_RUN_TITLE(245, "ConcurrentRunTitle", "Failed to run ''{0}''"),
     CONCURRENT_RUN_BODY(246, "ConcurrentRunMessage", "{0} has changed since the page was last updated."),
+    CONFLICT_ON_DEVICE(247, "ConflictOnDevice", "The device you attempted to edit was changed by someone else."),
+    NO_SUCH_DEVICE_CONFIG(248, "NoSuchDeviceConfig" , "Device type does not contain a device configuration with that id"),
+    NO_SUCH_DEVICE_ID(249, "NoSuchDeviceId" , "No device with id {0}")
     ;
     private final int number;
     private final String key;
