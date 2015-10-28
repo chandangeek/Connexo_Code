@@ -1,9 +1,6 @@
 package com.elster.jupiter.system.app.impl;
 
-import com.elster.jupiter.http.whiteboard.App;
-import com.elster.jupiter.http.whiteboard.BundleResolver;
-import com.elster.jupiter.http.whiteboard.DefaultStartPage;
-import com.elster.jupiter.http.whiteboard.HttpResource;
+import com.elster.jupiter.http.whiteboard.*;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;
@@ -105,7 +102,7 @@ public class SysAppServiceImpl implements SysAppService, InstallService, Transla
 
     @Override
     public String getComponentName() {
-        return COMPONENTNAME;
+        return APPLICATION_KEY;
     }
 
     @Override
