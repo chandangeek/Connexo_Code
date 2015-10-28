@@ -42,6 +42,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     PROTOCOL_DIALECT("protocol.dialect", "Protocol dialect"),
     CHANNEL("device.channel", "Channel"),
     CHANNEL_OBISCODE("device.channel.obiscode", "OBIS code"),
+    CHANNEL_INTERVAL("device.channel.interval", "Interval"),
     ;
 
     private String key;

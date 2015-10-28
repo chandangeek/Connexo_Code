@@ -178,6 +178,7 @@ public class DeviceSearchDomainTest {
         verify(this.dataModel).getInstance(ChannelReadingTypeNameSearchableProperty.class);
         verify(this.dataModel).getInstance(ChannelReadingTypeUnitOfMeasureSearchableProperty.class);
         verify(this.dataModel).getInstance(ChannelReadingTypeTimeOfUseSearchableProperty.class);
+        verify(this.dataModel).getInstance(ChannelIntervalSearchableProperty.class);
     }
 
     @Test
@@ -905,7 +906,7 @@ public class DeviceSearchDomainTest {
         when(this.propertySpecService.basicPropertySpec(
                 eq(RegisterObisCodeSearchableProperty.PROPERTY_NAME),
                 eq(false),
-                Matchers.<StringFactory>anyObject())).thenReturn(readingTypeName);
+                Matchers.<StringFactory>anyObject())).thenReturn(obisCode);
         PropertySpec tou = mock(PropertySpec.class);
         when(tou.getName()).thenReturn(RegisterReadingTypeTimeOfUseSearchableProperty.PROPERTY_NAME);
         when(this.propertySpecService.longPropertySpecWithValues(
@@ -939,12 +940,12 @@ public class DeviceSearchDomainTest {
                 eq(ChannelReadingTypeNameSearchableProperty.PROPERTY_NAME),
                 eq(false),
                 Matchers.<StringFactory>anyObject())).thenReturn(readingTypeName);
-//        PropertySpec obisCode = mock(PropertySpec.class);
-//        when(obisCode.getName()).thenReturn(RegisterObisCodeSearchableProperty.PROPERTY_NAME);
-//        when(this.propertySpecService.basicPropertySpec(
-//                eq(RegisterObisCodeSearchableProperty.PROPERTY_NAME),
-//                eq(false),
-//                Matchers.<StringFactory>anyObject())).thenReturn(readingTypeName);
+        PropertySpec obisCode = mock(PropertySpec.class);
+        when(obisCode.getName()).thenReturn(ChannelObisCodeSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.basicPropertySpec(
+                eq(ChannelObisCodeSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                Matchers.<StringFactory>anyObject())).thenReturn(obisCode);
         PropertySpec tou = mock(PropertySpec.class);
         when(tou.getName()).thenReturn(ChannelReadingTypeTimeOfUseSearchableProperty.PROPERTY_NAME);
         when(this.propertySpecService.longPropertySpecWithValues(
@@ -958,6 +959,12 @@ public class DeviceSearchDomainTest {
                 eq(false),
                 Matchers.anyObject(),
                 Matchers.anyVararg())).thenReturn(unitOfMeasure);
+        PropertySpec channelInterval = mock(PropertySpec.class);
+        when(channelInterval.getName()).thenReturn(ChannelIntervalSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.longPropertySpec( // TODO change to the actual spec builder
+                eq(ChannelIntervalSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                anyLong())).thenReturn(channelInterval);
     }
 
     @Test
