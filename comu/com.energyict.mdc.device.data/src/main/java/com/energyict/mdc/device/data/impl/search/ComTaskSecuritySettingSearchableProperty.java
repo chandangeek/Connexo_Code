@@ -67,12 +67,10 @@ public class ComTaskSecuritySettingSearchableProperty extends AbstractSearchable
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
         SqlBuilder sqlBuilder = new SqlBuilder();
+        sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE + ".DEVICECONFIGID IN ");
         sqlBuilder.openBracket();
-        sqlBuilder.append(" deviceconfigid in ");
-        sqlBuilder.openBracket();
-        sqlBuilder.append(" select deviceconfig from DTC_SECURITYPROPERTYSET where ");
-        sqlBuilder.add(this.toSqlFragment("id", condition, now));
-        sqlBuilder.closeBracket();
+        sqlBuilder.append("select DEVICECOMCONFIG from DTC_COMTASKENABLEMENT where ");
+        sqlBuilder.add(this.toSqlFragment("SECURITYPROPERTYSET ", condition, now));
         sqlBuilder.closeBracket();
         return sqlBuilder;
     }
