@@ -25,7 +25,6 @@ Ext.define('Apr.view.appservers.AddMessageServicesSetup', {
                         xtype: 'add-message-services-grid',
                         itemId: 'add-message-services-grid',
                         store: 'Apr.store.UnservedMessageServices',
-                        height: 600,
                         plugins: {
                             ptype: 'bufferedrenderer'
                         }

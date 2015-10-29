@@ -723,6 +723,7 @@ Ext.define('Apr.controller.AppServers', {
 
     convertToServedMessageServiceModel: function (record) {
         var converted = Ext.create('Apr.model.ServedMessageService');
+        converted.set('active', true);
         converted.set('numberOfThreads', 1);
         converted.set('messageService', record.get('displayName'));
         converted.set('subscriberSpec', {
