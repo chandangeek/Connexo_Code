@@ -7,8 +7,13 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum Privileges implements TranslationKey {
-    APP_NAME(BpmAppService.APPLICATION_KEY, "Flow"),
+    //Resources
+    RESOURCE_BPM_PROCESSES("bpm.businessProcesses", "Business management processes"),
+    RESOURCE_BPM_PROCESSES_DESCRIPTION("bpm.businessProcesses.description", "Manage business processes"),
+    RESOURCE_BPM_TASKS("bpm.userTasks", "User tasks"),
+    RESOURCE_BPM_TASKS_DESCRIPTION("bpm.userTasks.description", "Manage user tasks"),
 
+    //Privileges
     VIEW_BPM(Constants.VIEW_BPM, "View"),
     DESIGN_BPM(Constants.DESIGN_BPM, "Design"),
     EXECUTE_TASK(Constants.EXECUTE_TASK, "Execute"),

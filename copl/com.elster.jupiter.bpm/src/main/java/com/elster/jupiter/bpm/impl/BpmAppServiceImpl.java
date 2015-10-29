@@ -34,7 +34,6 @@ public class BpmAppServiceImpl implements BpmAppService , TranslationKeyProvider
     private volatile ServiceRegistration<App> registration;
     private volatile BpmService bpmService;
     private volatile License license;
-    public static final String APP_KEY = "BPM";
 
     public BpmAppServiceImpl() {
     }
@@ -47,7 +46,7 @@ public class BpmAppServiceImpl implements BpmAppService , TranslationKeyProvider
 
     @Activate
     public final void activate(BundleContext context) {
-        App app = new App(APPLICATION_KEY, "Flow", "connexo", bpmService.getBpmServer().getUrl(), user -> user.getPrivileges(bpmService.COMPONENTNAME).stream().anyMatch(p -> "privilege.design.bpm".equals(p.getName())));
+        App app = new App(APPLICATION_KEY, APPLICATION_NAME, "connexo", bpmService.getBpmServer().getUrl(), user -> user.getPrivileges(bpmService.COMPONENTNAME).stream().anyMatch(p -> "privilege.design.bpm".equals(p.getName())));
         registration = context.registerService(App.class, app, null);
     }
 
@@ -75,7 +74,7 @@ public class BpmAppServiceImpl implements BpmAppService , TranslationKeyProvider
 
     @Override
     public String getApplicationName() {
-        return APP_KEY;
+        return APPLICATION_KEY;
     }
 
     @Override
