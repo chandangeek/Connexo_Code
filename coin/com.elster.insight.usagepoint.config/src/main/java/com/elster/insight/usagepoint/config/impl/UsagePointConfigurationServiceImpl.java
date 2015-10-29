@@ -15,6 +15,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import com.elster.insight.usagepoint.config.MetrologyConfValidationRuleSetUsage;
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.insight.usagepoint.config.UsagePointMetrologyConfiguration;
@@ -27,6 +28,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -165,6 +167,17 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     }
     
     @Override
+    public Boolean unlink(UsagePoint up, MetrologyConfiguration mc) {
+        Boolean result = false;
+        Optional<UsagePointMetrologyConfiguration> link = this.getDataModel().query(UsagePointMetrologyConfiguration.class).select(where("usagePoint").isEqualTo(up)).stream().findFirst();
+        if (link.isPresent()) {
+            link.get().delete();
+            result = true;
+        }
+        return result;
+    }
+    
+    @Override
     public Optional<MetrologyConfiguration> findMetrologyConfigurationForUsagePoint(UsagePoint up) {
         Optional<UsagePointMetrologyConfiguration> obj = this.getDataModel().query(UsagePointMetrologyConfiguration.class).select(where("usagePoint").isEqualTo(up)).stream().findFirst();
         if (!obj.isPresent()) {
@@ -181,12 +194,9 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
 
     @Override
     public List<MetrologyConfiguration> findMetrologyConfigurationsForValidationRuleSet(long id) {
-        // TODO Needs implementation similar to below
+        return this.getDataModel().
+                query(MetrologyConfiguration.class, MetrologyConfValidationRuleSetUsage.class).
+                select(where("metrologyConfValidationRuleSetUsage.validationRuleSetId").isEqualTo(id), Order.ascending("name"));
 
-        //        return this.getDataModel().
-        //        query(DeviceConfiguration.class, DeviceConfValidationRuleSetUsage.class, DeviceType.class).
-        //        select(where("deviceConfValidationRuleSetUsages.validationRuleSetId").isEqualTo(validationRuleSetId), Order.ascending("name"));
-
-        return Collections.emptyList();
     }
 }

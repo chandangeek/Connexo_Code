@@ -23,4 +23,6 @@ public interface UsagePointConfigurationService {
 
     List<MetrologyConfiguration> findMetrologyConfigurationsForValidationRuleSet(long id);
 
+    Boolean unlink(UsagePoint up, MetrologyConfiguration mc);
+
 }
