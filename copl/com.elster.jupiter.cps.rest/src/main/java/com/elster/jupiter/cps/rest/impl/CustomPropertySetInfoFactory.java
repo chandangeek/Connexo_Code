@@ -32,7 +32,7 @@ public class CustomPropertySetInfoFactory {
 
     public List<CustomPropertySetDomainExtensionNameInfo> from(Set<String> domainExtensions) {
         return domainExtensions.stream().map(domainExtension -> new CustomPropertySetDomainExtensionNameInfo(domainExtension,
-                thesaurus.getString(domainExtension, domainExtension))).collect(Collectors.toList());
+                thesaurus.getStringBeyondComponent(domainExtension, domainExtension))).collect(Collectors.toList());
     }
 
     private List<CustomPropertySetAttributeInfo> getAttributes(List<PropertySpec> propertySpecs) {
