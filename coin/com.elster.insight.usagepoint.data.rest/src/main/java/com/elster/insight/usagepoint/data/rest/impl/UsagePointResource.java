@@ -120,6 +120,13 @@ public class UsagePointResource {
             }
         } else if (currentMC.isPresent() && info.metrologyConfiguration == null) {
             //unlink
+            final MetrologyConfiguration mc = metrologyConfiguration;
+            transactionService.execute(new Transaction<Boolean>() {
+                @Override
+                public Boolean perform() {
+                    return usagePointConfigurationService.unlink(usagePoint, mc);
+                }
+            });
         } else {
             //new link
             link(usagePoint, metrologyConfiguration);
