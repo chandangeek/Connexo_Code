@@ -804,8 +804,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             failure: function (response, request) {
                 if (response.status == 400) {
                     var json = Ext.decode(response.responseText, true);
-                    if (json && json.error) {
-                        if (json.error == 'ChangeDeviceConfigConflict') {
+                    if (json && json.error == 'ChangeDeviceConfigConflict')  {
                             var title = (canSolveConflictingMappings ? Uni.I18n.translate('general.failed', 'MDC', 'Failed') : Uni.I18n.translate('general.unable', 'MDC', 'Unable')) +
                                 Uni.I18n.translate('device.changeDeviceConfiguration.changeFailedTitle', 'MDC', ' to change device configuration');
 
@@ -857,10 +856,10 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                                 }
                             );
 
-                        } else {
-                            me.getChangeDeviceConfigurationFormErrors().setText(json.error);
-                            me.getChangeDeviceConfigurationFormErrors().show();
                         }
+                    if (json && json.errors[0]) {
+                        me.getChangeDeviceConfigurationFormErrors().setText(json.errors[0].msg);
+                        me.getChangeDeviceConfigurationFormErrors().show();
                     }
                 }
             },
