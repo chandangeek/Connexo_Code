@@ -16,6 +16,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import com.elster.insight.common.rest.ExceptionFactory;
+import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -48,6 +49,7 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile Clock clock;
     private volatile MessageService messageService;
     private volatile MeteringGroupsService meteringGroupsService;
+    private volatile UsagePointConfigurationService usagePointConfigurationService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -127,6 +129,11 @@ public class UsagePointApplication extends Application implements TranslationKey
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
+    
+    @Reference
+    public void setUsagePointConfigurationService(UsagePointConfigurationService usagePointConfigurationService) {
+        this.usagePointConfigurationService = usagePointConfigurationService;
+    }
 
     class HK2Binder extends AbstractBinder {
 
@@ -152,6 +159,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(UsagePointGroupInfoFactory.class).to(UsagePointGroupInfoFactory.class);
             bind(com.elster.jupiter.validation.rest.PropertyUtils.class).to(com.elster.jupiter.validation.rest.PropertyUtils.class);
             bind(messageService).to(MessageService.class);
+            bind(usagePointConfigurationService).to(UsagePointConfigurationService.class);
         }
     }
 }

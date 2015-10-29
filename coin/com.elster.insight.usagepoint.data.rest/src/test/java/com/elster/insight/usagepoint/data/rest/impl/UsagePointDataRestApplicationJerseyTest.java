@@ -5,14 +5,12 @@ import static org.mockito.Mockito.when;
 
 import java.time.Clock;
 import java.util.Currency;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.ws.rs.core.Application;
 
-import org.junit.Before;
 import org.mockito.Mock;
 
+import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Aggregate;
 import com.elster.jupiter.cbo.Commodity;
@@ -53,6 +51,8 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
     MessageService messageService;
     @Mock
     MeteringGroupsService meteringGroupsService;
+    @Mock
+    UsagePointConfigurationService usagePointConfigurationService;
 
     @Override
     protected Application getApplication() {
@@ -65,6 +65,7 @@ public class UsagePointDataRestApplicationJerseyTest extends FelixRestApplicatio
         application.setMessageService(messageService);
         application.setClockService(clock);
         application.setMeteringGroupService(meteringGroupsService);
+        application.setUsagePointConfigurationService(usagePointConfigurationService);
         return application;
     }
 
