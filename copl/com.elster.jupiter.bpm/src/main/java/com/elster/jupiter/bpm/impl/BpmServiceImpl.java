@@ -1,5 +1,6 @@
 package com.elster.jupiter.bpm.impl;
 
+import com.elster.jupiter.bpm.BpmAppService;
 import com.elster.jupiter.bpm.BpmProcess;
 import com.elster.jupiter.bpm.BpmServer;
 import com.elster.jupiter.bpm.BpmService;
@@ -161,10 +162,10 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
     @Override
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(BpmService.COMPONENTNAME, "bpm.businessProcesses", "bpm.businessProcesses.description",
+        resources.add(userService.createModuleResourceWithPrivileges(BpmService.COMPONENTNAME, Privileges.RESOURCE_BPM_PROCESSES.getKey(), Privileges.RESOURCE_BPM_PROCESSES_DESCRIPTION.getKey(),
                 Arrays.asList(
                         Privileges.Constants.VIEW_BPM, Privileges.Constants.DESIGN_BPM)));
-        resources.add(userService.createModuleResourceWithPrivileges(BpmService.COMPONENTNAME, "bpm.userTasks", "bpm.userTasks.description",
+        resources.add(userService.createModuleResourceWithPrivileges(BpmService.COMPONENTNAME, Privileges.RESOURCE_BPM_TASKS.getKey(), Privileges.RESOURCE_BPM_TASKS_DESCRIPTION.getKey(),
                 Arrays.asList(
                         Privileges.Constants.ASSIGN_TASK, Privileges.Constants.VIEW_TASK, Privileges.Constants.EXECUTE_TASK)));
 
@@ -184,6 +185,7 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
     @Override
     public List<TranslationKey> getKeys() {
         List<TranslationKey> translationKeys = new ArrayList<>();
+        translationKeys.add(new SimpleTranslationKey(BpmAppService.APPLICATION_KEY, BpmAppService.APPLICATION_NAME));
         translationKeys.add(new SimpleTranslationKey(BpmService.BPM_QUEUE_SUBSC, BpmService.BPM_QUEUE_DISPLAYNAME));
         translationKeys.addAll(Arrays.asList(Privileges.values()));
         return translationKeys;
