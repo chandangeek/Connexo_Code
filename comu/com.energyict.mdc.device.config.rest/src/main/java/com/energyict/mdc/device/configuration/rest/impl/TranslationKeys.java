@@ -11,7 +11,7 @@ import com.elster.jupiter.nls.TranslationKey;
 public enum TranslationKeys implements TranslationKey {
 
     DEFAULT("Default", "Default"),
-    CHANNEL("com.energyict.mdc.device.config.Channel", "Channel"),
+    CHANNEL("com.energyict.mdc.device.config.ChannelSpec", "Channel"),
     REGISTER("com.energyict.mdc.device.config.RegisterSpec", "Register");
 
     private final String key;
