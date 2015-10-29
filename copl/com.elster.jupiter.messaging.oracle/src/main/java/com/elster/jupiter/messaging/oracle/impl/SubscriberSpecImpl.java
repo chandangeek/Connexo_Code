@@ -117,6 +117,11 @@ public class SubscriberSpecImpl implements SubscriberSpec {
         }
     }
 
+    @Override
+    public boolean isSystemManaged() {
+        return systemManaged;
+    }
+
     private Message tryReceive() throws SQLException {
         OracleConnection cancellableConnection = null;
         try (Connection connection = getConnection()) {

@@ -103,6 +103,11 @@ public class MessageServiceImpl implements MessageService, InstallService {
     }
 
     @Override
+    public Optional<DestinationSpec> lockDestinationSpec(String name, long version) {
+        return dataModel.mapper(DestinationSpec.class).lockObjectIfVersion(version, name);
+    }
+
+    @Override
     public Optional<SubscriberSpec> getSubscriberSpec(String destinationSpecName, String name) {
         // check if dataModel is already installed because this method get potentially called before the initAll is run
         return dataModel.isInstalled() ? dataModel.mapper(SubscriberSpec.class).getOptional(destinationSpecName, name) : Optional.<SubscriberSpec>empty();
@@ -116,6 +121,11 @@ public class MessageServiceImpl implements MessageService, InstallService {
     @Override
     public List<SubscriberSpec> getNonSystemManagedSubscribers() {
         return dataModel.mapper(SubscriberSpec.class).find("systemManaged", false);
+    }
+
+    @Override
+    public List<DestinationSpec> findDestinationSpecs() {
+        return dataModel.mapper(DestinationSpec.class).find();
     }
 
     @Reference

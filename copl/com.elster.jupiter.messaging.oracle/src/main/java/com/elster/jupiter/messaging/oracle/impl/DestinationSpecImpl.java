@@ -257,6 +257,11 @@ class DestinationSpecImpl implements DestinationSpec {
     }
 
     @Override
+    public long getVersion() {
+        return version;
+    }
+
+    @Override
     public String toString() {
         return "DestinationSpecImpl{" +
                 "name='" + name + '\'' +
