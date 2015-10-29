@@ -100,7 +100,7 @@ public class DestinationSpecResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{destinationSpecName}")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
-    public Response updateAppServer(@PathParam("destionationSpecName") String destinationSpecName, DestinationSpecInfo info) {
+    public Response updateAppServer(@PathParam("destinationSpecName") String destinationSpecName, DestinationSpecInfo info) {
         DestinationSpec destinationSpec = null;
         try (TransactionContext context = transactionService.getContext()) {
             destinationSpec = lockDestinationSpec(destinationSpecName, info.version);
