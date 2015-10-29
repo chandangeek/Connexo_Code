@@ -199,7 +199,7 @@ public class AppServerImpl implements AppServer {
     @Override
     public Optional<Path> getImportDirectory() {
         return dataModel.mapper(ImportFolderForAppServer.class).getOptional(getName())
-            .flatMap(ImportFolderForAppServer::getImportFolder);
+                .flatMap(ImportFolderForAppServer::getImportFolder);
     }
 
     @Override
