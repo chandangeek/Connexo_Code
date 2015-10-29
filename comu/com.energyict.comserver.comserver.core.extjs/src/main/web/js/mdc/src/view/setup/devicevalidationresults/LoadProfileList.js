@@ -2,10 +2,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.LoadProfileList', {
     extend: 'Ext.grid.Panel',
     border: true,
     alias: 'widget.mdc-load-profile-list',
-    store: 'Mdc.store.ValidationResultsLoadProfiles',
-    requires: [
-        'Mdc.store.ValidationResultsLoadProfiles'
-    ],
+    store: 'ext-empty-store',
     router: null,
     mRID: null,
     columns: {
@@ -28,7 +25,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.LoadProfileList', {
                     if (record.get('interval') == null) {
                         return Uni.I18n.translate('validationResults.last', 'MDC', 'Last {0}', [Uni.util.Common.translateTimeUnit(interval.count, interval.timeUnit)]);
                     } else if (record.get('intervalEnd') && record.get('intervalInMs')) {
-                        return Uni.I18n.translate('validationResults.starting', 'MDC', '{0} starting {2}', [Uni.util.Common.translateTimeUnit(interval.count, interval.timeUnit), Uni.DateTime.formatDateTimeLong(new Date(record.get('intervalStart')))], false);
+                        return Uni.I18n.translate('validationResults.starting', 'MDC', '{0} starting {1}', [Uni.util.Common.translateTimeUnit(interval.count, interval.timeUnit), Uni.DateTime.formatDateTimeLong(new Date(record.get('intervalStart')))], false);
                     }
                 }
             },
@@ -44,11 +41,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.LoadProfileList', {
                         href;
 
                     href = me.router.getRoute('devices/device/loadprofiles/loadprofiletableData').buildUrl(
-                        {
-                            mRID: record.get('mRID'),
-                            loadProfileId: record.get('id')
-
-                        },
+                        Ext.merge(me.router.arguments, {loadProfileId: record.getId()}),
                         {
                             suspect: 'suspect',
                             interval: Ext.String.format('{0}-{1}{2}',

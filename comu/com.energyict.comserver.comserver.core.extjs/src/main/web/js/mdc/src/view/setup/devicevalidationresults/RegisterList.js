@@ -2,10 +2,8 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RegisterList', {
     extend: 'Ext.grid.Panel',
     border: true,
     alias: 'widget.mdc-register-list',
-    store: 'Mdc.store.ValidationResultsRegisters',
-    requires: [
-        'Mdc.store.ValidationResultsRegisters'
-    ],
+    store: 'ext-empty-store',
+    router: null,
 
     columns: {
         items: [
@@ -27,7 +25,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RegisterList', {
                     if (record.get('interval') == null) {
                         return Uni.I18n.translate('validationResults.last', 'MDC', 'Last {0}', [Uni.util.Common.translateTimeUnit(interval.count, interval.timeUnit)]);
                     } else if (record.get('intervalEnd') && record.get('intervalInMs')) {
-                        return Uni.I18n.translate('validationResults.starting', 'MDC', '{0} starting {2}', [Uni.util.Common.translateTimeUnit(interval.count, interval.timeUnit), Uni.DateTime.formatDateTimeLong(new Date(record.get('intervalStart')))], false);
+                        return Uni.I18n.translate('validationResults.starting', 'MDC', '{0} starting {1}', [Uni.util.Common.translateTimeUnit(interval.count, interval.timeUnit), Uni.DateTime.formatDateTimeLong(new Date(record.get('intervalStart')))], false);
                     }
                 }
             },
@@ -42,10 +40,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.RegisterList', {
                         href;
 
                     href = me.router.getRoute('devices/device/registers/registerdata').buildUrl(
-                        {
-                            mRID: record.get('mRID'),
-                            registerId: record.get('id')
-                        },
+                        Ext.merge(me.router.arguments, {registerId: record.getId()}),
                         {
                             suspect: 'suspect',
                             interval: Ext.String.format('{0}-{1}{2}',
