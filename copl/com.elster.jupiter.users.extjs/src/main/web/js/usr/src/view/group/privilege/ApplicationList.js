@@ -25,7 +25,6 @@ Ext.define('Usr.view.group.privilege.ApplicationList', {
                     dataIndex: 'componentName',
                     flex: 3,
                     renderer: function (value, metadata, record) {
-                        var translate = Uni.I18n.translate(record.get('componentName'), 'USR', record.get('componentName'));
                         switch (record.get('selected')) {
                             case 0:
                                 metadata.tdCls = 'uni-icon-drop-no';
@@ -37,7 +36,7 @@ Ext.define('Usr.view.group.privilege.ApplicationList', {
                                 metadata.tdCls = 'uni-icon-drop-yes';
                                 break;
                         }
-                        return translate;
+                        return record.get('componentName');
                     }
                 },
                 {

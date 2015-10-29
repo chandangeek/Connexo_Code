@@ -1,5 +1,9 @@
 Ext.define('Usr.store.Applications', {
     extend: 'Ext.data.Store',
     model: 'Usr.model.Application',
-    pageSize: 500
+    pageSize: 500,
+    sorters: {
+        property: 'componentName',
+        direction: 'ASC'
+    }
 });
