@@ -193,6 +193,7 @@ public class DeviceSearchDomainTest {
         verify(this.dataModel).getInstance(LogbookObisCodeSearchableProperty.class);
         verify(this.dataModel).getInstance(LoadProfileNameSearchableProperty.class);
         verify(this.dataModel).getInstance(ComTaskNameSearchableProperty.class);
+        verify(this.dataModel).getInstance(ComTaskSecuritySettingSearchableProperty.class);
     }
 
     @Test
@@ -1017,6 +1018,13 @@ public class DeviceSearchDomainTest {
                 eq(false),
                 eq(FactoryIds.COMTASK),
                 anyList())).thenReturn(nameSpec);
+        PropertySpec securitySetSpec = mock(PropertySpec.class);
+        when(securitySetSpec.getName()).thenReturn(ComTaskSecuritySettingSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.referencePropertySpec(
+                eq(ComTaskSecuritySettingSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                eq(FactoryIds.SECURITY_SET),
+                anyList())).thenReturn(securitySetSpec);
     }
 
     @Test

@@ -50,6 +50,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     LOADPROFILE_NAME("device.loadprofile.name", "Name"),
     COMTASK("device.comtask", "Communication task"),
     COMTASK_NAME("device.comtask.name", "Name"),
+    COMTASK_SECURITY_SETTING("device.comtask.security", "Security settings"),
     ;
 
     private String key;
