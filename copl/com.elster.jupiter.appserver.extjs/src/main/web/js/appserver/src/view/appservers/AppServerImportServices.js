@@ -33,7 +33,7 @@ Ext.define('Apr.view.appservers.AppServerImportServices', {
                                 items: [
                                     {
                                         xtype: 'button',
-                                        text: Uni.I18n.translate('general.saveSettings', 'APR', 'Save settings'),
+                                        text: Uni.I18n.translate('general.saveChanges', 'APR', 'Save changes'),
                                         itemId: 'save-import-services-settings-button',
                                         privileges: Apr.privileges.AppServer.admin,
                                         disabled: true
@@ -58,7 +58,7 @@ Ext.define('Apr.view.appservers.AppServerImportServices', {
                         ],
                         stepItems: [
                             {
-                                text: Uni.I18n.translate('general.saveMessageServicesSettings', 'APR', 'Save settings'),
+                                text: Uni.I18n.translate('general.saveChanges', 'APR', 'Save changes'),
                                 privileges: Apr.privileges.AppServer.admin,
                                 itemId: 'apr-no-imp-services-save-settings-btn',
                                 disabled: true

@@ -31,7 +31,7 @@ Ext.define('Apr.view.appservers.AppServerMessageServices', {
                                 items: [
                                     {
                                         xtype: 'button',
-                                        text: Uni.I18n.translate('general.saveMessageServicesSettings', 'APR', 'Save settings'),
+                                        text: Uni.I18n.translate('general.saveChanges', 'APR', 'Save changes'),
                                         privileges: Apr.privileges.AppServer.admin,
                                         itemId: 'save-message-services-settings',
                                         disabled: true
@@ -63,7 +63,7 @@ Ext.define('Apr.view.appservers.AppServerMessageServices', {
                         ],
                         stepItems: [
                             {
-                                text: Uni.I18n.translate('general.saveMessageServicesSettings', 'APR', 'Save settings'),
+                                text: Uni.I18n.translate('general.saveChanges', 'APR', 'Save changes'),
                                 privileges: Apr.privileges.AppServer.admin,
                                 itemId: 'apr-no-msg-services-save-settings-btn',
                                 disabled: true
