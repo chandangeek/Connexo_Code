@@ -61,6 +61,10 @@
             <artifactId>mdc.protocols.api</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.dynamic</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
             <scope>provided</scope>
@@ -165,11 +169,6 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.issues</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.dynamic</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
