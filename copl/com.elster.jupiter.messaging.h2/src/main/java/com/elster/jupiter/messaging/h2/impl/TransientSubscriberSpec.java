@@ -38,6 +38,11 @@ class TransientSubscriberSpec implements SubscriberSpec {
         }
     }
 
+    @Override
+    public boolean isSystemManaged() {
+        return false;
+    }
+
     private void setToCancel(Thread thread) {
         synchronized (lock) {
             toCancel = thread;

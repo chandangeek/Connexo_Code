@@ -140,10 +140,10 @@ class TransientDestinationSpec implements DestinationSpec {
     @Override
     public void save() {
     }
-    
+
     @Override
     public boolean isBuffered() {
-    	return buffered;
+        return buffered;
     }
 
     @Override
@@ -173,6 +173,11 @@ class TransientDestinationSpec implements DestinationSpec {
 
     @Override
     public long errorCount() {
+        return 0;
+    }
+
+    @Override
+    public long getVersion() {
         return 0;
     }
 

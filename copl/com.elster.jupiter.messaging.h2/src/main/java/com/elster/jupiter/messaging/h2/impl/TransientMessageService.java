@@ -62,6 +62,11 @@ public class TransientMessageService implements MessageService, InstallService {
     }
 
     @Override
+    public Optional<DestinationSpec> lockDestinationSpec(String name, long version) {
+        return getDestinationSpec(name);
+    }
+
+    @Override
     public Optional<SubscriberSpec> getSubscriberSpec(String destinationSpecName, String name) {
         Optional<DestinationSpec> destinationSpec = getDestinationSpec(destinationSpecName);
         if (!destinationSpec.isPresent()) {
@@ -97,5 +102,13 @@ public class TransientMessageService implements MessageService, InstallService {
     @Override
     public List<String> getPrerequisiteModules() {
         return Arrays.asList("ORM");
+    }
+
+    @Override
+    public List<DestinationSpec> findDestinationSpecs() {
+        return queueTableSpecs.values().stream()
+                .map(TransientQueueTableSpec::getDestinations)
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 }
