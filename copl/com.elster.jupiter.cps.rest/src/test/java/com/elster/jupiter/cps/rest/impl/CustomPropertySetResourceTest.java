@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -55,7 +56,6 @@ public class CustomPropertySetResourceTest extends CustomPropertySetApplicationJ
         assertThat(jsonDefaultEditPrivileges.get(0)).isEqualTo("LEVEL_4");
         Map jsonCustomAttributes = (Map) ((List) jsonCustomAttributeSets.get("attributes")).get(0);
         assertThat(jsonCustomAttributes.get("name")).isEqualTo("customAttribute");
-        assertThat(jsonCustomAttributes.get("type")).isEqualTo("com.elster.jupiter.properties.BigDecimalFactory");
         assertThat(jsonCustomAttributes.get("type")).isEqualTo("com.elster.jupiter.properties.BigDecimalFactory");
         assertThat(jsonCustomAttributes.get("typeSimpleName")).isEqualTo("BigDecimalFactory");
         assertThat(jsonCustomAttributes.get("required")).isEqualTo(true);
@@ -128,5 +128,6 @@ public class CustomPropertySetResourceTest extends CustomPropertySetApplicationJ
     private void mockRegisteredCustomPropertySets() {
         RegisteredCustomPropertySet registeredCustomPropertySet = getRegisteredCustomPropertySet();
         when(customPropertySetService.findActiveCustomPropertySets()).thenReturn(Arrays.asList(registeredCustomPropertySet));
+        when(thesaurus.getStringBeyondComponent(anyString(), anyString())).thenReturn("com.elster.jupiter.properties.BigDecimalFactory");
     }
 }

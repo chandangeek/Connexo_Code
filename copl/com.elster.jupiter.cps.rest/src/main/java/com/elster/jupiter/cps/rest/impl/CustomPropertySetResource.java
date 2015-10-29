@@ -75,7 +75,7 @@ public class CustomPropertySetResource {
                 .stream()
                 .map(m -> m.getCustomPropertySet().getDomainClass().getName())
                 .collect(Collectors.toList()));
-        return PagedInfoList.fromPagedList("domainExtensions",
+        return PagedInfoList.fromCompleteList("domainExtensions",
                 customPropertySetInfoFactory.from(domainExtensions), queryParameters);
     }
 

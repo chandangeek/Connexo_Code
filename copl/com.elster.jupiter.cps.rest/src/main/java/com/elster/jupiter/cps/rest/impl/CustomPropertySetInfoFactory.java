@@ -24,7 +24,7 @@ public class CustomPropertySetInfoFactory {
         for (RegisteredCustomPropertySet registeredCustomPropertySet : registeredCustomPropertySets) {
             customPropertySetInfos.add(new CustomPropertySetInfo(registeredCustomPropertySet,
                     getAttributes(registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs()),
-                    thesaurus.getString(registeredCustomPropertySet.getCustomPropertySet().getDomainClass().getName(),
+                    thesaurus.getStringBeyondComponent(registeredCustomPropertySet.getCustomPropertySet().getDomainClass().getName(),
                             registeredCustomPropertySet.getCustomPropertySet().getDomainClass().getName())));
         }
         return customPropertySetInfos;
