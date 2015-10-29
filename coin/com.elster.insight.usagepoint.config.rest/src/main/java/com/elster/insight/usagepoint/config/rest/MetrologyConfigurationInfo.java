@@ -1,4 +1,4 @@
-package com.elster.insight.usagepoint.config.rest.impl;
+package com.elster.insight.usagepoint.config.rest;
 
 import java.time.Instant;
 

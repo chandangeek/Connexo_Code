@@ -17,7 +17,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
-import com.elster.insight.usagepoint.config.rest.impl.MetrologyConfigurationInfo;
+import com.elster.insight.usagepoint.config.rest.MetrologyConfigurationInfo;
 import com.jayway.jsonpath.JsonModel;
 
 public class MetrologyConfigurationResourceTest extends UsagePointConfigurationRestApplicationJerseyTest {
