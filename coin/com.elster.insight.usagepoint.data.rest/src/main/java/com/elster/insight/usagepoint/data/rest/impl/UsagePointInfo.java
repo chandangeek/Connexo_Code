@@ -46,7 +46,7 @@ public class UsagePointInfo {
     public long createTime;
     public long modTime;
     public ServiceLocationInfo serviceLocation;
-    public MetrologyConfigurationInfo metrologyConfigurationInfo;
+    public MetrologyConfigurationInfo metrologyConfiguration;
 
     public UsagePointInfo() {
     }
@@ -140,6 +140,6 @@ public class UsagePointInfo {
     }
     
     void addMetrologyConfigurationInfo(MetrologyConfigurationInfo mci) {
-        metrologyConfigurationInfo = mci;
+        metrologyConfiguration = mci;
     }
 }

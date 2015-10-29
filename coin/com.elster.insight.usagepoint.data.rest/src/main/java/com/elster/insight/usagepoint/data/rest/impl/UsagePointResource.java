@@ -107,24 +107,34 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response updateUsagePoint(@PathParam("id") String id, UsagePointInfo info, @Context SecurityContext securityContext) {
         MetrologyConfiguration metrologyConfiguration = null;
-        if(info.metrologyConfigurationInfo != null) {
-            metrologyConfiguration = usagePointConfigurationService.findMetrologyConfiguration(info.metrologyConfigurationInfo.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        if(info.metrologyConfiguration != null) {
+            metrologyConfiguration = usagePointConfigurationService.findMetrologyConfiguration(info.metrologyConfiguration.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         }
         UsagePoint usagePoint = transactionService.execute(new UpdateUsagePointTransaction(info, securityContext, meteringService, clock));
         
         Optional<MetrologyConfiguration> currentMC = usagePointConfigurationService.findMetrologyConfigurationForUsagePoint(usagePoint);
-        if (currentMC.isPresent()) {
-            if (currentMC.get().getId()!=info.metrologyConfigurationInfo.id) {
-                final MetrologyConfiguration mc = metrologyConfiguration;
-                transactionService.execute(new Transaction<UsagePointMetrologyConfiguration>() {
-                    @Override
-                    public UsagePointMetrologyConfiguration perform() {
-                        return usagePointConfigurationService.link(usagePoint, mc);
-                    }
-                });
+        if (currentMC.isPresent() && info.metrologyConfiguration != null) {
+            //check for update
+            if (currentMC.get().getId()!=info.metrologyConfiguration.id) {
+                link(usagePoint, metrologyConfiguration);
             }
+        } else if (currentMC.isPresent() && info.metrologyConfiguration == null) {
+            //unlink
+        } else {
+            //new link
+            link(usagePoint, metrologyConfiguration);
         }
         return Response.status(Response.Status.CREATED).entity(getUsagePoint(info.mRID, securityContext)).build();
+    }
+
+    private void link(UsagePoint usagePoint, MetrologyConfiguration metrologyConfiguration) {
+        final MetrologyConfiguration mc = metrologyConfiguration;
+        transactionService.execute(new Transaction<UsagePointMetrologyConfiguration>() {
+            @Override
+            public UsagePointMetrologyConfiguration perform() {
+                return usagePointConfigurationService.link(usagePoint, mc);
+            }
+        });
     }
 
     @GET
@@ -144,8 +154,8 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response createUsagePoint(UsagePointInfo info) {
         MetrologyConfiguration metrologyConfiguration = null;
-        if(info.metrologyConfigurationInfo != null) {
-            metrologyConfiguration = usagePointConfigurationService.findMetrologyConfiguration(info.metrologyConfigurationInfo.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        if(info.metrologyConfiguration != null) {
+            metrologyConfiguration = usagePointConfigurationService.findMetrologyConfiguration(info.metrologyConfiguration.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
         }
         UsagePoint usagePoint = transactionService.execute(new CreateUsagePointTransaction(info, meteringService, clock));
         if (metrologyConfiguration!=null) {
