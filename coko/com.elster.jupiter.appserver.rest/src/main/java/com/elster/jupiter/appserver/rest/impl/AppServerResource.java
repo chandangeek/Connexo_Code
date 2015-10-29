@@ -6,6 +6,7 @@ import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.appserver.security.Privileges;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.MessageService;
@@ -38,10 +39,14 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.nio.file.FileSystem;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 @Path("/appserver")
@@ -56,8 +61,11 @@ public class AppServerResource {
     private final CronExpressionParser cronExpressionParser;
     private final ConcurrentModificationExceptionFactory conflictFactory;
 
+    private final DataExportService dataExportService;
+    private final FileSystem fileSystem;
+
     @Inject
-    public AppServerResource(RestQueryService queryService, AppService appService, MessageService messageService, FileImportService fileImportService, TransactionService transactionService, CronExpressionParser cronExpressionParser, Thesaurus thesaurus, ConcurrentModificationExceptionFactory conflictFactory) {
+    public AppServerResource(RestQueryService queryService, AppService appService, MessageService messageService, FileImportService fileImportService, TransactionService transactionService, CronExpressionParser cronExpressionParser, Thesaurus thesaurus, DataExportService dataExportService, FileSystem fileSystem, ConcurrentModificationExceptionFactory conflictFactory) {
         this.queryService = queryService;
         this.appService = appService;
         this.messageService = messageService;
@@ -65,6 +73,8 @@ public class AppServerResource {
         this.transactionService = transactionService;
         this.cronExpressionParser = cronExpressionParser;
         this.thesaurus = thesaurus;
+        this.dataExportService = dataExportService;
+        this.fileSystem = fileSystem;
         this.conflictFactory = conflictFactory;
     }
 
@@ -86,33 +96,49 @@ public class AppServerResource {
     public AppServerInfos getAppservers(@Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<AppServer> appServers = queryAppServers(params);
-        AppServerInfos infos = new AppServerInfos(params.clipToLimit(appServers), thesaurus);
+        AppServerInfos infos = new AppServerInfos();
+
+        infos.appServers = appServers.stream()
+                .map(appServer -> {
+                    String exportDir = dataExportService.getExportDirectory(appServer).map(Object::toString).orElse(null);
+                    String importDir = appServer.getImportDirectory().map(Object::toString).orElse(null);
+                    return AppServerInfo.of(appServer, importDir, exportDir, thesaurus);
+                })
+                .collect(Collectors.toCollection(ArrayList::new));
+
         infos.total = params.determineTotal(appServers.size());
         return infos;
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{appserverName}")
     @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
     public AppServerInfo getAppServer(@PathParam("appserverName") String appServerName) {
-        return AppServerInfo.of(fetchAppServer(appServerName), thesaurus);
+        AppServer appServer = fetchAppServer(appServerName);
+        String importPath = appServer.getImportDirectory().map(Object::toString).orElse(null);
+        String exportPath = dataExportService.getExportDirectory(appServer).map(Object::toString).orElse(null);
+        return AppServerInfo.of(appServer, importPath, exportPath, thesaurus);
     }
 
     @POST
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
     public Response addAppServer(AppServerInfo info) {
         AppServer appServer = null;
-        try(TransactionContext context = transactionService.getContext()) {
+        try (TransactionContext context = transactionService.getContext()) {
             AppServer underConstruction = appService.createAppServer(info.name, cronExpressionParser.parse("0 0 * * * ? *").get());
             try (AppServer.BatchUpdate batchUpdate = underConstruction.forBatchUpdate()) {
                 if (info.executionSpecs != null) {
                     info.executionSpecs.stream()
                             .forEach(spec -> {
                                 SubscriberSpec subscriberSpec = messageService.getSubscriberSpec(spec.subscriberSpec.destination, spec.subscriberSpec.subscriber).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-                                batchUpdate.createSubscriberExecutionSpec(subscriberSpec, spec.numberOfThreads);
+                                if (spec.active) {
+                                    batchUpdate.createActiveSubscriberExecutionSpec(subscriberSpec, spec.numberOfThreads);
+                                } else {
+                                    batchUpdate.createInactiveSubscriberExecutionSpec(subscriberSpec, spec.numberOfThreads);
+                                }
                             });
                 }
                 if (info.importServices != null) {
@@ -121,7 +147,6 @@ public class AppServerResource {
                             .map(fileImportService::getImportSchedule)
                             .flatMap(Functions.asStream())
                             .forEach(batchUpdate::addImportScheduleOnAppServer);
-
                 }
                 if (info.active) {
                     batchUpdate.activate();
@@ -130,24 +155,43 @@ public class AppServerResource {
                 }
             }
             appServer = underConstruction;
+            if (info.exportDirectory != null) {
+                dataExportService.setExportDirectory(appServer, fileSystem.getPath(info.exportDirectory));
+            }
+            if (info.importDirectory != null) {
+                appServer.setImportDirectory(fileSystem.getPath(info.importDirectory));
+            }
             context.commit();
         }
-        return Response.status(Response.Status.CREATED).entity(AppServerInfo.of(appServer, thesaurus)).build();
+        return Response.status(Response.Status.CREATED).entity(AppServerInfo.of(appServer, info.importDirectory, info.exportDirectory, thesaurus)).build();
     }
 
     @PUT
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{appserverName}")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
-    public Response updateAppServer(AppServerInfo info) {
-        AppServer appServer = null;
-        try(TransactionContext context = transactionService.getContext()) {
-            appServer = fetchAndLockAppServer(info);
+    public Response updateAppServer(@PathParam("appserverName") String appServerName, AppServerInfo info) {
+        AppServer appServer = fetchAppServer(appServerName);
+        try (TransactionContext context = transactionService.getContext()) {
             doUpdateAppServer(info, appServer);
+
+            String currentExportDir = dataExportService.getExportDirectory(appServer)
+                    .map(Object::toString)
+                    .orElse(null);
+            if (!Objects.equals(currentExportDir, info.exportDirectory)) {
+                dataExportService.setExportDirectory(appServer, fileSystem.getPath(info.exportDirectory));
+            }
+            String currentImportDir = appServer.getImportDirectory()
+                    .map(Object::toString)
+                    .orElse(null);
+            if (!Objects.equals(currentImportDir, info.importDirectory)) {
+                appServer.setImportDirectory(fileSystem.getPath(info.importDirectory));
+            }
+
             context.commit();
         }
-        return Response.status(Response.Status.CREATED).entity(AppServerInfo.of(appServer, thesaurus)).build();
+        return Response.status(Response.Status.CREATED).entity(AppServerInfo.of(appServer, info.importDirectory, info.exportDirectory, thesaurus)).build();
     }
 
     @DELETE
@@ -157,6 +201,7 @@ public class AppServerResource {
     public Response removeAppServer(AppServerInfo info) {
         try(TransactionContext context = transactionService.getContext()) {
             AppServer appServer = fetchAndLockAppServer(info);
+            dataExportService.removeExportDirectory(appServer);
             appServer.delete();
             context.commit();
         }
@@ -188,9 +233,9 @@ public class AppServerResource {
     @PUT
     @Path("/{appserverName}/deactivate")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
-    public Response deactivateAppServer(@PathParam("appserverName") String appServerName, AppServerInfo info) {
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.ADMINISTRATE_APPSEVER})
+    public Response deactivateAppServer(@PathParam("appserverName") String appServerName) {
         AppServer appServer = fetchAppServer(appServerName);
         if (appServer.isActive()) {
             try (TransactionContext context = transactionService.getContext()) {
@@ -215,7 +260,7 @@ public class AppServerResource {
         List<Pair<ImportScheduleOnAppServer, ImportScheduleInfo>> pairsImportServices = zipperImportServices.zip(appServer.getImportSchedulesOnAppServer().stream().collect(Collectors.toList()), info.importServices);
 
         try (AppServer.BatchUpdate updater = appServer.forBatchUpdate()) {
-            doThreadUpdates(pairsMessageServices, updater);
+            doSubscriberExecutionSpecUpdates(pairsMessageServices, updater);
             doMessageServicesRemovals(pairsMessageServices, updater);
             doMessageServicesAdditions(pairsMessageServices, updater);
 
@@ -240,7 +285,7 @@ public class AppServerResource {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
 
-        toAdd.forEach(pair -> updater.createSubscriberExecutionSpec(pair.getFirst(), pair.getLast().numberOfThreads));
+        toAdd.forEach(pair -> updater.createActiveSubscriberExecutionSpec(pair.getFirst(), pair.getLast().numberOfThreads));
     }
 
     private void doMessageServicesRemovals(List<Pair<SubscriberExecutionSpec, SubscriberExecutionSpecInfo>> pairs, AppServer.BatchUpdate updater) {
@@ -270,17 +315,27 @@ public class AppServerResource {
                 .forEach(updater::removeImportScheduleOnAppServer);
     }
 
-    private void doThreadUpdates(List<Pair<SubscriberExecutionSpec, SubscriberExecutionSpecInfo>> pairs, AppServer.BatchUpdate updater) {
+    private void doSubscriberExecutionSpecUpdates(List<Pair<SubscriberExecutionSpec, SubscriberExecutionSpecInfo>> pairs, AppServer.BatchUpdate updater) {
         pairs.stream()
-                .filter(pair -> pair.getFirst() != null)
-                .filter(pair -> pair.getLast() != null)
+                .filter(Pair::hasFirst)
+                .filter(Pair::hasLast)
                 .filter(pair -> pair.getFirst().getThreadCount() != pair.getLast().numberOfThreads)
                 .map(pair -> pair.withLast((f, l) -> l.numberOfThreads))
                 .forEach(pair -> updater.setThreadCount(pair.getFirst(), pair.getLast()));
+        pairs.stream()
+                .filter(Pair::hasFirst)
+                .filter(Pair::hasLast)
+                .filter(pair -> pair.getFirst().isActive() != pair.getLast().active)
+                .map(pair -> pair.withLast((f, l) -> activatorDeactivator(updater, l.active)))
+                .forEach(pair -> pair.getLast().accept(pair.getFirst()));
+    }
+
+    private Consumer<SubscriberExecutionSpec> activatorDeactivator(AppServer.BatchUpdate updater, boolean active) {
+        return active ? updater::activate : updater::deactivate;
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{appserverName}/unserved")
     @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
     public SubscriberSpecInfos getSubscribers(@PathParam("appserverName") String appServerName) {
@@ -292,9 +347,9 @@ public class AppServerResource {
                 .collect(Collectors.toList());
         List<SubscriberSpec> subscribers = messageService.getNonSystemManagedSubscribers().stream()
                 .filter(sub -> served.stream()
-                        .filter(s -> sub.getName().equals(s.getName()))
-                        .map(SubscriberSpec::getDestination)
-                        .noneMatch(d -> sub.getDestination().getName().equals(d.getName()))
+                                .filter(s -> sub.getName().equals(s.getName()))
+                                .map(SubscriberSpec::getDestination)
+                                .noneMatch(d -> sub.getDestination().getName().equals(d.getName()))
                 )
                 .collect(Collectors.toList());
         SubscriberSpecInfos subscriberSpecInfos = new SubscriberSpecInfos(subscribers, thesaurus);
@@ -308,7 +363,7 @@ public class AppServerResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{appserverName}/servedimport")
     @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
     public ImportScheduleInfos getServedImportSchedules(@PathParam("appserverName") String appServerName) {
@@ -325,7 +380,7 @@ public class AppServerResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{appserverName}/unservedimport")
     @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
     public ImportScheduleInfos getUnservedImportSchedules(@PathParam("appserverName") String appServerName) {
