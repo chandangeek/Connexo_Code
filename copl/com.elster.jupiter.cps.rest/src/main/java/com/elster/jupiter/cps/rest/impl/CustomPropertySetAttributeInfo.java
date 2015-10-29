@@ -14,9 +14,9 @@ public class CustomPropertySetAttributeInfo {
     public String name;
     public String type;
     public String typeSimpleName;
-    public String defaultValue;
+    public Object defaultValue;
     public String description;
-    public List<String> allValues;
+    public List<Object> allValues;
     public boolean required;
 
     public CustomPropertySetAttributeInfo() {
