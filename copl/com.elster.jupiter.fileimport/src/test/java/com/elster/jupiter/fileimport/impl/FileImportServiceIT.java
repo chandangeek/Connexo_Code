@@ -4,9 +4,9 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.FileImporter;
@@ -67,11 +67,6 @@ import java.util.Collections;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -136,7 +131,6 @@ public class FileImportServiceIT {
     private MessageService messageService;
 
 
-
     private Injector injector;
 
     private Logger logger;
@@ -179,6 +173,7 @@ public class FileImportServiceIT {
         protected void configure() {
             bind(TimeService.class).toInstance(timeService);
             bind(FileImportService.class).to(FileImportServiceImpl.class).in(Scopes.SINGLETON);
+            bind(BundleContext.class).toInstance(bundleContext);
         }
     }
 
@@ -187,8 +182,6 @@ public class FileImportServiceIT {
         when(userService.createUser(any(), any())).thenReturn(user);
 
         testFileSystem = Jimfs.newFileSystem(Configuration.windows());
-
-
 
 
         try {
@@ -205,7 +198,8 @@ public class FileImportServiceIT {
                     new UserModule(),
                     new BasicPropertiesModule(),
                     new MockModule(),
-                    new DataVaultModule()
+                    new DataVaultModule(),
+                    new EventsModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -214,7 +208,7 @@ public class FileImportServiceIT {
 
         transactionService = injector.getInstance(TransactionService.class);
         transactionService.execute(() -> {
-            fileImportService  = injector.getInstance(FileImportServiceImpl.class);
+            fileImportService = injector.getInstance(FileImportServiceImpl.class);
             clock = injector.getInstance(Clock.class);
             messageService = injector.getInstance(MessageService.class);
             jsonService = injector.getInstance(JsonService.class);
@@ -283,7 +277,7 @@ public class FileImportServiceIT {
 
 
         transactionService.execute(() -> {
-            importSchedule = (ImportScheduleImpl)fileImportService.newBuilder()
+            importSchedule = (ImportScheduleImpl) fileImportService.newBuilder()
                     .setName("IMPORT_SCHEDULE1")
                     .setDestination(DESTINATION_NAME)
                     .setPathMatcher("*")
@@ -294,9 +288,8 @@ public class FileImportServiceIT {
                     .setImporterName(IMPORTER_NAME)
                     .setScheduleExpression(scheduleExpression)
                     .create();
-                    return null;
-                });
-
+            return null;
+        });
 
 
         when(thesaurus.getFormat(MessageSeeds.FILE_IMPORT_STARTED)).thenReturn(importStarted);
@@ -323,7 +316,7 @@ public class FileImportServiceIT {
     public void testImportFileWithSuccess() throws IOException {
 
         Path file = basePath.resolve(sourceDirectory).resolve(FILE_NAME);
-        if(!Files.exists(file))
+        if (!Files.exists(file))
             Files.createFile(file);
 
         when(fileImporterFactory.createImporter(any())).thenReturn(fileImportOccurrence -> fileImportOccurrence.markSuccess(SUCCESS_MESSAGE));
@@ -335,7 +328,7 @@ public class FileImportServiceIT {
         folderScanningJob.run();
 
         Message received = subscriberSpec.receive();
-        StreamImportMessageHandler importMessageHandler = (StreamImportMessageHandler)fileImportService.createMessageHandler();
+        StreamImportMessageHandler importMessageHandler = (StreamImportMessageHandler) fileImportService.createMessageHandler();
         transactionService.execute(() -> {
             importMessageHandler.process(received);
             return null;
@@ -351,7 +344,7 @@ public class FileImportServiceIT {
     public void testImportFileWithFailure() throws IOException {
 
         Path file = basePath.resolve(sourceDirectory).resolve(FILE_NAME);
-        if(!Files.exists(file))
+        if (!Files.exists(file))
             Files.createFile(file);
 
         when(fileImporterFactory.createImporter(any())).thenReturn(fileImportOccurrence -> fileImportOccurrence.markFailure(FAILURE_MESSAGE));
@@ -363,7 +356,7 @@ public class FileImportServiceIT {
         folderScanningJob.run();
 
         Message received = subscriberSpec.receive();
-        StreamImportMessageHandler importMessageHandler = (StreamImportMessageHandler)fileImportService.createMessageHandler();
+        StreamImportMessageHandler importMessageHandler = (StreamImportMessageHandler) fileImportService.createMessageHandler();
         transactionService.execute(() -> {
             importMessageHandler.process(received);
             return null;
@@ -379,7 +372,7 @@ public class FileImportServiceIT {
     public void testImportFileSuccessWithFailures() throws IOException {
 
         Path file = basePath.resolve(sourceDirectory).resolve(FILE_NAME);
-        if(!Files.exists(file))
+        if (!Files.exists(file))
             Files.createFile(file);
 
         when(fileImporterFactory.createImporter(any())).thenReturn(fileImportOccurrence -> fileImportOccurrence.markSuccessWithFailures(SUCCESS_WITH_FAILURE_MESSAGE));
@@ -391,7 +384,7 @@ public class FileImportServiceIT {
         folderScanningJob.run();
 
         Message received = subscriberSpec.receive();
-        StreamImportMessageHandler importMessageHandler = (StreamImportMessageHandler)fileImportService.createMessageHandler();
+        StreamImportMessageHandler importMessageHandler = (StreamImportMessageHandler) fileImportService.createMessageHandler();
         transactionService.execute(() -> {
             importMessageHandler.process(received);
             return null;

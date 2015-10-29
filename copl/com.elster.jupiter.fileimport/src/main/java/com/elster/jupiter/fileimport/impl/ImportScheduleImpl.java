@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.FileImporterFactory;
@@ -78,6 +79,7 @@ final class ImportScheduleImpl implements ImportSchedule {
     private String cronString;
 
     private final MessageService messageService;
+    private final EventService eventService;
     private final DataModel dataModel;
     private final ScheduleExpressionParser scheduleExpressionParser;
     private final FileNameCollisionResolver fileNameCollisionresolver;
@@ -105,9 +107,10 @@ final class ImportScheduleImpl implements ImportSchedule {
 
     @SuppressWarnings("unused")
     @Inject
-    ImportScheduleImpl(DataModel dataModel, FileImportService fileImportService, MessageService messageService, ScheduleExpressionParser scheduleExpressionParser, FileNameCollisionResolver fileNameCollisionresolver, FileUtils fileUtils, JsonService jsonService, Thesaurus thesaurus, FileSystem fileSystem) {
+    ImportScheduleImpl(DataModel dataModel, FileImportService fileImportService, MessageService messageService, EventService eventService, ScheduleExpressionParser scheduleExpressionParser, FileNameCollisionResolver fileNameCollisionresolver, FileUtils fileUtils, JsonService jsonService, Thesaurus thesaurus, FileSystem fileSystem) {
         this.messageService = messageService;
         this.dataModel = dataModel;
+        this.eventService = eventService;
         this.jsonService = jsonService;
         this.scheduleExpressionParser = scheduleExpressionParser;
         this.fileNameCollisionresolver = fileNameCollisionresolver;
@@ -272,6 +275,7 @@ final class ImportScheduleImpl implements ImportSchedule {
 
     private void setObsoleteTime(Instant obsoleteTime) {
         this.obsoleteTime = obsoleteTime;
+        eventService.postEvent(EventType.IMPORT_SCHEDULE_DELETED.topic(), this);
     }
 
     @Override
@@ -387,6 +391,7 @@ final class ImportScheduleImpl implements ImportSchedule {
     @Override
     public void update() {
         save();
+        eventService.postEvent(EventType.IMPORT_SCHEDULE_UPDATED.topic(), this);
     }
 
     void save() {
@@ -411,6 +416,7 @@ final class ImportScheduleImpl implements ImportSchedule {
 
     private void persist() {
         Save.CREATE.save(dataModel, this);
+        eventService.postEvent(EventType.IMPORT_SCHEDULE_CREATED.topic(), this);
     }
 
     private void doUpdate() {
