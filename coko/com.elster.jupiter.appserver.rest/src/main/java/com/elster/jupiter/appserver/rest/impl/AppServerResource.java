@@ -91,7 +91,7 @@ public class AppServerResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
     public AppServerInfos getAppservers(@Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
@@ -196,10 +196,10 @@ public class AppServerResource {
 
     @DELETE
     @Path("/{appserverName}/")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
     public Response removeAppServer(AppServerInfo info) {
-        try(TransactionContext context = transactionService.getContext()) {
+        try (TransactionContext context = transactionService.getContext()) {
             AppServer appServer = fetchAndLockAppServer(info);
             dataExportService.removeExportDirectory(appServer);
             appServer.delete();
@@ -211,12 +211,12 @@ public class AppServerResource {
     @PUT
     @Path("/{appserverName}/activate")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
     public Response activateAppServer(@PathParam("appserverName") String appServerName, AppServerInfo info) {
         AppServer appServer = fetchAppServer(appServerName);
         if (!appServer.isActive()) {
-            try(TransactionContext context = transactionService.getContext()) {
+            try (TransactionContext context = transactionService.getContext()) {
                 appServer = appService.findAndLockAppServerByNameAndVersion(info.name, info.version)
                         .orElseThrow(conflictFactory.conflict()
                                 .withActualVersion(() -> appService.findAppServer(info.name).map(AppServer::getVersion).orElse(null))
@@ -234,8 +234,8 @@ public class AppServerResource {
     @Path("/{appserverName}/deactivate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_APPSEVER})
-    public Response deactivateAppServer(@PathParam("appserverName") String appServerName) {
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
+    public Response deactivateAppServer(@PathParam("appserverName") String appServerName, AppServerInfo info) {
         AppServer appServer = fetchAppServer(appServerName);
         if (appServer.isActive()) {
             try (TransactionContext context = transactionService.getContext()) {

@@ -14,14 +14,12 @@ import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.cron.CronExpression;
-import com.jayway.jsonpath.JsonModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.nio.file.Path;
@@ -31,11 +29,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class AppServerResourceTest extends AppServerApplicationTest {
 
@@ -148,10 +142,7 @@ public class AppServerResourceTest extends AppServerApplicationTest {
     @Test
     public void testRemoveAppServer() {
         AppServer appServer = mockAppServer();
-        AppServerInfo info = new AppServerInfo(appServer, thesaurus);
-        Entity<AppServerInfo> json = Entity.json(info);
-
-        Response response = target("/appserver/APPSERVER").request().build(HttpMethod.DELETE, json).invoke();
+        Response response = target("/appserver/APPSERVER").request().delete();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(appServer).delete();
@@ -161,10 +152,8 @@ public class AppServerResourceTest extends AppServerApplicationTest {
     public void testActivateAppServer() {
         AppServer appServer = mockAppServer();
         when(appServer.isActive()).thenReturn(false);
-        AppServerInfo info = new AppServerInfo(appServer, thesaurus);
-        Entity<AppServerInfo> json = Entity.json(info);
 
-        Response response = target("/appserver/APPSERVER/activate").request().put(json);
+        Response response = target("/appserver/APPSERVER/activate").request().put(Entity.json(null));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(appServer).activate();
@@ -174,10 +163,8 @@ public class AppServerResourceTest extends AppServerApplicationTest {
     public void testDeactivateAppServer() {
         AppServer appServer = mockAppServer();
         when(appServer.isActive()).thenReturn(true);
-        AppServerInfo info = new AppServerInfo(appServer, thesaurus);
-        Entity<AppServerInfo> json = Entity.json(info);
 
-        Response response = target("/appserver/APPSERVER/deactivate").request().put(json);
+        Response response = target("/appserver/APPSERVER/deactivate").request().put(Entity.json(null));
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(appServer).deactivate();
