@@ -14,6 +14,11 @@ import java.util.stream.Collectors;
 
 public enum Privileges implements TranslationKey {
 
+    //Resources
+    RESOURCE_APPSERVER("appServer.appServers", "Application servers"),
+    RESOURCE_APPSERVER_DESCRIPTION("appServer.appServers.description", "Manage application servers"),
+
+    //Privileges
     VIEW_APPSEVER(Constants.VIEW_APPSEVER, "View"),
     ADMINISTRATE_APPSEVER(Constants.ADMINISTRATE_APPSEVER, "Administrate");
 
