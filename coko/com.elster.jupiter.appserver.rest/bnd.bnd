@@ -1,4 +1,4 @@
 -classpath: target/classes
 -dsannotations: *
-Private-Package: com.elster.jupiter.appserver.rest.impl
+Private-Package: com.elster.jupiter.appserver.rest.impl, com.elster.jupiter.messaging.rest.impl
 Export-Package: com.elster.jupiter.appserver.rest
