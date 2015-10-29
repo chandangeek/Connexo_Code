@@ -28,6 +28,7 @@ import javax.ws.rs.core.UriInfo;
 import com.elster.insight.common.services.ListPager;
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
+import com.elster.insight.usagepoint.config.UsagePointMetrologyConfiguration;
 import com.elster.insight.usagepoint.config.rest.MetrologyConfigurationInfo;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.MeterActivation;
@@ -41,6 +42,7 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.google.common.base.Predicate;
@@ -104,7 +106,24 @@ public class UsagePointResource {
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response updateUsagePoint(@PathParam("id") String id, UsagePointInfo info, @Context SecurityContext securityContext) {
-        transactionService.execute(new UpdateUsagePointTransaction(info, securityContext, meteringService, clock));
+        MetrologyConfiguration metrologyConfiguration = null;
+        if(info.metrologyConfigurationInfo != null) {
+            metrologyConfiguration = usagePointConfigurationService.findMetrologyConfiguration(info.metrologyConfigurationInfo.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        }
+        UsagePoint usagePoint = transactionService.execute(new UpdateUsagePointTransaction(info, securityContext, meteringService, clock));
+        
+        Optional<MetrologyConfiguration> currentMC = usagePointConfigurationService.findMetrologyConfigurationForUsagePoint(usagePoint);
+        if (currentMC.isPresent()) {
+            if (currentMC.get().getId()!=info.metrologyConfigurationInfo.id) {
+                final MetrologyConfiguration mc = metrologyConfiguration;
+                transactionService.execute(new Transaction<UsagePointMetrologyConfiguration>() {
+                    @Override
+                    public UsagePointMetrologyConfiguration perform() {
+                        return usagePointConfigurationService.link(usagePoint, mc);
+                    }
+                });
+            }
+        }
         return Response.status(Response.Status.CREATED).entity(getUsagePoint(info.mRID, securityContext)).build();
     }
 
@@ -124,7 +143,21 @@ public class UsagePointResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response createUsagePoint(UsagePointInfo info) {
-        UsagePointInfo result = new UsagePointInfo(transactionService.execute(new CreateUsagePointTransaction(info, meteringService, clock)), clock, usagePointConfigurationService);
+        MetrologyConfiguration metrologyConfiguration = null;
+        if(info.metrologyConfigurationInfo != null) {
+            metrologyConfiguration = usagePointConfigurationService.findMetrologyConfiguration(info.metrologyConfigurationInfo.id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        }
+        UsagePoint usagePoint = transactionService.execute(new CreateUsagePointTransaction(info, meteringService, clock));
+        if (metrologyConfiguration!=null) {
+            final MetrologyConfiguration mc = metrologyConfiguration;
+            transactionService.execute(new Transaction<UsagePointMetrologyConfiguration>() {
+                @Override
+                public UsagePointMetrologyConfiguration perform() {
+                    return usagePointConfigurationService.link(usagePoint, mc);
+                }
+            });
+        }
+        UsagePointInfo result = new UsagePointInfo(usagePoint, clock, usagePointConfigurationService);
         return Response.status(Response.Status.CREATED).entity(result).build();
     }
 
