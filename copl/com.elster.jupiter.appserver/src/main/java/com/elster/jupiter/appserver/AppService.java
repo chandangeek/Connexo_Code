@@ -1,6 +1,7 @@
 package com.elster.jupiter.appserver;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.util.cron.CronExpression;
 
 import java.nio.file.Path;
@@ -25,6 +26,8 @@ public interface AppService {
     AppServer createAppServer(String name, CronExpression cronExpression);
 
     List<SubscriberExecutionSpec> getSubscriberExecutionSpecs();
+
+    List<SubscriberExecutionSpec> getSubscriberExecutionSpecsFor(SubscriberSpec subscriberSpec);
 
     List<AppServer> findAppServers();
 

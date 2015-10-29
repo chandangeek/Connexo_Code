@@ -333,6 +333,14 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
     }
 
     @Override
+    public List<SubscriberExecutionSpec> getSubscriberExecutionSpecsFor(SubscriberSpec subscriberSpec) {
+        return dataModel.stream(SubscriberExecutionSpecImpl.class)
+                .filter(where("subscriberSpecName").isEqualTo(subscriberSpec.getName()))
+                .filter(where("destinationSpecName").isEqualTo(subscriberSpec.getDestination().getName()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<AppServer> findAppServers() {
         return dataModel.mapper(AppServer.class).find();
     }
