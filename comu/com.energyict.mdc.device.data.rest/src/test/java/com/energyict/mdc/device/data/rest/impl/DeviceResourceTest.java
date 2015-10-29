@@ -1505,29 +1505,4 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         System.out.println(conditionArgumentCaptor.getValue());
 
     }
-
-    @Test
-    public void testUpdateDeviceConfig() {
-        Device device = mock(Device.class);
-        when(deviceService.findDeviceById(1L)).thenReturn(Optional.of(device));
-        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
-        when(deviceConfigurationService.findDeviceConfiguration(anyLong())).thenReturn(Optional.of(deviceConfiguration));
-        when(deviceService.changeDeviceConfigurationForSingleDevice(eq(device), eq(1L), anyLong())).thenReturn(device);
-        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        when(deviceConfiguration.getId()).thenReturn(1L);
-        when(deviceConfiguration.getVersion()).thenReturn(1L);
-
-
-        DeviceInfo info = new DeviceInfo();
-        info.id = 1L;
-        info.version = 13l;
-        info.masterDevicemRID = null;
-        info.mRID = "device";
-        info.parent = new VersionInfo<>(1L, 1L);
-        info.deviceConfigurationId = 1L;
-
-        Response response = target("/devices/1/changedeviceconfig").request().put(Entity.json(info));
-
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-    }
 }

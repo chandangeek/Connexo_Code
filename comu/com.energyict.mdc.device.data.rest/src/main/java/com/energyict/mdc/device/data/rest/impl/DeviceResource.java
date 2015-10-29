@@ -2,10 +2,14 @@ package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.transaction.CommitException;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
@@ -88,6 +92,7 @@ public class DeviceResource {
     private final Provider<DeviceLifeCycleActionResource> deviceLifeCycleActionResourceProvider;
     private final DeviceInfoFactory deviceInfoFactory;
     private final DeviceAttributesInfoFactory deviceAttributesInfoFactory;
+    private final TransactionService transactionService;
 
     @Inject
     public DeviceResource(
@@ -118,7 +123,8 @@ public class DeviceResource {
             Provider<DeviceHistoryResource> deviceHistoryResourceProvider,
             Provider<DeviceLifeCycleActionResource> deviceLifeCycleActionResourceProvider,
             DeviceInfoFactory deviceInfoFactory,
-            DeviceAttributesInfoFactory deviceAttributesInfoFactory) {
+            DeviceAttributesInfoFactory deviceAttributesInfoFactory,
+            TransactionService transactionService) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.deviceService = deviceService;
@@ -147,6 +153,7 @@ public class DeviceResource {
         this.deviceLifeCycleActionResourceProvider = deviceLifeCycleActionResourceProvider;
         this.deviceInfoFactory = deviceInfoFactory;
         this.deviceAttributesInfoFactory = deviceAttributesInfoFactory;
+        this.transactionService = transactionService;
     }
 
     @GET
@@ -186,44 +193,38 @@ public class DeviceResource {
         return deviceInfoFactory.from(newDevice, getSlaveDevicesForDevice(newDevice));
     }
 
-    @PUT
-    @Untransactional
-    @Path("/{id}/changedeviceconfig")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION)
-    public Response updateDeviceConfig(@PathParam("id") long id, DeviceInfo info, @Context SecurityContext securityContext) {
-        if(info.deviceConfigurationId==0){
-            throw new LocalizedFieldValidationException(MessageSeeds.FIELD_CAN_NOT_BE_EMPTY, "deviceConfigurationId");
-        }
-        Device device = deviceService.findDeviceById(id)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_ID, id));
-        if(device.getDeviceConfiguration().getId()==info.deviceConfigurationId){
-            return Response.ok().build();
-        }
-        DeviceConfiguration destinationConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfigurationId)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_CONFIG));
-        try {
-            deviceService.changeDeviceConfigurationForSingleDevice(device, destinationConfiguration.getId(), destinationConfiguration.getVersion());
-        }catch (CannotChangeDeviceConfigStillUnresolvedConflicts e){
-            return Response.ok().entity(new DeviceConflictsInfo(device.getDeviceType().getDeviceConfigConflictMappings().stream()
-                    .filter(conflict -> conflict.getOriginDeviceConfiguration().getId() == device.getDeviceConfiguration().getId()
-                            && conflict.getDestinationDeviceConfiguration().getId() == destinationConfiguration.getId()).findFirst().orElseThrow(() -> e)))
-                    .build();
-        }
-        return Response.ok().build();
-    }
-
     @PUT//the method designed like 'PATCH'
     @Path("/{id}")
+    @Untransactional
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION)
     public DeviceInfo updateDevice(@PathParam("id") long id, DeviceInfo info) {
-        Device device = resourceHelper.lockDeviceOrThrowException(info);
-        updateGateway(info, device);
-        device.save();
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(info.mRID);
+        if (device.getDeviceConfiguration().getId() != info.deviceConfigurationId) {
+            DeviceConfiguration destinationConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfigurationId)
+                    .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_CONFIG));
+            updateDeviceConfig(device, destinationConfiguration);
+        } else {
+            try (TransactionContext context = transactionService.getContext()) {
+                device = resourceHelper.lockDeviceOrThrowException(info);
+                updateGateway(info, device);
+                device.save();
+                context.commit();
+            }
+        }
         return deviceInfoFactory.from(device, getSlaveDevicesForDevice(device));
+    }
+
+    public void updateDeviceConfig(Device device, DeviceConfiguration destinationConfiguration) {
+        try {
+            //TODO change device argument to mrid and version
+            deviceService.changeDeviceConfigurationForSingleDevice(device, destinationConfiguration.getId(), destinationConfiguration.getVersion());
+        } catch (CannotChangeDeviceConfigStillUnresolvedConflicts e) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.CHANGE_DEVICE_CONFIG_CONFLICT, device.getDeviceType().getDeviceConfigConflictMappings().stream()
+                    .filter(conflict -> conflict.getOriginDeviceConfiguration().getId() == device.getDeviceConfiguration().getId()
+                            && conflict.getDestinationDeviceConfiguration().getId() == destinationConfiguration.getId()).findFirst().orElseThrow(() -> e));
+        }
     }
 
     private DeviceInfo updateGateway(DeviceInfo info, Device device) {
