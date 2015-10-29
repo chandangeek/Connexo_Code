@@ -789,70 +789,78 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
         viewport.setLoading(true);
 
         Ext.Ajax.request({
-            url: '/api/ddr/devices/' + device.get('id') + '/changedeviceconfig',
+            url: '/api/ddr/devices/' + device.get('id'),
             method: 'PUT',
             jsonData: device.data,
             success: function (response) {
                 var json = Ext.decode(response.responseText, true);
 
-                if(json && !json.isSolved){
-                    var title = (canSolveConflictingMappings ? Uni.I18n.translate('general.failed', 'MDC', 'Failed') : Uni.I18n.translate('general.unable', 'MDC', 'Unable')) +
-                        Uni.I18n.translate('device.changeDeviceConfiguration.changeFailedTitle', 'MDC', ' to change device configuration');
 
-                    var errorWindow = Ext.create('Ext.window.MessageBox', {
-                        buttonAlign: canSolveConflictingMappings ? 'right' : 'left',
-                        buttons: [
-                            {
-                                xtype: 'button',
-                                text: (canSolveConflictingMappings ? Uni.I18n.translate('general.close', 'MDC', 'Close') : Uni.I18n.translate('general.finish', 'MDC', 'Finish')),
-                                action: 'close',
-                                name: 'close',
-                                ui: 'remove',
-                                style: {
-                                    marginLeft: (canSolveConflictingMappings ? '0px' : '50px')
-                                },
-                                handler: function () {
-                                    errorWindow.close();
-                                }
-                            }
-                        ]
-                    });
+                router.getRoute('devices/device').forward();
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('device.changeDeviceConfiguration.changed', 'MDC', 'Device configuration successfully changed'));
 
-                    errorWindow.down('displayfield').htmlEncode = false;
 
-                    var solveConflictsLink = router.getRoute('administration/devicetypes/view/conflictmappings/edit').buildUrl({deviceTypeId: device.get('deviceTypeId'), id: json.id}),
-                        message = canSolveConflictingMappings
-                            ?  Uni.I18n.translate('device.changeDeviceConfiguration.cannotbeChanged', 'MDC', "The configuration of device '{0}' cannot be changed to '{1}' due to unsolved conflicts. <br/><br/>", [device.get('mRID'), me.getNewDeviceConfigurationCombo().getRawValue()])
-                        + Uni.I18n.translate('device.changeDeviceConfiguration.SolveTheConflictsBeforeYouRetry', 'MDC', '<a href="{0}">Solve the conflicts</a> before you retry.', solveConflictsLink)
-                            : Uni.I18n.translate('device.changeDeviceConfiguration.noRightsToSolveTheConflicts', 'MDC', 'You cannot solve the conflicts in conflicting mappings on device type because you do not have the privileges. Contact the administrator.');
-
-                    router.addListener('routeChangeStart', function () {
-                        errorWindow.close();
-                    }, this, {single: true});
-
-                    me.getController('Mdc.controller.setup.DeviceConflictingMapping').returnInfo = {from: 'changeDeviceConfiguration', id: device.get('mRID')};
-
-                    errorWindow.show(
-                        {
-                            title: title,
-                            msg: message,
-                            ui: 'message-error',
-                            icon: 'icon-warning2'
-                        }
-                    );
-
-                } else {
-                    router.getRoute('devices/device').forward();
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('device.changeDeviceConfiguration.changed', 'MDC', 'Device configuration successfully changed'));
-
-                }
             },
             failure: function (response, request) {
                 if (response.status == 400) {
                     var json = Ext.decode(response.responseText, true);
-                    if (json && json.errors) {
-                        me.getChangeDeviceConfigurationFormErrors().setText(json.errors[0].msg);
-                        me.getChangeDeviceConfigurationFormErrors().show();
+                    if (json && json.error) {
+                        if (json.error == 'ChangeDeviceConfigConflict') {
+                            var title = (canSolveConflictingMappings ? Uni.I18n.translate('general.failed', 'MDC', 'Failed') : Uni.I18n.translate('general.unable', 'MDC', 'Unable')) +
+                                Uni.I18n.translate('device.changeDeviceConfiguration.changeFailedTitle', 'MDC', ' to change device configuration');
+
+                            var errorWindow = Ext.create('Ext.window.MessageBox', {
+                                buttonAlign: canSolveConflictingMappings ? 'right' : 'left',
+                                buttons: [
+                                    {
+                                        xtype: 'button',
+                                        text: (canSolveConflictingMappings ? Uni.I18n.translate('general.close', 'MDC', 'Close') : Uni.I18n.translate('general.finish', 'MDC', 'Finish')),
+                                        action: 'close',
+                                        name: 'close',
+                                        ui: 'remove',
+                                        style: {
+                                            marginLeft: (canSolveConflictingMappings ? '0px' : '50px')
+                                        },
+                                        handler: function () {
+                                            errorWindow.close();
+                                        }
+                                    }
+                                ]
+                            });
+
+                            errorWindow.down('displayfield').htmlEncode = false;
+
+                            var solveConflictsLink = router.getRoute('administration/devicetypes/view/conflictmappings/edit').buildUrl({
+                                    deviceTypeId: device.get('deviceTypeId'),
+                                    id: json.message
+                                }),
+                                message = canSolveConflictingMappings
+                                    ? Uni.I18n.translate('device.changeDeviceConfiguration.cannotbeChanged', 'MDC', "The configuration of device '{0}' cannot be changed to '{1}' due to unsolved conflicts. <br/><br/>", [device.get('mRID'), me.getNewDeviceConfigurationCombo().getRawValue()])
+                                + Uni.I18n.translate('device.changeDeviceConfiguration.SolveTheConflictsBeforeYouRetry', 'MDC', '<a href="{0}">Solve the conflicts</a> before you retry.', solveConflictsLink)
+                                    : Uni.I18n.translate('device.changeDeviceConfiguration.noRightsToSolveTheConflicts', 'MDC', 'You cannot solve the conflicts in conflicting mappings on device type because you do not have the privileges. Contact the administrator.');
+
+                            router.addListener('routeChangeStart', function () {
+                                errorWindow.close();
+                            }, this, {single: true});
+
+                            me.getController('Mdc.controller.setup.DeviceConflictingMapping').returnInfo = {
+                                from: 'changeDeviceConfiguration',
+                                id: device.get('mRID')
+                            };
+
+                            errorWindow.show(
+                                {
+                                    title: title,
+                                    msg: message,
+                                    ui: 'message-error',
+                                    icon: 'icon-warning2'
+                                }
+                            );
+
+                        } else {
+                            me.getChangeDeviceConfigurationFormErrors().setText(json.error);
+                            me.getChangeDeviceConfigurationFormErrors().show();
+                        }
                     }
                 }
             },
