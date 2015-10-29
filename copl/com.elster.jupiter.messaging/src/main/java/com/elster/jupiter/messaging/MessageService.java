@@ -1,11 +1,14 @@
 package com.elster.jupiter.messaging;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 import java.util.Optional;
 
 /**
  * Main service of the MSG module that allows managing messaging.
  */
+@ProviderType
 public interface MessageService {
 
     String DESTINATION_NAME = "destination";
@@ -34,6 +37,13 @@ public interface MessageService {
     Optional<DestinationSpec> getDestinationSpec(String name);
 
     /**
+     * @param name
+     * @param version
+     * @return the DestinationSpec with the given name, optional, as it may not exist
+     */
+    Optional<DestinationSpec> lockDestinationSpec(String name, long version);
+
+    /**
      *
      * @param destinationSpecName
      * @param name
@@ -47,4 +57,6 @@ public interface MessageService {
     List<SubscriberSpec> getSubscribers();
 
     List<SubscriberSpec> getNonSystemManagedSubscribers();
+
+    List<DestinationSpec> findDestinationSpecs();
 }

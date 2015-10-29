@@ -114,4 +114,6 @@ public interface DestinationSpec extends HasName {
     static Where whereCorrelationId() {
         return Where.where("corrid");
     }
+
+    long getVersion();
 }

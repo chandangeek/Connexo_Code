@@ -1,8 +1,11 @@
 package com.elster.jupiter.messaging;
 
+import aQute.bnd.annotation.ProviderType;
+
 /**
  * Abstraction for a message on a queue.
  */
+@ProviderType
 public interface Message {
 
     /**
