@@ -86,7 +86,7 @@ public class AppServerImpl implements AppServer {
     @Override
     public SubscriberExecutionSpecImpl createSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount) {
         try (BatchUpdateImpl updater = forBatchUpdate()) {
-            return updater.createSubscriberExecutionSpec(subscriberSpec, threadCount);
+            return updater.createActiveSubscriberExecutionSpec(subscriberSpec, threadCount);
         }
     }
 
@@ -278,8 +278,15 @@ public class AppServerImpl implements AppServer {
         private boolean deleted;
 
         @Override
-        public SubscriberExecutionSpecImpl createSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount) {
-            SubscriberExecutionSpecImpl subscriberExecutionSpec = SubscriberExecutionSpecImpl.from(dataModel, AppServerImpl.this, subscriberSpec, threadCount);
+        public SubscriberExecutionSpecImpl createActiveSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount) {
+            SubscriberExecutionSpecImpl subscriberExecutionSpec = SubscriberExecutionSpecImpl.newActive(dataModel, AppServerImpl.this, subscriberSpec, threadCount);
+            getSubscriberExecutionSpecFactory().persist(subscriberExecutionSpec);
+            return subscriberExecutionSpec;
+        }
+
+        @Override
+        public SubscriberExecutionSpecImpl createInactiveSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount) {
+            SubscriberExecutionSpecImpl subscriberExecutionSpec = SubscriberExecutionSpecImpl.newInactive(dataModel, AppServerImpl.this, subscriberSpec, threadCount);
             getSubscriberExecutionSpecFactory().persist(subscriberExecutionSpec);
             return subscriberExecutionSpec;
         }
@@ -302,7 +309,6 @@ public class AppServerImpl implements AppServer {
         @Override
         public void removeImportScheduleOnAppServer(ImportScheduleOnAppServer importScheduleOnAppServer) {
             ImportScheduleOnAppServerImpl found = getImportScheduleOnAppServer(importScheduleOnAppServer);
-            importScheduleOnAppServer.getImportSchedule().ifPresent(importSchedule -> fileImportService.unSchedule(importSchedule));
             getImportScheduleOnAppServerFactory().remove(found);
             importSchedulesOnAppServer.remove(found);
         }
@@ -316,6 +322,20 @@ public class AppServerImpl implements AppServer {
         public void setThreadCount(SubscriberExecutionSpec subscriberExecutionSpec, int threads) {
             SubscriberExecutionSpecImpl executionSpec = getSubscriberExecutionSpec(subscriberExecutionSpec);
             executionSpec.setThreadCount(threads);
+            executionSpec.update();
+        }
+
+        @Override
+        public void activate(SubscriberExecutionSpec subscriberExecutionSpec) {
+            SubscriberExecutionSpecImpl executionSpec = getSubscriberExecutionSpec(subscriberExecutionSpec);
+            executionSpec.setActive(true);
+            executionSpec.update();
+        }
+
+        @Override
+        public void deactivate(SubscriberExecutionSpec subscriberExecutionSpec) {
+            SubscriberExecutionSpecImpl executionSpec = getSubscriberExecutionSpec(subscriberExecutionSpec);
+            executionSpec.setActive(false);
             executionSpec.update();
         }
 

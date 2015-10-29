@@ -41,6 +41,7 @@ public enum TableSpecs {
             table.column("SUBSCRIBERSPEC").varChar(NAME_LENGTH).notNull().map("subscriberSpecName").add();
             table.column("DESTINATIONSPEC").varChar(NAME_LENGTH).notNull().map("destinationSpecName").add();
             Column appServerColumn = table.column("APPSERVER").varChar(NAME_LENGTH).notNull().map("appServerName").add();
+            table.column("ACTIVE").bool().map("active").add();
             table.foreignKey("APS_FKEXECUTIONSPECAPPSERVER").references(APS_APPSERVER.name()).onDelete(DeleteRule.CASCADE).map("appServer").on(appServerColumn).add();
             table.primaryKey("APS_PK_SUBSCRIBEREXECUTIONSPEC").on(idColumn).add();
         }

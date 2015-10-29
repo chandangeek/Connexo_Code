@@ -52,7 +52,9 @@ public interface AppServer {
 
     interface BatchUpdate extends AutoCloseable {
 
-        SubscriberExecutionSpec createSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount);
+        SubscriberExecutionSpec createActiveSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount);
+
+        SubscriberExecutionSpec createInactiveSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount);
 
         void removeSubscriberExecutionSpec(SubscriberExecutionSpec subscriberExecutionSpec);
 
@@ -64,6 +66,10 @@ public interface AppServer {
 
         void setThreadCount(SubscriberExecutionSpec subscriberExecutionSpec, int threads);
 
+        void activate(SubscriberExecutionSpec subscriberExecutionSpec);
+
+        void deactivate(SubscriberExecutionSpec subscriberExecutionSpec);
+
         void activate();
 
         void deactivate();
@@ -72,5 +78,6 @@ public interface AppServer {
         void close();
 
         void delete();
+
     }
 }

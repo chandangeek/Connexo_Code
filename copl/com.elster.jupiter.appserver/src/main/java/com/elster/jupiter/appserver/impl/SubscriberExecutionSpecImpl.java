@@ -18,6 +18,7 @@ public class SubscriberExecutionSpecImpl implements SubscriberExecutionSpec {
     private transient SubscriberSpec subscriberSpec;
     private String appServerName;
     private transient AppServer appServer;
+    private boolean active;
     private final DataModel dataModel;
     private final MessageService messageService;
 
@@ -26,18 +27,23 @@ public class SubscriberExecutionSpecImpl implements SubscriberExecutionSpec {
     	this.dataModel = dataModel;
         this.messageService = messageService;
     }
-    
-    public static SubscriberExecutionSpecImpl from(DataModel dataModel, AppServer appServer, SubscriberSpec subscriberSpec, int threadCount) {
-        return dataModel.getInstance(SubscriberExecutionSpecImpl.class).init(appServer, subscriberSpec, threadCount);
+
+    public static SubscriberExecutionSpecImpl newActive(DataModel dataModel, AppServer appServer, SubscriberSpec subscriberSpec, int threadCount) {
+        return dataModel.getInstance(SubscriberExecutionSpecImpl.class).init(appServer, subscriberSpec, threadCount, true);
     }
 
-    SubscriberExecutionSpecImpl init(AppServer appServer, SubscriberSpec subscriberSpec, int threadCount) {
+    public static SubscriberExecutionSpecImpl newInactive(DataModel dataModel, AppServer appServer, SubscriberSpec subscriberSpec, int threadCount) {
+        return dataModel.getInstance(SubscriberExecutionSpecImpl.class).init(appServer, subscriberSpec, threadCount, false);
+    }
+
+    SubscriberExecutionSpecImpl init(AppServer appServer, SubscriberSpec subscriberSpec, int threadCount, boolean active) {
         this.appServer = appServer;
         this.appServerName = appServer.getName();
         this.subscriberSpec = subscriberSpec;
         this.subscriberSpecName = subscriberSpec.getName();
         this.destinationSpecName = subscriberSpec.getDestination().getName();
         this.threadCount = threadCount;
+        this.active = active;
         return this;
     }
 
@@ -71,5 +77,15 @@ public class SubscriberExecutionSpecImpl implements SubscriberExecutionSpec {
 
     void update() {
         dataModel.mapper(SubscriberExecutionSpecImpl.class).update(this);
+    }
+
+    @Override
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    @Override
+    public boolean isActive() {
+        return active;
     }
 }

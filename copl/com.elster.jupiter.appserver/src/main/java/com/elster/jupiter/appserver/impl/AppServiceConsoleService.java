@@ -31,6 +31,7 @@ import java.util.Optional;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 @Component(name = "com.elster.jupiter.appserver.console", service = {AppServiceConsoleService.class},
         property = {"name=" + "APS" + ".console",
@@ -196,7 +197,7 @@ public class AppServiceConsoleService {
                 .stream()
                 .map(ImportScheduleOnAppServer::getImportSchedule)
                 .flatMap(Functions.asStream())
-                .map(ImportSchedule::getName)
+                .map(importSchedule -> importSchedule.getName() + " " + importSchedule.isActive())
                 .forEach(System.out::println);
 
     }
@@ -256,20 +257,16 @@ public class AppServiceConsoleService {
     }
 
     public void appServers() {
-        appService.findAppServers().stream()
-                .peek(server -> System.out.println(server.getName() + " active:" + server.isActive() + " tasks:" + server.isRecurrentTaskActive()))
-                .flatMap(server -> server.getSubscriberExecutionSpecs().stream())
-                .map(se -> "\t" + se.getSubscriberSpec().getDestination().getName() + " " + se.getSubscriberSpec().getName() + " " + se.getThreadCount())
-                .forEach(System.out::println);
+        Stream<AppServer> appServerStream = appService.findAppServers().stream()
+                .peek(server -> System.out.println(server.getName() + " active:" + server.isActive() + " tasks:" + server.isRecurrentTaskActive()));
+        printSubscriberExecutionSpecs(appServerStream);
     }
 
     public void identify() {
-        appService.getAppServer()
+        Stream<AppServer> appServerStream = appService.getAppServer()
                 .map(Arrays::asList).orElse(Collections.<AppServer>emptyList()).stream()
-                .peek(server -> System.out.println(server.getName() + " active:" + server.isActive() + " tasks:" + server.isRecurrentTaskActive()))
-                .flatMap(server -> server.getSubscriberExecutionSpecs().stream())
-                .map(se -> "\t" + se.getSubscriberSpec().getDestination().getName() + " " + se.getSubscriberSpec().getName() + " " + se.getThreadCount())
-                .forEach(System.out::println);
+                .peek(server -> System.out.println(server.getName() + " active:" + server.isActive() + " tasks:" + server.isRecurrentTaskActive()));
+        printSubscriberExecutionSpecs(appServerStream);
     }
 
     public void stopAppServer() {
@@ -355,11 +352,9 @@ public class AppServiceConsoleService {
     public void report() {
         System.out.println("Setup : ");
         System.out.println("==========");
-        appService.getAppServer()
-                .map(Arrays::asList).orElse(Collections.<AppServer>emptyList()).stream()
-                .flatMap(server -> server.getSubscriberExecutionSpecs().stream())
-                .map(se -> "\t" + se.getSubscriberSpec().getDestination().getName() + ' ' + se.getSubscriberSpec().getName() + ' ' + se.getThreadCount())
-                .forEach(System.out::println);
+        Stream<AppServer> appServerStream = appService.getAppServer()
+                .map(Arrays::asList).orElse(Collections.<AppServer>emptyList()).stream();
+        printSubscriberExecutionSpecs(appServerStream);
         System.out.println("Tasks : ");
         System.out.println("==========");
         messageHandlerLauncherService.futureReport().entrySet().stream()
@@ -369,6 +364,13 @@ public class AppServiceConsoleService {
         System.out.println("==========");
         messageHandlerLauncherService.threadReport().entrySet().stream()
                 .map(entry -> "\t" + entry.getKey().getDestination() + ' ' + entry.getKey().getSubscriber() + ' ' + String.valueOf(entry.getValue()))
+                .forEach(System.out::println);
+    }
+
+    private void printSubscriberExecutionSpecs(Stream<AppServer> appServerStream) {
+        appServerStream
+                .flatMap(server -> server.getSubscriberExecutionSpecs().stream())
+                .map(se -> "\t" + se.getSubscriberSpec().getDestination().getName() + " " + se.getSubscriberSpec().getName() + " " + se.getThreadCount() + " " + se.isActive())
                 .forEach(System.out::println);
     }
 

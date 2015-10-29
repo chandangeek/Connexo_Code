@@ -61,11 +61,7 @@ import java.util.concurrent.CountDownLatch;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AppServiceImplTest {
@@ -153,6 +149,7 @@ public class AppServiceImplTest {
         when(importFolderForAppServer.getImportFolder()).thenReturn(Optional.of(importFolder));
         when(appServer.isRecurrentTaskActive()).thenReturn(false);
         when(appServer.messagingName()).thenReturn(MESSAGING_NAME);
+        when(appServer.isActive()).thenReturn(true);
         when(messageService.getSubscriberSpec(MESSAGING_NAME, MESSAGING_NAME)).thenReturn(Optional.empty());
         when(messageService.getSubscriberSpec("AllServers", MESSAGING_NAME)).thenReturn(Optional.empty());
         when(userService.findUser("batch executor")).thenReturn(Optional.of(batchUser));
@@ -164,6 +161,10 @@ public class AppServiceImplTest {
         when(thesaurus.getFormat(any(MessageSeed.class))).thenReturn(format);
         when(appServerFactory.getOptional(any())).thenReturn(Optional.<AppServer>empty());
         when(appServer.getName()).thenReturn("TEST_APP_SERVER");
+        when(schedule1.isActive()).thenReturn(true);
+        when(schedule2.isActive()).thenReturn(true);
+        when(schedule1.isObsolete()).thenReturn(false);
+        when(schedule2.isObsolete()).thenReturn(false);
         setupBlockingCancellableSubscriberSpec();
         setupFakeTransactionService();
 
@@ -359,12 +360,9 @@ public class AppServiceImplTest {
         Bundle mainBundle = mock(Bundle.class);
         when(context.getBundle(0)).thenReturn(mainBundle);
         final CountDownLatch stopLatch = new CountDownLatch(1);
-        doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(InvocationOnMock invocationOnMock) throws Throwable {
-                stopLatch.countDown();
-                return null;
-            }
+        doAnswer(invocationOnMock -> {
+            stopLatch.countDown();
+            return null;
         }).when(mainBundle).stop();
 
         try {
