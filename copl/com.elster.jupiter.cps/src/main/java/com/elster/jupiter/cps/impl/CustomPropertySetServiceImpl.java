@@ -119,10 +119,10 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
         resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
-                "customPropertySet.customPropertySets", "customPropertySet.customPropertySets.description",
+                Privileges.RESOURCE_CUSTOM_PROPERTIES.getKey(), Privileges.RESOURCE_CUSTOM_PROPERTIES_DESCRIPTION.getKey(),
                 Arrays.asList(Privileges.Constants.ADMINISTER_PRIVILEGES, Privileges.Constants.VIEW_PRIVILEGES)));
         resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
-                "customPropertySet.customPropertyPrivileges", "customPropertySet.customPropertyPrivileges.description",
+                Privileges.RESOURCE_CUSTOM_PRIVILEGES.getKey(), Privileges.RESOURCE_CUSTOM_PRIVILEGES_DESCRIPTION.getKey(),
                 Arrays.asList(
                         Privileges.Constants.VIEW_CUSTOM_PROPERTIES_1, Privileges.Constants.VIEW_CUSTOM_PROPERTIES_2,
                         Privileges.Constants.VIEW_CUSTOM_PROPERTIES_3, Privileges.Constants.VIEW_CUSTOM_PROPERTIES_4,
