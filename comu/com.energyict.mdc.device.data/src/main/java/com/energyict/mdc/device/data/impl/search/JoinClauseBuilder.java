@@ -64,6 +64,10 @@ public interface JoinClauseBuilder {
 
     JoinClauseBuilder addLoadProfileType();
 
+    JoinClauseBuilder addComTaskEnablement();
+
+    JoinClauseBuilder addComTask();
+
     JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass);
 
     class Aliases {
@@ -77,5 +81,7 @@ public interface JoinClauseBuilder {
         public static final String DEVICE_LOADPROFILE = "dev_lp";
         public static final String LOADPROFILE_SPEC = "lp_spec";
         public static final String LOADPROFILE_TYPE = "lp_type";
+        public static final String COM_TASK_ENABLEMENT = "cten";
+        public static final String COM_TASK = "ctsk";
     }
 }

@@ -121,6 +121,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private volatile SecurityPropertyService securityPropertyService;
     private volatile QueryService queryService;
     private volatile MeteringGroupsService meteringGroupsService;
+    private volatile TaskService mdcTaskService;
 
     private ServerConnectionTaskService connectionTaskService;
     private ServerCommunicationTaskService communicationTaskService;
@@ -149,7 +150,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                                       MeteringService meteringService, ValidationService validationService, EstimationService estimationService,
                                       SchedulingService schedulingService, MessageService messageService,
                                       SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
-                                      QueryService queryService) {
+                                      QueryService queryService, TaskService mdcTaskService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -174,6 +175,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         this.setMeteringGroupsService(meteringGroupsService);
         this.setQueryService(queryService);
+        this.setMdcTaskService(mdcTaskService);
         this.activate(bundleContext);
         if (!this.dataModel.isInstalled()) {
             this.install(true);
@@ -395,6 +397,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.taskService = taskService;
     }
 
+    @Reference
+    public void setMdcTaskService(TaskService taskService) {
+        this.mdcTaskService = taskService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -434,6 +441,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 bind(DataCollectionKpiService.class).toInstance(dataCollectionKpiService);
                 bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                 bind(BatchService.class).toInstance(batchService);
+                bind(TaskService.class).toInstance(mdcTaskService);
             }
         };
     }

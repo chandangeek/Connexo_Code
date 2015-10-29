@@ -246,6 +246,19 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
     }
 
     @Override
+    public JoinClauseBuilder addComTaskEnablement() {
+        this.joins.add(Joins.ComTaskEnablement);
+        return this;
+    }
+
+    @Override
+    public JoinClauseBuilder addComTask() {
+        this.joins.add(Joins.ComTaskEnablement);
+        this.joins.add(Joins.ComTask);
+        return this;
+    }
+
+    @Override
     public JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass) {
         this.joins.add(new ConnectionTypePropertyJoinType(connectionTypePluggableClass));
         return this;
@@ -489,6 +502,32 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
                 sqlBuilder.append(".id = ");
                 sqlBuilder.append(Aliases.LOADPROFILE_SPEC);
                 sqlBuilder.append(".LOADPROFILETYPEID ");
+            }
+        },
+
+        ComTaskEnablement{
+            @Override
+            public void appendTo(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" join DTC_COMTASKENABLEMENT ");
+                sqlBuilder.append(Aliases.COM_TASK_ENABLEMENT);
+                sqlBuilder.append(" on ");
+                sqlBuilder.append(Aliases.COM_TASK_ENABLEMENT);
+                sqlBuilder.append(".DEVICECOMCONFIG = ");
+                sqlBuilder.append(Aliases.DEVICE);
+                sqlBuilder.append(".DEVICECONFIGID ");
+            }
+        },
+
+        ComTask{
+            @Override
+            public void appendTo(SqlBuilder sqlBuilder) {
+                sqlBuilder.append(" join CTS_COMTASK ");
+                sqlBuilder.append(Aliases.COM_TASK);
+                sqlBuilder.append(" on ");
+                sqlBuilder.append(Aliases.COM_TASK);
+                sqlBuilder.append(".ID = ");
+                sqlBuilder.append(Aliases.COM_TASK_ENABLEMENT);
+                sqlBuilder.append(".COMTASK ");
             }
         },
 

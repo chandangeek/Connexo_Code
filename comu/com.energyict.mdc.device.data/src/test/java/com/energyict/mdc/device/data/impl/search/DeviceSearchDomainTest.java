@@ -28,6 +28,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.tasks.TaskService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -49,6 +50,7 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -89,6 +91,8 @@ public class DeviceSearchDomainTest {
     private SchedulingService schedulingService;
     @Mock
     private MeteringService meteringService;
+    @Mock
+    private TaskService taskService;
 
     private Injector injector;
 
@@ -128,6 +132,7 @@ public class DeviceSearchDomainTest {
         mockChannelPropertySpecs();
         mockLogbookPropertySpecs();
         mockLoadProfilePropertySpecs();
+        mockComTasks();
     }
 
     @Test
@@ -187,6 +192,7 @@ public class DeviceSearchDomainTest {
         verify(this.dataModel).getInstance(LogbookNameSearchableProperty.class);
         verify(this.dataModel).getInstance(LogbookObisCodeSearchableProperty.class);
         verify(this.dataModel).getInstance(LoadProfileNameSearchableProperty.class);
+        verify(this.dataModel).getInstance(ComTaskNameSearchableProperty.class);
     }
 
     @Test
@@ -999,6 +1005,20 @@ public class DeviceSearchDomainTest {
                 Matchers.<StringFactory>anyObject())).thenReturn(nameSpec);
     }
 
+    private void mockComTasks() {
+        Finder taskFinder = mock(Finder.class);
+        when(taskService.findAllComTasks()).thenReturn(taskFinder);
+        when(taskFinder.paged(anyInt(), anyInt())).thenReturn(taskFinder);
+        when(taskFinder.find()).thenReturn(Collections.emptyList());
+        PropertySpec nameSpec = mock(PropertySpec.class);
+        when(nameSpec.getName()).thenReturn(ComTaskNameSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.referencePropertySpec(
+                eq(ComTaskNameSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                eq(FactoryIds.COMTASK),
+                anyList())).thenReturn(nameSpec);
+    }
+
     @Test
     public void getPropertiesWithDeviceConfigurationConstrictionsWithTheSamePluggableClassDoesNotCreateDuplicateConnectionTypeProperties() {
         PropertySpec deviceTypePropertySpec = mock(PropertySpec.class);
@@ -1099,6 +1119,7 @@ public class DeviceSearchDomainTest {
                 bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                 bind(SchedulingService.class).toInstance(schedulingService);
                 bind(MeteringService.class).toInstance(meteringService);
+                bind(TaskService.class).toInstance(taskService);
             }
         };
     }

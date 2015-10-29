@@ -48,6 +48,8 @@ public enum PropertyTranslationKeys implements TranslationKey {
     LOGBOOK_OBISCODE("device.logbook.obiscode", "OBIS code"),
     LOADPROFILE("device.loadprofile", "Load profile"),
     LOADPROFILE_NAME("device.loadprofile.name", "Name"),
+    COMTASK("device.comtask", "Communication task"),
+    COMTASK_NAME("device.comtask.name", "Name"),
     ;
 
     private String key;
