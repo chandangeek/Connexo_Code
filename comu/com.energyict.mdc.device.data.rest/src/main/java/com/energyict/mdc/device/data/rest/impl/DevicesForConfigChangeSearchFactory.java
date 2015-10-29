@@ -8,13 +8,10 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DevicesForConfigChangeSearch;
 
 import javax.inject.Inject;
-import java.io.Serializable;
 import java.util.Optional;
 
 /**
- * Copyrights EnergyICT
- * Date: 22.10.15
- * Time: 11:29
+ * Factory which allows easy creation of a DevicesForConfigChangeSearch object based on a JsonQueryFilter
  */
 public class DevicesForConfigChangeSearchFactory {
 
@@ -33,7 +30,7 @@ public class DevicesForConfigChangeSearchFactory {
                     filter(p -> filter.hasProperty(p.getName())).
                     forEach(searchableProperty -> {
                         if (searchableProperty.getSelectionMode() == SearchableProperty.SelectionMode.MULTI) {
-                            devicesForConfigChangeSearch.searchItems.add(new DevicesForConfigChangeSearch.DeviceSearchItem(searchableProperty.getName(), DevicesForConfigChangeSearch.Operator.IN, (Serializable) filter.getStringList(searchableProperty.getName())));
+                            devicesForConfigChangeSearch.searchItems.add(new DevicesForConfigChangeSearch.DeviceSearchItem(searchableProperty.getName(), DevicesForConfigChangeSearch.Operator.IN, filter.getStringList(searchableProperty.getName())));
                         } else if (searchableProperty.getSpecification().getValueFactory().getValueType().equals(String.class)) {
                             devicesForConfigChangeSearch.searchItems.add(new DevicesForConfigChangeSearch.DeviceSearchItem(searchableProperty.getName(), DevicesForConfigChangeSearch.Operator.LIKE, filter.getString(searchableProperty.getName())));
                         } else {
