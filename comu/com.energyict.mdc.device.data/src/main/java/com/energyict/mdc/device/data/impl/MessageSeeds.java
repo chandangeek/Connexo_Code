@@ -118,6 +118,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_DESTINATION_SPEC_FOUND(2088, Keys.NO_DESTINATION_SPEC_FOUND, "No destination spec found for : {0}"),
     NO_DEVICE_CONFIG_CHANGE_BUSINESS_LOCK_FOUND(2089, Keys.NO_DEVICE_CONFIG_CHANGE_BUSINESS_LOCK_FOUND, "No device config change business lock found for id {0}"),
     NO_DEVICE_FOUND_FOR_MRID(2090, Keys.NO_DEVICE_FOUND_FOR_MRID, "No device found for mrid {0}"),
+    INCORRECT_DEVICE_VERSION(2091, Keys.INCORRECT_DEVICE_VERSION, "No device found for id {0} and version {1}"),
     ;
 
     private final int number;
@@ -265,5 +266,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String NO_DESTINATION_SPEC_FOUND = "device.noDestinationSpecFound";
         public static final String NO_DEVICE_CONFIG_CHANGE_BUSINESS_LOCK_FOUND = "device.configchage.noBusinessLock";
         public static final String NO_DEVICE_FOUND_FOR_MRID = "no.device.found.mrid";
+        public static final String INCORRECT_DEVICE_VERSION = "incorrect.device.version";
     }
 }

@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
@@ -52,10 +53,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -254,21 +252,22 @@ public class DeviceServiceImpl implements ServerDeviceService {
     }
 
     @Override
-    public Device changeDeviceConfigurationForSingleDevice(Device device, long destinationDeviceConfigId, long destinationDeviceConfigVersion) {
-        final DeviceConfigChangeRequestImpl configChangeRequest = deviceDataModelService.getTransactionService().execute(() -> {
+    public Device changeDeviceConfigurationForSingleDevice(long deviceId, long deviceVersion, long destinationDeviceConfigId, long destinationDeviceConfigVersion) {
+        Pair<Device, DeviceConfigChangeRequestImpl> lockResult = deviceDataModelService.getTransactionService().execute(() -> {
+            Device device = findAndLockDeviceByIdAndVersion(deviceId, deviceVersion).orElseThrow(DeviceConfigurationChangeException.noDeviceFoundForVersion(thesaurus, deviceId, deviceVersion));
             final DeviceConfiguration deviceConfiguration = deviceDataModelService.deviceConfigurationService()
                     .findAndLockDeviceConfigurationByIdAndVersion(destinationDeviceConfigId, destinationDeviceConfigVersion)
-                    .orElseThrow(() -> DeviceConfigurationChangeException.noDestinationConfigFoundForVersion(thesaurus, destinationDeviceConfigId, destinationDeviceConfigVersion));
+                    .orElseThrow(DeviceConfigurationChangeException.noDestinationConfigFoundForVersion(thesaurus, destinationDeviceConfigId, destinationDeviceConfigVersion));
             final DeviceConfigChangeRequestImpl deviceConfigChangeRequest = deviceDataModelService.dataModel().getInstance(DeviceConfigChangeRequestImpl.class).init(deviceConfiguration);
             deviceConfigChangeRequest.save();
-            return deviceConfigChangeRequest;
+            return Pair.of(device, deviceConfigChangeRequest);
         });
 
         Device modifiedDevice = null;
         try {
-            modifiedDevice = deviceDataModelService.getTransactionService().execute(() -> DeviceConfigChangeExecutor.getInstance().execute((DeviceImpl) device, deviceDataModelService.deviceConfigurationService().findDeviceConfiguration(destinationDeviceConfigId).get()));
+            modifiedDevice = deviceDataModelService.getTransactionService().execute(() -> DeviceConfigChangeExecutor.getInstance().execute((DeviceImpl) lockResult.getFirst(), deviceDataModelService.deviceConfigurationService().findDeviceConfiguration(destinationDeviceConfigId).get()));
         } finally {
-            deviceDataModelService.getTransactionService().execute(VoidTransaction.of(configChangeRequest::remove));
+            deviceDataModelService.getTransactionService().execute(VoidTransaction.of(lockResult.getLast()::remove));
         }
         return modifiedDevice;
     }

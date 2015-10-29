@@ -46,6 +46,13 @@ public class DeviceConfigurationChangeException extends LocalizedException imple
         return deviceConfigurationChangeException;
     }
 
+    public static DeviceConfigurationChangeException noDeviceFoundForVersion(Thesaurus thesaurus, long deviceId, long deviceVersion) {
+        DeviceConfigurationChangeException deviceConfigurationChangeException = new DeviceConfigurationChangeException(thesaurus, MessageSeeds.INCORRECT_DEVICE_VERSION, deviceId, deviceVersion);
+        deviceConfigurationChangeException.set("deviceId", deviceId);
+        deviceConfigurationChangeException.set("deviceVersion", deviceVersion);
+        return deviceConfigurationChangeException;
+    }
+
     @Override
     public DeviceConfigurationChangeException get() {
         return this;

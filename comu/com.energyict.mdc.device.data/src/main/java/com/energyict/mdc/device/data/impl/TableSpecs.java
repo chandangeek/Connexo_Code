@@ -677,7 +677,7 @@ public enum TableSpecs {
         }
     },
 
-    DDC_DEVICECONFIGCHANGEINACTION {
+    DDC_CONFIGCHANGEINACTION {
         @Override
         void addTo(DataModel dataModel) {
             final Table<DeviceConfigChangeInAction> table = dataModel.addTable(name(), DeviceConfigChangeInAction.class);

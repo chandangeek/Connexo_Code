@@ -122,11 +122,12 @@ public interface DeviceService {
      * of this method. Multiple transactions are required to perform Business Locks.
      *
      * @param device                         the Device(s) to change their configuration
+     * @param deviceId
+     *@param deviceVersion
      * @param destinationDeviceConfigId      the ID fo the DestinationDeviceConfig
-     * @param destinationDeviceConfigVersion the version to check
-     * @return the given device with the new configuration applied
+     * @param destinationDeviceConfigVersion the version to check   @return the given device with the new configuration applied
      */
-    public Device changeDeviceConfigurationForSingleDevice(Device device, long destinationDeviceConfigId, long destinationDeviceConfigVersion);
+    public Device changeDeviceConfigurationForSingleDevice(long deviceId, long deviceVersion, long destinationDeviceConfigId, long destinationDeviceConfigVersion);
 
     /**
      * Change the DeviceConfiguration for the given set of Devices to the provided destinationDeviceConfiguration.

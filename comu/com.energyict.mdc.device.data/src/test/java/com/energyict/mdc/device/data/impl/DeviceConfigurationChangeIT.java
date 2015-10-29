@@ -204,7 +204,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             context.commit();
         }
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
     }
@@ -222,7 +222,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             context.commit();
         }
         try {
-            Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, firstDeviceConfiguration.getId(), firstDeviceConfiguration.getVersion());
+            Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , firstDeviceConfiguration.getId(), firstDeviceConfiguration.getVersion());
         } catch (DeviceConfigurationChangeException e) {
             if (!e.getMessageSeed().equals(MessageSeeds.CANNOT_CHANGE_DEVICE_CONFIG_TO_SAME_CONFIG)) {
                 fail("Should have gotten an exception indicating that you can not change the config to the same config");
@@ -244,7 +244,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             context.commit();
         }
         try {
-            Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, firstDeviceConfiguration.getId(), firstDeviceConfiguration.getVersion());
+            Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , firstDeviceConfiguration.getId(), firstDeviceConfiguration.getVersion());
         } catch (DeviceConfigurationChangeException e) {
             // we expect this :)
         }
@@ -268,7 +268,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             context.commit();
         }
         try {
-            Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, configOfOtherDeviceType.getId(), configOfOtherDeviceType.getVersion());
+            Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , configOfOtherDeviceType.getId(), configOfOtherDeviceType.getVersion());
         } catch (DeviceConfigurationChangeException e) {
             if (!e.getMessageSeed().equals(MessageSeeds.CANNOT_CHANGE_DEVICE_CONFIG_TO_OTHER_DEVICE_TYPE)) {
                 e.printStackTrace();
@@ -297,7 +297,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
 
         Instant instant = freezeClock(2015, 9, 18, 11, 30, 0, 0);
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
         assertThat(modifiedDevice.getCurrentMeterActivation().get().getStart()).isEqualTo(instant);
         assertThat(modifiedDevice.getMeterActivationsMostRecentFirst()).hasSize(2);
     }
@@ -323,7 +323,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             context.commit();
         }
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
         assertThat(modifiedDevice.getRegisters()).hasSize(1);
@@ -353,7 +353,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             context.commit();
         }
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         // registerType1 will NOT exist anymore on the device
 
@@ -385,7 +385,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             context.commit();
         }
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
         assertThat(modifiedDevice.getRegisters()).hasSize(2);
@@ -427,7 +427,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             context.commit();
         }
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
         assertThat(modifiedDevice.getRegisters()).hasSize(1);
@@ -465,7 +465,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             context.commit();
         }
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
         assertThat(modifiedDevice.getLoadProfiles()).hasSize(1);
@@ -503,7 +503,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             context.commit();
         }
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
         assertThat(modifiedDevice.getLoadProfiles()).hasSize(1);
@@ -546,7 +546,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             context.commit();
         }
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
         assertThat(modifiedDevice.getLogBooks()).hasSize(1);
@@ -575,7 +575,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             context.commit();
         }
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
         assertThat(modifiedDevice.getLogBooks()).hasSize(1);
@@ -603,7 +603,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             device.save();
             context.commit();
         }
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
     }
 
     @Test
@@ -632,7 +632,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
 
             context.commit();
         }
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
         assertThat(modifiedDevice.getConnectionTasks().get(0).getPartialConnectionTask().getId()).isEqualTo(mySecondConnectionTask.getId());
@@ -661,7 +661,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
 
             context.commit();
         }
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
         assertThat(modifiedDevice.getConnectionTasks()).isEmpty();
@@ -691,7 +691,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
 
             context.commit();
         }
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
         assertThat(modifiedDevice.getConnectionTasks().get(0).getPartialConnectionTask().getId()).isEqualTo(mySecondConnectionTask.getId());
@@ -728,7 +728,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
                     .add();
             context.commit();
         }
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
         assertThat(modifiedDevice.getConnectionTasks().get(0).getPartialConnectionTask().getId()).isEqualTo(mySecondConnectionTask.getId());
@@ -757,7 +757,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             device.save();
             context.commit();
         }
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
     }
 
     @Test
@@ -786,7 +786,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             device.setSecurityProperties(firstSecurityPropertySet, securityProperties);
             context.commit();
         }
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         try (TransactionContext context = getTransactionService().getContext()) {
             assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
@@ -823,7 +823,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             device.setSecurityProperties(firstSecurityPropertySet, securityProperties);
             context.commit();
         }
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         try (TransactionContext context = getTransactionService().getContext()) {
             assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
@@ -860,7 +860,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             device.setSecurityProperties(firstSecurityPropertySet, securityProperties);
             context.commit();
         }
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         try (TransactionContext context = getTransactionService().getContext()) {
             assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
@@ -898,8 +898,8 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
 
         assertThat(device.getComTaskExecutions()).hasSize(1);
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
-        assertThat(device.getComTaskExecutions()).isEmpty();
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+        assertThat(modifiedDevice.getComTaskExecutions()).isEmpty();
     }
 
     @Test
@@ -935,8 +935,8 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
 
         assertThat(device.getComTaskExecutions()).hasSize(1);
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
-        assertThat(device.getComTaskExecutions()).isEmpty();
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+        assertThat(modifiedDevice.getComTaskExecutions()).isEmpty();
     }
 
     @Test
@@ -960,12 +960,15 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             context.commit();
         }
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
-        assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
-        final ProtocolDialectProperties protocolDialectProperties1 = modifiedDevice.getProtocolDialectProperties(ProtocolDialectPropertiesImplIT.DIALECT_1_NAME).get();
-        assertThat(protocolDialectProperties1.getTypedProperties().getProperty(ProtocolDialectPropertiesImplIT.REQUIRED_PROPERTY_NAME_D1)).isEqualTo(myPropertyValue);
-        assertThat(protocolDialectProperties1.getProtocolDialectConfigurationProperties().getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
+        try (TransactionContext context = getTransactionService().getContext()) {
+            assertThat(modifiedDevice.getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
+            final ProtocolDialectProperties protocolDialectProperties1 = modifiedDevice.getProtocolDialectProperties(ProtocolDialectPropertiesImplIT.DIALECT_1_NAME).get();
+            assertThat(protocolDialectProperties1.getTypedProperties().getProperty(ProtocolDialectPropertiesImplIT.REQUIRED_PROPERTY_NAME_D1)).isEqualTo(myPropertyValue);
+            assertThat(protocolDialectProperties1.getProtocolDialectConfigurationProperties().getDeviceConfiguration().getId()).isEqualTo(secondDeviceConfiguration.getId());
+            context.commit();
+        }
     }
 
     @Test
@@ -989,7 +992,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             context.commit();
         }
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
         assertThat(modifiedDevice.getDeviceProtocolProperties().getProperty(propertyName)).isNull();
     }
 
@@ -1013,7 +1016,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             context.commit();
         }
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
         assertThat(modifiedDevice.getDeviceProtocolProperties().getProperty(propertyName)).isEqualTo(deviceValue);
     }
 
@@ -1040,7 +1043,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             context.commit();
         }
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
         assertThat(modifiedDevice.getDeviceProtocolProperties().getProperty(propertyName)).isEqualTo(deviceValue);
 
         try (TransactionContext context = getTransactionService().getContext()) {
@@ -1075,7 +1078,7 @@ public class DeviceConfigurationChangeIT extends PersistenceIntegrationTest {
             context.commit();
         }
 
-        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device, secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
+        Device modifiedDevice = inMemoryPersistence.getDeviceService().changeDeviceConfigurationForSingleDevice(device.getId(), device.getVersion() , secondDeviceConfiguration.getId(), secondDeviceConfiguration.getVersion());
 
         boolean ok = false; // keeping track of a boolean because we need to validate that the message was called due to the below method
         try (TransactionContext context = getTransactionService().getContext()) {
