@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.configchange;
 
 import com.elster.jupiter.util.HasId;
+import com.energyict.mdc.device.data.Device;
 
 /**
  * Serves as a Business lock object for the action 'change device config'.
@@ -14,4 +15,11 @@ public interface DeviceConfigChangeRequest extends HasId {
      * Indication for self destruction.
      */
     void remove();
+
+    /**
+     * Adds a device in action
+     *
+     * @param device the device
+     */
+    DeviceConfigChangeInActionImpl addDeviceInAction(Device device);
 }

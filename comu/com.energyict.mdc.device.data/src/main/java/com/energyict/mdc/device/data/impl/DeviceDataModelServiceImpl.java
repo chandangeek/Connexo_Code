@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.TranslationKeys;
@@ -123,6 +124,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private volatile QueryService queryService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile TransactionService transactionService;
+    private volatile JsonService jsonService;
 
     private ServerConnectionTaskService connectionTaskService;
     private ServerCommunicationTaskService communicationTaskService;
@@ -151,7 +153,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                                       MeteringService meteringService, ValidationService validationService, EstimationService estimationService,
                                       SchedulingService schedulingService, MessageService messageService,
                                       SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
-                                      QueryService queryService, TransactionService transactionService) {
+                                      QueryService queryService, TransactionService transactionService, JsonService jsonService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -177,6 +179,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.setMeteringGroupsService(meteringGroupsService);
         this.setQueryService(queryService);
         this.setTransactionService(transactionService);
+        this.setJsonService(jsonService);
         this.activate(bundleContext);
         if (!this.dataModel.isInstalled()) {
             this.install(true);
@@ -384,6 +387,21 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     }
 
     @Override
+    public MessageService messageService() {
+        return this.messagingService;
+    }
+
+    @Reference
+    public void setJsonService(JsonService jsonService){
+        this.jsonService = jsonService;
+    }
+
+    @Override
+    public JsonService jsonService() {
+        return jsonService;
+    }
+
+    @Override
     public KpiService kpiService() {
         return kpiService;
     }
@@ -448,6 +466,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                 bind(BatchService.class).toInstance(batchService);
                 bind(TransactionService.class).toInstance(transactionService);
+                bind(JsonService.class).toInstance(jsonService);
             }
         };
     }

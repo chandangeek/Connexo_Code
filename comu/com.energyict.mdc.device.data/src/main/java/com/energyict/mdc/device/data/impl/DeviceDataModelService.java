@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
@@ -57,6 +59,10 @@ public interface DeviceDataModelService {
     public DataCollectionKpiService dataCollectionKpiService();
 
     public BatchService batchService();
+
+    public MessageService messageService();
+
+    public JsonService jsonService();
 
     public void executeUpdate(SqlBuilder sqlBuilder);
 

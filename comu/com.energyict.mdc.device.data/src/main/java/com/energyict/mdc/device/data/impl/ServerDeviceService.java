@@ -4,10 +4,14 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInAction;
+import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.properties.PropertySpec;
+
+import java.util.Optional;
 
 /**
  * Adds behavior to {@link DeviceService} that is specific
@@ -60,5 +64,7 @@ public interface ServerDeviceService extends DeviceService, ReferencePropertySpe
      * @return true if there is currently a changeDeviceConfiguration happening for either of the DeviceConfigurations
      */
     public boolean hasActiveDeviceConfigChangesFor(DeviceConfiguration originDeviceConfiguration, DeviceConfiguration destinationDeviceConfiguration);
+
+    public Optional<DeviceConfigChangeRequest> findDeviceConfigChangeRequestById(long id);
 
 }

@@ -19,6 +19,13 @@ import java.util.Optional;
 @ProviderType
 public interface DeviceService {
 
+    public String CONFIG_CHANGE_BULK_QUEUE_DESTINATION = "ConfigChangeBulkQD";
+    public String CONFIG_CHANGE_BULK_QUEUE_SUBSCRIBER = "ConfigChangeBulkQS";
+    public String CONFIG_CHANGE_SINGLE_QUEUE_DESTINATION = "ConfigChangeSingleQD";
+    public String CONFIG_CHANGE_SINGLE_QUEUE_SUBSCRIBER = "ConfigChangeSingleQS";
+    public String FINISHED_SINGLE_DEVICE_CONFIG_CHANGE_DESTINATION = "ConfigChangeDeviceFinishQD";
+    public String FINISHED_SINGLE_DEVICE_CONFIG_CHANGE_SUBSCRIBER = "ConfigChangeDeviceFinishQS";
+
     /**
      * Creates a new Device based on the given name and DeviceConfiguration
      *

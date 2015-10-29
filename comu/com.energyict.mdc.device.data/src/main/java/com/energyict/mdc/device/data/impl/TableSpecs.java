@@ -682,12 +682,12 @@ public enum TableSpecs {
         void addTo(DataModel dataModel) {
             final Table<DeviceConfigChangeInAction> table = dataModel.addTable(name(), DeviceConfigChangeInAction.class);
             table.map(DeviceConfigChangeInActionImpl.class);
+            Column idColumn = table.addAutoIdColumn();
             Column device = table.column("DEVICE").number().notNull().add();
             Column configRequest = table.column("DEVICECONFIGREQUEST").number().notNull().add();
             table.addAuditColumns();
 
-            table.primaryKey("PK_DDC_CONFIGCHANGEINACTION").on(device,configRequest).add();
-
+            table.primaryKey("PK_DDC_CONFIGCHANGEINACTION").on(idColumn).add();
             table.foreignKey("FK_DDC_CONFCHANGACT_DEV").
                     on(device).
                     references(DDC_DEVICE.name()).
@@ -702,6 +702,8 @@ public enum TableSpecs {
                     composition().
                     onDelete(CASCADE).
                     add();
+            table.unique("UK_DDC_CONFIGCHIA_REQ").on(device, configRequest).add();
+
         }
     },
     ;

@@ -1,30 +1,39 @@
 package com.energyict.mdc.device.data;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
  * Defines a serializable search filter for Devices
  */
-public class DevicesForConfigChangeSearch implements Serializable{
+public class DevicesForConfigChangeSearch {
 
     public enum Operator {
         IN,
         LIKE,
-        EQUALS;
+        EQUALS
     }
-    public static class DeviceSearchItem implements Serializable {
+
+    public static class DeviceSearchItem {
 
         public String propertyName;
         public Operator operator;
-        public Serializable data; // string data for serialization
-        public DeviceSearchItem(String propertyName, Operator operator, Serializable data) {
+        public String singleData;
+        public List<String> multipleData;
+
+        public DeviceSearchItem(String propertyName, Operator operator, String data) {
             this.propertyName = propertyName;
             this.operator = operator;
-            this.data = data;
+            this.singleData = data;
+        }
+
+        public DeviceSearchItem(String propertyName, Operator operator, List<String> data) {
+            this.propertyName = propertyName;
+            this.operator = operator;
+            this.multipleData = data;
         }
 
     }
+
     public List<DeviceSearchItem> searchItems;
 
 }

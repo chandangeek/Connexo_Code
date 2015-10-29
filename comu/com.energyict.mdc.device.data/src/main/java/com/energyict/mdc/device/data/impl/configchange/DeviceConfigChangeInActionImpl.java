@@ -34,6 +34,7 @@ public class DeviceConfigChangeInActionImpl implements DeviceConfigChangeInActio
 
     private Reference<Device> device = ValueReference.absent();
     private Reference<DeviceConfigChangeRequest> deviceConfigChangeRequest = ValueReference.absent();
+    private long id;
 
     @SuppressWarnings("unused")
     private String userName;
@@ -58,5 +59,25 @@ public class DeviceConfigChangeInActionImpl implements DeviceConfigChangeInActio
     @Override
     public void remove() {
         this.dataModel.remove(this);
+    }
+
+    @Override
+    public long getId() {
+        return id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DeviceConfigChangeInActionImpl that = (DeviceConfigChangeInActionImpl) o;
+
+        return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) (id ^ (id >>> 32));
     }
 }

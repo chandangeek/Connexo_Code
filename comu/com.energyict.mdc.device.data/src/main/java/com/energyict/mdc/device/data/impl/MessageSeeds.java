@@ -114,6 +114,10 @@ public enum MessageSeeds implements MessageSeed {
     NO_DESTINATION_DEVICE_CONFIG_FOUND_FOR_VERSION(2084, Keys.NO_DESTINATION_DEVICE_CONFIG_FOUND_FOR_VERSION, "No destination device configuration found for id {0} and version {1}"),
     VETO_CONFIG_CHANGE_ACTIVE_NO_NEW_CONFLICTS_ALLOWED(2085, Keys.VETO_CONFIG_CHANGE_ACTIVE_NO_NEW_CONFLICTS_ALLOWED, "There is currently an active configuration change happening, your change would create new conflicts, please wait untill the action has finished."),
     DUPLICATE_COMTASK(2086, Keys.DUPLICATE_COMTASK, "One or more communication tasks in the communication schedule are already scheduled on the device"),
+    INVALID_SEARCH_DOMAIN(2087, Keys.INVALID_SEARCH_DOMAIN, "You are trying to look for an invalid search domain : {0}"),
+    NO_DESTINATION_SPEC_FOUND(2088, Keys.NO_DESTINATION_SPEC_FOUND, "No destination spec found for : {0}"),
+    NO_DEVICE_CONFIG_CHANGE_BUSINESS_LOCK_FOUND(2089, Keys.NO_DEVICE_CONFIG_CHANGE_BUSINESS_LOCK_FOUND, "No device config change business lock found for id {0}"),
+    NO_DEVICE_FOUND_FOR_MRID(2090, Keys.NO_DEVICE_FOUND_FOR_MRID, "No device found for mrid {0}"),
     ;
 
     private final int number;
@@ -257,5 +261,9 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CANNOT_CHANGE_DEVICE_CONFIG_TO_OTHER_DEVICE_TYPE = "cannotChangeToConfigOfOtherDeviceType";
         public static final String NO_DESTINATION_DEVICE_CONFIG_FOUND_FOR_VERSION = "noDestinationDeviceConfigFoundForVersion";
         public static final String VETO_CONFIG_CHANGE_ACTIVE_NO_NEW_CONFLICTS_ALLOWED = "activeConfigChangeNoNewConflictsAllowed";
+        public static final String INVALID_SEARCH_DOMAIN = "device.invalidSearchDomain";
+        public static final String NO_DESTINATION_SPEC_FOUND = "device.noDestinationSpecFound";
+        public static final String NO_DEVICE_CONFIG_CHANGE_BUSINESS_LOCK_FOUND = "device.configchage.noBusinessLock";
+        public static final String NO_DEVICE_FOUND_FOR_MRID = "no.device.found.mrid";
     }
 }

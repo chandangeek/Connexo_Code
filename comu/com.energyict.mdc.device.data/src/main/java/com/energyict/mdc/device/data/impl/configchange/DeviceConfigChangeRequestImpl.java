@@ -5,6 +5,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.data.Device;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -75,6 +76,13 @@ public final class DeviceConfigChangeRequestImpl implements DeviceConfigChangeRe
     @Override
     public void remove() {
         this.dataModel.remove(this);
+    }
+
+    @Override
+    public DeviceConfigChangeInActionImpl addDeviceInAction(Device device) {
+        DeviceConfigChangeInActionImpl deviceConfigChangeInAction = dataModel.getInstance(DeviceConfigChangeInActionImpl.class).init(device, this);
+        this.deviceConfigChangeInActions.add(deviceConfigChangeInAction);
+        return deviceConfigChangeInAction;
     }
 
     @Override

@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
+import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -344,7 +345,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 injector.getInstance(UserService.class),
                                 injector.getInstance(DeviceMessageSpecificationService.class),
                                 injector.getInstance(MeteringGroupsService.class),
-                                mock(QueryService.class), transactionService);
+                                mock(QueryService.class), transactionService, injector.getInstance(JsonService.class));
                 this.dataModel = this.deviceDataModelService.dataModel();
                 ctx.commit();
             }

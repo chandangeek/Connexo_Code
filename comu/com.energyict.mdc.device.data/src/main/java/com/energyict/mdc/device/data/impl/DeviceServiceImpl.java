@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
@@ -19,9 +20,8 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.exceptions.DeviceConfigurationChangeException;
-import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeExecutor;
-import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequest;
-import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeRequestImpl;
+import com.energyict.mdc.device.data.exceptions.NoDestinationSpecFound;
+import com.energyict.mdc.device.data.impl.configchange.*;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceDataServices;
@@ -277,9 +277,10 @@ public class DeviceServiceImpl implements ServerDeviceService {
     public void changeDeviceConfigurationForDevices(DeviceConfiguration destinationDeviceConfiguration, DevicesForConfigChangeSearch devicesForConfigChangeSearch, String... deviceMRIDs) {
         final DeviceConfigChangeRequestImpl deviceConfigChangeRequest = deviceDataModelService.dataModel().getInstance(DeviceConfigChangeRequestImpl.class).init(destinationDeviceConfiguration);
         deviceConfigChangeRequest.save();
-        ItemizeConfigChangeQueueMessage itemizeConfigChangeQueueMessage = new ItemizeConfigChangeQueueMessage(destinationDeviceConfiguration.getId(), Arrays.asList(deviceMRIDs), devicesForConfigChangeSearch);
+        ItemizeConfigChangeQueueMessage itemizeConfigChangeQueueMessage = new ItemizeConfigChangeQueueMessage(destinationDeviceConfiguration.getId(), Arrays.asList(deviceMRIDs), devicesForConfigChangeSearch, deviceConfigChangeRequest.getId());
 
-        //TODO create the destinationSpec and fetch it here to put the message on!
+        DestinationSpec destinationSpec = deviceDataModelService.messageService().getDestinationSpec(DeviceService.CONFIG_CHANGE_BULK_QUEUE_DESTINATION).orElseThrow(new NoDestinationSpecFound(thesaurus, DeviceService.CONFIG_CHANGE_BULK_QUEUE_DESTINATION));
+        destinationSpec.message(deviceDataModelService.jsonService().serialize(itemizeConfigChangeQueueMessage));
     }
 
     @Override
@@ -288,5 +289,10 @@ public class DeviceServiceImpl implements ServerDeviceService {
                 .stream(DeviceConfigChangeRequest.class)
                 .filter(Where.where(DeviceConfigChangeRequestImpl.Fields.DEVICE_CONFIG_REFERENCE.fieldName()).in(Arrays.asList(originDeviceConfiguration, destinationDeviceConfiguration)))
                 .findAny().isPresent();
+    }
+
+    @Override
+    public Optional<DeviceConfigChangeRequest> findDeviceConfigChangeRequestById(long id) {
+        return deviceDataModelService.dataModel().mapper(DeviceConfigChangeRequest.class).getUnique("id", id);
     }
 }
