@@ -166,7 +166,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     
     @Override
     public Optional<MetrologyConfiguration> findMetrologyConfigurationForUsagePoint(UsagePoint up) {
-        Optional<UsagePointMetrologyConfiguration> obj = this.getDataModel().query(UsagePointMetrologyConfiguration.class).getOptional(up.getId());
+        Optional<UsagePointMetrologyConfiguration> obj = this.getDataModel().query(UsagePointMetrologyConfiguration.class).select(where("usagePoint").isEqualTo(up)).stream().findFirst();
         if (!obj.isPresent()) {
             return Optional.empty();
         }
