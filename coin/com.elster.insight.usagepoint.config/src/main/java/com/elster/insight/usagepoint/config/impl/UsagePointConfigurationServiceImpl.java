@@ -152,7 +152,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
 
     @Override
     public UsagePointMetrologyConfiguration link(UsagePoint up, MetrologyConfiguration mc) {
-        Optional<UsagePointMetrologyConfiguration> link = this.getDataModel().query(UsagePointMetrologyConfiguration.class).getOptional(up.getId());
+        Optional<UsagePointMetrologyConfiguration> link = this.getDataModel().query(UsagePointMetrologyConfiguration.class).select(where("usagePoint").isEqualTo(up)).stream().findFirst();
         if (link.isPresent()) {
             link.get().setMetrologyConfiguration(mc);
             link.get().update();           
