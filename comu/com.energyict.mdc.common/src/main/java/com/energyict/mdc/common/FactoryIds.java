@@ -28,7 +28,8 @@ public enum FactoryIds {
     FIRMWAREVERSION(Constants.FIRMWARE_FACTORYID),
     CONNECTION_TYPE(Constants.CONNECTION_TYPE_FACTORYID),
     COMSCHEDULE(Constants.COMSCHEDULE_FACTORYID),
-    SERVICE_CATEGORY(Constants.SERVICE_CATEGORY_FACTORYID)
+    SERVICE_CATEGORY(Constants.SERVICE_CATEGORY_FACTORYID),
+    COMTASK(Constants.COMTASK),
     ;
 
     int id;
@@ -73,5 +74,6 @@ public enum FactoryIds {
         public static final int DEVICE_GROUP_FACTORY_ID = 10002;
         public static final int COMSCHEDULE_FACTORYID = 10003;
         public static final int SERVICE_CATEGORY_FACTORYID = 10004;
+        public static final int COMTASK = 10005;
     }
 }
