@@ -54,6 +54,7 @@ import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.DecoratedStream;
@@ -145,6 +146,11 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Override
     public Optional<ReadingType> getReadingType(String mRid) {
         return dataModel.mapper(ReadingType.class).getOptional(mRid);
+    }
+
+    @Override
+    public List<ReadingType> getReadingTypes(List<String> mRids) {
+       return dataModel.mapper(ReadingType.class).select(Where.where("mRID").in(mRids));
     }
 
     @Override

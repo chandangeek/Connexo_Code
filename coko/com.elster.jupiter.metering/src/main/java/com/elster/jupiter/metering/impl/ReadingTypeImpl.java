@@ -268,6 +268,11 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
         this.description = description;
     }
 
+    @Override
+    public void setAliasName(String aliasName) {
+        this.aliasName = aliasName;
+    }
+
     public void persist() {
         dataModel.mapper(ReadingType.class).persist(this);
 	}

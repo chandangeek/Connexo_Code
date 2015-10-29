@@ -48,6 +48,7 @@ public interface ReadingType extends IdentifiedObject {
     long getVersion();
 
     void setDescription(String description);
+    void setAliasName(String alias);
 
     boolean getActive();
     void activate();

@@ -30,6 +30,8 @@ public interface MeteringService {
 
     Optional<ReadingType> getReadingType(String mRid);
 
+    List<ReadingType> getReadingTypes(List<String> mRids);
+
     Optional<ServiceLocation> findServiceLocation(String mRid);
 
     Optional<ServiceLocation> findServiceLocation(long id);
