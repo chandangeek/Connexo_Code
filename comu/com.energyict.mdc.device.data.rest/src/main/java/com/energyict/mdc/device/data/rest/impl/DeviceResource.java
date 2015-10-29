@@ -1,13 +1,10 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
-import com.elster.jupiter.transaction.CommitException;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
@@ -204,7 +201,7 @@ public class DeviceResource {
         if (device.getDeviceConfiguration().getId() != info.deviceConfigurationId) {
             DeviceConfiguration destinationConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfigurationId)
                     .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_CONFIG));
-            updateDeviceConfig(device, destinationConfiguration);
+            updateDeviceConfig(device, info.version, destinationConfiguration, destinationConfiguration.getVersion());
         } else {
             try (TransactionContext context = transactionService.getContext()) {
                 device = resourceHelper.lockDeviceOrThrowException(info);
@@ -216,10 +213,9 @@ public class DeviceResource {
         return deviceInfoFactory.from(device, getSlaveDevicesForDevice(device));
     }
 
-    public void updateDeviceConfig(Device device, DeviceConfiguration destinationConfiguration) {
+    public void updateDeviceConfig(Device device, long deviceVersion, DeviceConfiguration destinationConfiguration, long deviceConfigurationVersion) {
         try {
-            //TODO change device argument to mrid and version
-            deviceService.changeDeviceConfigurationForSingleDevice(device, destinationConfiguration.getId(), destinationConfiguration.getVersion());
+            deviceService.changeDeviceConfigurationForSingleDevice(device.getId(), deviceVersion, destinationConfiguration.getId(), deviceConfigurationVersion);
         } catch (CannotChangeDeviceConfigStillUnresolvedConflicts e) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.CHANGE_DEVICE_CONFIG_CONFLICT, device.getDeviceType().getDeviceConfigConflictMappings().stream()
                     .filter(conflict -> conflict.getOriginDeviceConfiguration().getId() == device.getDeviceConfiguration().getId()
