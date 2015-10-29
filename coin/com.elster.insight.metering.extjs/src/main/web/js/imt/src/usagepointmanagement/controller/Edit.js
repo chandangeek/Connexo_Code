@@ -6,20 +6,31 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
        'Imt.usagepointmanagement.view.UsagePointEdit'
     ],
     models: [
-             'Imt.usagepointmanagement.model.UsagePoint'
-         ],
+             'Imt.usagepointmanagement.model.UsagePoint',
+             'Imt.metrologyconfiguration.model.MetrologyConfiguration'
+    ],
+    stores: [
+             'Imt.metrologyconfiguration.store.MetrologyConfiguration'
+    ],
     refs: [
            {
                ref: 'usagePointEditPage',
                selector: 'usagePointEdit'
            }
     ],
+    selectedMetrologyConfig: null,
     init: function () {
         this.control({
             'usagePointEdit button[action=saveModel]': {
                 click: this.saveUsagePoint
+            },
+            'usagePointEdit combobox[name=metrologyConfiguration]': {
+                select: this.selectMetrologyConfiguration
             }
         });
+    },
+    selectMetrologyConfiguration: function(combo, record, index) { 
+        this.selectedMetrologyConfig = record[0].data; 
     },
     createUsagePoint: function() {
     	var me = this,
@@ -36,7 +47,9 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         model.load(id, {
             success: function (record) {
                 var form = widget.down('form');
-                me.modelToForm(record, form);
+                if (form) {
+                    me.modelToForm(record, form);
+                }
             },
             callback: function () {
                 widget.setLoading(false);
@@ -76,13 +89,16 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         var data = model.getData(),
             basicForm = form.getForm(),
             values = {};
+        this.selectedMetrologyConfig=data.metrologyConfiguration;
         form.loadRecord(model);
-        
+        values['metrologyConfiguration']=data.metrologyConfiguration.name;
         Ext.Object.each(data, function (key, value) {
             if (Ext.isObject(value)) {
-                Ext.Object.each(value, function (valKey, valValue) {
-                    values[key + valKey.charAt(0).toUpperCase() + valKey.slice(1)] = valValue;
-                });
+                if (value.unit) {
+                    Ext.Object.each(value, function (valKey, valValue) {
+                        values[key + valKey.charAt(0).toUpperCase() + valKey.slice(1)] = valValue;
+                    });
+                } 
             }
         });
 
@@ -102,9 +118,16 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         model.set('ratedCurrent', me.buildQuantity(values['ratedCurrentValue'], 'A', 0));
         model.set('ratedPower', me.buildQuantity(values['ratedPowerValue'], 'W', 3));
         model.set('estimatedLoad', me.buildQuantity(values['estimatedLoadValue'], values['estimatedLoadUnit'], 3));
+        model.set('metrologyConfiguration', me.buildMC(this.selectedMetrologyConfig));
         model.endEdit();
 
         return model;
+    },
+    buildMC: function(mc) {
+       var o = Object();
+       o.id=mc.id;
+       o.name=mc.name;
+       return o;
     },
     buildQuantity: function(value, unit, mult) {
     	var o = Object();

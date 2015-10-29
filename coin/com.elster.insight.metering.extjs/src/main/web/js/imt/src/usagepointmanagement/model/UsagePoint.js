@@ -19,8 +19,8 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         {name: 'isSdp', type: 'boolean'},
         {name: 'isVirtual', type: 'boolean'},
         {name: 'minimalUsageExpected', type: 'boolean'},
-        {name: 'ratedCurrent', type: 'auto'},
         {name: 'version', type: 'number', useNull: true},
+        {name: 'metrologyConfiguration', type: 'auto'},
         //For ELECTRICITY
         {name: 'nominalServiceVoltage', type: 'auto'},
         {name: 'ratedCurrent', type: 'auto'},
@@ -76,8 +76,7 @@ Ext.define('Imt.usagepointmanagement.model.UsagePoint', {
         url: '/api/udr/usagepoints/',
         timeout: 240000,
         reader: {
-            type: 'json',
-            root: 'usagePoints'
+            type: 'json'
         }
     }
 });

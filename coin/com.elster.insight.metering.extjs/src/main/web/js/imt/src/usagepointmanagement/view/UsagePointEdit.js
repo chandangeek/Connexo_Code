@@ -66,7 +66,7 @@ var amiBillingReadyKinds = Ext.create('Ext.data.Store', {
 	    	{'value':'NONMETERED', 'localizedValue':'NONMETERED'}
 	]
 });
-	
+
 Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.usagePointEdit',
@@ -218,6 +218,18 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                     editable: false,
                     displayField: 'localizedValue',
                     valueField: 'value',
+                    allowBlank: true,
+                    required: false,
+                    labelWidth: 250,
+                    width: 600
+                },
+                {
+                    xtype: 'combobox',
+                    name: 'metrologyConfiguration',
+                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.metrologyConfiguration', 'IMT', 'Metrology Configuration'),
+                    store: 'Imt.metrologyconfiguration.store.MetrologyConfiguration',
+                    displayField: 'name',
+                    valueField: 'id',
                     allowBlank: true,
                     required: false,
                     labelWidth: 250,
