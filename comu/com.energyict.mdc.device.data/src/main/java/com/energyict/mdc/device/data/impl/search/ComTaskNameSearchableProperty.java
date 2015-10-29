@@ -7,6 +7,7 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -54,12 +55,17 @@ public class ComTaskNameSearchableProperty extends AbstractSearchableDevicePrope
 
     @Override
     public void appendJoinClauses(JoinClauseBuilder builder) {
-        builder.addComTask();
     }
 
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
-        return toSqlFragment(JoinClauseBuilder.Aliases.COM_TASK + ".id", condition, now);
+        SqlBuilder sqlBuilder = new SqlBuilder();
+        sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE + ".DEVICECONFIGID IN ");
+        sqlBuilder.openBracket();
+        sqlBuilder.append("select DEVICECOMCONFIG from DTC_COMTASKENABLEMENT cenabl join CTS_COMTASK comtask on comtask.ID = cenabl.COMTASK where ");
+        sqlBuilder.add(toSqlFragment("comtask.ID", condition, now));
+        sqlBuilder.closeBracket();
+        return sqlBuilder;
     }
 
     @Override
