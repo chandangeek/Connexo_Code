@@ -100,14 +100,30 @@ public class DestinationSpecResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{destinationSpecName}")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
-    public Response updateAppServer(@PathParam("destinationSpecName") String destinationSpecName, DestinationSpecInfo info) {
+    public Response updateDestinationSpec(@PathParam("destinationSpecName") String destinationSpecName, DestinationSpecInfo info, @QueryParam("purgeErrors") boolean purgeErrors) {
+        if (purgeErrors) {
+            return doPurgeErrors(destinationSpecName);
+        }
+        return doUpdateDestinationSpec(destinationSpecName, info);
+    }
+
+    private Response doPurgeErrors(String destinationSpecName) {
+        DestinationSpec destinationSpec = fetchDestinationSpec(destinationSpecName);
+        try (TransactionContext context = transactionService.getContext()) {
+            destinationSpec.purgeErrors();
+            context.commit();
+        }
+        return Response.status(Response.Status.OK).entity(DestinationSpecInfo.from(destinationSpec)).build();
+    }
+
+    private Response doUpdateDestinationSpec(@PathParam("destinationSpecName") String destinationSpecName, DestinationSpecInfo info) {
         DestinationSpec destinationSpec = null;
         try (TransactionContext context = transactionService.getContext()) {
             destinationSpec = lockDestinationSpec(destinationSpecName, info.version);
             destinationSpec.updateRetryBehavior(info.numberOfRetries, Duration.ofSeconds(info.retryDelayInSeconds));
             context.commit();
         }
-        return Response.status(Response.Status.CREATED).entity(DestinationSpecInfo.from(destinationSpec)).build();
+        return Response.status(Response.Status.OK).entity(DestinationSpecInfo.from(destinationSpec)).build();
     }
 
 }
