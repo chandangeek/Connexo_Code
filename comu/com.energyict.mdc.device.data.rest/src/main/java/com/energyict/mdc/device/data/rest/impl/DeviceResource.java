@@ -201,7 +201,7 @@ public class DeviceResource {
         if (device.getDeviceConfiguration().getId() != info.deviceConfigurationId) {
             DeviceConfiguration destinationConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfigurationId)
                     .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_CONFIG));
-            updateDeviceConfig(device, info.version, destinationConfiguration, destinationConfiguration.getVersion());
+            device = updateDeviceConfig(device, info.version, destinationConfiguration, destinationConfiguration.getVersion());
         } else {
             try (TransactionContext context = transactionService.getContext()) {
                 device = resourceHelper.lockDeviceOrThrowException(info);
@@ -213,13 +213,13 @@ public class DeviceResource {
         return deviceInfoFactory.from(device, getSlaveDevicesForDevice(device));
     }
 
-    public void updateDeviceConfig(Device device, long deviceVersion, DeviceConfiguration destinationConfiguration, long deviceConfigurationVersion) {
+    public Device updateDeviceConfig(Device device, long deviceVersion, DeviceConfiguration destinationConfiguration, long deviceConfigurationVersion) {
         try {
-            deviceService.changeDeviceConfigurationForSingleDevice(device.getId(), deviceVersion, destinationConfiguration.getId(), deviceConfigurationVersion);
+            return deviceService.changeDeviceConfigurationForSingleDevice(device.getId(), deviceVersion, destinationConfiguration.getId(), deviceConfigurationVersion);
         } catch (CannotChangeDeviceConfigStillUnresolvedConflicts e) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.CHANGE_DEVICE_CONFIG_CONFLICT, device.getDeviceType().getDeviceConfigConflictMappings().stream()
                     .filter(conflict -> conflict.getOriginDeviceConfiguration().getId() == device.getDeviceConfiguration().getId()
-                            && conflict.getDestinationDeviceConfiguration().getId() == destinationConfiguration.getId()).findFirst().orElseThrow(() -> e));
+                            && conflict.getDestinationDeviceConfiguration().getId() == destinationConfiguration.getId()).findFirst().orElseThrow(() -> e).getId());
         }
     }
 
