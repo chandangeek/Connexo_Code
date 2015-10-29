@@ -5,7 +5,9 @@ Ext.define('Mdc.view.setup.deviceattributes.Setup', {
 
     requires: [
         'Mdc.view.setup.device.DeviceMenu',
-        'Mdc.view.setup.device.DeviceAttributesForm'
+        'Mdc.view.setup.device.DeviceAttributesForm',
+        'Mdc.customattributesonvaluesobjects.view.AttributeSetsPlaceholderForm',
+        'Mdc.view.setup.deviceattributes.DeviceAttributesActionMenu'
     ],
 
 
@@ -34,19 +36,44 @@ Ext.define('Mdc.view.setup.deviceattributes.Setup', {
                 tools: [
                     {
                         xtype: 'button',
-                        itemId: 'deviceDeviceAttributesShowEdit',
-                        privileges: Mdc.privileges.Device.editDeviceAttributes,
-                        href: typeof me.router.getRoute('devices/device/attributes/edit') !== 'undefined'
-                            ? me.router.getRoute('devices/device/attributes/edit').buildUrl() : null,
-                        text: Uni.I18n.translate('general.edit', 'MDC', 'Edit')
+                        text: Uni.I18n.translate('general.actions', 'MDC', 'Actions'),
+                        itemId: 'device-attributes-actions-button',
+                        iconCls: 'x-uni-action-iconD',
+                        menu: {
+                            xtype: 'device-attributes-action-menu',
+                            router: me.router
+                        }
                     }
-                ],
+                ]
+            },
+            {
+                xtype: 'container',
+                layout: {
+                    type: 'hbox',
+                    align: 'stretch'
+                },
                 items: [
                     {
-                        xtype: 'deviceAttributesForm',
-                        itemId: 'device-attributes-view-form',
-                        router: me.router,
-                        fullInfo: true
+                        xtype: 'fieldcontainer',
+                        fieldLabel: Uni.I18n.translate('general.general', 'MDC', 'General'),
+                        labelAlign: 'top',
+                        layout: 'vbox',
+                        flex: 1,
+                        items: [
+                            {
+                                xtype: 'deviceAttributesForm',
+                                itemId: 'device-attributes-view-form',
+                                router: me.router,
+                                fullInfo: true
+                            }
+                        ]
+                    },
+                    {
+                        xtype: 'custom-attribute-sets-placeholder-form',
+                        itemId: 'custom-attribute-sets-placeholder-form-id',
+                        actionMenuXtype: 'device-attributes-action-menu',
+                        attributeSetType: 'device',
+                        router: me.router
                     }
                 ]
             }

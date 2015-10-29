@@ -5,14 +5,27 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsRuleset', {
         type: 'vbox',
         align: 'stretch'
     },
+    store: 'Mdc.store.DeviceConfigurationResults',
     requires: [
         'Mdc.view.setup.devicevalidationresults.RuleSetList',
         'Mdc.view.setup.devicevalidationresults.RuleSetVersionList',
         'Mdc.view.setup.devicevalidationresults.RuleSetVersionRuleList',
-        'Mdc.view.setup.devicedatavalidation.RulePreview'
+        'Mdc.view.setup.devicedatavalidation.RulePreview',
+        'Mdc.store.DeviceConfigurationResults'
     ],
+    mixins: {
+        bindable: 'Ext.util.Bindable'
+    },
+    router: null,
+    loadProfiles: null,
+    intervalRegisterStart: null,
+    intervalRegisterEnd: null,
+    mainView: null,
 
     initComponent: function () {
+        var me = this;
+
+        me.bindStore(me.store || 'ext-empty-store', true);
         this.items = [
             {
                 xtype: 'container',
@@ -87,32 +100,76 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsRuleset', {
                         margin: '0 -16 0 -16',
                         itemId: 'rule-set-list',
                         title: Uni.I18n.translate('validationResults.validationRuleSets', 'MDC', 'Validation rule sets'),
-                        xtype: 'mdc-rule-set-list'
+                        xtype: 'mdc-rule-set-list',
+                        router: me.router
                     },
                     {
                         ui: 'medium',
                         itemId: 'rule-set-version-list',
                         margin: '0 -16 0 -16',
                         title: Uni.I18n.translate('validationResults.validationRuleSetVersions', 'MDC', 'Validation rule set versions'),
-                        xtype: 'mdc-rule-set-version-list'
+                        xtype: 'mdc-rule-set-version-list',
+                        router: me.router
                     },
                     {
                         ui: 'medium',
                         margin: '0 -16 0 -16',
                         itemId: 'rule-set-version-rule-list',
                         title: Uni.I18n.translate('validationResults.validationRuleSetVersionRules', 'MDC', 'Validation rules'),
-                        xtype: 'rule-set-version-rule-list'
+                        xtype: 'rule-set-version-rule-list',
+                        router: me.router
                     },
                     {
                         itemId: 'rule-set-version-rule-preview',
-                        xtype: 'deviceDataValidationRulePreview'
+                        xtype: 'deviceDataValidationRulePreview',
+                        router: me.router
                     }
                 ]
             }
         ];
-        this.callParent(arguments);
+        me.callParent(arguments);
+        me.mainView = Ext.ComponentQuery.query('#contentPanel')[0];
+    },
 
+    getStoreListeners: function () {
+        return {
+            load: this.onLoad
+        };
+    },
+
+    onLoad: function (store, records, success) {
+        var me = this,
+            record = records ? records[0] : null,
+            form = me.down('#frm-device-validation-results-ruleset'),
+            dataViewValidateNowBtn = me.down('#btn-configuration-view-validate-now'),
+            ruleSetPanel = me.down('#con-configuration-view-validation-results-browse'),
+            ruleSetsGrid = me.down('#rule-set-list'),
+            ruleSets;
+
+        me.mainView.setLoading(false);
+
+        if (success && record) {
+            Ext.suspendLayouts();
+            if (form) {
+                form.loadRecord(record);
+            }
+
+            if (dataViewValidateNowBtn) {
+                dataViewValidateNowBtn.setDisabled(!record.get('isActive') || record.get('allDataValidated'));
+            }
+
+            ruleSets = record.get('detailedRuleSets');
+            if (ruleSets && ruleSets.length && ruleSetsGrid) {
+                ruleSetsGrid.bindStore(record.detailedRuleSets());
+                ruleSetPanel.show();
+                ruleSetsGrid.getSelectionModel().select(0);
+            }
+            Ext.resumeLayouts(true);
+        }
+    },
+
+    onBeforeDestroy: function () {
+        this.bindStore('ext-empty-store');
     }
-
 });
 

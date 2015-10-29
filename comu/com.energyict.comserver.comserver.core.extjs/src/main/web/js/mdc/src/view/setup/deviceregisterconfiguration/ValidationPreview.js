@@ -5,6 +5,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.ValidationPreview', {
     router: null,
     fieldLabel: Uni.I18n.translate('deviceregisterconfiguration.validation', 'MDC', 'Validation'),
     labelAlign: 'top',
+    margin: '0 0 100 0',
     layout: 'vbox',
     inputLabelWidth: 200,
 

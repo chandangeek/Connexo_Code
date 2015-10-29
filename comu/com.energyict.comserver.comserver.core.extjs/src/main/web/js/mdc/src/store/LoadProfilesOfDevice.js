@@ -1,5 +1,5 @@
 Ext.define('Mdc.store.LoadProfilesOfDevice', {
-    extend: 'Ext.data.Store',
+    extend: 'Uni.data.store.Filterable',
     model: 'Mdc.model.LoadProfileOfDevice',
     storeId: 'LoadProfilesOfDevice',
     autoLoad: false,

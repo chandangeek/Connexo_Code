@@ -8,6 +8,10 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.flags.Preview', {
         'Uni.form.field.ObisDisplay',
         'Uni.form.field.ReadingTypeDisplay'
     ],
+    layout: 'column',
+    defaults: {
+        columnWidth: 0.5
+    },
 
     initComponent: function () {
         var me = this;
@@ -62,6 +66,13 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.flags.Preview', {
                         ]
                     }
                 ]
+            },
+            {
+                xtype: 'custom-attribute-sets-placeholder-form',
+                itemId: 'custom-attribute-sets-placeholder-form-id',
+                actionMenuXtype: 'deviceRegisterConfigurationActionMenu',
+                attributeSetType: 'register',
+                router: me.router
             }
         ];
 
