@@ -44,6 +44,6 @@ public class SchedulingInterval extends AbstractField<SchedulingInterval> {
 
     @Override
     public String toString() {
-        return new TimeDuration(schedulingInterval).toString();
+        return new TimeDuration(schedulingInterval).getStringValue();
     }
 }
