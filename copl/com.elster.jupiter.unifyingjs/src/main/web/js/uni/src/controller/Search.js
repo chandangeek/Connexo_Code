@@ -149,7 +149,6 @@ Ext.define('Uni.controller.Search', {
             });
 
         me.getApplication().fireEvent('changecontentevent', widget);
-        me.service.setSearchContainer(me.getSearchOverview());
         me.filters.removeAll();
 
         removablesStore.load();

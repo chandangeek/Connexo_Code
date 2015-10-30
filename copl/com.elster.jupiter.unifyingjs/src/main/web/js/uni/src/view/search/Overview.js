@@ -168,7 +168,8 @@ Ext.define('Uni.view.search.Overview', {
                         xtype: 'preview-container',
                         itemId: 'search-preview-container',
                         grid: {
-                            xtype: 'uni-view-search-results'
+                            xtype: 'uni-view-search-results',
+                            service: me.getService()
                         },
                         emptyComponent: {
                             itemId: 'search-no-items-found-panel',
@@ -188,6 +189,7 @@ Ext.define('Uni.view.search.Overview', {
                 ]
             }
         ];
+
         this.callParent(arguments);
     }
 });

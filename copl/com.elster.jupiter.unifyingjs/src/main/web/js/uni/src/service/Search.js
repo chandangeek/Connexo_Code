@@ -48,8 +48,7 @@ Ext.define('Uni.service.Search', {
     ],
 
     config: {
-        router: null,
-        searchContainer: null
+        router: null
     },
 
     /**
@@ -92,18 +91,6 @@ Ext.define('Uni.service.Search', {
         return this.searchDomain;
     },
 
-    getCriteriaSelector: function() {
-        return this.getSearchContainer().down('search-criteria-selector');
-    },
-
-    getResultsGrid: function() {
-        return this.getSearchContainer().down('uni-view-search-results');
-    },
-
-    getRemovableCriteriaContainer: function() {
-        return this.getSearchContainer().down('#search-criteria-removable')
-    },
-
     updateState: function() {
         //if (router.queryParams.searchDomain !== searchDomain.get('displayValue')) {
         //    Uni.util.History.suspendEventsForNextCall();
@@ -117,18 +104,13 @@ Ext.define('Uni.service.Search', {
      */
     setDomain: function(domain) {
         var me = this,
-            //router = me.getRouter(),
             searchResults = Ext.getStore('Uni.store.search.Results'),
             searchProperties = Ext.getStore('Uni.store.search.Properties'),
             searchFields = Ext.getStore('Uni.store.search.Fields');
 
-
         if (Ext.isString(domain)) {
             domain = Ext.getStore('Uni.store.search.Domains').findRecord('id', domain, 0, true, true);
         }
-
-        //container = me.getSearchOverview(),
-        //container.setLoading(true);
 
         if (domain !== null && Ext.isDefined(domain) && Ext.getClassName(domain) == "Uni.model.search.Domain") {
             me.searchDomain = domain;
@@ -147,14 +129,9 @@ Ext.define('Uni.service.Search', {
     },
 
     onSearchFieldsLoad: function(store, records, success) {
-        var me = this,
-            searchResults = Ext.getStore('Uni.store.search.Results');
-
         if (success) {
-            me.updateResultModelAndColumnsFromFields(store);
-
-            searchResults.removeAll(true);
-            me.applyFilters();
+            Ext.getStore('Uni.store.search.Results').removeAll(true);
+            this.applyFilters();
         }
     },
 
@@ -192,8 +169,6 @@ Ext.define('Uni.service.Search', {
                 removablesStore.add(property);
             }
         });
-
-        me.getCriteriaSelector().bindStore(removablesStore);
     },
 
     addProperty: function (property) {
@@ -224,9 +199,6 @@ Ext.define('Uni.service.Search', {
     applyFilters: function () {
         var me = this,
             searchResults = Ext.getStore('Uni.store.search.Results');
-
-        me.getResultsGrid().down('pagingtoolbarbottom').resetPaging();
-        me.getResultsGrid().down('pagingtoolbartop').resetPaging();
 
         searchResults.clearFilter(true);
         searchResults.filter(me.getFilters(), true);
@@ -263,7 +235,7 @@ Ext.define('Uni.service.Search', {
             filter.map(function(item) {
                 var property = propertiesStore.findRecord('name', item.property);
                 if (property && property.get('visibility') === 'removable') {
-                    me.addProperty(property, me.getRemovableCriteriaContainer(), true);
+                    me.addProperty(property);
                 }
                 var filter = me.filters.getByKey(item.property);
                 if (filter) {
@@ -275,37 +247,18 @@ Ext.define('Uni.service.Search', {
         }
     },
 
-    updateResultModelAndColumnsFromFields: function (fields) {
-        var me = this,
-            grid = me.getResultsGrid(),
-            fieldItems = [],
-            columnItems = [],
-            defaultColumns = me.defaultColumns[me.searchDomain.get('id')];
-
-        fields.each(function (field) {
-            fieldItems.push(me.createFieldDefinitionFromModel(field));
-            var columnItem = me.createColumnDefinitionFromModel(field);
-            if (defaultColumns && defaultColumns.indexOf(field.get('propertyName')) >= 0) {
-                columnItem.isDefault = true;
-            }
-            columnItems.push(columnItem);
-        });
-
-        //me.fireEvent('beforegridconfigure', fieldItems, columnItems );
-        grid.store.model.setFields(fieldItems);
-        grid.setColumns(columnItems);
-    },
-
     createColumnDefinitionFromModel: function (field) {
         var propertyName = field.get('propertyName'),
             type = this.columnMap[field.get('type')],
-            displayValue = field.get('displayValue');
+            displayValue = field.get('displayValue'),
+            defaultColumns = this.defaultColumns[this.searchDomain.get('id')];
 
         if (!type) {
             type = 'gridcolumn';
         }
 
         return {
+            isDefault: defaultColumns && defaultColumns.indexOf(field.get('propertyName')) >= 0,
             dataIndex: propertyName,
             header: displayValue,
             xtype: type

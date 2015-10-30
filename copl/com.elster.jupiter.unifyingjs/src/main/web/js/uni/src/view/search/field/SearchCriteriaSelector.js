@@ -11,7 +11,7 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
     text: Uni.I18n.translate('search.overview.addCriteria.emptyText', 'UNI', 'Add criteria'),
     arrowAlign: 'right',
     menuAlign: 'tr-br',
-
+    store: 'Uni.store.search.Removables',
     config: {
         service: null
     },
