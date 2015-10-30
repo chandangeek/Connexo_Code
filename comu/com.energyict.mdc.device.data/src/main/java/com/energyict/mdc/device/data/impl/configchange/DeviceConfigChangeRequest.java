@@ -12,9 +12,9 @@ import com.energyict.mdc.device.data.Device;
 public interface DeviceConfigChangeRequest extends HasId {
 
     /**
-     * Indication for self destruction.
+     * Indication for self destruction if no other DeviceInAction objects exist for this business lock
      */
-    void remove();
+    void notifyDeviceInActionIsRemoved();
 
     /**
      * Adds a device in action

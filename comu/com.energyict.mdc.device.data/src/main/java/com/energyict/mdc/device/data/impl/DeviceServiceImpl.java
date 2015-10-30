@@ -267,7 +267,7 @@ public class DeviceServiceImpl implements ServerDeviceService {
         try {
             modifiedDevice = deviceDataModelService.getTransactionService().execute(() -> DeviceConfigChangeExecutor.getInstance().execute((DeviceImpl) lockResult.getFirst(), deviceDataModelService.deviceConfigurationService().findDeviceConfiguration(destinationDeviceConfigId).get()));
         } finally {
-            deviceDataModelService.getTransactionService().execute(VoidTransaction.of(lockResult.getLast()::remove));
+            deviceDataModelService.getTransactionService().execute(VoidTransaction.of(lockResult.getLast()::notifyDeviceInActionIsRemoved));
         }
         return modifiedDevice;
     }

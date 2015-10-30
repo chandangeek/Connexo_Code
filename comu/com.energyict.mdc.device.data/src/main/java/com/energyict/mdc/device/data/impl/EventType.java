@@ -57,6 +57,9 @@ public enum EventType {
     FIRMWARE_COMTASKEXECUTION_STARTED("firmwarecomtaskexecution/STARTED"),
     FIRMWARE_COMTASKEXECUTION_COMPLETED("firmwarecomtaskexecution/COMPLETED"),
     FIRMWARE_COMTASKEXECUTION_FAILED("firmwarecomtaskexecution/FAILED"),
+    DEVICE_CONFIG_CHANGE_BULK_SETUP("deviceConfigChange/SETUP"),
+    DEVICE_CONFIG_CHANGE_SINGLE_START("deviceConfigChange/START"),
+    DEVICE_CONFIG_CHANGE_SINGLE_COMPLETED("deviceConfigChange/COMPLETED"),
     ;
 
     private static final String NAMESPACE = "com/energyict/mdc/device/data/";
