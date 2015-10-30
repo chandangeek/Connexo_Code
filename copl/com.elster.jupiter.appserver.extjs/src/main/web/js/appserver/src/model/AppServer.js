@@ -3,6 +3,11 @@ Ext.define('Apr.model.AppServer', {
     fields: [
         'name', 'active', 'executionSpecs', 'importServices',
         {
+            name: 'version',
+            persist: false,
+            defaultValue: 0
+        },
+        {
             name: 'id',
             persist: false,
             mapping: function (data) {

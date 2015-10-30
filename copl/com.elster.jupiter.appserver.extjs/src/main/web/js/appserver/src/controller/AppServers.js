@@ -98,6 +98,10 @@ Ext.define('Apr.controller.AppServers', {
             selector: '#save-import-services-settings-button'
         },
         {
+            ref: 'undoImportServicesButton',
+            selector: '#undo-import-services-button'
+        },
+        {
             ref: 'importServicesPage',
             selector: 'appserver-import-services'
         },
@@ -200,6 +204,9 @@ Ext.define('Apr.controller.AppServers', {
                 click: this.saveImportSettings
             },
             '#apr-no-imp-services-undo-btn': {
+                click: this.undoImportServiceChanges
+            },
+            '#undo-import-services-button': {
                 click: this.undoImportServiceChanges
             }
 
@@ -318,6 +325,7 @@ Ext.define('Apr.controller.AppServers', {
                          me.getApplication().fireEvent('appserverload', appServerName);
                          me.getApplication().fireEvent('changecontentevent', view);
                          var disabled = unservedImportStore.getCount() === 0;
+                         me.updateImportServiceCounter();
                          view.down('preview-container').updateOnChange(!servedImportStore.getCount())
                          me.getAddImportServicesButtonFromDetails().setDisabled(disabled);
 
@@ -625,6 +633,8 @@ Ext.define('Apr.controller.AppServers', {
         Ext.each(grid.getSelectionModel().getSelection(),function(importServiceToAdd){
             grid.getStore().remove(importServiceToAdd);
             me.getStore('Apr.store.ServedImportServices').add(importServiceToAdd);
+            //importServiceToAdd.setDirty(true);
+            importServiceToAdd.phantom = true;
         });
         if(me.fromDetail){
             me.returnToImportServiceDetailView();
@@ -777,9 +787,12 @@ Ext.define('Apr.controller.AppServers', {
 
     saveImportSettings: function () {
         var me = this,
-            servedImportServices= this.getStore('Apr.store.ServedImportServices').getRange(),
+            servedImportStore = me.getStore('Apr.store.ServedImportServices'),
+            servedImportServices= servedImportStore.getRange(),
+            unservedImportStore = me.getStore('Apr.store.UnservedImportServices'),
             importServices = [],
-            record = me.appServer;
+            record = me.appServer,
+            ref = me.getImportServicesGrid();
 
         Ext.Array.each(servedImportServices, function (item) {
             var importService = {};
@@ -795,16 +808,31 @@ Ext.define('Apr.controller.AppServers', {
         record.beginEdit();
         record.set('importServices', importServices);
         record.endEdit();
-        me.getImportServicesGrid().setLoading();
+        if(!ref.up('preview-container').down('no-items-found-panel').isHidden()){
+            ref = ref.up('appserver-import-services');
+        }
+        ref.setLoading();
         record.save({
             success: function () {
-                me.getImportServicesGrid().setLoading(false);
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('appServers.configureImportServicesSuccess', 'APR', 'Import services saved'));
+                unservedImportStore.load(function() {
+                    servedImportStore.load({
+                        callback: function(records, operation, success) {
+                            if(success === true){
+                                me.importServicesDataChanged();
+                                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('appServers.configureImportServicesSuccess', 'APR', 'Import services saved'));
+                            }
+                            ref.setLoading(false);
+                        }
+                    });
+                });
                 me.appServer = record;
-                me.getSaveImportServicesButton().disable();
+                me.importServicesDataChanged();
             },
             failure: function (record, operation) {
-                me.getImportServicesGrid().setLoading(false);
+                ref.setLoading(false);
+                var errorText = Uni.I18n.translate('appServers.error.unknown', 'APR', 'Unknown error occurred');
+                var titleText =  Uni.I18n.translate('appServers.save.operation.failed', 'APR', 'Save operation failed')
+                me.getApplication().getController('Uni.controller.Error').showError(titleText, errorText);
             }
         });
     },
@@ -972,16 +1000,19 @@ Ext.define('Apr.controller.AppServers', {
           itemsAdded = store.getNewRecords().length > 0,
           itemsRemoved = store.getRemovedRecords().length > 0,
           disable = !(itemsAdded || itemsRemoved);
-            if (me.getSaveImportServicesButton()) {
-                me.getSaveImportServicesButton().setDisabled(disable);
-            }
-            if (me.getNoImportServicesUndoSettingsButton()) {
-                me.getNoImportServicesUndoSettingsButton().setDisabled(disable);
-            }
-            if (me.getNoImportServicesSaveSettingsButton()) {
-                me.getNoImportServicesSaveSettingsButton().setDisabled(disable);
-            }
-
+        if (me.getSaveImportServicesButton()) {
+            me.getSaveImportServicesButton().setDisabled(disable);
+        }
+        if (me.getNoImportServicesUndoSettingsButton()) {
+            me.getNoImportServicesUndoSettingsButton().setDisabled(disable);
+        }
+        if (me.getNoImportServicesSaveSettingsButton()) {
+            me.getNoImportServicesSaveSettingsButton().setDisabled(disable);
+        }
+        if (me.getUndoImportServicesButton()) {
+            me.getUndoImportServicesButton().setDisabled(disable);
+        }
+        me.updateImportServiceCounter();
     },
 
     updateMessageServiceCounter: function() {
@@ -991,7 +1022,30 @@ Ext.define('Apr.controller.AppServers', {
         );
     },
 
-    undoImportServiceChanges: function () {
+    updateImportServiceCounter: function() {
+        var me =this;
+        me.getImportServicesGrid().down('pagingtoolbartop #displayItem').setText(
+            Uni.I18n.translatePlural('general.importServicesCount', me.getImportServicesGrid().getStore().getCount(), 'APR', 'No import services', '{0} import service', '{0} import services')
+        );
+    },
 
+    undoImportServiceChanges: function () {
+        var me = this,
+            servedImportStore = me.getStore('Apr.store.ServedImportServices'),
+            unservedImportStore = me.getStore('Apr.store.UnservedImportServices');
+
+        unservedImportStore.load(function() {
+            servedImportStore.load({
+                callback: function(records, operation, success) {
+                    if(success === true){
+                        me.importServicesDataChanged();
+                    } else {
+                        var errorText = Uni.I18n.translate('appServers.error.unknown', 'APR', 'Unknown error occurred');
+                        var titleText =  Uni.I18n.translate('appServers.undo.operation.failed', 'APR', 'Undo operation failed')
+                        me.getApplication().getController('Uni.controller.Error').showError(titleText, errorText);
+                    }
+                }
+            });
+        });
     }
 });
