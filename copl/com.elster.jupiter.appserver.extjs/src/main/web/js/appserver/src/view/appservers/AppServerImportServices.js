@@ -21,6 +21,9 @@ Ext.define('Apr.view.appservers.AppServerImportServices', {
                     grid: {
                         xtype: 'apr-import-services-grid',
                         itemId: 'apr-import-services-grid',
+                        viewConfig: {
+                            markDirty: true
+                        },
                         store: me.store,
                         dockedItems: [
                             {
@@ -36,6 +39,12 @@ Ext.define('Apr.view.appservers.AppServerImportServices', {
                                         text: Uni.I18n.translate('general.saveChanges', 'APR', 'Save changes'),
                                         itemId: 'save-import-services-settings-button',
                                         privileges: Apr.privileges.AppServer.admin,
+                                        disabled: true
+                                    },
+                                    {
+                                        text: Uni.I18n.translate('general.undo', 'APR', 'Undo'),
+                                        privileges: Apr.privileges.AppServer.admin,
+                                        itemId: 'undo-import-services-button',
                                         disabled: true
                                     },
                                     {
