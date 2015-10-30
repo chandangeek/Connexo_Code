@@ -16,6 +16,7 @@ public class AppServerInfo {
     public List<ImportScheduleInfo> importServices;
     public String importDirectory;
     public String exportDirectory;
+    public long version;
 
     public AppServerInfo() {
     }
@@ -27,6 +28,7 @@ public class AppServerInfo {
     public AppServerInfo(AppServer appServer, String importPath, String exportPath, Thesaurus thesaurus) {
         name = appServer.getName();
         active = appServer.isActive();
+        version = appServer.getVersion();
         executionSpecs = appServer.getSubscriberExecutionSpecs().stream()
                 .map(spec -> SubscriberExecutionSpecInfo.of(spec, thesaurus))
                 .collect(Collectors.toList());

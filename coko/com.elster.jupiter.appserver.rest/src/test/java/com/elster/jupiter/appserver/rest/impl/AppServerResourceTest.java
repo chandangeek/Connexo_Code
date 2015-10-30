@@ -20,6 +20,7 @@ import org.mockito.Matchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.nio.file.Path;
@@ -74,6 +75,7 @@ public class AppServerResourceTest extends AppServerApplicationTest {
         AppServerInfo info = response.readEntity(AppServerInfo.class);
         assertThat(info.name).isEqualTo("APPSERVER");
         assertThat(info.active).isTrue();
+        assertThat(info.version).isEqualTo(1L);
 
         assertThat(info.executionSpecs).hasSize(1);
         assertThat(info.executionSpecs.get(0).subscriberSpec.destination).isEqualTo("DESTINATION-SPEC-NAME");
@@ -117,6 +119,7 @@ public class AppServerResourceTest extends AppServerApplicationTest {
         editSubscriberExecutionInfo.subscriberSpec = editSubscriberInfo;
         info.importServices.add(updateImportInfo);
         info.executionSpecs.add(editSubscriberExecutionInfo);
+        info.version = 1L;
         Entity<AppServerInfo> json = Entity.json(info);
 
         AppServer.BatchUpdate updater = mock(AppServer.BatchUpdate.class);
@@ -140,7 +143,10 @@ public class AppServerResourceTest extends AppServerApplicationTest {
     @Test
     public void testRemoveAppServer() {
         AppServer appServer = mockAppServer();
-        Response response = target("/appserver/APPSERVER").request().delete();
+        AppServerInfo info = new AppServerInfo(appServer, null, null, thesaurus);
+        Entity<AppServerInfo> json = Entity.json(info);
+
+        Response response = target("/appserver/APPSERVER").request().build(HttpMethod.DELETE, json).invoke();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(appServer).delete();
@@ -150,8 +156,10 @@ public class AppServerResourceTest extends AppServerApplicationTest {
     public void testActivateAppServer() {
         AppServer appServer = mockAppServer();
         when(appServer.isActive()).thenReturn(false);
+        AppServerInfo info = new AppServerInfo(appServer, null, null, thesaurus);
+        Entity<AppServerInfo> json = Entity.json(info);
 
-        Response response = target("/appserver/APPSERVER/activate").request().put(Entity.json(null));
+        Response response = target("/appserver/APPSERVER/activate").request().put(json);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(appServer).activate();
@@ -161,8 +169,10 @@ public class AppServerResourceTest extends AppServerApplicationTest {
     public void testDeactivateAppServer() {
         AppServer appServer = mockAppServer();
         when(appServer.isActive()).thenReturn(true);
+        AppServerInfo info = new AppServerInfo(appServer, null, null, thesaurus);
+        Entity<AppServerInfo> json = Entity.json(info);
 
-        Response response = target("/appserver/APPSERVER/deactivate").request().put(Entity.json(null));
+        Response response = target("/appserver/APPSERVER/deactivate").request().put(json);
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(appServer).deactivate();
@@ -227,9 +237,11 @@ public class AppServerResourceTest extends AppServerApplicationTest {
     private AppServer mockAppServer() {
         AppServer appServer = mock(AppServer.class);
         when(appServer.getName()).thenReturn("APPSERVER");
+        when(appServer.getVersion()).thenReturn(1L);
         addServicesOnAppServer(appServer);
 
         when(appService.findAppServer("APPSERVER")).thenReturn(Optional.of(appServer));
+        when(appService.findAndLockAppServerByNameAndVersion("APPSERVER", 1L)).thenReturn(Optional.of(appServer));
 
         Query<AppServer> query = (Query<AppServer>) mock(Query.class);
         RestQuery<AppServer> restQuery = (RestQuery<AppServer>) mock(RestQuery.class);
@@ -276,5 +288,31 @@ public class AppServerResourceTest extends AppServerApplicationTest {
                 return transaction.perform();
             }
         });
+    }
+
+    @Test
+    public void testDeleteAppServerConflict() {
+        when(appService.findAndLockAppServerByNameAndVersion("appserverName", 7)).thenReturn(Optional.empty());
+        when(appService.findAppServer("appserverName")).thenReturn(Optional.empty());
+
+        AppServerInfo info = new AppServerInfo();
+        info.name = "appserverName";
+        info.version = 7;
+        Response response = target("appserver/appserverName").request().method("DELETE", Entity.json(info));
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
+    }
+
+    @Test
+    public void testUpdateAppServerConflict() {
+        when(appService.findAndLockAppServerByNameAndVersion("appserverName", 7)).thenReturn(Optional.empty());
+        when(appService.findAppServer("appserverName")).thenReturn(Optional.empty());
+
+        AppServerInfo info = new AppServerInfo();
+        info.name = "appserverName";
+        info.version = 7;
+        Response response = target("appserver/appserverName").request().put(Entity.json(info));
+
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 }

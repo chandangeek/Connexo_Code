@@ -5,12 +5,14 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.osgi.service.component.annotations.Component;
@@ -18,8 +20,10 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
 import java.nio.file.FileSystem;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Component(
@@ -27,7 +31,7 @@ import java.util.Set;
         service = {Application.class},
         immediate = true,
         property = {"alias=/apr", "app=SYS", "name=" + AppServerApplication.COMPONENT_NAME})
-public class AppServerApplication extends Application {
+public class AppServerApplication extends Application implements MessageSeedProvider {
 
     public static final String COMPONENT_NAME = "APR";
     private volatile RestQueryService restQueryService;
@@ -39,7 +43,7 @@ public class AppServerApplication extends Application {
     private volatile FileSystem fileSystem;
     private volatile DataExportService dataExportService;
 
-    private NlsService nlsService;
+    private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
 
     public Set<Class<?>> getClasses() {
@@ -117,5 +121,15 @@ public class AppServerApplication extends Application {
             }
         });
         return Collections.unmodifiableSet(hashSet);
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.REST;
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 }

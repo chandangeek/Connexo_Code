@@ -12,6 +12,7 @@ import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.QueryParameters;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -58,12 +59,13 @@ public class AppServerResource {
     private final Thesaurus thesaurus;
     private final TransactionService transactionService;
     private final CronExpressionParser cronExpressionParser;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     private final DataExportService dataExportService;
     private final FileSystem fileSystem;
 
     @Inject
-    public AppServerResource(RestQueryService queryService, AppService appService, MessageService messageService, FileImportService fileImportService, TransactionService transactionService, CronExpressionParser cronExpressionParser, Thesaurus thesaurus, DataExportService dataExportService, FileSystem fileSystem) {
+    public AppServerResource(RestQueryService queryService, AppService appService, MessageService messageService, FileImportService fileImportService, TransactionService transactionService, CronExpressionParser cronExpressionParser, Thesaurus thesaurus, ConcurrentModificationExceptionFactory conflictFactory, DataExportService dataExportService, FileSystem fileSystem) {
         this.queryService = queryService;
         this.appService = appService;
         this.messageService = messageService;
@@ -71,13 +73,26 @@ public class AppServerResource {
         this.transactionService = transactionService;
         this.cronExpressionParser = cronExpressionParser;
         this.thesaurus = thesaurus;
+        this.conflictFactory = conflictFactory;
         this.dataExportService = dataExportService;
         this.fileSystem = fileSystem;
     }
 
+    private AppServer fetchAppServer(String appServerName) {
+        return appService.findAppServer(appServerName)
+                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    }
+
+    private AppServer fetchAndLockAppServer(String appServerName, AppServerInfo info) {
+        return appService.findAndLockAppServerByNameAndVersion(appServerName, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(appServerName)
+                        .withActualVersion(() -> appService.findAppServer(appServerName).map(AppServer::getVersion).orElse(null))
+                        .supplier());
+    }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_APPSEVER, Privileges.ADMINISTRATE_APPSEVER})
+    @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
     public AppServerInfos getAppservers(@Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<AppServer> appServers = queryAppServers(params);
@@ -98,7 +113,7 @@ public class AppServerResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{appserverName}")
-    @RolesAllowed({Privileges.VIEW_APPSEVER, Privileges.ADMINISTRATE_APPSEVER})
+    @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
     public AppServerInfo getAppServer(@PathParam("appserverName") String appServerName) {
         AppServer appServer = fetchAppServer(appServerName);
         String importPath = appServer.getImportDirectory().map(Object::toString).orElse(null);
@@ -106,14 +121,10 @@ public class AppServerResource {
         return AppServerInfo.of(appServer, importPath, exportPath, thesaurus);
     }
 
-    private AppServer fetchAppServer(String appServerName) {
-        return appService.findAppServer(appServerName).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-    }
-
     @POST
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_APPSEVER})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
     public Response addAppServer(AppServerInfo info) {
         AppServer appServer = null;
         try (TransactionContext context = transactionService.getContext()) {
@@ -159,10 +170,11 @@ public class AppServerResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{appserverName}")
-    @RolesAllowed({Privileges.ADMINISTRATE_APPSEVER})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
     public Response updateAppServer(@PathParam("appserverName") String appServerName, AppServerInfo info) {
-        AppServer appServer = fetchAppServer(appServerName);
+        AppServer appServer = null;
         try (TransactionContext context = transactionService.getContext()) {
+            appServer = fetchAndLockAppServer(appServerName, info);
             doUpdateAppServer(info, appServer);
 
             String currentExportDir = dataExportService.getExportDirectory(appServer)
@@ -186,10 +198,10 @@ public class AppServerResource {
     @DELETE
     @Path("/{appserverName}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_APPSEVER})
-    public Response removeAppServer(@PathParam("appserverName") String appServerName) {
-        AppServer appServer = fetchAppServer(appServerName);
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
+    public Response removeAppServer(@PathParam("appserverName") String appServerName, AppServerInfo info) {
         try (TransactionContext context = transactionService.getContext()) {
+            AppServer appServer = fetchAndLockAppServer(appServerName, info);
             dataExportService.removeExportDirectory(appServer);
             appServer.delete();
             context.commit();
@@ -201,11 +213,17 @@ public class AppServerResource {
     @Path("/{appserverName}/activate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_APPSEVER})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
     public Response activateAppServer(@PathParam("appserverName") String appServerName) {
         AppServer appServer = fetchAppServer(appServerName);
         if (!appServer.isActive()) {
             try (TransactionContext context = transactionService.getContext()) {
+                appServer = appService.findAndLockAppServerByNameAndVersion(appServerName, appServer.getVersion())
+                        .orElseThrow(conflictFactory.conflict()
+                                .withActualVersion(() -> appService.findAppServer(appServerName).map(AppServer::getVersion).orElse(null))
+                                .withMessageTitle(MessageSeeds.APP_SERVER_FAIL_ACTIVATE_TITLE, appServerName)
+                                .withMessageBody(MessageSeeds.APP_SERVER_FAIL_ACTIVATE_BODY, appServerName)
+                                .supplier());
                 appServer.activate();
                 context.commit();
             }
@@ -217,11 +235,17 @@ public class AppServerResource {
     @Path("/{appserverName}/deactivate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_APPSEVER})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
     public Response deactivateAppServer(@PathParam("appserverName") String appServerName) {
         AppServer appServer = fetchAppServer(appServerName);
         if (appServer.isActive()) {
             try (TransactionContext context = transactionService.getContext()) {
+                appServer = appService.findAndLockAppServerByNameAndVersion(appServerName, appServer.getVersion())
+                        .orElseThrow(conflictFactory.conflict()
+                                .withActualVersion(() -> appService.findAppServer(appServerName).map(AppServer::getVersion).orElse(null))
+                                .withMessageTitle(MessageSeeds.APP_SERVER_FAIL_DEACTIVATE_TITLE, appServerName)
+                                .withMessageBody(MessageSeeds.APP_SERVER_FAIL_DEACTIVATE_BODY, appServerName)
+                                .supplier());
                 appServer.deactivate();
                 context.commit();
             }
@@ -314,7 +338,7 @@ public class AppServerResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{appserverName}/unserved")
-    @RolesAllowed({Privileges.VIEW_APPSEVER, Privileges.ADMINISTRATE_APPSEVER})
+    @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
     public SubscriberSpecInfos getSubscribers(@PathParam("appserverName") String appServerName) {
         List<SubscriberSpec> served = appService.findAppServer(appServerName)
                 .map(AppServer::getSubscriberExecutionSpecs)
@@ -342,7 +366,7 @@ public class AppServerResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{appserverName}/servedimport")
-    @RolesAllowed({Privileges.VIEW_APPSEVER, Privileges.ADMINISTRATE_APPSEVER})
+    @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
     public ImportScheduleInfos getServedImportSchedules(@PathParam("appserverName") String appServerName) {
         List<ImportSchedule> served = getImportSchedulesOnAppServer(appServerName);
         for (Iterator<ImportSchedule> iterator = served.listIterator(); iterator.hasNext(); ) {
@@ -359,7 +383,7 @@ public class AppServerResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{appserverName}/unservedimport")
-    @RolesAllowed({Privileges.VIEW_APPSEVER, Privileges.ADMINISTRATE_APPSEVER})
+    @RolesAllowed({Privileges.Constants.VIEW_APPSEVER, Privileges.Constants.ADMINISTRATE_APPSEVER})
     public ImportScheduleInfos getUnservedImportSchedules(@PathParam("appserverName") String appServerName) {
         List<ImportSchedule> served = getImportSchedulesOnAppServer(appServerName);
         for (Iterator<ImportSchedule> iterator = served.listIterator(); iterator.hasNext(); ) {
@@ -395,6 +419,4 @@ public class AppServerResource {
                 .flatMap(Functions.asStream())
                 .collect(Collectors.toList());
     }
-
-
 }
