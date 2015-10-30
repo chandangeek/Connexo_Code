@@ -1,8 +1,8 @@
 package com.elster.jupiter.appserver.impl;
 
 
+import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.appserver.AppServerCommand;
-import com.elster.jupiter.appserver.ImportScheduleOnAppServer;
 import com.elster.jupiter.appserver.ServerMessageQueueMissing;
 import com.elster.jupiter.appserver.SubscriberExecutionSpec;
 import com.elster.jupiter.fileimport.FileImportService;
@@ -28,13 +28,11 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -47,6 +45,8 @@ public class AppServerImplTest {
 
     @Mock
     private SubscriberSpec subscriberSpec;
+    @Mock
+    private DataMapper<AppServer> appServerFactory;
     @Mock
     private DataMapper<SubscriberExecutionSpecImpl> subscriberExecutionSpecFactory;
     @Mock
@@ -82,6 +82,7 @@ public class AppServerImplTest {
 
     @Before
     public void setUp() {
+        when(dataModel.mapper(AppServer.class)).thenReturn(appServerFactory);
         when(dataModel.mapper(SubscriberExecutionSpecImpl.class)).thenReturn(subscriberExecutionSpecFactory);
         when(dataModel.mapper(ImportScheduleOnAppServerImpl.class)).thenReturn(importScheduleOnAppServerFactory);
         when(subscriberSpec.getDestination()).thenReturn(destination);

@@ -47,6 +47,8 @@ public interface AppServer {
     BatchUpdate forBatchUpdate();
 
     void delete();
+    
+    long getVersion();
 
     interface BatchUpdate extends AutoCloseable {
 

@@ -28,6 +28,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -38,25 +39,31 @@ public class AppServerImpl implements AppServer {
     // Application server name should be less then 25 characters due to DB constrains (including "APPSERVER_" prefix)
     private static final int APP_SERVER_NAME_SIZE = 14;
     private static final String APP_SERVER = "AppServer";
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY +"}")
-    @Size(max=APP_SERVER_NAME_SIZE, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_14 +"}")
-    @Pattern(regexp="[a-zA-Z0-9\\-]+", groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.APPSERVER_NAME_INVALID_CHARS +"}")
-    private String name;
-    private String cronString;
-    private transient CronExpression scheduleFrequency;
-    private boolean recurrentTaskActive = true;
-    private boolean active;
     private final DataModel dataModel;
     private final CronExpressionParser cronExpressionParser;
     private final FileImportService fileImportService;
     private final MessageService messageService;
     private final JsonService jsonService;
     private final Thesaurus thesaurus;
+    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
+    @Size(max = APP_SERVER_NAME_SIZE, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_14 + "}")
+    @Pattern(regexp = "[a-zA-Z0-9\\-]+", groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.APPSERVER_NAME_INVALID_CHARS + "}")
+    private String name;
+    private String cronString;
+    private transient CronExpression scheduleFrequency;
+    private boolean recurrentTaskActive = true;
+    private boolean active;
     private List<SubscriberExecutionSpecImpl> executionSpecs;
     private List<ImportScheduleOnAppServerImpl> importSchedulesOnAppServer;
 
+    //audit columns
+    private long version;
+    private Instant createTime;
+    private Instant modTime;
+    private String userName;
+
     @Inject
-	AppServerImpl(DataModel dataModel, CronExpressionParser cronExpressionParser, FileImportService fileImportService, MessageService messageService, JsonService jsonService, Thesaurus thesaurus) {
+    AppServerImpl(DataModel dataModel, CronExpressionParser cronExpressionParser, FileImportService fileImportService, MessageService messageService, JsonService jsonService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.cronExpressionParser = cronExpressionParser;
         this.fileImportService = fileImportService;
@@ -64,7 +71,11 @@ public class AppServerImpl implements AppServer {
         this.jsonService = jsonService;
         this.thesaurus = thesaurus;
     }
-    
+
+    static AppServerImpl from(DataModel dataModel, String name, CronExpression scheduleFrequency) {
+        return dataModel.getInstance(AppServerImpl.class).init(name, scheduleFrequency);
+    }
+
     AppServerImpl init(String name, CronExpression scheduleFrequency) {
         this.name = name;
         this.scheduleFrequency = scheduleFrequency;
@@ -72,20 +83,16 @@ public class AppServerImpl implements AppServer {
         return this;
     }
 
-    static AppServerImpl from(DataModel dataModel, String name, CronExpression scheduleFrequency) {
-        return dataModel.getInstance(AppServerImpl.class).init(name, scheduleFrequency);
-    }
-
     @Override
 	public SubscriberExecutionSpecImpl createSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount) {
-        try(BatchUpdateImpl updater = forBatchUpdate()) {
+        try (BatchUpdateImpl updater = forBatchUpdate()) {
             return updater.createActiveSubscriberExecutionSpec(subscriberSpec, threadCount);
         }
     }
 
     @Override
     public ImportScheduleOnAppServerImpl addImportScheduleOnAppServer(ImportSchedule importSchedule) {
-        try(BatchUpdateImpl updater = forBatchUpdate()) {
+        try (BatchUpdateImpl updater = forBatchUpdate()) {
             return updater.addImportScheduleOnAppServer(importSchedule);
         }
     }
@@ -99,7 +106,7 @@ public class AppServerImpl implements AppServer {
     }
 
     @Override
-	public List<SubscriberExecutionSpecImpl> getSubscriberExecutionSpecs() {
+    public List<SubscriberExecutionSpecImpl> getSubscriberExecutionSpecs() {
         if (executionSpecs == null) {
             executionSpecs = getSubscriberExecutionSpecFactory().find("appServer", this);
         }
@@ -108,7 +115,7 @@ public class AppServerImpl implements AppServer {
 
     @Override
     public List<ImportScheduleOnAppServerImpl> getImportSchedulesOnAppServer() {
-        if(importSchedulesOnAppServer == null) {
+        if (importSchedulesOnAppServer == null) {
             importSchedulesOnAppServer = getImportScheduleOnAppServerFactory().find("appServer", this)
                     .stream()
                     .filter(importService -> importService.getAppServer().getName().equals(this.getName()))
@@ -184,14 +191,6 @@ public class AppServerImpl implements AppServer {
     }
 
     @Override
-    public void setImportDirectory(Path path) {
-        ImportFolderForAppServer importFolderForAppServer = dataModel.mapper(ImportFolderForAppServer.class)
-                .getOptional(getName()).orElse(ImportFolderForAppServerImpl.from(dataModel,path, this));
-        importFolderForAppServer.setImportFolder(path);
-        importFolderForAppServer.save();
-    }
-
-    @Override
     public void removeImportDirectory() {
         dataModel.mapper(ImportFolderForAppServer.class)
                 .getOptional(getName()).ifPresent(ifas -> ifas.delete());
@@ -201,6 +200,14 @@ public class AppServerImpl implements AppServer {
     public Optional<Path> getImportDirectory() {
         return dataModel.mapper(ImportFolderForAppServer.class).getOptional(getName())
             .flatMap(ImportFolderForAppServer::getImportFolder);
+    }
+
+    @Override
+    public void setImportDirectory(Path path) {
+        ImportFolderForAppServer importFolderForAppServer = dataModel.mapper(ImportFolderForAppServer.class)
+                .getOptional(getName()).orElse(ImportFolderForAppServerImpl.from(dataModel, path, this));
+        importFolderForAppServer.setImportFolder(path);
+        importFolderForAppServer.save();
     }
 
     @Override
@@ -214,12 +221,61 @@ public class AppServerImpl implements AppServer {
 
     @Override
     public BatchUpdateImpl forBatchUpdate() {
-       return new BatchUpdateImpl();
+        return new BatchUpdateImpl();
+    }
+
+    @Override
+    public void removeSubscriberExecutionSpec(SubscriberExecutionSpec subscriberExecutionSpec) {
+        try (BatchUpdate updater = forBatchUpdate()) {
+            updater.removeSubscriberExecutionSpec(subscriberExecutionSpec);
+        }
+    }
+
+    @Override
+    public void removeImportScheduleOnAppServer(ImportScheduleOnAppServer importScheduleOnAppServer) {
+        try (BatchUpdate updater = forBatchUpdate()) {
+            updater.removeImportScheduleOnAppServer(importScheduleOnAppServer);
+        }
+    }
+
+    @Override
+    public long getVersion() {
+        return this.version;
+    }
+
+    private SubscriberExecutionSpecImpl getSubscriberExecutionSpec(SubscriberExecutionSpec subscriberExecutionSpec) {
+        return getSubscriberExecutionSpecs().stream()
+                .filter(sp -> sp.getSubscriberSpec().getDestination().getName().equals(subscriberExecutionSpec.getSubscriberSpec().getDestination().getName()))
+                .filter(sp -> sp.getSubscriberSpec().getName().equals(subscriberExecutionSpec.getSubscriberSpec().getName()))
+                .findFirst()
+                .orElseThrow(IllegalArgumentException::new);
+    }
+
+    private ImportScheduleOnAppServerImpl getImportScheduleOnAppServer(ImportScheduleOnAppServer importScheduleOnAppServer) {
+        return getImportSchedulesOnAppServer()
+                .stream()
+                .filter(importSchedule -> importSchedule.getImportSchedule().equals(importScheduleOnAppServer.getImportSchedule()))
+                .findFirst()
+                .orElseThrow(IllegalArgumentException::new);
+    }
+
+    // for future use in the appserver's shut down request
+    private void removeMessageQueue() {
+        Optional<DestinationSpec> allServersTopic = messageService.getDestinationSpec(AppService.ALL_SERVERS);
+        if (allServersTopic.isPresent()) {
+            allServersTopic.get().unSubscribe(AppServerImpl.this.messagingName());
+        }
+
+        Optional<DestinationSpec> destinationSpecRef = messageService.getDestinationSpec(AppServerImpl.this.messagingName());
+
+        if (destinationSpecRef.isPresent()) {
+            destinationSpecRef.get().delete();
+        }
     }
 
     private class BatchUpdateImpl implements BatchUpdate {
 
-        boolean needsUpdate = false;
+        private boolean deleted;
 
         @Override
         public SubscriberExecutionSpecImpl createActiveSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount) {
@@ -243,15 +299,15 @@ public class AppServerImpl implements AppServer {
         }
 
         @Override
-        public ImportScheduleOnAppServerImpl addImportScheduleOnAppServer(ImportSchedule importSchedule){
-            ImportScheduleOnAppServerImpl importScheduleOnAppServer = ImportScheduleOnAppServerImpl.from(dataModel,AppServerImpl.this.fileImportService, importSchedule, AppServerImpl.this);
+        public ImportScheduleOnAppServerImpl addImportScheduleOnAppServer(ImportSchedule importSchedule) {
+            ImportScheduleOnAppServerImpl importScheduleOnAppServer = ImportScheduleOnAppServerImpl.from(dataModel, AppServerImpl.this.fileImportService, importSchedule, AppServerImpl.this);
             getImportScheduleOnAppServerFactory().persist(importScheduleOnAppServer);
             fileImportService.schedule(importSchedule);
             return importScheduleOnAppServer;
         }
 
         @Override
-        public void removeImportScheduleOnAppServer(ImportScheduleOnAppServer importScheduleOnAppServer){
+        public void removeImportScheduleOnAppServer(ImportScheduleOnAppServer importScheduleOnAppServer) {
             ImportScheduleOnAppServerImpl found = getImportScheduleOnAppServer(importScheduleOnAppServer);
             getImportScheduleOnAppServerFactory().remove(found);
             importSchedulesOnAppServer.remove(found);
@@ -260,7 +316,6 @@ public class AppServerImpl implements AppServer {
         @Override
         public void setRecurrentTaskActive(boolean recurrentTaskActive) {
             AppServerImpl.this.recurrentTaskActive = recurrentTaskActive;
-            needsUpdate = true;
         }
 
         @Override
@@ -288,10 +343,9 @@ public class AppServerImpl implements AppServer {
         public void activate() {
             if (!active) {
                 active = true;
-                needsUpdate = true;
                 Optional<ImportFolderForAppServer> path = dataModel.mapper(ImportFolderForAppServer.class).getOptional(name);
-                if(path.isPresent()){
-                    if(path.get().getImportFolder().isPresent()){
+                if (path.isPresent()) {
+                    if (path.get().getImportFolder().isPresent()) {
                         fileImportService.setBasePath(path.get().getImportFolder().get());
                     }
                 }
@@ -303,13 +357,14 @@ public class AppServerImpl implements AppServer {
         public void deactivate() {
             if (active) {
                 active = false;
-                needsUpdate = true;
             }
         }
 
         @Override
         public void close() {
-            if (needsUpdate) {
+            if (deleted) {
+                dataModel.mapper(AppServer.class).remove(AppServerImpl.this);
+            } else {
                 dataModel.mapper(AppServer.class).update(AppServerImpl.this);
             }
             sendCommand(new AppServerCommand(Command.CONFIG_CHANGED));
@@ -317,52 +372,9 @@ public class AppServerImpl implements AppServer {
 
         @Override
         public void delete() {
-            dataModel.mapper(AppServer.class).remove(AppServerImpl.this);
+            if (!deleted) {
+                deleted = true;
+            }
         }
     }
-
-    @Override
-    public void removeSubscriberExecutionSpec(SubscriberExecutionSpec subscriberExecutionSpec) {
-        try(BatchUpdate updater = forBatchUpdate()) {
-            updater.removeSubscriberExecutionSpec(subscriberExecutionSpec);
-        }
-    }
-
-    @Override
-    public void removeImportScheduleOnAppServer(ImportScheduleOnAppServer importScheduleOnAppServer) {
-        try(BatchUpdate updater = forBatchUpdate()) {
-            updater.removeImportScheduleOnAppServer(importScheduleOnAppServer);
-        }
-    }
-
-    private SubscriberExecutionSpecImpl getSubscriberExecutionSpec(SubscriberExecutionSpec subscriberExecutionSpec) {
-        return getSubscriberExecutionSpecs().stream()
-                    .filter(sp -> sp.getSubscriberSpec().getDestination().getName().equals(subscriberExecutionSpec.getSubscriberSpec().getDestination().getName()))
-                    .filter(sp -> sp.getSubscriberSpec().getName().equals(subscriberExecutionSpec.getSubscriberSpec().getName()))
-                    .findFirst()
-                    .orElseThrow(IllegalArgumentException::new);
-    }
-
-    private ImportScheduleOnAppServerImpl getImportScheduleOnAppServer(ImportScheduleOnAppServer importScheduleOnAppServer) {
-        return getImportSchedulesOnAppServer()
-                .stream()
-                .filter(importSchedule -> importSchedule.getImportSchedule().equals(importScheduleOnAppServer.getImportSchedule()))
-                .findFirst()
-                .orElseThrow(IllegalArgumentException::new);
-    }
-
-    // for future use in the appserver's shut down request
-    private void removeMessageQueue() {
-        Optional<DestinationSpec> allServersTopic = messageService.getDestinationSpec(AppService.ALL_SERVERS);
-        if (allServersTopic.isPresent()) {
-            allServersTopic.get().unSubscribe(AppServerImpl.this.messagingName());
-        }
-
-        Optional<DestinationSpec> destinationSpecRef = messageService.getDestinationSpec(AppServerImpl.this.messagingName());
-
-        if (destinationSpecRef.isPresent()) {
-            destinationSpecRef.get().delete();
-        }
-    }
-
 }

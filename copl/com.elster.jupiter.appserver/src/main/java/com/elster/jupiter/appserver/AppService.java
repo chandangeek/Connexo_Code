@@ -29,6 +29,8 @@ public interface AppService {
     List<AppServer> findAppServers();
 
     Optional<AppServer> findAppServer(String name);
+    
+    Optional<AppServer> findAndLockAppServerByNameAndVersion(String name, long version);
 
     Query<AppServer> getAppServerQuery();
 
