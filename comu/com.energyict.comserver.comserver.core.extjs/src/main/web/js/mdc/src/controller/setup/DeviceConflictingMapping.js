@@ -32,6 +32,7 @@ Ext.define('Mdc.controller.setup.DeviceConflictingMapping', {
         {ref: 'securitySettingsAddsPanel', selector: '#securitySettingsAddsPanel'},
         {ref: 'deviceConflictingMappingEditPage', selector: 'deviceConflictingMappingEdit'}
     ],
+    returnInfo : {from: 'unsolvedConflicts', id: ''},
 
     init: function () {
         this.control({
@@ -129,12 +130,12 @@ Ext.define('Mdc.controller.setup.DeviceConflictingMapping', {
         switch (me.returnInfo.from) {
             case('unsolvedConflicts') :
             {
-                cancelLink = router.getRoute('administration/devicetypes/view/conflictmappings').buildUrl({deviceTypeId: me.returnInfo.id});
+                cancelLink = router.getRoute('administration/devicetypes/view/conflictmappings').buildUrl({deviceTypeId: me.deviceTypeId});
             }
                 break;
             case('allConflicts') :
             {
-                cancelLink = router.getRoute('administration/devicetypes/view/conflictmappings/all').buildUrl({deviceTypeId: me.returnInfo.id});
+                cancelLink = router.getRoute('administration/devicetypes/view/conflictmappings/all').buildUrl({deviceTypeId: me.deviceTypeId});
             }
                 break;
             case('changeDeviceConfiguration') :

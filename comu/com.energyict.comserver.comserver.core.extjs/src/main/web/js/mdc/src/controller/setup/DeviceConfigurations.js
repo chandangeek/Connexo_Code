@@ -793,7 +793,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             method: 'PUT',
             jsonData: device.data,
             success: function (response) {
-                var json = Ext.decode(response.responseText, true);
+                //var json = Ext.decode(response.responseText, true);
 
 
                 router.getRoute('devices/device').forward();
@@ -804,7 +804,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
             failure: function (response, request) {
                 if (response.status == 400) {
                     var json = Ext.decode(response.responseText, true);
-                    if (json && json.error == 'ChangeDeviceConfigConflict')  {
+                    if (json && json.changeDeviceConfigConflict)  {
                             var title = (canSolveConflictingMappings ? Uni.I18n.translate('general.failed', 'MDC', 'Failed') : Uni.I18n.translate('general.unable', 'MDC', 'Unable')) +
                                 Uni.I18n.translate('device.changeDeviceConfiguration.changeFailedTitle', 'MDC', ' to change device configuration');
 
@@ -831,7 +831,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
 
                             var solveConflictsLink = router.getRoute('administration/devicetypes/view/conflictmappings/edit').buildUrl({
                                     deviceTypeId: device.get('deviceTypeId'),
-                                    id: json.message
+                                    id: json.changeDeviceConfigConflict
                                 }),
                                 message = canSolveConflictingMappings
                                     ? Uni.I18n.translate('device.changeDeviceConfiguration.cannotbeChanged', 'MDC', "The configuration of device '{0}' cannot be changed to '{1}' due to unsolved conflicts. <br/><br/>", [device.get('mRID'), me.getNewDeviceConfigurationCombo().getRawValue()])
@@ -857,7 +857,7 @@ Ext.define('Mdc.controller.setup.DeviceConfigurations', {
                             );
 
                         }
-                    if (json && json.errors[0]) {
+                    if (json && json.errors) {
                         me.getChangeDeviceConfigurationFormErrors().setText(json.errors[0].msg);
                         me.getChangeDeviceConfigurationFormErrors().show();
                     }
