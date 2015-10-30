@@ -194,6 +194,7 @@ public class DeviceSearchDomainTest {
         verify(this.dataModel).getInstance(LoadProfileNameSearchableProperty.class);
         verify(this.dataModel).getInstance(ComTaskNameSearchableProperty.class);
         verify(this.dataModel).getInstance(ComTaskSecuritySettingSearchableProperty.class);
+        verify(this.dataModel).getInstance(ComTaskConnectionMethodSearchableProperty.class);
     }
 
     @Test
@@ -1025,6 +1026,7 @@ public class DeviceSearchDomainTest {
                 eq(false),
                 eq(FactoryIds.SECURITY_SET),
                 anyList())).thenReturn(securitySetSpec);
+        /** {@link #mockConnectionMethodPropertySpec()} */
     }
 
     @Test

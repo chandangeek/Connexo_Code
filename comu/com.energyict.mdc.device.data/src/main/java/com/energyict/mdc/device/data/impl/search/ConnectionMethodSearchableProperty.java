@@ -77,9 +77,14 @@ public class ConnectionMethodSearchableProperty extends AbstractSearchableDevice
     }
 
     @Override
+    public String getName() {
+        return PROPERTY_NAME;
+    }
+
+    @Override
     public PropertySpec getSpecification() {
         return this.propertySpecService.referencePropertySpec(
-                PROPERTY_NAME,
+                getName(),
                 false,
                 FactoryIds.CONNECTION_TYPE,
                 this.protocolPluggableService.findAllConnectionTypePluggableClasses());

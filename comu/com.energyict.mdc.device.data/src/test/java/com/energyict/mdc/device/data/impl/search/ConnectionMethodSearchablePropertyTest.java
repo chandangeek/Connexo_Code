@@ -35,27 +35,27 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionMethodSearchablePropertyTest {
     @Mock
-    private DataVaultService dataVaultService;
+    DataVaultService dataVaultService;
     @Mock
-    private com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
+    com.elster.jupiter.properties.PropertySpecService jupiterPropertySpecService;
     @Mock
-    private DataModel dataModel;
+    DataModel dataModel;
     @Mock
-    private TimeService timeService;
+    TimeService timeService;
     @Mock
-    private OrmService ormService;
+    OrmService ormService;
     @Mock
-    private DeviceSearchDomain domain;
+    DeviceSearchDomain domain;
     @Mock
-    private ProtocolPluggableService protocolPluggableService;
+    ProtocolPluggableService protocolPluggableService;
     @Mock
-    private Thesaurus thesaurus;
+    Thesaurus thesaurus;
     @Mock
-    private ReferencePropertySpecFinderProvider referencePropertySpecFinderProvider;
+    ReferencePropertySpecFinderProvider referencePropertySpecFinderProvider;
     @Mock
-    private ConnectionTypeFinder connectionTypeFinder;
+    ConnectionTypeFinder connectionTypeFinder;
 
-    private PropertySpecService propertySpecService;
+    PropertySpecService propertySpecService;
 
     @Before
     public void initializeMocks() {
@@ -86,7 +86,7 @@ public class ConnectionMethodSearchablePropertyTest {
     }
 
     @Test
-    public void testNoGroup() {
+    public void testGroup() {
         ConnectionMethodSearchableProperty property = this.getTestInstance();
 
         // Business method
