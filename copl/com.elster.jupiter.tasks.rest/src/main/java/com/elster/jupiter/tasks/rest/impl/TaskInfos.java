@@ -20,8 +20,10 @@ public class TaskInfos {
 
     public TaskInfos(Iterable<? extends RecurrentTask> allTasks) {
         for (RecurrentTask each : allTasks) {
-            tasks.add(new TaskInfo(each));
-            total++;
+            if (each.getNextExecution() != null)  {
+                tasks.add(new TaskInfo(each));
+                total++;
+            }
         }
     }
 

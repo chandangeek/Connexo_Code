@@ -48,7 +48,6 @@ public class TaskResource {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<? extends RecurrentTask> list = queryTasks(params);
         TaskInfos infos = new TaskInfos(params.clipToLimit(list));
-        infos.total = params.determineTotal(list.size());
         return infos;
     }
 
