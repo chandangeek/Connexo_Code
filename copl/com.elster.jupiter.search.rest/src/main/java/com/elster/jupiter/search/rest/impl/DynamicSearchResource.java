@@ -145,6 +145,44 @@ public class DynamicSearchResource {
         return Response.ok().entity(PagedInfoList.fromPagedList("searchResults", searchResults, jsonQueryParameters)).build();
     }
 
+
+    @GET
+    @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @Path("/v2/{domain}")
+    public Response doSearch2(@PathParam("domain") String domainId,
+                             @BeanParam JsonQueryFilter jsonQueryFilter,
+                             @BeanParam JsonQueryParameters jsonQueryParameters,
+                             @Context UriInfo uriInfo) throws InvalidValueException {
+        SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
+        final SearchBuilder<Object> searchBuilder = searchService.search(searchDomain);
+        if (jsonQueryFilter.hasFilters()) {
+            searchDomain.getProperties().stream().
+                    filter(p -> jsonQueryFilter.hasProperty(p.getName())).
+                    forEach(searchableProperty -> {
+//                        List<SearchablePropertyConstriction> searchablePropertyConstrictions =
+//                                searchableProperty.getConstraints().stream().
+//                                        map(constrainingProperty -> asConstriction(constrainingProperty, jsonQueryFilter)).
+//                                        collect(toList());
+//                        searchableProperty.refreshWithConstrictions(searchablePropertyConstrictions);
+                        SearchBuilder.CriterionBuilder<Object> criterionBuilder = searchBuilder.where(searchableProperty);
+                        try {
+                            for (SearchPropertyValue propertyValue : SearchPropertyValue.convert(searchableProperty, jsonQueryFilter)) {
+                                propertyValue.addAsCriteria(criterionBuilder);
+                            }
+                        } catch (InvalidValueException e) {
+                            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "filter." + searchableProperty.getName());
+                        }
+                    });
+        } else {
+            throw new LocalizedFieldValidationException(MessageSeeds.AT_LEAST_ONE_CRITERIA, "filter");
+        }
+        List<Object> searchResults = searchBuilder.toFinder().from(jsonQueryParameters).stream().
+                map(o-> infoFactoryService.getInfoFactoryFor(searchDomain).from(o)).
+                collect(toList());
+        return Response.ok().entity(PagedInfoList.fromPagedList("searchResults", searchResults, jsonQueryParameters)).build();
+    }
+
     private SearchDomain findSearchDomainOrThrowException(@PathParam("domain") String domainId) {
         return searchService.findDomain(domainId).
                     orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_SEARCH_DOMAIN, domainId));
