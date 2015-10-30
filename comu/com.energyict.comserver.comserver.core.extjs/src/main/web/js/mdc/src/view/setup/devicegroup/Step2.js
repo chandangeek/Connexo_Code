@@ -1,13 +1,7 @@
 Ext.define('Mdc.view.setup.devicegroup.Step2', {
     extend: 'Ext.panel.Panel',
-    xtype: 'devicegroup-wizard-step2',
-    name: 'deviceGroupWizardStep2',
+    alias: 'widget.device-group-wizard-step2',
     ui: 'large',
-
-    layout: {
-        type: 'vbox',
-        align: 'stretch'
-    },
 
     requires: [
         'Uni.util.FormErrorMessage',
@@ -17,9 +11,6 @@ Ext.define('Mdc.view.setup.devicegroup.Step2', {
         'Mdc.store.filter.DeviceTypes',
         'Mdc.store.DeviceConfigurations'
     ],
-
-
-    title: Uni.I18n.translate('devicegroup.wizard.step2title', 'MDC', 'Step 2 of 2: Add device group'),
 
     items: [
         {
