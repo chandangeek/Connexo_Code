@@ -1,0 +1,400 @@
+Ext.define('Uni.service.Search', {
+    singleton: true,
+    mixins: {
+        observable: 'Ext.util.Observable'
+    },
+
+    constructor: function (config) {
+        var me = this,
+            searchResults    = Ext.getStore('Uni.store.search.Results'),
+            searchProperties = Ext.getStore('Uni.store.search.Properties'),
+            searchFields     = Ext.getStore('Uni.store.search.Fields');
+
+        // The Observable constructor copies all of the properties of `config` on
+        // to `this` using Ext.apply. Further, the `listeners` property is
+        // processed to add listeners.
+        //
+        me.mixins.observable.constructor.call(this, config);
+
+        me.addEvents(
+            'add',
+            'remove',
+            'change',
+            'reset'
+        );
+
+        searchResults.on({
+            load: me.onSearchResultsLoad,
+            scope: me
+        });
+
+        searchProperties.on({
+            load: me.onSearchPropertiesLoad,
+            scope: me
+        });
+
+        searchFields.on({
+            load: me.onSearchFieldsLoad,
+            scope: me
+        });
+    },
+
+    requires: [
+        'Uni.store.search.Domains',
+        'Uni.store.search.Removables',
+        'Uni.store.search.Results',
+        'Uni.store.search.Properties',
+        'Uni.store.search.Fields'
+    ],
+
+    config: {
+        router: null,
+        searchContainer: null
+    },
+
+    /**
+     * search domain
+     */
+    searchDomain: null,
+
+    filters: Ext.create('Ext.util.MixedCollection', false, function (o) {
+        return o ? o.dataIndex : null;
+    }),
+
+    criteriaMap: {
+        'Boolean':      'uni-search-criteria-boolean',
+        'Instant':      'uni-search-criteria-datetime',
+        'TimeDuration': 'uni-search-criteria-datetime',
+        'BigDecimal':   'uni-search-criteria-numeric',
+        'Selection':    'uni-search-criteria-selection'
+    },
+
+    fieldMap: {
+        'Boolean': 'boolean',
+        'Long': 'int',
+        'String': 'string'
+    },
+
+    columnMap: {
+        'Long': 'numbercolumn',
+        'Date': 'datecolumn',
+        'Boolean': 'booleancolumn',
+        'DeviceType': 'uni-grid-column-search-devicetype',
+        'DeviceConfiguration': 'uni-grid-column-search-deviceconfiguration'
+    },
+
+    defaultColumns: {
+        'com.energyict.mdc.device.data.Device': ['id', 'mRID', 'serialNumber', 'deviceTypeName', 'deviceConfigurationName'],
+        'com.elster.jupiter.metering.UsagePoint' : ['mRID', 'serviceCategory', 'connectionState', 'openIssues']
+    },
+
+    getDomain: function() {
+        return this.searchDomain;
+    },
+
+    getCriteriaSelector: function() {
+        return this.getSearchContainer().down('search-criteria-selector');
+    },
+
+    getResultsGrid: function() {
+        return this.getSearchContainer().down('uni-view-search-results');
+    },
+
+    getRemovableCriteriaContainer: function() {
+        return this.getSearchContainer().down('#search-criteria-removable')
+    },
+
+    updateState: function() {
+        //if (router.queryParams.searchDomain !== searchDomain.get('displayValue')) {
+        //    Uni.util.History.suspendEventsForNextCall();
+        //    Uni.util.History.setParsePath(false); //todo: this is probably a bug un unifying, so this line shouldn't be here
+        //    router.getRoute().forward(null, {searchDomain: searchDomain.get('displayValue')});
+        //}
+    },
+
+    /**
+     * @param domain string or Domain model
+     */
+    setDomain: function(domain) {
+        var me = this,
+            //router = me.getRouter(),
+            searchResults = Ext.getStore('Uni.store.search.Results'),
+            searchProperties = Ext.getStore('Uni.store.search.Properties'),
+            searchFields = Ext.getStore('Uni.store.search.Fields');
+
+
+        if (Ext.isString(domain)) {
+            domain = Ext.getStore('Uni.store.search.Domains').findRecord('id', domain, 0, true, true);
+        }
+
+        //container = me.getSearchOverview(),
+        //container.setLoading(true);
+
+        if (domain !== null && Ext.isDefined(domain) && Ext.getClassName(domain) == "Uni.model.search.Domain") {
+            me.searchDomain = domain;
+
+            searchProperties.removeAll();
+            searchProperties.getProxy().url = domain.get('glossaryHref');
+            searchProperties.load();
+
+            searchFields.removeAll();
+            searchFields.getProxy().url = domain.get('describedByHref');
+            searchFields.load();
+
+            searchResults.removeAll(true);
+            searchResults.getProxy().url = domain.get('selfHref');
+        }
+    },
+
+    onSearchFieldsLoad: function(store, records, success) {
+        var me = this,
+            searchResults = Ext.getStore('Uni.store.search.Results');
+
+        if (success) {
+            me.updateResultModelAndColumnsFromFields(store);
+
+            searchResults.removeAll(true);
+            me.applyFilters();
+        }
+    },
+
+    onSearchResultsLoad: function(store, records, success) {
+        if (!success) {
+            store.removeAll();
+        }
+    },
+
+    onSearchPropertiesLoad: function () {
+        var me = this;
+
+        Ext.suspendLayouts();
+
+        me.fireEvent('reset', me.filters);
+        me.filters.removeAll();
+
+        me.initCriteria();
+        me.restoreState();
+
+        Ext.resumeLayouts(true);
+    },
+
+    initCriteria: function () {
+        var me = this,
+            propertiesStore = Ext.getStore('Uni.store.search.Properties'),
+            removablesStore = Ext.getStore('Uni.store.search.Removables')
+        ;
+
+        removablesStore.removeAll();
+        propertiesStore.each(function (property) {
+            if (property.get('sticky')) {
+                me.addProperty(property);
+            } else {
+                removablesStore.add(property);
+            }
+        });
+
+        me.getCriteriaSelector().bindStore(removablesStore);
+    },
+
+    addProperty: function (property) {
+        var me = this,
+            filter = me.createWidgetForProperty(property);
+
+        if (Ext.isDefined(filter)) {
+            me.filters.add(filter);
+            me.fireEvent('add', me.filters, filter, property);
+        }
+    },
+
+    removeProperty: function (property) {
+        var me = this,
+            filter;
+
+        filter = me.filters.findBy(function (filter) {
+            return filter.property === property;
+        });
+
+        if (filter) {
+            filter.reset();
+            me.filters.remove(filter);
+            me.fireEvent('remove', me.filters, filter, property);
+        }
+    },
+
+    applyFilters: function () {
+        var me = this,
+            searchResults = Ext.getStore('Uni.store.search.Results');
+
+        me.getResultsGrid().down('pagingtoolbarbottom').resetPaging();
+        me.getResultsGrid().down('pagingtoolbartop').resetPaging();
+
+        searchResults.clearFilter(true);
+        searchResults.filter(me.getFilters(), true);
+        searchResults.load();
+    },
+
+    clearFilters: function () {
+        var me = this;
+
+        me.onSearchPropertiesLoad();
+    },
+
+    getFilters: function() {
+        var me = this,
+            filters = [];
+
+        me.filters.each(function (item) {
+            if (!Ext.isEmpty(item.getValue())) {
+                filters.push(item.getFilter());
+            }
+        });
+
+        return filters;
+    },
+
+    restoreState: function () {
+        var me = this,
+            router = me.getRouter(),
+            propertiesStore = Ext.getStore('Uni.store.search.Properties');
+
+        if (router.queryParams[me.filterObjectParam]) {
+            Ext.suspendLayouts();
+            var filter = JSON.parse(router.queryParams[me.filterObjectParam]);
+            filter.map(function(item) {
+                var property = propertiesStore.findRecord('name', item.property);
+                if (property && property.get('visibility') === 'removable') {
+                    me.addProperty(property, me.getRemovableCriteriaContainer(), true);
+                }
+                var filter = me.filters.getByKey(item.property);
+                if (filter) {
+                    filter.populateValue(item.value);
+                }
+            });
+
+            Ext.resumeLayouts(true);
+        }
+    },
+
+    updateResultModelAndColumnsFromFields: function (fields) {
+        var me = this,
+            grid = me.getResultsGrid(),
+            fieldItems = [],
+            columnItems = [],
+            defaultColumns = me.defaultColumns[me.searchDomain.get('id')];
+
+        fields.each(function (field) {
+            fieldItems.push(me.createFieldDefinitionFromModel(field));
+            var columnItem = me.createColumnDefinitionFromModel(field);
+            if (defaultColumns && defaultColumns.indexOf(field.get('propertyName')) >= 0) {
+                columnItem.isDefault = true;
+            }
+            columnItems.push(columnItem);
+        });
+
+        //me.fireEvent('beforegridconfigure', fieldItems, columnItems );
+        grid.store.model.setFields(fieldItems);
+        grid.setColumns(columnItems);
+    },
+
+    createColumnDefinitionFromModel: function (field) {
+        var propertyName = field.get('propertyName'),
+            type = this.columnMap[field.get('type')],
+            displayValue = field.get('displayValue');
+
+        if (!type) {
+            type = 'gridcolumn';
+        }
+
+        return {
+            dataIndex: propertyName,
+            header: displayValue,
+            xtype: type
+        };
+    },
+
+    createFieldDefinitionFromModel: function (field) {
+        var propertyName = field.get('propertyName'),
+            type = this.fieldMap[field.get('type')];
+
+        if (!type) {
+            type = 'auto';
+        }
+
+        return {
+            name: propertyName,
+            type: type
+        };
+    },
+
+    createWidgetForProperty: function (property) {
+        var me = this,
+            type = property.get('type'),
+            displayValue = property.get('displayValue'),
+            config = {
+                xtype: me.criteriaMap[type],
+                text: displayValue,
+                dataIndex: property.get('name'),
+                itemId: 'criteria-' + property.get('name'),
+                property: property,
+                listeners: {
+                    'change': {
+                        fn: me.updateConstraints,
+                        scope: me
+                    }
+                }
+            },
+            widget;
+
+        if (property.get('exhaustive')) {
+            var store = Ext.create('Uni.store.search.PropertyValues', {
+                proxy: {
+                    type: 'ajax',
+                    pageParam: undefined,
+                    startParam: undefined,
+                    limitParam: undefined,
+                    url: property.get('linkHref'),
+                    reader: {
+                        type: 'json',
+                        root: 'values'
+                    }
+                }
+            });
+
+            store.load();
+
+            Ext.apply(config, {
+                xtype: 'uni-search-criteria-selection',
+                emptyText: displayValue,
+                store: store,
+                valueField: 'id',
+                displayField: 'displayValue',
+                multiSelect: property.get('selectionMode') === 'multiple'
+            });
+        }
+
+        if (property.get('constraints') && property.get('constraints').length) {
+            Ext.apply(config, {
+                disabled: true
+            });
+        }
+
+        if (Ext.isEmpty(config.xtype)){
+            Ext.apply(config, {
+                xtype: 'uni-search-criteria-simple'
+            });
+        }
+
+        widget = Ext.widget(config);
+
+        if (!property.get('sticky')) {
+            widget = Ext.create('Uni.view.search.field.internal.Adapter', {
+                widget: widget,
+                removeHandler: function () {
+                    me.removeProperty(property);
+                }
+            });
+        }
+
+        return widget;
+    }
+});

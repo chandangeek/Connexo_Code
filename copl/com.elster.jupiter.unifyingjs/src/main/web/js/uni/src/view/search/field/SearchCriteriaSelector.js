@@ -12,6 +12,10 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
     arrowAlign: 'right',
     menuAlign: 'tr-br',
 
+    config: {
+        service: null
+    },
+
     setChecked: function(property, value, suppressEvents) {
         var item, me = this;
         var base = property.get('groupId')
@@ -35,8 +39,32 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
             }
         };
 
+        var service = this.getService();
+
+        //service.on('reset', this.onReset, this);
+        service.on('add', this.onCriteriaAdd, this);
+        service.on('remove', this.onCriteriaRemove, this);
+
         this.callParent(arguments);
         me.bindStore('ext-empty-store', true);
+    },
+
+    //onReset: function(filters, filter, property) {
+    //    if (!property.get('sticky')) {
+    //        this.setChecked(property, true);
+    //    }
+    //},
+
+    onCriteriaAdd: function(filters, filter, property) {
+        if (!property.get('sticky')) {
+            this.setChecked(property, true);
+        }
+    },
+
+    onCriteriaRemove: function(filters, filter, property) {
+        if (!property.get('sticky')) {
+            this.setChecked(property, false);
+        }
     },
 
     createMenuItem: function (criteria) {

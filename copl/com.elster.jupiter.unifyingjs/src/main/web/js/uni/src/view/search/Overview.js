@@ -12,6 +12,7 @@ Ext.define('Uni.view.search.Overview', {
         'Uni.view.search.Results',
         'Uni.store.search.Domains',
         'Uni.store.search.Removables',
+        'Uni.view.search.field.internal.CriteriaPanel',
         'Uni.view.search.field.Boolean',
         'Uni.view.search.field.SearchObjectSelector',
         'Uni.view.search.field.SearchCriteriaSelector',
@@ -22,6 +23,10 @@ Ext.define('Uni.view.search.Overview', {
     ],
 
     padding: '16 16 16 16',
+
+    config: {
+        service: null
+    },
 
     initComponent: function () {
         var me = this;
@@ -74,7 +79,8 @@ Ext.define('Uni.view.search.Overview', {
                                         disabled: true,
                                         itemId: 'search-criteria-selector',
                                         xtype: 'search-criteria-selector',
-                                        margin: 0
+                                        margin: 0,
+                                        service: me.getService()
                                     }
                                 ]
                             },
@@ -83,36 +89,29 @@ Ext.define('Uni.view.search.Overview', {
                             },
                             {
                                 // Sticky criteria.
-                                xtype: 'panel',
+                                xtype: 'uni-search-internal-criteriapanel',
                                 itemId: 'search-criteria-sticky',
-                                hidden: true,
+                                //hidden: true,
                                 lbar: {
                                     xtype: 'label',
                                     text: Uni.I18n.translate('search.overview.criteria.label', 'UNI', 'Criteria'),
                                     width: 100
                                 },
-                                flex: 1,
-                                defaults: {
-                                    margin: '0 10 10 0'
-                                },
                                 margin: '10 0 0 0',
-                                layout: 'column'
+                                service: me.getService(),
+                                sticky: true
                             },
                             {
                                 // Removable criteria.
-                                xtype: 'panel',
+                                xtype: 'uni-search-internal-criteriapanel',
                                 itemId: 'search-criteria-removable',
-                                hidden: true,
+                                //hidden: true,
                                 lbar: {
                                     xtype: 'label',
                                     text: '',
                                     width: 100
                                 },
-                                flex: 1,
-                                defaults: {
-                                    margin: '0 10 10 0'
-                                },
-                                layout: 'column'
+                                service: me.getService()
                             },
                             {
                                 xtype: 'toolbar',
