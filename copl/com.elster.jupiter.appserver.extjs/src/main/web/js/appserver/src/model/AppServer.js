@@ -4,7 +4,6 @@ Ext.define('Apr.model.AppServer', {
         'name', 'active', 'executionSpecs', 'importServices',
         {
             name: 'version',
-            persist: false,
             defaultValue: 0
         },
         {
