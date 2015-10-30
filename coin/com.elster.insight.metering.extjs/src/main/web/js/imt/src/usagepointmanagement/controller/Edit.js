@@ -10,7 +10,6 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
              'Imt.metrologyconfiguration.model.MetrologyConfiguration'
     ],
     stores: [
-             'Imt.metrologyconfiguration.store.MetrologyConfiguration',
              'Imt.metrologyconfiguration.store.MetrologyConfigurationSelect'
     ],
     refs: [

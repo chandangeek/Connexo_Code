@@ -230,6 +230,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                     displayField: 'name',
                     valueField: 'id',
                     value: 'NONE',
+                    queryMode: 'local',
                     editable: false,
                     allowBlank: true,
                     required: false,
