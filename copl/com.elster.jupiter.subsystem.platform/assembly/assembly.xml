@@ -101,6 +101,7 @@
             <excludes>
                 <exclude>com.elster.jupiter:launcher</exclude>
                 <exclude>com.elster.jupiter:yellowfin.installer</exclude>
+                <exclude>com.elster.jupiter:drools-integration:pom</exclude>
             </excludes>
             <scope>provided</scope>
             <unpack>false</unpack>
