@@ -38,7 +38,7 @@ public class PeriodTrace_C extends AbstractField<PeriodTrace_C> {
         } else if (seconds == MONTH.getSeconds()) {
             this.period = MONTHLY;
         } else {
-            throw new IllegalArgumentException("Unable to get PeriodTrace_C object for a TimeDuration of [" + interval.getStringValue() + "]");
+            throw new IllegalArgumentException("Unable to get PeriodTrace_C object for a TimeDuration of [" + interval.toString() + "]");
         }
     }
 
