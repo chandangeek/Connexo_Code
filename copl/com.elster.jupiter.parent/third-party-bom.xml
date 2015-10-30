@@ -146,6 +146,17 @@
                 <version>0.10.0</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.aries.jmx</groupId>
+                <artifactId>org.apache.aries.jmx.whiteboard</artifactId>
+                <version>1.1.5</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.eclipse</groupId>
+                        <artifactId>org.eclipse.osgi</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>18.0</version>
