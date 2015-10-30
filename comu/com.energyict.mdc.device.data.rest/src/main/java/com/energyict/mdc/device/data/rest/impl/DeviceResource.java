@@ -8,6 +8,7 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.rest.Untransactional;
@@ -196,12 +197,20 @@ public class DeviceResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION)
-    public DeviceInfo updateDevice(@PathParam("id") long id, DeviceInfo info) {
+    public Response updateDevice(@PathParam("id") long id, DeviceInfo info) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(info.mRID);
         if (device.getDeviceConfiguration().getId() != info.deviceConfigurationId) {
             DeviceConfiguration destinationConfiguration = deviceConfigurationService.findDeviceConfiguration(info.deviceConfigurationId)
                     .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_CONFIG));
-            device = updateDeviceConfig(device, info.version, destinationConfiguration, destinationConfiguration.getVersion());
+            try {
+                device = updateDeviceConfig(device, info.version, destinationConfiguration, destinationConfiguration.getVersion());
+            } catch (CannotChangeDeviceConfigStillUnresolvedConflicts e) {
+                final long deviceConfigurationId = device.getDeviceConfiguration().getId();
+                long conflictId = device.getDeviceType().getDeviceConfigConflictMappings().stream()
+                        .filter(conflict -> conflict.getOriginDeviceConfiguration().getId() == deviceConfigurationId
+                                && conflict.getDestinationDeviceConfiguration().getId() == destinationConfiguration.getId()).findFirst().orElseThrow(() -> e).getId();
+                return Response.status(Response.Status.BAD_REQUEST).entity(Pair.of("changeDeviceConfigConflict", conflictId).asMap()).build();
+            }
         } else {
             try (TransactionContext context = transactionService.getContext()) {
                 device = resourceHelper.lockDeviceOrThrowException(info);
@@ -210,17 +219,11 @@ public class DeviceResource {
                 context.commit();
             }
         }
-        return deviceInfoFactory.from(device, getSlaveDevicesForDevice(device));
+        return Response.ok().entity(deviceInfoFactory.from(device, getSlaveDevicesForDevice(device))).build();
     }
 
     public Device updateDeviceConfig(Device device, long deviceVersion, DeviceConfiguration destinationConfiguration, long deviceConfigurationVersion) {
-        try {
             return deviceService.changeDeviceConfigurationForSingleDevice(device.getId(), deviceVersion, destinationConfiguration.getId(), deviceConfigurationVersion);
-        } catch (CannotChangeDeviceConfigStillUnresolvedConflicts e) {
-            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.CHANGE_DEVICE_CONFIG_CONFLICT, device.getDeviceType().getDeviceConfigConflictMappings().stream()
-                    .filter(conflict -> conflict.getOriginDeviceConfiguration().getId() == device.getDeviceConfiguration().getId()
-                            && conflict.getDestinationDeviceConfiguration().getId() == destinationConfiguration.getId()).findFirst().orElseThrow(() -> e).getId());
-        }
     }
 
     private DeviceInfo updateGateway(DeviceInfo info, Device device) {

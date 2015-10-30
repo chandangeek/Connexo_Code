@@ -66,7 +66,7 @@ public enum MessageSeeds implements MessageSeed {
     CONFLICT_ON_DEVICE(247, "ConflictOnDevice", "The device you attempted to edit was changed by someone else."),
     NO_SUCH_DEVICE_CONFIG(248, "NoSuchDeviceConfig" , "Device type does not contain a device configuration with that id"),
     NO_SUCH_DEVICE_ID(249, "NoSuchDeviceId" , "No device with id {0}"),
-    CHANGE_DEVICE_CONFIG_CONFLICT(250, "ChangeDeviceConfigConflict" , "{0}")
+    CHANGE_DEVICE_CONFIG_CONFLICT(250, "ChangeDeviceConfigConflict" , "Found change device configuration conflict with id {0}")
     ;
     private final int number;
     private final String key;
