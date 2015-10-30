@@ -14,10 +14,7 @@ import com.elster.jupiter.fileimport.ImportScheduleBuilder;
 import com.elster.jupiter.fileimport.security.Privileges;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.MessageSeedProvider;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.*;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -57,17 +54,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
         name = "com.elster.jupiter.fileimport",
-        service = {InstallService.class, FileImportService.class, PrivilegesProvider.class, MessageSeedProvider.class},
+        service = {InstallService.class, FileImportService.class, PrivilegesProvider.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         property = {"name=" + FileImportService.COMPONENT_NAME},
         immediate = true)
-public class FileImportServiceImpl implements InstallService, FileImportService, PrivilegesProvider, MessageSeedProvider {
+public class FileImportServiceImpl implements InstallService, FileImportService, PrivilegesProvider, MessageSeedProvider, TranslationKeyProvider {
 
     private static final Logger LOGGER = Logger.getLogger(FileImportServiceImpl.class.getName());
     private static final String COMPONENTNAME = "FIS";
@@ -260,6 +259,11 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
         return importScheduleFactory().getOptional(id);
     }
 
+    @Override
+    public Optional<ImportSchedule> findAndLockImportScheduleByIdAndVersion(long id, long version) {
+        return importScheduleFactory().lockObjectIfVersion(version, id);
+    }
+
 
     private DataMapper<ImportSchedule> importScheduleFactory() {
         return dataModel.mapper(ImportSchedule.class);
@@ -386,13 +390,26 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
         List<ResourceDefinition> resources = new ArrayList<>();
         resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
                 "fileImport.importServices", "fileImport.importServices.description",
-                Arrays.asList(Privileges.ADMINISTRATE_IMPORT_SERVICES, Privileges.VIEW_IMPORT_SERVICES)));
+                Arrays.asList(Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES, Privileges.Constants.VIEW_IMPORT_SERVICES)));
         return resources;
+    }
+
+    @Override
+    public String getComponentName() {
+        return FileImportService.COMPONENT_NAME;
     }
 
     @Override
     public Layer getLayer() {
         return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Stream.of(
+                Arrays.stream(Privileges.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
     @Override
