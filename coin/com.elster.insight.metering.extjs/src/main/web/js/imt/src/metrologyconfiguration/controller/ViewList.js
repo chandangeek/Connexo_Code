@@ -4,8 +4,8 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
         'Imt.metrologyconfiguration.store.MetrologyConfiguration',
         'Imt.metrologyconfiguration.view.MetrologyConfigurationListSetup',
         'Imt.metrologyconfiguration.view.MetrologyConfigurationListPreview',
-        'Imt.metrologyconfiguration.view.MetrologyConfigurationList',
-        'Imt.metrologyconfiguration.view.MetrologyConfigurationActionMenu'
+        'Imt.metrologyconfiguration.view.MetrologyConfigurationList'//,
+//        'Imt.metrologyconfiguration.view.MetrologyConfigurationActionMenu'
     ],
     models: [
         'Imt.metrologyconfiguration.model.MetrologyConfiguration',

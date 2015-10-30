@@ -4,8 +4,8 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationList', {
     requires: [
         'Imt.metrologyconfiguration.store.MetrologyConfiguration',
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom',
-        'Imt.metrologyconfiguration.view.MetrologyConfigurationActionMenu'
+        'Uni.view.toolbar.PagingBottom'//,
+//        'Imt.metrologyconfiguration.view.MetrologyConfigurationActionMenu'
     ],
     store: 'Imt.metrologyconfiguration.store.MetrologyConfiguration',
     overflowY: 'auto',
