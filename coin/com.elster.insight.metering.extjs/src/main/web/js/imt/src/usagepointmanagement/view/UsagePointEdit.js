@@ -71,7 +71,6 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.usagePointEdit',
     itemId: 'usagePointEdit',
-
     edit: false,
 
     content: [
@@ -227,9 +226,11 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                     xtype: 'combobox',
                     name: 'metrologyConfiguration',
                     fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.metrologyConfiguration', 'IMT', 'Metrology Configuration'),
-                    store: 'Imt.metrologyconfiguration.store.MetrologyConfiguration',
+                    store: 'Imt.metrologyconfiguration.store.MetrologyConfigurationSelect',
                     displayField: 'name',
                     valueField: 'id',
+                    value: 'NONE',
+                    editable: false,
                     allowBlank: true,
                     required: false,
                     labelWidth: 250,

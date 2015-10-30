@@ -10,7 +10,8 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
              'Imt.metrologyconfiguration.model.MetrologyConfiguration'
     ],
     stores: [
-             'Imt.metrologyconfiguration.store.MetrologyConfiguration'
+             'Imt.metrologyconfiguration.store.MetrologyConfiguration',
+             'Imt.metrologyconfiguration.store.MetrologyConfigurationSelect'
     ],
     refs: [
            {
@@ -91,7 +92,11 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
             values = {};
         this.selectedMetrologyConfig=data.metrologyConfiguration;
         form.loadRecord(model);
-        values['metrologyConfiguration']=data.metrologyConfiguration.name;
+        if (data.metrologyConfiguration) {
+            values['metrologyConfiguration']=data.metrologyConfiguration.name;           
+        } else {
+            values['metrologyConfiguration']='NONE';                       
+        }
         Ext.Object.each(data, function (key, value) {
             if (Ext.isObject(value)) {
                 if (value.unit) {
@@ -124,6 +129,9 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         return model;
     },
     buildMC: function(mc) {
+       if(mc.id == 0) {
+           return undefined;
+       }
        var o = Object();
        o.id=mc.id;
        o.name=mc.name;
