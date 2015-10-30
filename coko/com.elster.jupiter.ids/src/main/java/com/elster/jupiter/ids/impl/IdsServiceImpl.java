@@ -13,6 +13,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -34,17 +35,19 @@ public class IdsServiceImpl implements IdsService, InstallService, MessageSeedPr
 
     private volatile DataModel dataModel;
     private volatile Clock clock;
-    private Thesaurus thesaurus;
+    private volatile Thesaurus thesaurus;
+    private volatile ThreadPrincipalService threadPrincipalService;
 
     public IdsServiceImpl() {
     }
 
     @Inject
-    public IdsServiceImpl(Clock clock, OrmService ormService, NlsService nlsService) {
+    public IdsServiceImpl(Clock clock, OrmService ormService, NlsService nlsService, ThreadPrincipalService threadPrincipalService) {
         this();
         setClock(clock);
         setOrmService(ormService);
         setNlsService(nlsService);
+        setThreadPrincipalService(threadPrincipalService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -107,20 +110,20 @@ public class IdsServiceImpl implements IdsService, InstallService, MessageSeedPr
 
     @Override
     public void purge(Logger logger) {
-    	getVaults().stream()
-    		.filter(Vault::isActive)
-    		.forEach(vault -> vault.purge(logger));
+        getVaults().stream()
+                .filter(Vault::isActive)
+                .forEach(vault -> vault.purge(logger));
     }
 
     @Override
     public void extendTo(Instant instant, Logger logger) {
-    	getVaults().stream()
-    		.filter(Vault::isActive)
-    		.forEach(vault -> vault.extendTo(instant, logger));
+        getVaults().stream()
+                .filter(Vault::isActive)
+                .forEach(vault -> vault.extendTo(instant, logger));
     }
 
     List<VaultImpl> getVaults() {
-    	return dataModel.stream(VaultImpl.class).select();
+        return dataModel.stream(VaultImpl.class).select();
     }
 
     @Reference
@@ -141,6 +144,11 @@ public class IdsServiceImpl implements IdsService, InstallService, MessageSeedPr
         this.thesaurus = nlsService.getThesaurus(getComponentName(), getLayer());
     }
 
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
     @Activate
     public final void activate() {
         dataModel.register(getModule());
@@ -154,6 +162,7 @@ public class IdsServiceImpl implements IdsService, InstallService, MessageSeedPr
                 this.bind(IdsService.class).toInstance(IdsServiceImpl.this);
                 this.bind(Clock.class).toInstance(clock);
                 this.bind(Thesaurus.class).toInstance(thesaurus);
+                this.bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
             }
         };
     }

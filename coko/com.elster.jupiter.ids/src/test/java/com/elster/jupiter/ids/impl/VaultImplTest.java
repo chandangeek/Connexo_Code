@@ -3,6 +3,7 @@ package com.elster.jupiter.ids.impl;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.SqlDialect;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.google.common.collect.ImmutableList;
 import org.mockito.Mock;
 
@@ -23,6 +24,8 @@ public class VaultImplTest extends EqualsContractTest {
     @Mock
     private Clock clock;
     @Mock
+    private ThreadPrincipalService threadPrincipalService;
+    @Mock
     private Provider<TimeSeriesImpl> provider;
     
     private Object a;
@@ -32,19 +35,19 @@ public class VaultImplTest extends EqualsContractTest {
     	if (a == null) {
     		dataModel = mock(DataModel.class);
     		when(dataModel.getSqlDialect()).thenReturn(SqlDialect.H2);
-    		a = new VaultImpl(dataModel, clock, provider).init(COMPONENT_NAME,ID,DESCRIPTION,SLOT_COUNT,0,true);
-    	}
-    	return a;
+            a = new VaultImpl(dataModel, clock, threadPrincipalService, provider).init(COMPONENT_NAME, ID, DESCRIPTION, SLOT_COUNT, 0, true);
+        }
+        return a;
     }
 
     @Override
     protected Object getInstanceEqualToA() {
-        return new VaultImpl(dataModel, clock, provider).init(COMPONENT_NAME, ID, DESCRIPTION, SLOT_COUNT, 0,true);
+        return new VaultImpl(dataModel, clock, threadPrincipalService, provider).init(COMPONENT_NAME, ID, DESCRIPTION, SLOT_COUNT, 0, true);
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        return ImmutableList.of(new VaultImpl(dataModel , clock, provider).init(COMPONENT_NAME, ID + 1, DESCRIPTION, SLOT_COUNT,0, true));
+        return ImmutableList.of(new VaultImpl(dataModel, clock, threadPrincipalService, provider).init(COMPONENT_NAME, ID + 1, DESCRIPTION, SLOT_COUNT, 0, true));
     }
 
     @Override
