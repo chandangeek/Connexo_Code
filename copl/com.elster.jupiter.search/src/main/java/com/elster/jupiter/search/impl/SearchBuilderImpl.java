@@ -117,6 +117,17 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
         }
 
         @Override
+        public SearchBuilder<T> notIn(List<Object> values) throws InvalidValueException {
+            this.validateValues(this.attemptConvertToValidValues(values), this.property.getSpecification());
+            addCondition(
+                    this,
+                    new SearchablePropertyContains(
+                            ListOperator.NOT_IN.contains(this.property.getSpecification().getName(), values),
+                            this.property));
+            return SearchBuilderImpl.this;
+        }
+
+        @Override
         public SearchBuilder<T> isEqualTo(Object value) throws InvalidValueException {
             Object actualValue = this.attemptConvertToValidValue(value);
             this.validateValue(actualValue, this.property.getSpecification());

@@ -126,6 +126,39 @@ public interface SearchBuilder<T> {
 
         /**
          * Builds a criterion that checks that the target
+         * {@link SearchableProperty} does not match none of the specified values.
+         * <p>
+         * Will throw an {@link com.elster.jupiter.properties.InvalidValueException}
+         * when one of the specified values is not compatible with the
+         * property's {@link com.elster.jupiter.properties.PropertySpec specification}.
+         * </p>
+         *
+         * @param values The List of value
+         * @return The same SearchBuilder to support method chaining
+         * @throws InvalidValueException Thrown on the first value that is not compatible
+         *         with the property's specification
+         */
+        default SearchBuilder<T> notIn(Object... values) throws InvalidValueException {
+            return notIn(Arrays.asList(values));
+        }
+        /**
+         * Builds a criterion that checks that the target
+         * {@link SearchableProperty} does not match none of the specified values.
+         * <p>
+         * Will throw an {@link com.elster.jupiter.properties.InvalidValueException}
+         * when one of the specified values is not compatible with the
+         * property's {@link com.elster.jupiter.properties.PropertySpec specification}.
+         * </p>
+         *
+         * @param values The List of value
+         * @return The same SearchBuilder to support method chaining
+         * @throws InvalidValueException Thrown on the first value that is not compatible
+         *         with the property's specification
+         */
+        SearchBuilder<T> notIn(List<Object> values) throws InvalidValueException;
+
+        /**
+         * Builds a criterion that checks that the target
          * {@link SearchableProperty} matches the specified value.
          * <p>
          * Will throw an {@link com.elster.jupiter.properties.InvalidValueException}
