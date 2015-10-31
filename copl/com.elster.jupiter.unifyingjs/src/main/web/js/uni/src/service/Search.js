@@ -1,5 +1,4 @@
 Ext.define('Uni.service.Search', {
-    singleton: true,
     mixins: {
         observable: 'Ext.util.Observable'
     },
@@ -157,16 +156,11 @@ Ext.define('Uni.service.Search', {
 
     initCriteria: function () {
         var me = this,
-            propertiesStore = Ext.getStore('Uni.store.search.Properties'),
-            removablesStore = Ext.getStore('Uni.store.search.Removables')
-        ;
+            propertiesStore = Ext.getStore('Uni.store.search.Properties');
 
-        removablesStore.removeAll();
         propertiesStore.each(function (property) {
             if (property.get('sticky')) {
                 me.addProperty(property);
-            } else {
-                removablesStore.add(property);
             }
         });
     },
@@ -349,5 +343,42 @@ Ext.define('Uni.service.Search', {
         }
 
         return widget;
+    },
+
+    updateConstraints: function (widget, value) {
+        var me = this, store;
+        var deps = me.filters.filterBy(function(filter) {
+            return !!(filter.property.get('constraints')
+            && filter.property.get('constraints').length
+            && filter.property.get('constraints').indexOf(widget.property.get('name')) >= 0);
+        });
+
+        if (deps.length) {
+            deps.each(function(item) {
+                if (!Ext.isEmpty(value)) {
+                    item.setDisabled(false);
+                    if (item.store && Ext.isFunction(item.getStore)) {
+                        store = item.getStore();
+                        //if (store.isLoading()) {
+                        //    Ext.Ajax.abort(store.lastRequest);
+                        //}
+                        store.clearFilter(true);
+                        store.addFilter(widget.getFilter(), false);
+                        //item.menu.setLoading(true);
+                        //store.load({
+                        //    callback: function () {
+                        //        item.menu.setLoading(false);
+                        //    }
+                        //});
+                        //store.lastRequest = Ext.Ajax.getLatest();
+                    }
+                } else {
+                    item.setDisabled(true);
+                    if (item.store) {
+                        item.getStore().clearFilter();
+                    }
+                }
+            });
+        }
     }
 });

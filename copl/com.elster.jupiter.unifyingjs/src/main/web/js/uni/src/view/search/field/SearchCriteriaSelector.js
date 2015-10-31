@@ -11,7 +11,7 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
     text: Uni.I18n.translate('search.overview.addCriteria.emptyText', 'UNI', 'Add criteria'),
     arrowAlign: 'right',
     menuAlign: 'tr-br',
-    store: 'Uni.store.search.Removables',
+    store: 'Uni.store.search.Properties',
     config: {
         service: null
     },
@@ -46,7 +46,9 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
         service.on('remove', this.onCriteriaRemove, this);
 
         this.callParent(arguments);
-        me.bindStore('ext-empty-store', true);
+        me.bindStore(me.store, true);
+
+        me.store.on('load', me.onStoreLoad, me);
     },
 
     //onReset: function(filters, filter, property) {
@@ -89,7 +91,7 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
         return menuitem
     },
 
-    onBindStore: function (store) {
+    onStoreLoad: function (store) {
         var me = this;
         me.setDisabled(!store.count());
         Ext.suspendLayouts();
@@ -98,7 +100,7 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
 
         if (store.count()) {
             store.each(function (item) {
-                if (!item.get('groupId')) {
+                if (!item.get('groupId') && item.get('sticky') == false) {
                     me.menu.add(me.createMenuItem(item));
                 }
             });
@@ -132,22 +134,5 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
             this.fireEvent('change', this);
         }
     }
-
-    //onUpdateRemovablesStore: function () {
-    //    var me = this,
-    //        emptyText = Uni.I18n.translate('search.overview.addCriteria.emptyText', 'UNI', 'Add criteria'),
-    //        addCriteriaCombo = me.getAddCriteriaCombo(),
-    //        criteriaStore = Ext.getStore('Uni.store.search.Removables');
-    //
-    //    if (addCriteriaCombo) {
-    //        addCriteriaCombo = me.getAddCriteriaCombo().down('#addcriteria');
-    //        if (criteriaStore.count() === 0) {
-    //            emptyText = Uni.I18n.translate('search.overview.addCriteria.emptyText.none', 'UNI', 'No criteria to add');
-    //        }
-    //        if (addCriteriaCombo.text !== emptyText) {
-    //            addCriteriaCombo.text = emptyText;
-    //        }
-    //    }
-    //},
 });
 
