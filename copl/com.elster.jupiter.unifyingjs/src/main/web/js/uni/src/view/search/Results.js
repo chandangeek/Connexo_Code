@@ -49,7 +49,7 @@ Ext.define('Uni.view.search.Results', {
             }
         ];
 
-        searchFields.on('load', function (store, items) {
+        var listeners = searchFields.on('load', function (store, items) {
             me.getStore().model.setFields(items.map(function (field) {
                 return service.createFieldDefinitionFromModel(field)
             }));
@@ -57,9 +57,14 @@ Ext.define('Uni.view.search.Results', {
             me.down('uni-search-column-picker').setColumns(items.map(function (field) {
                 return service.createColumnDefinitionFromModel(field)
             }));
+        }, me, {
+            destroyable: true
         });
 
         me.callParent(arguments);
+        me.on('destroy', function(){
+            listeners.destroy();
+        });
     }
 });
 

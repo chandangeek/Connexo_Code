@@ -40,15 +40,28 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
         };
 
         var service = this.getService();
+        var listeners = [];
 
         //service.on('reset', this.onReset, this);
-        service.on('add', this.onCriteriaAdd, this);
-        service.on('remove', this.onCriteriaRemove, this);
+        listeners.push(service.on('add', this.onCriteriaAdd, this, {
+            destroyable: true
+        }));
+        listeners.push(service.on('remove', this.onCriteriaRemove, this, {
+            destroyable: true
+        }));
 
         this.callParent(arguments);
         me.bindStore(me.store, true);
 
-        me.store.on('load', me.onStoreLoad, me);
+        listeners.push(me.store.on('load', me.onStoreLoad, me, {
+            destroyable: true
+        }));
+
+        me.on('destroy', function () {
+            listeners.map(function (i) {
+                i.destroy()
+            });
+        });
     },
 
     //onReset: function(filters, filter, property) {
