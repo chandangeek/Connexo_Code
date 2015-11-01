@@ -6,6 +6,7 @@ import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventorAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
@@ -115,6 +116,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile SearchService searchService;
     private volatile LoadProfileService loadProfileService;
     private volatile DeviceMessageService deviceMessageService;
+    private volatile CustomPropertySetService customPropertySetService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -232,6 +234,11 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     @Reference
     public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
         this.deviceMessageService = deviceMessageService;
+    }
+
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
     }
 
     @Override
@@ -454,6 +461,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(loadProfileService).to(LoadProfileService.class);
             bind(searchService).to(SearchService.class);
             bind(deviceMessageService).to(DeviceMessageService.class);
+            bind(customPropertySetService).to(CustomPropertySetService.class);
         }
     }
 }

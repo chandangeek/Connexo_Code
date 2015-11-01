@@ -188,6 +188,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>cps</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>yellowfin</artifactId>
         </dependency>
         <dependency>
@@ -299,11 +303,6 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.io</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>cps</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
