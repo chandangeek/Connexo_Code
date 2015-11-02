@@ -46,6 +46,7 @@ public class StartCommunication extends TranslatableServerMicroAction {
                 device.newAdHocComTaskExecution(comTaskEnablement).scheduleNow().add();
             }
         }
+        device.save();
         device.getConnectionTasks().forEach(ConnectionTask::activate);
     }
 
