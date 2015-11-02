@@ -6,8 +6,8 @@ import java.util.stream.Collectors;
 
 public enum Privileges implements TranslationKey {
     //Resources
-    RESOURCE_MASTER_DATA("masterData.masterData", "Device data"),
-    RESOURCE_MASTER_DATA_DESCRIPTION("masterData.masterData.description", "Manage device data"),
+    RESOURCE_MASTER_DATA("masterData.masterData", "Device master data"),
+    RESOURCE_MASTER_DATA_DESCRIPTION("masterData.masterData.description", "Manage device master data"),
     RESOURCE_DEVICE_TYPES("deviceType.deviceTypes", "Device types"),
     RESOURCE_DEVICE_TYPES_DESCRIPTION("deviceType.deviceTypes.description", "Manage device types"),
     RESOURCE_DEVICE_SECURITY("deviceSecurity.deviceSecurities", "Device security"),
