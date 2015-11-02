@@ -12,13 +12,14 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 
-import com.elster.insight.usagepoint.config.MetrologyConfigurationValidationRuleSetUsage;
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
+import com.elster.insight.usagepoint.config.MetrologyConfigurationValidationRuleSetUsage;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.domain.util.Unique;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 
@@ -32,7 +33,7 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
     private List<MetrologyConfigurationValidationRuleSetUsage> metrologyConfValidationRuleSetUsages = new ArrayList<MetrologyConfigurationValidationRuleSetUsage>();
     
     @NotEmpty
-    @Size(max = 80)
+    @Size(max = Table.NAME_LENGTH)
     private String name;
 
     private final DataModel dataModel;
@@ -46,10 +47,8 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
         this.validationService = validationService;
     }
 
-    MetrologyConfigurationImpl init(String name) {
-        if (name != null) {
-            setName(name.trim());
-        }
+    MetrologyConfigurationImpl init(String name) {        
+        setName(name);
         return this;
     }
 
@@ -65,7 +64,9 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
 
     @Override
     public void setName(String name) {
-        this.name = name;
+        if (name != null) {
+            this.name = name.trim();
+        }
     }
 
     public List<MetrologyConfigurationValidationRuleSetUsage> getMetrologyConfValidationRuleSetUsages() {
