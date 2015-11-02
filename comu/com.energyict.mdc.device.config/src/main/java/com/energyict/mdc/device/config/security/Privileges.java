@@ -5,7 +5,17 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum Privileges implements TranslationKey {
+    //Resources
+    RESOURCE_MASTER_DATA("masterData.masterData", "Device data"),
+    RESOURCE_MASTER_DATA_DESCRIPTION("masterData.masterData.description", "Manage device data"),
+    RESOURCE_DEVICE_TYPES("deviceType.deviceTypes", "Device types"),
+    RESOURCE_DEVICE_TYPES_DESCRIPTION("deviceType.deviceTypes.description", "Manage device types"),
+    RESOURCE_DEVICE_SECURITY("deviceSecurity.deviceSecurities", "Device security"),
+    RESOURCE_DEVICE_SECURITY_DESCRIPTION("deviceSecurity.deviceSecurities.description", "Manage device security"),
+    RESOURCE_DEVICE_COMMANDS("deviceCommand.deviceCommands", "Device commands"),
+    RESOURCE_DEVICE_COMMANDS_DESCRIPTION("deviceCommand.deviceCommands.description", "Manage device commands"),
 
+    //Privileges
     ADMINISTRATE_MASTER_DATA(Constants.ADMINISTRATE_MASTER_DATA, "Administrate"),
     VIEW_MASTER_DATA(Constants.VIEW_MASTER_DATA, "View"),
     VIEW_DEVICE_SECURITY_PROPERTIES_1(Constants.VIEW_DEVICE_SECURITY_PROPERTIES_1, "View level 1"),
