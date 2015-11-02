@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -498,7 +499,7 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService, T
     public List<ResourceDefinition> getModuleResources() {
         return Arrays.asList(
             userService.createModuleResourceWithPrivileges(getModuleName(),
-                    "reportYfn.reports", "reportYfn.reports.description",
+                    Privileges.RESOURCE_REPORTS.getKey(), Privileges.RESOURCE_REPORTS_DESCRIPTION.getKey(),
                     Arrays.asList(Privileges.Constants.VIEW_REPORTS, Privileges.Constants.DESIGN_REPORTS)));
     }
 

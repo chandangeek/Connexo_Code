@@ -5,7 +5,11 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum Privileges implements TranslationKey {
+    //Resources
+    RESOURCE_REPORTS("reportYfn.reports", "Reports"),
+    RESOURCE_REPORTS_DESCRIPTION("reportYfn.reports.description", "Manage reports"),
 
+    //Privileges
     VIEW_REPORTS(Constants.VIEW_REPORTS, "View"),
     DESIGN_REPORTS(Constants.DESIGN_REPORTS, "Design");
 
