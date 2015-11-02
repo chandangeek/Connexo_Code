@@ -2,6 +2,7 @@ Ext.define('Apr.view.appservers.Setup', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.appservers-setup',
     router: null,
+    appServerName: null,
 
     requires: [
         'Uni.view.notifications.NoItemsFoundPanel',
@@ -41,7 +42,9 @@ Ext.define('Apr.view.appservers.Setup', {
                     },
                     previewComponent: {
                         xtype: 'appservers-preview',
-                        itemId: 'pnl-appserver-preview'
+                        itemId: 'pnl-appserver-preview',
+                        router: me.router,
+                        appServerName: me.appServerName
                     }
                 }
             ]

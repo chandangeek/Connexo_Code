@@ -36,6 +36,36 @@ Ext.define('Apr.controller.history.AppServer', {
                                 }, {single: true});
                                 return this;
                             }
+                        },
+                        overview: {
+                            route: '{appServerName}',
+                            privileges: Apr.privileges.AppServer.view,
+                            title: Uni.I18n.translate('general.overview', 'APR', 'Overview'),
+                            controller: 'Apr.controller.AppServers',
+                            action: 'showAppServerOverview',
+                            callback: function (route) {
+                                this.getApplication().on('appserverload', function (name) {
+                                    route.setTitle(Ext.String.htmlEncode(name));
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            },
+                            items: {
+                                messageservices: {
+                                    route: 'messageservices',
+                                    privileges: Apr.privileges.AppServer.view,
+                                    title: Uni.I18n.translate('general.messageServices', 'APR', 'Message services'),
+                                    controller: 'Apr.controller.AppServers',
+                                    action: 'showMessageServices'
+                                },
+                                importservices: {
+                                    route: 'importservices',
+                                    privileges: Apr.privileges.AppServer.view,
+                                    title: Uni.I18n.translate('general.importServices', 'APR', 'Import services'),
+                                    controller: 'Apr.controller.AppServers',
+                                    action: 'showImportServices'
+                                }
+                            }
                         }
                     }
                 }
