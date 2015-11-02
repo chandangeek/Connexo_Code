@@ -18,7 +18,7 @@ Ext.define('Bpm.controller.history.BpmManagement', {
                     route: 'taksmanagementtasks',
                     controller: 'Bpm.controller.Task',
                     action: 'showTasks',
-                    privileges: Bpm.privileges.BpmManagement.all,
+                    privileges: Bpm.privileges.BpmManagement.view,
                     params: {
                         use: false,
                         sort: '',
@@ -64,7 +64,7 @@ Ext.define('Bpm.controller.history.BpmManagement', {
                     route: 'managementprocesses',
                     controller: 'Bpm.controller.Process',
                     action: 'showProcesses',
-                    privileges: Bpm.privileges.BpmManagement.allProcesses,
+                    privileges: Bpm.privileges.BpmManagement.viewProcesses,
 					items: {
                         editProcess: {
                             title: Uni.I18n.translate('bpm.task.openTask', 'BPM', 'Open task'),
