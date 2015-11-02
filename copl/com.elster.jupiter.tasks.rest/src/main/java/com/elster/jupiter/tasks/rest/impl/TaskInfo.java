@@ -38,17 +38,21 @@ public class TaskInfo {
             if (occurrence.getStatus().equals(TaskStatus.BUSY)) {
                 setBusySince(occurrence.getStartDate().get().toEpochMilli());
             } else {
-                setPlannedOn(recurrentTask.getNextExecution().toEpochMilli());
+                setPlannedOn(recurrentTask.getNextExecution().toEpochMilli(), occurrence);
             }
         } else {
-            setPlannedOn(recurrentTask.getNextExecution().toEpochMilli());
+            setPlannedOn(recurrentTask.getNextExecution().toEpochMilli(), null);
         }
         nextRun = recurrentTask.getNextExecution().toEpochMilli();
-
     }
 
-    private void setPlannedOn(Long plannedDate) {
+    private void setPlannedOn(Long plannedDate, TaskOccurrence lastOccurrence) {
         setQueueStatus(PLANNED, plannedDate);
+        if (lastOccurrence != null) {
+            lastRunStatus = lastOccurrence.getStatus().toString();
+            lastRunDate = lastOccurrence.getStartDate().get().toEpochMilli();
+            lastRunDuration = lastOccurrence.getEndDate().get().toEpochMilli() - lastOccurrence.getStartDate().get().toEpochMilli();
+        }
     }
 
     private void setBusySince(Long startDate) {
