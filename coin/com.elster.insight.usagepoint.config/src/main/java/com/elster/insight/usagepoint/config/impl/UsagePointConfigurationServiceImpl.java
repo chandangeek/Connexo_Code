@@ -196,7 +196,6 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     public List<MetrologyConfiguration> findMetrologyConfigurationsForValidationRuleSet(long id) {
         return this.getDataModel().
                 query(MetrologyConfiguration.class, MetrologyConfValidationRuleSetUsage.class).
-                select(where("metrologyConfValidationRuleSetUsage.validationRuleSetId").isEqualTo(id), Order.ascending("name"));
-
+                select(where("metrologyConfValidationRuleSetUsages.validationRuleSetId").isEqualTo(id), Order.ascending("name"));
     }
 }
