@@ -11,11 +11,11 @@ public interface BpmProcessDefinition {
 
     public String getVersion();
 
-    public boolean getState();
+    public String getStatus();
 
     void save();
 
-    public void setState(boolean state);
+    public void setStatus(String status);
 
     void delete();
 }

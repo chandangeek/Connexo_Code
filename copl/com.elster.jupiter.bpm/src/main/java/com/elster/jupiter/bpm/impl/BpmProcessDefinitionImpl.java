@@ -14,22 +14,22 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
     private String processName;
     private String association;
     private String version;
-    private boolean state;
+    private String status;
 
     @Inject
     public BpmProcessDefinitionImpl(DataModel dataModel){
         this.dataModel = dataModel;
     }
 
-    static BpmProcessDefinitionImpl from(DataModel dataModel, String processName, String association, String version, boolean state ){
-        return dataModel.getInstance(BpmProcessDefinitionImpl.class).init(processName, association, version, state);
+    static BpmProcessDefinitionImpl from(DataModel dataModel, String processName, String association, String version, String status ){
+        return dataModel.getInstance(BpmProcessDefinitionImpl.class).init(processName, association, version, status);
     }
 
-    private BpmProcessDefinitionImpl init(String processName, String association, String version, boolean state ){
+    private BpmProcessDefinitionImpl init(String processName, String association, String version, String status ){
         this.association = association;
         this.version = version;
         this.processName = processName;
-        this.state = state;
+        this.status = status;
         return this;
     }
 
@@ -54,8 +54,8 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
     }
 
     @Override
-    public boolean getState(){
-        return state;
+    public String getStatus(){
+        return status;
     }
 
     @Override
@@ -68,8 +68,8 @@ public class BpmProcessDefinitionImpl implements BpmProcessDefinition{
     }
 
     @Override
-    public void setState(boolean state){
-        this.state = state;
+    public void setStatus(String status){
+        this.status = status;
     }
 
     @Override

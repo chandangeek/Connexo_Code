@@ -178,7 +178,7 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
         List<ResourceDefinition> resources = new ArrayList<>();
         resources.add(userService.createModuleResourceWithPrivileges(BpmService.COMPONENTNAME, "bpm.businessProcesses", "bpm.businessProcesses.description",
                 Arrays.asList(
-                        Privileges.VIEW_BPM, Privileges.DESIGN_BPM)));
+                        Privileges.VIEW_BPM, Privileges.DESIGN_BPM, Privileges.ADMINISTRATE_BPM)));
         resources.add(userService.createModuleResourceWithPrivileges(BpmService.COMPONENTNAME, "bpm.userTasks", "bpm.userTasks.description",
                 Arrays.asList(
                         Privileges.ASSIGN_TASK, Privileges.VIEW_TASK, Privileges.EXECUTE_TASK)));
@@ -207,14 +207,14 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
     }
 
     @Override
-    public BpmProcessDefinition findOrCreateBpmProcessDefinition(String processName, String association, String version, boolean state){
+    public BpmProcessDefinition findOrCreateBpmProcessDefinition(String processName, String association, String version, String status){
         Condition nameCondition = Operator.EQUALIGNORECASE.compare("processName", processName);
         Condition versionCondition = Operator.EQUALIGNORECASE.compare("version", version);
         List<BpmProcessDefinition> bpmProcessDefinitions = dataModel.query(BpmProcessDefinition.class).select(nameCondition.and(versionCondition));
         if(bpmProcessDefinitions.isEmpty()){
-            return BpmProcessDefinitionImpl.from(dataModel, processName, association, version, state);
+            return BpmProcessDefinitionImpl.from(dataModel, processName, association, version, status);
         }
-        bpmProcessDefinitions.get(0).setState(state);
+        bpmProcessDefinitions.get(0).setStatus(status);
         return bpmProcessDefinitions.get(0);
     }
 
@@ -225,7 +225,7 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
 
     @Override
     public List<BpmProcessDefinition> getBpmProcessDefinitions(){
-        return dataModel.mapper(BpmProcessDefinition.class).find();
+        return dataModel.query(BpmProcessDefinition.class).select(Operator.NOTEQUAL.compare("status", "UNDEPLOYED"));
     }
 
     @Override

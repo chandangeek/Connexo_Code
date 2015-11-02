@@ -19,7 +19,7 @@ public enum TableSpecs {
             table.column("PROCESSNAME").varChar(NAME_LENGTH).notNull().map("processName").add();
             table.column("ASSOCIATION").varChar(NAME_LENGTH).notNull().map("association").add();
             table.column("VERSION").varChar(NAME_LENGTH).notNull().map("version").add();
-            table.column("STATE").bool().map("state").add();
+            table.column("STATUS").varChar(NAME_LENGTH).notNull().map("status").add();
             table.primaryKey("BPM_PK_PROCESS").on(idColumn).add();
         }
     };

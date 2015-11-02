@@ -21,7 +21,7 @@ public interface BpmService {
 
     BpmServer getBpmServer();
 
-    BpmProcessDefinition findOrCreateBpmProcessDefinition(String processName, String association, String version, boolean state);
+    BpmProcessDefinition findOrCreateBpmProcessDefinition(String processName, String association, String version, String status);
 
     Query<BpmProcessDefinition> getQueryBpmProcessDefinition();
 
