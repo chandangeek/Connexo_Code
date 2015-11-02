@@ -525,7 +525,7 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     @Override
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(EngineConfigurationService.COMPONENT_NAME, "communicationAdministration.communicationAdministrations", "communicationAdministration.communicationAdministrations.description",
+        resources.add(userService.createModuleResourceWithPrivileges(EngineConfigurationService.COMPONENT_NAME, Privileges.RESOURCE_COMMUNICATION.getKey(), Privileges.RESOURCE_COMMUNICATION_DESCRIPTION.getKey(),
                 Arrays.asList(
                         Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION,
                         Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION_INTERNAL)));

@@ -5,7 +5,11 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum Privileges implements TranslationKey {
+    //Resources
+    RESOURCE_COMMUNICATION("communicationAdministration.communicationAdministrations", "Communication"),
+    RESOURCE_COMMUNICATION_DESCRIPTION("communicationAdministration.communicationAdministrations.description", "Manage communication"),
 
+    //Privileges
     ADMINISTRATE_COMMUNICATION_ADMINISTRATION(Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, "Administrate"),
     VIEW_COMMUNICATION_ADMINISTRATION(Constants.VIEW_COMMUNICATION_ADMINISTRATION, "View"),
     VIEW_COMMUNICATION_ADMINISTRATION_INTERNAL(Constants.VIEW_COMMUNICATION_ADMINISTRATION_INTERNAL,"Internal view");
