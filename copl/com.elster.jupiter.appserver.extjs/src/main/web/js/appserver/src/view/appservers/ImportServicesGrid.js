@@ -34,7 +34,7 @@ Ext.define('Apr.view.appservers.ImportServicesGrid', {
                 {
                     iconCls: 'uni-icon-delete',
                     itemId: 'apr-remove-import-service-btn',
-                    tooltip: Uni.I18n.translate('general.remove', 'UNI', 'Remove'),
+                    tooltip: Uni.I18n.translate('general.remove', 'APR', 'Remove'),
                     handler: function (grid, rowIndex, colIndex, column, event, record) {
                         this.fireEvent('removeEvent', record);
                     }

@@ -51,7 +51,7 @@ Ext.define('Apr.view.appservers.MessageServicesGrid', {
                     {
                         iconCls: 'uni-icon-delete',
                         itemId: 'apr-remove-message-service-btn',
-                        tooltip: Uni.I18n.translate('general.remove', 'UNI', 'Remove'),
+                        tooltip: Uni.I18n.translate('general.remove', 'APR', 'Remove'),
                         handler: function (grid, rowIndex, colIndex, column, event, messageServiceRecord) {
                             me.fireEvent('msgServiceRemoveEvent', messageServiceRecord);
                         }
