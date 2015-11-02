@@ -11,7 +11,13 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum Privileges implements TranslationKey {
+    //Resources
+    RESOURCE_DEVICE_LIFECYCLE("deviceLifeCycleAdministration.deviceLifeCycleAdministrations", "Device life cycle"),
+    RESOURCE_DEVICE_LIFECYCLE_DESCRIPTION("deviceLifeCycleAdministration.deviceLifeCycleAdministrations.description", "Manage device life cycle"),
+    RESOURCE_DEVICE_LIFECYCLE_LEVELS("deviceLifeCycle.deviceLifeCycle", "Device life cycle access levels"),
+    RESOURCE_DEVICE_LIFECYCLE_LEVELS_DESCRIPTION("deviceLifeCycle.deviceLifeCycle.description", "Manage device life cycle access levels"),
 
+    //Privileges
     VIEW_DEVICE_LIFE_CYCLE(Constants.VIEW_DEVICE_LIFE_CYCLE, "View"),
     CONFIGURE_DEVICE_LIFE_CYCLE(Constants.CONFIGURE_DEVICE_LIFE_CYCLE, "Administrate"),
     INITIATE_ACTION_1(Constants.INITIATE_ACTION_1, "Initiate level 1"),
