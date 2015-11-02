@@ -486,7 +486,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
         resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
-                "dataExportTask.dataExportTasks", "dataExportTask.dataExportTasks.description",
+                Privileges.RESOURCE_DATA_EXPORT.getKey(), Privileges.RESOURCE_DATA_EXPORT_DESCRIPTION.getKey(),
                 Arrays.asList(Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK,
                         Privileges.Constants.VIEW_DATA_EXPORT_TASK,
                         Privileges.Constants.UPDATE_DATA_EXPORT_TASK,
