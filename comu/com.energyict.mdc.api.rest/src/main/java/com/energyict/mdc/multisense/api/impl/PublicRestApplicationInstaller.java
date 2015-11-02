@@ -51,7 +51,7 @@ public class PublicRestApplicationInstaller implements InstallService, Privilege
     @Override
     public List<ResourceDefinition> getModuleResources() {
         return Collections.singletonList(userService.createModuleResourceWithPrivileges(getModuleName(),
-                "public.api", "public.api.description",
+                Privileges.RESOURCE_PUBLIC_API.getKey(), Privileges.RESOURCE_PUBLIC_API_DESCRIPTION.getKey(),
                 Collections.singletonList(Privileges.Constants.PUBLIC_REST_API)));
     }
 
