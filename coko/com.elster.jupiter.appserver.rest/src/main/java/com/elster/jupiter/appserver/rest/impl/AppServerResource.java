@@ -11,6 +11,7 @@ import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.QueryParameters;
@@ -47,6 +48,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Path("/appserver")
@@ -126,6 +129,8 @@ public class AppServerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
     public Response addAppServer(AppServerInfo info) {
+        checkPath(info.exportDirectory, "exportDirectory");
+        checkPath(info.importDirectory, "importDirectory");
         AppServer appServer = null;
         try (TransactionContext context = transactionService.getContext()) {
             AppServer underConstruction = appService.createAppServer(info.name, cronExpressionParser.parse("0 0 * * * ? *").get());
@@ -172,6 +177,8 @@ public class AppServerResource {
     @Path("/{appserverName}")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
     public Response updateAppServer(@PathParam("appserverName") String appServerName, AppServerInfo info) {
+        checkPath(info.exportDirectory, "exportDirectory");
+        checkPath(info.importDirectory, "importDirectory");
         AppServer appServer = null;
         try (TransactionContext context = transactionService.getContext()) {
             appServer = fetchAndLockAppServer(appServerName, info);
@@ -427,5 +434,13 @@ public class AppServerResource {
                 .map(ImportScheduleOnAppServer::getImportSchedule)
                 .flatMap(Functions.asStream())
                 .collect(Collectors.toList());
+    }
+
+    private void checkPath(String path, String field) {
+        Pattern p = Pattern.compile("[#\\<\\>$\\+%\\!`\\&\\*'\\|\\{\\}\\?\"\\=:@\\s]");
+        Matcher m = p.matcher(path);
+        if (m.find()) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALIDCHARS_EXCEPTION, field, "#<>$+%!`&*'|?{@}\"=:");
+        }
     }
 }
