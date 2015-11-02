@@ -6,7 +6,11 @@ import java.util.stream.Collectors;
 
 
 public enum Privileges implements TranslationKey {
+    //Resources
+    RESOURCE_VALIDATION("validation.validations", "Validation"),
+    RESOURCE_VALIDATION_DESCRIPTION("validation.validations.description", "Manage validation"),
 
+    //Privileges
     ADMINISTRATE_VALIDATION_CONFIGURATION(Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, "Administrate"),
     VIEW_VALIDATION_CONFIGURATION(Constants.VIEW_VALIDATION_CONFIGURATION, "View"),
     VALIDATE_MANUAL(Constants.VALIDATE_MANUAL, "Validate manual"),
