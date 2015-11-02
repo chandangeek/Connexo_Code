@@ -2,43 +2,128 @@
  * @class MdcApp.controller.Main
  */
 Ext.define('Mdc.controller.Search', {
-    extend: 'Uni.controller.Search',
+    extend: 'Ext.app.Controller',
+
+    stores: [
+        'Uni.store.search.Domains',
+        'Uni.store.search.Fields',
+        'Uni.store.search.Properties',
+        'Uni.store.search.PropertyValues',
+        'Uni.store.search.Results'
+    ],
+
+    requires: [
+        'Uni.view.search.Overview',
+        'Uni.view.search.field.internal.Adapter',
+        'Uni.util.Filters',
+        'Uni.view.search.field.Selection',
+        'Uni.view.search.field.Simple',
+        'Uni.grid.column.search.DeviceType',
+        'Uni.grid.column.search.DeviceConfiguration',
+        'Mdc.service.Search'
+    ],
+
+    refs: [
+        {
+            ref: 'searchOverview',
+            selector: 'uni-view-search-overview'
+        },
+        {
+            ref: 'objectSelector',
+            selector: 'uni-view-search-overview search-object-selector'
+        },
+        {
+            ref: 'criteriaSelector',
+            selector: 'uni-view-search-overview search-criteria-selector'
+        },
+        {
+            ref: 'stickyPropertiesContainer',
+            selector: 'uni-view-search-overview #search-criteria-sticky'
+        },
+        {
+            ref: 'removablePropertiesContainer',
+            selector: 'uni-view-search-overview #search-criteria-removable'
+        },
+        {
+            ref: 'searchButton',
+            selector: 'uni-view-search-overview button[action=search]'
+        },
+        {
+            ref: 'clearFiltersButton',
+            selector: 'uni-view-search-overview button[action=clearFilters]'
+        },
+        {
+            ref: 'resultsGrid',
+            selector: 'uni-view-search-overview uni-view-search-results'
+        }
+    ],
+
+    filterObjectParam: 'filter',
+    lastRequest: undefined,
 
     init: function () {
-        var me = this,
-            router = this.getController('Uni.controller.history.Router'),
-            searchResults = Ext.getStore('Uni.store.search.Results');
+        var me = this;
+        var searchResults = Ext.getStore('Uni.store.search.Results');
 
-        me.callParent(arguments);
-        me.on('beforegridconfigure', function(fields, columns){
-            var cid = _.pluck(columns, 'dataIndex').indexOf('mRID');
-            var column = columns[cid];
-            if (column) {
-                if (me.searchDomain.get('id') == 'com.energyict.mdc.device.data.Device') {
-                    column.renderer = function (value) {
-                        var url = router.getRoute('devices/device').buildUrl({mRID: encodeURIComponent(value)});
-                        return '<a href="{0}">{1}</a>'.replace('{0}', url).replace('{1}', Ext.String.htmlEncode(value));
-                    }
-                } else if (me.searchDomain.get('id') == 'com.elster.jupiter.metering.UsagePoint') {
-                    column.renderer = function (value, metaData, record) {
-                        var url = router.getRoute('usagepoints/usagepoint').buildUrl({usagePointId: record.get('id')});
-                        return '<a href="{0}">{1}</a>'.replace('{0}', url).replace('{1}', Ext.String.htmlEncode(value));
-                    }
+        me.service = Ext.create('Mdc.service.Search', {
+            router: me.getController('Uni.controller.history.Router')
+        });
+
+        me.control({
+            'search-object-selector': {
+                change: function (field, value) {
+                    me.service.setDomain(value);
+                }
+            },
+            'search-criteria-selector menu menucheckitem': {
+                checkchange: function(field, checked) {
+                    checked
+                        ? me.service.addProperty(field.criteria)
+                        : me.service.removeProperty(field.criteria);
+                }
+            },
+            'uni-view-search-overview button[action=search]': {
+                click: {
+                    fn: me.service.applyFilters,
+                    scope: me.service
+                }
+            },
+            'uni-view-search-overview button[action=clearFilters]': {
+                click: {
+                    fn: me.service.clearFilters,
+                    scope: me.service
                 }
             }
         });
 
-        searchResults.on('load', function(store, items){
+        searchResults.on('load', function (store, items) {
             var grid = me.getResultsGrid();
             var btn = grid.down('#search-bulk-actions-button');
-            btn.setDisabled(!(me.searchDomain && me.searchDomain.getId() === "com.energyict.mdc.device.data.Device" && items && items.length));
+            btn.setDisabled(!(me.service.searchDomain && me.service.searchDomain.getId() === "com.energyict.mdc.device.data.Device" && items && items.length));
         });
     },
 
     showOverview: function () {
-        var me = this;
+        var me = this,
+            searchDomains = Ext.getStore('Uni.store.search.Domains'),
+            router = this.getController('Uni.controller.history.Router'),
+            widget = Ext.widget('uni-view-search-overview', {
+                service: me.service
+            });
 
-        me.callParent(arguments);
+        me.getApplication().fireEvent('changecontentevent', widget);
+
+        searchDomains.load({callback: function(records) {
+            var value = router.queryParams.searchDomain,
+                selector = me.getObjectSelector();
+
+            if (value && !Ext.isEmpty(records) && searchDomains.findRecord('displayValue', value) !== null) {
+                selector.setValue(searchDomains.findRecord('displayValue', value).get('id'));
+            } else if (selector && !Ext.isEmpty(records)) {
+                selector.setValue(records[0].get('id'));
+            }
+        }});
+
         var grid = me.getResultsGrid();
         grid.down('pagingtoolbartop').insert(3, {
             xtype: 'button',

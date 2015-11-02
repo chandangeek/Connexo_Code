@@ -264,10 +264,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             router = me.getController('Uni.controller.history.Router'),
             queryParams;
 
-        if (grid && search.searchDomain) {
+        if (grid && search.service.searchDomain) {
             var store = grid.getStore();
             queryParams = {
-                searchDomain: search.searchDomain.get('displayValue'),
+                searchDomain: search.service.searchDomain.getId(),
                 filter: store.getProxy().encodeFilters(store.filters.getRange())
             };
         }
