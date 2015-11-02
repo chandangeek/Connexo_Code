@@ -457,7 +457,8 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
     @Override
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(FiniteStateMachineService.COMPONENT_NAME, "finiteStateMachineAdministration.finiteStateMachineAdministrations", "finiteStateMachineAdministration.finiteStateMachineAdministrations.description",
+        resources.add(userService.createModuleResourceWithPrivileges(FiniteStateMachineService.COMPONENT_NAME,
+                Privileges.RESOURCE_FSM.getKey(), Privileges.RESOURCE_FSM_DESCRIPTION.getKey(),
                 Arrays.asList(
                         Privileges.Constants.CONFIGURE_FINITE_STATE_MACHINES, Privileges.Constants.VIEW_FINITE_STATE_MACHINES)));
         return resources;

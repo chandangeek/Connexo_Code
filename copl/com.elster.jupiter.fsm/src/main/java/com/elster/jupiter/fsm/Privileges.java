@@ -12,9 +12,13 @@ import java.util.stream.Collectors;
  */
 @ProviderType
 public enum Privileges implements TranslationKey {
+    //Resources
+    RESOURCE_FSM("finiteStateMachineAdministration.finiteStateMachineAdministrations", "Finite state machine"),
+    RESOURCE_FSM_DESCRIPTION("finiteStateMachineAdministration.finiteStateMachineAdministrations.description", "Manage finite state machine"),
 
-    VIEW_FINITE_STATE_MACHINES(Constants.VIEW_FINITE_STATE_MACHINES, "View Finite State Machine"),
-    CONFIGURE_FINITE_STATE_MACHINES(Constants.CONFIGURE_FINITE_STATE_MACHINES, "Configure Finite State Machine");
+    //Privileges
+    VIEW_FINITE_STATE_MACHINES(Constants.VIEW_FINITE_STATE_MACHINES, "View"),
+    CONFIGURE_FINITE_STATE_MACHINES(Constants.CONFIGURE_FINITE_STATE_MACHINES, "Configure");
 
     private final String key;
     private final String description;
