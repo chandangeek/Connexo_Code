@@ -286,7 +286,16 @@ public class AppServerResource {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
 
-        toAdd.forEach(pair -> updater.createActiveSubscriberExecutionSpec(pair.getFirst(), pair.getLast().numberOfThreads));
+        for (Pair<SubscriberSpec, SubscriberExecutionSpecInfo> pair: toAdd) {
+            SubscriberSpec spec = pair.getFirst();
+            SubscriberExecutionSpecInfo executionSpecInfo = pair.getLast();
+            if (executionSpecInfo.active) {
+                updater.createActiveSubscriberExecutionSpec(spec, executionSpecInfo.numberOfThreads);
+            } else {
+                updater.createInactiveSubscriberExecutionSpec(spec, executionSpecInfo.numberOfThreads);
+            }
+
+        }
     }
 
     private void doMessageServicesRemovals(List<Pair<SubscriberExecutionSpec, SubscriberExecutionSpecInfo>> pairs, AppServer.BatchUpdate updater) {
