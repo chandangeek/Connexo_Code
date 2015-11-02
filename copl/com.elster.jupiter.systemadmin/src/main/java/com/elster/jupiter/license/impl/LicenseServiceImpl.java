@@ -111,7 +111,7 @@ public class LicenseServiceImpl implements LicenseService, InstallService, Privi
     @Override
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(LicenseService.COMPONENTNAME, "license.license", "license.license.description",
+        resources.add(userService.createModuleResourceWithPrivileges(LicenseService.COMPONENTNAME, Privileges.RESOURCE_LICENSE.getKey(), Privileges.RESOURCE_LICENSE_DESCRIPTION.getKey(),
                 Arrays.asList(
                         Privileges.Constants.VIEW_LICENSE, Privileges.Constants.UPLOAD_LICENSE)));
         return resources;

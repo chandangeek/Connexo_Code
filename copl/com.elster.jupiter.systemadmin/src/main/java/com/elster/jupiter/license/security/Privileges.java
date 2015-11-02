@@ -5,7 +5,11 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum Privileges implements TranslationKey {
+    //Resources
+    RESOURCE_LICENSE("license.license", "Licenses"),
+    RESOURCE_LICENSE_DESCRIPTION("license.license.description", "Manage licenses"),
 
+    //Privileges
     VIEW_LICENSE(Constants.VIEW_LICENSE, "View"),
     UPLOAD_LICENSE(Constants.UPLOAD_LICENSE, "Upload");
 
