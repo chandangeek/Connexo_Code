@@ -16,7 +16,7 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
     },
 
     setValue: function(value) {
-        this.value = value;
+        this.value = Ext.isArray(value) ? value : [value];
         this.updateButtonText();
         this.fireEvent('change', this, value);
     },
@@ -37,7 +37,7 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
     },
 
     updateButtonText: function () {
-        var count = Ext.isArray(this.value) ? this.value.length : 1;
+        var count = this.value.length;
         Ext.isEmpty(this.value)
             ? this.setText(this.emptyText)
             : this.setText(this.emptyText + '&nbsp;(' + count + ')');
