@@ -134,6 +134,7 @@ public class RescheduleBehaviorForAsap extends AbstractRescheduleBehavior implem
     }
 
     private ScheduledConnectionTask getScheduledConnectionTask() {
+
         return (ScheduledConnectionTask) getConnectionTask();
     }
 
