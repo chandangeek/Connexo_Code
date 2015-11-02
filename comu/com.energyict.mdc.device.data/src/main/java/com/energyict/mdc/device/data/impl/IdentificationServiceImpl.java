@@ -71,7 +71,7 @@ public class IdentificationServiceImpl implements IdentificationService {
 
     @Override
     public DeviceIdentifier createDeviceIdentifierForAlreadyKnownDevice(BaseDevice device) {
-        return new DeviceIdentifierForAlreadyKnownDeviceBySerialNumber((Device) device);
+        return new DeviceIdentifierForAlreadyKnownDeviceByMrID((Device) device);
     }
 
     @Override
