@@ -2,7 +2,6 @@ package com.energyict.mdc.device.lifecycle.config;
 
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
-
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.time.TimeDuration;
@@ -21,6 +20,7 @@ import java.util.Optional;
 public interface DeviceLifeCycleConfigurationService {
 
     String COMPONENT_NAME = "DLD";
+    String EVENT_NAMESPACE = "com/energyict/mdc/device/lifecycle/config/";
 
     /**
      * Finds one of the privileges that allows a user to initiate an {@link AuthorizedAction}.
@@ -28,7 +28,7 @@ public interface DeviceLifeCycleConfigurationService {
      * @param initiateActionPrivilegeName The name of the privilege
      * @return The Privilege
      */
-    public Optional<Privilege> findInitiateActionPrivilege(String initiateActionPrivilegeName);
+    Optional<Privilege> findInitiateActionPrivilege(String initiateActionPrivilegeName);
 
     /**
      * Starts the building process of a new {@link DeviceLifeCycle}.
@@ -39,7 +39,7 @@ public interface DeviceLifeCycleConfigurationService {
      *
      * @return The DeviceLifeCycleBuilder
      */
-    public DeviceLifeCycleBuilder newDeviceLifeCycleUsing(String name, FiniteStateMachine finiteStateMachine);
+    DeviceLifeCycleBuilder newDeviceLifeCycleUsing(String name, FiniteStateMachine finiteStateMachine);
 
     /**
      * Creates a new {@link DeviceLifeCycle} from the default template with the specified name.
@@ -47,7 +47,7 @@ public interface DeviceLifeCycleConfigurationService {
      * @param name The unique name of the new DeviceLifeCycle
      * @return The DeviceLifeCycle that was created from the template
      */
-    public DeviceLifeCycle newDefaultDeviceLifeCycle(String name);
+    DeviceLifeCycle newDefaultDeviceLifeCycle(String name);
 
     /**
      * Clones the specified {@link DeviceLifeCycle} with the specified name.
@@ -56,7 +56,7 @@ public interface DeviceLifeCycleConfigurationService {
      * @param name The unique name of the new DeviceLifeCycle
      * @return The cloned DeviceLifeCycle
      */
-    public DeviceLifeCycle cloneDeviceLifeCycle(DeviceLifeCycle source, String name);
+    DeviceLifeCycle cloneDeviceLifeCycle(DeviceLifeCycle source, String name);
 
     /**
      * Finds the {@link DeviceLifeCycle} that was created by default
@@ -66,7 +66,7 @@ public interface DeviceLifeCycleConfigurationService {
      *
      * @return The DeviceLifeCycle
      */
-    public Optional<DeviceLifeCycle> findDefaultDeviceLifeCycle();
+    Optional<DeviceLifeCycle> findDefaultDeviceLifeCycle();
 
     /**
      * Finds the {@link DeviceLifeCycle} with the specified identifier.
@@ -74,7 +74,7 @@ public interface DeviceLifeCycleConfigurationService {
      * @param id The identifier
      * @return The DeviceLifeCycle
      */
-    public Optional<DeviceLifeCycle> findDeviceLifeCycle(long id);
+    Optional<DeviceLifeCycle> findDeviceLifeCycle(long id);
 
     Optional<DeviceLifeCycle> findAndLockDeviceLifeCycleByIdAndVersion(long id, long version);
     /**
@@ -83,7 +83,7 @@ public interface DeviceLifeCycleConfigurationService {
      * @param name The name
      * @return The DeviceLifeCycle
      */
-    public Optional<DeviceLifeCycle> findDeviceLifeCycleByName(String name);
+    Optional<DeviceLifeCycle> findDeviceLifeCycleByName(String name);
 
     /**
      * Finds all the {@link DeviceLifeCycle}s with options
@@ -91,7 +91,7 @@ public interface DeviceLifeCycleConfigurationService {
      *
      * @return The Finder that supports paging and sorting
      */
-    public Finder<DeviceLifeCycle> findAllDeviceLifeCycles();
+    Finder<DeviceLifeCycle> findAllDeviceLifeCycles();
 
     /**
      * Gets the system wide maximum time shift in the future
@@ -103,7 +103,7 @@ public interface DeviceLifeCycleConfigurationService {
      *
      * @return The maximum time shift
      */
-    public TimeDuration getMaximumFutureEffectiveTimeShift();
+    TimeDuration getMaximumFutureEffectiveTimeShift();
 
     /**
      * Gets the system wide default time shift in the future
@@ -112,7 +112,7 @@ public interface DeviceLifeCycleConfigurationService {
      *
      * @return The default time shift
      */
-    public TimeDuration getDefaultFutureEffectiveTimeShift();
+    TimeDuration getDefaultFutureEffectiveTimeShift();
 
     /**
      * Gets the system wide maximum time shift in the past
@@ -124,7 +124,7 @@ public interface DeviceLifeCycleConfigurationService {
      *
      * @return The maximum time shift
      */
-    public TimeDuration getMaximumPastEffectiveTimeShift();
+    TimeDuration getMaximumPastEffectiveTimeShift();
 
     /**
      * Gets the system wide default time shift in the past
@@ -133,14 +133,14 @@ public interface DeviceLifeCycleConfigurationService {
      *
      * @return The default time shift
      */
-    public TimeDuration getDefaultPastEffectiveTimeShift();
+    TimeDuration getDefaultPastEffectiveTimeShift();
 
     /**
      * Finds all the {@link TransitionBusinessProcess}es.
      *
      * @return The list of TransitionBusinessProcess
      */
-    public List<TransitionBusinessProcess> findTransitionBusinessProcesses();
+    List<TransitionBusinessProcess> findTransitionBusinessProcesses();
 
     /**
      * Enables the external business process identified by the specified
@@ -151,7 +151,7 @@ public interface DeviceLifeCycleConfigurationService {
      * @param processId The process id of the external process
      * @return The TransitionBusinessProcess
      */
-    public TransitionBusinessProcess enableAsTransitionBusinessProcess(String name, String deploymentId, String processId);
+    TransitionBusinessProcess enableAsTransitionBusinessProcess(String name, String deploymentId, String processId);
 
     /**
      * Disables the external business process identified by the specified
@@ -163,7 +163,7 @@ public interface DeviceLifeCycleConfigurationService {
      * @param deploymentId The deployment id of the external process
      * @param processId The process id of the external process
      */
-    public void disableAsTransitionBusinessProcess(String deploymentId, String processId);
+    void disableAsTransitionBusinessProcess(String deploymentId, String processId);
 
     Optional<AuthorizedAction> findAuthorizedActionById(long id);
 
