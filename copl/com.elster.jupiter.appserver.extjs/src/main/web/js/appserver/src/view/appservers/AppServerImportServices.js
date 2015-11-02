@@ -14,7 +14,7 @@ Ext.define('Apr.view.appservers.AppServerImportServices', {
         var me = this;
         me.content = {
             ui: 'large',
-            title: Uni.I18n.translate('general.importServices', 'APR', 'Import Services'),
+            title: Uni.I18n.translate('general.importServices', 'APR', 'Import services'),
             items: [
                 {
                     xtype: 'preview-container',
