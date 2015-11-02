@@ -76,13 +76,17 @@ Ext.define('Bpm.controller.Process', {
 
         record.save({
             success: function (rec, operation) {
-                
-                record.beginEdit();
-                record.set('associated', rec.get('associated'));
-                record.endEdit(true);
-                processesForm.down('#frm-preview-process').loadRecord(rec);
 
-                if (rec.get('active') === 'INACTIVE') {
+                if (operation.getResultSet().records){
+                    record.beginEdit();
+                    record.set('associatedTo', operation.getResultSet().records[0].get('associatedTo'));
+                    record.endEdit(true);
+                    me.getMainGrid().getView().refresh();
+                    processesForm.down('#frm-preview-process').loadRecord(record);
+                }
+
+
+                if (record.get('active') === 'INACTIVE') {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.process.deactivate', 'BPM', 'Process deactivated'));
                 } else {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.process.activate', 'BPM', 'Process activated'));
@@ -92,6 +96,17 @@ Ext.define('Bpm.controller.Process', {
                 processesForm.setLoading(false);
             }
         });
+
+    },
+
+    updateActivation: function(record, rec){
+        var me = this;
+
+        record.beginEdit();
+        record.set('associatedTo', rec.get('associatedTo'));
+      //  record.set('active', record.get('active') === 'ACTIVE'? 'INACTIVE': 'ACTIVE');
+        record.endEdit(true);
+        processesForm.down('#frm-preview-process').loadRecord(rec);
 
     },
 

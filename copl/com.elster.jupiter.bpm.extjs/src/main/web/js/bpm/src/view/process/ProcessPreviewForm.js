@@ -32,7 +32,7 @@ Ext.define('Bpm.view.process.ProcessPreviewForm', {
                             {
                                 xtype: 'displayfield',
                                 fieldLabel: Uni.I18n.translate('bpm.process.associated', 'BPM', 'Associated to'),
-                                name: 'associated',
+                                name: 'associatedTo',
                                 itemId: 'bpm-preview-process-associated'
                             },
                             {

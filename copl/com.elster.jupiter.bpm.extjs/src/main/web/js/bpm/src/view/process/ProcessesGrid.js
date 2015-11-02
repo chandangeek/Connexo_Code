@@ -7,7 +7,9 @@ Ext.define('Bpm.view.process.ProcessesGrid', {
         'Uni.view.toolbar.PagingBottom',
         'Bpm.store.process.Processes'
     ],
-
+    viewConfig:{
+        markDirty:false
+    },
     initComponent: function () {
         var me = this;
         me.columns = [
@@ -23,7 +25,7 @@ Ext.define('Bpm.view.process.ProcessesGrid', {
             },
             {
                 header: Uni.I18n.translate('bpm.process.associated', 'BPM', 'Associated to'),
-                dataIndex: 'associated',
+                dataIndex: 'associatedTo',
                 flex: 1
             },
             {

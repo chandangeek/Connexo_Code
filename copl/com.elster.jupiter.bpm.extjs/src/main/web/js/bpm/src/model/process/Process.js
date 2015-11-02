@@ -18,7 +18,7 @@ Ext.define('Bpm.model.process.Process', {
             type: 'string'
         },
         {
-            name: 'associated',
+            name: 'associatedTo',
             type: 'string'
         },
         {
