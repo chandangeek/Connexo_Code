@@ -25,7 +25,6 @@ Ext.define('Apr.view.appservers.AddImportServicesSetup', {
                         xtype: 'add-import-services-grid',
                         itemId: 'add-import-services-grid',
                         store: 'Apr.store.UnservedImportServices',
-                        height: 600,
                         plugins: {
                             ptype: 'bufferedrenderer'
                         }
