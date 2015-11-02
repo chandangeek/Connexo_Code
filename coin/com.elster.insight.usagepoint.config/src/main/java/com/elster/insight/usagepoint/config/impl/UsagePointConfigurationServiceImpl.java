@@ -15,7 +15,7 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import com.elster.insight.usagepoint.config.MetrologyConfValidationRuleSetUsage;
+import com.elster.insight.usagepoint.config.MetrologyConfigurationValidationRuleSetUsage;
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.insight.usagepoint.config.UsagePointMetrologyConfiguration;
@@ -195,7 +195,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     @Override
     public List<MetrologyConfiguration> findMetrologyConfigurationsForValidationRuleSet(long id) {
         return this.getDataModel().
-                query(MetrologyConfiguration.class, MetrologyConfValidationRuleSetUsage.class).
+                query(MetrologyConfiguration.class, MetrologyConfigurationValidationRuleSetUsage.class).
                 select(where("metrologyConfValidationRuleSetUsage.validationRuleSetId").isEqualTo(id), Order.ascending("name"));
 
     }

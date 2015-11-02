@@ -3,7 +3,7 @@ package com.elster.insight.usagepoint.config.impl;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 
-import com.elster.insight.usagepoint.config.MetrologyConfValidationRuleSetUsage;
+import com.elster.insight.usagepoint.config.MetrologyConfigurationValidationRuleSetUsage;
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.insight.usagepoint.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.metering.UsagePoint;
@@ -41,8 +41,8 @@ public enum TableSpecs {
 	},
     UPC_MCVALRULESETUSAGE() {
         void addTo(DataModel dataModel) {
-            Table<MetrologyConfValidationRuleSetUsage> table = dataModel.addTable(name(), MetrologyConfValidationRuleSetUsage.class);
-            table.map(MetrologyConfValidationRuleSetUsageImpl.class);
+            Table<MetrologyConfigurationValidationRuleSetUsage> table = dataModel.addTable(name(), MetrologyConfigurationValidationRuleSetUsage.class);
+            table.map(MetrologyConfigurationValidationRuleSetUsageImpl.class);
             table.setJournalTableName("UPC_MCVALRULESETUSAGEJRNL");
             Column validationRuleSetIdColumn =
                     table.column("VALIDATIONRULESETID").type("number").notNull().conversion(NUMBER2LONG).map("validationRuleSetId").add();

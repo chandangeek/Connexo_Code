@@ -4,7 +4,7 @@ import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.validation.ValidationRuleSet;
 
 @ProviderType
-public interface MetrologyConfValidationRuleSetUsage {
+public interface MetrologyConfigurationValidationRuleSetUsage {
 
     MetrologyConfiguration getMetrologyConfiguration();
 

@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
 
-import com.elster.insight.usagepoint.config.MetrologyConfValidationRuleSetUsage;
+import com.elster.insight.usagepoint.config.MetrologyConfigurationValidationRuleSetUsage;
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
@@ -29,7 +29,7 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
     private Instant createTime;
     private Instant modTime;
     private String userName;
-    private List<MetrologyConfValidationRuleSetUsage> metrologyConfValidationRuleSetUsages = new ArrayList<MetrologyConfValidationRuleSetUsage>();
+    private List<MetrologyConfigurationValidationRuleSetUsage> metrologyConfValidationRuleSetUsages = new ArrayList<MetrologyConfigurationValidationRuleSetUsage>();
     
     @NotEmpty
     @Size(max = 80)
@@ -68,22 +68,22 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
         this.name = name;
     }
 
-    public List<MetrologyConfValidationRuleSetUsage> getMetrologyConfValidationRuleSetUsages() {
+    public List<MetrologyConfigurationValidationRuleSetUsage> getMetrologyConfValidationRuleSetUsages() {
         return metrologyConfValidationRuleSetUsages;
     }
     
     @Override
-    public MetrologyConfValidationRuleSetUsage addValidationRuleSet(ValidationRuleSet validationRuleSet) {
-        MetrologyConfValidationRuleSetUsageImpl usage =new MetrologyConfValidationRuleSetUsageImpl(dataModel, eventService, validationService);
+    public MetrologyConfigurationValidationRuleSetUsage addValidationRuleSet(ValidationRuleSet validationRuleSet) {
+        MetrologyConfigurationValidationRuleSetUsageImpl usage =new MetrologyConfigurationValidationRuleSetUsageImpl(dataModel, eventService, validationService);
         usage.init(this, validationRuleSet);
         metrologyConfValidationRuleSetUsages.add(usage);
         getDataModel().touch(this);
         return usage;
     }
     
-    protected MetrologyConfValidationRuleSetUsage getUsage(ValidationRuleSet validationRuleSet) {
-        List<MetrologyConfValidationRuleSetUsage> usages = this.getMetrologyConfValidationRuleSetUsages();
-        for (MetrologyConfValidationRuleSetUsage usage : usages) {
+    protected MetrologyConfigurationValidationRuleSetUsage getUsage(ValidationRuleSet validationRuleSet) {
+        List<MetrologyConfigurationValidationRuleSetUsage> usages = this.getMetrologyConfValidationRuleSetUsages();
+        for (MetrologyConfigurationValidationRuleSetUsage usage : usages) {
             if (usage.getValidationRuleSet().getId() == validationRuleSet.getId()) {
                 return usage;
             }
@@ -93,7 +93,7 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
 
     @Override
     public void removeValidationRuleSet(ValidationRuleSet validationRuleSet) {
-        MetrologyConfValidationRuleSetUsage usage = getUsage(validationRuleSet);
+        MetrologyConfigurationValidationRuleSetUsage usage = getUsage(validationRuleSet);
         metrologyConfValidationRuleSetUsages.remove(usage);
         getDataModel().touch(this);
     }
@@ -102,7 +102,7 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
     public List<ValidationRuleSet> getValidationRuleSets() {
         return this.metrologyConfValidationRuleSetUsages
                 .stream()
-                .map(MetrologyConfValidationRuleSetUsage::getValidationRuleSet)
+                .map(MetrologyConfigurationValidationRuleSetUsage::getValidationRuleSet)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
