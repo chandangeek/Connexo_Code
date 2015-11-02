@@ -39,21 +39,6 @@ Ext.define('Uni.service.Search', {
             'change',
             'reset'
         );
-
-        me.getSearchResultsStore().on({
-            load: me.onSearchResultsLoad,
-            scope: me
-        });
-
-        me.getSearchPropertiesStore().on({
-            load: me.onSearchPropertiesLoad,
-            scope: me
-        });
-
-        me.getSearchFieldsStore().on({
-            load: me.onSearchFieldsLoad,
-            scope: me
-        });
     },
 
     /**
@@ -104,6 +89,25 @@ Ext.define('Uni.service.Search', {
         //}
     },
 
+    initStoreListeners: function() {
+        var me = this;
+
+        me.getSearchResultsStore().on({
+            load: me.onSearchResultsLoad,
+            scope: me
+        });
+
+        me.getSearchPropertiesStore().on({
+            load: me.onSearchPropertiesLoad,
+            scope: me
+        });
+
+        me.getSearchFieldsStore().on({
+            load: me.onSearchFieldsLoad,
+            scope: me
+        });
+    },
+
     /**
      * @param domain string or Domain model
      */
@@ -119,6 +123,7 @@ Ext.define('Uni.service.Search', {
 
         if (domain !== null && Ext.isDefined(domain) && Ext.getClassName(domain) == "Uni.model.search.Domain") {
             me.searchDomain = domain;
+            me.initStoreListeners();
 
             searchProperties.removeAll();
             searchProperties.getProxy().url = domain.get('glossaryHref');
