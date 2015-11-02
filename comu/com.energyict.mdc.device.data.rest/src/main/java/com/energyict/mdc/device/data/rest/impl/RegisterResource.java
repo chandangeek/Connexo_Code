@@ -98,6 +98,7 @@ public class RegisterResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response changeRegisterCustomProperty(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, CustomPropertySetInfo customPropertySetInfo) {
         Register<?> register = doGetRegister(mRID, registerId);
+        resourceHelper.lockRegisterSpecOrThrowException(customPropertySetInfo.objectId, customPropertySetInfo.objectVersion, register);
         resourceHelper.setRegisterCustomPropertySet(register, customPropertySetInfo);
         return Response.ok().build();
     }

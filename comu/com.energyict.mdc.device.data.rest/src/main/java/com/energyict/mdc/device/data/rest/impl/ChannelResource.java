@@ -130,9 +130,10 @@ public class ChannelResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
-    public Response changeRegisterCustomProperty(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId, CustomPropertySetInfo info) {
+    public Response changeRegisterCustomProperty(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId, CustomPropertySetInfo customPropertySetInfo) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
-        resourceHelper.setChannelCustomPropertySet(channel, info);
+        resourceHelper.lockChannelSpecOrThrowException(customPropertySetInfo.objectId, customPropertySetInfo.objectVersion, channel);
+        resourceHelper.setChannelCustomPropertySet(channel, customPropertySetInfo);
         return Response.ok().build();
     }
 

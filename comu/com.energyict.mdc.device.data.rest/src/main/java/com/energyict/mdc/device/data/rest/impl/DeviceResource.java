@@ -289,8 +289,8 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response editDeviceCustomAttribute(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId, CustomPropertySetInfo customPropertySetInfo) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-        resourceHelper.setDeviceCustomPropertySetInfo(device, cpsId, customPropertySetInfo);
+        Device lockedDevice = resourceHelper.lockDeviceOrThrowException(customPropertySetInfo.objectId, mRID, customPropertySetInfo.objectVersion);
+        resourceHelper.setDeviceCustomPropertySetInfo(lockedDevice, cpsId, customPropertySetInfo);
         return Response.ok().build();
     }
 
