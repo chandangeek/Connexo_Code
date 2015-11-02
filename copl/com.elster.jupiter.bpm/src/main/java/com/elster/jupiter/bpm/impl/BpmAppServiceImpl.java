@@ -90,7 +90,7 @@ public class BpmAppServiceImpl implements BpmAppService , TranslationKeyProvider
     @Override
     public List<TranslationKey> getKeys() {
         List<TranslationKey> translationKeys = new ArrayList<>();
-        translationKeys.add(new SimpleTranslationKey(APPLICATION_KEY, APP_NAME));
+        translationKeys.add(new SimpleTranslationKey(APPLICATION_KEY, APPLICATION_NAME));
         return translationKeys;
     }
 }
