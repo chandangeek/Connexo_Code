@@ -5,7 +5,11 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum Privileges implements TranslationKey {
+    //Resources
+    RESOURCE_IMPORT_SERVICES("fileImport.importServices", "Import"),
+    RESOURCE_IMPORT_SERVICES_DESCRIPTION("fileImport.importServices.description", "Manage import"),
 
+    //Privileges
     ADMINISTRATE_IMPORT_SERVICES(Constants.ADMINISTRATE_IMPORT_SERVICES, "Administrate"),
     VIEW_IMPORT_SERVICES(Constants.VIEW_IMPORT_SERVICES, "View");
 
