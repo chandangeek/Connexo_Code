@@ -50,4 +50,11 @@ public interface ComTaskExecutionUpdater<U extends ComTaskExecutionUpdater<U, C>
      */
     C update();
 
+    /**
+     * Updates the given fields in the actual ComTaskExecution with the values set in this builder
+     *
+     * @return the updated created ComTaskExecution
+     */
+    C updateFields(String... fieldNames);
+
 }

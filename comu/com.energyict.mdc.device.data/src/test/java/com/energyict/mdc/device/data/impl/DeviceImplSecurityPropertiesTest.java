@@ -164,7 +164,7 @@ public class DeviceImplSecurityPropertiesTest {
     private DeviceImpl getTestInstance() {
         DeviceImpl device = new DeviceImpl(
                 this.dataModel, this.eventService, this.issueService, this.thesaurus, this.clock, this.meteringService,
-                this.validationService, this.connectionTaskService, this.communicationTaskService, this.securityPropertyService,
+                this.validationService, this.securityPropertyService,
                 this.scheduledConnectionTaskProvider, this.inboundConnectionTaskProvider, this.connectionInitiationTaskProvider,
                 this.scheduledComTaskExecutionProvider, this.protocolPluggableService, this.manuallyScheduledComTaskExecutionProvider,
                 this.firmwareComTaskExecutionProvider, this.meteringGroupsService);

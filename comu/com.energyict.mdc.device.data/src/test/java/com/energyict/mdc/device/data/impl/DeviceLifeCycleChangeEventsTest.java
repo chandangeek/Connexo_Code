@@ -276,8 +276,6 @@ public class DeviceLifeCycleChangeEventsTest {
                 this.clock,
                 this.meteringService,
                 this.validationService,
-                this.connectionTaskService,
-                this.communicationTaskService,
                 this.securityPropertyService,
                 this.scheduledConnectionTaskProvider,
                 this.inboundConnectionTaskProvider,

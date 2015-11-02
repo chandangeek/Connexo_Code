@@ -13,9 +13,7 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
-import com.energyict.mdc.device.data.ComTaskExecutionFields;
-import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteComTaskExecutionException;
 import com.energyict.mdc.device.data.exceptions.ComTaskExecutionIsAlreadyObsoleteException;
 import com.energyict.mdc.device.data.exceptions.ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException;
@@ -128,19 +126,15 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         return schedulingService;
     }
 
-    protected void initializeDevice(Device device) {
-        this.device.set(device);
-    }
-
     protected void initializeFrom(Device device, ComTaskEnablement comTaskEnablement) {
-        this.initializeDevice(device);
+        initializeDevice(device);
         this.ignoreNextExecutionSpecsForInbound = comTaskEnablement.isIgnoreNextExecutionSpecsForInbound();
         this.executionPriority = comTaskEnablement.getPriority();
         this.plannedPriority = comTaskEnablement.getPriority();
         if (comTaskEnablement.usesDefaultConnectionTask() || !comTaskEnablement.hasPartialConnectionTask()) {
             this.setUseDefaultConnectionTask(true);
         } else if (comTaskEnablement.hasPartialConnectionTask()) {
-            this.setMatchingConnectionTaskOrUseDefaultIfNotFound(device, comTaskEnablement);
+            this.setMatchingConnectionTaskOrUseDefaultIfNotFound(getDevice(), comTaskEnablement);
         }
     }
 
@@ -156,6 +150,10 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         if (notFound) {
             this.setUseDefaultConnectionTask(true);
         }
+    }
+
+    protected void initializeDevice(Device device) {
+        this.device.set(device);
     }
 
     @Override
@@ -322,14 +320,13 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
     private void setLastSessionAndUpdate(ComTaskExecutionSession session) {
         this.setLastSession(session);
-/*      Bug in the DataModel that does not support foreign key columns in the update method
+//      Bug in the DataModel that does not support foreign key columns in the update method
         this.getDataModel()
                 .update(this,
                         ComTaskExecutionFields.LAST_SESSION.fieldName(),
                         ComTaskExecutionFields.LAST_SESSION_HIGHEST_PRIORITY_COMPLETION_CODE.fieldName(),
                         ComTaskExecutionFields.LAST_SESSION_SUCCESSINDICATOR.fieldName());
-*/
-        this.update();
+//        this.update();
     }
 
     private void setLastSession(ComTaskExecutionSession session) {
@@ -380,7 +377,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     @Override
     public void updateNextExecutionTimestamp() {
         recalculateNextAndPlannedExecutionTimestamp();
-        this.update();
+        this.updateForScheduling();
     }
 
     void recalculateNextAndPlannedExecutionTimestamp() {
@@ -502,7 +499,9 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     @Override
     public void putOnHold() {
         this.schedule(null);
-        this.save();
+//        if(getId() == 0){
+//            this.save();
+//        }
     }
 
     @Override
@@ -522,15 +521,26 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         if (this.connectionTaskIsScheduled()) {
             ((ScheduledConnectionTaskImpl) this.getConnectionTask().get()).scheduleConnectionNow();
         }
-        this.update();
+        if (this.getId() > 0) {
+            this.updateForScheduling();
+        }
     }
 
     @Override
     public void schedule(Instant when) {
         this.schedule(when, this.getPlannedNextExecutionTimestamp());
         if (this.getId() > 0) {
-            this.update();
+            this.updateForScheduling();
         }
+    }
+    // 'functional' fields do not need a 'versioncount upgrade'. When rescheduling a comtaskexecution
+    // you do not want a new version (no history log) -> only tell the system the comtaskexecution is rescheduled
+    private void updateForScheduling(){
+        this.update(ComTaskExecutionFields.COMPORT.fieldName(),
+                ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName(),
+                ComTaskExecutionFields.CURRENTRETRYCOUNT.fieldName(),
+                ComTaskExecutionFields.EXECUTIONSTART.fieldName(),
+                ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName());
     }
 
     @Override
@@ -543,7 +553,12 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     public void executionCompleted() {
         this.markSuccessfullyCompleted();
         this.doReschedule(calculateNextExecutionTimestamp(clock.instant()));
-        this.update();
+        this.update(ComTaskExecutionFields.LASTSUCCESSFULCOMPLETIONTIMESTAMP.fieldName(),
+                    ComTaskExecutionFields.CURRENTRETRYCOUNT.fieldName(),
+                    ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName(),
+                    ComTaskExecutionFields.CURRENTRETRYCOUNT.fieldName(),
+                    ComTaskExecutionFields.EXECUTIONSTART.fieldName(),
+                    ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName());
     }
 
     /**
@@ -563,10 +578,20 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         this.currentRetryCount++;    // increment the current number of retries
         if (this.currentRetryCount < getMaxNumberOfTries()) {
             this.doExecutionAttemptFailed();
+            this.update(ComTaskExecutionFields.LASTEXECUTIONFAILED.fieldName(),
+                        ComTaskExecutionFields.COMPORT.fieldName(),
+                        ComTaskExecutionFields.EXECUTIONSTART.fieldName(),
+                        ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName(),
+                        ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName());
         } else {
             this.doExecutionFailed();
+            this.update(ComTaskExecutionFields.LASTEXECUTIONFAILED.fieldName(),
+                        ComTaskExecutionFields.CURRENTRETRYCOUNT.fieldName(),
+                        ComTaskExecutionFields.COMPORT.fieldName(),
+                        ComTaskExecutionFields.EXECUTIONSTART.fieldName(),
+                        ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName(),
+                        ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName());
         }
-        this.update();
     }
 
     protected void doExecutionAttemptFailed() {
@@ -649,7 +674,12 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
     @Override
     public void executionStarted(ComPort comPort) {
         this.doExecutionStarted(comPort);
-        this.update();
+        this.update(ComTaskExecutionFields.EXECUTIONSTART.fieldName(),
+                ComTaskExecutionFields.LASTEXECUTIONTIMESTAMP.fieldName(),
+                ComTaskExecutionFields.LASTEXECUTIONFAILED.fieldName(),
+                ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName(),
+                ComTaskExecutionFields.COMPORT.fieldName()
+                );
     }
 
     private void doExecutionStarted(ComPort comPort) {
@@ -755,6 +785,12 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         }
 
         @Override
+        public ComTaskExecutionBuilder<C> runNow() {
+            this.comTaskExecution.runNow();
+            return this;
+        }
+
+        @Override
         public ComTaskExecutionBuilder schedule(Instant instant) {
             this.comTaskExecution.schedule(instant);
             return null;
@@ -834,6 +870,12 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
             if (this.connectionTaskSchedulingMayHaveChanged) {
                 this.comTaskExecution.getConnectionTask().ifPresent(ct -> ct.scheduledComTaskRescheduled(this.comTaskExecution));
             }
+            return (C) this.comTaskExecution;
+        }
+
+        @Override
+        public C updateFields(String... fieldNames){
+           this.comTaskExecution.update(fieldNames);
             return (C) this.comTaskExecution;
         }
 

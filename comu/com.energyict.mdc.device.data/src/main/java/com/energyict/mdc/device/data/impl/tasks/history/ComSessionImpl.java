@@ -101,10 +101,6 @@ public class ComSessionImpl implements ComSession {
     private int taskSuccessCount;
     private int taskFailureCount;
     private int taskNotExecutedCount;
-    private String userName;
-    private long version;
-    private Instant createTime;
-    private Instant modTime;
 
     private List<ComSessionJournalEntry> journalEntries = new ArrayList<>();
     private List<ComTaskExecutionSession> comTaskExecutionSessions = new ArrayList<>();

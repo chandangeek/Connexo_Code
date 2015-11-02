@@ -184,11 +184,12 @@ public enum TableSpecs {
             // InboundConnectionTaskImpl columns: none at this moment
             // ConnectionInitiationTaskImpl columns: none at this moment
             table.primaryKey("PK_DDC_CONNECTIONTASK").on(id).add();
-            table.foreignKey("FK_DDC_CONNECTIONTASK_DEVICE").
-                    on(device).
-                    references(DDC_DEVICE.name()).
-                    map(ConnectionTaskFields.DEVICE.fieldName()).
-                    add();
+            table.foreignKey("FK_DDC_CONNECTIONTASK_DEVICE")
+                    .on(device)
+                    .references(DDC_DEVICE.name())
+                    .map(ConnectionTaskFields.DEVICE.fieldName())
+                    .reverseMap("connectionTasks").composition()
+                    .add();
             table.foreignKey("FK_DDC_CONNECTIONTASK_CLASS").
                     on(connectionTypePluggableClass).
                     references(PluggableService.COMPONENTNAME, "CPC_PLUGGABLECLASS").
@@ -313,6 +314,7 @@ public enum TableSpecs {
             table.foreignKey("FK_DDC_COMTASKEXEC_DEVICE")
                     .on(device).references(DDC_DEVICE.name())
                     .map(ComTaskExecutionFields.DEVICE.fieldName())
+                    .reverseMap("comTaskExecutions").composition()
                     .add();
             table.index("IX_DDCCOMTASKEXEC_NXTEXEC").on(nextExecutionTimestamp, priority, connectionTask, obsoleteDate, comPort).add();
         }

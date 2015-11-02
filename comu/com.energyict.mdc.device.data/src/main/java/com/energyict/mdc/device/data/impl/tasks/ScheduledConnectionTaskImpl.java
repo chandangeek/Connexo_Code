@@ -4,8 +4,7 @@ import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
-import com.energyict.mdc.device.data.ComTaskExecutionFields;
-import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionUpdater;
@@ -281,7 +280,6 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     @Override
     public void scheduledComTaskRescheduled(ComTaskExecution comTask) {
         if (ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(this.getConnectionStrategy())) {
-            doNotTouchParentDevice();
             this.schedule(comTask.getNextExecutionTimestamp());
         }
     }
@@ -308,7 +306,8 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
             comTaskExecutionUpdater.forceNextExecutionTimeStampAndPriority(nextExecutionTimestamp, priority);
-            comTaskExecutionUpdater.update();
+            comTaskExecutionUpdater.updateFields(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName(),
+                                                ComTaskExecutionFields.EXECUTION_PRIORITY.fieldName());
         }
     }
 
@@ -446,6 +445,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     private Instant schedule(Instant when, PostingMode postingMode) {
+        doNotTouchParentDevice();
         if (ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(this.getConnectionStrategy())) {
             return this.doAsSoonAsPossibleSchedule(when, postingMode);
         } else {
@@ -482,10 +482,6 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     @Override
     public Instant getNextExecutionTimestamp() {
         return this.nextExecutionTimestamp;
-    }
-
-    protected void setNextExecutionTimestamp(Instant nextExecutionTimestamp) {
-        this.nextExecutionTimestamp = nextExecutionTimestamp;
     }
 
     @Override
@@ -563,7 +559,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     private void applyNextExecutionTimestampAndPriority(Instant when, int priority, PostingMode postingMode) {
-        this.setNextExecutionTimestamp(when);
+        this.nextExecutionTimestamp = when;
         this.priority = priority;
         postingMode.executeOn(this);
     }
@@ -626,7 +622,9 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         NOW {
             @Override
             void executeOn(ScheduledConnectionTaskImpl connectionTask) {
-                connectionTask.update();
+                connectionTask.updateStrategy.prepare();
+                connectionTask.update(ConnectionTaskFields.NEXT_EXECUTION_TIMESTAMP.fieldName(), ConnectionTaskFields.PRIORITY.fieldName());
+                connectionTask.updateStrategy.complete();
             }
         },
 
@@ -892,15 +890,15 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     public abstract static class AbstractScheduledConnectionTaskBuilder implements Device.ScheduledConnectionTaskBuilder {
 
-        private final ScheduledConnectionTaskImpl scheduledConnectionTask;
+        protected final ScheduledConnectionTaskImpl scheduledConnectionTask;
 
         public AbstractScheduledConnectionTaskBuilder(ScheduledConnectionTaskImpl scheduledConnectionTask) {
             this.scheduledConnectionTask = scheduledConnectionTask;
         }
 
-        protected ScheduledConnectionTaskImpl getScheduledConnectionTask() {
-            return scheduledConnectionTask;
-        }
+//        protected ScheduledConnectionTaskImpl getScheduledConnectionTask() {
+//            return scheduledConnectionTask;
+//        }
 
         @Override
         public Device.ScheduledConnectionTaskBuilder setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus status) {

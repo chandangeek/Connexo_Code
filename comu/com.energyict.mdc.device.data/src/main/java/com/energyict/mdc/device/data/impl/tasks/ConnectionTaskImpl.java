@@ -14,17 +14,7 @@ import com.energyict.mdc.device.data.exceptions.IncompatiblePartialConnectionTas
 import com.energyict.mdc.device.data.exceptions.NestedRelationTransactionException;
 import com.energyict.mdc.device.data.exceptions.PartialConnectionTaskNotPartOfDeviceConfigurationException;
 import com.energyict.mdc.device.data.exceptions.RelationIsAlreadyObsoleteException;
-import com.energyict.mdc.device.data.impl.CreateEventType;
-import com.energyict.mdc.device.data.impl.DeleteEventType;
-import com.energyict.mdc.device.data.impl.EventType;
-import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.device.data.impl.PersistentIdObject;
-import com.energyict.mdc.device.data.impl.PropertyCache;
-import com.energyict.mdc.device.data.impl.PropertyFactory;
-import com.energyict.mdc.device.data.impl.RelationTransactionExecutor;
-import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
-import com.energyict.mdc.device.data.impl.SimpleRelationTransactionExecutor;
-import com.energyict.mdc.device.data.impl.UpdateEventType;
+import com.energyict.mdc.device.data.impl.*;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
@@ -113,8 +103,9 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private Instant lastCommunicationStart;
     private Instant lastSuccessfulCommunicationEnd;
     private transient PropertyCache<ConnectionType, ConnectionTaskProperty> cache;
+    @ValidPluggableClassId(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED + "}")
     private long pluggableClassId;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED + "}")
+    // @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED + "}")
     private ConnectionTypePluggableClass pluggableClass;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_COMPORT_POOL_REQUIRED + "}")
     private Reference<CPPT> comPortPool = ValueReference.absent();
@@ -398,7 +389,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     public void executionCompleted() {
         this.doNotTouchParentDevice();
         this.doExecutionCompleted();
-        this.update();
+        this.update(ConnectionTaskFields.COM_SERVER.fieldName(),ConnectionTaskFields.LAST_SUCCESSFUL_COMMUNICATION_END.fieldName());
     }
 
     protected void doExecutionCompleted() {
@@ -417,6 +408,10 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     private void setDevice(Device device) {
         this.device.set(device);
+    }
+
+    public long getPluggableClassId() {
+        return pluggableClassId;
     }
 
     public ConnectionTypePluggableClass getPluggableClass() {
@@ -664,14 +659,10 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     private void setLastSessionAndUpdate(ComSession session) {
         this.setLastSession(session);
-/*      Bug in the DataModel that does not support foreign key columns in the update method
-        this.getDataModel()
-                .update(this,
-                        ConnectionTaskFields.LAST_SESSION.fieldName(),
-                        ConnectionTaskFields.LAST_SESSION_SUCCESS_INDICATOR.fieldName(),
-                        ConnectionTaskFields.LAST_SESSION_STATUS.fieldName());
-*/
-        this.update();
+        this.update(ConnectionTaskFields.LAST_SESSION.fieldName(),
+                    ConnectionTaskFields.LAST_SESSION_SUCCESS_INDICATOR.fieldName(),
+                    ConnectionTaskFields.LAST_SESSION_STATUS.fieldName(),
+                    ConnectionTaskFields.LAST_COMMUNICATION_START.fieldName());
     }
 
     private void setLastSession(ComSession session) {
@@ -856,18 +847,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
-    protected void validateAndUpdate() {
-        if (this.pluggableClass == null) {
-            this.loadPluggableClass();
-        }
-        super.validateAndUpdate();
-    }
-
-    @Override
     protected void update() {
-        if (this.pluggableClass == null) {
-            this.loadPluggableClass();
-        }
         super.update();
         if (!doNotTouchParentDevice) {
             getDataModel().touch(device.get());
@@ -884,7 +864,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         return comServer.orNull();
     }
 
-    public void setExecutingComServer(ComServer comServer) {
+    void setExecutingComServer(ComServer comServer) {
         this.comServer.set(comServer);
     }
 

@@ -254,7 +254,7 @@ public class DeviceDeleteTest {
 
     private DeviceImpl getNewDeviceWithMockedServices() {
         return new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService,
-                connectionTaskService, communicationTaskService, securityPropertyService, scheduledConnectionTaskProvider, inboundConnectionTaskProvider,
+                securityPropertyService, scheduledConnectionTaskProvider, inboundConnectionTaskProvider,
                 connectionInitiationProvider, scheduledComTaskExecutionProvider, protocolPluggableService, manuallyScheduledComTaskExecutionProvider, firmwareComTaskExecutionProvider,
                 meteringGroupsService);
     }
