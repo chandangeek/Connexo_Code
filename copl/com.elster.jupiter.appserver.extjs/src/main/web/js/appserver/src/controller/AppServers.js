@@ -160,7 +160,6 @@ Ext.define('Apr.controller.AppServers', {
                 click: this.addEditAppServer
             },
             'appservers-add message-services-grid': {
-                edit: this.onCellEdit,
                 msgServiceRemoveEvent: this.onRemoveMessageService
             },
             '#btn-add-message-services': {
@@ -1016,10 +1015,6 @@ Ext.define('Apr.controller.AppServers', {
 
     undoMessageServiceChanges: function(){
         this.showMessageServices(this.getMessageServicesOverview().appServerName);
-    },
-
-    onCellEdit: function (editor, e) {
-        e.record.set('numberOfThreads', e.value);
     },
 
     messageServiceDataChanged: function(){
