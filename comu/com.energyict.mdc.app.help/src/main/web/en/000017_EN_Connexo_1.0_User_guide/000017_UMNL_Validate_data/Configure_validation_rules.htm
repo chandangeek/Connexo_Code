@@ -57,7 +57,7 @@ gCommonRootRelPath = "../..";
 gTopicId = "3.1.0_2";
 </script>
  <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Validate_data/Configure_validation.htm">
- <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Validate_data/Manage_validation_on_a_device.htm">
+ <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Validate_data/Manage_validation_over_time.htm">
 </head>
 
 <body>
@@ -66,10 +66,10 @@ gTopicId = "3.1.0_2";
  <p class="FM_H3SectionTopic"><a name="XREF_68525_Configure"></a>Configure validation rules</p>
  <p class="FM_H4Topic"><a name="XREF_73262_Configure"></a>Configure validation rule sets</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
- <p class="FM_Pprocedure2"><span class="FM_Bold">Steps</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
  <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt;<span class="FM_UIRef"> Validation</span></p>
  <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Validation rule sets</span>.</p>
- <p class="FM_ListNumber1">3. &#160; Remove or edit validation rule sets via the actions icon <img alt="masterActions.png" style=" width:100%; margin-bottom:0.000pt; max-width:16.173pt;" id="image1" src="masterActions.png" />.</p>
+ <p class="FM_ListNumber1">3. &#160; Remove or edit validation rule sets via the actions icon <img alt="masterActions.png" style=" margin-bottom:0.000pt; width:100%; max-width:21px;" id="image2" src="masterActions.png" />.</p>
  <p class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Add validation rule set</span> to create a new set. Complete the following fields:</p>
 
  <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
@@ -102,12 +102,10 @@ gTopicId = "3.1.0_2";
  <p class="FM_ListNumber1">5. &#160; &#160;Click <span class="FM_UIRef">Add</span>.</p>
  <p class="FM_H4Topic"><a name="XREF_39135_Configure"></a>Configure validation rules</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
- <p class="FM_Pprocedure2"><span class="FM_Bold">Steps</span></p>
- <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Validation</span>&#160;&gt; <span class="FM_UIRef">Validation rule sets</span></p>
- <p class="FM_ListNumber1">2. &#160; Click a validation rule set.</p>
- <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Validation rules</span>&#160;in the menu on the left. </p>
- <p class="FM_ListNumber1">4. &#160; Edit or remove validation rules via the actions icon <img alt="masterActions00001.png" style=" width:100%; margin-bottom:0.000pt; max-width:16.173pt;" id="image2" src="masterActions00001.png" />.</p>
- <p class="FM_ListNumber1">5. &#160; Click <span class="FM_UIRef">Add validation rule. </span>Fill in the following fields:</p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Validation</span>&#160;&gt; <span class="FM_UIRef">Validation rule sets &gt; </span>click a validation rule set &gt; click <span class="FM_UIRef">Validation rules</span>&#160;in the menu on the left. </p>
+ <p class="FM_ListNumber1">2. &#160; Edit or remove validation rules via the actions icon <img alt="masterActions00001.png" style=" margin-bottom:0.000pt; width:100%; max-width:21px;" id="image3" src="masterActions00001.png" />.</p>
+ <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Add validation rule. </span>Fill in the following fields:</p>
 
  <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
   <tr style=" height : 25.00pt;" class="t1st">
@@ -131,23 +129,30 @@ gTopicId = "3.1.0_2";
   <p class="FM_CellBody">Validator</p>
 </td>
   <td style="width : 283.465pt; vertical-align : top;">
-  <p class="FM_CellBody">Select how to perform validation. Depending on the validation rule selected, extra parameters may need to be defined.</p>
+  <p class="FM_CellBody">Select how to perform validation. Depending on the validator selected, extra parameters may need to be defined.</p>
 </td>
 </tr>
-     <tr style=" height : 34.00pt;" class="t2Row">
+  <tr style=" height : 34.00pt;" class="t2Row">
   <td style="width : 109.000pt; vertical-align : top;">
   <p class="FM_CellBody">Reading type(s)</p>
 </td>
   <td style="width : 283.465pt; vertical-align : top;">
-      <p class="FM_CellBody">Multiple reading types can be added as described in <a href="#XREF_73074_Add_reading_type"><span
-              class="FM_blue_crossreference">“</span><span class="FM_blue_crossreference">Add reading type”</span></a>.
-      </p>
+  <p class="FM_CellBody">Multiple reading types can be added as described in <a href="#XREF_73074_Add_reading_type"><span class="FM_blue_crossreference">“</span><span class="FM_blue_crossreference">Add reading type”</span></a>.</p>
+</td>
+</tr>
+  <tr style=" height : 73.00pt;" class="t1Row">
+  <td style="width : 109.000pt; vertical-align : top;">
+  <p class="FM_CellBody">Data quality level</p>
+</td>
+  <td style="width : 283.465pt; vertical-align : top;">
+  <p class="FM_CellBody"><span class="FM_UIRef">Suspect</span>: the data is invalid and needs attention. This value will be subject to estimation.</p>
+  <p class="FM_CellBody"><span class="FM_UIRef">Informative</span>: the data is valid, but could be an indication that something is going wrong. This value will not be estimated.</p>
 </td>
 </tr>
  </table>
 
- <p class="FM_ListNumber1">6. &#160; Click <span class="FM_UIRef">Add</span>.</p>
- <p class="FM_ListNumber1">7. &#160; Click the actions icon to activate the rule.</p>
+ <p class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Add</span>.</p>
+ <p class="FM_ListNumber1">5. &#160; Click the actions icon to activate the rule.</p>
  <p class="FM_PNote"><span class="FM_Icons">3</span></p>
  <p class="FM_PNote2"><span class="FM_Bold">Note</span></p>
  <p class="FM_BodyGrey">The following validators are available by default:</p>
@@ -196,32 +201,15 @@ gTopicId = "3.1.0_2";
 </tr>
  </table>
 
-<p class="FM_H4Topic"><a name="XREF_73074_Add_reading_type"></a>Add reading type</p>
-
-<p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
-
-<p class="FM_Pprocedure2" style="color   : #000000;"><span class="FM_Bold">Steps </span></p>
-
-<p class="FM_ListNumber0">1. &#160;&#160;Click <span class="FM_UIRef">Add reading types</span>.</p>
-
-<p class="FM_ListNumber1">2. &#160; Complete the filter fields to find the correct reading types.</p>
-
-<p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Apply</span>.</p>
-
-<p class="FM_BodyProcedure">Click the remove icon <img alt="delete.png"
-                                                       style=" width:100%; margin-bottom:0.000pt; max-width:16.173pt;"
-                                                       id="image3" src="delete.png"/>&#160;to remove single filters or
-    click <span class="FM_UIRef">Clear all</span>&#160;to remove all applied filters.</p>
-
-<p class="FM_ListNumber1">4. &#160; Select to add all reading types of the filter result or make a custom selection and
-    select one or multiple reading types from the table.</p>
-
-<p class="FM_BodyProcedure">You can see the reading type details by clicking the information icon <img alt="info.png"
-                                                                                                       style=" width:100%; margin-bottom:0.000pt; max-width:16.173pt;"
-                                                                                                       id="image4"
-                                                                                                       src="info.png"/>.
-</p>
-
-<p class="FM_ListNumber1">5. &#160; Click <span class="FM_UIRef">Add</span>.</p>
+ <p class="FM_H4Topic"><a name="XREF_73074_Add_reading_type"></a>Add reading type</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Click <span class="FM_UIRef">Add reading types</span>.</p>
+ <p class="FM_ListNumber1">2. &#160; Complete the filter fields to find the correct reading types.</p>
+ <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Apply</span>.</p>
+ <p class="FM_BodyProcedure">Click the remove icon <img alt="delete.png" style=" margin-bottom:0.000pt; width:100%; max-width:21px;" id="image4" src="delete.png" />&#160;to remove single filters or click <span class="FM_UIRef">Clear all</span>&#160;to remove all applied filters.</p>
+ <p class="FM_ListNumber1">4. &#160; Select to add all reading types of the filter result or make a custom selection and select one or multiple reading types from the table.</p>
+ <p class="FM_BodyProcedure">You can see the reading type details by clicking the information icon <img alt="info.png" style=" margin-bottom:0.000pt; width:100%; max-width:21px;" id="image5" src="info.png" />.</p>
+ <p class="FM_ListNumber1">5. &#160; Click <span class="FM_UIRef">Add</span>.</p>
  </body>
 </html>

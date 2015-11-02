@@ -68,13 +68,13 @@ gTopicId = "3.1";
  <p class="FM_H3SectionTopic"><a name="TOC_View_validation_rules"></a>View validation rules</p>
  <p class="FM_H4Topic">View all configured validation rule sets</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
- <p class="FM_Pprocedure2"><span class="FM_Bold">Steps</span></p>
- <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt;<span class="FM_UIRef"> Validation</span>.</p>
- <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Validation rule sets</span>.</p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt;<span class="FM_UIRef"> Validation</span>&#160;&gt; <span class="FM_UIRef">Validation rule sets</span>.</p>
  <p class="FM_BodyProcedure">On top of the page you see all configured <a title="Is a collection of validation rules that should be applied together.">validation rule set</a>s.</p>
- <p class="FM_BodyProcedure">In the middle of the page you can see the <a title="Rules to check whether collected data is valid by verifying if the data is in accordance with specific market rules.">validation rules</a> that belong to the validation rule set that is selected in the first table.</p>
+ <p class="FM_BodyProcedure">In the middle of the page you can see the different version of the validation rule set and the period for which they are active. For every version the amount of active and inactive validation rules are shown.</p>
+ <p class="FM_BodyProcedure">Under the validation rule sets versions the <a title="Rules to check whether collected data is valid by verifying if the data is in accordance with specific market rules.">validation rules</a> that belong to the validation rule set version that is selected are shown.</p>
  <p class="FM_BodyProcedure">Under the validation rules table you can see the details of the validation rule you selected in the table.</p>
- <p class="FM_ListNumber1">3. &#160; Click a validation rule set.</p>
+ <p class="FM_ListNumber1">2. &#160; Click a validation rule set.</p>
  <p class="FM_BodyProcedure">On the validation rule sets page three items are shown in the menu on the left:</p>
 
  <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
@@ -86,20 +86,20 @@ gTopicId = "3.1";
   <p class="FM_CellHeading">Description</p>
 </td>
 </tr>
-  <tr style=" height : 34.00pt;" class="t2Row">
+  <tr style=" height : 21.00pt;" class="t2Row">
   <td style="width : 115.730pt; vertical-align : top;">
   <p class="FM_CellBody">Overview</p>
 </td>
   <td style="width : 300.963pt; vertical-align : top;">
-  <p class="FM_CellBody">Shows the name, description and the amount of active and inactive rule in this set.</p>
+  <p class="FM_CellBody">Shows the name, description and the active version of this set.</p>
 </td>
 </tr>
-  <tr style=" height : 34.00pt;" class="t1Row">
+  <tr style=" height : 60.00pt;" class="t1Row">
   <td style="width : 115.730pt; vertical-align : top;">
   <p class="FM_CellBody">Validation rules</p>
 </td>
   <td style="width : 300.963pt; vertical-align : top;">
-  <p class="FM_CellBody">Shows a list of all validation rules included in this set and the possibility to add, remove, edit and view new rules.</p>
+  <p class="FM_CellBody">Shows a list of all version of the validation rule set together the amount of active validation rules included in this version. Per version all validation rules are shown together with the possibility to remove, edit and view the rules.</p>
 </td>
 </tr>
   <tr style=" height : 34.00pt;" class="t2Row">
@@ -116,26 +116,25 @@ gTopicId = "3.1";
   <caption class="FM_CGraphic" align="bottom">Figure: Validation rule sets homepage.</caption>
   <tr style=" height : 242.29pt;">
   <td style="width : 351.496pt; vertical-align : top;padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;">
-  <p class="FM_CGraphicCell" style="text-align  : justify;"><img alt="ValidationRuleSets.png" style=" width:100%; margin-bottom:0.000pt; max-width:339.391pt;" id="image0" src="ValidationRuleSets.png" />&nbsp;</p>
+  <p class="FM_CGraphicCell" style="text-align  : justify;"><img alt="ValidationRuleSets.png" style=" margin-bottom:0.000pt; width:100%; max-width:452px;" id="image1" src="ValidationRuleSets.png" />&nbsp;</p>
 </td>
 </tr>
  </table>
 
  <p class="FM_H4Topic">View validation rule sets on a device configuration</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
- <p class="FM_Pprocedure2"><span class="FM_Bold">Steps</span></p>
- <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device management</span>&#160;&gt; click <span class="FM_UIRef">Device type </span>&gt;&#160;select a device type &gt; click <span class="FM_UIRef">Configurations</span>&#160;&gt; select a configuration.</p>
- <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Validation rule sets</span>&#160;in the menu on the left to see all rule sets assigned to this device configuration.</p>
- <p class="FM_BodyProcedure">These validation rule sets are used to validate all data that is generated from devices with this configuration.</p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device management</span>&#160;&gt; click <span class="FM_UIRef">Device type </span>&gt;&#160;select a device type &gt; click <span class="FM_UIRef">Configurations</span>&#160;&gt;&#160;select a configuration &gt;&#160;Reading Quality &gt; Click <span class="FM_UIRef">Validation rule sets</span>.</p>
+ <p class="FM_BodyProcedure">These validation rule sets are used to validate all data that is generated on devices with this configuration and the same reading types as the validation rules.</p>
  <p class="FM_PNote"><span class="FM_Icons">3</span></p>
  <p class="FM_PNote2"><span class="FM_Bold">Note</span></p>
- <p class="FM_BodyGrey">When you go to the register, and load profile configuration pages the used validation rules are also shown here.</p>
+ <p class="FM_BodyGrey">When you go to the register and load profile configuration pages the used validation rules are also shown here.</p>
  <p class="FM_H4Topic">View validation rules on a device</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
- <p class="FM_Pprocedure2"><span class="FM_Bold">Steps</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
  <p class="FM_ListNumber0">1. &#160;&#160;Select a device using <span class="FM_UIRef">Search</span>, see <a href="../000017_UMNL_Find_data/Advanced_search.htm#XREF_29250_Advanced_search"><span class="FM_blue_crossreference">“Advanced search”</span></a>.</p>
- <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Data validation</span> to see the validation rules on this device.</p>
- <p class="FM_BodyProcedure">On top op the page, the status of the validation is shown and can be changed by clicking the button on the upper right corner. </p>
- <p class="FM_BodyProcedure">On the bottom of the page the used validation rule sets and their validation rules are shown.</p>
+ <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Validation configuration</span>&#160;under <span class="FM_UIRef">Reading quality</span>&#160;to see the validation rules on this device.</p>
+ <p class="FM_BodyProcedure">On top of the page, the status of the validation is shown and can be changed by clicking the button on the upper right corner. </p>
+ <p class="FM_BodyProcedure">Below the status there is an overview table with all validation rule sets configured on this device. When you select a rule set in this table, you will see the versions of this rule set together with the included validation rules.</p>
  </body>
 </html>

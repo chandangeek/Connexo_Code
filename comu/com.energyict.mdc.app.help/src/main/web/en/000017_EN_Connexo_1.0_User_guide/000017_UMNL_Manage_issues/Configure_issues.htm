@@ -54,10 +54,10 @@ p.WebHelpNavBar { text-align:right; }
 <script type="text/javascript" >
 gRootRelPath = "../..";
 gCommonRootRelPath = "../..";
-gTopicId = "5.1";
+gTopicId = "6.1";
 </script>
  <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Manage_issues/Understand_issues.htm">
- <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Manage_issues/Fix_data_collection_issues.htm">
+ <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Manage_issues/Fix_issues.htm">
 </head>
 
 <body>
@@ -70,9 +70,9 @@ gTopicId = "5.1";
  <p class="FM_Body"><uservariable x-value="Connexo MultiSense" x-showvalue="TRUE" name="Product_name" x-format="Product_name">Connexo MultiSense</uservariable>&#160;offers the possibility the configure issue creation rules. This option limits the time you spend managing issues because you create rules to define which events will automatically trigger an issue. You can also define when the issue needs to be solved as well as what needs to be done with the issue such as assigning it to a specific user.</p>
  <p class="FM_Body">Different parameters are required to complete the configuration of a creation rule. First you will have to indicate the type of issue, this can be for example a data collection issue. Next you need to select a rule template to define the parameters of the rule. </p>
  <p class="FM_Body">A rule template is a collection of parameters that are specific for a certain rule. The exact values of the parameters are defined in the rule itself. An examples of such a template is the template to create an issue when a slope is detected. All parameters will be shown, but then you will have to complete the reading type, the trend period and the threshold.</p>
- <p class="FM_H4Topic"><a name="XREF_96938_Configure_issue"></a>Configure issue creation rules</p>
+ <p class="FM_H4Topic"><a name="XREF_96938_Configure_issue"></a>Configure data collection issue creation rules</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
- <p class="FM_Pprocedure2"><span class="FM_Bold">Steps</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
  <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Issue management</span>.</p>
  <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Issue creation rules</span>. </p>
  <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Add rule</span>. Complete the following fields:</p>
@@ -99,7 +99,7 @@ gTopicId = "5.1";
   <p class="FM_CellBody">Issue type</p>
 </td>
   <td style="width : 300.963pt; vertical-align : top;">
-  <p class="FM_CellBody">Data collection</p>
+  <p class="FM_CellBody">Select <span class="FM_UIRef">Data collection</span></p>
 </td>
 </tr>
   <tr style=" height : 34.00pt;" class="t2Row">
@@ -155,19 +155,98 @@ gTopicId = "5.1";
 
  <p class="FM_PNote"><span class="FM_Icons">3</span></p>
  <p class="FM_PNote2"><span class="FM_Bold">Note</span></p>
+ <p class="FM_BodyGrey">Depending on the selected rule template, additional fields will have to be completed such as thresholds and reading types.</p>
+ <p class="FM_H4Topic">Configure data validation issue creation rules</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Issue management</span>.</p>
+ <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Issue creation rules</span>. </p>
+ <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Add rule</span>. Complete the following fields:</p>
 
-<p class="FM_BodyGrey">Depending on the selected rule template, additional fields will have to be completed such as
-    thresholds and reading types.</p>
+ <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
+  <tr style=" height : 25.00pt;" class="t1st">
+  <td style="width : 115.730pt; vertical-align : top;">
+  <p class="FM_CellHeading">Parameter</p>
+</td>
+  <td style="width : 300.963pt; vertical-align : top;">
+  <p class="FM_CellHeading">Description</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 115.730pt; vertical-align : top;">
+  <p class="FM_CellBody">Name</p>
+</td>
+  <td style="width : 300.963pt; vertical-align : top;">
+  <p class="FM_CellBody">A unique name</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t1Row">
+  <td style="width : 115.730pt; vertical-align : top;">
+  <p class="FM_CellBody">Issue type</p>
+</td>
+  <td style="width : 300.963pt; vertical-align : top;">
+  <p class="FM_CellBody">Select <span class="FM_UIRef">Data validation</span>.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t2Row">
+  <td style="width : 115.730pt; vertical-align : top;">
+  <p class="FM_CellBody">Rule template</p>
+</td>
+  <td style="width : 300.963pt; vertical-align : top;">
+  <p class="FM_CellBody">Select the template containing all parameters to configure the rule</p>
+</td>
+</tr>
+  <tr style=" height : 60.00pt;" class="t1Row">
+  <td style="width : 115.730pt; vertical-align : top;">
+  <p class="FM_CellBody">Device configurations</p>
+</td>
+  <td style="width : 300.963pt; vertical-align : top;">
+  <p class="FM_CellBody">Select the data that will create issues by linking device configurations to the issue creation rule. Click <span class="FM_UIRef">Add device configurations</span>. Select all device configurations or make a custom selection.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t2Row">
+  <td style="width : 115.730pt; vertical-align : top;">
+  <p class="FM_CellBody">Issue reason</p>
+</td>
+  <td style="width : 300.963pt; vertical-align : top;">
+  <p class="FM_CellBody">The reason of creation, MultiSense will show this in the issue details.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t1Row">
+  <td style="width : 115.730pt; vertical-align : top;">
+  <p class="FM_CellBody">Due date</p>
+</td>
+  <td style="width : 300.963pt; vertical-align : top;">
+  <p class="FM_CellBody">When does the issue need to be solved.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 115.730pt; vertical-align : top;">
+  <p class="FM_CellBody">Comment</p>
+</td>
+  <td style="width : 300.963pt; vertical-align : top;">
+  <p class="FM_CellBody">Add additional information to the issue.</p>
+</td>
+</tr>
+  <tr style=" height : 47.00pt;" class="t1Row">
+  <td style="width : 115.730pt; vertical-align : top;">
+  <p class="FM_CellBody">Actions</p>
+</td>
+  <td style="width : 300.963pt; vertical-align : top;">
+  <p class="FM_CellBody">Define what needs to be done when the issue is created. See <a href="#XREF_57770_Add_actions_to"><span class="FM_blue_crossreference">“</span><span class="FM_blue_crossreference">Add actions to issue creation rules”</span></a>&#160;how to configure these actions.</p>
+</td>
+</tr>
+ </table>
+
  <p class="FM_H4Topic"><a name="XREF_57770_Add_actions_to"></a>Add actions to issue creation rules</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
- <p class="FM_Pprocedure2"><span class="FM_Bold">Steps</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
  <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Issue management </span>&gt;<span class="FM_UIRef"> Issue creation rules.</span></p>
  <p class="FM_ListNumber1">2. &#160; To add actions to a new creation rule: click <span class="FM_UIRef">Create rule</span>.</p>
- <p class="FM_Body" style="text-indent : 15.591pt; margin-bottom : 7.000pt;">To add actions to an existing creation rule: click the actions icon <img alt="masterActions.png" style=" width:100%; margin-bottom:0.000pt; max-width:16.173pt;" id="image1" src="masterActions.png" />&#160;&gt; <span class="FM_UIRef">Edit</span>.</p>
+ <p class="FM_Body" style="text-indent : 15.591pt; margin-bottom : 7.000pt;">To add actions to an existing creation rule: click the actions icon <img alt="masterActions.png" style=" margin-bottom:0.000pt; width:100%; max-width:21px;" id="image1" src="masterActions.png" />&#160;&gt; <span class="FM_UIRef">Edit</span>.</p>
  <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Add action</span>.</p>
  <p class="FM_ListNumber1">4. &#160; Define when to perform the action: when the issue was created or when the issue has passed its due date.</p>
  <p class="FM_ListNumber1">5. &#160; Select action: send a notification or send someone to inspect the issue.</p>
  <p class="FM_ListNumber1">6. &#160; Click <span class="FM_UIRef">Add</span>.</p>
- <p class="FM_H4Topic">&nbsp;</p>
  </body>
 </html>

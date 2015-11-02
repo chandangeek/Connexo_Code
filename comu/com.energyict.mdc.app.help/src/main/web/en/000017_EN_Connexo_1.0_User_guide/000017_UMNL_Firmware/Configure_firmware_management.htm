@@ -1,0 +1,174 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Configure firmware management</title>
+
+ <meta name="generator" content="Adobe FrameMaker 12" />
+ <meta name="Originator" content="ImportMif" />
+ <meta name="OriginalFile" content="P:\Private\04 Portfolio\02 SW\06 Jupiter\03 Jupiter MDC 10.x\03 Collateral\01 Docs\01 User manuals\EMNL000017_EN Connexo MDC 1.0 User Manual\01 DRAFT\01 SOURCE\000017_UMNL_Firmware.fm" />
+ <link rel="stylesheet" href="000017_UMNL_Firmware.css" type="text/css" />
+ <link rel="StyleSheet" href="../../Responsive_HTML5_stylesheet.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "8.1";
+</script>
+ <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Firmware/Understand_firmware.htm">
+ <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Firmware/Manage_firmware_options.htm">
+</head>
+
+<body>
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+
+ <p class="FM_H2Section">Configure firmware management</p>
+ 
+ <p class="FM_H3SectionTopic"><a name="TOC_Manage_firmware_versions"></a>Manage firmware versions</p>
+ <p class="FM_H4Topic">Understand firmware versions</p>
+ <p class="FM_Body">A firmware version can have one of the following four statuses: <span class="FM_UIRef">Test</span>, <span class="FM_UIRef">Final</span>, <span class="FM_UIRef">Ghost</span>&#160;or <span class="FM_UIRef">Deprecated</span>. A version can have the status <span class="FM_UIRef">Test</span>&#160;when you need to test the new firmware on a small batch of devices to check whether everything is running without errors. Once the test version has been successfully tested, you can promote it to <span class="FM_UIRef">Final</span>. You can then install this version on a large amount of devices.</p>
+ <p class="FM_Body"><span class="FM_UIRef">Ghost</span>&#160;versions are created by Connexo when a device has a firmware version installed that doesn’t exist in <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;yet. This firmware version can be promoted to Test or Final if you upload the corresponding firmware file.</p>
+ <p class="FM_Body">Once a version is no longer needed or there is an error in the firmware version, you can give this version the status <span class="FM_UIRef">Deprecated</span>. These version can no longer be uploaded to devices. A Deprecated firmware version is shown in the overview table, but the firmware file of this version is removed.</p>
+ <p class="FM_PNote"><span class="FM_Icons">3</span></p>
+ <p class="FM_PNote2"><span class="FM_Bold">Note</span></p>
+ <p class="FM_BodyGrey">You are not able to install ghost or deprecated firmware versions.</p>
+
+ <table style=" border-spacing:0; float:alignleft; margin-top:12.00pt; margin-left:14.17pt; width:100%; max-width:351.50pt;" cellspacing="0">
+  <caption class="FM_CGraphic" align="bottom">Figure: Firmware version status diagram. Shows how the different firmware version relate to each other. The * indicates that firmware files need to be uploaded with these actions.</caption>
+  <tr style=" height : 210.50pt;">
+  <td style="width : 351.496pt; vertical-align : top;padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;">
+  <p class="FM_CGraphicCell"><img alt="Firmware_status.png" style=" margin-bottom:0.000pt; width:100%; max-width:310px;" id="image1" src="Firmware_status.png" />&nbsp;</p>
+</td>
+</tr>
+ </table>
+
+ <p class="FM_H4Topic">View firmware versions</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device management</span>&#160;&gt; <span class="FM_UIRef">Device types</span>&#160;&gt;&#160;select a device type &gt; <span class="FM_UIRef">Firmware</span>&#160;&gt; <span class="FM_UIRef">Firmware versions</span>.</p>
+ <p class="FM_BodyProcedure">The table shows all firmware versions that have been added to the device type and are available to upload on a device. For every version the type of firmware as well as the status of the firmware is shown.</p>
+ <p class="FM_H4Topic">Filter firmware versions</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device management</span>&#160;&gt; <span class="FM_UIRef">Device types</span>&#160;&gt;&#160;select a device type &gt; <span class="FM_UIRef">Firmware</span>&#160;&gt; <span class="FM_UIRef">Firmware versions</span>.</p>
+ <p class="FM_BodyProcedure">You can filter firmware version using different parameters such as the firmware type and firmware status. When the communication protocol only allows one type of firmware the type filter will not be shown.</p>
+ <p class="FM_ListNumber1">2. &#160; Select the desired filters.</p>
+ <p class="FM_ListNumber1">3. &#160; Click Apply. The applied filters are shown on top of the page.</p>
+ <p class="FM_ListNumber1">4. &#160; Click the remove icon <span class="FM_Icons">8</span>&#160;to remove single filters or click <span class="FM_UIRef">Clear all</span> to remove all filters.</p>
+ <p class="FM_H4Topic">Add firmware version</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device management</span>&#160;&gt; <span class="FM_UIRef">Device types</span>&#160;&gt;&#160;select a device type &gt; <span class="FM_UIRef">Firmware</span>&#160;&gt; <span class="FM_UIRef">Firmware versions</span>.</p>
+ <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Add firmware version.</span> Complete in the following fields:</p>
+
+ <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
+  <tr style=" height : 25.00pt;" class="t1st">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellHeading">Parameter</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellHeading">Description</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Firmware file</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">Upload the file containing the firmware version.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t1Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Version</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">The version of the firmware, should be unique for the device.</p>
+</td>
+</tr>
+  <tr style=" height : 98.00pt;" class="t2Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Firmware type</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">When the communication protocol only allows one type of firmware only that firmware type will be shown.</p>
+  <p class="FM_ListBulletTable"><span class="FM_BulletA">o<span style='word-spacing:normal; font:6.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;</span></span>Meter firmware: contains all metrics</p>
+  <ul type="disc">
+   <li>
+   <p class="FM_ListBullet1">Communication firmware: contains are features needed to allow communication between the device and the meter data collection system.</p>
+</li>
+  </ul></td>
+</tr>
+  <tr style=" height : 80.00pt;" class="t1Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Firmware status</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_ListBulletTable"><span class="FM_BulletA">o<span style='word-spacing:normal; font:6.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;</span></span><span class="FM_UIRef">Final</span>: use this status when the firmware version has been tested and is ready to upload on a multitude of devices.</p>
+  <p class="FM_ListBulletTable"><span class="FM_BulletA">o<span style='word-spacing:normal; font:6.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;</span></span><span class="FM_UIRef">Test</span>: use this status when testing new firmware version. This will prevent you to upload firmware version still containing errors on devices.</p>
+</td>
+</tr>
+ </table>
+
+ <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Add.</span></p>
+ <p class="FM_H4Topic">Edit firmware versions</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device management</span>&#160;&gt; <span class="FM_UIRef">Device types</span>&#160;&gt;&#160;select a device type &gt; <span class="FM_UIRef">Firmware</span>&#160;&gt; <span class="FM_UIRef">Firmware versions</span>.</p>
+ <p class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="masterActions.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image2" src="masterActions.png" />&#160;next to the firmware version and select <span class="FM_UIRef">Edit</span>.</p>
+ <p class="FM_BodyProcedure">When you edit a firmware version you are able to upload a new firmware file, the new firmware file will then replace the existing one.</p>
+ <p class="FM_BodyProcedure">If the current status of the firmware version is Ghost, you are able to change the status of the version to Test or Final, but not the name of the version. If the status is Test or Final you can change the name of the version, but not the status. Deprecated version can no longer be edited.</p>
+ <p class="FM_H4Topic">Set firmware version as final</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device management</span>&#160;&gt; <span class="FM_UIRef">Device types</span>&#160;&gt;&#160;select a device type &gt; <span class="FM_UIRef">Firmware</span>&#160;&gt; <span class="FM_UIRef">Firmware versions</span>.</p>
+ <p class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="masterActions00001.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image3" src="masterActions00001.png" />&#160;next to a test firmware and select <span class="FM_UIRef">Set as final</span>.</p>
+ <p class="FM_H4Topic">Deprecate firmware versions</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device management</span>&#160;&gt; <span class="FM_UIRef">Device types</span>&#160;&gt;&#160;select a device type &gt; <span class="FM_UIRef">Firmware</span>&#160;&gt; <span class="FM_UIRef">Firmware versions</span>.</p>
+ <p class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="masterActions00002.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image4" src="masterActions00002.png" />&#160;and select <span class="FM_UIRef">Deprecate</span>. </p>
+ <p class="FM_ListNumber1">3. &#160; Once the firmware version has been deprecated it is still shown in the table, but it can no longer be used to upload on devices.</p>
+ </body>
+</html>

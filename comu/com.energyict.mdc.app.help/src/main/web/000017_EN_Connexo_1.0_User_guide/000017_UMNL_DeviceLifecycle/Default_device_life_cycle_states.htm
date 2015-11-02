@@ -1,0 +1,82 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Default device life cycle states</title>
+
+ <meta name="generator" content="Adobe FrameMaker 12" />
+ <meta name="Originator" content="ImportMif" />
+ <meta name="OriginalFile" content="P:\Private\04 Portfolio\02 SW\06 Jupiter\03 Jupiter MDC 10.x\03 Collateral\01 Docs\01 User manuals\EMNL000017_EN Connexo MDC 1.0 User Manual\01 DRAFT\01 SOURCE\000017_UMNL_DeviceLifecycle.fm" />
+ <link rel="stylesheet" href="000017_UMNL_DeviceLifecycle.css" type="text/css" />
+ <link rel="StyleSheet" href="../../Responsive_HTML5_stylesheet.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "9.1.0_2";
+</script>
+ <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceLifecycle/Default_device_life_cycle_management.htm">
+ <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceLifecycle/Configure_device_life_cycle.htm">
+</head>
+
+<body>
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+
+ <p class="FM_H3SectionTopic">Default device life cycle states</p>
+ <p class="FM_H4Topic">Default device states</p>
+ <p class="FM_Body"><uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;offers different default states that cover all the basic device states needed to operate the system. Depending on the state you will be able to view data and/or perform specific actions. You can use these states to search for devices. All the default states are described below.</p>
+ <p class="FM_H4Topic">In stock</p>
+ <p class="FM_Body">A device will be assigned the state In stock when the device has been installed on its location, but nothing has been configured yet. If a device is in stock you cannot activate validation, estimation and issue management but you are able to connect to this device. Devices in stock are not taken into account when calculating KPIs except when indicated otherwise.</p>
+ <p class="FM_H4Topic">Commissioning</p>
+ <p class="FM_Body">This is a state where a small batch of devices can be tested to monitor their performance. A device with this state is able to communicate with Connexo. Furthermore you can validate, estimate and edit its data. Typically you will keep devices for a limited period of time in this state.</p>
+ <p class="FM_H4Topic">Active</p>
+ <p class="FM_Body">This is the state the device will reside most of its time in. When a device resides in this state it is installed and fully functional, meaning that the device will collect data and you are able to validate, estimate and edit this data. You need to define an usage point before you can transition to the active state.</p>
+ <p class="FM_H4Topic">Inactive</p>
+ <p class="FM_Body">A device can be deactivated when there is no need for its use. The inactive device is still able to communicate and if needed data can be validated. Validation can be activated to detect possible theft. No data is removed and the device can simply be reactivated to be used again.</p>
+ <p class="FM_H4Topic">Decommissioned</p>
+ <p class="FM_Body">This is the state when a device is taken down from its place of installation and will no longer be used. All data will remain available on the device in Connexo but communication with the physical device is no longer possible. When you decommission a device you are still able to view everything on this device, but you cannot edit the data. Decommissioned devices are not taken into account when calculating KPIs except when indicated otherwise.</p>
+ <p class="FM_H4Topic">Removed</p>
+ <p class="FM_Body">The state Removed indicates that the device and all its data has been removed from the database. You can remove a device if there was an error while creating the device or when the SOX compliant period has ended. Once you remove a device all its data is irreversibly removed. </p>
+ </body>
+</html>

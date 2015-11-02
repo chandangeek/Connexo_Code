@@ -1,0 +1,171 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Manage device life cycle transitions</title>
+
+ <meta name="generator" content="Adobe FrameMaker 12" />
+ <meta name="Originator" content="ImportMif" />
+ <meta name="OriginalFile" content="P:\Private\04 Portfolio\02 SW\06 Jupiter\03 Jupiter MDC 10.x\03 Collateral\01 Docs\01 User manuals\EMNL000017_EN Connexo MDC 1.0 User Manual\01 DRAFT\01 SOURCE\000017_UMNL_DeviceLifecycle.fm" />
+ <link rel="stylesheet" href="000017_UMNL_DeviceLifecycle.css" type="text/css" />
+ <link rel="StyleSheet" href="../../Responsive_HTML5_stylesheet.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "9.2.0_3";
+</script>
+ <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceLifecycle/Manage_device_life_cycle_states.htm">
+ <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_DeviceLifecycle/Monitor_device_life_cycles.htm">
+</head>
+
+<body>
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+
+ <p class="FM_H3SectionTopic">Manage device life cycle transitions</p>
+ <p class="FM_H4Topic"><a name="XREF_12954_Understand"></a>Understand transitions</p>
+ <p class="FM_Body">A transition is the action where a device goes when one state to another. This transition is linked with pretransition checks and auto-actions. The pretransitions checks are different requirements that need to be met before the device can transition. The auto-actions are automated activities that ensure the device is ready for the next state.</p>
+ <p class="FM_Body">When configuring a transition you will need to select the trigger that activates the transition. Besides the trigger event you have to select the state the transitions starts from and the state the transition ends in. The combination of these three parameters needs to be unique in the device life cycle. Another important aspect of the configuration of transitions is defining who is allowed to execute the transition.</p>
+ <p class="FM_Body">During the configuration of the transition you can also add additional optional pretransition checks and auto-actions. By default every transitions has different mandatory pretransition checks and auto-actions that are always executed together with specific states.</p>
+
+ <table style=" border-spacing:0; float:alignleft; margin-top:12.00pt; margin-left:14.17pt; width:100%; max-width:351.50pt;" cellspacing="0">
+  <caption class="FM_CGraphic" align="bottom">Figure: Device life cycle transitions</caption>
+  <tr style=" height : 181.00pt;">
+  <td style="width : 351.496pt; vertical-align : top;padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;">
+  <p class="FM_CGraphicCell"><img alt="Device_life_cycle_management_2.png" style=" margin-bottom:0.000pt; width:100%; max-width:315px;" id="image9" src="Device_life_cycle_management_2.png" />&nbsp;</p>
+</td>
+</tr>
+ </table>
+
+ <p class="FM_H4Topic">Add transition</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device life cycle management</span>&#160;&gt; <span class="FM_UIRef">Device life cycles</span>&#160;&gt; click a device life cycle name &gt; click <span class="FM_UIRef">Transitions</span> in the menu on the left.</p>
+ <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Add transition</span> and complete the following fields:</p>
+
+ <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
+  <tr style=" height : 25.00pt;" class="t1st">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellHeading">Parameter</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellHeading">Description</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Triggered by</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">Select the event that will trigger the transition.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t1Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Name</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">Automatically generated based on the trigger, but can be changed.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">From</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">The start state.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t1Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">To</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">The end state</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t2Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Privileges</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">Which users can execute the transition. The different levels are configured in Connexo <uservariable x-value="Admin" x-showvalue="TRUE" name="SystemAdmin_App" x-format="SystemAdmin_App">Admin</uservariable>.</p>
+</td>
+</tr>
+  <tr style=" height : 86.00pt;" class="t1Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Pretransition checks</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">Select which checks should be monitored before a device can transition from one state to another. More information is available if you click the info icon. By default only the pretransition checks that are optional are shown, but you can choose to also see these that are selected by default by clicking <span class="FM_UIRef">Show all</span>. For more information on pretransition checks see <a href="#XREF_12954_Understand"><span class="FM_blue_crossreference">“</span><span class="FM_blue_crossreference">Understand transitions”</span></a>.</p>
+</td>
+</tr>
+  <tr style=" height : 86.00pt;" class="t2Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Auto-actions</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">Select which auto-actions should be executed before a device can transition from one state to another. More information is available if you click the info icon. By default only the auto-actions that are optional are shown, but you can choose to also see these that are selected by default by clicking <span class="FM_UIRef">Show all</span>. For more information on auto-actions see <a href="#XREF_12954_Understand"><span class="FM_blue_crossreference">“</span><span class="FM_blue_crossreference">Understand transitions”</span></a>.</p>
+</td>
+</tr>
+ </table>
+
+ <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Add</span>.</p>
+ <p class="FM_PNote"><span class="FM_Icons">3</span></p>
+ <p class="FM_PNote2"><span class="FM_Bold">Note</span></p>
+ <p class="FM_BodyGrey">The combination of the trigger, from state and to state needs to be unique in the device life cycle.</p>
+ <p class="FM_H4Topic">Edit transition</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device life cycle management</span>&#160;&gt; <span class="FM_UIRef">Device life cycles</span>&#160;&gt; click a device life cycle name &gt; click <span class="FM_UIRef">Transitions</span> in the menu on the left.</p>
+ <p class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="masterActions00006.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image10" src="masterActions00006.png" />&#160;and select <span class="FM_UIRef">Edit</span>.</p>
+ <p class="FM_BodyProcedure">You can edit every parameter however check if the combination trigger/from/to is unique. If not an error message will be shown and the change will not be saved.</p>
+ <p class="FM_H4Topic">Remove transition</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span>&#160;&gt; <span class="FM_UIRef">Device life cycle management</span>&#160;&gt; <span class="FM_UIRef">Device life cycles</span>&#160;&gt; click a device life cycle name &gt; click <span class="FM_UIRef">Transitions</span> in the menu on the left.</p>
+ <p class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="masterActions00007.png" style=" margin-bottom:-3.000pt; width:100%; max-width:21px;" id="image11" src="masterActions00007.png" />&#160;and select <span class="FM_UIRef">Remove</span>.</p>
+ <p class="FM_BodyProcedure">A transition can always be removed even when it is part of a life cycle that is in use.</p>
+ </body>
+</html>

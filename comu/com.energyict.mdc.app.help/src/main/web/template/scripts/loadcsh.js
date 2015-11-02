@@ -83,22 +83,10 @@ function callBackCSHLoaded(xmlDoc, arrIndex)
 		}
 		else
 			gTopicURL = gDefTopicURL;
-	}	
-	var cshModeParam = "";
-	var appendChar = "";
-	var cshModeFlag = getUrlParameter(RHCSHMODE);
-	if(cshModeFlag == TRUESTR)
-	{
-		cshModeParam = RHCSHMODE + "=" + cshModeFlag;
-		if(gTopicURL.indexOf("?") == -1)
-			appendChar = "?";
-		else
-			appendChar = "&";
 	}
-	gTopicURL = gTopicURL + appendChar + cshModeParam;
-	redirectToTopic();
+	redirectToTopic(true);
 }
-function redirectToTopic()
+function redirectToTopic(bReload)
 {
 	var bNewWin = getUrlParameter(RHNEWWINDOW);
 	var strWndName = getUrlParameter(RHWINDOW);
@@ -111,10 +99,17 @@ function redirectToTopic()
 	}
 	else
 	{
-		var target = document.querySelector("[name=" + gTopicFrameName + "]");
+		if (bReload == true)
+		{
+			window.location.href = gTopicURL;
+		}
+		else
+		{
+			var target = document.querySelector("[name=" + gTopicFrameName + "]");
 
-		if (target) {
-			target.contentWindow.location.replace(gTopicURL);
+			if (target) {
+				target.contentWindow.location.replace(gTopicURL);
+			}
 		}
 	}
 

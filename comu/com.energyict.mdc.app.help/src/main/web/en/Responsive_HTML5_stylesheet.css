@@ -1189,6 +1189,15 @@ span.FM_UIRef {
 		letter-spacing:  0.00em;
         
 }
+span.FM_TopicSection {
+        font-family:     Marvel;
+        font-style:      normal;
+        font-weight:     bold;
+        font-size:       15.0pt;
+        color:           #1f7e9e;
+        text-decoration :  none  ;
+		letter-spacing:  0.00em;
+
 span.FM_CR_URL {
         font-family:     Lato;
         font-style:      normal;

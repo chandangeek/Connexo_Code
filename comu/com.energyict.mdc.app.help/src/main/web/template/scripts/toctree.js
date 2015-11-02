@@ -88,6 +88,8 @@ function Tree(rootRelPath, dataFolder, rootFile, commonRootRelPath)
 	this.NODELOADING = 2;
 	
 	this.loadStack = new MhStack();
+	
+	this.nonavigation = false;
 
 	Tree.prototype.init = function()
 	{
@@ -206,15 +208,16 @@ function Tree(rootRelPath, dataFolder, rootFile, commonRootRelPath)
 			{
 				if(this.subscribed == false)
 				{	
-				  rh.model.subscribe(rh.consts('KEY_TOPIC_ID'), function(data) {
-						gTopicId = data.topicID;
-						gTocChildOrder = data.childOrder;
-						gTocChildPrefixStr = data.childPrefix;
-						syncToc(gTocChildPrefixStr, gTocChildOrder);
-					});
+				  rh.model.subscribe(rh.consts('KEY_TOPIC_ID'), (function(data) {
+						window.gTopicId = data.topicID;
+						window.gTocChildOrder = data.childOrder;
+						window.gTocChildPrefixStr = data.childPrefix;
+						if (this.nonavigation == false)
+							syncToc(window.gTocChildPrefixStr, window.gTocChildOrder);
+					}).bind(this));
 					this.subscribed = true;
 				}
-				else
+				else if (this.nonavigation == false)
 					syncToc(gTocChildPrefixStr, gTocChildOrder);
 			}
 		}
@@ -294,10 +297,18 @@ function Tree(rootRelPath, dataFolder, rootFile, commonRootRelPath)
 			anchorNode.className = NOLINKANCHORCLASS;
 			anchorNode.appendChild(htmlNode);
 			// Immediately select the clicked item.
-			anchorNode.addEventListener("click", function(e) { 
-				var tN = this.getTreeNodeFromHtmlNode(e.currentTarget); 
-				if (tN != null) {
-					this.setSelectedTreeNode(tN); gTopicId = tN.getAttribute("id");
+			anchorNode.addEventListener("click", function(event) {
+				if (!event.defaultPrevented)
+				{
+					var tN = this.getTreeNodeFromHtmlNode(event.currentTarget); 
+					if (tN != null) {
+						if(this.isBookClosedTreeNode(treeNode))
+							this.expandTreeNode(treeNode);
+						else if (this.selectedTreeNode == tN)
+							this.collapseTreeNode(treeNode);
+						this.setSelectedTreeNode(tN);
+						gTopicId = tN.getAttribute("id");
+					}
 				}
 			}.bind(this));
 			treeNode.insertBefore(anchorNode, treeNode.firstChild);
@@ -559,11 +570,15 @@ function Tree(rootRelPath, dataFolder, rootFile, commonRootRelPath)
 			}
 		else
 		{
-				this.idPartsNextIndex = 0;
-				this.isSyncingRoot = true;
-			this.setSelectedTreeNode(treeNode);
-			if(this.isBookClosedTreeNode(treeNode))
-				this.expandTreeNode(treeNode);
+			this.idPartsNextIndex = 0;
+			this.isSyncingRoot = true;
+			if (treeNode != this.selectedTreeNode)
+			{
+				this.scrollTreeNodeIntoView(treeNode);
+				this.setSelectedTreeNode(treeNode);
+				if(this.isBookClosedTreeNode(treeNode))
+					this.expandTreeNode(treeNode);
+			}
 		}
 	}
 		else
@@ -914,6 +929,22 @@ function Tree(rootRelPath, dataFolder, rootFile, commonRootRelPath)
 		var selectedHtmlNode = this.getHtmlNodeFromTreeNode(treeNode);
 		selectedHtmlNode.className = nodeClass;
 		
+		this.selectedTreeNode = treeNode;
+		this.hoveredTreeNode = treeNode;
+		
+		// Unselect the previous node.
+		if (this.selectedTreeNode !== prevSelectedNode) {
+			this.unselectTreeNode(prevSelectedNode);
+		}
+		
+		this.updateSelectedIcon(treeNode);
+	}
+	
+	Tree.prototype.scrollTreeNodeIntoView = function(treeNode)
+	{
+		if(treeNode == null)
+			return;
+			
 		// Hack to ensure scrollintoview() does not screw up the show hide button on the navigation bar.
 		var scroll = true;
 		var showHideButtons = document.getElementsByClassName("closebutton");
@@ -926,19 +957,9 @@ function Tree(rootRelPath, dataFolder, rootFile, commonRootRelPath)
 		}
 		// Hack
 		
-		if (scroll) {
-			selectedHtmlNode.scrollIntoView();
+		if (scroll && this.selectedTreeNode !== treeNode) {
+			this.getHtmlNodeFromTreeNode(treeNode).scrollIntoView();
 		}
-		
-		this.selectedTreeNode = treeNode;
-		this.hoveredTreeNode = treeNode;
-		
-		// Unselect the previous node.
-		if (this.selectedTreeNode !== prevSelectedNode) {
-			this.unselectTreeNode(prevSelectedNode);
-		}
-		
-		this.updateSelectedIcon(treeNode);
 	}
 	Tree.prototype.unselectTreeNode = function(treeNode)
 	{
@@ -1161,6 +1182,10 @@ function callbackCreateTree(xmlDoc, arg) //Cannot use binding as IE9 does not su
 function onNodeExpand(e, htmlNode)
 {
 	var evt = e || window.event; // IE compatibility
+	
+	if (evt.defaultPrevented)
+		return;
+
 	if(evt.preventDefault)
 	{
 		evt.preventDefault();  
@@ -1177,7 +1202,10 @@ function onNodeExpand(e, htmlNode)
 		treeNode = gTree.getTreeNodeFromIconHtmlNode(htmlNode);
 	
 	if(treeNode)
+	{
+		this.nonavigation = true;
 		gTree.expandTreeNode(treeNode);
+	}
 }
 function onNodeCollapse(e, htmlNode)
 {
@@ -1214,6 +1242,7 @@ function loadProjData(childRootRelPath, childCommonRootRelPath, objContext)
 }
 function syncToc(prefix, childOrder)
 {
+	gTree.nonavigation = false;
 	gTree.sync(prefix, childOrder);
 }
 function treeContext(bkCount, pgCount, parentHtmlNode, projOrderStr, childProjOrder)

@@ -1573,7 +1573,7 @@ p.FM_Pprocedure2 {
         font-style:      normal;
         font-weight:     normal;
         font-size:       11.0pt;
-        color:           #a0a0a0;
+        color:           #000000;
         background-color: none;
         text-decoration:  none  ;
 		letter-spacing:  0.00em;
@@ -1591,7 +1591,7 @@ caption.FM_Pprocedure2 {
         font-style:      normal;
         font-weight:     normal;
         font-size:       11.0pt;
-        color:           #a0a0a0;
+        color:           #000000;
         background-color: none;
         text-decoration:  none  ;
 		letter-spacing:  0.00em;
@@ -3670,6 +3670,42 @@ p.FM_OLandscape {
                  letter-spacing:0.00em;
 
 }
+p.FM_ListBullet4 {
+        margin-left:     70.866pt;
+        margin-right:    0.000pt;
+        text-align:      justify;
+        text-indent:     -8.504pt;
+        margin-top:      7.000pt;
+        margin-bottom:   0.000pt;
+        word-spacing:    0.250em;
+        font-family:     Lato Light;
+        font-style:      normal;
+        font-weight:     normal;
+        font-size:       11.0pt;
+        color:           #686868;
+        background-color: none;
+        text-decoration:  none  ;
+		letter-spacing:  0.00em;
+        
+}
+caption.FM_ListBullet4 {
+        margin-left:     70.866pt;
+        margin-right:    0.000pt;
+        text-align:      justify;
+        text-indent:     -8.504pt;
+        margin-top:      7.000pt;
+        margin-bottom:   0.000pt;
+        word-spacing:    0.250em;
+        font-family:     Lato Light;
+        font-style:      normal;
+        font-weight:     normal;
+        font-size:       11.0pt;
+        color:           #686868;
+        background-color: none;
+        text-decoration:  none  ;
+		letter-spacing:  0.00em;
+        
+}
 p.FM_IconProcedure {
         margin-left:     0.000pt;
         margin-right:    0.000pt;
@@ -3798,36 +3834,36 @@ caption.FM_GlossaryTermIOM {
         
 }
 p.FM_ListBullet3 {
-        margin-left:     99.213pt;
+        margin-left:     59.528pt;
         margin-right:    0.000pt;
         text-align:      justify;
-        text-indent:     -14.173pt;
+        text-indent:     -8.504pt;
         margin-top:      7.000pt;
         margin-bottom:   0.000pt;
         word-spacing:    0.250em;
-        font-family:     Lato;
+        font-family:     Lato Light;
         font-style:      normal;
         font-weight:     normal;
         font-size:       11.0pt;
-        color:           #000000;
+        color:           #686868;
         background-color: none;
         text-decoration:  none  ;
 		letter-spacing:  0.00em;
         
 }
 caption.FM_ListBullet3 {
-        margin-left:     99.213pt;
+        margin-left:     59.528pt;
         margin-right:    0.000pt;
         text-align:      justify;
-        text-indent:     -14.173pt;
+        text-indent:     -8.504pt;
         margin-top:      7.000pt;
         margin-bottom:   0.000pt;
         word-spacing:    0.250em;
-        font-family:     Lato;
+        font-family:     Lato Light;
         font-style:      normal;
         font-weight:     normal;
         font-size:       11.0pt;
-        color:           #000000;
+        color:           #686868;
         background-color: none;
         text-decoration:  none  ;
 		letter-spacing:  0.00em;
@@ -4184,10 +4220,10 @@ p.FM_PDefinition {
 
 }
 p.FM_ListBullet2 {
-        margin-left:     56.693pt;
+        margin-left:     48.189pt;
         margin-right:    0.000pt;
         text-align:      justify;
-        text-indent:     -14.173pt;
+        text-indent:     -8.504pt;
         margin-top:      7.000pt;
         margin-bottom:   0.000pt;
         word-spacing:    0.250em;
@@ -4202,10 +4238,10 @@ p.FM_ListBullet2 {
         
 }
 caption.FM_ListBullet2 {
-        margin-left:     56.693pt;
+        margin-left:     48.189pt;
         margin-right:    0.000pt;
         text-align:      justify;
-        text-indent:     -14.173pt;
+        text-indent:     -8.504pt;
         margin-top:      7.000pt;
         margin-bottom:   0.000pt;
         word-spacing:    0.250em;
@@ -4444,7 +4480,7 @@ p.FM_ListBullet1 {
         margin-right:    0.000pt;
         text-align:      justify;
         text-indent:     -11.339pt;
-        margin-top:      7.000pt;
+        margin-top:      5.000pt;
         margin-bottom:   0.000pt;
         word-spacing:    0.250em;
         font-family:     Lato Light;
@@ -4462,7 +4498,7 @@ caption.FM_ListBullet1 {
         margin-right:    0.000pt;
         text-align:      justify;
         text-indent:     -11.339pt;
-        margin-top:      7.000pt;
+        margin-top:      5.000pt;
         margin-bottom:   0.000pt;
         word-spacing:    0.250em;
         font-family:     Lato Light;
@@ -4925,8 +4961,28 @@ span.FM_Note {
         font-family:     untitled-font-1;
         font-style:      normal;
         font-weight:     normal;
-        font-size:       14.0pt;
+        font-size:       15.0pt;
         color:           #a0a0a0;
+        text-decoration :  none  ;
+		letter-spacing:  0.00em;
+        
+}
+span.FM_BulletD {
+        font-family:     Lato;
+        font-style:      normal;
+        font-weight:     normal;
+        font-size:       11.0pt;
+        color:           #54ba29;
+        text-decoration :  none  ;
+		letter-spacing:  0.00em;
+        
+}
+span.FM_BulletC {
+        font-family:     Lato;
+        font-style:      normal;
+        font-weight:     normal;
+        font-size:       11.0pt;
+        color:           #1f7e9e;
         text-decoration :  none  ;
 		letter-spacing:  0.00em;
         
@@ -4973,12 +5029,32 @@ span.FM_CR_URL {
                 letter-spacing:0.00em;
 
 }
+span.FM_BulletB {
+        font-family:     Lato Light;
+        font-style:      normal;
+        font-weight:     normal;
+        font-size:       11.0pt;
+        color:           #1f7e9e;
+        text-decoration :  none  ;
+		letter-spacing:  0.00em;
+        
+}
 span.FM_Bold_grey {
         font-family:     Lato;
         font-style:      normal;
         font-weight:     bold;
         font-size:       11.0pt;
         color:           #686868;
+        text-decoration :  none  ;
+		letter-spacing:  0.00em;
+        
+}
+span.FM_BulletA {
+        font-family:     Lato Light;
+        font-style:      normal;
+        font-weight:     normal;
+        font-size:       12.0pt;
+        color:           #1f7e9e;
         text-decoration :  none  ;
 		letter-spacing:  0.00em;
         
@@ -4990,6 +5066,16 @@ span.FM_Bold_green {
         font-size:       11.0pt;
         color:           #686868;
         background-color: #70bb51;
+        text-decoration :  none  ;
+		letter-spacing:  0.00em;
+        
+}
+span.FM_Bullet_test {
+        font-family:     Lato Light;
+        font-style:      normal;
+        font-weight:     normal;
+        font-size:       11.0pt;
+        color:           #686868;
         text-decoration :  none  ;
 		letter-spacing:  0.00em;
         

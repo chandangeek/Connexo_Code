@@ -1,0 +1,83 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+
+ <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ <title>Manage firmware on devices</title>
+
+ <meta name="generator" content="Adobe FrameMaker 12" />
+ <meta name="Originator" content="ImportMif" />
+ <meta name="OriginalFile" content="P:\Private\04 Portfolio\02 SW\06 Jupiter\03 Jupiter MDC 10.x\03 Collateral\01 Docs\01 User manuals\EMNL000017_EN Connexo MDC 1.0 User Manual\01 DRAFT\01 SOURCE\000017_UMNL_Firmware.fm" />
+ <link rel="stylesheet" href="000017_UMNL_Firmware.css" type="text/css" />
+ <link rel="StyleSheet" href="../../Responsive_HTML5_stylesheet.css" type="text/css" />
+
+
+<script type="text/javascript" language="JavaScript">
+//<![CDATA[
+function reDo() {
+  if (innerWidth != origWidth || innerHeight != origHeight)
+     location.reload();
+}
+if ((parseInt(navigator.appVersion) == 4) && (navigator.appName == "Netscape")) {
+	origWidth = innerWidth;
+	origHeight = innerHeight;
+	onresize = reDo;
+}
+onerror = null; 
+//]]>
+</script>
+<style type="text/css">
+<!--
+div.WebHelpPopupMenu { position:absolute;
+left:0px;
+top:0px;
+z-index:4;
+visibility:hidden; }
+p.WebHelpNavBar { text-align:right; }
+-->
+</style>
+
+<script type="text/javascript" src="../../template/scripts/rh.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/common.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/topic.min.js"></script>
+<script type="text/javascript" src="../../template/scripts/constants.js"></script>
+<script type="text/javascript" src="../../template/scripts/utils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhutils.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhlang.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhver.js"></script>
+<script type="text/javascript" src="../../template/scripts/settings.js"></script>
+<script type="text/javascript" src="../../template/scripts/XmlJsReader.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadparentdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadscreen.js"></script>
+<script type="text/javascript" src="../../template/scripts/loadprojdata.js"></script>
+<script type="text/javascript" src="../../template/scripts/mhtopic.js"></script>
+<script type="text/javascript" >
+gRootRelPath = "../..";
+gCommonRootRelPath = "../..";
+gTopicId = "8.2";
+</script>
+ <meta name="brsprev" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Firmware/Manage_firmware_options.htm">
+ <meta name="brsnext" value="000017_EN_Connexo_1.0_User_guide/000017_UMNL_Firmware/Manage_firmware_on_a_single_device.htm">
+</head>
+
+<body>
+<script type="text/javascript" src="../../ehlpdhtm.js"></script>
+
+ <p class="FM_H2Section">Manage firmware on devices</p>
+ <p class="FM_H4Topic">How firmware is managed on devices</p>
+ <p class="FM_Body">Firmware versions are added to <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;on the device type where also the upload options are defined, but the actual upload of the firmware to the physical device is done via the Connexo device. The firmware is uploaded and activated using a firmware specific communication task, see <a href="Understand_firmware.htm#XREF_73116_How_is_firmware"><span class="FM_blue_crossreference">“</span><span class="FM_blue_crossreference">How is firmware managed in MultiSense”</span></a> for more information.</p>
+ <p class="FM_Body">When you want to upload firmware on a device you have multiple options. Which options are available are defined by the communication protocol used and the firmware management options on the device type. If you choose to <span class="FM_Bold">activate the firmware immediately </span>the firmware will be sent to the device as soon as a connection is triggered according to the connection strategy. When the device receives the firmware, it will be installed immediately. To <span class="FM_Bold">upload and activate firmware with a date</span>&#160;the same methodology is used but the upload and activation will be executed on a specific date. If you choose to <span class="FM_Bold">activate the firmware later</span>, you will need two separate communication tasks. One to upload the firmware and one to activate and install the firmware.</p>
+ <p class="FM_Body">On the device you can check which firmware version is installed on the device. To be able to perform this action a communication tasks needs to be configured that contains the “Status information” action. To retrieve this information the communication task depends on the connection strategy of its connection method.</p>
+
+ <table style=" border-spacing:0; float:alignleft; margin-top:12.00pt; margin-left:14.17pt; width:100%; max-width:351.50pt;" cellspacing="0">
+  <caption class="FM_CGraphic" align="bottom">Figure: How firmware communication tasks are communicated with devices in Connexo.</caption>
+  <tr style=" height : 305.00pt;">
+  <td style="width : 351.496pt; vertical-align : top;padding-left: 6.00pt; padding-top: 3.00pt; padding-right: 6.00pt; padding-bottom: 3.00pt;">
+  <p class="FM_CGraphicCell"><img alt="Firmware_management_MultiSense.png" style=" margin-bottom:0.000pt; width:100%; max-width:557px;" id="image5" src="Firmware_management_MultiSense.png" />&nbsp;</p>
+</td>
+</tr>
+ </table>
+
+ <p class="FM_Body">In <uservariable x-value="MultiSense" x-showvalue="TRUE" name="MDC_App" x-format="MDC_App">MultiSense</uservariable>&#160;you can upload firmware on multiple devices using a single action. These are called firmware campaigns. These firmware campaigns are created for a specific device type and device group. Only the devices of the device group that have the specified device type will get a new firmware version.</p>
+ </body>
+</html>
