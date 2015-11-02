@@ -18,50 +18,50 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 
 //@Unique(fields = "usagePoint.id", groups = {Save.Create.class, Save.Update.class})
-public class UsagePointMetrologyConfigurationImpl implements UsagePointMetrologyConfiguration {	
+public class UsagePointMetrologyConfigurationImpl implements UsagePointMetrologyConfiguration {
     private long id;
     private long version;
     private Instant createTime;
     private Instant modTime;
     private String userName;
-    
+
     private Reference<UsagePoint> usagePoint = ValueReference.absent();
-	private Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
+    private Reference<MetrologyConfiguration> metrologyConfiguration = ValueReference.absent();
     private final DataModel dataModel;
     private final EventService eventService;
-    
+
     @Inject
     UsagePointMetrologyConfigurationImpl(DataModel dataModel, EventService eventService) {
-    	this.dataModel = dataModel;
-    	this.eventService = eventService;
+        this.dataModel = dataModel;
+        this.eventService = eventService;
     }
-    
-	UsagePointMetrologyConfigurationImpl init(UsagePoint UsagePoint , MetrologyConfiguration metrologyConfig) {
-		this.usagePoint.set(Objects.requireNonNull(UsagePoint));
-		this.metrologyConfiguration.set(Objects.requireNonNull(metrologyConfig));
-		return this;
-	}
-	
+
+    UsagePointMetrologyConfigurationImpl init(UsagePoint UsagePoint, MetrologyConfiguration metrologyConfig) {
+        this.usagePoint.set(Objects.requireNonNull(UsagePoint));
+        this.metrologyConfiguration.set(Objects.requireNonNull(metrologyConfig));
+        return this;
+    }
+
     @Override
     public long getId() {
         return id;
     }
-	
-	@Override
-	public UsagePoint getUsagePoint() {
-		return usagePoint.get();
-	}
-		
-	@Override
-	public MetrologyConfiguration getMetrologyConfiguration() {
-		return metrologyConfiguration.get();
-	}
 
-	@Override
-	public void setMetrologyConfiguration(MetrologyConfiguration mc) {
-	    this.metrologyConfiguration.set(mc);
-	}
-	
+    @Override
+    public UsagePoint getUsagePoint() {
+        return usagePoint.get();
+    }
+
+    @Override
+    public MetrologyConfiguration getMetrologyConfiguration() {
+        return metrologyConfiguration.get();
+    }
+
+    @Override
+    public void setMetrologyConfiguration(MetrologyConfiguration mc) {
+        this.metrologyConfiguration.set(mc);
+    }
+
     @Override
     public void update() {
         Save s = action(getId());
@@ -72,16 +72,16 @@ public class UsagePointMetrologyConfigurationImpl implements UsagePointMetrology
             eventService.postEvent(EventType.USAGEPOINTMETROLOGYCONFIGURATION_UPDATED.topic(), this);
         }
     }
-    
+
     @Override
     public void delete() {
         dataModel.remove(this);
-        eventService.postEvent(EventType.USAGEPOINTMETROLOGYCONFIGURATION_DELETED.topic(), this);  
+        eventService.postEvent(EventType.USAGEPOINTMETROLOGYCONFIGURATION_DELETED.topic(), this);
     }
-    
+
     @Override
     public String toString() {
-    	return toStringHelper(this).add("UsagePoint", usagePoint).add("metrologyConfiguration", metrologyConfiguration).toString();
+        return toStringHelper(this).add("UsagePoint", usagePoint).add("metrologyConfiguration", metrologyConfiguration).toString();
     }
 
     @Override

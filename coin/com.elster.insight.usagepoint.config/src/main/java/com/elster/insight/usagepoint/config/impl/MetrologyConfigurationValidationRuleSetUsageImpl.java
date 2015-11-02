@@ -46,11 +46,6 @@ public class MetrologyConfigurationValidationRuleSetUsageImpl implements Metrolo
     }
 
     @Override
-    public void update() {
-        dataModel.persist(this);
-    }
-
-    @Override
     public void delete() {
         dataModel.remove(this);
     }

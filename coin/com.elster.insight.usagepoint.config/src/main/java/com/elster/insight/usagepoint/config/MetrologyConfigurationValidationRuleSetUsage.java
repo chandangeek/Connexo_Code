@@ -11,7 +11,4 @@ public interface MetrologyConfigurationValidationRuleSetUsage {
     ValidationRuleSet getValidationRuleSet();
 
     void delete();
-
-    void update();
-
 }
