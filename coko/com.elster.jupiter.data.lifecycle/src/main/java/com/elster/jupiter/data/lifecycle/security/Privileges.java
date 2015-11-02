@@ -5,7 +5,11 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum Privileges implements TranslationKey {
+    //Resources
+    RESOURCE_DATA_PURGE("dataPurge.dataPurge", "Data purge"),
+    RESOURCE_DATA_PURGE_DESCRIPTION("dataPurge.dataPurge.description", "Manage data purge"),
 
+    //Privileges
     ADMINISTRATE_DATA_PURGE(Constants.ADMINISTRATE_DATA_PURGE, "Administrate"),
     VIEW_DATA_PURGE(Constants.VIEW_DATA_PURGE, "View");
 

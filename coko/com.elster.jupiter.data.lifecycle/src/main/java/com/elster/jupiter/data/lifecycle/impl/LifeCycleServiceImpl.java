@@ -238,7 +238,7 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService, T
 	@Override
 	public List<ResourceDefinition> getModuleResources() {
 		List<ResourceDefinition> resources = new ArrayList<>();
-		resources.add(userService.createModuleResourceWithPrivileges(LifeCycleService.COMPONENTNAME, "dataPurge.dataPurge", "dataPurge.dataPurge.description",
+		resources.add(userService.createModuleResourceWithPrivileges(LifeCycleService.COMPONENTNAME, Privileges.RESOURCE_DATA_PURGE.getKey(), Privileges.RESOURCE_DATA_PURGE_DESCRIPTION.getKey(),
 				Arrays.asList(Privileges.Constants.ADMINISTRATE_DATA_PURGE, Privileges.Constants.VIEW_DATA_PURGE)));
 		return resources;
 	}
