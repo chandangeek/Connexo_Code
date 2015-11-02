@@ -79,7 +79,7 @@ public class DynamicSearchResource {
         if (jsonQueryFilter.hasFilters()) {
             List<SearchablePropertyConstriction> searchablePropertyConstrictions = searchDomain.getProperties().stream().
                     filter(SearchableProperty::affectsAvailableDomainProperties).
-                    map(constrainingProperty -> asConstriction(constrainingProperty, jsonQueryFilter)).
+                    map(constrainingProperty -> SearchablePropertyValueConverter.convert(constrainingProperty, jsonQueryFilter).asConstriction()).
                     collect(toList());
             propertyList = searchDomain.getPropertiesWithConstrictions(searchablePropertyConstrictions).stream().
                     map(p -> searchCriterionInfoFactory.asInfoObject(p, uriInfo)).
@@ -102,55 +102,11 @@ public class DynamicSearchResource {
 
         return Response.ok(modelInfo).build();
     }
-
     @GET
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{domain}")
     public Response doSearch(@PathParam("domain") String domainId,
-                                        @BeanParam JsonQueryFilter jsonQueryFilter,
-                                        @BeanParam JsonQueryParameters jsonQueryParameters,
-                                        @Context UriInfo uriInfo) throws InvalidValueException {
-        SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
-        final SearchBuilder<Object> searchBuilder = searchService.search(searchDomain);
-        if (jsonQueryFilter.hasFilters()) {
-            searchDomain.getProperties().stream().
-                filter(p -> jsonQueryFilter.hasProperty(p.getName())).
-                forEach(searchableProperty -> {
-                    List<SearchablePropertyConstriction> searchablePropertyConstrictions =
-                            searchableProperty.getConstraints().stream().
-                                    map(constrainingProperty -> asConstriction(constrainingProperty, jsonQueryFilter)).
-                                    collect(toList());
-                    searchableProperty.refreshWithConstrictions(searchablePropertyConstrictions);
-                    try {
-                        if (searchableProperty.getSelectionMode() == SearchableProperty.SelectionMode.MULTI) {
-                            searchBuilder.where(searchableProperty).in(getQueryParameterAsObjectList(jsonQueryFilter, searchableProperty));
-                        } else if (searchableProperty.getSpecification().getValueFactory().getValueType().equals(String.class)) {
-                            searchBuilder.where(searchableProperty).likeIgnoreCase((String) getQueryParameterAsObject(jsonQueryFilter, searchableProperty));
-                        } else if (searchableProperty.getSpecification().getValueFactory().getValueType().equals(Boolean.class)) {
-                            searchBuilder.where(searchableProperty).is((Boolean) getQueryParameterAsObject(jsonQueryFilter, searchableProperty));
-                        } else {
-                            searchBuilder.where(searchableProperty).isEqualTo(getQueryParameterAsObject(jsonQueryFilter, searchableProperty));
-                        }
-                    } catch (InvalidValueException e) {
-                        throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "filter." + searchableProperty.getName());
-                    }
-                });
-        } else {
-            throw new LocalizedFieldValidationException(MessageSeeds.AT_LEAST_ONE_CRITERIA, "filter");
-        }
-        List<Object> searchResults = searchBuilder.toFinder().from(jsonQueryParameters).stream().
-                map(o-> infoFactoryService.getInfoFactoryFor(searchDomain).from(o)).
-                collect(toList());
-        return Response.ok().entity(PagedInfoList.fromPagedList("searchResults", searchResults, jsonQueryParameters)).build();
-    }
-
-
-    @GET
-    @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @Path("/v2/{domain}")
-    public Response doSearch2(@PathParam("domain") String domainId,
                              @BeanParam JsonQueryFilter jsonQueryFilter,
                              @BeanParam JsonQueryParameters jsonQueryParameters,
                              @Context UriInfo uriInfo) throws InvalidValueException {
@@ -160,16 +116,14 @@ public class DynamicSearchResource {
             searchDomain.getProperties().stream().
                     filter(p -> jsonQueryFilter.hasProperty(p.getName())).
                     forEach(searchableProperty -> {
-//                        List<SearchablePropertyConstriction> searchablePropertyConstrictions =
-//                                searchableProperty.getConstraints().stream().
-//                                        map(constrainingProperty -> asConstriction(constrainingProperty, jsonQueryFilter)).
-//                                        collect(toList());
-//                        searchableProperty.refreshWithConstrictions(searchablePropertyConstrictions);
-                        SearchBuilder.CriterionBuilder<Object> criterionBuilder = searchBuilder.where(searchableProperty);
+                        List<SearchablePropertyConstriction> searchablePropertyConstrictions =
+                                searchableProperty.getConstraints()
+                                        .stream()
+                                        .map(constrainingProperty -> SearchablePropertyValueConverter.convert(constrainingProperty, jsonQueryFilter).asConstriction())
+                                        .collect(toList());
+                        searchableProperty.refreshWithConstrictions(searchablePropertyConstrictions);
                         try {
-                            for (SearchPropertyValue propertyValue : SearchPropertyValue.convert(searchableProperty, jsonQueryFilter)) {
-                                propertyValue.addAsCriteria(criterionBuilder);
-                            }
+                            SearchablePropertyValueConverter.convert(searchableProperty, jsonQueryFilter).addAsCondition(searchBuilder);
                         } catch (InvalidValueException e) {
                             throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "filter." + searchableProperty.getName());
                         }
@@ -178,7 +132,7 @@ public class DynamicSearchResource {
             throw new LocalizedFieldValidationException(MessageSeeds.AT_LEAST_ONE_CRITERIA, "filter");
         }
         List<Object> searchResults = searchBuilder.toFinder().from(jsonQueryParameters).stream().
-                map(o-> infoFactoryService.getInfoFactoryFor(searchDomain).from(o)).
+                map(o -> infoFactoryService.getInfoFactoryFor(searchDomain).from(o)).
                 collect(toList());
         return Response.ok().entity(PagedInfoList.fromPagedList("searchResults", searchResults, jsonQueryParameters)).build();
     }
@@ -200,7 +154,7 @@ public class DynamicSearchResource {
         SearchableProperty searchableProperty = findPropertyInDomainOrThrowException(property, searchDomain);
         List<SearchablePropertyConstriction> searchablePropertyConstrictions =
                 searchableProperty.getConstraints().stream().
-                map(constrainingProperty -> asConstriction(constrainingProperty, jsonQueryFilter)).
+                map(constrainingProperty -> SearchablePropertyValueConverter.convert(constrainingProperty, jsonQueryFilter).asConstriction()).
                 collect(toList());
         searchableProperty.refreshWithConstrictions(searchablePropertyConstrictions);
         PropertySpecPossibleValues possibleValuesOrNull = searchableProperty.getSpecification().getPossibleValues();
@@ -214,30 +168,6 @@ public class DynamicSearchResource {
         }
         List allJsonValues = possibleValues.stream().map(v -> asJsonValueObject(searchableProperty.toDisplay(v), v)).filter(nameFilterPredicate).collect(toList());
         return Response.ok().entity(PagedInfoList.fromCompleteList("values", allJsonValues, jsonQueryParameters)).build();
-    }
-
-    private SearchablePropertyConstriction asConstriction(SearchableProperty constrainingProperty, JsonQueryFilter jsonQueryFilter) {
-        if (jsonQueryFilter.hasProperty(constrainingProperty.getName())) {
-            List<Object> constrainingValues;
-            if (constrainingProperty.getSelectionMode().equals(SearchableProperty.SelectionMode.MULTI)) {
-                constrainingValues= getQueryParameterAsObjectList(jsonQueryFilter, constrainingProperty);
-            } else {
-                constrainingValues= Collections.singletonList(getQueryParameterAsObject(jsonQueryFilter, constrainingProperty));
-            }
-            return SearchablePropertyConstriction.withValues(constrainingProperty, constrainingValues);
-        } else {
-            return SearchablePropertyConstriction.noValues(constrainingProperty);
-        }
-    }
-
-    private Object getQueryParameterAsObject(@BeanParam JsonQueryFilter jsonQueryFilter, SearchableProperty constrainingProperty) {
-        return constrainingProperty.getSpecification().getValueFactory().fromStringValue(jsonQueryFilter.getString(constrainingProperty.getName()));
-    }
-
-    private List<Object> getQueryParameterAsObjectList(@BeanParam JsonQueryFilter jsonQueryFilter, SearchableProperty constrainingProperty) {
-        return jsonQueryFilter.getStringList(constrainingProperty.getName()).stream().
-                map(p -> constrainingProperty.getSpecification().getValueFactory().fromStringValue(p)).
-                collect(toList());
     }
 
     private SearchableProperty findPropertyInDomainOrThrowException(@PathParam("property") String property, SearchDomain searchDomain) {

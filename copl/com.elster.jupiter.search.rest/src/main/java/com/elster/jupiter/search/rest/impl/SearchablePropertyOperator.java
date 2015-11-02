@@ -8,56 +8,57 @@ import com.elster.jupiter.search.rest.MessageSeeds;
 import java.util.Arrays;
 import java.util.List;
 
-// TODO different handling for string, number, boolean
-public enum SearchOperator {
+public enum SearchablePropertyOperator {
     LESS_THAN("<") {
         @Override
         protected <T> void appendSingle(SearchableProperty searchableProperty, SearchBuilder.CriterionBuilder<?> criterionBuilder, T value) throws InvalidValueException {
-            criterionBuilder.isLessThan(value);
-        }
-
-        @Override
-        protected void appendList(SearchableProperty searchableProperty, SearchBuilder.CriterionBuilder<?> criterionBuilder, List<Object> values) throws InvalidValueException {
-            throw new InvalidValueException(MessageSeeds.INVALID_VALUE.getKey(), MessageSeeds.INVALID_VALUE.getDefaultFormat(), searchableProperty.getName());
+            if (Number.class.isAssignableFrom(searchableProperty.getSpecification().getValueFactory().getValueType())) {
+                criterionBuilder.isLessThan(value);
+            } else {
+                super.appendSingle(searchableProperty, criterionBuilder, value);
+            }
         }
     },
     LESS_OR_EQUAL_TO("<=") {
         @Override
         protected <T> void appendSingle(SearchableProperty searchableProperty, SearchBuilder.CriterionBuilder<?> criterionBuilder, T value) throws InvalidValueException {
-            criterionBuilder.isLessThanOrEqualTo(value);
-        }
-
-        @Override
-        protected void appendList(SearchableProperty searchableProperty, SearchBuilder.CriterionBuilder<?> criterionBuilder, List<Object> values) throws InvalidValueException {
-            throw new InvalidValueException(MessageSeeds.INVALID_VALUE.getKey(), MessageSeeds.INVALID_VALUE.getDefaultFormat(), searchableProperty.getName());
+            if (Number.class.isAssignableFrom(searchableProperty.getSpecification().getValueFactory().getValueType())) {
+                criterionBuilder.isLessThanOrEqualTo(value);
+            } else {
+                super.appendSingle(searchableProperty, criterionBuilder, value);
+            }
         }
     },
     GREATER_THAN(">") {
         @Override
         protected <T> void appendSingle(SearchableProperty searchableProperty, SearchBuilder.CriterionBuilder<?> criterionBuilder, T value) throws InvalidValueException {
-            criterionBuilder.isGreaterThan(value);
-        }
-
-        @Override
-        protected void appendList(SearchableProperty searchableProperty, SearchBuilder.CriterionBuilder<?> criterionBuilder, List<Object> values) throws InvalidValueException {
-            throw new InvalidValueException(MessageSeeds.INVALID_VALUE.getKey(), MessageSeeds.INVALID_VALUE.getDefaultFormat(), searchableProperty.getName());
+            if (Number.class.isAssignableFrom(searchableProperty.getSpecification().getValueFactory().getValueType())) {
+                criterionBuilder.isGreaterThan(value);
+            } else {
+                super.appendSingle(searchableProperty, criterionBuilder, value);
+            }
         }
     },
     GREATER_OR_EQUAL_TO(">=") {
         @Override
         protected <T> void appendSingle(SearchableProperty searchableProperty, SearchBuilder.CriterionBuilder<?> criterionBuilder, T value) throws InvalidValueException {
-            criterionBuilder.isGreaterThanOrEqualTo(value);
-        }
-
-        @Override
-        protected void appendList(SearchableProperty searchableProperty, SearchBuilder.CriterionBuilder<?> criterionBuilder, List<Object> values) throws InvalidValueException {
-            throw new InvalidValueException(MessageSeeds.INVALID_VALUE.getKey(), MessageSeeds.INVALID_VALUE.getDefaultFormat(), searchableProperty.getName());
+            if (Number.class.isAssignableFrom(searchableProperty.getSpecification().getValueFactory().getValueType())) {
+                criterionBuilder.isGreaterThanOrEqualTo(value);
+            } else {
+                super.appendSingle(searchableProperty, criterionBuilder, value);
+            }
         }
     },
     EQUAL("==") {
         @Override
         protected <T> void appendSingle(SearchableProperty searchableProperty, SearchBuilder.CriterionBuilder<?> criterionBuilder, T value) throws InvalidValueException {
-            criterionBuilder.isEqualTo(value);
+            if (String.class.isAssignableFrom(searchableProperty.getSpecification().getValueFactory().getValueType())) {
+                criterionBuilder.likeIgnoreCase((String) value);
+            } else if (Boolean.class.isAssignableFrom(searchableProperty.getSpecification().getValueFactory().getValueType())) {
+                criterionBuilder.is((Boolean) value);
+            } else {
+                criterionBuilder.isEqualTo(value);
+            }
         }
 
         @Override
@@ -68,7 +69,11 @@ public enum SearchOperator {
     NOT_EQUAL("!=") {
         @Override
         protected <T> void appendSingle(SearchableProperty searchableProperty, SearchBuilder.CriterionBuilder<?> criterionBuilder, T value) throws InvalidValueException {
-            criterionBuilder.isNotEqualTo(value);
+            if (Boolean.class.isAssignableFrom(searchableProperty.getSpecification().getValueFactory().getValueType())) {
+                criterionBuilder.is(!(Boolean) value);
+            } else {
+                criterionBuilder.isEqualTo(value);
+            }
         }
 
         @Override
@@ -76,28 +81,21 @@ public enum SearchOperator {
             criterionBuilder.notIn(values);
         }
     },
-    BETWEEN("BETWEEN"){
-        @Override
-        protected <T> void appendSingle(SearchableProperty searchableProperty, SearchBuilder.CriterionBuilder<?> criterionBuilder, T value) throws InvalidValueException {
-            throw new InvalidValueException(MessageSeeds.INVALID_VALUE.getKey(), MessageSeeds.INVALID_VALUE.getDefaultFormat(), searchableProperty.getName());
-        }
-
+    BETWEEN("BETWEEN") {
         @Override
         protected void appendList(SearchableProperty searchableProperty, SearchBuilder.CriterionBuilder<?> criterionBuilder, List<Object> values) throws InvalidValueException {
             // TODO some logic here
         }
-    },
-
-    ;
+    },;
 
     private String code;
 
-    SearchOperator(String code) {
+    SearchablePropertyOperator(String code) {
         this.code = code;
     }
 
-    public static SearchOperator getOperatorForCode(String searchOperator) {
-        return Arrays.stream(SearchOperator.values())
+    public static SearchablePropertyOperator getOperatorForCode(String searchOperator) {
+        return Arrays.stream(SearchablePropertyOperator.values())
                 .filter(so -> so.code.equalsIgnoreCase(searchOperator))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Unsupported search operator " + searchOperator));
@@ -122,10 +120,10 @@ public enum SearchOperator {
     }
 
     protected <T> void appendSingle(SearchableProperty searchableProperty, SearchBuilder.CriterionBuilder<?> criterionBuilder, T value) throws InvalidValueException {
-        // do nothing by default
+        throw new InvalidValueException(MessageSeeds.INVALID_VALUE.getKey(), MessageSeeds.INVALID_VALUE.getDefaultFormat(), searchableProperty.getName());
     }
 
     protected void appendList(SearchableProperty searchableProperty, SearchBuilder.CriterionBuilder<?> criterionBuilder, List<Object> values) throws InvalidValueException {
-        // do nothing by default
+        throw new InvalidValueException(MessageSeeds.INVALID_VALUE.getKey(), MessageSeeds.INVALID_VALUE.getDefaultFormat(), searchableProperty.getName());
     }
 }
