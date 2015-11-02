@@ -8,9 +8,10 @@ public class ProcessDefinitionInfo {
     public String name;
     public String id;
     public String version;
-    public boolean active;
-    public String associated;
+    public String active;
+    public String associatedTo;
     public String deploymentId;
+    public String activeDisplay;
 
     public ProcessDefinitionInfo(){
 
@@ -30,11 +31,8 @@ public class ProcessDefinitionInfo {
     public ProcessDefinitionInfo(BpmProcessDefinition bpmProcessDefinition){
         this.version = bpmProcessDefinition.getVersion();
         this.name = bpmProcessDefinition.getProcessName();
-        this.associated = bpmProcessDefinition.getAssociation();
-        this.active = bpmProcessDefinition.getState();
+        this.associatedTo = bpmProcessDefinition.getAssociation();
+        this.active = bpmProcessDefinition.getStatus();
     }
 
-    public boolean getState(){
-        return  active;
-    }
 }
