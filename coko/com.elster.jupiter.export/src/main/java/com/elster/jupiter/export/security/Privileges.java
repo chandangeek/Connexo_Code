@@ -5,7 +5,11 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum Privileges implements TranslationKey {
+    //Resources
+    RESOURCE_DATA_EXPORT("dataExportTask.dataExportTasks", "Export"),
+    RESOURCE_DATA_EXPORT_DESCRIPTION("dataExportTask.dataExportTasks.description", "Manage export"),
 
+    //Privileges
     ADMINISTRATE_DATA_EXPORT_TASK(Constants.ADMINISTRATE_DATA_EXPORT_TASK, "Administrate"),
     VIEW_DATA_EXPORT_TASK(Constants.VIEW_DATA_EXPORT_TASK, "View"),
     UPDATE_DATA_EXPORT_TASK(Constants.UPDATE_DATA_EXPORT_TASK, "Update"),
