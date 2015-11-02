@@ -3,11 +3,29 @@ Ext.define('Uni.service.Search', {
         observable: 'Ext.util.Observable'
     },
 
+    requires: [
+        'Uni.store.search.Domains',
+        'Uni.store.search.Results',
+        'Uni.store.search.Properties',
+        'Uni.store.search.Fields',
+        'Uni.store.search.PropertyValues'
+    ],
+
+    config: {
+        router: null,
+        searchDomainsStore: 'Uni.store.search.Domains', //Ext.getStore('Uni.store.search.Domains'),
+        searchResultsStore: 'Uni.store.search.Results',
+        searchPropertiesStore: 'Uni.store.search.Properties',
+        searchFieldsStore: 'Uni.store.search.Fields'
+    },
+
     constructor: function (config) {
-        var me = this,
-            searchResults    = Ext.getStore('Uni.store.search.Results'),
-            searchProperties = Ext.getStore('Uni.store.search.Properties'),
-            searchFields     = Ext.getStore('Uni.store.search.Fields');
+        var me = this;
+
+        me.setSearchDomainsStore(Ext.getStore(me.getSearchDomainsStore() || 'ext-empty-store'));
+        me.setSearchResultsStore(Ext.getStore(me.getSearchResultsStore() || 'ext-empty-store'));
+        me.setSearchPropertiesStore(Ext.getStore(me.getSearchPropertiesStore() || 'ext-empty-store'));
+        me.setSearchFieldsStore(Ext.getStore(me.getSearchFieldsStore() || 'ext-empty-store'));
 
         // The Observable constructor copies all of the properties of `config` on
         // to `this` using Ext.apply. Further, the `listeners` property is
@@ -22,32 +40,20 @@ Ext.define('Uni.service.Search', {
             'reset'
         );
 
-        searchResults.on({
+        me.getSearchResultsStore().on({
             load: me.onSearchResultsLoad,
             scope: me
         });
 
-        searchProperties.on({
+        me.getSearchPropertiesStore().on({
             load: me.onSearchPropertiesLoad,
             scope: me
         });
 
-        searchFields.on({
+        me.getSearchFieldsStore().on({
             load: me.onSearchFieldsLoad,
             scope: me
         });
-    },
-
-    requires: [
-        'Uni.store.search.Domains',
-        'Uni.store.search.Removables',
-        'Uni.store.search.Results',
-        'Uni.store.search.Properties',
-        'Uni.store.search.Fields'
-    ],
-
-    config: {
-        router: null
     },
 
     /**
@@ -103,12 +109,12 @@ Ext.define('Uni.service.Search', {
      */
     setDomain: function(domain) {
         var me = this,
-            searchResults = Ext.getStore('Uni.store.search.Results'),
-            searchProperties = Ext.getStore('Uni.store.search.Properties'),
-            searchFields = Ext.getStore('Uni.store.search.Fields');
+            searchResults = me.getSearchResultsStore(),
+            searchProperties = me.getSearchPropertiesStore(),
+            searchFields = me.getSearchFieldsStore();
 
         if (Ext.isString(domain)) {
-            domain = Ext.getStore('Uni.store.search.Domains').findRecord('id', domain, 0, true, true);
+            domain = me.getSearchDomainsStore().findRecord('id', domain, 0, true, true);
         }
 
         if (domain !== null && Ext.isDefined(domain) && Ext.getClassName(domain) == "Uni.model.search.Domain") {
@@ -129,7 +135,7 @@ Ext.define('Uni.service.Search', {
 
     onSearchFieldsLoad: function(store, records, success) {
         if (success) {
-            Ext.getStore('Uni.store.search.Results').removeAll(true);
+            this.getSearchResultsStore().removeAll(true);
             this.applyFilters();
         }
     },
@@ -156,7 +162,7 @@ Ext.define('Uni.service.Search', {
 
     initCriteria: function () {
         var me = this,
-            propertiesStore = Ext.getStore('Uni.store.search.Properties');
+            propertiesStore = me.getSearchPropertiesStore();
 
         propertiesStore.each(function (property) {
             if (property.get('sticky')) {
@@ -192,7 +198,7 @@ Ext.define('Uni.service.Search', {
 
     applyFilters: function () {
         var me = this,
-            searchResults = Ext.getStore('Uni.store.search.Results');
+            searchResults = me.getSearchResultsStore();
 
         searchResults.clearFilter(true);
         searchResults.filter(me.getFilters(), true);
@@ -221,7 +227,7 @@ Ext.define('Uni.service.Search', {
     restoreState: function () {
         var me = this,
             router = me.getRouter(),
-            propertiesStore = Ext.getStore('Uni.store.search.Properties');
+            propertiesStore = me.getSearchPropertiesStore();
 
         if (router.queryParams[me.filterObjectParam]) {
             Ext.suspendLayouts();
