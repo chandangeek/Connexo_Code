@@ -16,34 +16,34 @@ public interface TransitionBusinessProcessStartEvent {
     /**
      * The topic on which this event is published.
      */
-    public static final String TOPIC = "com/elster/jupiter/fsm/bpm/START";
+    String TOPIC = DeviceLifeCycleConfigurationService.EVENT_NAMESPACE + "/bpm/START";
 
     /**
      * The deployment id of the external business process.
      *
      * @return The deployment id
      */
-    public String deploymentId();
+    String deploymentId();
 
     /**
      * The process id of the external business process.
      *
      * @return The process id
      */
-    public String processId();
+    String processId();
 
     /**
      * The unique identifier of the device for which state is changing.
      *
      * @return The unique identifier
      */
-    public long deviceId();
+    long deviceId();
 
     /**
      * The current {@link State} of the device.
      *
      * @return The current State
      */
-    public State state();
+    State state();
 
 }

@@ -1,9 +1,11 @@
 package com.energyict.mdc.device.lifecycle.config.impl;
 
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.events.EventTypeBuilder;
-import com.elster.jupiter.fsm.impl.FiniteStateMachineServiceImpl;
 import com.elster.jupiter.orm.TransactionRequired;
+
+import static com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService.EVENT_NAMESPACE;
 
 /**
  * Models the different event types that are produced
@@ -16,7 +18,6 @@ public enum EventType {
 
     START_BPM("bpm/START");
 
-    private static final String NAMESPACE = "com/energyict/mdc/device/lifecycle/config/";
     private final String topic;
 
     EventType(String topic) {
@@ -24,21 +25,18 @@ public enum EventType {
     }
 
     public String topic() {
-        return NAMESPACE + topic;
+        return EVENT_NAMESPACE + topic;
     }
 
     @TransactionRequired
     void install(EventService eventService) {
-        EventTypeBuilder builder = eventService.buildEventTypeWithTopic(topic())
+        eventService.buildEventTypeWithTopic(topic())
                 .name(name())
-                .component(FiniteStateMachineServiceImpl.COMPONENT_NAME)
+                .component(DeviceLifeCycleConfigurationService.COMPONENT_NAME)
                 .category("Crud")
-                .scope("System");
-        this.shouldPublish(builder).create();
-    }
-
-    EventTypeBuilder shouldPublish(EventTypeBuilder eventTypeBuilder) {
-        return eventTypeBuilder.shouldNotPublish();
+                .scope("System")
+                .shouldNotPublish()
+                .create();
     }
 
 }
