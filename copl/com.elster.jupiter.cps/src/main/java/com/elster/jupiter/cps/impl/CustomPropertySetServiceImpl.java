@@ -19,6 +19,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.PrivilegesProvider;
@@ -65,6 +66,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     private volatile boolean installed = false;
     private volatile Thesaurus thesaurus;
     private volatile TransactionService transactionService;
+    private volatile ThreadPrincipalService threadPrincipalService;
     /**
      * Holds the {@link CustomPropertySet}s that were published on the whiteboard.
      */
@@ -83,12 +85,13 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
     // For testing purposes
     @Inject
-    public CustomPropertySetServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, UserService userService) {
+    public CustomPropertySetServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, UserService userService, ThreadPrincipalService threadPrincipalService) {
         this();
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
         this.setTransactionService(transactionService);
         this.setUserService(userService);
+        this.setThreadPrincipalService(threadPrincipalService);
         this.activate();
         this.install();
     }
@@ -146,6 +149,11 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         this.userService = userService;
     }
 
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -154,6 +162,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(TransactionService.class).toInstance(transactionService);
+                bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(CustomPropertySetService.class).toInstance(CustomPropertySetServiceImpl.this);
                 bind(ServerCustomPropertySetService.class).toInstance(CustomPropertySetServiceImpl.this);
             }
@@ -277,7 +286,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     private RegisteredCustomPropertySetImpl createRegisteredCustomPropertySet(CustomPropertySet customPropertySet) {
         RegisteredCustomPropertySetImpl registeredCustomPropertySet = this.dataModel.getInstance(RegisteredCustomPropertySetImpl.class);
         registeredCustomPropertySet.initialize(customPropertySet, customPropertySet.defaultViewPrivileges(), customPropertySet.defaultEditPrivileges());
-        registeredCustomPropertySet.save();
+        registeredCustomPropertySet.create();
         return registeredCustomPropertySet;
     }
 
@@ -573,7 +582,5 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             super.addPrimaryKeyColumnsTo(primaryKeyColumns);
             primaryKeyColumns.add(this.effectivityStartColumn);
         }
-
     }
-
 }
