@@ -19,6 +19,7 @@ import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.DevicesForConfigChangeSearch;
 import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
 import com.energyict.mdc.device.data.rest.DeviceInfoFactory;
 import com.energyict.mdc.device.data.rest.DevicePrivileges;
@@ -90,6 +91,7 @@ public class DeviceResource {
     private final Provider<DeviceLifeCycleActionResource> deviceLifeCycleActionResourceProvider;
     private final DeviceInfoFactory deviceInfoFactory;
     private final DeviceAttributesInfoFactory deviceAttributesInfoFactory;
+    private final DevicesForConfigChangeSearchFactory devicesForConfigChangeSearchFactory;
     private final TransactionService transactionService;
 
     @Inject
@@ -122,6 +124,7 @@ public class DeviceResource {
             Provider<DeviceLifeCycleActionResource> deviceLifeCycleActionResourceProvider,
             DeviceInfoFactory deviceInfoFactory,
             DeviceAttributesInfoFactory deviceAttributesInfoFactory,
+            DevicesForConfigChangeSearchFactory devicesForConfigChangeSearchFactory,
             TransactionService transactionService) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
@@ -151,6 +154,7 @@ public class DeviceResource {
         this.deviceLifeCycleActionResourceProvider = deviceLifeCycleActionResourceProvider;
         this.deviceInfoFactory = deviceInfoFactory;
         this.deviceAttributesInfoFactory = deviceAttributesInfoFactory;
+        this.devicesForConfigChangeSearchFactory = devicesForConfigChangeSearchFactory;
         this.transactionService = transactionService;
     }
 
@@ -189,6 +193,29 @@ public class DeviceResource {
 
         //TODO: Device Date should go on the device wharehouse (future development) - or to go on Batch - creation date
         return deviceInfoFactory.from(newDevice, getSlaveDevicesForDevice(newDevice));
+    }
+
+    @PUT
+    @Path("/changedeviceconfig")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION)
+    public Response changeDeviceConfig(BulkRequestInfo request, @BeanParam JsonQueryFilter queryFilter, @Context SecurityContext securityContext) {
+        if (request.action == null || (!request.action.equalsIgnoreCase("ChangeDeviceConfiguration"))) {
+            throw exceptionFactory.newException(MessageSeeds.BAD_ACTION);
+        }
+        DeviceConfiguration destinationConfiguration = deviceConfigurationService.findDeviceConfiguration(request.newDeviceConfiguration)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_CONFIG));
+        DevicesForConfigChangeSearch devicesForConfigChangeSearch;
+        if(request.filter != null) {
+            devicesForConfigChangeSearch = devicesForConfigChangeSearchFactory.fromQueryFilter(new JsonQueryFilter(request.filter));
+        } else {
+            devicesForConfigChangeSearch = devicesForConfigChangeSearchFactory.fromQueryFilter(queryFilter);
+        }
+        deviceService.changeDeviceConfigurationForDevices(destinationConfiguration,
+                devicesForConfigChangeSearch,
+                request.deviceMRIDs.toArray(new String[request.deviceMRIDs.size()]));
+        return Response.ok().build();
     }
 
     @PUT//the method designed like 'PATCH'

@@ -115,6 +115,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
     private volatile SearchService searchService;
     private volatile LoadProfileService loadProfileService;
     private volatile DeviceMessageService deviceMessageService;
+    private volatile DevicesForConfigChangeSearchFactory devicesForConfigChangeSearchFactory;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -454,6 +455,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(loadProfileService).to(LoadProfileService.class);
             bind(searchService).to(SearchService.class);
             bind(deviceMessageService).to(DeviceMessageService.class);
+            bind(DevicesForConfigChangeSearchFactory.class).to(DevicesForConfigChangeSearchFactory.class);
         }
     }
 }
