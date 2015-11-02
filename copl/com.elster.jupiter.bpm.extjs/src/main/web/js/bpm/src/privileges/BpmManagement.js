@@ -34,4 +34,13 @@ Ext.define('Bpm.privileges.BpmManagement', {
     allProcesses: function () {
         return Ext.Array.merge(Bpm.privileges.BpmManagement.allProcesses);
     },
+    canViewProcesses: function () {
+        return Uni.Auth.checkPrivileges(Bpm.privileges.BpmManagement.viewProcesses);
+    },
+    canAdministrateProcesses: function () {
+        return Uni.Auth.checkPrivileges(Bpm.privileges.BpmManagement.administrateProcesses);
+    },
+
+
+
 });

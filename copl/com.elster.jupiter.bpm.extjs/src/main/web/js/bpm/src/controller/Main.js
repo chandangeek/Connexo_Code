@@ -45,7 +45,7 @@ Ext.define('Bpm.controller.Main', {
             router = me.getController('Uni.controller.history.Router'),
             dataCollection = null;
 
-        if (Bpm.privileges.BpmManagement.all()) {
+        if (Bpm.privileges.BpmManagement.canView()) {
             Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.workspace', 'BPM', 'Workspace'),
                 glyph: 'workspace',
@@ -54,7 +54,7 @@ Ext.define('Bpm.controller.Main', {
             }));
         }
 
-        if (Bpm.privileges.BpmManagement.all()) {
+        if (Bpm.privileges.BpmManagement.canView()) {
             dataCollection = Ext.create('Uni.model.PortalItem', {
                 title: Uni.I18n.translate('general.taskManagement', 'BPM', 'Task management'),
                 portal: 'workspace',
@@ -93,7 +93,7 @@ Ext.define('Bpm.controller.Main', {
             router = me.getController('Uni.controller.history.Router'),
             dataCollection = null;
 
-        if (Bpm.privileges.BpmManagement.allProcesses()) {
+        if (Bpm.privileges.BpmManagement.canViewProcesses()) {
             Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.administration', 'BPM', 'Administration'),
                 glyph: 'settings',
@@ -102,7 +102,7 @@ Ext.define('Bpm.controller.Main', {
             }));
         }
 
-        if (Bpm.privileges.BpmManagement.allProcesses()) {
+        if (Bpm.privileges.BpmManagement.canViewProcesses()) {
             dataCollection = Ext.create('Uni.model.PortalItem', {
                 title: Uni.I18n.translate('general.processManagement', 'BPM', 'Process management'),
                 portal: 'administration',
