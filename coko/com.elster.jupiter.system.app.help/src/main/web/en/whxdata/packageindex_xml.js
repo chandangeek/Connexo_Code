@@ -1,1 +1,1 @@
-gXMLBuffer = "<?xml version=\"1.0\" encoding=\"utf-8\"?><cki><ck fm=\"&apos;\" to=\"category\"/><ck fm=\"center\" to=\"hav\"/><ck fm=\"help\" to=\"platform\"/><ck fm=\"pleas\" to=\"the\"/><ck fm=\"their\" to=\"•\"/></cki>";
+gXMLBuffer="<?xml version=\"1.0\" encoding=\"utf-8\"?><cki><ck fm=\"&apos;\" to=\"by\"/><ck fm=\"c\" to=\"g\"/><ck fm=\"gas\" to=\"or\"/><ck fm=\"order\" to=\"task\"/><ck fm=\"term\" to=\"•\"/></cki>";

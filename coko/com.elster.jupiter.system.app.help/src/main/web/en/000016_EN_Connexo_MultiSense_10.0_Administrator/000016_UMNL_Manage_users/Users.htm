@@ -57,7 +57,7 @@ gCommonRootRelPath = "../..";
 gTopicId = "3.1";
 </script>
  <meta name="brsprev" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Manage_users/Understand_user_management.htm">
- <meta name="brsnext" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Manage_users/User_roles.htm">
+ <meta name="brsnext" value="000016_EN_Connexo_MultiSense_10.0_Administrator/000016_UMNL_Manage_users/Configure_users.htm">
 </head>
 
 <body>
@@ -65,17 +65,105 @@ gTopicId = "3.1";
 
  <p class="FM_H2Section">Users</p>
  
- <p class="FM_H3SectionTopic"><a name="TOC_Configure_users"></a>Configure users</p>
- <p class="FM_H4Topic">Add users</p>
- <p class="FM_Body">You can add new users using the LDAP that is integrated in the application.</p>
- <p class="FM_H4Topic">Edit users</p>
+ <p class="FM_H3SectionTopic"><a name="TOC_Manage_user_directories"></a>Manage user directories</p>
+ <p class="FM_H4Topic">Understand user directories</p>
+ <p class="FM_Body">A user directory is a place where you store information about users. User information includes the person's full name, username, password, email address and other personal information. </p>
+ <p class="FM_Body">The internal directory stores user and group information in the Connexo database. Using the <uservariable x-value="Admin" x-showvalue="TRUE" name="SystemAdmin_App" x-format="SystemAdmin_App">Admin</uservariable>&#160;application you can also connect to external user directories such as for example your company’s LDAP.</p>
+ <p class="FM_H4Topic">Add user directory</p>
  <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
  <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
- <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span><span class="FM_UIRef">&#160;</span>&gt; <span class="FM_UIRef">User management</span>.</p>
- <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Users</span>.</p>
- <p class="FM_ListNumber1">3. &#160; Click the actions icon <img alt="masterActions.png" style=" width:100%; margin-bottom:0.000pt; max-width:16.173pt;" id="image0" src="masterActions.png" />&#160;and select <span class="FM_UIRef">Edit</span>.</p>
- <p class="FM_BodyProcedure">You can change the description and the roles of the user and also set the language of the user.</p>
- <p class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Save</span>.</p>
- <p class="FM_Body">&nbsp;</p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span><span class="FM_UIRef">&#160;</span>&gt; <span class="FM_UIRef">User management &gt; User directories</span>.</p>
+ <p class="FM_ListNumber1">2. &#160; Click <span class="FM_UIRef">Add user directory</span> and complete the following fields:</p>
+
+ <table class="TParameter" style=" width:100%; float:alignleft; max-width:25cm;" cellspacing="0px">
+  <tr style=" height : 25.00pt;" class="t1st">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellHeading">Parameter</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellHeading">Description</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Name</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">Unique name for the user directory.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t1Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">URL</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">The URL of the user directory.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Back-up URL</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">The back-up URL, if available.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Security protocol</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">Defines the security of the connection between Connexo and the active directory.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Type</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">Type of active directory.</p>
+</td>
+</tr>
+  <tr style=" height : 34.00pt;" class="t1Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">User</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">An LDAP username with sufficient privileges to view the sections of the directory that contain the information for LDAP users.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t2Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">Password</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">The password of the user entered above.</p>
+</td>
+</tr>
+  <tr style=" height : 21.00pt;" class="t1Row">
+  <td style="width : 98.691pt; vertical-align : top;">
+  <p class="FM_CellBody">User base DN</p>
+</td>
+  <td style="width : 318.002pt; vertical-align : top;">
+  <p class="FM_CellBody">The location of the user database.</p>
+</td>
+</tr>
+ </table>
+
+ <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Add</span>.</p>
+ <p class="FM_ListNumber1">4. &#160; Click <span class="FM_UIRef">Set as default</span>&#160;if you want this user directory to be the default one upon login. For the not default user directory you first have to specify the directory name before the username e.g. Local/admin.</p>
+ <p class="FM_H4Topic">Edit user directories</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span><span class="FM_UIRef">&#160;</span>&gt; <span class="FM_UIRef">User management &gt; User directories</span>.</p>
+ <p class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="masterActions.png" style=" margin-bottom:0.000pt; width:100%; max-width:21px;" id="image1" src="masterActions.png" />&#160;and select <span class="FM_UIRef">Edit</span>.</p>
+ <p class="FM_BodyProcedure">Name and type can no longer be edited.</p>
+ <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Save</span>.</p>
+ <p class="FM_H4Topic">Remove user directory</p>
+ <p class="FM_PProcedure"><span class="FM_Icons">5</span></p>
+ <p class="FM_Pprocedure2"><span class="FM_Bold">Steps </span></p>
+ <p class="FM_ListNumber0">1. &#160;&#160;Go to <span class="FM_UIRef">Administration</span><span class="FM_UIRef">&#160;</span>&gt; <span class="FM_UIRef">User management &gt; User directories</span>.</p>
+ <p class="FM_ListNumber1">2. &#160; Click the actions icon <img alt="masterActions00001.png" style=" margin-bottom:0.000pt; width:100%; max-width:21px;" id="image2" src="masterActions00001.png" />&#160;and select <span class="FM_UIRef">Remove</span>. This option is only possible when the user directory is not the default directory.</p>
+ <p class="FM_ListNumber1">3. &#160; Click <span class="FM_UIRef">Remove</span>.</p>
  </body>
 </html>
