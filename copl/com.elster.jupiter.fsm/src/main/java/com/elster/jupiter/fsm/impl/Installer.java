@@ -2,7 +2,6 @@ package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.users.UserService;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,13 +17,11 @@ public class Installer {
     private final Logger logger = Logger.getLogger(Installer.class.getName());
 
     private final DataModel dataModel;
-    private final UserService userService;
     private final EventService eventService;
 
-    public Installer(DataModel dataModel, UserService userService, EventService eventService) {
+    public Installer(DataModel dataModel, EventService eventService) {
         super();
         this.dataModel = dataModel;
-        this.userService = userService;
         this.eventService = eventService;
     }
 

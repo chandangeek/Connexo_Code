@@ -17,7 +17,12 @@ import com.elster.jupiter.fsm.StateChangeBusinessProcessInUseException;
 import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.fsm.UnknownStateChangeBusinessProcessException;
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.NotUniqueException;
 import com.elster.jupiter.orm.OrmService;
@@ -45,11 +50,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.stream.Collectors;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import com.elster.jupiter.fsm.MessageSeeds;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Predicates.not;
@@ -95,7 +98,7 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
 
     @Override
     public void install() {
-        new Installer(this.dataModel, this.userService, eventService).install(true);
+        new Installer(this.dataModel, eventService).install(true);
         createStandardEventTypeNoTransaction(new ArrayList<>(standardEventPredicates));
     }
 

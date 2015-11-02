@@ -15,7 +15,7 @@ public enum EventType {
 
     TRIGGER_EVENT("event/TRIGGER"),
     CHANGE_EVENT("event/CHANGE"),
-    START_BPM("bpm/START");
+    START_BPM("bpm/state/START");
 
     private static final String NAMESPACE = "com/elster/jupiter/fsm/";
     private final String topic;
