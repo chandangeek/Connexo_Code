@@ -3,6 +3,7 @@ package com.elster.jupiter.estimation.impl;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.cbo.QualityCodeCategory;
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
@@ -120,7 +121,8 @@ public class EstimationRuleSetIT {
                     new PubSubModule(),
                     new TransactionModule(),
                     new EstimationModule(),
-                    new NlsModule()
+                    new NlsModule(),
+                    new DataVaultModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);

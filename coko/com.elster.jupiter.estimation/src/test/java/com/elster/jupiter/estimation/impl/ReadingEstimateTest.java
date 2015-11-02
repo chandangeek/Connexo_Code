@@ -10,6 +10,7 @@ import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.EstimationBlock;
 import com.elster.jupiter.estimation.EstimationResolver;
@@ -220,7 +221,8 @@ public class ReadingEstimateTest {
                     new TimeModule(),
                     new MeteringGroupsModule(),
                     new TaskModule(),
-                    new EstimationModule()
+                    new EstimationModule(),
+                    new DataVaultModule()
             );
         } catch (Exception e) {
             throw new RuntimeException(e);

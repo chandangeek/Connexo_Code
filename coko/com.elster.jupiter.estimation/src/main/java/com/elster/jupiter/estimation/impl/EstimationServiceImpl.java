@@ -357,6 +357,11 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     }
 
     @Override
+    public Optional<? extends EstimationRuleSet> findAndLockEstimationRuleSet(long id, long version) {
+        return dataModel.mapper(IEstimationRuleSet.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public Optional<IEstimationRuleSet> getEstimationRuleSet(String name) {
         return getRuleSetQuery().select(hasName(name).and(isNotObsolete())).stream()
                 .findFirst();
@@ -379,6 +384,11 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     @Override
     public Optional<IEstimationRule> getEstimationRule(long id) {
         return dataModel.mapper(IEstimationRule.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<? extends EstimationRule> findAndLockEstimationRule(long id, long version) {
+        return dataModel.mapper(IEstimationRule.class).lockObjectIfVersion(version, id);
     }
 
     @Override
@@ -407,6 +417,11 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     @Override
     public Optional<? extends EstimationTask> findEstimationTask(long id) {
         return dataModel.mapper(IEstimationTask.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<? extends EstimationTask> findAndLockEstimationTask(long id, long version) {
+        return dataModel.mapper(IEstimationTask.class).lockObjectIfVersion(version, id);
     }
 
     @Override
