@@ -14,11 +14,6 @@ Ext.define('Uni.view.search.field.internal.Operator', {
         ["!=", "!="],
         ["BETWEEN", "Between"]
         //...
-    ],
-    listeners: {
-        collapse: function() {
-            debugger;
-        }
-    }
+    ]
 });
 
