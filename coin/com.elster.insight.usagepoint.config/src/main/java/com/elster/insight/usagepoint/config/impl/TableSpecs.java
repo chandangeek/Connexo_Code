@@ -45,9 +45,9 @@ public enum TableSpecs {
             table.map(MetrologyConfigurationValidationRuleSetUsageImpl.class);
             table.setJournalTableName("UPC_MCVALRULESETUSAGEJRNL");
             Column validationRuleSetIdColumn =
-                    table.column("VALIDATIONRULESETID").type("number").notNull().conversion(NUMBER2LONG).map("validationRuleSetId").add();
+                    table.column("VALIDATIONRULESETID").type("number").notNull().conversion(NUMBER2LONG).add();
             Column metrologyConfigurationIdColumn =
-                    table.column("METROLOGYCONFIGID").type("number").notNull().conversion(NUMBER2LONG).map("metrologyConfigurationId").add();
+                    table.column("METROLOGYCONFIGID").type("number").notNull().conversion(NUMBER2LONG).add();
 
             table.primaryKey("UPC_PK_SETCONFIGUSAGE").on(validationRuleSetIdColumn, metrologyConfigurationIdColumn).add();
             table.foreignKey("UPC_FK_RULESET").references(ValidationRuleSet.class).onDelete(RESTRICT).map("validationRuleSet").on(validationRuleSetIdColumn).add();
