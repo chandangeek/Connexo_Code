@@ -5,7 +5,13 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum Privileges implements TranslationKey {
+    //Resources
+    RESOURCE_ISSUES("issue.issues", "Issues"),
+    RESOURCE_ISSUES_DESCRIPTION("issue.issues.description", "Manage issues"),
+    RESOURCE_ISSUES_CONFIGURATION("issueConfiguration.issueConfigurations", "Issues configuration"),
+    RESOURCE_ISSUES_CONFIGURATION_DESCRIPTION("issueConfiguration.issueConfigurations.description", "Manage issues configuration"),
 
+    //Privileges
     VIEW_ISSUE(Constants.VIEW_ISSUE, "View"),
     COMMENT_ISSUE(Constants.COMMENT_ISSUE, "Comment"),
     CLOSE_ISSUE(Constants.CLOSE_ISSUE, "Close"),

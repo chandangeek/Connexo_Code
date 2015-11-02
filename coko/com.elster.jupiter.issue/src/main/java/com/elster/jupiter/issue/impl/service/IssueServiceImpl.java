@@ -453,13 +453,13 @@ public class IssueServiceImpl implements IssueService, InstallService, Translati
     @Override
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(IssueService.COMPONENT_NAME, "issue.issues", "issue.issues.description",
+        resources.add(userService.createModuleResourceWithPrivileges(IssueService.COMPONENT_NAME, Privileges.RESOURCE_ISSUES.getKey(), Privileges.RESOURCE_ISSUES_DESCRIPTION.getKey(),
                 Arrays.asList(
                         Privileges.Constants.VIEW_ISSUE, Privileges.Constants.COMMENT_ISSUE,
                         Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.ASSIGN_ISSUE,
                         Privileges.Constants.ACTION_ISSUE
                         )));
-        resources.add(userService.createModuleResourceWithPrivileges(IssueService.COMPONENT_NAME, "issueConfiguration.issueConfigurations", "issueConfiguration.issueConfigurations.description",
+        resources.add(userService.createModuleResourceWithPrivileges(IssueService.COMPONENT_NAME, Privileges.RESOURCE_ISSUES_CONFIGURATION.getKey(), Privileges.RESOURCE_ISSUES_CONFIGURATION_DESCRIPTION.getKey(),
                 Arrays.asList(
                         Privileges.Constants.VIEW_CREATION_RULE,
                         Privileges.Constants.ADMINISTRATE_CREATION_RULE, Privileges.Constants.VIEW_ASSIGNMENT_RULE
