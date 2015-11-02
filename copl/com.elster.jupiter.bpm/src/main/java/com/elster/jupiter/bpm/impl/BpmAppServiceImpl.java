@@ -79,7 +79,7 @@ public class BpmAppServiceImpl implements BpmAppService , TranslationKeyProvider
 
     @Override
     public String getComponentName() {
-        return BpmAppService.COMPONENTNAME;
+        return APPLICATION_KEY;
     }
 
     @Override
