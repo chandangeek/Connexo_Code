@@ -19,6 +19,7 @@ import com.elster.jupiter.time.RelativePeriodCategory;
 import com.elster.jupiter.time.RelativePeriodCategoryUsage;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.security.Privileges;
+import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -186,7 +187,7 @@ public class TimeServiceImpl implements TimeService, InstallService, PrivilegesP
     @Override
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(TimeService.COMPONENT_NAME, "period.periods", "period.periods.description",
+        resources.add(userService.createModuleResourceWithPrivileges(TimeService.COMPONENT_NAME, Privileges.RESOURCE_RELATIVE_PERIODS.getKey(), Privileges.RESOURCE_RELATIVE_PERIODS_DESCRIPTION.getKey(),
                 Arrays.asList(Privileges.Constants.VIEW_RELATIVE_PERIOD, Privileges.Constants.ADMINISTRATE_RELATIVE_PERIOD)));
         return resources;
     }

@@ -5,7 +5,11 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum Privileges implements TranslationKey {
+    //Resources
+    RESOURCE_RELATIVE_PERIODS("period.periods", "Relative periods"),
+    RESOURCE_RELATIVE_PERIODS_DESCRIPTION("period.periods.description", "Manage relative periods"),
 
+    //Privileges
     ADMINISTRATE_RELATIVE_PERIOD(Constants.ADMINISTRATE_RELATIVE_PERIOD, "Administrate"),
     VIEW_RELATIVE_PERIOD(Constants.VIEW_RELATIVE_PERIOD, "View detail");
 
