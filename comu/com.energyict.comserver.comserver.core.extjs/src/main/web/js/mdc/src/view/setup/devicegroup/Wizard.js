@@ -14,6 +14,7 @@ Ext.define('Mdc.view.setup.devicegroup.Wizard', {
     router: null,
     returnLink: null,
     isEdit: false,
+    service: null,
 
     initComponent: function () {
         var me = this;
@@ -32,7 +33,8 @@ Ext.define('Mdc.view.setup.devicegroup.Wizard', {
                 xtype: 'device-group-wizard-step2',
                 itemId: 'devicegroup-wizard-step2',
                 title: Uni.I18n.translate('devicegroup.wizard.step2title', 'MDC', 'Step 2 of 3: Select devices'),
-                navigationIndex: 2
+                navigationIndex: 2,
+                service: me.service
             },
             {
                 xtype: 'device-group-wizard-step3',

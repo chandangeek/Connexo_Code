@@ -10,6 +10,7 @@ Ext.define('Mdc.view.setup.devicegroup.Browse', {
     router: null,
     returnLink: null,
     isEdit: false,
+    service: null,
 
     initComponent: function () {
         var me = this;
@@ -40,6 +41,7 @@ Ext.define('Mdc.view.setup.devicegroup.Browse', {
                 itemId: 'adddevicegroupwizard',
                 isEdit: me.isEdit,
                 router: me.router,
+                service: me.service,
                 returnLink: me.returnLink
             }
         ];

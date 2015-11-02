@@ -98,8 +98,10 @@ Ext.define('Mdc.controller.Search', {
 
         searchResults.on('load', function (store, items) {
             var grid = me.getResultsGrid();
-            var btn = grid.down('#search-bulk-actions-button');
-            btn.setDisabled(!(me.service.searchDomain && me.service.searchDomain.getId() === "com.energyict.mdc.device.data.Device" && items && items.length));
+            if (grid) {
+                var btn = grid.down('#search-bulk-actions-button');
+                btn.setDisabled(!(me.service.searchDomain && me.service.searchDomain.getId() === "com.energyict.mdc.device.data.Device" && items && items.length));
+            }
         });
     },
 
