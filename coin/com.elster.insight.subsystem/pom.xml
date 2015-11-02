@@ -53,6 +53,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster</groupId>
+            <artifactId>insight.usagepoint.data</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster</groupId>
             <artifactId>insight.usagepoint.data.rest</artifactId>
         </dependency>
     </dependencies>
