@@ -5,7 +5,11 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum Privileges implements TranslationKey {
+    //Resources
+    RESOURCE_USERS("userAndRole.usersAndRoles", "Users & roles"),
+    RESOURCE_USERS_DESCRIPTION("userAndRole.usersAndRoles.description", "Manage users and roles"),
 
+    //Privileges
     ADMINISTRATE_USER_ROLE(Constants.ADMINISTRATE_USER_ROLE, "Administrate"),
     VIEW_USER_ROLE(Constants.VIEW_USER_ROLE, "View");
 

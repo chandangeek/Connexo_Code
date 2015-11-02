@@ -695,7 +695,7 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         List<ResourceDefinition> resources = new ArrayList<>();
         resources.add(createModuleResourceWithPrivileges(
                 UserService.COMPONENTNAME,
-                "userAndRole.usersAndRoles", "userAndRole.usersAndRoles.description",
+                Privileges.RESOURCE_USERS.getKey(), Privileges.RESOURCE_USERS_DESCRIPTION.getKey(),
                 Arrays.asList(Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE)));
 
         return resources;
