@@ -15,16 +15,16 @@ Ext.define('Apr.view.taskoverview.TaskFilter', {
             store: 'Apr.store.Applications'
          //   hidden: !me.includeServiceCombo
         },
-        //{
-        //    type: 'combobox',
-        //    dataIndex: 'queue',
-        //    emptyText: Uni.I18n.translate('general.queue', 'APR', 'Queue'),
-        //    multiSelect: true,
-        //    displayField: 'queue',
-        //    valueField: 'queue',
-        //    store: 'Apr.store.Applications'
-        //    //   hidden: !me.includeServiceCombo
-        //},
+        {
+            type: 'combobox',
+            dataIndex: 'queue',
+            emptyText: Uni.I18n.translate('general.queue', 'APR', 'Queue'),
+            multiSelect: true,
+            displayField: 'queue',
+            valueField: 'queue',
+            store: 'Apr.store.Applications'
+            //   hidden: !me.includeServiceCombo
+        },
         {
             type: 'interval',
             dataIndex: 'startedBetween',

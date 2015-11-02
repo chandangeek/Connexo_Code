@@ -36,7 +36,7 @@ Ext.define('Apr.view.taskoverview.TaskPreview', {
                                     items: [
                                         {
                                             fieldLabel: Uni.I18n.translate('general.name', 'APR', 'name'),
-                                            name: 'task'
+                                            name: 'name'
                                         },
                                         {
                                             fieldLabel: Uni.I18n.translate('general.application', 'APR', 'Application'),
@@ -64,7 +64,7 @@ Ext.define('Apr.view.taskoverview.TaskPreview', {
                                         },
                                         {
                                             fieldLabel: Uni.I18n.translate('general.queueStatus', 'APR', 'Queue status'),
-                                            name: 'queueStatus'
+                                            name: 'queueStatusString'
                                         },
                                         {
                                             fieldLabel: Uni.I18n.translate('general.duration', 'APR', 'Duration'),
@@ -103,7 +103,7 @@ Ext.define('Apr.view.taskoverview.TaskPreview', {
                                         },
                                         {
                                             fieldLabel: Uni.I18n.translate('general.duration', 'APR', 'Duration'),
-                                            name: 'queueStatus'
+                                            name: 'duration'
                                         }
                                     ]
                                 }

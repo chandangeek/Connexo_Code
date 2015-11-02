@@ -28,7 +28,7 @@ Ext.define('Apr.view.taskoverview.TaskOverviewGrid', {
             },
             {
                 header: Uni.I18n.translate('general.queueStatus', 'APR', 'Queue status'),
-                dataIndex: 'queueStatus',
+                dataIndex: 'queueStatusString',
                 flex: 1
             }
 
