@@ -18,7 +18,7 @@ Ext.define('Bpm.controller.history.BpmManagement', {
                     route: 'taksmanagementtasks',
                     controller: 'Bpm.controller.Task',
                     action: 'showTasks',
-                    privileges: Bpm.privileges.BpmManagement.all,
+                    privileges: Bpm.privileges.BpmManagement.view,
                     params: {
                         use: false,
                         sort: '',
@@ -50,8 +50,39 @@ Ext.define('Bpm.controller.history.BpmManagement', {
                                 return this;
                             }
                         }
-                    }
+                    }					
                 }
+            }
+        },
+		administration: {
+            title: Uni.I18n.translate('general.administration','BPM','Administration'),
+            route: 'administration',
+            disabled: true,
+            items: {                
+				managementprocesses:{
+					title: Uni.I18n.translate('bpm.process.title', 'BPM', 'Processes'),
+                    route: 'managementprocesses',
+                    controller: 'Bpm.controller.Process',
+                    action: 'showProcesses',
+                    privileges: Bpm.privileges.BpmManagement.viewProcesses,
+					items: {
+                        editProcess: {
+                            title: Uni.I18n.translate('bpm.task.openTask', 'BPM', 'Open task'),
+                            route: '{processId}/editProcess',
+                            controller: 'Bpm.controller.Process',
+                            privileges: Bpm.privileges.BpmManagement.administrateProcesses,
+                            action: 'editProcess',
+                            callback: function (route) {
+                                this.getApplication().on('editProcesses', function (record) {
+                                    route.setTitle(record.get('name'));
+                                    return true;
+                                }, {single: true});
+
+                                return this;
+                            }
+                        }
+                    }			
+				}
             }
         }
     },
