@@ -516,7 +516,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
     @Override
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(EstimationService.COMPONENTNAME, "estimation.estimations", "estimation.estimations.description",
+        resources.add(userService.createModuleResourceWithPrivileges(EstimationService.COMPONENTNAME, Privileges.RESOURCE_ESTIMATION_RULES.getKey(), Privileges.RESOURCE_ESTIMATION_RULES_DESCRIPTION.getKey(),
                 Arrays.asList(
                         Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION,
                         Privileges.Constants.UPDATE_ESTIMATION_CONFIGURATION,Privileges.Constants.UPDATE_SCHEDULE_ESTIMATION_TASK,

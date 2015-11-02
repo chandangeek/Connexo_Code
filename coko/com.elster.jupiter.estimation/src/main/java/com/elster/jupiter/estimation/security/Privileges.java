@@ -6,7 +6,11 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum Privileges implements TranslationKey {
+    //Resources
+    RESOURCE_ESTIMATION_RULES("estimation.estimations", "Estimation"),
+    RESOURCE_ESTIMATION_RULES_DESCRIPTION("estimation.estimations.description", "Manage estimation"),
 
+    //Privileges
     ADMINISTRATE_ESTIMATION_CONFIGURATION(Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, "Configure"),
     VIEW_ESTIMATION_CONFIGURATION(Constants.VIEW_ESTIMATION_CONFIGURATION, "View configuration"),
     UPDATE_ESTIMATION_CONFIGURATION(Constants.UPDATE_ESTIMATION_CONFIGURATION, "Update configuration"),
