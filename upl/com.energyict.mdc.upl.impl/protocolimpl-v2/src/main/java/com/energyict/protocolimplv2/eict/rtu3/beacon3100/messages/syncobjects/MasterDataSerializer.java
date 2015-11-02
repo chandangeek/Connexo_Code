@@ -5,6 +5,7 @@ import com.energyict.cpo.PropertySpec;
 import com.energyict.cpo.PropertySpecPossibleValues;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.dlms.cosem.Clock;
 import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.security.SecurityProperty;
@@ -35,10 +36,8 @@ import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.security.GeneralSecurityException;
 import java.security.Key;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Helper class that takes a group of slave devices and returns a JSon serialized version of all their devicetypes, tasks & master data.
@@ -57,6 +56,7 @@ public class MasterDataSerializer {
     public static final ObisCode FIXED_SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
 
     private static final int NO_SCHEDULE = -1;
+    private static Logger logger;
 
     public static String serializeMasterDataForOneConfig(Object messageAttribute) {
 
@@ -286,9 +286,9 @@ public class MasterDataSerializer {
                 final int logicalDeviceId = 1;  //Linky and AM540 devices always use 1 as logical device
                 int clientTypeId = getClientTypeId(comTaskEnablement);
 
-                ArrayList<ObisCode> loadProfileObisCodes = getLoadProfileObisCodesForComTask(deviceConfiguration, comTaskEnablement);
-                ArrayList<ObisCode> registerObisCodes = getRegisterObisCodesForComTask(deviceConfiguration, comTaskEnablement);
-                ArrayList<ObisCode> logBookObisCodes = getLogBookObisCodesForComTask(deviceConfiguration, comTaskEnablement);
+                List<ObisCode> loadProfileObisCodes = getLoadProfileObisCodesForComTask(deviceConfiguration, comTaskEnablement);
+                List<ObisCode> registerObisCodes = getRegisterObisCodesForComTask(deviceConfiguration, comTaskEnablement);
+                List<ObisCode> logBookObisCodes = getLogBookObisCodesForComTask(deviceConfiguration, comTaskEnablement);
 
                 if (isReadMeterDataTask(loadProfileObisCodes, registerObisCodes, logBookObisCodes)) {
                     final Beacon3100Schedulable schedulable = new Beacon3100Schedulable(comTaskEnablement, scheduleId, logicalDeviceId, clientTypeId, loadProfileObisCodes, registerObisCodes, logBookObisCodes);
@@ -299,7 +299,7 @@ public class MasterDataSerializer {
         return schedulables;
     }
 
-    private static boolean isReadMeterDataTask(ArrayList<ObisCode> loadProfileObisCodes, ArrayList<ObisCode> registerObisCodes, ArrayList<ObisCode> logBookObisCodes) {
+    private static boolean isReadMeterDataTask(List<ObisCode> loadProfileObisCodes, List<ObisCode> registerObisCodes, List<ObisCode> logBookObisCodes) {
         return !(loadProfileObisCodes.isEmpty() && registerObisCodes.isEmpty() && logBookObisCodes.isEmpty());
     }
 
@@ -320,7 +320,7 @@ public class MasterDataSerializer {
         }
     }
 
-    private static ArrayList<ObisCode> getLogBookObisCodesForComTask(DeviceConfiguration deviceConfiguration, ComTaskEnablement comTaskEnablement) {
+    private static List<ObisCode> getLogBookObisCodesForComTask(DeviceConfiguration deviceConfiguration, ComTaskEnablement comTaskEnablement) {
         Set<ObisCode> logBookObisCodes = new HashSet<>();
         if (((ServerComTask) comTaskEnablement.getComTask()).isConfiguredToCollectEvents()) {        //We can safely cast to the Server interface here, the format method (and everything related to messages) is only called from the EIServer framework
             for (ProtocolTask protocolTask : comTaskEnablement.getComTask().getProtocolTasks()) {
@@ -341,7 +341,7 @@ public class MasterDataSerializer {
         return new ArrayList<>(logBookObisCodes);
     }
 
-    private static ArrayList<ObisCode> getRegisterObisCodesForComTask(DeviceConfiguration deviceConfiguration, ComTaskEnablement comTaskEnablement) {
+    private static List<ObisCode> getRegisterObisCodesForComTask(DeviceConfiguration deviceConfiguration, ComTaskEnablement comTaskEnablement) {
         Set<ObisCode> registerObisCodes = new HashSet<>();
         if (((ServerComTask) comTaskEnablement.getComTask()).isConfiguredToCollectRegisterData()) {      //We can safely cast to the Server interface here, the format method (and everything related to messages) is only called from the EIServer framework
             for (ProtocolTask protocolTask : comTaskEnablement.getComTask().getProtocolTasks()) {
@@ -370,10 +370,29 @@ public class MasterDataSerializer {
                 }
             }
         }
-        return new ArrayList<>(registerObisCodes);
+        return filterOutUnwantedRegisterObisCodes(registerObisCodes);
     }
 
-    private static ArrayList<ObisCode> getLoadProfileObisCodesForComTask(DeviceConfiguration deviceConfiguration, ComTaskEnablement comTaskEnablement) {
+    private static List<ObisCode> filterOutUnwantedRegisterObisCodes(Set<ObisCode> obisCodes) {
+        Iterator<ObisCode> iterator = obisCodes.iterator();
+        while (iterator.hasNext()) {
+            ObisCode obisCode = iterator.next();
+            if (obisCode.equals(Clock.getDefaultObisCode()) || obisCode.equals(FIXED_SERIAL_NUMBER_OBISCODE)) {
+                getLogger().warning("Filtering out register with obiscode '" + obisCode.toString() + "', it is already present in the mirror logical device by default.");
+                iterator.remove();
+            }
+        }
+        return new ArrayList<>(obisCodes);
+    }
+
+    private static Logger getLogger() {
+        if (logger == null) {
+            logger = Logger.getLogger(MasterDataSerializer.class.getName());
+        }
+        return logger;
+    }
+
+    private static List<ObisCode> getLoadProfileObisCodesForComTask(DeviceConfiguration deviceConfiguration, ComTaskEnablement comTaskEnablement) {
         Set<ObisCode> loadProfileObisCodes = new HashSet<>();
         if (((ServerComTask) comTaskEnablement.getComTask()).isConfiguredToCollectLoadProfileData()) {   //We can safely cast to the Server interface here, the format method (and everything related to messages) is only called from the EIServer framework
             for (ProtocolTask protocolTask : comTaskEnablement.getComTask().getProtocolTasks()) {
