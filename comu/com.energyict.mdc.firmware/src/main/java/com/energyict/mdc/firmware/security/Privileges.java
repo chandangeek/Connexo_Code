@@ -5,7 +5,11 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum Privileges implements TranslationKey {
+    //Resources
+    RESOURCE_FIRMWARE_CAMPAIGNS("firmware.campaigns", "Firmware campaigns"),
+    RESOURCE_FIRMWARE_CAMPAIGNS_DESCRIPTION("firmware.campaigns.description", "Manage firmware campaigns"),
 
+    //Privileges
     ADMINISTRATE_FIRMWARE_CAMPAIGN(Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN, "Administrate"),
     VIEW_FIRMWARE_CAMPAIGN(Constants.VIEW_FIRMWARE_CAMPAIGN, "View");
 

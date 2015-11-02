@@ -521,7 +521,7 @@ public class FirmwareServiceImpl implements FirmwareService, InstallService, Mes
     @Override
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(FirmwareService.COMPONENTNAME, "firmware.campaigns", "firmware.campaigns.description",
+        resources.add(userService.createModuleResourceWithPrivileges(FirmwareService.COMPONENTNAME, Privileges.RESOURCE_FIRMWARE_CAMPAIGNS.getKey(), Privileges.RESOURCE_FIRMWARE_CAMPAIGNS_DESCRIPTION.getKey(),
                 Arrays.asList(
                         Privileges.Constants.VIEW_FIRMWARE_CAMPAIGN, Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN)));
         return resources;
