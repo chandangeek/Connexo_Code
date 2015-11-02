@@ -72,7 +72,6 @@ public class DeviceBuilder extends NamedBuilder<Device, DeviceBuilder> {
             }
         }
         device.save();
-        device.save();
         applyPostBuilders(device);
         return device;
     }
