@@ -36,7 +36,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class DataPurgeResourceTest extends LicensingApplicationJerseyTest {
+public class DataPurgeResourceTest extends SystemApplicationJerseyTest {
 
     public static final Instant JUN_2014 = LocalDateTime.of(2014, 6, 1, 10, 0, 0).toInstant(ZoneOffset.UTC);
     public static final long OK_VERSION = 17L;

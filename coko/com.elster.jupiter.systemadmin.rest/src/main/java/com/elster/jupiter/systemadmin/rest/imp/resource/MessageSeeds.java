@@ -1,6 +1,6 @@
 package com.elster.jupiter.systemadmin.rest.imp.resource;
 
-import com.elster.jupiter.systemadmin.rest.imp.LicensingApplication;
+import com.elster.jupiter.systemadmin.rest.imp.SystemApplication;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.logging.Level;
@@ -25,7 +25,7 @@ public enum  MessageSeeds implements MessageSeed {
 
     @Override
     public String getModule() {
-        return LicensingApplication.COMPONENT_NAME;
+        return SystemApplication.COMPONENT_NAME;
     }
 
     @Override

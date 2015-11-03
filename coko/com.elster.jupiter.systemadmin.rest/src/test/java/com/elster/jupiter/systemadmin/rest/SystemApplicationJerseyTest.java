@@ -4,7 +4,8 @@ import com.elster.jupiter.data.lifecycle.LifeCycleService;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.rest.util.RestQueryService;
-import com.elster.jupiter.systemadmin.rest.imp.LicensingApplication;
+import com.elster.jupiter.system.SubsystemService;
+import com.elster.jupiter.systemadmin.rest.imp.SystemApplication;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
@@ -12,11 +13,13 @@ import com.elster.jupiter.util.json.JsonService;
 import javax.ws.rs.core.Application;
 
 import org.mockito.Mock;
+import org.osgi.framework.BundleContext;
 
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class LicensingApplicationJerseyTest extends FelixRestApplicationJerseyTest {
+public class SystemApplicationJerseyTest extends FelixRestApplicationJerseyTest {
     @Mock
     RestQueryService restQueryService;
     @Mock
@@ -29,6 +32,10 @@ public class LicensingApplicationJerseyTest extends FelixRestApplicationJerseyTe
     TaskService taskService;
     @Mock
     JsonService jsonService;
+    @Mock
+    BundleContext bundleContext;
+    @Mock
+    SubsystemService subsystemService;
 
     @Override
     public void setupMocks() {
@@ -38,7 +45,7 @@ public class LicensingApplicationJerseyTest extends FelixRestApplicationJerseyTe
 
     @Override
     protected Application getApplication() {
-        LicensingApplication app = new LicensingApplication();
+        SystemApplication app = new SystemApplication();
         app.setTransactionService(transactionService);
         app.setRestQueryService(restQueryService);
         app.setUserService(userService);
@@ -47,6 +54,8 @@ public class LicensingApplicationJerseyTest extends FelixRestApplicationJerseyTe
         app.setLifeCycleService(lifeCycleService);
         app.setTaskService(taskService);
         app.setJsonService(jsonService);
+        app.setSubsystemService(subsystemService);
+        app.activate(bundleContext);
         return app;
     }
 }

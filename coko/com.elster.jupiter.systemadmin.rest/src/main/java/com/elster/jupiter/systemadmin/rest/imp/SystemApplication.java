@@ -8,9 +8,14 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.system.SubsystemService;
+import com.elster.jupiter.systemadmin.rest.imp.resource.FieldsResource;
 import com.elster.jupiter.systemadmin.rest.imp.resource.DataPurgeResource;
 import com.elster.jupiter.systemadmin.rest.imp.resource.LicenseResource;
 import com.elster.jupiter.systemadmin.rest.imp.resource.MessageSeeds;
+import com.elster.jupiter.systemadmin.rest.imp.resource.SystemInfoResource;
+import com.elster.jupiter.systemadmin.rest.imp.response.ApplicationInfoFactory;
+import com.elster.jupiter.systemadmin.rest.imp.response.SystemInfoFactory;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
@@ -21,6 +26,8 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
 
 import javax.validation.MessageInterpolator;
 import javax.ws.rs.core.Application;
@@ -34,9 +41,9 @@ import java.util.Set;
         name = "com.elster.jupiter.systemadmin.rest",
         service = {Application.class, MessageSeedProvider.class},
         immediate = true,
-        property = {"alias=/lic", "app=SYS", "name=" + LicensingApplication.COMPONENT_NAME})
-public class LicensingApplication extends Application implements MessageSeedProvider {
-    public static final String COMPONENT_NAME = "LIC";
+        property = {"alias=/sys", "app=SYS", "name=" + SystemApplication.COMPONENT_NAME})
+public class SystemApplication extends Application implements MessageSeedProvider {
+    public static final String COMPONENT_NAME = "SYS";
 
     private volatile TransactionService transactionService;
     private volatile RestQueryService restQueryService;
@@ -47,12 +54,24 @@ public class LicensingApplication extends Application implements MessageSeedProv
     private volatile TaskService taskService;
     private volatile Thesaurus thesaurus;
     private volatile JsonService jsonService;
+    private volatile SubsystemService subsystemService;
+
+    private BundleContext bundleContext;
+    private Long lastStartedTime;
 
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(LicenseResource.class,
                 DataPurgeResource.class,
-                MultiPartFeature.class);
+                MultiPartFeature.class,
+                SystemInfoResource.class,
+                FieldsResource.class);
+    }
+
+    @Activate
+    public void activate(BundleContext bundleContext) {
+        this.lastStartedTime = System.currentTimeMillis();
+        this.bundleContext = bundleContext;
     }
 
     @Reference
@@ -96,6 +115,11 @@ public class LicensingApplication extends Application implements MessageSeedProv
         this.jsonService = jsonService;
     }
 
+    @Reference
+    public void setSubsystemService(SubsystemService subsystemService) {
+        this.subsystemService = subsystemService;
+    }
+
     @Override
     public Set<Object> getSingletons() {
         Set<Object> hashSet = new HashSet<>();
@@ -128,6 +152,11 @@ public class LicensingApplication extends Application implements MessageSeedProv
             bind(thesaurus).to(MessageInterpolator.class);
             bind(jsonService).to(JsonService.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
+            bind(SystemInfoFactory.class).to(SystemInfoFactory.class);
+            bind(ApplicationInfoFactory.class).to(ApplicationInfoFactory.class);
+            bind(subsystemService).to(SubsystemService.class);
+            bind(bundleContext).to(BundleContext.class);
+            bind(lastStartedTime).to(Long.class).named("LAST_STARTED_TIME");
         }
     }
 }

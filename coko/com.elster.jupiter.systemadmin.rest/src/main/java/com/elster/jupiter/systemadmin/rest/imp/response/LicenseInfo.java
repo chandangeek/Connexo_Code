@@ -4,7 +4,7 @@ import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.systemadmin.rest.imp.LicensingApplication;
+import com.elster.jupiter.systemadmin.rest.imp.SystemApplication;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,7 +26,7 @@ public class LicenseInfo extends LicenseShortInfo {
         this.description = license.getDescription();
         this.validfrom = license.getActivation().toEpochMilli();
         this.graceperiod = license.getGracePeriodInDays();
-        Thesaurus thesaurus = nlsService.getThesaurus(LicensingApplication.COMPONENT_NAME, Layer.REST);
+        Thesaurus thesaurus = nlsService.getThesaurus(SystemApplication.COMPONENT_NAME, Layer.REST);
         content = license.getLicensedValues().entrySet()
                 .stream()
                 .map(property -> new AbstractMap.SimpleEntry<Object, Object>(
