@@ -115,11 +115,17 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>properties</artifactId>
         </dependency>
-<dependency>
+        <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>validation</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
 
