@@ -1,10 +1,13 @@
 package com.elster.jupiter.bootstrap;
 
+import aQute.bnd.annotation.ProviderType;
+
 import javax.sql.DataSource;
 
 /**
  * This Service is responsible for creating a DataSource on demand.
  */
+@ProviderType
 public interface BootstrapService {
 
     String JDBC_USER = "com.elster.jupiter.datasource.jdbcuser";
