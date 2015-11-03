@@ -100,7 +100,7 @@ public class ProtocolDialectSearchableProperty extends AbstractSearchableDeviceP
 
     @Override
     public boolean affectsAvailableDomainProperties() {
-        return false;
+        return true;
     }
 
     @Override
@@ -119,7 +119,7 @@ public class ProtocolDialectSearchableProperty extends AbstractSearchableDeviceP
 
     @Override
     public Visibility getVisibility() {
-        return Visibility.REMOVABLE;
+        return Visibility.STICKY;
     }
 
     @Override

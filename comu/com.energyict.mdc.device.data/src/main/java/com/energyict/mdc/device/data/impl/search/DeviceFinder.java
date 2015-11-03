@@ -7,6 +7,8 @@ import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.search.sqlbuilder.DeviceSearchSqlBuilder;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;

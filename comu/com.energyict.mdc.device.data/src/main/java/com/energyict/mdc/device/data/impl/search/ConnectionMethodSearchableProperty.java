@@ -68,7 +68,7 @@ public class ConnectionMethodSearchableProperty extends AbstractSearchableDevice
 
     @Override
     public boolean affectsAvailableDomainProperties() {
-        return true;
+        return false;
     }
 
     @Override

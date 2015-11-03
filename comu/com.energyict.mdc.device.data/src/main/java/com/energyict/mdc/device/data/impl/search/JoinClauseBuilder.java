@@ -70,6 +70,8 @@ public interface JoinClauseBuilder {
 
     JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass);
 
+    JoinClauseBuilder addProtocolDialectProperties(long deviceProtocolId, String relationTableName);
+
     class Aliases {
         private Aliases(){ /* constant class */}
 
@@ -83,5 +85,6 @@ public interface JoinClauseBuilder {
         public static final String LOADPROFILE_TYPE = "lp_type";
         public static final String COM_TASK_ENABLEMENT = "cten";
         public static final String COM_TASK = "ctsk";
+        public static final String PROTOCOL_DIALECT_PROPS = "pdprops";
     }
 }

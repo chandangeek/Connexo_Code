@@ -2,17 +2,18 @@ package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.util.streams.DecoratedStream;
-import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
+import com.energyict.mdc.device.data.impl.search.sqlbuilder.DeviceSearchSqlBuilder;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -24,12 +25,12 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -40,7 +41,7 @@ import static java.util.stream.Collectors.toList;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-26 (15:32)
  */
-@Component(name="com.energyict.mdc.device.search", service = SearchDomain.class, immediate = true)
+@Component(name = "com.energyict.mdc.device.search", service = SearchDomain.class, immediate = true)
 public class DeviceSearchDomain implements SearchDomain {
 
     private volatile DeviceDataModelService deviceDataModelService;
@@ -90,17 +91,45 @@ public class DeviceSearchDomain implements SearchDomain {
     public List<SearchableProperty> getProperties() {
         List<SearchableProperty> properties = new ArrayList<>();
         properties.addAll(this.fixedProperties());
-        properties.addAll(this.connectionTypeProperties());
         return properties;
     }
 
-    private List<SearchableProperty> getProperties(List<ConnectionTypePluggableClass> pluggableClasses) {
+    private List<SearchableProperty> getProperties(List<SearchablePropertyConstriction> constrictions) {
         List<SearchableProperty> properties = new ArrayList<>();
         Set<String> uniqueNames = new HashSet<>();
         Predicate<SearchableProperty> uniqueName = p -> uniqueNames.add(p.getName());
         this.fixedProperties().stream().filter(uniqueName).forEach(properties::add);
-        this.connectionTypeProperties(pluggableClasses).stream().filter(uniqueName).forEach(properties::add);
+        getProtocolDialectDynamicProperties(constrictions).stream().filter(uniqueName).forEach(properties::add);
         return properties;
+    }
+
+    private List<SearchableProperty> getProtocolDialectDynamicProperties(List<SearchablePropertyConstriction> constrictions) {
+        Optional<SearchablePropertyConstriction> protocolDialectConstriction = constrictions
+                .stream()
+                .filter(p -> ProtocolDialectSearchableProperty.PROPERTY_NAME.equals(p.getConstrainingProperty().getName()))
+                .findFirst();
+        if (protocolDialectConstriction.isPresent()) {
+            DataModel injector = this.deviceDataModelService.dataModel();
+            ProtocolDialectDynamicSearchableGroup propertiesGroup = injector.getInstance(ProtocolDialectDynamicSearchableGroup.class);
+            List<SearchableProperty> dynamicProperties = new ArrayList<>();
+            Set<String> uniqueDeviceProtocolDialects = new HashSet<>();
+            for (Object value : protocolDialectConstriction.get().getConstrainingValues()) {
+                ProtocolDialectSearchableProperty.ProtocolDialect protocolDialect = (ProtocolDialectSearchableProperty.ProtocolDialect) value;
+                String deviceProtocolDialectName = protocolDialect.getProtocolDialect().getDeviceProtocolDialectName();
+                if (!uniqueDeviceProtocolDialects.add(deviceProtocolDialectName)) {
+                    continue;
+                }
+                String relationTableName = this.protocolPluggableService.getDeviceProtocolDialectUsagePluggableClass(protocolDialect.getPluggableClass(),
+                        deviceProtocolDialectName).findRelationType().getDynamicAttributeTableName();
+                long deviceProtocolId = protocolDialect.getPluggableClass().getId();
+                for (PropertySpec propertySpec : protocolDialect.getProtocolDialect().getPropertySpecs()) {
+                    dynamicProperties.add(injector.getInstance(ProtocolDialectDynamicSearchableProperty.class)
+                            .init(this, propertiesGroup, propertySpec, deviceProtocolId, relationTableName));
+                }
+            }
+            return dynamicProperties;
+        }
+        return Collections.emptyList();
     }
 
     private List<SearchableProperty> fixedProperties() {
@@ -170,66 +199,10 @@ public class DeviceSearchDomain implements SearchDomain {
 
     @Override
     public List<SearchableProperty> getPropertiesWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
-        this.validateConstrictionNames(constrictions);
-        this.validateConstrictingValues(constrictions);
-        return this.getPropertiesWithConstriction(this.mostUsefulConstriction(constrictions));
-    }
-
-    private void validateConstrictionNames(List<SearchablePropertyConstriction> constrictions) {
-        Set<String> propertyNames = constrictions
-                .stream()
-                .map(SearchablePropertyConstriction::getConstrainingProperty)
-                .map(SearchableProperty::getName)
-                .collect(Collectors.toSet());
-        if (!propertyNames.remove(DeviceTypeSearchableProperty.PROPERTY_NAME)) {
-            throw new IllegalArgumentException("Constrictions on device type is missing");
+        if (constrictions == null || constrictions.isEmpty()) {
+            return getProperties();
         }
-        if (!propertyNames.remove(DeviceConfigurationSearchableProperty.PROPERTY_NAME)) {
-            throw new IllegalArgumentException("Constrictions on device configuration is missing");
-        }
-        if (!propertyNames.isEmpty()) {
-            throw new IllegalArgumentException("Unexpected constriction for properties: " + propertyNames.stream().collect(Collectors.joining(", ")));
-        }
-    }
-
-    private void validateConstrictingValues(List<SearchablePropertyConstriction> constrictions) {
-        constrictions.forEach(this::validateConstrictingValues);
-    }
-
-    private void validateConstrictingValues(SearchablePropertyConstriction constriction) {
-        if (constriction.getConstrainingProperty().hasName(DeviceTypeSearchableProperty.PROPERTY_NAME)) {
-            this.validateAllConstrictingValuesAreDeviceTypes(constriction.getConstrainingValues());
-        }
-        else {
-            this.validateAllConstrictingValuesAreDeviceConfigurations(constriction.getConstrainingValues());
-        }
-    }
-
-    private List<SearchableProperty> getPropertiesWithConstriction(SearchablePropertyConstriction constriction) {
-        return this.getProperties(
-                    AbstractConnectionTypePluggableClassProvider
-                        .from(constriction, this.protocolPluggableService)
-                        .getPluggableClasses());
-    }
-
-    private void validateAllConstrictingValuesAreDeviceTypes(List<Object> list) {
-        Optional<Object> anyNonDeviceType =
-                list.stream()
-                        .filter(Predicates.not(DeviceType.class::isInstance))
-                        .findAny();
-        if (anyNonDeviceType.isPresent()) {
-            throw new IllegalArgumentException("Constricting values are expected to be of type " + DeviceType.class.getName());
-        }
-    }
-
-    private void validateAllConstrictingValuesAreDeviceConfigurations(List<Object> list) {
-        Optional<Object> anyNonDeviceConfiguration =
-                list.stream()
-                        .filter(Predicates.not(DeviceConfiguration.class::isInstance))
-                        .findAny();
-        if (anyNonDeviceConfiguration.isPresent()) {
-            throw new IllegalArgumentException("Constricting values are expected to be of configuration " + DeviceConfiguration.class.getName());
-        }
+        return getProperties(constrictions);
     }
 
     @Override
@@ -244,51 +217,49 @@ public class DeviceSearchDomain implements SearchDomain {
         return deviceDataModelService.thesaurus().getFormat(PropertyTranslationKeys.DEVICE_DOMAIN).format();
     }
 
-    /**
-     * Wraps a {@link SearchablePropertyConstriction} to add sorting capabilities.
-     */
-    private SearchablePropertyConstriction mostUsefulConstriction(List<SearchablePropertyConstriction> constrictions) {
-        return constrictions
-                .stream()
-                .map(AbstractSortableConstriction::from)
-                .sorted()
-                .map(SortableConstriction::getConstriction)
-                .findFirst()
-                .get();
-    }
 
     private interface SortableConstriction extends Comparable<SortableConstriction> {
         String getPropertyName();
+
         SearchablePropertyConstriction getConstriction();
 
     }
+
+    /**
+     * Provides {@link ConnectionTypePluggableClass} for {@link SearchablePropertyConstriction}s.
+     */
+    private interface ConnectionTypePluggableClassProvider {
+        List<ConnectionTypePluggableClass> getPluggableClasses();
+    }
+
     private abstract static class AbstractSortableConstriction implements SortableConstriction {
 
         private final SearchablePropertyConstriction constriction;
 
+        protected AbstractSortableConstriction(SearchablePropertyConstriction deviceTypeConstriction) {
+            this.constriction = deviceTypeConstriction;
+        }
+
         private static SortableConstriction from(SearchablePropertyConstriction constriction) {
             if (constriction.getConstrainingProperty().hasName(DeviceTypeSearchableProperty.PROPERTY_NAME)) {
                 return new DeviceTypeConstriction(constriction);
-            }
-            else {
+            } else {
                 return new DeviceConfigurationConstriction(constriction);
             }
-        }
-
-        protected AbstractSortableConstriction(SearchablePropertyConstriction deviceTypeConstriction) {
-            this.constriction = deviceTypeConstriction;
         }
 
         @Override
         public String getPropertyName() {
             return this.constriction.getConstrainingProperty().getName();
         }
+
         @Override
         public SearchablePropertyConstriction getConstriction() {
             return constriction;
         }
 
     }
+
     private static class DeviceTypeConstriction extends AbstractSortableConstriction {
         protected DeviceTypeConstriction(SearchablePropertyConstriction deviceTypeConstriction) {
             super(deviceTypeConstriction);
@@ -302,8 +273,7 @@ public class DeviceSearchDomain implements SearchDomain {
                 Integer thisSize = this.getConstriction().getConstrainingValues().size();
                 Integer thatSize = that.getConstriction().getConstrainingValues().size();
                 return thisSize.compareTo(thatSize);
-            }
-            else {
+            } else {
                 // Must be a DeviceConfigurationConstriction, delegate to it to implement the logic only once
                 return that.compareTo(this);
             }
@@ -323,33 +293,23 @@ public class DeviceSearchDomain implements SearchDomain {
                 Integer thisSize = this.getConstriction().getConstrainingValues().size();
                 Integer thatSize = that.getConstriction().getConstrainingValues().size();
                 return thisSize.compareTo(thatSize);
-            }
-            else {
+            } else {
                 /* Must be a DeviceTypeConstriction,
                  * this one always has precedence unless it has no constrictions. */
                 if (!this.getConstriction().getConstrainingValues().isEmpty()) {
                     return -1;
-                }
-                else {
+                } else {
                     return 1;
                 }
             }
         }
     }
 
-    /**
-     * Provides {@link ConnectionTypePluggableClass} for {@link SearchablePropertyConstriction}s.
-     */
-    private interface ConnectionTypePluggableClassProvider {
-        List<ConnectionTypePluggableClass> getPluggableClasses();
-    }
-
     private static abstract class AbstractConnectionTypePluggableClassProvider implements ConnectionTypePluggableClassProvider {
         static ConnectionTypePluggableClassProvider from(SearchablePropertyConstriction constriction, ProtocolPluggableService protocolPluggableService) {
             if (constriction.getConstrainingProperty().hasName(DeviceTypeSearchableProperty.PROPERTY_NAME)) {
                 return new DeviceTypeConnectionTypePluggableClassProvider(constriction.getConstrainingValues(), protocolPluggableService);
-            }
-            else {
+            } else {
                 return new DeviceConfigurationConnectionTypePluggableClassProvider(constriction.getConstrainingValues());
             }
         }
