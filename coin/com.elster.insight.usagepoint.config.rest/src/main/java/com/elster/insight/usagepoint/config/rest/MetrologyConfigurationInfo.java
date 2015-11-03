@@ -30,7 +30,7 @@ public class MetrologyConfigurationInfo {
     }
     
     public void writeTo(MetrologyConfiguration metrologyConfiguration) {
-        metrologyConfiguration.setName(this.name);
+        metrologyConfiguration.updateName(this.name);
     }
     
 }
