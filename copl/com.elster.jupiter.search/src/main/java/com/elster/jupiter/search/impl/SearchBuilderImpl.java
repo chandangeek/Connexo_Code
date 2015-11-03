@@ -235,6 +235,12 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
         @Override
         public SearchBuilder<T> isBetween(Object min, Object max) throws InvalidValueException {
             validateValues(Arrays.asList(min, max), this.property.getSpecification());
+            if (min instanceof String){
+                min = toOracleSql((String) min);
+            }
+            if (max instanceof String){
+                max = toOracleSql((String) max);
+            }
             addCondition(
                     this,
                     new SearchablePropertyComparison(
