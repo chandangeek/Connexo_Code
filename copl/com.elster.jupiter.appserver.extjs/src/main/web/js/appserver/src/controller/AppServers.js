@@ -398,6 +398,7 @@ Ext.define('Apr.controller.AppServers', {
         Ext.Ajax.request({
             url: '/api/apr/appserver/' + record.data.name + '/' + action,
             method: 'PUT',
+            jsonData: Ext.encode(record.raw),
             success: function () {
                 var messageText = suspended
                     ? Uni.I18n.translate('appServers.deactivateSuccessMsg', 'APR', 'Application server deactivated')

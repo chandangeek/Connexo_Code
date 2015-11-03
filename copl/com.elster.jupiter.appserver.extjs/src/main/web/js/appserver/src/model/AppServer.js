@@ -1,5 +1,5 @@
 Ext.define('Apr.model.AppServer', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.Version',
     fields: [
         'name', 'active', 'executionSpecs', 'importServices',
         {
