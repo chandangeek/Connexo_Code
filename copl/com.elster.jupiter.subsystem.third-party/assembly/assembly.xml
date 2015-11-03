@@ -28,6 +28,7 @@
                 <include>com.sun.xml.bind:jaxb-xjc:*</include>
                 <include>org.apache.commons:*</include>
                 <include>com.enterprisedt:edtftpj-pro</include>
+                <include>org.apache.aries.jmx:*</include>
             </includes>
 
             <unpack>false</unpack>

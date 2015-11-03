@@ -129,6 +129,10 @@
             <artifactId>org.apache.felix.gogo.shell</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.aries.jmx</groupId>
+            <artifactId>org.apache.aries.jmx.whiteboard</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
