@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -102,6 +103,7 @@ public class DynamicSearchResource {
 
         return Response.ok(modelInfo).build();
     }
+
     @GET
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
@@ -113,9 +115,16 @@ public class DynamicSearchResource {
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
         final SearchBuilder<Object> searchBuilder = searchService.search(searchDomain);
         if (jsonQueryFilter.hasFilters()) {
-            searchDomain.getProperties().stream().
-                    filter(p -> jsonQueryFilter.hasProperty(p.getName())).
-                    forEach(searchableProperty -> {
+            List<SearchableProperty> fixedProperties = searchDomain.getProperties();
+            List<SearchablePropertyConstriction> propertyConstrictions = fixedProperties
+                    .stream()
+                    .filter(SearchableProperty::affectsAvailableDomainProperties)
+                    .map(searchableProperty -> SearchablePropertyValueConverter.convert(searchableProperty, jsonQueryFilter).asConstriction())
+                    .collect(Collectors.toList());
+            (propertyConstrictions.isEmpty() ? fixedProperties : searchDomain.getPropertiesWithConstrictions(propertyConstrictions))
+                    .stream()
+                    .filter(p -> jsonQueryFilter.hasProperty(p.getName()))
+                    .forEach(searchableProperty -> {
                         List<SearchablePropertyConstriction> searchablePropertyConstrictions =
                                 searchableProperty.getConstraints()
                                         .stream()

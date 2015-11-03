@@ -29,7 +29,7 @@ public class SearchCriterionInfoFactory {
         };
         propertyInfo.selectionMode = property.getSelectionMode();
         propertyInfo.visibility = property.getVisibility();
-        propertyInfo.constraints = property.getConstraints().stream().map(c -> c.getSpecification().getName()).collect(toList());
+        propertyInfo.constraints = property.getConstraints().stream().map(c -> c.getName()).collect(toList());
         if (propertyInfo.exhaustive) {
             URI uri = uriInfo.
                     getBaseUriBuilder().
