@@ -36,6 +36,10 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         {
             ref: 'step1FormErrorMessage',
             selector: '#add-devicegroup-browse #step1-adddevicegroup-errors'
+        },
+        {
+            ref: 'step2FormErrorMessage',
+            selector: '#add-devicegroup-browse #step2-adddevicegroup-errors'
         }
     ],
 
@@ -164,6 +168,9 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             case 1:
                 valid = me.validateStep1();
                 break;
+            case 2:
+                valid = me.validateStep2();
+                break;
         }
 
         return valid;
@@ -186,6 +193,29 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             step1ErrorMsg.show();
         } else {
             step1ErrorMsg.hide();
+        }
+
+        return valid;
+    },
+
+    validateStep2: function () {
+        var me = this,
+            wizard = me.getAddDeviceGroupWizard(),
+            staticGrid = wizard.down('static-group-devices-grid'),
+            record = Ext.clone(wizard.getRecord()),
+            valid = true,
+            isDynamic;
+
+        wizard.updateRecord(record);
+        isDynamic = record.get('dynamic');
+
+        if (!isDynamic) {
+            if (!staticGrid.getStore().getCount()) {
+                valid = false;
+            } else {
+                valid = !(!staticGrid.isAllSelected() && !staticGrid.getSelectionModel().getSelection().length);
+            }
+            me.getStep2FormErrorMessage().setVisible(!valid);
         }
 
         return valid;
