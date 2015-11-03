@@ -437,10 +437,10 @@ public class AppServerResource {
     }
 
     private void checkPath(String path, String field) {
-        Pattern p = Pattern.compile("[#\\<\\>$\\+%\\!`\\&\\*'\\|\\{\\}\\?\"\\=:@\\s]");
+        Pattern p = Pattern.compile("[#\\<\\>$\\+%\\!`\\&\\*'\\|\\{\\}\\?\"\\=@\\s]");
         Matcher m = p.matcher(path);
         if (m.find()) {
-            throw new LocalizedFieldValidationException(MessageSeeds.INVALIDCHARS_EXCEPTION, field, "#<>$+%!`&*'|?{@}\"=:");
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALIDCHARS_EXCEPTION, field, "#<>$+%!`&*'|?{@}\"=");
         }
     }
 }
