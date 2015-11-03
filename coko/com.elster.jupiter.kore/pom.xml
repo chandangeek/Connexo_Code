@@ -27,6 +27,7 @@
         <profile>
             <id>kore</id>
             <modules>
+                <module>../com.elster.jupiter.appserver.rest</module>
                 <module>../com.elster.jupiter.bpmissueaction</module>
                 <module>../com.elster.jupiter.cbo</module>
                 <module>../com.elster.jupiter.config.extjs</module>
