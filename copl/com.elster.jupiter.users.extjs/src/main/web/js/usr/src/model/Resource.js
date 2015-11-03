@@ -5,6 +5,7 @@ Ext.define('Usr.model.Resource', {
     ],
     fields: [
         'applicationName',
+        'translatedName',
         'componentName',
         'name',
         'qualifiedName',

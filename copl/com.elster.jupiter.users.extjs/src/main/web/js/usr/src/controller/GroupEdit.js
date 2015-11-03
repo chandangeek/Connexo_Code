@@ -156,6 +156,7 @@ Ext.define('Usr.controller.GroupEdit', {
             var record = Ext.create(Ext.ModelManager.getModel('Usr.model.Application'));
             record.beginEdit();
             record.set('componentName', groups[i].name);
+            record.set('translatedName', groups[i].children[0].data.translatedName);
             var value = this.checkRights(record, groups[i].children);
             record.set('selected', value);
             record.endEdit();
