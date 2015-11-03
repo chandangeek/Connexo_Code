@@ -16,11 +16,11 @@ import java.util.Optional;
 @ProviderType
 public interface CustomPropertySetService {
 
-    static String COMPONENT_NAME = "CPS";
+    String COMPONENT_NAME = "CPS";
 
     /**
      * Registers the specified {@link CustomPropertySet} on this service's whiteboard.
-     * This will enables the custom properties on the set's domain class,
+     * This will enable the custom properties on the set's domain class,
      * providing that the domain class is enabled for extension.
      *
      * @param customPropertySet The CustomPropertySet
@@ -32,14 +32,37 @@ public interface CustomPropertySetService {
      * This will disable the custom properties on the set's domain class.
      *
      * @param customPropertySet The CustomPropertySet
+     * @see #addCustomPropertySet(CustomPropertySet)
      */
     void removeCustomPropertySet(CustomPropertySet customPropertySet);
 
     /**
+     * Registers the specified {@link CustomPropertySet}
+     * that is defined by the system on this service's whiteboard.
+     * Note that system defined CustomPropertySets cannot be edited
+     * by the administrator so the component that registers the component
+     * will also have to set the view and edit privileges.
+     *
+     * @param customPropertySet The CustomPropertySet
+     */
+    void addSystemCustomPropertySet(CustomPropertySet customPropertySet);
+
+    /**
+     * Removes the specified {@link CustomPropertySet} that was
+     * previously registered by the system from this service's whiteboard.
+     *
+     * @param customPropertySet The CustomPropertySet
+     * @see #addSystemCustomPropertySet(CustomPropertySet)
+     */
+    void removeSystemCustomPropertySet(CustomPropertySet customPropertySet);
+
+    /**
      * Finds all {@link RegisteredCustomPropertySet}s that are currently active.
-     * For remembrence's sake: a CustomPropertySet may have registered before
-     * but is currently not deployed in the OSGi container
-     * and will therefore NOT be returned.
+     * For remembrence's sake:
+     * <ul>
+     * <li>a CustomPropertySet that has registered before but is currently not deployed in the OSGi container will NOT be returned</li>
+     * <li>a CustomPropertySet that was registered by the system will NOT be returned</li>
+     * </ul>
      *
      * @return The List of RegisteredCustomPropertySet
      */
@@ -48,14 +71,26 @@ public interface CustomPropertySetService {
     /**
      * Finds all {@link RegisteredCustomPropertySet}s that are currently active
      * and that provide custom properties for the specified domain class.
-     * For remembrence's sake: a CustomPropertySet may have registered before
-     * but is currently not deployed in the OSGi container
-     * and will therefore NOT be returned.
+     * For remembrence's sake:
+     * <ul>
+     * <li>a CustomPropertySet that has registered before but is currently not deployed in the OSGi container will NOT be returned</li>
+     * <li>a CustomPropertySet that was registered by the system will NOT be returned</li>
+     * </ul>
      *
      * @param domainClass The domain class
      * @return The List of RegisteredCustomPropertySet
      */
     List<RegisteredCustomPropertySet> findActiveCustomPropertySets(Class domainClass);
+
+    /**
+     * Finds the {@link RegisteredCustomPropertySet}s for the {@link CustomPropertySet}
+     * that registered with the service's whiteboard before.
+     * Note that this will consider both system and user defined CustomPropertySets.
+     *
+     * @param id The unique identifier of the CustomPropertySet
+     * @return The List of RegisteredCustomPropertySet
+     */
+    Optional<RegisteredCustomPropertySet> findActiveCustomPropertySet(String id);
 
     /**
      * Gets the values for the {@link CustomPropertySet} that were saved for
@@ -178,4 +213,5 @@ public interface CustomPropertySetService {
      * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
      */
     <D, T extends PersistentDomainExtension<D>> Optional<T> getValuesEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp);
+
 }

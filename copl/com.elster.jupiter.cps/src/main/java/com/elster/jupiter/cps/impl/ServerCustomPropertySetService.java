@@ -23,7 +23,7 @@ public interface ServerCustomPropertySetService extends CustomPropertySetService
      * @return The CustomPropertySet
      * @see CustomPropertySet#getId()
      */
-    Optional<CustomPropertySet> findActiveCustomPropertySet(String id);
+    Optional<CustomPropertySet> findRegisteredCustomPropertySet(String id);
 
     /**
      * Cleansup any {@link RegisteredCustomPropertySet}s that are no longer active.

@@ -4,6 +4,8 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.nls.NlsService;
@@ -15,10 +17,12 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
 import com.elster.jupiter.util.json.JsonService;
@@ -30,7 +34,6 @@ import com.google.inject.Injector;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
-import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -38,6 +41,7 @@ import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -58,6 +62,9 @@ import static org.mockito.Mockito.withSettings;
 public class CustomPropertySetServiceImplIT {
 
     private BundleContext bundleContext;
+    private UserService userService;
+    private DataVaultService dataVaultService;
+    private TimeService timeService;
     private Principal principal;
     private EventAdmin eventAdmin;
     private Clock clock;
@@ -73,7 +80,7 @@ public class CustomPropertySetServiceImplIT {
     @Before
     public void initialize() {
         this.bootstrapModule = new InMemoryBootstrapModule();
-        initializeMocks(CustomPropertySetServiceImplIT.class.getSimpleName());
+        this.initializeMocks(CustomPropertySetServiceImplIT.class.getSimpleName());
         this.injector = Guice.createInjector(
                 new MockModule(),
                 this.bootstrapModule,
@@ -93,6 +100,9 @@ public class CustomPropertySetServiceImplIT {
         when(this.clock.instant()).thenReturn(Instant.now());
         this.bundleContext = mock(BundleContext.class);
         this.eventAdmin = mock(EventAdmin.class);
+        this.timeService = mock(TimeService.class);
+        this.dataVaultService = mock(DataVaultService.class);
+        this.userService = mock(UserService.class);
         this.principal = mock(Principal.class, withSettings().extraInterfaces(User.class));
         when(this.principal.getName()).thenReturn(testName);
     }
@@ -112,6 +122,9 @@ public class CustomPropertySetServiceImplIT {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            bind(DataVaultService.class).toInstance(dataVaultService);
+            bind(UserService.class).toInstance(userService);
+            bind(TimeService.class).toInstance(timeService);
             bind(Clock.class).toInstance(clock);
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
@@ -221,6 +234,73 @@ public class CustomPropertySetServiceImplIT {
         List<? extends DataModel> dataModelsAfterAdd = ormService.getDataModels();
         assertThat(dataModelsAfterAdd.size()).isEqualTo(dataModelsBeforeAdd.size() + 2);
         assertThat(service.findActiveCustomPropertySets()).hasSize(2);
+    }
+
+    @Test
+    public void addSystemDefinedCustomPropertySet() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        try (TransactionContext ctx = transactionService.getContext()) {
+            TestDomain.install(ormService);
+        }
+
+        List<? extends DataModel> dataModelsBeforeAdd = ormService.getDataModels();
+
+        // Business method
+        this.testInstance.addSystemCustomPropertySet(new CustomPropertySetForTestingPurposes(propertySpecService));
+
+        // Asserts
+        List<? extends DataModel> dataModelsAfterAdd = ormService.getDataModels();
+        assertThat(dataModelsAfterAdd.size()).isGreaterThan(dataModelsBeforeAdd.size());
+    }
+
+    @Test
+    public void systemDefinedCustomPropertySetIsNotReturnedByFindActive() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        try (TransactionContext ctx = transactionService.getContext()) {
+            TestDomain.install(ormService);
+        }
+        this.testInstance.addSystemCustomPropertySet(new CustomPropertySetForTestingPurposes(propertySpecService));
+
+        // Business method
+        List<RegisteredCustomPropertySet> activeCustomPropertySets = this.testInstance.findActiveCustomPropertySets();
+
+        // Asserts
+        assertThat(activeCustomPropertySets).isEmpty();
+    }
+
+    @Test
+    public void systemDefinedCustomPropertySetIsNotReturnedByFindActiveByDomainClass() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        try (TransactionContext ctx = transactionService.getContext()) {
+            TestDomain.install(ormService);
+        }
+        this.testInstance.addSystemCustomPropertySet(new CustomPropertySetForTestingPurposes(propertySpecService));
+
+        // Business method
+        List<RegisteredCustomPropertySet> activeCustomPropertySets = this.testInstance.findActiveCustomPropertySets(TestDomain.class);
+
+        // Asserts
+        assertThat(activeCustomPropertySets).isEmpty();
+    }
+
+    @Test
+    public void systemDefinedCustomPropertySetIstReturnedByFindById() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        try (TransactionContext ctx = transactionService.getContext()) {
+            TestDomain.install(ormService);
+        }
+        CustomPropertySetForTestingPurposes customPropertySet = new CustomPropertySetForTestingPurposes(propertySpecService);
+        this.testInstance.addSystemCustomPropertySet(customPropertySet);
+
+        // Business method
+        Optional<RegisteredCustomPropertySet> activeCustomPropertySet = this.testInstance.findActiveCustomPropertySet(customPropertySet.getId());
+
+        // Asserts
+        assertThat(activeCustomPropertySet).isPresent();
     }
 
     @Test

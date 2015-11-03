@@ -1,7 +1,6 @@
 package com.elster.jupiter.cps;
 
 import aQute.bnd.annotation.ConsumerType;
-import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.time.Interval;
@@ -107,14 +106,14 @@ public interface CustomPropertySet<D, T extends PersistentDomainExtension<D>> {
      *
      * @return The default view privileges
      */
-    public Set<ViewPrivilege> defaultViewPrivileges();
+    Set<ViewPrivilege> defaultViewPrivileges();
 
     /**
      * The default set of {@link EditPrivilege}s.
      *
      * @return The default edit privileges
      */
-    public Set<EditPrivilege> defaultEditPrivileges();
+    Set<EditPrivilege> defaultEditPrivileges();
 
     /**
      * Gets the List of {@link PropertySpec}s that defines all

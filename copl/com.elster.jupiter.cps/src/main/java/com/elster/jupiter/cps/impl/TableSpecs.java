@@ -20,24 +20,29 @@ public enum TableSpecs {
                     .notNull()
                     .map(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName())
                     .add();
-            Column viewPrivilegesBits = table
-                    .column("VIEWPRIVILEGES")
-                    .number()
-                    .notNull()
-                    .conversion(ColumnConversion.NUMBER2LONG)
-                    .map(RegisteredCustomPropertySetImpl.FieldNames.VIEW_PRIVILEGES.javaName())
-                    .add();
-            Column editPrivilegesBits = table
-                    .column("EDITPRIVILEGES")
-                    .number()
-                    .notNull()
-                    .conversion(ColumnConversion.NUMBER2LONG)
-                    .map(RegisteredCustomPropertySetImpl.FieldNames.EDIT_PRIVILEGES.javaName())
-                    .add();
+            table.column("SYSTEMDEFINED")
+                .number()
+                .notNull()
+                .conversion(ColumnConversion.NUMBER2BOOLEAN)
+                .map(RegisteredCustomPropertySetImpl.FieldNames.SYSTEM_DEFINED.javaName())
+                .add();
+            table.column("VIEWPRIVILEGES")
+                .number()
+                .notNull()
+                .conversion(ColumnConversion.NUMBER2LONG)
+                .map(RegisteredCustomPropertySetImpl.FieldNames.VIEW_PRIVILEGES.javaName())
+                .add();
+            table.column("EDITPRIVILEGES")
+                .number()
+                .notNull()
+                .conversion(ColumnConversion.NUMBER2LONG)
+                .map(RegisteredCustomPropertySetImpl.FieldNames.EDIT_PRIVILEGES.javaName())
+                .add();
             table.primaryKey("PK_CPS_CPS").on(id).add();
             table.unique("UK_CPS_CPS").on(logicalId).add();
         }
     };
 
     abstract void addTo(DataModel dataModel);
+
 }

@@ -28,6 +28,7 @@ public class RegisteredCustomPropertySetImpl implements RegisteredCustomProperty
 
     enum FieldNames {
         LOGICAL_ID("logicalId"),
+        SYSTEM_DEFINED("systemDefined"),
         VIEW_PRIVILEGES("viewPrivilegesBits"),
         EDIT_PRIVILEGES("editPrivilegesBits");
 
@@ -59,6 +60,7 @@ public class RegisteredCustomPropertySetImpl implements RegisteredCustomProperty
     @NotEmpty(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE_EMPTY+"}")
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.FIELD_TOO_LONG+"}")
     private String logicalId;
+    private boolean systemDefined;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{"+ MessageSeeds.Keys.CAN_NOT_BE__NULL+"}")
     private long viewPrivilegesBits;
     private EnumSet<ViewPrivilege> viewPrivileges = EnumSet.noneOf(ViewPrivilege.class);
@@ -67,8 +69,9 @@ public class RegisteredCustomPropertySetImpl implements RegisteredCustomProperty
     private EnumSet<EditPrivilege> editPrivileges = EnumSet.noneOf(EditPrivilege.class);
     private Optional<CustomPropertySet> customPropertySet;
 
-    public RegisteredCustomPropertySetImpl initialize(CustomPropertySet customPropertySet, Set<ViewPrivilege> viewPrivileges, Set<EditPrivilege> editPrivileges) {
+    public RegisteredCustomPropertySetImpl initialize(CustomPropertySet customPropertySet, boolean systemDefined, Set<ViewPrivilege> viewPrivileges, Set<EditPrivilege> editPrivileges) {
         this.logicalId = customPropertySet.getId();
+        this.systemDefined = systemDefined;
         this.customPropertySet = Optional.of(customPropertySet);
         this.addAllViewPrivileges(viewPrivileges);
         this.addAllEditPrivileges(editPrivileges);
@@ -77,7 +80,7 @@ public class RegisteredCustomPropertySetImpl implements RegisteredCustomProperty
 
     @Override
     public void postLoad() {
-        this.customPropertySet = this.customPropertySetService.findActiveCustomPropertySet(this.logicalId);
+        this.customPropertySet = this.customPropertySetService.findRegisteredCustomPropertySet(this.logicalId);
         this.postLoadPrivileges();
     }
 
@@ -111,6 +114,10 @@ public class RegisteredCustomPropertySetImpl implements RegisteredCustomProperty
     @Override
     public long getId() {
         return this.id;
+    }
+
+    public boolean isSystemDefined() {
+        return systemDefined;
     }
 
     @Override

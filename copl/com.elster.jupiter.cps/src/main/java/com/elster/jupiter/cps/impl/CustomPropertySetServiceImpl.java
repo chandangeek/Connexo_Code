@@ -43,6 +43,8 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -68,9 +70,10 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     /**
-     * Holds the {@link CustomPropertySet}s that were published on the whiteboard.
+     * Holds the {@link CustomPropertySet}s that were published on the whiteboard
+     * and if they were published by the system or not.
      */
-    private List<CustomPropertySet> publishedPropertySets = new CopyOnWriteArrayList<>();
+    private ConcurrentMap<CustomPropertySet, Boolean> publishedPropertySets = new ConcurrentHashMap<>();
     /**
      * Holds the {@link CustomPropertySet} that were taken from the whiteboard,
      * registered if that was not the case yet and then wrapping it in an {@link ActiveCustomPropertySet}.
@@ -162,7 +165,6 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(TransactionService.class).toInstance(transactionService);
-                bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(CustomPropertySetService.class).toInstance(CustomPropertySetServiceImpl.this);
                 bind(ServerCustomPropertySetService.class).toInstance(CustomPropertySetServiceImpl.this);
             }
@@ -245,18 +247,27 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     @Override
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addCustomPropertySet(CustomPropertySet customPropertySet) {
+        this.addCustomPropertySet(customPropertySet, false);
+    }
+
+    @Override
+    public void addSystemCustomPropertySet(CustomPropertySet customPropertySet) {
+        this.addCustomPropertySet(customPropertySet, true);
+    }
+
+    private void addCustomPropertySet(CustomPropertySet customPropertySet, boolean systemDefined) {
         if (this.installed) {
             try (TransactionContext ctx = transactionService.getContext()) {
-                this.registerCustomPropertySet(customPropertySet);
+                this.registerCustomPropertySet(customPropertySet, systemDefined);
                 ctx.commit();
             }
         }
         else {
-            this.publishedPropertySets.add(customPropertySet);
+            this.publishedPropertySets.put(customPropertySet, systemDefined);
         }
     }
 
-    private void registerCustomPropertySet(CustomPropertySet customPropertySet) {
+    private void registerCustomPropertySet(CustomPropertySet customPropertySet, boolean systemDefined) {
         DataModel dataModel = this.ormService.newDataModel(customPropertySet.getPersistenceSupport().componentName(), customPropertySet.getName());
         this.addTableFor(customPropertySet, dataModel);
         dataModel.register(this.getCustomPropertySetModule(dataModel, customPropertySet));
@@ -266,7 +277,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                     .mapper(RegisteredCustomPropertySet.class)
                     .getUnique(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName(), customPropertySet.getId())
                     .map(Function.identity())
-                    .orElseGet(() -> this.createRegisteredCustomPropertySet(customPropertySet));
+                    .orElseGet(() -> this.createRegisteredCustomPropertySet(customPropertySet, systemDefined));
         this.activePropertySets.add(new ActiveCustomPropertySet(customPropertySet, dataModel, registeredCustomPropertySet));
     }
 
@@ -283,9 +294,9 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         }
     }
 
-    private RegisteredCustomPropertySetImpl createRegisteredCustomPropertySet(CustomPropertySet customPropertySet) {
+    private RegisteredCustomPropertySetImpl createRegisteredCustomPropertySet(CustomPropertySet customPropertySet, boolean systemDefined) {
         RegisteredCustomPropertySetImpl registeredCustomPropertySet = this.dataModel.getInstance(RegisteredCustomPropertySetImpl.class);
-        registeredCustomPropertySet.initialize(customPropertySet, customPropertySet.defaultViewPrivileges(), customPropertySet.defaultEditPrivileges());
+        registeredCustomPropertySet.initialize(customPropertySet, systemDefined, customPropertySet.defaultViewPrivileges(), customPropertySet.defaultEditPrivileges());
         registeredCustomPropertySet.create();
         return registeredCustomPropertySet;
     }
@@ -302,10 +313,15 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     @Override
+    public void removeSystemCustomPropertySet(CustomPropertySet customPropertySet) {
+        this.removeCustomPropertySet(customPropertySet);
+    }
+
+    @Override
     public List<RegisteredCustomPropertySet> findActiveCustomPropertySets() {
         return this.dataModel
                 .mapper(RegisteredCustomPropertySetImpl.class)
-                .find()
+                .find(RegisteredCustomPropertySetImpl.FieldNames.SYSTEM_DEFINED.javaName(), false)
                 .stream()
                 .filter(RegisteredCustomPropertySetImpl::isActive)
                 .collect(Collectors.toList());
@@ -320,11 +336,22 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     @Override
-    public Optional<CustomPropertySet> findActiveCustomPropertySet(String id) {
+    public Optional<CustomPropertySet> findRegisteredCustomPropertySet(String id) {
         return this.activePropertySets
                 .stream()
                 .filter(acps -> acps.getCustomPropertySet().getId().equals(id))
                 .map(ActiveCustomPropertySet::getCustomPropertySet)
+                .findAny();
+    }
+
+    @Override
+    public Optional<RegisteredCustomPropertySet> findActiveCustomPropertySet(String id) {
+        return this.dataModel
+                .mapper(RegisteredCustomPropertySetImpl.class)
+                .find(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName(), id)
+                .stream()
+                .filter(RegisteredCustomPropertySetImpl::isActive)
+                .map(RegisteredCustomPropertySet.class::cast)
                 .findAny();
     }
 

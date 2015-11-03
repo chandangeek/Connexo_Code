@@ -80,6 +80,10 @@
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>users</artifactId>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
@@ -109,7 +113,8 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>users</artifactId>
+            <artifactId>datavault</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

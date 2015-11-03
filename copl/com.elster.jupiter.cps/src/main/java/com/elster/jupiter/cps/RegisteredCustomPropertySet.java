@@ -30,4 +30,5 @@ public interface RegisteredCustomPropertySet {
      * @param editPrivileges The new edit privileges
      */
     void updatePrivileges(Set<ViewPrivilege> viewPrivileges, Set<EditPrivilege> editPrivileges);
+
 }
