@@ -138,15 +138,16 @@ Ext.define('Uni.service.Search', {
             me.initStoreListeners();
 
             searchProperties.removeAll();
-            searchProperties.getProxy().url = domain.get('glossaryHref');
-            searchProperties.load();
-
             searchFields.removeAll();
-            searchFields.getProxy().url = domain.get('describedByHref');
-            searchFields.load();
-
             searchResults.removeAll(true);
-            searchResults.getProxy().url = domain.get('selfHref');
+
+            searchProperties.getProxy().url = domain.get('glossaryHref');
+            searchFields.getProxy().url     = domain.get('describedByHref');
+            searchResults.getProxy().url    = domain.get('selfHref');
+
+            searchProperties.load(function(){
+                searchFields.load();
+            });
         }
     },
 
