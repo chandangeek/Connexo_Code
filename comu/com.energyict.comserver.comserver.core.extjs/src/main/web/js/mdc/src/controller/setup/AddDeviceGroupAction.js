@@ -288,6 +288,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             staticGrid = step2.down('static-group-devices-grid');
             staticGridRadioBtnValue = {};
             staticGrid.getSelectionModel().deselectAll();
+            staticGrid.getStore().data.clear();
             staticGridRadioBtnValue[staticGrid.radioGroupName] = staticGrid.allInputValue;
             staticGrid.getSelectionGroupType().setValue(staticGridRadioBtnValue);
         }
