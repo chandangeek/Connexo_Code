@@ -11,7 +11,7 @@ public enum Privileges implements TranslationKey {
     RESOURCE_PUBLIC_API_DESCRIPTION("public.api.description", "Manage public API"),
 
     //Privileges
-    PUBLIC_REST_API(Constants.PUBLIC_REST_API, "Public API");
+    PUBLIC_REST_API(Constants.PUBLIC_REST_API, "Invoke");
 
     private final String key;
     private final String description;
