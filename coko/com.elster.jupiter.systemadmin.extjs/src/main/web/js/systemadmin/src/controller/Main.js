@@ -13,7 +13,9 @@ Ext.define('Sam.controller.Main', {
         'Sam.controller.licensing.Upload',
         'Sam.controller.datapurge.Settings',
         'Sam.controller.datapurge.History',
-        'Sam.controller.datapurge.Log'
+        'Sam.controller.datapurge.Log',
+        'Sam.controller.history.About',
+        'Sam.controller.about.About'
     ],
 
     stores: [
@@ -37,9 +39,10 @@ Ext.define('Sam.controller.Main', {
 
     initMenu: function () {
         var me = this,
-            router = me.getController('Uni.controller.history.Router');
+            router = me.getController('Uni.controller.history.Router'),
+            historian = me.getController('Sam.controller.history.About'); // force route registration
 
-        if (Sam.privileges.License.canView() || Sam.privileges.DataPurge.canView() ) {
+        if (Sam.privileges.License.canView() || Sam.privileges.DataPurge.canView() || Sam.privileges.DeploymentInfo.canView()) {
             var menuItem = Ext.create('Uni.model.MenuItem', {
                 text: Uni.I18n.translate('general.administration', 'SAM', 'Administration'),
                 href: me.getController('Sam.controller.history.Administration').tokenizeShowOverview(),
@@ -84,6 +87,20 @@ Ext.define('Sam.controller.Main', {
                     ]
                 });
                 Uni.store.PortalItems.add(dataPurgeItem);
+            }
+
+            if (Sam.privileges.DeploymentInfo.canView()) {
+                var deploymentInfoItem = Ext.create('Uni.model.PortalItem', {
+                    title: Uni.I18n.translate('general.deploymentInfo', 'SAM', 'Deployment information'),
+                    portal: 'administration',
+                    items: [
+                        {
+                            text: Uni.I18n.translate('general.systemInfo', 'SAM', 'System information'),
+                            href: router.getRoute('administration/systeminfo').buildUrl()
+                        }
+                    ]
+                });
+                Uni.store.PortalItems.add(deploymentInfoItem);
             }
         }
     }

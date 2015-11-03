@@ -8,7 +8,7 @@ Ext.define('Sam.model.DataPurgeHistory', {
 
     proxy: {
         type: 'rest',
-        url: '/api/lic/data/history',
+        url: '/api/sys/data/history',
         reader: {
             type: 'json',
             root: ''

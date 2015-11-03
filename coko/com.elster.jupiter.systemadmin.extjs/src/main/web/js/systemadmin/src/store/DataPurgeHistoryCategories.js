@@ -9,7 +9,7 @@ Ext.define('Sam.store.DataPurgeHistoryCategories', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/lic/data/history/{historyId}/categories',
+        urlTpl: '/api/sys/data/history/{historyId}/categories',
         reader: {
             type: 'json',
             root: 'data'

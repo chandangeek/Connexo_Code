@@ -75,7 +75,7 @@ Ext.define('Sam.controller.licensing.Upload', {
         if (uploadPanel.down('form').getForm().isValid()) {
             uploadPanel.setLoading();
             Ext.Ajax.request({
-                url: '/api/lic/license/upload',
+                url: '/api/sys/license/upload',
                 method: 'POST',
                 form: form,
                 headers: {'Content-type': 'multipart/form-data'},

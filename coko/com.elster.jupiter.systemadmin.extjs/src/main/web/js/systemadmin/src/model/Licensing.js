@@ -61,7 +61,7 @@ Ext.define('Sam.model.Licensing', {
 
     proxy: {
         type: 'rest',
-        url: '/api/lic/license',
+        url: '/api/sys/license',
         reader: {
             type: 'json',
             root: 'data'

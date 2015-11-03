@@ -46,6 +46,13 @@ Ext.define('Sam.controller.history.Administration', {
                             action: 'showOverview'
                         }
                     }
+                },
+                systeminfo: {
+                    title: Uni.I18n.translate('general.systemInfo', 'SAM', 'System information'),
+                    route: 'systeminfo',
+                    privileges: Sam.privileges.DeploymentInfo.view,
+                    controller: 'Sam.controller.systeminfo.SystemInfo',
+                    action: 'showSystemInfo'
                 }
             }
         }

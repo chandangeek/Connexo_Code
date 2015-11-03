@@ -9,7 +9,7 @@ Ext.define('Sam.store.DataPurgeSettings', {
 
     proxy: {
         type: 'rest',
-        url: '/api/lic/data/lifecycle/categories',
+        url: '/api/sys/data/lifecycle/categories',
         reader: {
             type: 'json',
             root: 'data'

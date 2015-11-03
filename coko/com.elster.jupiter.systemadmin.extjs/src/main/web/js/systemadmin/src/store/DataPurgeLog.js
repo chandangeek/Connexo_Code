@@ -9,7 +9,7 @@ Ext.define('Sam.store.DataPurgeLog', {
 
     proxy: {
         type: 'rest',
-        urlTpl: '/api/lic/data/history/{historyId}/logs',
+        urlTpl: '/api/sys/data/history/{historyId}/logs',
         reader: {
             type: 'json',
             root: 'data'
