@@ -317,5 +317,21 @@ public interface SearchBuilder<T> {
          */
         public SearchBuilder<T> is(Boolean value) throws InvalidValueException;
 
+        /**
+         * Builds a criterion that checks that the target {@link SearchableProperty}
+         * is between two specified bounds
+         * <p>
+         * Will throw an {@link com.elster.jupiter.properties.InvalidValueException}
+         * when the specified value is not compatible with the
+         * property's {@link com.elster.jupiter.properties.PropertySpec specification}.
+         * </p>
+         *
+         * @param min The lower bound
+         * @param max The upper bound
+         * @return The same SearchBuilder to support method chaining
+         * @throws InvalidValueException Thrown on the first value that is not compatible
+         *         with the property's specification
+         */
+        public SearchBuilder<T> isBetween(Object min, Object max) throws InvalidValueException;
     }
 }

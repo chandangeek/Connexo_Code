@@ -14,6 +14,7 @@ import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Operator;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -228,6 +229,17 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
         @Override
         public SearchBuilder<T> is(Boolean value) throws InvalidValueException {
             addCondition(this, new SearchablePropertyConstant(value, this.property));
+            return SearchBuilderImpl.this;
+        }
+
+        @Override
+        public SearchBuilder<T> isBetween(Object min, Object max) throws InvalidValueException {
+            validateValues(Arrays.asList(min, max), this.property.getSpecification());
+            addCondition(
+                    this,
+                    new SearchablePropertyComparison(
+                            Operator.BETWEEN.compare(this.property.getSpecification().getName(), min, max),
+                            this.property));
             return SearchBuilderImpl.this;
         }
     }

@@ -1,13 +1,17 @@
 package com.elster.jupiter.search.impl;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.search.SearchBuilder;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -19,9 +23,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-27 (09:38)
  */
-@Component(name = "com.elster.jupiter.search", service = {SearchService.class}, property = "name=" + SearchService.COMPONENT_NAME)
+@Component(name = "com.elster.jupiter.search", service = {SearchService.class, MessageSeedProvider.class}, property = "name=" + SearchService.COMPONENT_NAME)
 @SuppressWarnings("unused")
-public class SearchServiceImpl implements SearchService {
+public class SearchServiceImpl implements SearchService, MessageSeedProvider {
 
     private volatile List<SearchDomain> searchProviders = new CopyOnWriteArrayList<>();
 
@@ -59,4 +63,13 @@ public class SearchServiceImpl implements SearchService {
         this.findDomain(searchDomain.getId()).orElseThrow(() -> new IllegalArgumentException("Not a registered domain " + searchDomain.getId()));
     }
 
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
+    }
 }
