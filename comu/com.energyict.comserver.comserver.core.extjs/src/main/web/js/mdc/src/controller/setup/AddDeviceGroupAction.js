@@ -243,6 +243,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 cancelBtn.show();
                 break;
             case 2:
+                me.getStep2FormErrorMessage().hide();
                 nextBtn.show();
                 backBtn.show();
                 backBtn.enable();
