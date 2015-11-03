@@ -76,11 +76,11 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
     public void testDeviceFields() throws Exception {
         Response response = target("/devices").request("application/json").method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<List>get("$")).hasSize(19);
+        assertThat(model.<List>get("$")).hasSize(20);
         assertThat(model.<List<String>>get("$")).containsOnly("actions", "batch", "connectionMethods", "deviceConfiguration",
                 "deviceProtocolPluggeableClassId", "gatewayType", "id", "isDirectlyAddressable", "isGateway", "lifecycleState",
                 "link", "mRID", "name", "physicalGateway", "serialNumber",
-                "slaveDevices", "version", "yearOfCertification", "communicationTaskExecutions");
+                "slaveDevices", "version", "yearOfCertification", "communicationTaskExecutions", "deviceMessages");
     }
 
     @Test

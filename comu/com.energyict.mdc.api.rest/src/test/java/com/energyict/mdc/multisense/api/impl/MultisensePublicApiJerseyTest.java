@@ -29,6 +29,8 @@ import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.DeviceMessageEnablement;
+import com.energyict.mdc.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
@@ -499,4 +501,12 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     }
 
 
+    protected DeviceMessageEnablement mockDeviceMessageEnablement(long id, DeviceConfiguration deviceConfiguration, DeviceMessageId deviceMessageId) {
+        DeviceMessageEnablement mock = mock(DeviceMessageEnablement.class);
+        when(mock.getId()).thenReturn(id);
+        when(mock.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(mock.getDeviceMessageId()).thenReturn(deviceMessageId);
+        when(mock.getUserActions()).thenReturn(Collections.singleton(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1));
+        return mock;
+    }
 }

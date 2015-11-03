@@ -1,21 +1,31 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.validation.rest.PropertyUtils;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
 import com.energyict.mdc.multisense.api.security.Privileges;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
+import java.net.URI;
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -33,12 +43,16 @@ public class DeviceMessageResource {
     private final DeviceMessageInfoFactory deviceMessageInfoFactory;
     private final DeviceService deviceService;
     private final ExceptionFactory exceptionFactory;
+    private final DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private final MdcPropertyUtils mdcPropertyUtils;
 
     @Inject
-    public DeviceMessageResource(DeviceService deviceService, DeviceMessageInfoFactory deviceMessageInfoFactory, ExceptionFactory exceptionFactory) {
+    public DeviceMessageResource(DeviceService deviceService, DeviceMessageInfoFactory deviceMessageInfoFactory, ExceptionFactory exceptionFactory, DeviceMessageSpecificationService deviceMessageSpecificationService, MdcPropertyUtils mdcPropertyUtils) {
         this.deviceService = deviceService;
         this.deviceMessageInfoFactory = deviceMessageInfoFactory;
         this.exceptionFactory = exceptionFactory;
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+        this.mdcPropertyUtils = mdcPropertyUtils;
     }
 
     @GET
@@ -62,8 +76,9 @@ public class DeviceMessageResource {
     public PagedInfoList<DeviceMessageInfo> getDeviceMessages(@PathParam("mrid") String mRID,
                                                               @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo,
                                                               @BeanParam JsonQueryParameters queryParameters) {
-        List<DeviceMessageInfo> infos = deviceService.findByUniqueMrid(mRID).orElseThrow(exceptionFactory
-                .newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE))
+
+        List<DeviceMessageInfo> infos = deviceService.findByUniqueMrid(mRID)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE))
                 .getMessages().stream()
                 .map(ct -> deviceMessageInfoFactory.from(ct, uriInfo, fieldSelection.getFields()))
                 .collect(toList());
@@ -71,6 +86,37 @@ public class DeviceMessageResource {
                 .path(DeviceMessageResource.class)
 		        .resolveTemplate("mrid", mRID);
         return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
+    public Response createDeviceMessage(@PathParam("mrid") String mrid, DeviceMessageInfo deviceMessageInfo, @Context UriInfo uriInfo) {
+        Device device = deviceService.findByUniqueMrid(mrid)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
+        DeviceMessageId deviceMessageId = DeviceMessageId.havingId(deviceMessageInfo.messageSpecification.id);
+        Device.DeviceMessageBuilder deviceMessageBuilder = device.newDeviceMessage(deviceMessageId).setReleaseDate(deviceMessageInfo.releaseDate);
+        DeviceMessageSpec deviceMessageSpec = deviceMessageSpecificationService
+                .findMessageSpecById(deviceMessageId.dbValue())
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_MESSAGE_SPEC));
+
+        if (deviceMessageInfo.properties !=null) {
+            try {
+                for (PropertySpec propertySpec : deviceMessageSpec.getPropertySpecs()) {
+                    Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, deviceMessageInfo.properties);
+                    if (propertyValue != null) {
+                        deviceMessageBuilder.addProperty(propertySpec.getName(), propertyValue);
+                    }
+                }
+            } catch (LocalizedFieldValidationException e) {
+                throw new LocalizedFieldValidationException(e.getMessageSeed(), "properties."+e.getViolatingProperty());
+            }
+        }
+        DeviceMessage<Device> deviceDeviceMessage = deviceMessageBuilder.add();
+        URI uri = uriInfo.getBaseUriBuilder().path(DeviceMessageResource.class).build(device.getmRID(), deviceDeviceMessage.getId());
+        return Response.created(uri).build();
+
     }
 
     @PROPFIND

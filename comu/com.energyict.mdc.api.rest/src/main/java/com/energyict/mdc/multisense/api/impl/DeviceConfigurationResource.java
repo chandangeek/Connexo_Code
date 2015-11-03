@@ -50,7 +50,7 @@ public class DeviceConfigurationResource {
     @RolesAllowed({com.energyict.mdc.multisense.api.security.Privileges.Constants.PUBLIC_REST_API})
     public DeviceConfigurationInfo getDeviceConfiguration(@PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigId") long id, @BeanParam FieldSelection fields, @Context UriInfo uriInfo) {
         DeviceConfigurationInfo deviceConfigurationInfo = deviceConfigurationService.
-                findDeviceType(id)
+                findDeviceType(deviceTypeId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_TYPE)).
                         getConfigurations().stream().filter(dc -> dc.getId() == id).
                         map(dc -> deviceConfigurationInfoFactory.from(dc, uriInfo, fields.getFields())).

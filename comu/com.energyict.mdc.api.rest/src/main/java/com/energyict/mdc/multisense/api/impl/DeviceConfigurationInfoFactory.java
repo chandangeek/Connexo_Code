@@ -92,6 +92,20 @@ public class DeviceConfigurationInfoFactory extends SelectableFieldFactory<Devic
                         return linkInfo;
                     }).collect(toList());
         });
+        map.put("deviceMessageEnablements", (deviceConfigurationInfo, deviceConfiguration, uriInfo) -> {
+            UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
+                    .path(DeviceMessageEnablementResource.class)
+                    .path(DeviceMessageEnablementResource.class, "getDeviceMessageEnablement")
+                    .resolveTemplate("deviceTypeId", deviceConfiguration.getDeviceType().getId())
+                    .resolveTemplate("deviceConfigId", deviceConfiguration.getId());
+            deviceConfigurationInfo.deviceMessageEnablements =
+                    deviceConfiguration.getSecurityPropertySets().stream().map(sps -> {
+                        LinkInfo linkInfo = new LinkInfo();
+                        linkInfo.id = sps.getId();
+                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).build(sps.getId());
+                        return linkInfo;
+                    }).collect(toList());
+        });
         return map;
     }
 

@@ -48,8 +48,9 @@ public enum MessageSeeds implements MessageSeed {
     UNKNOWN_STATUS(39, "StatusUnknown", "Unknown device contacter status"),
     NO_COMTASK_FOR_COMMAND(40, "NoComtaskForCommand", "A comtask to execute the device messages could not be located"),
     NO_SUCH_DEVICE_MESSAGE_SPEC(41, "NoSuchDeviceMessageSpec", "The device message category does not contain a message specification with that id"),
-    NO_SUCH_DEVICE_MESSAGE_CATEGORY(42 ,"NoSuchDeviceMessageCategory" , "No such device message category");
-
+    NO_SUCH_DEVICE_MESSAGE_CATEGORY(42 ,"NoSuchDeviceMessageCategory" , "No such device message category"),
+    NO_SUCH_DEVICE_MESSAGE_ENABLEMENT(43, "NoSuchMessageEnablement", "The device configuration does not contain a device message enablement with that id"),
+    EXPECTED_MESSAGE_ID(44, "ExpectedDeviceMessageId", "Device message id was expected in the request");
 
     private final int number;
     private final String key;

@@ -16,6 +16,7 @@ import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -127,7 +128,25 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo,Device>
             deviceInfo.deviceConfiguration.link = Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(DeviceConfigurationResource.class).path("{id}")).rel(LinkInfo.REF_PARENT).title("Device configuration").build(device.getDeviceType().getId(), device.getDeviceConfiguration().getId());
             deviceInfo.deviceConfiguration.deviceType = new LinkInfo();
             deviceInfo.deviceConfiguration.deviceType.id = device.getDeviceType().getId();
-            deviceInfo.deviceConfiguration.deviceType.link = Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class).path("{id}")).rel(LinkInfo.REF_PARENT).title("Device type").build(device.getDeviceType().getId());
+            deviceInfo.deviceConfiguration.deviceType.link = Link.fromUriBuilder(
+                    uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class).path("{id}"))
+                    .rel(LinkInfo.REF_PARENT)
+                    .title("Device type")
+                    .build(device.getDeviceType().getId());
+        });
+        map.put("deviceMessages", (deviceInfo, device, uriInfo) -> {
+            deviceInfo.deviceMessages = device.getMessages()
+                    .stream()
+                    .map(msg -> {
+                        UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
+                                .path(DeviceMessageResource.class)
+                                .path(DeviceMessageResource.class, "getDeviceMessage")
+                                .resolveTemplate("mrid", msg.getDevice().getmRID());
+                        LinkInfo linkInfo = new LinkInfo();
+                        linkInfo.id = msg.getId();
+                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).title("Device message").build(msg.getId());
+                        return linkInfo;
+                    }).collect(toList());
         });
         map.put("communicationTaskExecutions", (deviceInfo, device, uriInfo) -> {
             UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().

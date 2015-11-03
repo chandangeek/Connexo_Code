@@ -2,12 +2,14 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.energyict.mdc.device.config.GatewayType;
 
+import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.List;
 
 @XmlRootElement
 public class DeviceInfo extends LinkInfo {
+    @NotNull
     public String mRID;
     public Long version;
     public String serialNumber;
@@ -27,5 +29,6 @@ public class DeviceInfo extends LinkInfo {
     public List<LinkInfo> actions;
     public String lifecycleState;
     public List<LinkInfo> communicationsTaskExecutions;
+    public List<LinkInfo> deviceMessages;
 }
 
