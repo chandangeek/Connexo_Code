@@ -47,7 +47,8 @@ Ext.define('Apr.view.appservers.AppServerMessageServices', {
                                         xtype: 'button',
                                         text: Uni.I18n.translate('general.addMessageServices', 'APR', 'Add message services'),
                                         privileges: Apr.privileges.AppServer.admin,
-                                        itemId: 'add-message-services-button-from-details'
+                                        itemId: 'add-message-services-button-from-details',
+                                        disabled: true
                                     }
                                 ]
                             }

@@ -32,7 +32,6 @@ Ext.define('Apr.view.appservers.AppServerImportServices', {
                                 displayMsg: '',
                                 displayMoreMsg: '',
                                 emptyMsg: '',
-                                exportButton: false,
                                 items: [
                                     {
                                         xtype: 'button',

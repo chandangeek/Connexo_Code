@@ -18,15 +18,11 @@ Ext.define('Apr.controller.AppServers', {
         'Apr.store.UnservedMessageServices',
         'Apr.store.ServedImportServices',
         'Apr.store.UnservedImportServices',
-        'Apr.store.ExportPaths',
-        'Apr.store.ImportPaths',
         'Apr.store.ActiveService'
     ],
     models: [
         'Apr.model.AppServer',
-        'Uni.component.sort.model.Sort',
-        'Apr.model.ExportPath',
-        'Apr.model.ImportPath'
+        'Uni.component.sort.model.Sort'
     ],
     refs: [
         {
@@ -283,8 +279,8 @@ Ext.define('Apr.controller.AppServers', {
                 view.down('#apr-msg-service-preview').setVisible(servedMessageServicesStore.getCount());
                 me.updateMessageServiceCounter();
                 unservedMessageServicesStore.load(function (unservedMessages) {
-                    if (unservedMessages.length === 0) {
-                        view.down('#add-message-services-button-from-details').disable();
+                    if (unservedMessages.length > 0) {
+                        view.down('#add-message-services-button-from-details').enable();
                     }
                     me.getModel('Apr.model.AppServer').load(appServerName, {
                         success: function (record) {
@@ -615,13 +611,9 @@ Ext.define('Apr.controller.AppServers', {
             router = me.getController('Uni.controller.history.Router'),
             route;
         this.restoreValues();
-        var unservedImportStore = me.getStore('Apr.store.UnservedImportServices');
         var unservedMessageServicesStore = me.getStore('Apr.store.UnservedMessageServices');
-        if(unservedMessageServicesStore.getCount() === 0){
-            me.getAddMessageServicesButton().disable();
-        } else {
-            me.getAddMessageServicesButton().enable();
-        }
+        me.getAddMessageServicesButton().setDisabled(unservedMessageServicesStore.getCount() === 0);
+        var unservedImportStore = me.getStore('Apr.store.UnservedImportServices');
         me.getAddImportServicesButton().setDisabled(unservedImportStore.getCount() === 0);
         route =  router.getRoute(me.removeLastPartOfUrl(router.currentRoute));
         Uni.util.History.suspendEventsForNextCall();
@@ -712,6 +704,7 @@ Ext.define('Apr.controller.AppServers', {
         } else {
             me.returnToAddEditViewWithFakeRouter();
         }
+        me.importServicesDataChanged();
     },
 
     returnToImportServiceDetailView: function () {
@@ -722,7 +715,7 @@ Ext.define('Apr.controller.AppServers', {
             route;
         route = router.getRoute(me.removeLastPartOfUrl(router.currentRoute));
         Uni.util.History.suspendEventsForNextCall();
-        route.forward()//buildUrl({appServerName: me.appServerName});
+        route.forward();
         view = Ext.widget('appserver-import-services', {
             router: router,
             appServerName: me.appServer.get('name'),
@@ -843,11 +836,14 @@ Ext.define('Apr.controller.AppServers', {
             if (Ext.isEmpty(grid.getStore().getRange())) {
                 me.changeImportGridVisibility(false);
             }
-        } else if (me.getAddImportServicesButtonFromDetails()) {
-            me.importServicesDataChanged();
-            me.getAddImportServicesButtonFromDetails().enable();
         }
-
+        if (me.getAddImportServicesButtonFromDetails()) {
+            me.importServicesDataChanged();
+            me.getAddImportServicesButtonFromDetails().setDisabled(disable);
+        }
+        if (me.getNoImportServicesAddButton()) {
+            me.getNoImportServicesAddButton().setDisabled(disable);
+        }
     },
 
     saveImportSettings: function () {

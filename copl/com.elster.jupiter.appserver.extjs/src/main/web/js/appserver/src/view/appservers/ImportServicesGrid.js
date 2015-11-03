@@ -8,7 +8,7 @@ Ext.define('Apr.view.appservers.ImportServicesGrid', {
     maxHeight: 300,
     columns: [
         {
-            header: Uni.I18n.translate('general.name', 'APR', 'Name'),
+            header: Uni.I18n.translate('general.importService', 'APR', 'Import service'),
             dataIndex: 'importService',
             flex: 1
         },
@@ -17,16 +17,6 @@ Ext.define('Apr.view.appservers.ImportServicesGrid', {
             dataIndex: 'status',
             flex: 0.8
         },
-        /*{
-            xtype: 'uni-actioncolumn',
-            privileges: Apr.privileges.AppServer.admin,
-            menu: {
-                xtype: 'apr-import-services-action-menu',
-                itemId: 'apr-import-services-action-menu'
-            }
-        }*/
-
-
         {
             xtype: 'actioncolumn',
             align: 'right',
