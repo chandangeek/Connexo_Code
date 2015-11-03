@@ -389,7 +389,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
         resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
-                "fileImport.importServices", "fileImport.importServices.description",
+                Privileges.RESOURCE_IMPORT_SERVICES.getKey(), Privileges.RESOURCE_IMPORT_SERVICES_DESCRIPTION.getKey(),
                 Arrays.asList(Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES, Privileges.Constants.VIEW_IMPORT_SERVICES)));
         return resources;
     }
