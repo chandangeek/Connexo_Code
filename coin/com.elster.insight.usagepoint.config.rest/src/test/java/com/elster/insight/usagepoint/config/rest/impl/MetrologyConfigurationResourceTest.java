@@ -18,13 +18,17 @@ import org.mockito.Mock;
 
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.insight.usagepoint.config.rest.MetrologyConfigurationInfo;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
+import com.elster.jupiter.validation.rest.ValidationRuleSetInfos;
 import com.jayway.jsonpath.JsonModel;
 
 public class MetrologyConfigurationResourceTest extends UsagePointConfigurationRestApplicationJerseyTest {
 
     @Mock
     private MetrologyConfiguration config1, config2;
-    
+    @Mock
+    private ValidationRuleSet vrs, vrs2;
     
     public MetrologyConfigurationResourceTest() {
     }
@@ -48,6 +52,17 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
         when(config1.getId()).thenReturn(1L);
         when(config2.getId()).thenReturn(2L);
         
+        List<ValidationRuleSet> ruleSets = new ArrayList<ValidationRuleSet>();
+        ruleSets.add(vrs);
+        when(vrs.getName()).thenReturn("ValidationRuleSet");
+        when(vrs.getId()).thenReturn(1L);
+        when(config1.getValidationRuleSets()).thenReturn(ruleSets );
+        
+        List<ValidationRuleSet> assignableRuleSets = new ArrayList<ValidationRuleSet>();
+        assignableRuleSets.add(vrs2);
+        when(vrs2.getName()).thenReturn("AssignableValidationRuleSet");
+        when(vrs2.getId()).thenReturn(31L);
+        when(validationService.getValidationRuleSets()).thenReturn(assignableRuleSets);
     }
 
     @Test
@@ -102,6 +117,38 @@ public class MetrologyConfigurationResourceTest extends UsagePointConfigurationR
 
         when(transactionService.execute(Matchers.anyObject())).thenReturn(metrologyConfiguration);
         Response response = target("/metrologyconfigurations/2").request().put(json);
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+    }
+    
+    @Test
+    public void testAssignedValidationRuleSets() {
+        String json = target("metrologyconfigurations/1/assignedvalidationrulesets").request().get(String.class);
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Integer> get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<Integer> get("$.assignedvalidationrulesets[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<String> get("$.assignedvalidationrulesets[0].name")).isEqualTo("ValidationRuleSet");
+    }
+    
+    @Test
+    public void testAssignableValidationRuleSets() {
+        String json = target("metrologyconfigurations/1/assignablevalidationrulesets").request().get(String.class);
+        JsonModel jsonModel = JsonModel.create(json);
+        assertThat(jsonModel.<Integer> get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<Integer> get("$.assignablevalidationrulesets[0].id")).isEqualTo(31);
+        assertThat(jsonModel.<String> get("$.assignablevalidationrulesets[0].name")).isEqualTo("AssignableValidationRuleSet");
+    }
+    
+    @Test
+    public void testAssignValidationRuleSets() {
+        ValidationRuleSetInfos validationRuleSetInfos = new ValidationRuleSetInfos();
+        ValidationRuleSetInfo info = new ValidationRuleSetInfo();
+        info.id = 1;
+        validationRuleSetInfos.ruleSets.add(info);
+        
+        Entity<ValidationRuleSetInfos> json = Entity.json(validationRuleSetInfos);
+        when(transactionService.execute(Matchers.anyObject())).thenReturn(true);
+        
+        Response response = target("/metrologyconfigurations/1/assignedvalidationrulesets").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
     }
 
