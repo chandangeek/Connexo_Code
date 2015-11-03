@@ -48,9 +48,7 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
     }
 
     MetrologyConfigurationImpl init(String name) {  
-        if (name != null) {
-            this.name = name.trim();
-        }
+        setName(name);
         return this;
     }
 
@@ -66,10 +64,8 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
 
     @Override
     public void updateName(String name) {
-        if (name != null) {
-            this.name = name.trim();
-            this.update();
-        }
+        setName(name);
+        this.update();
     }
 
     public List<MetrologyConfigurationValidationRuleSetUsage> getMetrologyConfValidationRuleSetUsages() {
@@ -85,6 +81,11 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
         return usage;
     }
     
+    protected void setName(String name) {
+        if (name != null) {
+            this.name = name.trim();
+        }
+    }
     protected MetrologyConfigurationValidationRuleSetUsage getUsage(ValidationRuleSet validationRuleSet) {
         List<MetrologyConfigurationValidationRuleSetUsage> usages = this.getMetrologyConfValidationRuleSetUsages();
         for (MetrologyConfigurationValidationRuleSetUsage usage : usages) {
