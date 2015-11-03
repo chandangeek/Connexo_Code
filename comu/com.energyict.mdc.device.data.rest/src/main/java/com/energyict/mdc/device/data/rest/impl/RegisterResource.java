@@ -23,6 +23,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -75,7 +76,8 @@ public class RegisterResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
     public PagedInfoList getDeviceCustomProperties(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @BeanParam JsonQueryParameters queryParameters) {
         Register<?> register = doGetRegister(mRID, registerId);
-        return PagedInfoList.fromCompleteList("customproperties", Arrays.asList(resourceHelper.getRegisterCustomPropertySetInfo(register)), queryParameters);
+        CustomPropertySetInfo customPropertySetInfo = resourceHelper.getRegisterCustomPropertySetInfo(register);
+        return PagedInfoList.fromCompleteList("customproperties", customPropertySetInfo != null ? Arrays.asList(customPropertySetInfo) : new ArrayList<>(), queryParameters);
     }
 
     @GET
@@ -98,7 +100,7 @@ public class RegisterResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response changeRegisterCustomProperty(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, CustomPropertySetInfo customPropertySetInfo) {
         Register<?> register = doGetRegister(mRID, registerId);
-        resourceHelper.lockRegisterSpecOrThrowException(customPropertySetInfo.objectId, customPropertySetInfo.objectVersion, register);
+        resourceHelper.lockRegisterSpecOrThrowException(customPropertySetInfo.parent, customPropertySetInfo.version, register);
         resourceHelper.setRegisterCustomPropertySet(register, customPropertySetInfo);
         return Response.ok().build();
     }

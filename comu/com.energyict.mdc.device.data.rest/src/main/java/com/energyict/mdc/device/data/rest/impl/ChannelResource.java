@@ -109,7 +109,8 @@ public class ChannelResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public PagedInfoList getChannelCustomProperties(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @BeanParam JsonQueryParameters queryParameters) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
-        return PagedInfoList.fromCompleteList("customproperties", Arrays.asList(resourceHelper.getChannelCustomPropertySetInfo(channel)), queryParameters);
+        CustomPropertySetInfo customPropertySetInfo = resourceHelper.getChannelCustomPropertySetInfo(channel);
+        return PagedInfoList.fromCompleteList("customproperties", customPropertySetInfo != null ? Arrays.asList(customPropertySetInfo) : new ArrayList<>(), queryParameters);
     }
 
     @GET
@@ -132,7 +133,7 @@ public class ChannelResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response changeRegisterCustomProperty(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId, CustomPropertySetInfo customPropertySetInfo) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
-        resourceHelper.lockChannelSpecOrThrowException(customPropertySetInfo.objectId, customPropertySetInfo.objectVersion, channel);
+        resourceHelper.lockChannelSpecOrThrowException(customPropertySetInfo.parent, customPropertySetInfo.version, channel);
         resourceHelper.setChannelCustomPropertySet(channel, customPropertySetInfo);
         return Response.ok().build();
     }

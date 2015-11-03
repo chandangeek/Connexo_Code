@@ -10,8 +10,8 @@ import java.util.List;
 public class CustomPropertySetInfo {
 
     public long id;
-    public long objectId;
-    public long objectVersion;
+    public long parent;
+    public long version;
     public String name;
     public boolean editable;
     public boolean timesliced;
@@ -22,8 +22,8 @@ public class CustomPropertySetInfo {
 
     public CustomPropertySetInfo(RegisteredCustomPropertySet registeredCustomPropertySet, List<PropertyInfo> properties, long objectId, long objectVersion) {
         this.id = registeredCustomPropertySet.getId();
-        this.objectId = objectId;
-        this.objectVersion = objectVersion;
+        this.parent = objectId;
+        this.version = objectVersion;
         this.name = registeredCustomPropertySet.getCustomPropertySet().getName();
         this.editable = registeredCustomPropertySet.isEditableByCurrentUser();
         this.timesliced = registeredCustomPropertySet.getCustomPropertySet().isVersioned();
