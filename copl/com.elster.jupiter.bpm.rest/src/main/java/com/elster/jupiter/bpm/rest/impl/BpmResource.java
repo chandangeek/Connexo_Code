@@ -458,9 +458,6 @@ public class BpmResource {
             if(!req.equals("")){
                 rest += req;
             }
-//            Map<String, JsonNode> filterProperties;
-//            filterProperties = getFilterProperties(getQueryValue(uriInfo,"filter"),"value");
-//            String q = addFilterToQuery(filterProperties);
             jsonContent = bpmService.getBpmServer().doGet(rest);
             if (!"".equals(jsonContent)) {
                 JSONObject obj = new JSONObject(jsonContent);
@@ -500,28 +497,5 @@ public class BpmResource {
         return uriInfo.getQueryParameters().getFirst(key);
     }
 
-    private RestQuery<BpmProcessDefinition> getBpmProcessDefinition() {
-        Query<BpmProcessDefinition> query = bpmService.getQueryBpmProcessDefinition();
-        return restQueryService.wrap(query);
-    }
-
-    private Map<String, JsonNode> getFilterProperties(String source, String value){
-        LinkedHashMap<String, JsonNode> filterProperties = new LinkedHashMap<String, JsonNode>();
-        try {
-            if (source != null) {
-                JsonNode node = new ObjectMapper().readValue(new ByteArrayInputStream(source.getBytes()), JsonNode.class);
-                if (node != null && node.isArray()) {
-                    for (JsonNode singleFilter : node) {
-                        JsonNode property = singleFilter.get("property");
-                        if (property != null && property.textValue() != null)
-                            filterProperties.put(property.textValue(), singleFilter.get(value));
-                    }
-                }
-            }
-        }catch (Exception e){
-
-        }
-        return filterProperties;
-    }
 
 }
