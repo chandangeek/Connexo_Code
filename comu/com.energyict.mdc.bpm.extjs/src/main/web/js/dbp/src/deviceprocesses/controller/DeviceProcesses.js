@@ -100,7 +100,7 @@ Ext.define('Dbp.deviceprocesses.controller.DeviceProcesses', {
                 Ext.String.htmlEncode(taskName), status, assign);
         });
 
-        me.getOpenTasksDisplay().setValue((openTasksValue.length > 0)? openTasksValue: Uni.I18n.translate('dbp.process.noOpenTasks', 'DBP', 'none'));
+        me.getOpenTasksDisplay().setValue((openTasksValue.length > 0)? openTasksValue: Uni.I18n.translate('dbp.process.noOpenTasks', 'DBP', 'None'));
         Ext.resumeLayouts();
     },
 

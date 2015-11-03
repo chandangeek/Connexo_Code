@@ -18,5 +18,12 @@ Ext.define('Dbp.deviceprocesses.store.HistoryProcessesFilterUsers', {
     fields: [
         {name: 'id', type: 'int'},
         {name: 'name', type: 'string'}
-    ]
+    ],
+    listeners: {
+        load: function() {
+            this.filter(function(rec){
+                return rec.get('id') != -1;
+            });
+        }
+    }
 });
