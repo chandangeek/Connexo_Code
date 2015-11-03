@@ -28,6 +28,7 @@
             <outputDirectory>bundles</outputDirectory>
             <includes>
                 <include>com.elster.jupiter:*</include>
+				<include>com.elster.jupiter.subsystem:kore</include>
             </includes>
             <excludes>
                 <exclude>com.elster.jupiter:drools-integration:pom</exclude>
@@ -39,7 +40,7 @@
             </outputFileNameMapping>
             <useTransitiveDependencies>true</useTransitiveDependencies>
             <useTransitiveFiltering>false</useTransitiveFiltering>
-            <useProjectArtifact>false</useProjectArtifact>
+            <useProjectArtifact>true</useProjectArtifact>
         </dependencySet>
 
     </dependencySets>
