@@ -7,6 +7,7 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.UriInfo;
 import com.elster.jupiter.search.SearchBuilder;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
@@ -27,7 +28,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,7 +59,7 @@ public class DynamicSearchResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    public Response getSearchDomains(@BeanParam JsonQueryParameters jsonQueryParameters, @Context UriInfo uriInfo) {
+    public Response getSearchDomains(@BeanParam JsonQueryParameters jsonQueryParameters, @BeanParam UriInfo uriInfo) {
         List<SearchDomainInfo> list = searchService.getDomains().stream().map(sd -> new SearchDomainInfo(sd, uriInfo)).sorted((a,b) -> a.displayValue.compareTo(b.displayValue)).collect(toList());
         PagedInfoList pagedInfoList = PagedInfoList.fromCompleteList("domains", list, jsonQueryParameters);
         return Response.ok().entity(pagedInfoList).build();
@@ -72,7 +72,7 @@ public class DynamicSearchResource {
     public Response getSearchablePropertiesForDomain(@PathParam("domain") String domainId,
                                                      @BeanParam JsonQueryFilter jsonQueryFilter,
                                                      @BeanParam JsonQueryParameters jsonQueryParameters,
-                                                     @Context UriInfo uriInfo) throws InvalidValueException {
+                                                     @BeanParam UriInfo uriInfo) throws InvalidValueException {
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
         List propertyList;
         if (jsonQueryFilter.hasFilters()) {
