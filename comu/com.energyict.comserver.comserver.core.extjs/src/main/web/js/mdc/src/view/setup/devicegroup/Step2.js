@@ -82,15 +82,17 @@ Ext.define('Mdc.view.setup.devicegroup.Step2', {
                                 text: Uni.I18n.translate('searchItems.filter.criteria', 'MDC', 'Criteria'),
                                 width: 100
                             },
-                            rbar: [
-                                {
-                                    disabled: true,
-                                    itemId: 'search-criteria-selector',
-                                    xtype: 'search-criteria-selector',
-                                    margin: 0,
-                                    service: me.getService()
-                                }
-                            ],
+                            rbar: {
+                                margin: '-8 0 0 0',
+                                items: [
+                                    {
+                                        disabled: true,
+                                        itemId: 'search-criteria-selector',
+                                        xtype: 'search-criteria-selector',
+                                        service: me.getService()
+                                    }
+                                ]
+                            },
                             margin: '10 0 0 0',
                             service: me.getService(),
                             sticky: true
