@@ -400,4 +400,20 @@ public class DeviceConfigurationResource {
         infolist = ListPager.of(infolist).from(queryParameters).find();
         return Response.ok(PagedInfoList.fromPagedList("validationRuleSets", infolist, queryParameters)).build();
     }
+
+    @GET
+    @Path("/{deviceConfigurationId}/conflictmappings/{destinationConfigurationId}/unsolved")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
+    public PagedInfoList getConflictMappingsForConfiguration(
+            @PathParam("deviceConfigurationId") long deviceConfigurationId,
+            @PathParam("destinationConfigurationId") long destinationConfigurationId,
+            @BeanParam JsonQueryParameters queryParameters){
+        DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(destinationConfigurationId);
+        List<DeviceConfigConflictMappingInfo> deviceConfigConflictMappingInfos = DeviceConfigConflictMappingInfo.from(
+                deviceConfiguration.getDeviceType().getDeviceConfigConflictMappings().stream()
+                        .filter(conflict -> conflict.getOriginDeviceConfiguration().getId() == deviceConfigurationId
+                                && conflict.getDestinationDeviceConfiguration().getId() == destinationConfigurationId && !conflict.isSolved()).collect(Collectors.toList()), thesaurus);
+        return PagedInfoList.fromCompleteList("conflictMappings", deviceConfigConflictMappingInfos, queryParameters);
+    }
 }
