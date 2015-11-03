@@ -54,6 +54,7 @@
             <outputDirectory>bundles</outputDirectory>
             <includes>
                 <include>com.energyict:*</include>
+                <include>com.elster.jupiter.subsystem:mdc</include>
             </includes>
             <scope>provided</scope>
             <unpack>false</unpack>
@@ -61,7 +62,7 @@
                 ${artifact.groupId}.${artifact.artifactId}-${artifact.version}${dashClassifier?}.${artifact.extension}
             </outputFileNameMapping>
             <useTransitiveDependencies>false</useTransitiveDependencies>
-            <useProjectArtifact>false</useProjectArtifact>
+            <useProjectArtifact>true</useProjectArtifact>
         </dependencySet>
     </dependencySets>
 </assembly>
