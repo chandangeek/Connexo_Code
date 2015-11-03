@@ -68,6 +68,30 @@ Ext.define('Apr.controller.history.AppServer', {
                             }
                         }
                     }
+                },
+                messagequeues: {
+                    title: Uni.I18n.translate('general.messageQueues', 'APR', 'Message queues'),
+                    route: 'messagequeues',
+                    privileges: Apr.privileges.AppServer.view,
+                    controller: 'Apr.controller.MessageQueues',
+                    action: 'showMessageQueues',
+                    items: {
+                        monitor: {
+                            route: 'monitor',
+                            privileges: Apr.privileges.AppServer.view,
+                            title: Uni.I18n.translate('general.monitor', 'APR', 'Monitor'),
+                            controller: 'Apr.controller.MessageQueues',
+                            action: 'showMessageQueuesMonitor'
+                        },
+                        messagequeues: {
+                            route: 'messagequeues',
+                            privileges: Apr.privileges.AppServer.view,
+                            title: Uni.I18n.translate('general.overview', 'APR', 'Overview'),
+                            controller: 'Apr.controller.MessageQueues',
+                            action: 'showMessageQueues'
+                        }
+
+                    }
                 }
             }
         }

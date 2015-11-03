@@ -8,7 +8,8 @@ Ext.define('Apr.controller.Main', {
 
     controllers: [
         'Apr.controller.history.AppServer',
-        'Apr.controller.AppServers'
+        'Apr.controller.AppServers',
+        'Apr.controller.MessageQueues'
     ],
 
     stores: [
@@ -47,6 +48,11 @@ Ext.define('Apr.controller.Main', {
                         text: Uni.I18n.translate('general.applicationServers', 'APR', 'Application servers'),
                         href: '#/administration/appservers',
                         route: 'appservers'
+                    },
+                    {
+                        text: Uni.I18n.translate('general.messageQueues', 'APR', 'Message queues'),
+                        href: '#/administration/messagequeues',
+                        route: 'messagequeues'
                     }
                 ]
             });
