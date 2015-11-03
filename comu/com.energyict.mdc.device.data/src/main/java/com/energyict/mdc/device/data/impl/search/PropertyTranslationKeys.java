@@ -20,7 +20,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     DEVICE_CERT_YEAR("device.cert.year", "Year of certification"),
     BATCH("device.batch", "Batch"),
     DEVICE_DOMAIN("device.search.domain", "Device"),
-
+    DEVICE_DOMAIN_NAME("com.energyict.mdc.device.data.Device", "Device"),
     ;
 
     private String key;
@@ -31,7 +31,6 @@ public enum PropertyTranslationKeys implements TranslationKey {
         this.defaultFormat = defaultFormat;
     }
 
-
     @Override
     public String getKey() {
         return this.key;
@@ -41,5 +40,4 @@ public enum PropertyTranslationKeys implements TranslationKey {
     public String getDefaultFormat() {
         return this.defaultFormat;
     }
-
 }
