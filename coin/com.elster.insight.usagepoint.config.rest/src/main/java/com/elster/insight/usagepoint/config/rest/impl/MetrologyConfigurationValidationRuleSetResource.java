@@ -1,6 +1,7 @@
 package com.elster.insight.usagepoint.config.rest.impl;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -9,12 +10,11 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-
-import org.glassfish.hk2.api.ValidationService;
 
 import com.elster.insight.common.services.ListPager;
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
@@ -23,6 +23,8 @@ import com.elster.insight.usagepoint.config.rest.MetrologyConfigurationInfo;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.validation.ValidationRuleSet;
+import com.elster.jupiter.validation.ValidationService;
 
 @Path("/validationruleset")
 public class MetrologyConfigurationValidationRuleSetResource {
@@ -45,7 +47,8 @@ public class MetrologyConfigurationValidationRuleSetResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 //    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response getLinkedDeviceConfigurations(@PathParam("validationRuleSetId") long validationRuleSetId, @BeanParam JsonQueryParameters queryParameters) {
-        List<MetrologyConfiguration> configs = usagePointConfigurationService.findMetrologyConfigurationsForValidationRuleSet(validationRuleSetId);
+        ValidationRuleSet validationRuleSet = validationService.getValidationRuleSet(validationRuleSetId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+        List<MetrologyConfiguration> configs = usagePointConfigurationService.findMetrologyConfigurationsForValidationRuleSet(validationRuleSet);
         List<MetrologyConfigurationInfo> metrologyConfigurationsInfos = ListPager.of(configs).from(queryParameters).stream().map(m -> new MetrologyConfigurationInfo(m))
                 .collect(Collectors.toList());
         return Response.ok(PagedInfoList.fromPagedList("metrologyConfigurations",
