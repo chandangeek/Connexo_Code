@@ -23,7 +23,7 @@ Ext.define('Usr.view.group.privilege.FeatureList', {
             items: [
                 {
                     header: Uni.I18n.translate('privilege.feature', 'USR', 'Resource'),
-                    flex: 3,
+                    flex: 2,
                     renderer: function (value, metadata, record) {
                         var name = Uni.I18n.translate(record.get('name'), 'USR', record.get('name'));
                         if (record.get('selected') == 0) {
@@ -40,14 +40,14 @@ Ext.define('Usr.view.group.privilege.FeatureList', {
                 },
                 {
                     header: Uni.I18n.translate('general.description', 'USR', 'Description'),
-                    flex: 3,
+                    flex: 2,
                     renderer: function (value, metadata, record) {
                         return Uni.I18n.translate(record.get('description'), 'USR', record.get('description'));
                     }
                 },
                 {
                     header: Uni.I18n.translate('privilege.permissions', 'USR', 'Privileges'),
-                    flex: 7,
+                    flex: 5,
                     dataIndex: 'permissions'
                 },
                 {

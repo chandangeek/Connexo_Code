@@ -23,7 +23,7 @@ Ext.define('Usr.view.group.privilege.ApplicationList', {
                 {
                     header: Uni.I18n.translate('privilege.application', 'USR', 'Application'),
                     dataIndex: 'translatedName',
-                    flex: 3,
+                    flex: 2,
                     renderer: function (value, metadata, record) {
                         switch (record.get('selected')) {
                             case 0:
@@ -42,7 +42,7 @@ Ext.define('Usr.view.group.privilege.ApplicationList', {
                 {
                     header: Uni.I18n.translate('general.description', 'USR', 'Description'),
                     dataIndex: 'description',
-                    flex: 10
+                    flex: 7
                 },
                 {
                     xtype: 'uni-actioncolumn',
