@@ -1,9 +1,32 @@
 package com.elster.jupiter.validation.impl;
 
+import static org.fest.reflect.core.Reflection.field;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Optional;
+
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
@@ -16,22 +39,6 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.validation.DataValidationOccurrence;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.common.collect.ImmutableList;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import javax.validation.Validator;
-import javax.validation.ValidatorFactory;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Optional;
-
-import static org.fest.reflect.core.Reflection.field;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DataValidationTaskImplTest extends EqualsContractTest {
@@ -47,6 +54,8 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
     private TaskService taskService;
     @Mock
     private EndDeviceGroup endDeviceGroup;
+    @Mock
+    private UsagePointGroup usagePointGroup;
     @Mock
     private Thesaurus thesaurus;
     @Mock
@@ -127,6 +136,15 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
         testPersistDataValidationTask.save();
         verify(dataModel).persist(testPersistDataValidationTask);
     }
+    
+    @Test
+    public void testPersistUsagePointGroup() {
+        DataValidationTaskImpl testPersistDataValidationTask = newTask();
+        testPersistDataValidationTask.setName("testname");
+        testPersistDataValidationTask.setUsagePointGroup(usagePointGroup);
+        testPersistDataValidationTask.save();
+        verify(dataModel).persist(testPersistDataValidationTask);
+    }
 
     @Test
     public void testUpdate() {
@@ -138,11 +156,45 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
         testUpdateDataValidationTask.save();
         verify(dataModel).update(testUpdateDataValidationTask);
     }
+    
+    @Test
+    public void testUpdateUsagePointGroupt() {
+        DataValidationTaskImpl testUpdateDataValidationTask = newTask();
+        testUpdateDataValidationTask.setName("taskname");
+        testUpdateDataValidationTask.setUsagePointGroup(usagePointGroup);
+        testUpdateDataValidationTask.setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)));
+        field("id").ofType(Long.TYPE).in(testUpdateDataValidationTask).set(ID);
+        testUpdateDataValidationTask.save();
+        verify(dataModel).update(testUpdateDataValidationTask);
+    }
 
     @Test
     public void testDelete() {
         DataValidationTaskImpl task = newTask();
         task.setEndDeviceGroup(endDeviceGroup);
+        task.setName("taskname");
+        field("id").ofType(Long.TYPE).in(task).set(ID);
+        task.save();
+        verify(dataModel).update(task);
+
+        when(dataModel.query(any(), any())).thenReturn(queryExecutor);
+        when(queryExecutor.select(any(), any(), any(), any(), any())).thenReturn(new ArrayList<DataValidationOccurrence>());
+
+        DataMapper<DataValidationOccurrence> mapper = mock(DataMapper.class);
+        when(dataModel.mapper(DataValidationOccurrence.class)).thenReturn(mapper);
+        when(mapper.find(any(String.class), any(DataValidationTaskImpl.class))).thenReturn(new ArrayList<DataValidationOccurrence>());
+        doNothing().when(mapper).remove(anyList());
+        doNothing().when(recurrentTask).delete();
+
+        task.delete();
+        verify(recurrentTask).delete();
+        verify(dataModel).remove(task);
+    }
+    
+    @Test
+    public void testDeleteUsagePoint() {
+        DataValidationTaskImpl task = newTask();
+        task.setUsagePointGroup(usagePointGroup);
         task.setName("taskname");
         field("id").ofType(Long.TYPE).in(task).set(ID);
         task.save();
