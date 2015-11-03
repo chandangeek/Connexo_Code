@@ -1,0 +1,6 @@
+-classpath: target/classes 
+-dsannotations: *
+Private-Package: com.elster.jupiter.system.impl
+Export-Package: com.elster.jupiter.system,\
+    com.elster.jupiter.system.beans,\
+    com.elster.jupiter.system.security
