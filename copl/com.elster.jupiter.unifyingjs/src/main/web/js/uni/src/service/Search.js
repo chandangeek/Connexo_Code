@@ -19,6 +19,8 @@ Ext.define('Uni.service.Search', {
         searchFieldsStore: 'Uni.store.search.Fields'
     },
 
+    storeListeners: [],
+
     constructor: function (config) {
         var me = this;
 
@@ -92,19 +94,29 @@ Ext.define('Uni.service.Search', {
     initStoreListeners: function() {
         var me = this;
 
-        me.getSearchResultsStore().on({
+        me.unbind();
+        me.storeListeners.push(me.getSearchResultsStore().on({
             load: me.onSearchResultsLoad,
-            scope: me
-        });
+            scope: me,
+            destroyable: true
+        }));
 
-        me.getSearchPropertiesStore().on({
+        me.storeListeners.push(me.getSearchPropertiesStore().on({
             load: me.onSearchPropertiesLoad,
-            scope: me
-        });
+            scope: me,
+            destroyable: true
+        }));
 
-        me.getSearchFieldsStore().on({
+        me.storeListeners.push(me.getSearchFieldsStore().on({
             load: me.onSearchFieldsLoad,
-            scope: me
+            scope: me,
+            destroyable: true
+        }));
+    },
+
+    unbind: function() {
+        this.storeListeners.map(function (listener) {
+            listener.destroy();
         });
     },
 
