@@ -359,20 +359,21 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
 
         setTimeout(function () {
             if (isDynamic) {
-                confirmationMessage = '<p>' + Uni.I18n.translate('devicegroup.wizard.dynamic.confirmationMessage.criteriaNumber', 'MDC', 'Number of specified search criteria: {0}', [5]) + '</p>'
-                    + '<p>' + Uni.I18n.translate('devicegroup.wizard.dynamic.confirmationMessage.devicesNumber', 'MDC', 'Current number of devices: {0}', [20100]) + '</p>';
+                confirmationMessage = Uni.I18n.translate('devicegroup.wizard.dynamic.confirmationMessage.criteriaNumber', 'MDC', 'Number of specified search criteria: {0}', [5])
+                    + '<br>'
+                    + Uni.I18n.translate('devicegroup.wizard.dynamic.confirmationMessage.devicesNumber', 'MDC', 'Current number of devices: {0}', [20100]);
             } else {
-                confirmationMessage = '<p>' + Uni.I18n.translate('devicegroup.wizard.static.confirmationMessage', 'MDC', 'Number of devices: {0}', [1321]) + '</p>';
+                confirmationMessage = Uni.I18n.translate('devicegroup.wizard.static.confirmationMessage', 'MDC', 'Number of devices: {0}', [1321]);
             }
             Ext.suspendLayouts();
             progressbar.hide();
-            Ext.Array.each(buttons, function (buton) {
-                buton.show();
+            Ext.Array.each(buttons, function (button) {
+                button.show();
             });
             navigationMenu.jumpBack = true;
-            step3.update('<h3>' + confirmationTitle + '</h3>' + confirmationMessage);
+            step3.update('<h3>' + confirmationTitle + '</h3><br>' + confirmationMessage);
             Ext.resumeLayouts(true);
-        }, 5000);
+        }, 2000);
     },
 
     prepareStep4: function (wizard, finishBtn) {
@@ -415,6 +416,6 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 ? Uni.I18n.translate('devicegroup.wizard.save.success', 'MDC', "Device group '{0}' has been saved.", [deviceGroupName])
                 : Uni.I18n.translate('devicegroup.wizard.add.success', 'MDC', "Device group '{0}' has been created.", [deviceGroupName]));
             Ext.resumeLayouts(true);
-        }, 5000);
+        }, 2000);
     }
 });

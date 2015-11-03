@@ -6,5 +6,5 @@ Ext.define('Mdc.view.setup.devicegroup.NoDevicesFound', {
         Uni.I18n.translate('deviceGroup.noDevicesFoundPanel.item1', 'MDC', 'There are no devices in the system.'),
         Uni.I18n.translate('deviceGroup.noDevicesFoundPanel.item2', 'MDC', 'The filter is too narrow.')
     ],
-    margin: '16 0 0 0'
+    margin: '16 0 24 0'
 });
