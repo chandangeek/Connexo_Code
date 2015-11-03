@@ -112,7 +112,7 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
             addCondition(
                     this,
                     new SearchablePropertyContains(
-                            ListOperator.IN.contains(this.property.getSpecification().getName(), values),
+                            ListOperator.IN.contains(this.property.getName(), values),
                             this.property));
             return SearchBuilderImpl.this;
         }
@@ -123,7 +123,7 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
             addCondition(
                     this,
                     new SearchablePropertyContains(
-                            ListOperator.NOT_IN.contains(this.property.getSpecification().getName(), values),
+                            ListOperator.NOT_IN.contains(this.property.getName(), values),
                             this.property));
             return SearchBuilderImpl.this;
         }
@@ -142,7 +142,7 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
             addCondition(
                     this,
                     new SearchablePropertyComparison(
-                            operator.compare(this.property.getSpecification().getName(), actualValue),
+                            operator.compare(this.property.getName(), actualValue),
                             this.property));
             return SearchBuilderImpl.this;
         }
@@ -153,7 +153,7 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
             addCondition(
                     this,
                     new SearchablePropertyComparison(
-                            Operator.EQUALIGNORECASE.compare(this.property.getSpecification().getName(), value),
+                            Operator.EQUALIGNORECASE.compare(this.property.getName(), value),
                             this.property));
             return SearchBuilderImpl.this;
         }
@@ -189,7 +189,7 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
             addCondition(
                     this,
                     new SearchablePropertyComparison(
-                            operator.compare(this.property.getSpecification().getName(), actualValue),
+                            operator.compare(this.property.getName(), actualValue),
                             this.property));
             return SearchBuilderImpl.this;
         }
@@ -200,7 +200,7 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
             addCondition(
                     this,
                     new SearchablePropertyComparison(
-                            Operator.LIKE.compare(this.property.getSpecification().getName(), toOracleSql(wildCardPattern)),
+                            Operator.LIKE.compare(this.property.getName(), toOracleSql(wildCardPattern)),
                             this.property));
             return SearchBuilderImpl.this;
         }
@@ -211,7 +211,7 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
             addCondition(
                     this,
                     new SearchablePropertyComparison(
-                            Operator.LIKEIGNORECASE.compare(this.property.getSpecification().getName(), toOracleSql(wildCardPattern)),
+                            Operator.LIKEIGNORECASE.compare(this.property.getName(), toOracleSql(wildCardPattern)),
                             this.property));
             return SearchBuilderImpl.this;
         }
@@ -244,7 +244,7 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
             addCondition(
                     this,
                     new SearchablePropertyComparison(
-                            Operator.BETWEEN.compare(this.property.getSpecification().getName(), min, max),
+                            Operator.BETWEEN.compare(this.property.getName(), min, max),
                             this.property));
             return SearchBuilderImpl.this;
         }

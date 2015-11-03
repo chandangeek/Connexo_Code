@@ -152,7 +152,7 @@ public interface SearchableProperty {
      */
     public default boolean hasName(String name) {
         Objects.requireNonNull(name);
-        return name.equals(getSpecification().getName());
+        return name.equals(getName());
     }
 
     /**
