@@ -27,7 +27,7 @@ public interface ConnectionType extends Pluggable {
      *     (This does not mean that we cannot provide a list of properties)</li>
      * </ul>
      */
-    public enum Direction {
+    enum Direction {
         OUTBOUND,
         INBOUND,
 
@@ -53,7 +53,7 @@ public interface ConnectionType extends Pluggable {
      *
      * @return <code>true</code> iff this ConnectionType allows simultaneous connections
      */
-    public boolean allowsSimultaneousConnections();
+    boolean allowsSimultaneousConnections();
 
     /**
      * Returns <code>true</code> when this ConnectionType supports
@@ -61,14 +61,14 @@ public interface ConnectionType extends Pluggable {
      *
      * @return A flag that indicates if this ConnectionType supports ComWindows
      */
-    public boolean supportsComWindow();
+    boolean supportsComWindow();
 
     /**
      * Gets the {@link ComPortType}s that are supported by this ConnectionType.
      *
      * @return The Set of support ComPortType
      */
-    public Set<ComPortType> getSupportedComPortTypes();
+    Set<ComPortType> getSupportedComPortTypes();
 
     /**
      * Establishes a connection with a device from the values
@@ -78,7 +78,7 @@ public interface ConnectionType extends Pluggable {
      * @return The ComChannel that can be used to communicate with the device
      * @throws ConnectionException Thrown when the connection to the device failed
      */
-    public ComChannel connect (List<ConnectionProperty> properties) throws ConnectionException;
+    ComChannel connect(List<ConnectionProperty> properties) throws ConnectionException;
 
     /**
      * Terminates the connection with the device and release resources.
@@ -87,7 +87,7 @@ public interface ConnectionType extends Pluggable {
      *
      * @throws ConnectionException Thrown in case of an exception
      */
-    public void disconnect(ComChannel comChannel) throws ConnectionException;
+    void disconnect(ComChannel comChannel) throws ConnectionException;
 
     /**
      * Provides meta information for the Collection system to inform whether this ConnectionType
@@ -95,5 +95,6 @@ public interface ConnectionType extends Pluggable {
      *
      * @return the direction of the ConnectionType
      */
-    public Direction getDirection();
+    Direction getDirection();
+
 }
