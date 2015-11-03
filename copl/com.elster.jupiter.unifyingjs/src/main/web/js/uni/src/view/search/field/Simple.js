@@ -18,10 +18,11 @@ Ext.define('Uni.view.search.field.Simple', {
     },
 
     onInputChange: function() {
-        this.setValue(Ext.create('Uni.model.search.Value', {
+        var value = this.down('#filter-input').getValue();
+        this.setValue(value ? Ext.create('Uni.model.search.Value', {
             operator: this.down('#filter-operator').getValue(),
             criteria: this.down('#filter-input').getValue()
-        }));
+        }) : null);
     },
 
     initComponent: function () {

@@ -77,10 +77,10 @@ Ext.define('Uni.view.search.field.Selection', {
                 return item.get(me.valueField)
             });
 
-        me.setValue(Ext.create('Uni.model.search.Value', {
+        me.setValue(value.length ? Ext.create('Uni.model.search.Value', {
             operator: this.down('#filter-operator').getValue(),
             criteria: value
-        }));
+        }) : null);
 
         me.down('#filter-selected').setDisabled(!me.selection.length);
     },

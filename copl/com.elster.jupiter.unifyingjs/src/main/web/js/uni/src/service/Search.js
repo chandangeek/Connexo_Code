@@ -135,7 +135,6 @@ Ext.define('Uni.service.Search', {
 
         if (domain !== null && Ext.isDefined(domain) && Ext.getClassName(domain) == "Uni.model.search.Domain") {
             me.searchDomain = domain;
-            me.initStoreListeners();
 
             searchProperties.removeAll();
             searchFields.removeAll();
@@ -146,6 +145,7 @@ Ext.define('Uni.service.Search', {
             searchResults.getProxy().url    = domain.get('selfHref');
 
             searchProperties.load(function(){
+                me.init();
                 searchFields.load();
             });
         }
@@ -164,9 +164,10 @@ Ext.define('Uni.service.Search', {
         }
     },
 
-    onSearchPropertiesLoad: function () {
+    init: function() {
         var me = this;
 
+        me.initStoreListeners();
         Ext.suspendLayouts();
 
         me.fireEvent('reset', me.filters);
@@ -176,6 +177,10 @@ Ext.define('Uni.service.Search', {
         me.restoreState();
 
         Ext.resumeLayouts(true);
+    },
+
+    onSearchPropertiesLoad: function () {
+        //debugger;
     },
 
     initCriteria: function () {
@@ -371,6 +376,14 @@ Ext.define('Uni.service.Search', {
 
     updateConstraints: function (widget, value) {
         var me = this, store;
+
+        if (widget.property.get('affectsAvailableDomainProperties')) {
+            store = me.getSearchPropertiesStore();
+            store.clearFilter(true);
+            store.addFilter(widget.getFilter(), false);
+            store.load();
+        }
+
         var deps = me.filters.filterBy(function(filter) {
             return !!(filter.property.get('constraints')
             && filter.property.get('constraints').length

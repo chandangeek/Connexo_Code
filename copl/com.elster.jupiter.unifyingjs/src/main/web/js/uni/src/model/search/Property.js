@@ -13,6 +13,7 @@ Ext.define('Uni.model.search.Property', {
         {name: 'visibility', type: 'string'},
         {name: 'constraints', type: 'auto'},
         {name: 'group', type: 'auto'},
+        {name: 'affectsAvailableDomainProperties', type: 'boolean'},
         {
             name: 'groupId', type: 'int', convert: function (v, record) {
             return record.raw.group ? record.raw.group.id : null;
