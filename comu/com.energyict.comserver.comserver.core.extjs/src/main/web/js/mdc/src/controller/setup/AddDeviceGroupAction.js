@@ -12,10 +12,8 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
 
     stores: [
         'Mdc.store.DeviceGroups',
-        'Uni.store.search.Fields',
-        'Uni.store.search.Properties',
-        'Uni.store.search.PropertyValues',
-        'Uni.store.search.Results'
+        'Mdc.store.StaticGroupDevices',
+        'Mdc.store.DynamicGroupDevices'
     ],
 
     models: [
@@ -52,6 +50,9 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         });
 
         me.control({
+            '#add-devicegroup-browse #staticDynamicRadioButton': {
+                change: me.prepareStep2
+            },
             '#add-devicegroup-browse adddevicegroup-wizard button[navigationBtn=true]': {
                 click: me.moveTo
             },
@@ -94,22 +95,11 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 returnLink: router.queryParams.fromDetails === 'true'
                     ? router.getRoute('devices/devicegroups/view').buildUrl()
                     : router.getRoute('devices/devicegroups').buildUrl()
-            }),
-            dependeciesCounter = 1,
-            onDependeciesLoad = function () {
-                dependeciesCounter--;
-                if (!dependeciesCounter) {
-                    mainView.setLoading(false);
-                }
-            };
+            });
 
+        me.service.getSearchDomainsStore().load();
         me.getApplication().fireEvent('changecontentevent', widget);
-        me.getStore('Uni.store.search.Domains').load(function () {
-            onDependeciesLoad();
-            me.service.setDomain('com.energyict.mdc.device.data.Device');
-        });
         if (Ext.isDefined(deviceGroupId)) {
-            dependeciesCounter++;
             mainView.setLoading();
             me.getModel(deviceGroupModelName).load(deviceGroupId, {
                 success: function (record) {
@@ -118,10 +108,13 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                         Ext.suspendLayouts();
                         widget.down('devicegroup-add-navigation').setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
                         widget.down('adddevicegroup-wizard').loadRecord(record);
+                        me.prepareStep2(null, {dynamic: record.get('dynamic')});
                         Ext.resumeLayouts(true);
                     }
                 },
-                callback: onDependeciesLoad
+                callback: function () {
+                    mainView.setLoading(false)
+                }
             });
         } else {
             widget.down('adddevicegroup-wizard').loadRecord(Ext.create(deviceGroupModelName));
@@ -225,7 +218,6 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 confirmBtn.hide();
                 finishBtn.hide();
                 cancelBtn.show();
-                me.prepareStep2(wizard);
                 break;
             case 3:
                 navigationMenu.jumpBack = false;
@@ -248,12 +240,32 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         }
     },
 
-    prepareStep2: function (wizard) {
-        var step2 =  wizard.down('device-group-wizard-step2'),
-            record = Ext.clone(wizard.getRecord());
+    prepareStep2: function (field, newValue) {
+        var me = this,
+            wizard = me.getAddDeviceGroupWizard(),
+            step2 =  wizard.down('device-group-wizard-step2'),
+            deviceDomain = 'com.energyict.mdc.device.data.Device',
+            domainsStore = me.service.getSearchDomainsStore(),
+            isDynamic = newValue.dynamic,
+            staticGrid,
+            staticGridRadioBtnValue;
 
-        wizard.updateRecord(record);
-        step2.getLayout().setActiveItem(record.get('dynamic') ? 1 : 0);
+        step2.getLayout().setActiveItem(isDynamic ? 1 : 0);
+        me.service.setSearchResultsStore(me.getStore(isDynamic ? 'Mdc.store.DynamicGroupDevices' : 'Mdc.store.StaticGroupDevices'));
+        if (!isDynamic) {
+            staticGrid = step2.down('static-group-devices-grid');
+            staticGridRadioBtnValue = {};
+            staticGrid.getSelectionModel().deselectAll();
+            staticGridRadioBtnValue[staticGrid.radioGroupName] = staticGrid.allInputValue;
+            staticGrid.getSelectionGroupType().setValue(staticGridRadioBtnValue);
+        }
+        if (domainsStore.isLoading()) {
+            domainsStore.on('load', function () {
+                me.service.setDomain(deviceDomain);
+            }, me, {single: true});
+        } else {
+            me.service.setDomain(deviceDomain);
+        }
     },
 
     prepareStep3: function (wizard, navigationMenu, buttons) {
