@@ -13,10 +13,10 @@ import java.util.stream.Collectors;
 
 public enum Privileges implements TranslationKey {
 
-	BROWSE_ANY(Constants.BROWSE_ANY, "Browse Any Usage Point"),
-	ADMIN_ANY(Constants.ADMIN_ANY, "Administrate Any Usage Point"),
-	BROWSE_OWN(Constants.BROWSE_OWN, "Browse Own Usage Point"),
-	ADMIN_OWN(Constants.ADMIN_OWN, "Administrate Own Usage Point");
+	BROWSE_ANY(Constants.BROWSE_ANY, "Browse any usage point"),
+	ADMIN_ANY(Constants.ADMIN_ANY, "Administrate any usage point"),
+	BROWSE_OWN(Constants.BROWSE_OWN, "Browse own usage point"),
+	ADMIN_OWN(Constants.ADMIN_OWN, "Administrate own usage point");
 
 	private final String key;
 	private final String description;
