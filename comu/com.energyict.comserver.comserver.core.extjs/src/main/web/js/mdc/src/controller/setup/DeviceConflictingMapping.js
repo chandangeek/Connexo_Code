@@ -143,6 +143,11 @@ Ext.define('Mdc.controller.setup.DeviceConflictingMapping', {
                 cancelLink = router.getRoute('devices/device/changedeviceconfiguration').buildUrl({mRID: me.returnInfo.id});
             }
                 break;
+            case('changeDeviceConfigurationBulk') :
+            {
+                cancelLink = router.getRoute('search/bulkAction').buildUrl();
+            }
+                break;
         }
 
         viewport.setLoading(true);
