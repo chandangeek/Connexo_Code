@@ -203,7 +203,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         var customAttributesStore = this.getStore('Mdc.customattributesonvaluesobjects.store.ChannelCustomAttributeSets');
         customAttributesStore.getProxy().setUrl(device.get('mRID'), channel.get('id'));
         widget.down('#deviceLoadProfileChannelsOverviewForm').loadRecord(channel);
-        customAttributesStore.load(function() {
+        customAttributesStore.load(function () {
             widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
         });
         this.fromSpecification = true;
@@ -288,7 +288,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
         var me = this,
             previewPanel;
 
-        if(selectionModel.getSelection().length === 1){
+        if (selectionModel.getSelection().length === 1) {
             previewPanel = me.getDeviceLoadProfileChannelDataPreview();
             previewPanel.updateForm(record);
         }
@@ -432,7 +432,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             me.getPage().down('#save-changes-button').isHidden() && me.showButtons();
 
             if (!event.record.get('value')) {
-                point.update({ y: null });
+                point.update({y: null});
             } else {
                 if (event.record.get('plotBand')) {
                     chart.xAxis[0].removePlotBand(event.record.get('interval').start);
@@ -603,7 +603,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                         me.getReadingEstimationWindow().down('#error-label').show();
                         var listOfFailedReadings = [];
                         Ext.Array.each(responseText.readings, function (readingTimestamp) {
-                            listOfFailedReadings.push(Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}',[Uni.DateTime.formatDateShort(new Date(readingTimestamp)),Uni.DateTime.formatTimeShort(new Date(readingTimestamp))], false).toLowerCase());
+                            listOfFailedReadings.push(Uni.I18n.translate('general.dateattime', 'MDC', '{0} At {1}', [Uni.DateTime.formatDateShort(new Date(readingTimestamp)), Uni.DateTime.formatTimeShort(new Date(readingTimestamp))], false).toLowerCase());
                         });
                         me.getReadingEstimationWindow().down('#error-label').setText('<div style="color: #FF0000">' +
                             Uni.I18n.translate('devicechannels.estimationErrorMessage', 'MDC', 'Could not estimate {0} with {1}',
@@ -638,7 +638,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
     },
 
     checkSuspect: function (menu) {
-        var validationResult =  menu.record.get('validationResult'),
+        var validationResult = menu.record.get('validationResult'),
             mainStatus = false,
             bulkStatus = false;
 
@@ -699,7 +699,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
                     if (mainStatus) {
                         rec.get('mainValidationInfo').confirmedNotSaved = true;
-                        chart.get(rec.get('interval').start).update({ color: 'rgba(112,187,81,0.3)' });
+                        chart.get(rec.get('interval').start).update({color: 'rgba(112,187,81,0.3)'});
                     }
 
                     if (bulkStatus) {
@@ -793,7 +793,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
                 model.load(channelId, {
                     success: function (channel) {
 
-                        var widget = Ext.widget('deviceLoadProfileChannelsEditCustomAttributes',{device: device});
+                        var widget = Ext.widget('deviceLoadProfileChannelsEditCustomAttributes', {device: device});
                         me.getApplication().fireEvent('loadDevice', device);
                         me.getApplication().fireEvent('channelOfLoadProfileOfDeviceLoad', channel);
                         me.getApplication().fireEvent('channelOfLoadProfileCustomAttributes', device);
@@ -809,7 +809,7 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
     },
 
-    loadPropertiesRecord: function(widget, mRID, channelId, customAttributeSetId) {
+    loadPropertiesRecord: function (widget, mRID, channelId, customAttributeSetId) {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0],
             model = Ext.ModelManager.getModel('Mdc.customattributesonvaluesobjects.model.AttributeSetOnChannel'),
@@ -819,31 +819,37 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
         model.load(customAttributeSetId, {
             success: function (record) {
-                widget.down('#channelEditPanel').setTitle(Uni.I18n.translate('devicechannels.EditCustomAttributeSet', 'MDC', "Edit '{0}'",[record.get('name')]));
+                widget.down('#channelEditPanel').setTitle(Uni.I18n.translate('devicechannels.EditCustomAttributeSet', 'MDC', "Edit '{0}'", [record.get('name')]));
                 me.getApplication().fireEvent('channelOfLoadProfileCustomAttributes', record);
                 form.loadRecord(record);
             },
             callback: function () {
                 viewport.setLoading(false);
             }
-
         });
     },
 
-    restoreChannelOfLoadProfileCustomAttributes: function(){
+    restoreChannelOfLoadProfileCustomAttributes: function () {
         this.getEditPropertyForm().restoreAll();
     },
 
-    toPreviousPage : function() {
-        if(this.fromSpecification == true){
+    toPreviousPage: function () {
+        if (this.fromSpecification == true) {
             this.getController('Uni.controller.history.Router').getRoute('devices/device/channels/channel').forward();
         } else {
             this.getController('Uni.controller.history.Router').getRoute('devices/device/channels').forward();
         }
-
     },
 
-    saveChannelOfLoadProfileCustomAttributes : function() {
+    getPreviousPageUrl: function () {
+        if (this.fromSpecification == true) {
+            return this.getController('Uni.controller.history.Router').getRoute('devices/device/channels/channel').buildUrl();
+        } else {
+            return this.getController('Uni.controller.history.Router').getRoute('devices/device/channels').buildUrl();
+        }
+    },
+
+    saveChannelOfLoadProfileCustomAttributes: function () {
         var me = this,
             form = me.getEditPropertyForm(),
             editView = me.getEditCustomAttributesPanel();
@@ -852,12 +858,13 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
 
         form.updateRecord();
         form.getRecord().save({
-            callback: function (model, operation, success) {
+            backUrl: me.getPreviousPageUrl(),
+            success: function () {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('channelAttributes.saved', 'MDC', 'Channel attributes saved'));
+                me.toPreviousPage();
+            },
+            callback: function () {
                 editView.setLoading(false);
-                if (success) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicechannels.customAttributeSetSaved', 'MDC', 'Custom attributes saved.'));
-                    me.toPreviousPage();
-                }
             }
         });
     },

@@ -1,5 +1,5 @@
 Ext.define('Mdc.customattributesonvaluesobjects.model.AttributeSetOnObject', {
-    extend: 'Ext.data.Model',
+    extend: 'Uni.model.ParentVersion',
     requires: [
         'Uni.property.model.Property'
     ],

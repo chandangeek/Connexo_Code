@@ -7,7 +7,7 @@ Ext.define('Mdc.model.LoadProfileTypeOnDeviceType', {
         {name:'timeDuration', type: 'auto', useNull: true},
         {name:'registerTypes', type: 'auto'},
         {name:'isLinkedToActiveDeviceConf', type: 'boolean'},
-        {name:'customPropertySet', type: 'auto'}
+        {name:'customPropertySet', type: 'auto', defaultValue: null}
     ],
 
     proxy: {
