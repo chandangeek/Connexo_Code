@@ -190,15 +190,6 @@
                             <goal>bundle</goal>
                         </goals>
                     </execution>
-                    <execution>
-                        <id>baseline</id>
-                        <goals>
-                            <goal>baseline</goal>
-                        </goals>
-                        <configuration>
-                            <failOnError>true</failOnError>
-                        </configuration>
-                    </execution>
                 </executions>
             </plugin>
             <plugin>
