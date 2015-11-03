@@ -62,8 +62,7 @@ Ext.define('Uni.view.navigation.Header', {
         },
         {
             xtype: 'navigationHelp',
-            itemId: 'global-online-help',
-            hidden: true
+            itemId: 'global-help-menu-btn'
         },
         {
             xtype: 'userMenu',

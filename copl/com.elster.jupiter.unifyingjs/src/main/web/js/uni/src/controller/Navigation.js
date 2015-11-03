@@ -63,16 +63,12 @@ Ext.define('Uni.controller.Navigation', {
             'navigationHeader #globalSearch': {
                 afterrender: me.initSearch
             },
-            'navigationHeader #global-online-help': {
-                afterrender: me.initOnlineHelp
-            }
         });
 
         me.getApplication().on('changemaincontentevent', me.showContent, me);
         me.getApplication().on('changemainbreadcrumbevent', me.setBreadcrumb, me);
         me.getApplication().on('onnavigationtitlechanged', me.onNavigationTitleChanged, me);
         me.getApplication().on('onnavigationtogglesearch', me.onNavigationToggleSearch, me);
-        me.getApplication().on('ononlinehelpenabled', me.onOnlineHelpEnabled, me);
 
         me.getController('Uni.controller.history.Router').on('routematch', me.initBreadcrumbs, me);
         me.getController('Uni.controller.history.Router').on('routechange', me.updateBreadcrumb, me);
@@ -87,10 +83,6 @@ Ext.define('Uni.controller.Navigation', {
     },
     onNavigationToggleSearch: function (enabled) {
         this.searchEnabled = enabled;
-    },
-
-    onOnlineHelpEnabled: function (enabled) {
-        this.onlineHelpEnabled = enabled;
     },
 
     initTitle: function (breadcrumbItem) {
@@ -154,40 +146,6 @@ Ext.define('Uni.controller.Navigation', {
         var me = this;
         me.getSearchButton().setVisible(me.searchEnabled &&
         Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData', 'privilege.view.device', 'privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication']));
-    },
-
-    initOnlineHelp: function () {
-        var me = this,
-            helpBtn = me.getOnlineHelpButton();
-
-        if (me.onlineHelpEnabled) {
-            Ext.Ajax.request({
-                url: '/api/usr/currentuser',
-                success: function (response) {
-                    var currentUser = Ext.decode(response.responseText, true),
-                        url;
-                    if (currentUser && currentUser.language && currentUser.language.languageTag) {
-                        url = 'help/' + currentUser.language.languageTag + '/index.html';
-                        Ext.Ajax.request({
-                            url: url,
-                            method: 'HEAD',
-                            success: function (response) {
-                                helpBtn.setHref(url);
-                            },
-                            callback: function () {
-                                helpBtn.show();
-                            }
-                        });
-                    } else {
-                        helpBtn.show();
-                    }
-                }, failure: function () {
-                    helpBtn.show();
-                }
-            });
-        } else {
-            helpBtn.hide();
-        }
     },
 
     onAfterRenderNavigationMenu: function () {

@@ -82,7 +82,6 @@ Ext.define('Uni.controller.AppController', {
         me.getController('Uni.controller.Navigation');
         me.getApplication().fireEvent('onnavigationtitlechanged', me.applicationTitle);
         me.getApplication().fireEvent('onnavigationtogglesearch', me.searchEnabled);
-        me.getApplication().fireEvent('ononlinehelpenabled', me.onlineHelpEnabled);
 
         me.getController('Uni.controller.history.EventBus').setDefaultToken(me.defaultToken);
         me.getApplication().on('getapplicationtitleevent', me.getApplicationTitle, me);
