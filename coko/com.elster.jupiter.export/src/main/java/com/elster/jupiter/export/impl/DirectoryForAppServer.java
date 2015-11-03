@@ -1,6 +1,7 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.appserver.AppServer;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -15,6 +16,7 @@ class DirectoryForAppServer {
     private DataModel dataModel;
 
     private Reference<AppServer> appServer = ValueReference.absent();
+    @ValidFileLocation(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.INVALIDCHARS_EXCEPTION + "}")
     private String pathString;
 
     private transient Path path;
