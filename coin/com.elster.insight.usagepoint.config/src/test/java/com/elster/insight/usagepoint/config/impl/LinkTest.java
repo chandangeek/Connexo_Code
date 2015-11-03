@@ -17,7 +17,6 @@ import org.osgi.service.event.EventAdmin;
 
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
-import com.elster.insight.usagepoint.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -130,13 +129,14 @@ public class LinkTest {
     @Test
     public void testLinkUPtoMC()  {
         long upId;
+        UsagePoint up;
         long mcId;
 
         try (TransactionContext context = getTransactionService().getContext()) {
             MeteringService mtrService = getMeteringService();
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
             ServiceCategory serviceCategory = mtrService.getServiceCategory(ServiceKind.ELECTRICITY).get();
-            UsagePoint up = serviceCategory.newUsagePoint("mrID").create();
+            up = serviceCategory.newUsagePoint("mrID").create();
             upId = up.getId();
             MetrologyConfiguration mc = upcService.newMetrologyConfiguration("Residential");
             mcId = mc.getId();
@@ -145,18 +145,19 @@ public class LinkTest {
         try (TransactionContext context = getTransactionService().getContext()) {
             MeteringService mtrService = getMeteringService();
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
-            Optional<UsagePoint> up = mtrService.findUsagePoint(upId);
+            Optional<UsagePoint> up2 = mtrService.findUsagePoint(upId);
         	Optional<MetrologyConfiguration> mc = upcService.findMetrologyConfiguration(mcId);
-        	assertThat(up).isPresent();
+        	assertThat(up2).isPresent();
         	assertThat(mc).isPresent();
         	assertThat(mc.get().getName()).isEqualTo("Residential");
-        	assertThat(up.get().getMRID()).isEqualTo("mrID");
-        	UsagePointMetrologyConfiguration upmc = upcService.link(up.get(),  mc.get());
-            assertThat(upmc).isNotNull();            
-            assertThat(upmc.getMetrologyConfiguration().getName()).isEqualTo("Residential");
-            assertThat(upmc.getUsagePoint().getMRID()).isEqualTo("mrID");
-            context.commit();
+        	assertThat(up2.get().getMRID()).isEqualTo("mrID");
+        	upcService.link(up2.get(),  mc.get());
+        	context.commit();
         }
+        UsagePointConfigurationService upcService = getUsagePointConfigurationService();
+        Optional<MetrologyConfiguration> mc = upcService.findMetrologyConfigurationForUsagePoint(up);
+        assertThat(mc).isPresent();
+        assertThat(mc.get().getName()).isEqualTo("Residential");
     }
     
     @Test

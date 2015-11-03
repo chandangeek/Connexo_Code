@@ -13,6 +13,7 @@ public interface MetrologyConfiguration {
 
     String getName();
 
+    //TODO: JP-480
     void setName(String name);
 
     MetrologyConfigurationValidationRuleSetUsage addValidationRuleSet(ValidationRuleSet validationRuleSet);

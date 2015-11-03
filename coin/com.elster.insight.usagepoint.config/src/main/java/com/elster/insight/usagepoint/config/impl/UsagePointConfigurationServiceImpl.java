@@ -4,7 +4,6 @@ import static com.elster.jupiter.util.conditions.Where.where;
 
 import java.time.Clock;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -15,20 +14,19 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import com.elster.insight.usagepoint.config.MetrologyConfigurationValidationRuleSetUsage;
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
+import com.elster.insight.usagepoint.config.MetrologyConfigurationValidationRuleSetUsage;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.insight.usagepoint.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.domain.util.DefaultFinder;
-import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -38,8 +36,6 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
 
     private volatile DataModel dataModel;
     private volatile Clock clock;
-    private volatile UserService userService;
-    private volatile QueryService queryService;
     private volatile EventService eventService;
     private volatile ValidationService validationService;
 
@@ -47,12 +43,10 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     }
 
     @Inject
-    public UsagePointConfigurationServiceImpl(Clock clock, OrmService ormService, QueryService queryService, UserService userService, EventService eventService,
+    public UsagePointConfigurationServiceImpl(Clock clock, OrmService ormService, EventService eventService,
             MeteringService meteringService, ValidationService validationService) {
         setClock(clock);
         setOrmService(ormService);
-        setQueryService(queryService);
-        setUserService(userService);
         setEventService(eventService);
         setValidationService(validationService);
         activate();
@@ -68,7 +62,6 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                 bind(DataModel.class).toInstance(dataModel);
                 bind(EventService.class).toInstance(eventService);
                 bind(Clock.class).toInstance(clock);
-                bind(UserService.class).toInstance(userService);
                 bind(ValidationService.class).toInstance(validationService);
             }
         };
@@ -77,10 +70,6 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     @Activate
     public void activate() {
         dataModel.register(getModule());
-    }
-
-    public QueryService getQueryService() {
-        return queryService;
     }
 
     @Override
@@ -109,16 +98,6 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
-    }
-
-    @Reference
-    public void setQueryService(QueryService queryService) {
-        this.queryService = queryService;
-    }
-
-    @Reference
-    public void setUserService(UserService userService) {
-        this.userService = userService;
     }
 
     @Reference
@@ -160,7 +139,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
             link.get().update();           
             return link.get();
         }
-        UsagePointMetrologyConfigurationImpl candidate = new UsagePointMetrologyConfigurationImpl(dataModel, eventService);
+        UsagePointMetrologyConfigurationImpl candidate = dataModel.getInstance(UsagePointMetrologyConfigurationImpl.class);
         candidate.init(up, mc);
         candidate.update();
         return candidate;
@@ -193,10 +172,10 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     }
 
     @Override
-    public List<MetrologyConfiguration> findMetrologyConfigurationsForValidationRuleSet(long id) {
-        return this.getDataModel().
-                query(MetrologyConfiguration.class, MetrologyConfigurationValidationRuleSetUsage.class).
-                select(where("metrologyConfigurationValidationRuleSetUsage.validationRuleSetId").isEqualTo(id), Order.ascending("name"));
-
+    public List<MetrologyConfiguration> findMetrologyConfigurationsForValidationRuleSet(ValidationRuleSet rs) {
+        return this.getDataModel()
+                .query(MetrologyConfigurationValidationRuleSetUsage.class)
+                .select(where("validationRuleSet").isEqualTo(rs))
+                .stream().map(each -> each.getMetrologyConfiguration()).collect(Collectors.toList());
     }
 }
