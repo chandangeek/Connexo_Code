@@ -3,7 +3,8 @@ Ext.define('Uni.view.search.field.Simple', {
     xtype: 'uni-search-criteria-simple',
     requires: [
         'Uni.view.search.field.internal.Input',
-        'Uni.view.search.field.internal.Operator'
+        'Uni.view.search.field.internal.Operator',
+        'Uni.model.search.Value'
     ],
 
     reset: function() {
@@ -17,10 +18,10 @@ Ext.define('Uni.view.search.field.Simple', {
     },
 
     onInputChange: function() {
-        this.setValue({
+        this.setValue(Ext.create('Uni.model.search.Value', {
             operator: this.down('#filter-operator').getValue(),
             criteria: this.down('#filter-input').getValue()
-        });
+        }));
     },
 
     initComponent: function () {
@@ -36,6 +37,7 @@ Ext.define('Uni.view.search.field.Simple', {
                     xtype: 'uni-search-internal-operator',
                     value: '==',
                     margin: '0 5 0 0',
+                    operators: ['==', '!='],
                     listeners: {
                         change: {
                             fn: me.onInputChange,

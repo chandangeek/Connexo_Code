@@ -43,7 +43,9 @@ Ext.define('Uni.view.search.field.Selection', {
     extend: 'Uni.view.search.field.internal.CriteriaButton',
     requires: [
         'Ext.grid.Panel',
-        'Uni.view.search.field.internal.Input'
+        'Uni.view.search.field.internal.Input',
+        'Uni.view.search.field.internal.Operator',
+        'Uni.model.search.Value'
     ],
 
     mixins: [
@@ -69,11 +71,17 @@ Ext.define('Uni.view.search.field.Selection', {
         this.setText(this.emptyText + '&nbsp;(' + value.length + ')');
     },
 
-    onSelectionChange: function () {
-        var me = this;
-        me.setValue(me.selection.getRange().map(function(item){
-            return item.get(me.valueField)
+    onChange: function () {
+        var me = this,
+            value = me.selection.getRange().map(function(item){
+                return item.get(me.valueField)
+            });
+
+        me.setValue(Ext.create('Uni.model.search.Value', {
+            operator: this.down('#filter-operator').getValue(),
+            criteria: value
         }));
+
         me.down('#filter-selected').setDisabled(!me.selection.length);
     },
 
@@ -90,15 +98,15 @@ Ext.define('Uni.view.search.field.Selection', {
             selection = me.selection = Ext.create('Ext.util.MixedCollection', {
                 listeners: {
                     add: {
-                        fn: me.onSelectionChange,
+                        fn: me.onChange,
                         scope: me
                     },
                     remove: {
-                        fn: me.onSelectionChange,
+                        fn: me.onChange,
                         scope: me
                     },
                     clear: {
-                        fn: me.onSelectionChange,
+                        fn: me.onChange,
                         scope: me
                     }
                 }
@@ -131,11 +139,16 @@ Ext.define('Uni.view.search.field.Selection', {
                         items: [
                             {
                                 itemId: 'filter-operator',
-                                xtype: 'combo',
-                                value: '=',
-                                width: 50,
+                                xtype: 'uni-search-internal-operator',
+                                value: '==',
                                 margin: '0 5 0 0',
-                                disabled: true
+                                operators: ['==', '!='],
+                                listeners: {
+                                    change: {
+                                        fn: me.onChange,
+                                        scope: me
+                                    }
+                                }
                             },
                             {
                                 xtype: 'uni-search-internal-input',
@@ -188,7 +201,7 @@ Ext.define('Uni.view.search.field.Selection', {
                                 selectionModel.selectAll();
                             }
                             selection.resumeEvents();
-                            me.onSelectionChange();
+                            me.onChange();
                             delete selectionModel.preventFocus;
                         }
                     },

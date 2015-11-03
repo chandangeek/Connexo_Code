@@ -12,8 +12,21 @@ Ext.define('Uni.view.search.field.internal.Operator', {
     store: [
         ["==", "="],
         ["!=", "!="],
-        ["BETWEEN", "Between"]
+        ["BETWEEN", "Between"],
+        ["NOTNULL", "Not empty"]
         //...
-    ]
+    ],
+    config: {
+        operators: null
+    },
+
+    constructor: function(config) {
+        var me = this;
+        if (config.operators) {
+            me.store = _.filter(me.store, function(i){return config.operators.indexOf(i[0]) >= 0});
+        }
+
+        me.callParent(arguments);
+    }
 });
 
