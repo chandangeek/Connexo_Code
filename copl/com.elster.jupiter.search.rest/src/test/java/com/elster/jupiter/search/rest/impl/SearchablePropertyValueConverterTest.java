@@ -2,6 +2,8 @@ package com.elster.jupiter.search.rest.impl;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.SearchablePropertyOperator;
+import com.elster.jupiter.search.SearchablePropertyValue;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.LongNode;

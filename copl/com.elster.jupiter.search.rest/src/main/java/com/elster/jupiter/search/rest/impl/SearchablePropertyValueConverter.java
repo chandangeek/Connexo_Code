@@ -3,6 +3,8 @@ package com.elster.jupiter.search.rest.impl;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.SearchablePropertyOperator;
+import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.search.rest.MessageSeeds;
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -55,7 +57,7 @@ public class SearchablePropertyValueConverter implements Function<JsonNode, Sear
     private void mapOperatorField(JsonNode node, SearchablePropertyValue.ValueBean propertyBean) {
         JsonNode operatorNode = node.get(OPERATOR_FIELD);
         if (operatorNode != null && operatorNode.isTextual()) {
-            propertyBean.operator = SearchablePropertyOperator.getOperatorForCode(operatorNode.textValue());
+            propertyBean.operator = SearchablePropertyOperator.getFromCode(operatorNode.textValue());
         }
     }
 

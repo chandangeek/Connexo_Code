@@ -18,6 +18,7 @@ import org.mockito.ArgumentCaptor;
 
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
+import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -182,7 +183,7 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
 
     @Test
     public void testRestictedDomainProperties() throws Exception {
-        Response response = target("/search/com.devices/searchcriteria").queryParam("filter", ExtjsFilter.filter().property("deviceType", Collections.singletonList("13")).create()).request().accept("application/json").get();
+        Response response = target("/search/com.devices/searchcriteria").queryParam("filter", URLEncoder.encode("[{\"property\":\"deviceType\",\"value\":[{\"operator\":\"==\",\"criteria\":\"13\"}]}]", "UTF-8")).request().accept("application/json").get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         ArgumentCaptor<List> constrictions = ArgumentCaptor.forClass(List.class);
         verify(devicesDomain).getPropertiesWithConstrictions(constrictions.capture());
