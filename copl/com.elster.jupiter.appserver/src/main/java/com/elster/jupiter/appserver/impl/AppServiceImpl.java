@@ -536,7 +536,7 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
         resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
-                "appServer.appServers", "appServer.appServers.description",
+                Privileges.RESOURCE_APPSERVER.getKey(), Privileges.RESOURCE_APPSERVER_DESCRIPTION.getKey(),
                 Arrays.asList(Privileges.Constants.ADMINISTRATE_APPSEVER, Privileges.Constants.VIEW_APPSEVER)));
         return resources;
     }
