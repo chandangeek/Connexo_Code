@@ -45,6 +45,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
 
     filterObjectParam: 'filter',
     lastRequest: undefined,
+    searchFieldsOnLoadListener: null,
 
     init: function () {
         var me = this;
@@ -282,6 +283,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
 
         step2.getLayout().setActiveItem(isDynamic ? 1 : 0);
         me.service.setSearchResultsStore(me.getStore(isDynamic ? 'Mdc.store.DynamicGroupDevices' : 'Mdc.store.StaticGroupDevices'));
+        me.setColumnPicker(isDynamic);
         if (!isDynamic) {
             staticGrid = step2.down('static-group-devices-grid');
             staticGridRadioBtnValue = {};
@@ -296,6 +298,32 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         } else {
             me.service.setDomain(deviceDomain);
         }
+    },
+
+    setColumnPicker: function (isDynamic) {
+        var me = this,
+            grid = me.getAddDeviceGroupWizard().down(isDynamic
+                ? 'dynamic-group-devices-grid'
+                : 'static-group-devices-grid'),
+            destroyListener = function () {
+                if (me.searchFieldsOnLoadListener) {
+                    me.searchFieldsOnLoadListener.destroy();
+                }
+            };
+
+        destroyListener();
+        me.searchFieldsOnLoadListener = me.service.getSearchFieldsStore().on('load', function (store, items) {
+            grid.getStore().model.setFields(items.map(function (field) {
+                return me.service.createFieldDefinitionFromModel(field)
+            }));
+
+            grid.down('uni-search-column-picker').setColumns(items.map(function (field) {
+                return me.service.createColumnDefinitionFromModel(field)
+            }));
+        }, grid, {
+            destroyable: true
+        });
+        grid.on('destroy', destroyListener);
     },
 
     prepareStep3: function (wizard, navigationMenu, buttons) {

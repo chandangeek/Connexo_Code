@@ -17,9 +17,7 @@ Ext.define('Mdc.view.setup.devicegroup.DynamicGroupDevicesGrid', {
     },
 
     initComponent: function () {
-        var me = this,
-            service = me.getService(),
-            searchFields = service.getSearchFieldsStore();
+        var me = this;
 
         me.dockedItems = [
             {
@@ -44,21 +42,6 @@ Ext.define('Mdc.view.setup.devicegroup.DynamicGroupDevicesGrid', {
             }
         ];
 
-        var listeners = searchFields.on('load', function (store, items) {
-            me.getStore().model.setFields(items.map(function (field) {
-                return service.createFieldDefinitionFromModel(field)
-            }));
-
-            me.down('uni-search-column-picker').setColumns(items.map(function (field) {
-                return service.createColumnDefinitionFromModel(field)
-            }));
-        }, me, {
-            destroyable: true
-        });
-
         me.callParent(arguments);
-        me.on('destroy', function(){
-            listeners.destroy();
-        });
     }
 });
