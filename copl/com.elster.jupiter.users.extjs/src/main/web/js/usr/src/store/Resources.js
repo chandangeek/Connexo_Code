@@ -6,7 +6,7 @@ Ext.define('Usr.store.Resources', {
     pageSize: 100,
     model: 'Usr.model.Resource',
     groupField: 'componentName',
-    remoteSort: true,
+    remoteSort: false,
     sorters: {
         property: 'qualifiedName',
         direction: 'ASC'
