@@ -116,6 +116,10 @@ Ext.define('Apr.controller.AppServers', {
         {
             ref: 'noImportServicesUndoSettingsButton',
             selector: '#apr-no-imp-services-undo-btn'
+        },
+        {
+            ref: 'noImportServicesAddButton',
+            selector: '#add-import-services-button-from-detail-empty'
         }
     ],
     appServer: null,
@@ -330,7 +334,12 @@ Ext.define('Apr.controller.AppServers', {
                             me.updateImportServiceCounter();
                             me.importServicesDataChanged();
                             view.down('preview-container').updateOnChange(!servedImportStore.getCount())
-                            me.getAddImportServicesButtonFromDetails().setDisabled(disabled);
+                            if (me.getAddImportServicesButtonFromDetails()) {
+                                me.getAddImportServicesButtonFromDetails().setDisabled(disabled);
+                            }
+                            if (me.getNoImportServicesAddButton()) {
+                                me.getNoImportServicesAddButton().setDisabled(disabled);
+                            }
 
                         }
                     });
