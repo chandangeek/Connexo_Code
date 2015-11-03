@@ -141,8 +141,7 @@ public class MetrologyConfigurationCrudTest {
             Optional<MetrologyConfiguration> mc1 = upcService.findMetrologyConfiguration(1);
             assertThat(mc1).isPresent();
             assertThat(mc1.get().getName()).isEqualTo("Residenshull");
-            mc1.get().setName("Residential");
-            mc1.get().update();
+            mc1.get().updateName("Residential");
             mc1 = upcService.findMetrologyConfiguration(1);            
             assertThat(mc1).isPresent();
             assertThat(mc1.get().getName()).isEqualTo("Residential");
@@ -199,10 +198,9 @@ public class MetrologyConfigurationCrudTest {
     public void testDuplicateNameRename() {
         try (TransactionContext context = getTransactionService().getContext()) {
             UsagePointConfigurationService upcService = getUsagePointConfigurationService();
-            upcService.newMetrologyConfiguration("dup1");
+            upcService.newMetrologyConfiguration("dup2");
             MetrologyConfiguration x = upcService.newMetrologyConfiguration("x");
-            x.setName("dup1");
-            x.update();
+            x.updateName("dup2");
             context.commit();
         }
     }

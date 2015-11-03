@@ -80,8 +80,7 @@ public class ConsoleCommands {
             transactionService.execute(VoidTransaction.of(() -> {
                 
                 MetrologyConfiguration metrologyConfiguration = usagePointConfigurationService.findMetrologyConfiguration(id).get();
-                metrologyConfiguration.setName(name);
-                metrologyConfiguration.update();
+                metrologyConfiguration.updateName(name);
                 
             }));
         } catch (Exception e) {

@@ -135,8 +135,7 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
     public UsagePointMetrologyConfiguration link(UsagePoint up, MetrologyConfiguration mc) {
         Optional<UsagePointMetrologyConfiguration> link = this.getDataModel().query(UsagePointMetrologyConfiguration.class).select(where("usagePoint").isEqualTo(up)).stream().findFirst();
         if (link.isPresent()) {
-            link.get().setMetrologyConfiguration(mc);
-            link.get().update();           
+            link.get().updateMetrologyConfiguration(mc);          
             return link.get();
         }
         UsagePointMetrologyConfigurationImpl candidate = dataModel.getInstance(UsagePointMetrologyConfigurationImpl.class);

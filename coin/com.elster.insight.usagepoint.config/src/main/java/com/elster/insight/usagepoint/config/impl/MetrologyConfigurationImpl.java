@@ -47,8 +47,10 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
         this.validationService = validationService;
     }
 
-    MetrologyConfigurationImpl init(String name) {        
-        setName(name);
+    MetrologyConfigurationImpl init(String name) {  
+        if (name != null) {
+            this.name = name.trim();
+        }
         return this;
     }
 
@@ -63,9 +65,10 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
     }
 
     @Override
-    public void setName(String name) {
+    public void updateName(String name) {
         if (name != null) {
             this.name = name.trim();
+            this.update();
         }
     }
 
@@ -139,7 +142,6 @@ public final class MetrologyConfigurationImpl implements MetrologyConfiguration 
         this.version = version;
     }
 
-    @Override
     public void update() {
         Save s = action(getId());
         s.save(dataModel, this);

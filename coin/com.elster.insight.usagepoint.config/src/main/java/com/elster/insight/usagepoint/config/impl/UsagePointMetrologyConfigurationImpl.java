@@ -58,11 +58,11 @@ public class UsagePointMetrologyConfigurationImpl implements UsagePointMetrology
     }
 
     @Override
-    public void setMetrologyConfiguration(MetrologyConfiguration mc) {
+    public void updateMetrologyConfiguration(MetrologyConfiguration mc) {
         this.metrologyConfiguration.set(mc);
+        this.update();
     }
 
-    @Override
     public void update() {
         Save s = action(getId());
         s.save(dataModel, this);

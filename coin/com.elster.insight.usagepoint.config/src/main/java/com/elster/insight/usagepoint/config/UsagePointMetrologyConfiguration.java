@@ -2,15 +2,15 @@ package com.elster.insight.usagepoint.config;
 
 import java.time.Instant;
 
+import aQute.bnd.annotation.ProviderType;
+
 import com.elster.jupiter.metering.UsagePoint;
 
+@ProviderType
 public interface UsagePointMetrologyConfiguration {
 	UsagePoint getUsagePoint();
 	MetrologyConfiguration getMetrologyConfiguration();
-	//TODO: JP-480 change to updateMetrologyConfiguration and make it persist.
-	void setMetrologyConfiguration(MetrologyConfiguration mc);
-	//TODO: Remove? JP-480
-	public void update();
+	void updateMetrologyConfiguration(MetrologyConfiguration mc);
 	public void delete();
 
 	long getId();
