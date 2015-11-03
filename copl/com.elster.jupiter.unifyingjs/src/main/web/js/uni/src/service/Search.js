@@ -180,7 +180,7 @@ Ext.define('Uni.service.Search', {
     },
 
     onSearchPropertiesLoad: function () {
-        //debugger;
+        //todo: post criteria update functions
     },
 
     initCriteria: function () {
@@ -199,7 +199,7 @@ Ext.define('Uni.service.Search', {
             filter = me.createWidgetForProperty(property);
 
         if (Ext.isDefined(filter)) {
-            me.filters.add(filter);
+            me.filters.add(property.get('sticky') ? filter : filter.widget);
             me.fireEvent('add', me.filters, filter, property);
         }
     },
@@ -302,6 +302,16 @@ Ext.define('Uni.service.Search', {
         };
     },
 
+    checkConstraints: function (property) {
+        var me = this;
+
+        return !!property.get('constraints').filter(function (c) {
+            return !me.getFilters().find(function (f) {
+                return (f.id === c) && f.value
+            })
+        }).length
+    },
+
     createWidgetForProperty: function (property) {
         var me = this,
             type = property.get('type'),
@@ -336,6 +346,13 @@ Ext.define('Uni.service.Search', {
                 }
             });
 
+            if (property.get('constraints')) {
+                var filters = _.filter(me.getFilters(), function (f) {
+                    return property.get('constraints').indexOf(f.id >= 0);
+                });
+
+                store.addFilter(filters, false);
+            }
             store.load();
 
             Ext.apply(config, {
@@ -348,7 +365,7 @@ Ext.define('Uni.service.Search', {
             });
         }
 
-        if (property.get('constraints') && property.get('constraints').length) {
+        if (property.get('constraints') && property.get('constraints').length && me.checkConstraints(property)) {
             Ext.apply(config, {
                 disabled: true
             });
@@ -417,5 +434,7 @@ Ext.define('Uni.service.Search', {
                 }
             });
         }
+
+        me.fireEvent('change', widget, value);
     }
 });

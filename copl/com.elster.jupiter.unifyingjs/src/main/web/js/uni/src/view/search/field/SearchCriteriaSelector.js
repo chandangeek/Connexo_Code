@@ -15,6 +15,7 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
     config: {
         service: null
     },
+    menuItems: [],
 
     setChecked: function(property, value, suppressEvents) {
         var item, me = this;
@@ -30,7 +31,9 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
     },
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            service = this.getService(),
+            listeners = [];
 
         me.menu = {
             plain: true,
@@ -39,19 +42,22 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
             }
         };
 
-        var service = this.getService();
-        var listeners = [];
-
-        //service.on('reset', this.onReset, this);
-        listeners.push(service.on('add', this.onCriteriaAdd, this, {
-            destroyable: true
-        }));
-        listeners.push(service.on('remove', this.onCriteriaRemove, this, {
+        listeners.push(service.on({
+            add:  me.onCriteriaAdd,
+            remove: me.onCriteriaRemove,
+            change: me.onCriteriaChange,
+            scope: me,
             destroyable: true
         }));
 
-        this.callParent(arguments);
+        me.callParent(arguments);
         me.bindStore(me.store, true);
+
+        listeners.push(me.store.on('beforeload', function() {
+            me.setLoading(true);
+        }, me, {
+            destroyable: true
+        }));
 
         listeners.push(me.store.on('load', me.onStoreLoad, me, {
             destroyable: true
@@ -82,6 +88,26 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
         }
     },
 
+    /**
+     * performs constraint update
+     *
+     * @param widget
+     * @param value
+     */
+    onCriteriaChange: function (widget, value) {
+        var me = this,
+            deps = _.filter(me.menuItems, function (item) {
+                return item.rendered
+                && !!(item.criteria.get('constraints')
+                && item.criteria.get('constraints').length
+                && item.criteria.get('constraints').indexOf(widget.property.get('name')) >= 0);
+            });
+
+        deps.map(function (item) {
+            item.setDisabled(!value);
+        });
+    },
+
     createMenuItem: function (criteria) {
         var menuitem = {
             xtype: 'menucheckitem',
@@ -90,18 +116,23 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
             criteria: criteria
         };
 
-        if (criteria.get('constraints') && criteria.get('constraints').length) {
+        if (    criteria.get('constraints')
+            &&  criteria.get('constraints').length
+            &&  this.service.checkConstraints(criteria)
+        ) {
             Ext.apply(menuitem, {
-                disabled: true
-                //todo: fix tooltip
-                //tooltip: {
-                //    title: 'Enable connection properties',
-                //    text: 'Connection properties become available as soon as a search value has been specified for Device type, Device configuration and Connection properties.',
-                //    maxWidth: 150
-                //}
+                disabled: true,
+                tooltip: {
+                    title: Uni.I18n.translate('search.criteriaselector.disabled.title', 'UNI', 'Enable {0}', [criteria.get('displayValue')]),
+                    text: Uni.I18n.translate('search.criteriaselector.disabled.title', 'UNI',
+                        '{0} become available as soon as a search value has been specified for {1}',
+                        [criteria.get('displayValue'), criteria.get('constraints').join(', ')]),
+                    maxWidth: 150
+                }
             })
         }
-        return menuitem
+
+        return menuitem;
     },
 
     onStoreLoad: function (store) {
@@ -120,6 +151,7 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
 
             store.getGroups().map(function(group) {
                 var items = [];
+
                 group.children.map(function(item) {
                     items.push(me.createMenuItem(item));
                 });
@@ -137,6 +169,8 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
             });
         }
         Ext.resumeLayouts(true);
+
+        me.setLoading(false);
     },
 
     setValue: function(value) {
