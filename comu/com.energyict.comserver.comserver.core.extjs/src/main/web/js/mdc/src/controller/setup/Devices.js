@@ -4,7 +4,8 @@ Ext.define('Mdc.controller.setup.Devices', {
     requires: [
         'Mdc.model.DeviceAttribute',
         'Mdc.model.Device',
-        'Cfg.privileges.Validation'
+        'Cfg.privileges.Validation',
+        'Dbp.privileges.DeviceProcesses'
     ],
     views: [
         'Mdc.view.setup.device.DeviceSetup',
