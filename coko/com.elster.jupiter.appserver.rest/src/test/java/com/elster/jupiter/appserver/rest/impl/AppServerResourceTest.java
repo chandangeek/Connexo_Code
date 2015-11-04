@@ -30,7 +30,11 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class AppServerResourceTest extends AppServerApplicationTest {
 
@@ -98,7 +102,7 @@ public class AppServerResourceTest extends AppServerApplicationTest {
         when(cronExpressionParser.parse(any(String.class))).thenReturn(Optional.of(cronExpression));
         when(appService.createAppServer(eq("NEW-APP-SERVER"), eq(cronExpression))).thenReturn(newAppServer);
 
-        AppServerInfo info = new AppServerInfo(newAppServer, null, null, thesaurus);
+        AppServerInfo info = new AppServerInfo(newAppServer, "bla", "bla", thesaurus);
         Entity<AppServerInfo> json = Entity.json(info);
 
         Response response = target("/appserver").request().post(json);
@@ -108,7 +112,7 @@ public class AppServerResourceTest extends AppServerApplicationTest {
     @Test
     public void testUpdateAppServer() {
         AppServer appServer = mockAppServer();
-        AppServerInfo info = new AppServerInfo(appServer, null, null, thesaurus);
+        AppServerInfo info = new AppServerInfo(appServer, "bla", "bla", thesaurus);
         ImportScheduleInfo updateImportInfo = new ImportScheduleInfo();
         updateImportInfo.id = 2;
         updateImportInfo.name = "UPDATE-IMPORT";
@@ -143,7 +147,7 @@ public class AppServerResourceTest extends AppServerApplicationTest {
     @Test
     public void testRemoveAppServer() {
         AppServer appServer = mockAppServer();
-        AppServerInfo info = new AppServerInfo(appServer, null, null, thesaurus);
+        AppServerInfo info = new AppServerInfo(appServer, "bla", "bla", thesaurus);
         Entity<AppServerInfo> json = Entity.json(info);
 
         Response response = target("/appserver/APPSERVER").request().build(HttpMethod.DELETE, json).invoke();
@@ -308,7 +312,8 @@ public class AppServerResourceTest extends AppServerApplicationTest {
         when(appService.findAndLockAppServerByNameAndVersion("appserverName", 7)).thenReturn(Optional.empty());
         when(appService.findAppServer("appserverName")).thenReturn(Optional.empty());
 
-        AppServerInfo info = new AppServerInfo();
+        AppServer appServer = mockAppServer();
+        AppServerInfo info = new AppServerInfo(appServer, "bla", "bla", thesaurus);
         info.name = "appserverName";
         info.version = 7;
         Response response = target("appserver/appserverName").request().put(Entity.json(info));
