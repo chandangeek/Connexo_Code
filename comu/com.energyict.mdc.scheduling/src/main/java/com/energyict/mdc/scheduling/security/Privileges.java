@@ -5,7 +5,11 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum Privileges implements TranslationKey {
+    //Resources
+    RESOURCE_SCHEDULES("sharedCommunicationSchedule.sharedCommunicationSchedules", "Schedules"),
+    RESOURCE_SCHEDULES_DESCRIPTION("sharedCommunicationSchedule.sharedCommunicationSchedules.description", "Manage schedules"),
 
+    //Privileges
     ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE(Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE, "Administrate"),
     VIEW_SHARED_COMMUNICATION_SCHEDULE(Constants.VIEW_SHARED_COMMUNICATION_SCHEDULE, "View");
 
