@@ -2,6 +2,7 @@ package com.elster.jupiter.appserver.rest.impl;
 
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
+import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -29,6 +30,8 @@ public class AppServerApplicationTest extends FelixRestApplicationJerseyTest {
     @Mock
     protected CronExpressionParser cronExpressionParser;
     @Mock
+    protected DataExportService dataExportService;
+    @Mock
     static FileSystem fileSystem;
     @Mock
     static SecurityContext securityContext;
@@ -45,6 +48,7 @@ public class AppServerApplicationTest extends FelixRestApplicationJerseyTest {
         application.setTransactionService(transactionService);
         application.setCronExpressionParser(cronExpressionParser);
         application.setNlsService(nlsService);
+        application.setDataExportService(dataExportService);
         application.setFileSystem(fileSystem);
         return application;
     }

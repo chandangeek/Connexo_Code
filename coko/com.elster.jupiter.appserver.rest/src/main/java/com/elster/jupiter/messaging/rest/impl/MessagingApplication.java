@@ -1,8 +1,7 @@
-package com.elster.jupiter.appserver.rest.impl;
+package com.elster.jupiter.messaging.rest.impl;
 
 import com.elster.jupiter.appserver.AppService;
-import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.appserver.rest.impl.MessageSeeds;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -19,7 +18,6 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
-import java.nio.file.FileSystem;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -27,34 +25,25 @@ import java.util.List;
 import java.util.Set;
 
 @Component(
-        name = "com.elster.jupiter.appserver.rest",
+        name = "com.elster.jupiter.messaging.rest",
         service = {Application.class},
         immediate = true,
-        property = {"alias=/apr", "app=SYS", "name=" + AppServerApplication.COMPONENT_NAME})
-public class AppServerApplication extends Application implements MessageSeedProvider {
+        property = {"alias=/msg", "app=SYS", "name=" + MessagingApplication.COMPONENT_NAME})
+public class MessagingApplication extends Application implements MessageSeedProvider {
 
-    public static final String COMPONENT_NAME = "APR";
+    public static final String COMPONENT_NAME = "MSG";
     private volatile RestQueryService restQueryService;
-    private volatile AppService appService;
     private volatile MessageService messageService;
     private volatile TransactionService transactionService;
-    private volatile FileImportService fileImportService;
     private volatile CronExpressionParser cronExpressionParser;
-    private volatile FileSystem fileSystem;
-    private volatile DataExportService dataExportService;
+    private volatile AppService appService;
 
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
 
     public Set<Class<?>> getClasses() {
         return ImmutableSet.<Class<?>>of(
-                AppServerResource.class,
-                ImportDirectoryResource.class);
-    }
-
-    @Reference
-    public void setAppService(AppService appService) {
-        this.appService = appService;
+                DestinationSpecResource.class);
     }
 
     @Reference
@@ -73,18 +62,13 @@ public class AppServerApplication extends Application implements MessageSeedProv
     }
 
     @Reference
-    public void setFileImportService(FileImportService fileImportService) {
-        this.fileImportService = fileImportService;
-    }
-
-    @Reference
     public void setCronExpressionParser(CronExpressionParser cronExpressionParser) {
         this.cronExpressionParser = cronExpressionParser;
     }
 
     @Reference
-    public void setFileSystem(FileSystem fileSystem) {
-        this.fileSystem = fileSystem;
+    public void setAppService(AppService appService) {
+        this.appService = appService;
     }
 
     @Reference
@@ -93,11 +77,6 @@ public class AppServerApplication extends Application implements MessageSeedProv
         Thesaurus domainThesaurus = nlsService.getThesaurus(AppService.COMPONENT_NAME, Layer.DOMAIN);
         Thesaurus restThesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
         this.thesaurus = domainThesaurus.join(restThesaurus);
-    }
-
-    @Reference
-    public void setDataExportService(DataExportService dataExportService) {
-        this.dataExportService = dataExportService;
     }
 
     @Override
@@ -109,15 +88,12 @@ public class AppServerApplication extends Application implements MessageSeedProv
             protected void configure() {
                 bind(restQueryService).to(RestQueryService.class);
                 bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
-                bind(appService).to(AppService.class);
                 bind(messageService).to(MessageService.class);
                 bind(transactionService).to(TransactionService.class);
                 bind(cronExpressionParser).to(CronExpressionParser.class);
                 bind(nlsService).to(NlsService.class);
                 bind(thesaurus).to(Thesaurus.class);
-                bind(fileImportService).to(FileImportService.class);
-                bind(fileSystem).to(FileSystem.class);
-                bind(dataExportService).to(DataExportService.class);
+                bind(appService).to(AppService.class);
             }
         });
         return Collections.unmodifiableSet(hashSet);
