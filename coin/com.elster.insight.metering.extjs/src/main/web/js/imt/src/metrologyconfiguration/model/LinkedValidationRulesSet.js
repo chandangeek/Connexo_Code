@@ -1,13 +1,16 @@
-Ext.define('Imt.metrologyconfiguration.store.MetrologyConfiguration', {
-    extend: 'Ext.data.Store',
-    model: 'Imt.metrologyconfiguration.model.MetrologyConfiguration',
+Ext.define('Imt.metrologyconfiguration.model.LinkableValidationRulesSet', {
+    extend: 'Ext.data.Model',
+    fields: [
+        {name: 'ruleSets', type: 'auto'},
+
+    ],
     proxy: {
         type: 'rest',
-        urlTpl: '/api/ucr/metrologyconfigurations/{id}',
+        urlTpl: '/api/ucr/metrologyconfigurations/{id}/assignablevalidationrulesets',
         timeout: 240000,
         reader: {
             type: 'json',
-            root: 'metrologyconfigurations'
+ //           root: 'assignedvalidationrulesets'
         },
         setUrl: function (params) {
             this.url = this.urlTpl.replace('{id}', encodeURIComponent(params));
