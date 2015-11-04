@@ -301,7 +301,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         		break;
         	case 'saveModel':
         		me.saveMetrologyConfigValRuleSetsModel(button);
-        		alert('save model');
+
         		break;
 
         }
