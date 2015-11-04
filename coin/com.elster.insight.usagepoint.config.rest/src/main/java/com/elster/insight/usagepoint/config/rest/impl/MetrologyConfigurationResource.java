@@ -2,11 +2,14 @@ package com.elster.insight.usagepoint.config.rest.impl;
 
 import java.time.Clock;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -23,6 +26,7 @@ import com.elster.insight.common.services.ListPager;
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.insight.usagepoint.config.rest.MetrologyConfigurationInfo;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -40,13 +44,16 @@ public class MetrologyConfigurationResource {
     private final ValidationService validationService;
     private final UsagePointConfigurationService usagePointConfigurationService;
     private final Clock clock;
+    
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public MetrologyConfigurationResource(TransactionService transactionService, Clock clock, UsagePointConfigurationService usagePointConfigurationService, ValidationService validationService) {
+    public MetrologyConfigurationResource(TransactionService transactionService, Clock clock, UsagePointConfigurationService usagePointConfigurationService, ValidationService validationService, ConcurrentModificationExceptionFactory conflictFactory) {
         this.transactionService = transactionService;
         this.clock = clock;
         this.usagePointConfigurationService = usagePointConfigurationService;
         this.validationService = validationService;
+        this.conflictFactory = conflictFactory;
     }
 
     @GET
@@ -99,6 +106,46 @@ public class MetrologyConfigurationResource {
         });
 
         return Response.status(Response.Status.CREATED).entity(new MetrologyConfigurationInfo(updatedMetrologyConfiguration)).build();
+    }
+    
+    @DELETE
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+//    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
+    public Response deleteMetrologyConfiguration(@PathParam("id") long id, MetrologyConfigurationInfo info) {
+        info.id = id;
+        transactionService.execute(() -> {
+            MetrologyConfiguration mc = findAndLockMetrologyConfiguration(info);
+            if (checkIfInUse(mc)) {
+                throw new WebApplicationException(Response.Status.FORBIDDEN);
+            }
+            mc.delete();
+            return null;
+        });
+        return Response.status(Response.Status.NO_CONTENT).build();
+    }
+    
+    private Boolean checkIfInUse(MetrologyConfiguration mc) {
+        return !usagePointConfigurationService.findUsagePointsForMetrologyConfiguration(mc).isEmpty();
+        
+    }
+
+    private MetrologyConfiguration findAndLockMetrologyConfiguration(MetrologyConfigurationInfo info) {
+        return getLockedMetrologyConfiguration(info.id, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> getCurrentMetrologyConfigurationVersion(info.id))
+                        .supplier());
+    }
+    
+    private Long getCurrentMetrologyConfigurationVersion(long id) {      
+        Optional<MetrologyConfiguration> mc = usagePointConfigurationService.findMetrologyConfiguration(id);
+        if (mc.isPresent())
+            return mc.get().getVersion();
+        return null;
+    }
+
+    private Optional<MetrologyConfiguration> getLockedMetrologyConfiguration(long id, long version) {
+        return usagePointConfigurationService.findAndLockMetrologyConfiguration(id, version);
     }
 
     @GET
