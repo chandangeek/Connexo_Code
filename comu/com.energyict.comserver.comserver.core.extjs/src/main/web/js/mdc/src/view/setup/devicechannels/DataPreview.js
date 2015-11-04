@@ -221,7 +221,11 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 return !Ext.isEmpty(formatValue) ? formatValue + ' ' + measurementType + ' ' + validationResultText : '';
             }
         } else {
-            return Uni.I18n.translate('general.missingx', 'MDC', 'Missing {0}',[validationResultText], false);
+            if(type === 'main'){
+                return Uni.I18n.translate('general.missingx', 'MDC', 'Missing {0}',[validationResultText], false);
+            } else {
+                return '-';
+            }
         }
     },
 
