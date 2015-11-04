@@ -527,8 +527,9 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
     }
 
     private void setCurrentlyExecutionComServerOnConnectionTask(ScheduledConnectionTaskImpl connectionTask, ComServer comServer) {
-        connectionTask.setExecutingComServer(comServer);
-        connectionTask.save();
+//        connectionTask.setExecutingComServer(comServer);
+//        connectionTask.save();
+        connectionTask.executionStarted(comServer);
     }
 
     private OutboundComPort createOutboundComPort() {
