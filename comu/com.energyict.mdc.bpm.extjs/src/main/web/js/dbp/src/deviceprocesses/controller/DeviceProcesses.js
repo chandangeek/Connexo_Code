@@ -6,7 +6,11 @@ Ext.define('Dbp.deviceprocesses.controller.DeviceProcesses', {
     ],
     stores: [
         'Dbp.deviceprocesses.store.RunningProcesses',
-        'Dbp.deviceprocesses.store.HistoryProcesses'
+        'Dbp.deviceprocesses.store.HistoryProcesses',
+        'Dbp.deviceprocesses.store.HistoryProcessesFilterProcesses',
+        'Dbp.deviceprocesses.store.HistoryProcessesFilterStatuses',
+        'Dbp.deviceprocesses.store.HistoryProcessesFilterUsers'
+
     ],
     views: [
         'Dbp.deviceprocesses.view.SideMenu',
