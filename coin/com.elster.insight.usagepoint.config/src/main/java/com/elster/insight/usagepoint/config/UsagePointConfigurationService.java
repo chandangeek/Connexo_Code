@@ -2,6 +2,7 @@ package com.elster.insight.usagepoint.config;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -28,5 +29,7 @@ public interface UsagePointConfigurationService {
     List<MetrologyConfiguration> findMetrologyConfigurationsForValidationRuleSet(ValidationRuleSet rs);
 
     Boolean unlink(UsagePoint up, MetrologyConfiguration mc);
+
+    Optional<MetrologyConfiguration> findAndLockMetrologyConfiguration(long id, long version);
 
 }

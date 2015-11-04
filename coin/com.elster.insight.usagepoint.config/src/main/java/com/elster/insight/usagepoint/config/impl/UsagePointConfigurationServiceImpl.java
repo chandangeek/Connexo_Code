@@ -177,4 +177,9 @@ public class UsagePointConfigurationServiceImpl implements UsagePointConfigurati
                 .select(where("validationRuleSet").isEqualTo(rs))
                 .stream().map(each -> each.getMetrologyConfiguration()).collect(Collectors.toList());
     }
+
+    @Override
+    public Optional<MetrologyConfiguration> findAndLockMetrologyConfiguration(long id, long version) {
+        return dataModel.mapper(MetrologyConfiguration.class).lockObjectIfVersion(version, id);
+    }
 }
