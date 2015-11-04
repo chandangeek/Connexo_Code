@@ -179,8 +179,14 @@ Ext.define('Uni.service.Search', {
         Ext.resumeLayouts(true);
     },
 
-    onSearchPropertiesLoad: function () {
-        //todo: post criteria update functions
+    onSearchPropertiesLoad: function (store, records) {
+        var me = this;
+
+        me.filters.each(function(filter){
+            if (!store.getById(filter.property.getId())) {
+                me.removeProperty(filter.property);
+            }
+        });
     },
 
     initCriteria: function () {

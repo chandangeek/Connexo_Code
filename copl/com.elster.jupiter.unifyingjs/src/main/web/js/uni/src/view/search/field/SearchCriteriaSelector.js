@@ -18,15 +18,17 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
     menuItems: [],
 
     setChecked: function(property, value, suppressEvents) {
-        var item, me = this;
-        var base = property.get('groupId')
-            ? me.menu.items.findBy(function(i){return i.value === property.get('groupId');}).menu
-            : me.menu;
+        var item,
+            me = this,
+            base = property.get('groupId')
+                ? me.menu.items.findBy(function(i){return i.value === property.get('groupId');})
+                : me;
 
-        item = base.items.findBy(function(i){return i.criteria === property;});
-
-        if (item) {
-            item.setChecked(value, suppressEvents);
+        if (base) {
+            item = base.menu.items.findBy(function(i){return i.criteria === property;});
+            if (item) {
+                item.setChecked(value, suppressEvents);
+            }
         }
     },
 

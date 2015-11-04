@@ -34,7 +34,7 @@ Ext.define('Uni.view.search.field.internal.CriteriaPanel', {
 
     onCriteriaRemove: function(filters, filter, property) {
         if (property.get('sticky') === this.sticky) {
-            this.remove(filter);
+            filter.destroy();
             this.setVisible(this.items.length);
         }
     }

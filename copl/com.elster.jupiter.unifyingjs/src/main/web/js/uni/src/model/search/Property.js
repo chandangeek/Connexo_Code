@@ -3,6 +3,8 @@
  */
 Ext.define('Uni.model.search.Property', {
     extend: 'Ext.data.Model',
+    idProperty: 'name',
+
     fields: [
         {name: 'name', type: 'string'},
         {name: 'displayValue', type: 'string'},
