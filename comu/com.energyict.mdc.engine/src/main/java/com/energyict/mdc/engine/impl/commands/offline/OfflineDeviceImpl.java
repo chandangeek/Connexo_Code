@@ -372,7 +372,7 @@ public class OfflineDeviceImpl implements OfflineDevice {
      */
     private List<DeviceMessage<Device>> getAllSentMessagesIncludingSlaves(Device device) {
         List<DeviceMessage<Device>> allDeviceMessages = new ArrayList<>();
-        allDeviceMessages.addAll(device.getMessagesByState(DeviceMessageStatus.PENDING));
+        allDeviceMessages.addAll(device.getMessagesByState(DeviceMessageStatus.SENT));
         TopologyService topologyService = serviceProvider.topologyService();
         topologyService.findPhysicalConnectedDevices(device).stream().
                 filter(this::checkTheNeedToGoOffline).
