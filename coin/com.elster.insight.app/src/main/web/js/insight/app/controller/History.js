@@ -106,7 +106,7 @@ Ext.define('InsightApp.controller.History', {
             	},
            		view: {
            			title: Uni.I18n.translate('general.metrologyConfigurationView', 'INS', 'View Metrology Configuration'),
-           			route: '{id}/view',
+           			route: '{mcid}/view',
            			controller: 'Imt.metrologyconfiguration.controller.View',
            			action: 'showMetrologyConfiguration',
            			callback: function (route) {
@@ -120,16 +120,30 @@ Ext.define('InsightApp.controller.History', {
            		},
    				edit: {
                 	title: Uni.I18n.translate('general.metrologyConfigurationEdit', 'INS', 'Edit Metrology Configuration'),
-                    route: '{id}/edit',
+                    route: '{mcid}/edit',
                     controller: 'Imt.metrologyconfiguration.controller.Edit',
                     action: 'editMetrologyConfiguration'               					
    				},
    				remove: {
                 	title: Uni.I18n.translate('general.metrologyConfigurationEdit', 'INS', 'Edit Metrology Configuration'),
-                    route: '{id}/delete',
+                    route: '{mcid}/delete',
                     controller: 'Imt.metrologyconfiguration.controller.Edit',
                     action: 'deleteMetrologyConfiguration'               					
-   				}
+   				},
+   				manage: {
+                	title: Uni.I18n.translate('general.metrologyConfigurationRuleSetEdit', 'INS', 'Manage Validation Rule Sets for Metrology Configuration'),
+                    route: '{mcid}/manage',
+                    controller: 'Imt.metrologyconfiguration.controller.Edit',
+                    action: 'manageValidationRuleSets',
+           			callback: function (route) {
+                        this.getApplication().on('metrologyConfigurationValRuleSetLoaded', function (record) {
+                            route.setTitle(record.get('name'));
+                            return true;
+                        }, {single: true});
+
+                        return this;
+                    },
+   				},
             }
         },
     }
