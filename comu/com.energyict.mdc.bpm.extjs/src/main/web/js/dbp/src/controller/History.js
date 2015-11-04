@@ -9,21 +9,21 @@ Ext.define('Dbp.controller.History', {
             title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
             route: 'devices/{mRID}/processes',
             controller: 'Dbp.deviceprocesses.controller.DeviceProcesses',
-            privileges: Mdc.privileges.Device.deviceProcesses,
+            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
             action: 'showDeviceProcesses'
         },
         'devices/device/processesrunning': {
             title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
             route: 'devices/{mRID}/processes/running',
             controller: 'Dbp.deviceprocesses.controller.DeviceProcesses',
-            privileges: Mdc.privileges.Device.deviceProcesses,
+            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
             action: 'showDeviceProcesses'
         },
         'devices/device/processeshistory': {
             title: Uni.I18n.translate('processes.title', 'DBP', 'Processes'),
             route: 'devices/{mRID}/processes/history',
             controller: 'Dbp.deviceprocesses.controller.DeviceProcesses',
-            privileges: Mdc.privileges.Device.deviceProcesses,
+            privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
             filter: 'Dbp.deviceprocesses.model.HistoryProcessesFilter',
             action: 'showDeviceProcesses'
         }

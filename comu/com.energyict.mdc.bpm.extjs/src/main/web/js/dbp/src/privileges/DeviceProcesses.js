@@ -11,6 +11,7 @@ Ext.define('Dbp.privileges.DeviceProcesses', {
     singleton: true,
 
     all: ['privilege.view.bpm', 'privilege.administrate.bpm'],
+    allPrivileges: ['privilege.view.bpm', 'privilege.administrate.bpm'],
     view: ['privilege.view.bpm'],
     administrate: ['privilege.administrate.bpm'],
 
