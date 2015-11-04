@@ -5,7 +5,19 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum Privileges implements TranslationKey {
+    //Resources
+    RESOURCE_DEVICES("device.devices", "Devices"),
+    RESOURCE_DEVICES_DESCRIPTION("device.devices.description", "Manage devices"),
+    RESOURCE_DEVICE_DATA("deviceData.deviceData", "Device data"),
+    RESOURCE_DEVICE_DATA_DESCRIPTION("deviceData.deviceData.description", "Manage device data"),
+    RESOURCE_DEVICE_COMMUNICATIONS("deviceCommunication.deviceCommunications", "Device communications"),
+    RESOURCE_DEVICE_COMMUNICATIONS_DESCRIPTION("deviceCommunication.deviceCommunications.description", "Manage device communications"),
+    RESOURCE_DEVICE_GROUPS("deviceGroup.deviceGroups", "Device groups"),
+    RESOURCE_DEVICE_GROUPS_DESCRIPTION("deviceGroup.deviceGroups.description", "Manage device groups"),
+    RESOURCE_INVENTORY_MANAGEMENT("inventoryManagement.inventoryManagements", "Assets inventory"),
+    RESOURCE_INVENTORY_MANAGEMENT_DESCRIPTION("inventoryManagement.inventoryManagements.description", "Manage assets inventory"),
 
+    //Privileges
     ADD_DEVICE(Constants.ADD_DEVICE, "Add"),
     VIEW_DEVICE(Constants.VIEW_DEVICE, "View"),
     REMOVE_DEVICE(Constants.REMOVE_DEVICE, "Remove"),
