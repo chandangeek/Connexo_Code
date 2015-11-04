@@ -10,7 +10,6 @@ Ext.define('Dbp.controller.History', {
             route: 'devices/{mRID}/processes',
             controller: 'Dbp.deviceprocesses.controller.DeviceProcesses',
             privileges: Mdc.privileges.Device.deviceProcesses,
-            dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
             action: 'showDeviceProcesses'
         },
         'devices/device/processesrunning': {
@@ -18,7 +17,6 @@ Ext.define('Dbp.controller.History', {
             route: 'devices/{mRID}/processes/running',
             controller: 'Dbp.deviceprocesses.controller.DeviceProcesses',
             privileges: Mdc.privileges.Device.deviceProcesses,
-            dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
             action: 'showDeviceProcesses'
         },
         'devices/device/processeshistory': {
@@ -26,7 +24,6 @@ Ext.define('Dbp.controller.History', {
             route: 'devices/{mRID}/processes/history',
             controller: 'Dbp.deviceprocesses.controller.DeviceProcesses',
             privileges: Mdc.privileges.Device.deviceProcesses,
-            dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
             filter: 'Dbp.deviceprocesses.model.HistoryProcessesFilter',
             action: 'showDeviceProcesses'
         }
