@@ -6,6 +6,7 @@ import com.elster.jupiter.metering.IntervalReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -47,6 +48,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +64,7 @@ import static com.elster.jupiter.util.streams.Predicates.not;
         methods = {HttpMethod.PUT, HttpMethod.POST, HttpMethod.DELETE},
         ignoredUserRoles = {Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
 public class ChannelResource {
+    private final ExceptionFactory exceptionFactory;
     private final Provider<ChannelResourceHelper> channelHelper;
     private final ResourceHelper resourceHelper;
     private final Thesaurus thesaurus;
@@ -72,7 +75,8 @@ public class ChannelResource {
     private final EstimationHelper estimationHelper;
 
     @Inject
-    public ChannelResource(Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, Thesaurus thesaurus, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, ValidationInfoFactory validationInfoFactory, IssueDataValidationService issueDataValidationService, EstimationHelper estimationHelper) {
+    public ChannelResource(ExceptionFactory exceptionFactory, Provider<ChannelResourceHelper> channelHelper, ResourceHelper resourceHelper, Thesaurus thesaurus, Clock clock, DeviceDataInfoFactory deviceDataInfoFactory, ValidationInfoFactory validationInfoFactory, IssueDataValidationService issueDataValidationService, EstimationHelper estimationHelper) {
+        this.exceptionFactory = exceptionFactory;
         this.channelHelper = channelHelper;
         this.resourceHelper = resourceHelper;
         this.thesaurus = thesaurus;
@@ -84,7 +88,7 @@ public class ChannelResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
     public Response getChannels(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         return channelHelper.get().getChannels(mRID, (d -> this.getFilteredChannels(d, filter)), queryParameters);
@@ -92,14 +96,49 @@ public class ChannelResource {
 
     @GET
     @Path("/{channelid}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
     public Response getChannel(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
         return channelHelper.get().getChannel(() -> channel);
     }
 
-    private List<Channel> getFilteredChannels(Device device, JsonQueryFilter filter){
+    @GET
+    @Path("/{channelId}/customproperties")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public PagedInfoList getChannelCustomProperties(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @BeanParam JsonQueryParameters queryParameters) {
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
+        CustomPropertySetInfo customPropertySetInfo = resourceHelper.getChannelCustomPropertySetInfo(channel);
+        return PagedInfoList.fromCompleteList("customproperties", customPropertySetInfo != null ? Arrays.asList(customPropertySetInfo) : new ArrayList<>(), queryParameters);
+    }
+
+    @GET
+    @Path("/{channelId}/customproperties/{cpsId}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public CustomPropertySetInfo getChannelCustomProperties(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId) {
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
+        CustomPropertySetInfo customPropertySetInfo = resourceHelper.getChannelCustomPropertySetInfo(channel);
+        if (customPropertySetInfo.id != cpsId) {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId);
+        }
+        return customPropertySetInfo;
+    }
+
+    @PUT
+    @Path("/{channelId}/customproperties/{cpsId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public Response changeRegisterCustomProperty(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId, CustomPropertySetInfo customPropertySetInfo) {
+        Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
+        resourceHelper.lockChannelSpecOrThrowException(customPropertySetInfo.parent, customPropertySetInfo.version, channel);
+        resourceHelper.setChannelCustomPropertySet(channel, customPropertySetInfo);
+        return Response.ok().build();
+    }
+
+    private List<Channel> getFilteredChannels(Device device, JsonQueryFilter filter) {
         Predicate<String> filterByLoadProfileName = getStringListFilterIfAvailable("loadProfileName", filter);
         Predicate<String> filterByChannelName = getStringFilterIfAvailable("channelName", filter);
         return device.getLoadProfiles().stream()
@@ -109,24 +148,24 @@ public class ChannelResource {
                 .collect(Collectors.toList());
     }
 
-    private Predicate<String> getStringFilterIfAvailable(String name, JsonQueryFilter filter){
-        if (filter.hasProperty(name)){
+    private Predicate<String> getStringFilterIfAvailable(String name, JsonQueryFilter filter) {
+        if (filter.hasProperty(name)) {
             Pattern pattern = getFilterPattern(filter.getString(name));
-            if (pattern != null){
+            if (pattern != null) {
                 return s -> pattern.matcher(s).matches();
             }
         }
         return s -> true;
     }
 
-    private Predicate<String> getStringListFilterIfAvailable(String name, JsonQueryFilter filter){
-        if (filter.hasProperty(name)){
+    private Predicate<String> getStringListFilterIfAvailable(String name, JsonQueryFilter filter) {
+        if (filter.hasProperty(name)) {
             List<String> entries = filter.getStringList(name);
             List<Pattern> patterns = new ArrayList<>();
             for (String entry : entries) {
                 patterns.add(getFilterPattern(entry));
             }
-            if (!patterns.isEmpty()){
+            if (!patterns.isEmpty()) {
                 return s -> {
                     boolean match = false;
                     for (Pattern pattern : patterns) {
@@ -142,8 +181,8 @@ public class ChannelResource {
         return s -> true;
     }
 
-    private Pattern getFilterPattern(String filter){
-        if (filter != null){
+    private Pattern getFilterPattern(String filter) {
+        if (filter != null) {
             filter = Pattern.quote(filter.replace('%', '*'));
             return Pattern.compile(filter.replaceAll("([*?])", "\\\\E\\.$1\\\\Q"));
         }
@@ -152,7 +191,7 @@ public class ChannelResource {
 
     @GET
     @Path("/{channelid}/data")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
     public Response getChannelData(
             @PathParam("mRID") String mRID,
@@ -175,7 +214,7 @@ public class ChannelResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{channelid}/data/{epochMillis}/validation")
     public Response getValidationData(
@@ -204,7 +243,7 @@ public class ChannelResource {
 
     private Predicate<ChannelDataInfo> getFilter(JsonQueryFilter filter) {
         ImmutableList.Builder<Predicate<ChannelDataInfo>> list = ImmutableList.builder();
-        if (filter.hasProperty("suspect")){
+        if (filter.hasProperty("suspect")) {
             List<String> suspectFilters = filter.getStringList("suspect");
             if (suspectFilters.size() == 0) {
                 if ("suspect".equals(filter.getString("suspect"))) {
@@ -236,7 +275,7 @@ public class ChannelResource {
 
     @PUT
     @Path("/{channelid}/data")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
     public Response editChannelData(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId, @BeanParam JsonQueryParameters queryParameters, List<ChannelDataInfo> channelDataInfos) {
@@ -249,8 +288,7 @@ public class ChannelResource {
         channelDataInfos.forEach((channelDataInfo) -> {
             if (!(isToBeConfirmed(channelDataInfo)) && channelDataInfo.value == null && channelDataInfo.collectedValue == null) {
                 removeCandidates.add(Instant.ofEpochMilli(channelDataInfo.interval.end));
-            }
-            else {
+            } else {
                 if (channelDataInfo.value != null) {
                     editedReadings.add(channelDataInfo.createNew());
                 }
@@ -312,8 +350,8 @@ public class ChannelResource {
 
     @GET
     @Path("{channelid}/validationstatus")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response getValidationFeatureStatus(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
         ValidationStatusInfo deviceValidationStatusInfo = channelHelper.get().determineStatus(channel);
@@ -322,8 +360,8 @@ public class ChannelResource {
 
     @GET
     @Path("{channelid}/validationpreview")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response getValidationStatusPreview(@PathParam("mRID") String mRID, @PathParam("channelid") long channelId) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
         return channelHelper.get().getChannelValidationInfo(() -> channel);
@@ -331,7 +369,7 @@ public class ChannelResource {
 
     @PUT
     @Path("{channelid}/validate")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(com.elster.jupiter.validation.security.Privileges.Constants.VALIDATE_MANUAL)
     public Response validateDeviceData(LoadProfileTriggerValidationInfo info, @PathParam("mRID") String mRID, @PathParam("channelid") long channelId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
