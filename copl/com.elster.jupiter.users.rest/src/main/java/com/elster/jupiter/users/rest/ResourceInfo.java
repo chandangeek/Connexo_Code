@@ -22,10 +22,10 @@ public class ResourceInfo {
     public List<PrivilegeInfo> privileges = new ArrayList<>();
 
     public ResourceInfo(Thesaurus thesaurus, Resource resource) {
-        componentName = resource.getComponentName();
-        name = resource.getName();
-        description = resource.getDescription();
-        qualifiedName = resource.getComponentName()+"."+resource.getName();
+        componentName = thesaurus.getStringBeyondComponent(resource.getComponentName(), resource.getComponentName());
+        name = thesaurus.getStringBeyondComponent(resource.getName(), resource.getName());
+        description = thesaurus.getStringBeyondComponent(resource.getDescription(), resource.getDescription());
+        qualifiedName = componentName + "." + name;
         for (Privilege privilege : resource.getPrivileges()) {
             privileges.add(new PrivilegeInfo(thesaurus, privilege));
         }
