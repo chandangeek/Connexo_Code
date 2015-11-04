@@ -15,21 +15,12 @@ public class AppServerInfos {
     public AppServerInfos() {
     }
 
-    public AppServerInfos(Iterable<AppServer> appServers, Thesaurus thesaurus) {
-        addAll(appServers, thesaurus);
-    }
-
-    public void add(AppServer appServer, Thesaurus thesaurus) {
-        AppServerInfo result = AppServerInfo.of(appServer, thesaurus);
+    public void add(AppServer appServer, String importPath, String exportPath, Thesaurus thesaurus) {
+        AppServerInfo result = AppServerInfo.of(appServer, importPath, exportPath, thesaurus);
         appServers.add(result);
         total++;
     }
 
-    public void addAll(Iterable<AppServer> appServers, Thesaurus thesaurus) {
-        for (AppServer each : appServers) {
-            add(each, thesaurus);
-        }
-    }
 }
 
 

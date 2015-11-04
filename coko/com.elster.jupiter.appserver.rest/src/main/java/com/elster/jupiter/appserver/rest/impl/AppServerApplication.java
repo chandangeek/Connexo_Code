@@ -1,6 +1,7 @@
 package com.elster.jupiter.appserver.rest.impl;
 
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
@@ -40,6 +41,7 @@ public class AppServerApplication extends Application implements MessageSeedProv
     private volatile FileImportService fileImportService;
     private volatile CronExpressionParser cronExpressionParser;
     private volatile FileSystem fileSystem;
+    private volatile DataExportService dataExportService;
 
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
@@ -49,6 +51,7 @@ public class AppServerApplication extends Application implements MessageSeedProv
                 AppServerResource.class,
                 ImportDirectoryResource.class);
     }
+
     @Reference
     public void setAppService(AppService appService) {
         this.appService = appService;
@@ -78,6 +81,7 @@ public class AppServerApplication extends Application implements MessageSeedProv
     public void setCronExpressionParser(CronExpressionParser cronExpressionParser) {
         this.cronExpressionParser = cronExpressionParser;
     }
+
     @Reference
     public void setFileSystem(FileSystem fileSystem) {
         this.fileSystem = fileSystem;
@@ -89,6 +93,11 @@ public class AppServerApplication extends Application implements MessageSeedProv
         Thesaurus domainThesaurus = nlsService.getThesaurus(AppService.COMPONENT_NAME, Layer.DOMAIN);
         Thesaurus restThesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
         this.thesaurus = domainThesaurus.join(restThesaurus);
+    }
+
+    @Reference
+    public void setDataExportService(DataExportService dataExportService) {
+        this.dataExportService = dataExportService;
     }
 
     @Override
@@ -108,6 +117,7 @@ public class AppServerApplication extends Application implements MessageSeedProv
                 bind(thesaurus).to(Thesaurus.class);
                 bind(fileImportService).to(FileImportService.class);
                 bind(fileSystem).to(FileSystem.class);
+                bind(dataExportService).to(DataExportService.class);
             }
         });
         return Collections.unmodifiableSet(hashSet);
