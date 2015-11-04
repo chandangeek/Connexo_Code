@@ -4,5 +4,6 @@ public interface BpmAppService {
 
     String COMPONENTNAME = "BPMAPP";
     String APPLICATION_KEY = "BPM";
+    String APPLICATION_NAME = "Flow";
 
 }

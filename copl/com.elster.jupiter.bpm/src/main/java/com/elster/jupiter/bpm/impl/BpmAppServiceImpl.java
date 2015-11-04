@@ -5,6 +5,10 @@ import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.security.Privileges;
 import com.elster.jupiter.http.whiteboard.App;
 import com.elster.jupiter.license.License;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.SimpleTranslationKey;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.users.ApplicationPrivilegesProvider;
 import com.elster.jupiter.users.UserService;
@@ -16,20 +20,20 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 @Component(
         name = "com.elster.jupiter.bpm.app",
-        service = {BpmAppService.class, ApplicationPrivilegesProvider.class},
+        service = {BpmAppService.class, TranslationKeyProvider.class, ApplicationPrivilegesProvider.class},
         immediate = true
 )
-public class BpmAppServiceImpl implements BpmAppService , ApplicationPrivilegesProvider {
+public class BpmAppServiceImpl implements BpmAppService , TranslationKeyProvider, ApplicationPrivilegesProvider {
 
     private volatile ServiceRegistration<App> registration;
     private volatile BpmService bpmService;
     private volatile License license;
-    public static final String APP_KEY = "BPM";
 
     public BpmAppServiceImpl() {
     }
@@ -42,7 +46,7 @@ public class BpmAppServiceImpl implements BpmAppService , ApplicationPrivilegesP
 
     @Activate
     public final void activate(BundleContext context) {
-        App app = new App(APPLICATION_KEY, "Flow", "connexo", bpmService.getBpmServer().getUrl(), user -> user.getPrivileges(bpmService.COMPONENTNAME).stream().anyMatch(p -> "privilege.design.bpm".equals(p.getName())));
+        App app = new App(APPLICATION_KEY, APPLICATION_NAME, "connexo", bpmService.getBpmServer().getUrl(), user -> user.getPrivileges(bpmService.COMPONENTNAME).stream().anyMatch(p -> "privilege.design.bpm".equals(p.getName())));
         registration = context.registerService(App.class, app, null);
     }
 
@@ -64,12 +68,29 @@ public class BpmAppServiceImpl implements BpmAppService , ApplicationPrivilegesP
     @Override
     public List<String> getApplicationPrivileges() {
         return Arrays.asList(
-                Privileges.DESIGN_BPM
+                Privileges.Constants.DESIGN_BPM
         );
     }
 
     @Override
     public String getApplicationName() {
-        return APP_KEY;
+        return APPLICATION_KEY;
+    }
+
+    @Override
+    public String getComponentName() {
+        return APPLICATION_KEY;
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        List<TranslationKey> translationKeys = new ArrayList<>();
+        translationKeys.add(new SimpleTranslationKey(APPLICATION_KEY, APPLICATION_NAME));
+        return translationKeys;
     }
 }

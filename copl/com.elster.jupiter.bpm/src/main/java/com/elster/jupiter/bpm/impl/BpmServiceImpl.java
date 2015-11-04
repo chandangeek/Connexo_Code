@@ -1,5 +1,6 @@
 package com.elster.jupiter.bpm.impl;
 
+import com.elster.jupiter.bpm.BpmAppService;
 import com.elster.jupiter.bpm.BpmProcess;
 import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.bpm.BpmServer;
@@ -176,12 +177,12 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
     @Override
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(BpmService.COMPONENTNAME, "bpm.businessProcesses", "bpm.businessProcesses.description",
+        resources.add(userService.createModuleResourceWithPrivileges(BpmService.COMPONENTNAME, Privileges.RESOURCE_BPM_PROCESSES.getKey(), Privileges.RESOURCE_BPM_PROCESSES_DESCRIPTION.getKey(),
                 Arrays.asList(
-                        Privileges.VIEW_BPM, Privileges.DESIGN_BPM, Privileges.ADMINISTRATE_BPM)));
+                        Privileges.Constants.VIEW_BPM, Privileges.Constants.DESIGN_BPM, Privileges.Constants.ADMINISTRATE_BPM)));
         resources.add(userService.createModuleResourceWithPrivileges(BpmService.COMPONENTNAME, "bpm.userTasks", "bpm.userTasks.description",
                 Arrays.asList(
-                        Privileges.ASSIGN_TASK, Privileges.VIEW_TASK, Privileges.EXECUTE_TASK)));
+                        Privileges.Constants.ASSIGN_TASK, Privileges.Constants.VIEW_TASK, Privileges.Constants.EXECUTE_TASK)));
 
         return resources;
     }
@@ -198,7 +199,11 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Collections.singletonList(new SimpleTranslationKey(BpmService.BPM_QUEUE_SUBSC, BpmService.BPM_QUEUE_DISPLAYNAME));
+        List<TranslationKey> translationKeys = new ArrayList<>();
+        translationKeys.add(new SimpleTranslationKey(BpmAppService.APPLICATION_KEY, BpmAppService.APPLICATION_NAME));
+        translationKeys.add(new SimpleTranslationKey(BpmService.BPM_QUEUE_SUBSC, BpmService.BPM_QUEUE_DISPLAYNAME));
+        translationKeys.addAll(Arrays.asList(Privileges.values()));
+        return translationKeys;
     }
 
     @Override
