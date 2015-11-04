@@ -136,6 +136,8 @@ class MdcAppPrivileges {
                 com.elster.jupiter.bpm.security.Privileges.Constants.EXECUTE_TASK,
                 com.elster.jupiter.bpm.security.Privileges.Constants.VIEW_TASK,
                 com.elster.jupiter.bpm.security.Privileges.Constants.ASSIGN_TASK,
+                com.elster.jupiter.bpm.security.Privileges.Constants.VIEW_BPM,
+                com.elster.jupiter.bpm.security.Privileges.Constants.ADMINISTRATE_BPM,
 
                 //com.elster.jupiter.cps
                 com.elster.jupiter.cps.Privileges.Constants.VIEW_CUSTOM_PROPERTIES_1,
