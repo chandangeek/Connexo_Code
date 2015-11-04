@@ -20,7 +20,7 @@ Ext.define('Dbp.deviceprocesses.model.RunningProcess', {
             name: 'startDateDisplay',
             type: 'string',
             convert: function (value, record) {
-                return record.get('startDate') ? Uni.DateTime.formatDateTimeShort(new Date(record.get('startDate'))) : Uni.I18n.translate('dbp.process.noDate', 'DBP', '-');
+                return record.get('startDate') ? Uni.DateTime.formatDateTimeShort(new Date(record.get('startDate'))) : '-';
             }
         },
         {

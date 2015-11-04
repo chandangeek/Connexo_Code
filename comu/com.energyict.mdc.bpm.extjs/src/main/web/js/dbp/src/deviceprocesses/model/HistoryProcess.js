@@ -17,7 +17,7 @@ Ext.define('Dbp.deviceprocesses.model.HistoryProcess', {
             name: 'startDateDisplay',
             type: 'string',
             convert: function (value, record) {
-                return record.get('startDate') ? Uni.DateTime.formatDateTimeShort(new Date(record.get('startDate'))) : Uni.I18n.translate('dbp.process.noDate', 'DBP', '-');
+                return record.get('startDate') ? Uni.DateTime.formatDateTimeShort(new Date(record.get('startDate'))) : '-';
             }
         },
         {
@@ -28,7 +28,7 @@ Ext.define('Dbp.deviceprocesses.model.HistoryProcess', {
             name: 'endDateDisplay',
             type: 'string',
             convert: function (value, record) {
-                return record.get('endDate') ? Uni.DateTime.formatDateTimeShort(new Date(record.get('endDate'))) : Uni.I18n.translate('dbp.process.noDate', 'DBP', '-');
+                return record.get('endDate') ? Uni.DateTime.formatDateTimeShort(new Date(record.get('endDate'))) : '-';
             }
         },
         {
