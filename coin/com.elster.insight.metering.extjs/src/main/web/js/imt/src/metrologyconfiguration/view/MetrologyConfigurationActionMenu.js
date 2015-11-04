@@ -1,4 +1,4 @@
-Ext.define('Mdc.metrologyconfiguration.view.MetrologyConfigurationActionMenu', {
+Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationActionMenu', {
     extend: 'Ext.menu.Menu',
     alias: 'widget.metrology-configuration-action-menu',
     plain: true,

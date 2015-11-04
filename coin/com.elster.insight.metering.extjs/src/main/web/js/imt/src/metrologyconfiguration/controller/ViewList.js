@@ -4,7 +4,7 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
         'Imt.metrologyconfiguration.store.MetrologyConfiguration',
         'Imt.metrologyconfiguration.view.MetrologyConfigurationListSetup',
         'Imt.metrologyconfiguration.view.MetrologyConfigurationListPreview',
-        'Imt.metrologyconfiguration.view.MetrologyConfigurationList'//,
+        'Imt.metrologyconfiguration.view.MetrologyConfigurationList',
 //        'Imt.metrologyconfiguration.view.MetrologyConfigurationActionMenu'
     ],
     models: [
@@ -43,15 +43,15 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
 
         switch (item.action) {
         	case 'editMetrologyConfiguration':
-        		router.arguments.id = menu.record.getId();
+        		router.arguments.mcid = menu.record.getId();
         		route = 'metrologyconfiguration/edit';
         		break;
         	case 'viewMetrologyConfiguration':
-        		router.arguments.id = menu.record.getId();
+        		router.arguments.mcid = menu.record.getId();
         		route = 'metrologyconfiguration/view';
         		break;
         	case 'deleteMetrologyConfiguration':
-        		router.arguments.id = menu.record.getId();
+        		router.arguments.mcid = menu.record.getId();
         		alert('delete not yet implemented -- ' + ' ' + menu.record.getId());
  //       		route = 'metrologyconfiguration/delete';
         		break;
@@ -80,6 +80,10 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
         me.getApplication().fireEvent('changecontentevent', widget);
 
         dataStore.load(function() {
+	        if (this.getCount() === 0) {
+	        	pageMainContent.setLoading(false);
+	        	return;
+	        }
         	me.getMetrologyConfigurationList().getSelectionModel().select(0);
         	pageMainContent.setLoading(false);
         })
