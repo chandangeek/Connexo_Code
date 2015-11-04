@@ -71,8 +71,6 @@ public class DeviceMessageEnablementResourceTest extends MultisensePublicApiJers
         assertThat(model.<String>get("$.deviceConfiguration.link.href")).isEqualTo("http://localhost:9998/devicetypes/10/deviceconfigurations/11");
     }
 
-
-
     @Test
     public void testDeviceMessageEnablementFields() throws Exception {
         Response response = target("/devicetypes/x/deviceconfigurations/x/devicemessageenablements").request("application/json").method("PROPFIND", Response.class);
@@ -80,6 +78,4 @@ public class DeviceMessageEnablementResourceTest extends MultisensePublicApiJers
         assertThat(model.<List>get("$")).hasSize(5);
         assertThat(model.<List<String>>get("$")).containsOnly("id", "link", "deviceConfiguration", "userActions", "messageId");
     }
-
-
 }

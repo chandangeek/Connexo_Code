@@ -5,8 +5,8 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.elster.jupiter.validation.rest.PropertyUtils;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
@@ -19,13 +19,16 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import java.net.URI;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -45,25 +48,29 @@ public class DeviceMessageResource {
     private final ExceptionFactory exceptionFactory;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final MdcPropertyUtils mdcPropertyUtils;
+    private final DeviceMessageService deviceMessageService;
 
     @Inject
-    public DeviceMessageResource(DeviceService deviceService, DeviceMessageInfoFactory deviceMessageInfoFactory, ExceptionFactory exceptionFactory, DeviceMessageSpecificationService deviceMessageSpecificationService, MdcPropertyUtils mdcPropertyUtils) {
+    public DeviceMessageResource(DeviceService deviceService, DeviceMessageInfoFactory deviceMessageInfoFactory, ExceptionFactory exceptionFactory,
+                                 DeviceMessageSpecificationService deviceMessageSpecificationService, MdcPropertyUtils mdcPropertyUtils,
+                                 DeviceMessageService deviceMessageService) {
         this.deviceService = deviceService;
         this.deviceMessageInfoFactory = deviceMessageInfoFactory;
         this.exceptionFactory = exceptionFactory;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.mdcPropertyUtils = mdcPropertyUtils;
+        this.deviceMessageService = deviceMessageService;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{messageId}")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
-    public Response getDeviceMessage(@PathParam("mrid") String mRID, @PathParam("messageId") long id,
+    public Response getDeviceMessage(@PathParam("mrid") String mRID, @PathParam("messageId") long messageId,
                                      @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
         Device device = deviceService.findByUniqueMrid(mRID).orElseThrow(exceptionFactory
                 .newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
-        DeviceMessage<Device> deviceMessage = device.getMessages().stream().filter(msg -> msg.getId() == id).findFirst()
+        DeviceMessage<Device> deviceMessage = device.getMessages().stream().filter(msg -> msg.getId() == messageId).findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_MESSAGE));
 
         return Response.ok(deviceMessageInfoFactory.from(deviceMessage, uriInfo, fieldSelection.getFields())).build();
@@ -101,10 +108,10 @@ public class DeviceMessageResource {
                 .findMessageSpecById(deviceMessageId.dbValue())
                 .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_DEVICE_MESSAGE_SPEC));
 
-        if (deviceMessageInfo.properties !=null) {
+        if (deviceMessageInfo.deviceMessageAttributes !=null) {
             try {
                 for (PropertySpec propertySpec : deviceMessageSpec.getPropertySpecs()) {
-                    Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, deviceMessageInfo.properties);
+                    Object propertyValue = mdcPropertyUtils.findPropertyValue(propertySpec, deviceMessageInfo.deviceMessageAttributes);
                     if (propertyValue != null) {
                         deviceMessageBuilder.addProperty(propertySpec.getName(), propertyValue);
                     }
@@ -114,10 +121,53 @@ public class DeviceMessageResource {
             }
         }
         DeviceMessage<Device> deviceDeviceMessage = deviceMessageBuilder.add();
-        URI uri = uriInfo.getBaseUriBuilder().path(DeviceMessageResource.class).build(device.getmRID(), deviceDeviceMessage.getId());
+        URI uri = uriInfo.getBaseUriBuilder()
+                .path(DeviceMessageResource.class)
+                .path(DeviceMessageResource.class, "getDeviceMessage")
+                .build(device.getmRID(), deviceDeviceMessage.getId());
         return Response.created(uri).build();
-
     }
+
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
+    @Path("/{messageId}")
+    public Response updateDeviceMessage(@PathParam("mrid") String mrid, @PathParam("messageId") long messageId,
+                                        DeviceMessageInfo deviceMessageInfo, @Context UriInfo uriInfo) {
+        Device device = deviceService.findByUniqueMrid(mrid)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
+        DeviceMessage<Device> deviceMessage = device.getMessages().stream().filter(msg -> msg.getId() == messageId).findFirst()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_MESSAGE));
+
+        deviceMessage.setProtocolInformation(deviceMessageInfo.protocolInfo);
+        deviceMessage.setReleaseDate(deviceMessageInfo.releaseDate);
+        deviceMessage.save();
+
+        DeviceMessage reloadedDeviceMessage = deviceMessageService.findDeviceMessageById(deviceMessage.getId()).get();
+
+        return Response.ok().entity(deviceMessageInfoFactory.from(reloadedDeviceMessage, uriInfo, Collections.emptyList())).build();
+    }
+
+    @DELETE
+    @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
+    @Path("/{messageId}")
+    public Response deleteDeviceMessage(@PathParam("mrid") String mrid, @PathParam("messageId") long messageId,
+                                        DeviceMessageInfo deviceMessageInfo, @Context UriInfo uriInfo) {
+        Device device = deviceService.findByUniqueMrid(mrid)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
+        DeviceMessage<Device> deviceMessage = device.getMessages().stream().filter(msg -> msg.getId() == messageId).findFirst()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_MESSAGE));
+
+        deviceMessage.revoke();
+        deviceMessage.save();
+        DeviceMessage reloadedDeviceMessage = deviceMessageService.findDeviceMessageById(deviceMessage.getId()).get();
+        return Response.ok().entity(deviceMessageInfoFactory.from(reloadedDeviceMessage, uriInfo, Collections.emptyList())).build();
+    }
+
+
 
     @PROPFIND
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")

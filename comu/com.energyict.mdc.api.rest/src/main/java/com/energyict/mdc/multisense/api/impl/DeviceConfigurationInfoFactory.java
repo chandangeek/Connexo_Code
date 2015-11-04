@@ -99,7 +99,7 @@ public class DeviceConfigurationInfoFactory extends SelectableFieldFactory<Devic
                     .resolveTemplate("deviceTypeId", deviceConfiguration.getDeviceType().getId())
                     .resolveTemplate("deviceConfigId", deviceConfiguration.getId());
             deviceConfigurationInfo.deviceMessageEnablements =
-                    deviceConfiguration.getSecurityPropertySets().stream().map(sps -> {
+                    deviceConfiguration.getDeviceMessageEnablements().stream().map(sps -> {
                         LinkInfo linkInfo = new LinkInfo();
                         linkInfo.id = sps.getId();
                         linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).build(sps.getId());

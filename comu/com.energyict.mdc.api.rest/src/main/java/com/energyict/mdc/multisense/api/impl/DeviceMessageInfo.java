@@ -28,7 +28,7 @@ public class DeviceMessageInfo extends LinkInfo {
     public String protocolInfo;
     public Boolean willBePickedUpByComTask;
     public Boolean willBePickedUpByPlannedComTask;
-    public List<PropertyInfo> properties;
+    public List<PropertyInfo> deviceMessageAttributes;
     public IdWithNameInfo preferredComTask;
 
 }

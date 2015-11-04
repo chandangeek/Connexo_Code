@@ -97,7 +97,7 @@ public class DeviceMessageResourceTest extends MultisensePublicApiJerseyTest {
         Response response = target("/devices/x/messages").request("application/json").method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
         assertThat(model.<List>get("$")).hasSize(12);
-        assertThat(model.<List<String>>get("$")).containsOnly("creationDate","device","id","link","messageSpecification","properties","protocolInfo",
+        assertThat(model.<List<String>>get("$")).containsOnly("creationDate","device","id","link","messageSpecification","deviceMessageAttributes","protocolInfo",
                 "releaseDate","sentDate","status","trackingId","user");
     }
 }

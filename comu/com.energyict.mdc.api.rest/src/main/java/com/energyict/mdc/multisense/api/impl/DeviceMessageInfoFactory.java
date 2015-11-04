@@ -1,7 +1,6 @@
 package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.validation.rest.PropertyUtils;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
@@ -85,12 +84,12 @@ public class DeviceMessageInfoFactory extends SelectableFieldFactory<DeviceMessa
 
 
         });
-        map.put("properties", (deviceMessageInfo, deviceMessage, uriInfo) -> {
-            deviceMessageInfo.properties = new ArrayList<>();
+        map.put("deviceMessageAttributes", (deviceMessageInfo, deviceMessage, uriInfo) -> {
+            deviceMessageInfo.deviceMessageAttributes = new ArrayList<>();
             TypedProperties typedProperties = TypedProperties.empty();
             deviceMessage.getAttributes().stream().forEach(attribute->typedProperties.setProperty(attribute.getName(), attribute.getValue()));
             List<PropertySpec> propertySpecs = deviceMessage.getAttributes().stream().map(DeviceMessageAttribute::getSpecification).collect(toList());
-            mdcPropertyUtils.convertPropertySpecsToPropertyInfos(null, propertySpecs, typedProperties, deviceMessageInfo.properties);
+            mdcPropertyUtils.convertPropertySpecsToPropertyInfos(null, propertySpecs, typedProperties, deviceMessageInfo.deviceMessageAttributes);
         });
 
 
