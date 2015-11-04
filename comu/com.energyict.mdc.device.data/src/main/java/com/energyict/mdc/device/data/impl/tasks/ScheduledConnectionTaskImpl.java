@@ -148,6 +148,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
             } else {
                 this.updateStrategy = this.updateStrategy.createSchedule(temporalExpression);
             }
+            this.updateStrategy.prepare();
         }
     }
 
@@ -623,7 +624,11 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
             @Override
             void executeOn(ScheduledConnectionTaskImpl connectionTask) {
                 connectionTask.updateStrategy.prepare();
-                connectionTask.update(ConnectionTaskFields.NEXT_EXECUTION_TIMESTAMP.fieldName(), ConnectionTaskFields.PRIORITY.fieldName());
+                connectionTask.update(ConnectionTaskFields.NEXT_EXECUTION_SPECS.fieldName(),
+                                      ConnectionTaskFields.PLANNED_NEXT_EXECUTION_TIMESTAMP.fieldName(),
+                                      ConnectionTaskFields.NEXT_EXECUTION_TIMESTAMP.fieldName(),
+                                      ConnectionTaskFields.PRIORITY.fieldName());
+                connectionTask.notifyUpdated();
                 connectionTask.updateStrategy.complete();
             }
         },
@@ -895,10 +900,6 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         public AbstractScheduledConnectionTaskBuilder(ScheduledConnectionTaskImpl scheduledConnectionTask) {
             this.scheduledConnectionTask = scheduledConnectionTask;
         }
-
-//        protected ScheduledConnectionTaskImpl getScheduledConnectionTask() {
-//            return scheduledConnectionTask;
-//        }
 
         @Override
         public Device.ScheduledConnectionTaskBuilder setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus status) {

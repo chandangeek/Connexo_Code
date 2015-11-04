@@ -46,8 +46,6 @@ import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ManuallyScheduledComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
-import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
@@ -148,7 +146,6 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.EnumSet;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -1528,7 +1525,19 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public void removeConnectionTask(ConnectionTask<?, ?> connectionTask) {
-        connectionTasks.remove(connectionTask);
+        removeConnectionTask(connectionTask, true);
+    }
+
+    private void removeConnectionTask(ConnectionTask<?, ?> connectionTask, boolean notify ) {
+        Optional<ConnectionTaskImpl<?, ?>> inList = connectionTasks.stream().filter(x -> x.getId() == connectionTask.getId()).findAny();
+        if (inList.isPresent()) {
+            boolean removed = connectionTasks.remove(inList.get());
+            if (notify && removed && this.id != 0) {
+                if (connectionTask instanceof PersistentIdObject) {
+                    ((PersistentIdObject) connectionTask).notifyDeleted();
+                }
+            }
+        }
     }
 
     @Override
@@ -1536,11 +1545,13 @@ public class DeviceImpl implements Device, CanLock {
         return comTaskExecutions;
     }
 
-    private void add(ComTaskExecutionImpl comTaskExecution) {
-        this.comTaskExecutions.add(comTaskExecution);
+    private boolean add(ComTaskExecutionImpl comTaskExecution) {
+        boolean added = this.comTaskExecutions.add(comTaskExecution);
         if (this.id != 0) {
-            this.save();
+            comTaskExecution.notifyCreated();
+            dataModel.touch(DeviceImpl.this);
         }
+        return added;
     }
 
     @Override
@@ -1582,9 +1593,21 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     @Override
-    public void removeComTaskExecution(ComTaskExecution comTaskExecution) {
-        this.comTaskExecutions.remove(comTaskExecution);
-        this.save();
+    public void removeComTaskExecution(ComTaskExecution comTaskExecution){
+        removeComTaskExecution(comTaskExecution, true);
+    }
+
+    private void removeComTaskExecution(ComTaskExecution comTaskExecution, boolean notify) {
+        Optional<ComTaskExecution> inList = this.comTaskExecutions.stream().filter(x -> x.getId() == comTaskExecution.getId()).findAny();
+        if (inList.isPresent()) {
+            boolean removed = this.comTaskExecutions.remove(inList.get());
+            if (notify && removed && this.id != 0) {
+                if (comTaskExecution instanceof PersistentIdObject) {
+                    ((PersistentIdObject) comTaskExecution).notifyDeleted();
+                }
+                dataModel.touch(DeviceImpl.this);
+            }
+        }
     }
 
     @Override
@@ -1938,7 +1961,18 @@ public class DeviceImpl implements Device, CanLock {
 
         @Override
         public ScheduledConnectionTask add() {
-            DeviceImpl.this.connectionTasks.add(scheduledConnectionTask);
+            boolean added = DeviceImpl.this.connectionTasks.add(scheduledConnectionTask);
+            //Todo
+            // When DeviceImpl.this was not yet saved (persisted) the connectiontask properties
+            // Will not be added to the connectiontask
+            // DeviceService.newDevice()... does not always return a persisted device (depending
+            // on the number of arguments that were used with the DeviceService:newDevice method !!!!!!!
+            if (added && DeviceImpl.this.getId() > 0){
+                // saving the connection properties
+                scheduledConnectionTask.saveAllProperties();
+                scheduledConnectionTask.notifyCreated();
+                dataModel.touch(DeviceImpl.this);
+            }
             return scheduledConnectionTask;
         }
     }
@@ -1969,12 +2003,11 @@ public class DeviceImpl implements Device, CanLock {
 
         @Override
         public ScheduledComTaskExecution add() {
-            for(ComTaskExecution comTaskExecutionToDelete:executionsToDelete){
-                DeviceImpl.this.removeComTaskExecution(comTaskExecutionToDelete);
+            for(ComTaskExecution comTaskExecutionToDelete : executionsToDelete){
+                DeviceImpl.this.removeComTaskExecution(comTaskExecutionToDelete, false);
             }
             ScheduledComTaskExecution comTaskExecution = super.add();
             DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
-
             return comTaskExecution;
         }
     }

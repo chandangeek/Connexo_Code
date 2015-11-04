@@ -326,7 +326,6 @@ public enum TableSpecs {
             Table<ComSession> table = dataModel.addTable(name(), ComSession.class);
             table.map(ComSessionImpl.class);
             Column id = table.addAutoIdColumn();
-            table.addAuditColumns();
             Column connectionTask = table.column("CONNECTIONTASK").number().notNull().add();
             Column comport = table.column("COMPORT").number().notNull().add();
             Column comportPool = table.column("COMPORTPOOL").number().notNull().add();

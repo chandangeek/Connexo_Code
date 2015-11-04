@@ -13,6 +13,8 @@ import com.energyict.mdc.engine.config.ComPortPool;
  */
 public interface ServerConnectionTask<CPPT extends ComPortPool, PCTT extends PartialConnectionTask> extends ConnectionTask<CPPT, PCTT> {
 
+    void saveAllProperties();
+
     /**
      * Revalidates the properties of this ConnectionTask and will
      * set the {@link ConnectionTaskLifecycleStatus} to
@@ -23,6 +25,6 @@ public interface ServerConnectionTask<CPPT extends ComPortPool, PCTT extends Par
      * when required properties were removed
      * on the {@link PartialConnectionTask}.
      */
-    public void revalidatePropertiesAndAdjustStatus();
+    void revalidatePropertiesAndAdjustStatus();
 
 }

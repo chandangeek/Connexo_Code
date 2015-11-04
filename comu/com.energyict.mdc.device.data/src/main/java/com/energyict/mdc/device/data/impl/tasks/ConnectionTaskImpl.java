@@ -47,7 +47,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
 import javax.validation.ConstraintViolationException;
-import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -251,15 +250,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         }
     }
 
-    @Override
-    public void save() {
-        this.validateNotObsolete();
-        super.save();
-        this.saveAllProperties();
-        getDataModel().touch(device.get());
-    }
-
-    protected void saveAllProperties() {
+    public void saveAllProperties() {
         if (this.cache.isDirty()) {
             if (this.getTypedProperties().localSize() == 0) {
                 this.removeAllProperties();

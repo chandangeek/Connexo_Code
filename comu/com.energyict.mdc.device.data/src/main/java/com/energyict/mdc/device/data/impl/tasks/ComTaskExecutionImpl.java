@@ -680,6 +680,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
                 ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName(),
                 ComTaskExecutionFields.COMPORT.fieldName()
                 );
+        this.updateEventType();
     }
 
     private void doExecutionStarted(ComPort comPort) {
@@ -875,7 +876,8 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
         @Override
         public C updateFields(String... fieldNames){
-           this.comTaskExecution.update(fieldNames);
+            this.comTaskExecution.update(fieldNames);
+            this.comTaskExecution.notifyUpdated();
             return (C) this.comTaskExecution;
         }
 
