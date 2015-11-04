@@ -14,7 +14,12 @@ import com.elster.jupiter.fileimport.ImportScheduleBuilder;
 import com.elster.jupiter.fileimport.security.Privileges;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -134,7 +139,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "NLS", "USR");
+        return Arrays.asList("ORM", "NLS", "USR", "EVT");
     }
 
     @Reference
