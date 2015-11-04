@@ -19,7 +19,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.PrivilegesProvider;
@@ -68,7 +67,6 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     private volatile boolean installed = false;
     private volatile Thesaurus thesaurus;
     private volatile TransactionService transactionService;
-    private volatile ThreadPrincipalService threadPrincipalService;
     /**
      * Holds the {@link CustomPropertySet}s that were published on the whiteboard
      * and if they were published by the system or not.
@@ -88,13 +86,12 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
     // For testing purposes
     @Inject
-    public CustomPropertySetServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, UserService userService, ThreadPrincipalService threadPrincipalService) {
+    public CustomPropertySetServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, UserService userService) {
         this();
         this.setOrmService(ormService);
         this.setNlsService(nlsService);
         this.setTransactionService(transactionService);
         this.setUserService(userService);
-        this.setThreadPrincipalService(threadPrincipalService);
         this.activate();
         this.install();
     }
@@ -150,11 +147,6 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
-    }
-
-    @Reference
-    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
-        this.threadPrincipalService = threadPrincipalService;
     }
 
     private Module getModule() {
