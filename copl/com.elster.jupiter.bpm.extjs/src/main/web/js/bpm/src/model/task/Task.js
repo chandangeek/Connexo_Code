@@ -21,7 +21,7 @@ Ext.define('Bpm.model.task.Task', {
             name: 'dueDateDisplay',
             type: 'string',
             convert: function (value, record) {
-                return record.get('dueDate') ? Uni.DateTime.formatDateTimeShort(new Date(record.get('dueDate'))) : Uni.I18n.translate('bpm.task.noDate', 'BPM', '-');
+                return record.get('dueDate') ? Uni.DateTime.formatDateTimeShort(new Date(record.get('dueDate'))) : '-';
             }
         },
         {
@@ -32,7 +32,7 @@ Ext.define('Bpm.model.task.Task', {
             name: 'createdOnDisplay',
             type: 'number',
             convert: function (value, record) {
-                return record.get('createdOn') ? Uni.DateTime.formatDateTimeShort(new Date(record.get('createdOn'))) : Uni.I18n.translate('bpm.task.noDate', 'BPM', '-');
+                return record.get('createdOn') ? Uni.DateTime.formatDateTimeShort(new Date(record.get('createdOn'))) : '-';
             }
         },
         {
