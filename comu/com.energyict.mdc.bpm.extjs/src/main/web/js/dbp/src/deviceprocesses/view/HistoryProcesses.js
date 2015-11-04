@@ -28,9 +28,9 @@ Ext.define('Dbp.deviceprocesses.view.HistoryProcesses', {
                         itemId: 'history-processes-empty-grid',
                         title: Uni.I18n.translate('dbp.process.empty.title', 'DBP', 'No processes found'),
                         reasons: [
-                            Uni.I18n.translate('dbp.process.empty.list.item1', 'DBP', 'No processes have been defined yet.'),
-                            Uni.I18n.translate('dbp.process.empty.list.item2', 'DBP', 'Processes exist, but you do not have permission to view them.'),
-                            Uni.I18n.translate('dbp.process.empty.list.item3', 'DBP', 'The filter criteria are too narrow.')
+                            Uni.I18n.translate('dbp.process.empty.historylist.item1', 'DBP', 'No processes have been defined yet.'),
+                            Uni.I18n.translate('dbp.process.empty.historylist.item2', 'DBP', 'Processes exist, but you do not have permission to view them.'),
+                            Uni.I18n.translate('dbp.process.empty.historylist.item3', 'DBP', 'The filter criteria are too narrow.')
                         ]
                     },
                     previewComponent: {
