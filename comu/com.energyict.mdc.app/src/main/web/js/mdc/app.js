@@ -66,7 +66,11 @@ Ext.onReady(function () {
         {
             name: 'Bpm',
             path: '../../apps/bpm/src'
-        }
+        },
+        {
+            name: 'Dbp',
+            path: '../../apps/dbp/src'
+        },
 //        {
 //            name: 'PlaygroundApp',
 //            path: '../../apps/playground/app'
