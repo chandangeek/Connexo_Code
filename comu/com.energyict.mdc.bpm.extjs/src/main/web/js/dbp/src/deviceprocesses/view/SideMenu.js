@@ -9,7 +9,7 @@ Ext.define('Dbp.deviceprocesses.view.SideMenu', {
 /*
         me.addMenuItems(
             {
-                text: Uni.I18n.translate('devicemenu.processes', 'dbp', 'Processes'),
+                text: Uni.I18n.translate('devicemenu.processes', 'DBP', 'Processes'),
                 privileges: Mdc.privileges.Device.viewOrAdministrateDeviceData,
                 itemId: 'device-processes-link',
                 href: '#/devices/' + encodeURIComponent(mRID) + '/processes'
