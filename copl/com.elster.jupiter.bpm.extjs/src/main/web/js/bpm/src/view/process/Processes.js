@@ -29,7 +29,7 @@ Ext.define('Bpm.view.process.Processes', {
                         itemId: 'bpm-processes-empty-grid',
                         title: Uni.I18n.translate('bpm.process.empty.title', 'BPM', 'No processes found'),
                         reasons: [
-                            Uni.I18n.translate('bpm.process.empty.list.item1', 'BPM', 'No processes have been created yet.'),
+                            Uni.I18n.translate('bpm.process.empty.list.item1', 'BPM', 'No processes have been defined yet.'),
                             Uni.I18n.translate('bpm.process.empty.list.item2', 'BPM', 'Processes exist, but you do not have permission to view them.')
                         ]
                     },

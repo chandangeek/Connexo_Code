@@ -41,6 +41,13 @@ Ext.define('Bpm.model.task.Task', {
         },
         {
             name: 'createdOnDisplay',
+            type: 'string',
+            convert: function (value, record) {
+                return record.get('createdOn') ? Uni.DateTime.formatDateTimeShort(new Date(record.get('createdOn'))) : Uni.I18n.translate('bpm.task.noDate', 'BPM', '-');
+            }
+        },
+        {
+            name: 'createdOnDisplay',
             type: 'number',
             convert: function (value, record) {
                 return record.get('createdOn') ? Uni.DateTime.formatDateTimeShort(new Date(record.get('createdOn'))) : Uni.I18n.translate('bpm.task.noDate', 'BPM', '-');

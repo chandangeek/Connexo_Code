@@ -4,18 +4,51 @@ Ext.define('Bpm.store.task.Priorities', {
     proxy: {
         type: 'memory'
     },
+
     data:  [
         {
-            name: Uni.I18n.translate('bpm.task.priority.high', 'BPM', 'High'),
-            value: 3
+            label: Uni.I18n.translate('bpm.task.priority.high', 'BPM', 'High'),
+            name: 0
         },
         {
-            name: Uni.I18n.translate('bpm.task.priority.medium', 'BPM', 'Medium'),
-            value: 6
+            label: Uni.I18n.translate('bpm.task.priority.high', 'BPM', 'High'),
+            name: 1
         },
         {
-            name: Uni.I18n.translate('bpm.task.priority.low', 'BPM', 'Low'),
-            value: 10
+            label: Uni.I18n.translate('bpm.task.priority.high', 'BPM', 'High'),
+            name: 2
+        },
+        {
+            label: Uni.I18n.translate('bpm.task.priority.high', 'BPM', 'High'),
+            name: 3
+        },
+        {
+            label: Uni.I18n.translate('bpm.task.priority.high', 'BPM', 'High'),
+            name: 4
+        },
+        {
+            label: Uni.I18n.translate('bpm.task.priority.medium', 'BPM', 'Medium'),
+            name: 5
+        },
+        {
+            label: Uni.I18n.translate('bpm.task.priority.medium', 'BPM', 'Medium'),
+            name: 6
+        },
+        {
+            label: Uni.I18n.translate('bpm.task.priority.medium', 'BPM', 'Medium'),
+            name: 7
+        },
+        {
+            label: Uni.I18n.translate('bpm.task.priority.low', 'BPM', 'Low'),
+            name: 8
+        },
+        {
+            label: Uni.I18n.translate('bpm.task.priority.low', 'BPM', 'Low'),
+            name: 9
+        },
+        {
+            label: Uni.I18n.translate('bpm.task.priority.low', 'BPM', 'Low'),
+            name: 10
         }
     ]
 });

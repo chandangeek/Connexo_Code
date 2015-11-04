@@ -29,6 +29,19 @@ Ext.define('Bpm.controller.OpenTask', {
             selector: 'bpm-task-open-task #frm-edit-task'
         },
         {
+            ref: 'cboPriority',
+            selector: 'bpm-task-open-task #cbo-priority'
+        },
+        {
+            ref: 'priorityDisplay',
+            selector: 'bpm-task-open-task #priority-display'
+        },
+
+        {
+            ref: 'aboutTaskForm',
+            selector: 'bpm-task-open-task #frm-about-task'
+        },
+        {
             ref: 'formContainer',
             selector: 'bpm-task-open-task #frm-form-container'
         },
@@ -84,8 +97,10 @@ Ext.define('Bpm.controller.OpenTask', {
             },
             'bpm-task-open-task #btn-complete': {
                 click: this.chooseAction
+            },
+            'bpm-task-open-task #cbo-priority': {
+                select: this.updatePriority
             }
-
         });
         var me = this;
         listener = function dolisten(event) {
@@ -110,7 +125,7 @@ Ext.define('Bpm.controller.OpenTask', {
             router = me.getController('Uni.controller.history.Router'),
             queryString = Uni.util.QueryString.getQueryStringValues(false),
             tasksRoute = router.getRoute('workspace/taksmanagementtasks'),
-            openTaskView, openTaskForm, taskRecord, queryParams = {};
+            openTaskView, topTitle, taskRecord, queryParams = {};
 
         sort = router.arguments.sort;
         user = router.arguments.user;
@@ -135,14 +150,15 @@ Ext.define('Bpm.controller.OpenTask', {
 
                 openTaskView = Ext.create('Bpm.view.task.OpenTask', {
                     //    returnLink: router.getRoute('workspace/taksmanagementtasks').buildUrl({}, queryParams),
+                    router: me.getController('Uni.controller.history.Router'),
                     taskRecord: taskRecord
                 });
 
                 openTaskView.taskRecord = taskRecord;
                 me.getApplication().fireEvent('openTask', taskRecord);
 
-                openTaskForm = openTaskView.down('#frm-open-task');
-                openTaskForm.setTitle(Ext.String.format(Uni.I18n.translate('bpm.task.openTaskTitle', 'BPM', "'{0}' task"), taskRecord.get('name')));
+                topTitle = openTaskView.down('#detail-top-title');
+                topTitle.setTitle(Ext.String.format(Uni.I18n.translate('bpm.task.openTaskTitle', 'BPM', "'{0}' task"), taskRecord.get('name')));
 
                 //openTaskForm.loadRecord(taskRecord);
                 me.getApplication().fireEvent('changecontentevent', openTaskView);
@@ -150,7 +166,8 @@ Ext.define('Bpm.controller.OpenTask', {
 
                 me.loadAssigneeForm(taskRecord);
                 me.loadEditTaskForm(taskRecord);
-                me.loadBpmForm(taskRecord);
+                me.loadAboutTaskForm(taskRecord);
+            //    me.loadBpmForm(taskRecord);
 
 
 
@@ -175,6 +192,24 @@ Ext.define('Bpm.controller.OpenTask', {
         });
     },
 
+    loadEditTaskForm: function (taskRecord) {
+        var me = this,
+            editTaskForm = me.getEditTaskForm(),
+            cboPriority = me.getCboPriority();
+
+        editTaskForm && editTaskForm.loadRecord(taskRecord);
+
+        var record = cboPriority.getStore().findRecord('name', taskRecord.get('priority'));
+        cboPriority.fireEvent('select', cboPriority, [record]);
+    },
+
+    saveTask: function (button) {
+        var me = this;
+
+        me.saveAssigneeUser(button);
+        me.saveEditTask(button);
+    },
+
     saveAssigneeUser: function (button) {
         var me = this,
             taskRecord = button.taskRecord,
@@ -194,14 +229,7 @@ Ext.define('Bpm.controller.OpenTask', {
         })
     },
 
-    loadEditTaskForm: function (taskRecord) {
-        var me = this,
-            editTaskForm = me.getEditTaskForm();
-
-        editTaskForm && editTaskForm.loadRecord(taskRecord);
-    },
-
-    saveTask: function (button) {
+    saveEditTask: function (button) {
         var me = this,
             taskRecord = button.taskRecord,
             taskEdit = Ext.create('Bpm.model.task.TaskEdit'),
@@ -221,6 +249,19 @@ Ext.define('Bpm.controller.OpenTask', {
                 editTaskForm.setLoading(false);
             }
         })
+    },
+
+    loadAboutTaskForm: function (taskRecord) {
+        var me = this,
+            aboutTaskForm = me.getAboutTaskForm();
+
+        aboutTaskForm && aboutTaskForm.loadRecord(taskRecord);
+    },
+
+    updatePriority: function(control, record){
+        var me = this;
+
+        me.getPriorityDisplay().setText(record[0].get('label'));
     },
 
     loadBpmForm: function(taskRecord){
