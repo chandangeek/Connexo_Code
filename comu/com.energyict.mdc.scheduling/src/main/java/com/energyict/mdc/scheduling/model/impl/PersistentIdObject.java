@@ -59,6 +59,7 @@ public abstract class PersistentIdObject<T> {
      */
     protected void update(String... fieldNames) {
         this.dataModel.update(this, fieldNames);
+        this.notifyUpdated();
     }
 
     void save() {

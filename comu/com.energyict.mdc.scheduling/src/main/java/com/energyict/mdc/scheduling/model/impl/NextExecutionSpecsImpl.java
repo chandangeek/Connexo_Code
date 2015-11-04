@@ -67,14 +67,6 @@ public final class NextExecutionSpecsImpl extends PersistentIdObject<NextExecuti
     }
 
     @Override
-    public void update() {
-        super.update(NextExecutionSpecsImpl.Fields.TEMPORAL_EXPRESSION.fieldName()+".every.count",
-               NextExecutionSpecsImpl.Fields.TEMPORAL_EXPRESSION.fieldName()+".every.timeUnitCode",
-               NextExecutionSpecsImpl.Fields.TEMPORAL_EXPRESSION.fieldName()+".offset.count",
-               NextExecutionSpecsImpl.Fields.TEMPORAL_EXPRESSION.fieldName()+".offset.timeUnitCode");
-    }
-
-    @Override
     protected void doDelete() {
         this.getDataMapper().remove(this);
     }
