@@ -26,7 +26,7 @@ public enum ViewPrivilege {
         this.privilege = privilege;
     }
 
-    public static Optional<ViewPrivilege> forPrivilege(String privilege) {
+    public static Optional<ViewPrivilege> from(String privilege) {
         for (ViewPrivilege viewPrivilege : values()) {
             if (viewPrivilege.getPrivilege().equals(privilege)) {
                 return Optional.of(viewPrivilege);
