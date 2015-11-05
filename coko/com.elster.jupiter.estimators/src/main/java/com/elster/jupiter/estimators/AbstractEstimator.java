@@ -9,7 +9,6 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.SimpleNlsKey;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.logging.LoggingContext;
@@ -80,14 +79,6 @@ public abstract class AbstractEstimator implements Estimator {
     boolean isAProperty(final String property) {
         return getPropertySpecs().stream()
                 .anyMatch(input -> property.equals(input.getName()));
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        return getPropertySpecs().stream()
-                .filter(propertySpec -> name.equals(propertySpec.getName()))
-                .findFirst()
-                .orElse(null);
     }
 
     protected final Object getProperty(String key) {
