@@ -7,6 +7,8 @@ import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.OpticalDriver;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
+
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.protocols.impl.ConnectionTypeServiceImpl;
 import com.energyict.protocols.impl.channels.serial.direct.rxtx.RxTxSerialConnectionType;
 
@@ -25,8 +27,8 @@ import java.util.List;
 public class RxTxOpticalConnectionType extends RxTxSerialConnectionType implements OpticalDriver {
 
     @Inject
-    public RxTxOpticalConnectionType(@Named(ConnectionTypeServiceImpl.RXTX_PLAIN_GUICE_INJECTION_NAME) SerialComponentService serialComponentService) {
-        super(serialComponentService);
+    public RxTxOpticalConnectionType(@Named(ConnectionTypeServiceImpl.RXTX_PLAIN_GUICE_INJECTION_NAME) SerialComponentService serialComponentService, Thesaurus thesaurus) {
+        super(serialComponentService, thesaurus);
     }
 
     @Override

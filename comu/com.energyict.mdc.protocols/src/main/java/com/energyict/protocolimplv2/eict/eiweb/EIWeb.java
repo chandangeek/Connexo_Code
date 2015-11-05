@@ -12,7 +12,14 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
-import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
@@ -23,7 +30,6 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
 import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.messages.convertor.EIWebMessageConverter;
 import com.energyict.protocolimplv2.security.SimplePasswordSecuritySupport;
@@ -85,13 +91,8 @@ public class EIWeb implements DeviceProtocol {
     }
 
     @Override
-    public PropertySpec getPropertySpec (String name) {
-        return null;
-    }
-
-    @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Arrays.<ConnectionType>asList(new EIWebConnectionType(propertySpecService));
+        return Collections.<ConnectionType>singletonList(new EIWebConnectionType(propertySpecService));
     }
 
     @Override

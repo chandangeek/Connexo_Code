@@ -3,12 +3,12 @@ package com.energyict.protocols.impl.channels.serial.optical.serialio;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.io.SerialComponentService;
-import com.energyict.mdc.io.impl.OpticalComChannelImpl;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.OpticalDriver;
-
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
+
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.protocols.impl.ConnectionTypeServiceImpl;
 import com.energyict.protocols.impl.channels.serial.direct.serialio.SioSerialConnectionType;
 
@@ -27,8 +27,8 @@ import java.util.List;
 public class SioOpticalConnectionType extends SioSerialConnectionType implements OpticalDriver {
 
     @Inject
-    public SioOpticalConnectionType(@Named(ConnectionTypeServiceImpl.SERIAL_PLAIN_GUICE_INJECTION_NAME) SerialComponentService serialComponentService) {
-        super(serialComponentService);
+    public SioOpticalConnectionType(@Named(ConnectionTypeServiceImpl.SERIAL_PLAIN_GUICE_INJECTION_NAME) SerialComponentService serialComponentService, Thesaurus thesaurus) {
+        super(serialComponentService, thesaurus);
     }
 
     @Override

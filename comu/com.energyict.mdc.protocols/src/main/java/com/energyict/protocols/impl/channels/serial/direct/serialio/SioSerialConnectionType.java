@@ -7,6 +7,7 @@ import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.protocols.impl.channels.serial.AbstractSerialConnectionType;
 
 import java.util.List;
@@ -20,8 +21,8 @@ import java.util.List;
  */
 public abstract class SioSerialConnectionType extends AbstractSerialConnectionType {
 
-    public SioSerialConnectionType(SerialComponentService serialComponentService) {
-        super(serialComponentService);
+    public SioSerialConnectionType(SerialComponentService serialComponentService, Thesaurus thesaurus) {
+        super(serialComponentService, thesaurus);
     }
 
     @Override

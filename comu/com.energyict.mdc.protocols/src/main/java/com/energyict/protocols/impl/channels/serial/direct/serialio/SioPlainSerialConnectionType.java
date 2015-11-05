@@ -8,6 +8,7 @@ import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.protocols.impl.ConnectionTypeServiceImpl;
 
 import javax.inject.Inject;
@@ -24,8 +25,8 @@ import java.util.List;
 public class SioPlainSerialConnectionType extends SioSerialConnectionType {
 
     @Inject
-    public SioPlainSerialConnectionType(@Named(ConnectionTypeServiceImpl.SERIAL_PLAIN_GUICE_INJECTION_NAME)SerialComponentService serialComponentService) {
-        super(serialComponentService);
+    public SioPlainSerialConnectionType(@Named(ConnectionTypeServiceImpl.SERIAL_PLAIN_GUICE_INJECTION_NAME)SerialComponentService serialComponentService, Thesaurus thesaurus) {
+        super(serialComponentService, thesaurus);
     }
 
     @Override

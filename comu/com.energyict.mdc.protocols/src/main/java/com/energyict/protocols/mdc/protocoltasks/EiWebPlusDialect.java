@@ -1,7 +1,8 @@
 package com.energyict.protocols.mdc.protocoltasks;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
+
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
@@ -58,15 +59,4 @@ public class EiWebPlusDialect extends AbstractDeviceProtocolDialect {
         return Arrays.asList(portLogLevelPropertySpec(), serverLogLevelPropertySpec());
     }
 
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        switch (name) {
-            case SERVER_LOG_LEVER_PROPERTY:
-                return this.serverLogLevelPropertySpec();
-            case PORT_LOG_LEVEL_PROPERTY:
-                return this.portLogLevelPropertySpec();
-            default:
-                return null;
-        }
-    }
 }

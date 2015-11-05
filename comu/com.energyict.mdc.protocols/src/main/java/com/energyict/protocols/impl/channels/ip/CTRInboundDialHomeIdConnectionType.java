@@ -13,7 +13,7 @@ import com.energyict.protocols.impl.channels.VoidComChannel;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 
 import javax.inject.Inject;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -42,15 +42,7 @@ public class CTRInboundDialHomeIdConnectionType extends ConnectionTypeImpl {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return Arrays.asList(this.callHomeIdPropertySpec());
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        if (DeviceProtocolProperty.callHomeId.name().equals(name)) {
-            return this.callHomeIdPropertySpec();
-        }
-        return null;
+        return Collections.singletonList(this.callHomeIdPropertySpec());
     }
 
     @Override

@@ -1,16 +1,11 @@
 package com.energyict.protocolimplv2.sdksample;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.time.TimeDuration;
-
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
@@ -36,6 +31,9 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 import com.energyict.protocols.impl.channels.ConnectionTypeRule;
 
@@ -121,16 +119,6 @@ public class SDKDeviceProtocolTestWithMandatoryProperty extends SDKDeviceProtoco
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
         return Arrays.asList(DeviceProtocolCapabilities.values());
-    }
-
-    @Override
-    public PropertySpec getPropertySpec (String name) {
-        for (PropertySpec propertySpec : this.getPropertySpecs()) {
-            if (name.equals(propertySpec.getName())) {
-                return propertySpec;
-            }
-        }
-        return null;
     }
 
     @Override

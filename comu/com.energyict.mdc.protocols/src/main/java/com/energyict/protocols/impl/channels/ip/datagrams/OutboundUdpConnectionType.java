@@ -84,20 +84,6 @@ public class OutboundUdpConnectionType extends OutboundIpConnectionType {
     }
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
-        PropertySpec superPropertySpec = super.getPropertySpec(name);
-        if (superPropertySpec != null) {
-            return superPropertySpec;
-        }
-        else if (BUFFER_SIZE_NAME.equals(name)) {
-            return this.bufferSizePropertySpec();
-        }
-        else {
-            return null;
-        }
-    }
-
-    @Override
     public String getVersion() {
         return "$Date: 2013-04-12 15:03:44 +0200 (vr, 12 apr 2013) $";
     }

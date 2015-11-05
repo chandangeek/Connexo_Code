@@ -1,8 +1,9 @@
 package com.energyict.protocolimplv2.sdksample;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
+
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
@@ -31,17 +32,6 @@ public class SDKFirmwareProtocolDialectProperties extends AbstractDeviceProtocol
     @Override
     public String getDisplayName() {
         return "SDK dialect for Firmware testing";
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        switch (name){
-            case activeMeterFirmwarePropertyName: return getActiveMeterFirmwareVersionProperty();
-            case passiveMeterFirmwarePropertyName: return getPassiveMeterFirmwareVersionProperty();
-            case activeCommunicationFirmwarePropertyName: return getActiveCommunicationFirmwareVersionProperty();
-            case passiveCommunicationFirmwarePropertyName: return getPassiveCommunicationFirmwareVersionProperty();
-            default: return super.getPropertySpec(name);
-        }
     }
 
     @Override

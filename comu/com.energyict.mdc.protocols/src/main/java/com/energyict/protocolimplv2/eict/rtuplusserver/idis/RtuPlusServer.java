@@ -1,9 +1,5 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.idis;
 
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.dlms.cosem.SAPAssignmentItem;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
@@ -19,7 +15,14 @@ import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
-import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
@@ -29,14 +32,19 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.dlms.cosem.SAPAssignmentItem;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.events.IDISGatewayEvents;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.messages.IDISGatewayMessages;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.properties.IDISGatewayDynamicPropertySupportSupport;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.registers.IDISGatewayRegisters;
-import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -370,11 +378,6 @@ public class RtuPlusServer implements DeviceProtocol {
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return getDynamicPropertySupport().getPropertySpecs();
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String s) {
-        return getPropertySpecs().stream().filter(propertySpec -> propertySpec.getName().equals(s)).findFirst().orElse(null);
     }
 
     @Override

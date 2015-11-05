@@ -8,6 +8,7 @@ import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.protocols.impl.ConnectionTypeServiceImpl;
 import com.energyict.protocols.impl.channels.serial.direct.serialio.SioSerialConnectionType;
 
@@ -28,8 +29,8 @@ public class SioAtModemConnectionType extends SioSerialConnectionType {
     private ModemComponent atModemComponent;
 
     @Inject
-    public SioAtModemConnectionType(@Named(ConnectionTypeServiceImpl.SERIAL_AT_GUICE_INJECTION_NAME) SerialComponentService serialComponentService) {
-        super(serialComponentService);
+    public SioAtModemConnectionType(@Named(ConnectionTypeServiceImpl.SERIAL_AT_GUICE_INJECTION_NAME) SerialComponentService serialComponentService, Thesaurus thesaurus) {
+        super(serialComponentService, thesaurus);
     }
 
     @Override

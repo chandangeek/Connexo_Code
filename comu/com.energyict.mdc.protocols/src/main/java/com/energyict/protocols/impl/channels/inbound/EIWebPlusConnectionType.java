@@ -1,6 +1,5 @@
 package com.energyict.protocols.impl.channels.inbound;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
@@ -9,8 +8,10 @@ import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 
+import com.elster.jupiter.properties.PropertySpec;
+
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -80,17 +81,7 @@ public class EIWebPlusConnectionType implements ConnectionType {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return Arrays.asList(ipAddressPropertySpec());
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        switch (name) {
-            case IP_ADDRESS_PROPERTY_NAME:
-                return this.ipAddressPropertySpec();
-            default:
-                return null;
-        }
+        return Collections.singletonList(ipAddressPropertySpec());
     }
 
     @Override
@@ -107,4 +98,5 @@ public class EIWebPlusConnectionType implements ConnectionType {
     public Direction getDirection() {
         return Direction.OUTBOUND;
     }
+
 }

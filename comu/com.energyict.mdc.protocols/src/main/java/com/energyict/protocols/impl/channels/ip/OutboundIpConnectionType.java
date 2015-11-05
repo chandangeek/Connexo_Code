@@ -90,20 +90,6 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
     }
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
-        switch (name) {
-            case HOST_PROPERTY_NAME:
-                return this.hostPropertySpec();
-            case PORT_PROPERTY_NAME:
-                return this.portNumberPropertySpec();
-            case CONNECTION_TIMEOUT_PROPERTY_NAME:
-                return this.connectionTimeOutPropertySpec();
-            default:
-                return null;
-        }
-    }
-
-    @Override
     public Direction getDirection() {
         return Direction.OUTBOUND;
     }

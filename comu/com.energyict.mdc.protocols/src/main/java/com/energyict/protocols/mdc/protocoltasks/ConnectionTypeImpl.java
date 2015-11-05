@@ -10,8 +10,6 @@ import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 
-import com.elster.jupiter.properties.PropertySpec;
-
 import java.io.IOException;
 
 /**
@@ -33,15 +31,6 @@ public abstract class ConnectionTypeImpl implements ServerConnectionType {
     @Override
     public void copyProperties(TypedProperties properties) {
         this.properties = TypedProperties.copyOf(properties);
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        return this.getPropertySpecs()
-                .stream()
-                .filter(p -> name.equals(p.getName()))
-                .findFirst()
-                .orElse(null);
     }
 
     protected Object getProperty(String propertyName) {

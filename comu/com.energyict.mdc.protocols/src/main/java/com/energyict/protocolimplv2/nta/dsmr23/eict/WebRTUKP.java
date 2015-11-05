@@ -1,19 +1,30 @@
 package com.energyict.protocolimplv2.nta.dsmr23.eict;
 
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.io.*;
+import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.ComChannelType;
+import com.energyict.mdc.io.SerialComChannel;
+import com.energyict.mdc.io.SerialComponentService;
+import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.*;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
+import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
+import com.energyict.mdc.protocol.api.LoadProfileReader;
+import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
-import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
@@ -22,10 +33,16 @@ import com.energyict.mdc.protocol.api.dialer.core.HHUSignOn;
 import com.energyict.mdc.protocol.api.dialer.core.HHUSignOnV2;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.elster.garnet.SerialDeviceProtocolDialect;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
-import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
@@ -35,7 +52,11 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.math.BigDecimal;
 import java.time.Clock;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 /**
  * General error handling principle:
@@ -51,16 +72,20 @@ import java.util.*;
  */
 public class WebRTUKP extends AbstractDlmsProtocol {
 
+    private final Thesaurus thesaurus;
+
     @Inject
-    public WebRTUKP(Clock clock, PropertySpecService propertySpecService, SocketService socketService,
-                    SerialComponentService serialComponentService, IssueService issueService,
-                    TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService,
-                    IdentificationService identificationService, CollectedDataFactory collectedDataFactory,
-                    MeteringService meteringService, LoadProfileFactory loadProfileFactory,
-                    Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider) {
+    public WebRTUKP(
+            Clock clock, Thesaurus thesaurus, PropertySpecService propertySpecService, SocketService socketService,
+            SerialComponentService serialComponentService, IssueService issueService,
+            TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService,
+            IdentificationService identificationService, CollectedDataFactory collectedDataFactory,
+            MeteringService meteringService, LoadProfileFactory loadProfileFactory,
+            Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider) {
         super(clock, propertySpecService, socketService, serialComponentService, issueService, topologyService,
                 readingTypeUtilService, identificationService, collectedDataFactory, meteringService, loadProfileFactory,
                 dsmrSecuritySupportProvider);
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -85,7 +110,7 @@ public class WebRTUKP extends AbstractDlmsProtocol {
 
     private String getProperDeviceId() {
         String deviceId = getDlmsProperties().getDeviceId();
-        if (deviceId != null && !deviceId.equalsIgnoreCase("")) {
+        if (deviceId != null && !deviceId.isEmpty()) {
             return deviceId;
         } else {
             return "!"; // the Kamstrup device requires a '!' sign in the IEC1107 signOn
@@ -99,11 +124,10 @@ public class WebRTUKP extends AbstractDlmsProtocol {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        List<ConnectionType> result = new ArrayList<>();
-        result.add(new OutboundTcpIpConnectionType(getPropertySpecService(), getSocketService()));
-        result.add(new SioOpticalConnectionType(getSerialComponentService()));
-        result.add(new RxTxOpticalConnectionType(getSerialComponentService()));
-        return result;
+        return Arrays.asList(
+            new OutboundTcpIpConnectionType(getPropertySpecService(), getSocketService()),
+            new SioOpticalConnectionType(getSerialComponentService(), this.thesaurus),
+            new RxTxOpticalConnectionType(getSerialComponentService(), this.thesaurus));
     }
 
     @Override

@@ -1,7 +1,8 @@
 package com.energyict.protocolimplv2.dialects;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
+
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 
 import java.util.Collections;
@@ -27,11 +28,6 @@ public class NoParamsDeviceProtocolDialect extends AbstractDeviceProtocolDialect
     }
 
     @Override
-    public PropertySpec getPropertySpec (String name) {
-        return null;
-    }
-
-    @Override
     public String getDeviceProtocolDialectName() {
         return DeviceProtocolDialectNameEnum.NO_PARAMETERS_PROTOCOL_DIALECT_NAME.getName();
     }
@@ -40,4 +36,5 @@ public class NoParamsDeviceProtocolDialect extends AbstractDeviceProtocolDialect
     public String getDisplayName() {
         return "Default with no properties";
     }
+
 }

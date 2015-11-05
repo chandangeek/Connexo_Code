@@ -1,7 +1,5 @@
 package com.energyict.protocols.mdc.services.impl;
 
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.SerialComponentService;
@@ -26,12 +24,15 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.protocolimplv2.sdksample.SDKMessageSeeds;
+import com.energyict.protocolimplv2.sdksample.SDKTranslationKeys;
+import com.energyict.protocols.impl.channels.serial.SioSerialTranslationKeys;
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
@@ -45,6 +46,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
@@ -62,7 +64,7 @@ import java.util.stream.Stream;
  * Date: 06/11/13
  * Time: 11:03
  */
-@Component(name = "com.energyict.mdc.service.deviceprotocols", 
+@Component(name = "com.energyict.mdc.service.deviceprotocols",
         service = {DeviceProtocolService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         immediate = true,
         property = "name=" + DeviceProtocolService.COMPONENT_NAME)
@@ -133,6 +135,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
             public void configure() {
                 bind(DataModel.class).toInstance(dataModel);
                 bind(Thesaurus.class).toInstance(thesaurus);
+                bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(OrmClient.class).toInstance(ormClient);
                 bind(IssueService.class).toInstance(issueService);
                 bind(Clock.class).toInstance(clock);
@@ -293,11 +296,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
 
     @Override
     public List<MessageSeed> getSeeds() {
-        return Stream.of(
-                Arrays.stream(SDKMessageSeeds.values()),
-                Arrays.stream(MessageSeeds.values()))
-                .flatMap(Function.identity())
-                .collect(Collectors.toList());
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Override
@@ -307,7 +306,12 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(TranslationKeys.values());
+        return Stream.of(
+                Arrays.stream(SDKTranslationKeys.values()),
+                Arrays.stream(SioSerialTranslationKeys.values()),
+                Arrays.stream(TranslationKeys.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
     private class CompositeLoadProfileFactory implements LoadProfileFactory {

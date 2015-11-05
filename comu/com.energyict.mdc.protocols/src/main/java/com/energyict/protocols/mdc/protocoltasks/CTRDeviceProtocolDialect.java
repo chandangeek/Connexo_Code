@@ -74,28 +74,6 @@ public class CTRDeviceProtocolDialect extends AbstractDeviceProtocolDialect {
     }
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
-        switch (name) {
-            case TIMEOUT_PROPERTY_NAME:
-                return this.timeoutPropertySpec();
-            case RETRIES_PROPERTY_NAME:
-                return this.retriesPropertySpec();
-            case DELAY_AFTER_ERROR_PROPERTY_NAME:
-                return this.delayAfterErrorPropertySpec();
-            case FORCED_DELAY_PROPERTY_NAME:
-                return this.forcedDelayPropertySpec();
-            case ADDRESS_PROPERTY_NAME:
-                return this.addressPropertySpec();
-            case SEND_END_OF_SESSION_PROPERTY_NAME:
-                return this.sendEndOfSessionPropertySpec();
-            case MAX_ALLOWED_INVALID_PROFILE_RESPONSES_PROPERTY_NAME:
-                return this.maxAllowedInvalidProfileResponsesPropertySpec();
-            default:
-                return null;
-        }
-    }
-
-    @Override
     public List<PropertySpec> getPropertySpecs () {
         return Arrays.asList(
                 this.timeoutPropertySpec(),

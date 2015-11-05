@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.common;
 
+import com.energyict.mdc.dynamic.PropertySpecService;
+
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.dynamic.PropertySpecService;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -80,11 +81,6 @@ public class BasicDynamicPropertySupport implements HasDynamicProperties{
 
     public TimeDuration getDefaultTimeout() {
         return DEFAULT_TIMEOUT;
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String propertySpecName) {
-        return getPropertySpecs().stream().filter(propertySpec -> propertySpec.getName().equals(propertySpecName)).findAny().orElse(null);
     }
 
     public PropertySpecService getPropertySpecService() {

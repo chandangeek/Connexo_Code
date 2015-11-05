@@ -1,15 +1,15 @@
 package com.energyict.protocolimplv2.abnt.common.dialects;
 
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
+
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dialects.AbstractDeviceProtocolDialect;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -59,22 +59,11 @@ public class AbntSerialDeviceProtocolDialect extends AbstractDeviceProtocolDiale
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return Arrays.asList(retriesPropertySpec(), timeoutPropertySpec(), forcedDelayPropertySpec(), delayAfterErrorPropertySpec());
+        return Arrays.asList(
+                retriesPropertySpec(),
+                timeoutPropertySpec(),
+                forcedDelayPropertySpec(),
+                delayAfterErrorPropertySpec());
     }
 
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        switch (name) {
-            case DlmsProtocolProperties.RETRIES:
-                return this.retriesPropertySpec();
-            case DlmsProtocolProperties.TIMEOUT:
-                return this.timeoutPropertySpec();
-            case DlmsProtocolProperties.FORCED_DELAY:
-                return this.forcedDelayPropertySpec();
-            case DlmsProtocolProperties.DELAY_AFTER_ERROR:
-                return this.delayAfterErrorPropertySpec();
-            default:
-                return null;
-        }
-    }
 }

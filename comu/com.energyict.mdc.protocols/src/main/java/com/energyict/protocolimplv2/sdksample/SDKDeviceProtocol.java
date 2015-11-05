@@ -1,8 +1,5 @@
 package com.energyict.protocolimplv2.sdksample;
 
-import com.elster.jupiter.properties.BooleanFactory;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
@@ -17,7 +14,15 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
-import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
@@ -31,6 +36,9 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
+import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 import com.energyict.protocols.impl.channels.ConnectionTypeRule;
 
@@ -129,16 +137,6 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
         return Arrays.asList(DeviceProtocolCapabilities.values());
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        for (PropertySpec propertySpec : this.getPropertySpecs()) {
-            if (name.equals(propertySpec.getName())) {
-                return propertySpec;
-            }
-        }
-        return null;
     }
 
     @Override

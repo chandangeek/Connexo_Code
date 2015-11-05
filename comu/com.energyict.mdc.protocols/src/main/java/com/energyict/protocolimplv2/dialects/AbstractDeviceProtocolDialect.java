@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.dialects;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 
@@ -17,17 +16,8 @@ public abstract class AbstractDeviceProtocolDialect implements DeviceProtocolDia
         this.propertySpecService = propertySpecService;
     }
 
-    @Override
-    public PropertySpec getPropertySpec (String name) {
-        for (PropertySpec propertySpec : this.getPropertySpecs()) {
-            if (name.equals(propertySpec.getName())) {
-                return propertySpec;
-            }
-        }
-        return null;
-    }
-
     public PropertySpecService getPropertySpecService() {
         return propertySpecService;
     }
+
 }

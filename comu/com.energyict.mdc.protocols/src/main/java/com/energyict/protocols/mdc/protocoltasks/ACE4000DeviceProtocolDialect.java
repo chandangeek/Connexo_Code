@@ -50,16 +50,4 @@ public class ACE4000DeviceProtocolDialect extends AbstractDeviceProtocolDialect 
         return Arrays.asList(this.timeoutPropertySpec(), this.retriesPropertySpec());
     }
 
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        switch (name) {
-            case TIMEOUT_PROPERTY_NAME:
-                return this.timeoutPropertySpec();
-            case RETRIES_PROPERTY_NAME:
-                return this.retriesPropertySpec();
-            default:
-                return null;
-        }
-    }
-
 }

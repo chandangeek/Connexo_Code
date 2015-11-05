@@ -7,6 +7,7 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocols.impl.ConnectionTypeServiceImpl;
 import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
@@ -26,8 +27,8 @@ import java.util.Set;
 public class LegacyOpticalDlmsConnectionType extends DlmsConnectionType {
 
     @Inject
-    public LegacyOpticalDlmsConnectionType(@Named(ConnectionTypeServiceImpl.SERIAL_PLAIN_GUICE_INJECTION_NAME) SerialComponentService serialComponentService, PropertySpecService propertySpecService) {
-        super(propertySpecService, new SioOpticalConnectionType(serialComponentService));
+    public LegacyOpticalDlmsConnectionType(@Named(ConnectionTypeServiceImpl.SERIAL_PLAIN_GUICE_INJECTION_NAME) SerialComponentService serialComponentService, PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, new SioOpticalConnectionType(serialComponentService, thesaurus));
     }
 
     @Override
@@ -53,24 +54,6 @@ public class LegacyOpticalDlmsConnectionType extends DlmsConnectionType {
     @Override
     public void disconnect(ComChannel comChannel) throws ConnectionException {
         this.getActualConnectionType().disconnect(comChannel);
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        switch (name){
-            case PROPERTY_NAME_ADDRESSING_MODE:
-                return this.getAddressingModePropertySpec();
-            case PROPERTY_NAME_CONNECTION:
-                return this.getConnectionPropertySpec();
-            case PROPERTY_NAME_SERVER_MAC_ADDRESS:
-                return this.getServerMacAddress();
-            case PROPERTY_NAME_SERVER_LOWER_MAC_ADDRESS:
-                return this.getServerLowerMacAddress();
-            case PROPERTY_NAME_SERVER_UPPER_MAC_ADDRESS:
-                return this.getServerUpperMacAddress();
-            default:
-                return getActualConnectionType().getPropertySpec(name);
-        }
     }
 
     @Override

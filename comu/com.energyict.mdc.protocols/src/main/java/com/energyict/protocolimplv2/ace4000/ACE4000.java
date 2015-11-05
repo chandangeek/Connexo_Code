@@ -1,13 +1,14 @@
 package com.energyict.protocolimplv2.ace4000;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
 import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
 
@@ -87,15 +88,6 @@ public abstract class ACE4000 extends NoOrPasswordSecuritySupport {
 
     public List<PropertySpec> getPropertySpecs () {
         return getProperties().getPropertySpecs();
-    }
-
-    public PropertySpec getPropertySpec (String name) {
-        for (PropertySpec propertySpec : this.getPropertySpecs()) {
-            if (name.equals(propertySpec.getName())) {
-                return propertySpec;
-            }
-        }
-        return null;
     }
 
     //Gather all collected registers from the ObjectFactory

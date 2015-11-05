@@ -1,10 +1,5 @@
 package com.energyict.protocolimplv2.sdksample;
 
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.BooleanFactory;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
@@ -21,7 +16,6 @@ import com.energyict.mdc.dynamic.TimeOfDayFactory;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceFunction;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolCache;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
@@ -47,6 +41,11 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 import com.energyict.protocols.impl.channels.ConnectionTypeRule;
 
@@ -141,46 +140,36 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
     }
 
     @Override
-    public PropertySpec getPropertySpec (String name) {
-        for (PropertySpec propertySpec : this.getPropertySpecs()) {
-            if (name.equals(propertySpec.getName())) {
-                return propertySpec;
-            }
-        }
-        return null;
-    }
-
-    @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> optionalProperties = new ArrayList<>();
-        optionalProperties.add(this.propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKSTRINGPROPERTY, false, new StringFactory()));
-        optionalProperties.add(propertySpecService.stringPropertySpec(SDKMessageSeeds.Keys.SDKSTRINGPROPERTYWITHDEFAULT, false, "Test"));
-        optionalProperties.add(propertySpecService.stringPropertySpecWithValues(SDKMessageSeeds.Keys.SDKSTRINGPROPERTYWITHVALUES, false, "value 1", "value 2", "value 3", "value 4"));
-        optionalProperties.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue(SDKMessageSeeds.Keys.SDKSTRINGPROPERTYWITHVALUESANDDEFAULT, false, "value 3", "value 1", "value 2", "value 4", "value 5"));
-        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKLARGESTRINGPROPERTY, false, new LargeStringFactory()));
-        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKHEXSTRINGPROPERTY, false, new HexStringFactory()));
-        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKPASSWORDPROPERTY, false, PasswordFactory.class));
-        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKBIGDECIMALPROPERTY, false, new BigDecimalFactory()));
-        optionalProperties.add(propertySpecService.bigDecimalPropertySpec(SDKMessageSeeds.Keys.SDKBIGDECIMALWITHDEFAULT, false, new BigDecimal("666.156")));
+        optionalProperties.add(this.propertySpecService.basicPropertySpec(SDKTranslationKeys.Keys.SDKSTRINGPROPERTY, false, new StringFactory()));
+        optionalProperties.add(propertySpecService.stringPropertySpec(SDKTranslationKeys.Keys.SDKSTRINGPROPERTYWITHDEFAULT, false, "Test"));
+        optionalProperties.add(propertySpecService.stringPropertySpecWithValues(SDKTranslationKeys.Keys.SDKSTRINGPROPERTYWITHVALUES, false, "value 1", "value 2", "value 3", "value 4"));
+        optionalProperties.add(propertySpecService.stringPropertySpecWithValuesAndDefaultValue(SDKTranslationKeys.Keys.SDKSTRINGPROPERTYWITHVALUESANDDEFAULT, false, "value 3", "value 1", "value 2", "value 4", "value 5"));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKTranslationKeys.Keys.SDKLARGESTRINGPROPERTY, false, new LargeStringFactory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKTranslationKeys.Keys.SDKHEXSTRINGPROPERTY, false, new HexStringFactory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKTranslationKeys.Keys.SDKPASSWORDPROPERTY, false, PasswordFactory.class));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKTranslationKeys.Keys.SDKBIGDECIMALPROPERTY, false, new BigDecimalFactory()));
+        optionalProperties.add(propertySpecService.bigDecimalPropertySpec(SDKTranslationKeys.Keys.SDKBIGDECIMALWITHDEFAULT, false, new BigDecimal("666.156")));
         optionalProperties.add(
                 propertySpecService.bigDecimalPropertySpecWithValues(
-                        SDKMessageSeeds.Keys.SDKBIGDECIMALWITHVALUES,
+                        SDKTranslationKeys.Keys.SDKBIGDECIMALWITHVALUES,
                         false,
                         BigDecimal.ZERO,
                         BigDecimal.ONE,
                         new BigDecimal("2"),
                         new BigDecimal("3")));
-        optionalProperties.add(propertySpecService.boundedDecimalPropertySpec(SDKMessageSeeds.Keys.SDKBOUNDEDDECIMAL, false, new BigDecimal(2), new BigDecimal(10)));
-        optionalProperties.add(propertySpecService.positiveDecimalPropertySpec(SDKMessageSeeds.Keys.SDKPOSITIVEDECIMALPROPERTY, false));
-        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKBOOLEANPROPERTY, false, new BooleanFactory()));
-        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKDATEPROPERTY, false, new DateFactory()));
-        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKTIMEOFDAYPROPERTY, false, new TimeOfDayFactory()));
-        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKDATETIMEPROPERTY, false, new DateAndTimeFactory()));
-        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKTIMEDURATIONPROPERTY, false, new TimeDurationValueFactory()));
+        optionalProperties.add(propertySpecService.boundedDecimalPropertySpec(SDKTranslationKeys.Keys.SDKBOUNDEDDECIMAL, false, new BigDecimal(2), new BigDecimal(10)));
+        optionalProperties.add(propertySpecService.positiveDecimalPropertySpec(SDKTranslationKeys.Keys.SDKPOSITIVEDECIMALPROPERTY, false));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKTranslationKeys.Keys.SDKBOOLEANPROPERTY, false, new BooleanFactory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKTranslationKeys.Keys.SDKDATEPROPERTY, false, new DateFactory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKTranslationKeys.Keys.SDKTIMEOFDAYPROPERTY, false, new TimeOfDayFactory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKTranslationKeys.Keys.SDKDATETIMEPROPERTY, false, new DateAndTimeFactory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKTranslationKeys.Keys.SDKTIMEDURATIONPROPERTY, false, new TimeDurationValueFactory()));
 
         optionalProperties.add(
                 propertySpecService.obisCodePropertySpecWithValues(
-                        SDKMessageSeeds.Keys.SDKOBISCODEPROPERTY,
+                        SDKTranslationKeys.Keys.SDKOBISCODEPROPERTY,
                         false,
                         ObisCode.fromString("1.0.1.8.0.255"),
                         ObisCode.fromString("1.0.1.8.1.255"),
@@ -192,9 +181,9 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
         // codetable and userfile not supported
         //optionalProperties.add(propertySpecService.referencePropertySpec("SDKCodeTableProperty", false, FactoryIds.CODE));
         //optionalProperties.add(propertySpecService.referencePropertySpec("SDKUserFileReferenceProperty", false, FactoryIds.USERFILE));
-        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKEAN13PROPERTY, false, new Ean13Factory()));
-        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKEAN18PROPERTY, false, new Ean18Factory()));
-        optionalProperties.add(propertySpecService.basicPropertySpec(SDKMessageSeeds.Keys.SDKENCRYPTEDSTRINGPROPERTY, false, EncryptedStringFactory.class));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKTranslationKeys.Keys.SDKEAN13PROPERTY, false, new Ean13Factory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKTranslationKeys.Keys.SDKEAN18PROPERTY, false, new Ean18Factory()));
+        optionalProperties.add(propertySpecService.basicPropertySpec(SDKTranslationKeys.Keys.SDKENCRYPTEDSTRINGPROPERTY, false, EncryptedStringFactory.class));
 
         return optionalProperties;
     }

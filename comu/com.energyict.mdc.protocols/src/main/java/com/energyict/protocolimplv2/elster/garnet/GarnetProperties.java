@@ -1,15 +1,16 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
-import com.elster.jupiter.properties.HasDynamicProperties;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.time.TimeDuration;
-import com.energyict.dlms.DLMSUtils;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.timezones.TimeZoneInUse;
+
+import com.elster.jupiter.properties.HasDynamicProperties;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TimeDuration;
+import com.energyict.dlms.DLMSUtils;
 import com.energyict.protocolimplv2.common.BasicDynamicPropertySupport;
 import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
@@ -21,7 +22,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.TimeZone;
 
-import static com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.*;
+import static com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.DELAY_AFTER_ERROR;
+import static com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.FORCED_DELAY;
+import static com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.TIMEOUT;
 
 /**
  * @author sva
@@ -175,15 +178,6 @@ public class GarnetProperties implements HasDynamicProperties {
         return Arrays.asList(
                 this.propertySpecService.bigDecimalPropertySpecWithValues(DEVICE_ID, true, DEFAULT_DEVICE_ID),
                 this.propertySpecService.referencePropertySpec(TIMEOUT, false, FactoryIds.TIMEZONE_IN_USE));
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String s) {
-        return this.getPropertySpecs()
-                .stream()
-                .filter(propertySpec -> propertySpec.getName().equals(s))
-                .findAny()
-                .orElse(null);
     }
 
 }

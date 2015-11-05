@@ -43,19 +43,6 @@ public class InboundProximusSmsConnectionType extends AbstractInboundSmsConnecti
     }
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
-        if (DeviceProtocolProperty.phoneNumber.name().equals(name)) {
-            return this.phoneNumberPropertySpec();
-        }
-        else if (DeviceProtocolProperty.callHomeId.name().equals(name)) {
-            return this.callHomeIdPropertySpec();
-        }
-        else {
-            return null;
-        }
-    }
-
-    @Override
     public String getVersion() {
         return "$Date: 2013-06-28 16:52:59 +0200 (Fre, 28 Jun 2013) $";
     }

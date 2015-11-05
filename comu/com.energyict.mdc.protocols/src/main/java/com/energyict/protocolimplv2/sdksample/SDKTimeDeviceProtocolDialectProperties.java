@@ -37,17 +37,6 @@ public class SDKTimeDeviceProtocolDialectProperties extends AbstractDeviceProtoc
     }
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
-        switch (name) {
-            case clockOffsetToWritePropertyName:
-                return getClockOffsetToWritePropertySpec();
-            case clockOffsetToReadPropertyName:
-                return getClockOffsetToReadPropertySpec();
-        }
-        return null;
-    }
-
-    @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> requiredProperties = new ArrayList<>();
         requiredProperties.add(getClockOffsetToReadPropertySpec());

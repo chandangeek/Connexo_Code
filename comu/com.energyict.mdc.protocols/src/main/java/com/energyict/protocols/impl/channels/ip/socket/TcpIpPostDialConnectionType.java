@@ -146,26 +146,6 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
     }
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
-        PropertySpec superPropertySpec = super.getPropertySpec(name);
-        if (superPropertySpec != null) {
-            return superPropertySpec;
-        }
-        else if (POST_DIAL_DELAY.equals(name)) {
-            return this.postDialDelayPropertySpec();
-        }
-        else if (POST_DIAL_TRIES.equals(name)) {
-            return this.postDialRetriesPropertySpec();
-        }
-        else if (POST_DIAL_COMMAND.equals(name)) {
-            return this.postDialCommandPropertySpec();
-        }
-        else {
-            return null;
-        }
-    }
-
-    @Override
     public String getVersion() {
         return "$Date: 2013-05-16 13:24:08 +0200 (do, 16 mei 2013) $";
     }

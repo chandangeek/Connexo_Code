@@ -9,9 +9,13 @@ import com.energyict.mdc.io.Parities;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.SerialPortConfiguration;
 import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.SerialConnectionPropertyNames;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
@@ -19,6 +23,7 @@ import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 import java.math.BigDecimal;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -29,10 +34,12 @@ import java.util.Set;
 public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
 
     private final SerialComponentService serialComponentService;
+    private final Thesaurus thesaurus;
 
-    public AbstractSerialConnectionType(SerialComponentService serialComponentService) {
+    public AbstractSerialConnectionType(SerialComponentService serialComponentService, Thesaurus thesaurus) {
         super();
         this.serialComponentService = serialComponentService;
+        this.thesaurus = thesaurus;
     }
 
     protected SerialComponentService getSerialComponentService() {
@@ -55,6 +62,11 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
             typedProperties.setProperty(property.getName(), property.getValue());
         }
         return typedProperties;
+    }
+
+    @Override
+    public Optional<CustomPropertySet<ConnectionType, ? extends PersistentDomainExtension<ConnectionType>>> getCustomPropertySet() {
+        return Optional.of(new SioSerialCustomPropertySet(this.thesaurus, this.serialComponentService));
     }
 
     @Override
@@ -92,7 +104,7 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
 
     protected BigDecimal nrOfMilliSecondsOfTimeDuration(TimeDuration value) {
         if (value == null) {
-            return new BigDecimal(0);
+            return BigDecimal.ZERO;
         } else {
             return new BigDecimal(value.getMilliSeconds());
         }

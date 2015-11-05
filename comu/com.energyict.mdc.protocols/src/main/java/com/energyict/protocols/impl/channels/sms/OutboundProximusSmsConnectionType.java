@@ -126,24 +126,6 @@ public class OutboundProximusSmsConnectionType extends ConnectionTypeImpl {
     }
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
-        switch (name) {
-            case PHONE_NUMBER_PROPERTY_NAME:
-                return this.phoneNumberPropertySpec();
-            case CONNECTION_URL_PROPERTY_NAME:
-                return this.connectionURLPropertySpec();
-            case SOURCE_PROPERTY_NAME:
-                return this.sourcePropertySpec();
-            case AUTHENTICATION_PROPERTY_NAME:
-                return this.authenticationPropertySpec();
-            case SERVICE_CODE_PROPERTY_NAME:
-                return this.serviceCodePropertySpec();
-            default:
-                return null;
-        }
-    }
-
-    @Override
     public String getVersion() {
         return "$Date: 2013-06-26 15:15:49 +0200 (Mit, 26 Jun 2013) $";
     }

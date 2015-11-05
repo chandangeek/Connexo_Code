@@ -11,11 +11,11 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
 import com.energyict.protocols.mdc.protocoltasks.ServerConnectionType;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import javax.inject.Inject;
 
 /**
  * Specific ConnectionType used for the EIWeb Protocol
@@ -88,18 +88,6 @@ public class EIWebConnectionType implements ServerConnectionType {
     @Override
     public Direction getDirection() {
         return Direction.INBOUND;
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        switch (name) {
-            case MAC_ADDRESS_PROPERTY_NAME:
-                return this.macAddressPropertySpec();
-            case IP_ADDRESS_PROPERTY_NAME:
-                return this.ipAddressPropertySpec();
-            default:
-                return null;
-        }
     }
 
     @Override

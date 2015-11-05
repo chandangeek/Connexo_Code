@@ -1,8 +1,5 @@
 package com.energyict.protocolimpl.edmi.mk10;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.ComServerExecutionException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -14,6 +11,10 @@ import com.energyict.mdc.protocol.api.exceptions.InboundFrameException;
 import com.energyict.mdc.protocol.api.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimpl.edmi.mk10.packets.PushPacket;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
@@ -171,15 +172,6 @@ public class MK10InboundDeviceProtocol implements BinaryInboundDeviceProtocol {
         return Arrays.asList(
                 propertySpecService.basicPropertySpec(this.thesaurus.getString(MessageSeeds.TIMEOUT.getKey(), "Timeout"), false, BigDecimalFactory.class),
                 propertySpecService.basicPropertySpec(this.thesaurus.getString(MessageSeeds.RETRIES.getKey(), "Retries"), false, BigDecimalFactory.class));
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String s) {
-        return getPropertySpecs()
-                .stream()
-                .filter(propertySpec -> propertySpec.getName().equals(s))
-                .findAny()
-                .orElse(null);
     }
 
     public int getTimeOutProperty() {

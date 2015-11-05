@@ -20,6 +20,7 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.properties.PropertySpec;
@@ -27,9 +28,7 @@ import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.dlms.DlmsProperties;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.dsmr23.ComposedMeterInfo;
 import com.energyict.protocolimplv2.nta.dsmr23.logbooks.Dsmr23LogBookFactory;
@@ -426,11 +425,6 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol {
     @Override
     public void copyProperties(TypedProperties properties) {
         getDlmsProperties().addProperties(properties);
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String propertySpecName) {
-        return getDlmsProperties().getPropertySpec(propertySpecName);
     }
 
     @Override
