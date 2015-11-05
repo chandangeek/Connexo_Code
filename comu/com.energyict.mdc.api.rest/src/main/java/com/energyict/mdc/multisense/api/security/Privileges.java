@@ -6,8 +6,12 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum Privileges implements TranslationKey {
+    //Resources
+    RESOURCE_PUBLIC_API("public.api", "Public API"),
+    RESOURCE_PUBLIC_API_DESCRIPTION("public.api.description", "Manage public API"),
 
-    PUBLIC_REST_API(Constants.PUBLIC_REST_API, "Public API");
+    //Privileges
+    PUBLIC_REST_API(Constants.PUBLIC_REST_API, "Invoke");
 
     private final String key;
     private final String description;
