@@ -62,7 +62,7 @@ Ext.define('Dsh.controller.Main', {
                     text: route.title,
                     glyph: 'home',
                     portal: 'dashboard',
-                    index: 0
+                    index: 50
                 })
             );
         }
