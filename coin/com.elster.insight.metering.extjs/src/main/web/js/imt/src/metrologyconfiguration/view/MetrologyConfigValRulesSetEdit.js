@@ -2,7 +2,9 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.metrologyConfigValRulesSetEdit',
     itemId: 'metrologyConfigValRulesSetEdit',
-    requires: ['Ext.ux.form.MultiSelect'],
+    requires: ['Ext.ux.form.MultiSelect',
+               'Imt.metrologyconfiguration.store.LinkableValidationRulesSet',
+               'Imt.metrologyconfiguration.store.LinkedValidationRulesSet'],
     content: [
         {
             xtype: 'form',

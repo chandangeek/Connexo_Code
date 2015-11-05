@@ -1,6 +1,7 @@
 Ext.define('Imt.metrologyconfiguration.store.LinkableValidationRulesSet', {
     extend: 'Ext.data.Store',
     model: 'Imt.metrologyconfiguration.model.ValidationRuleSet',
+
     proxy: {
         type: 'rest',
         urlTpl: '/api/ucr/metrologyconfigurations/{id}/assignablevalidationrulesets',
