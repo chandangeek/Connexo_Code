@@ -266,7 +266,8 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
 
     @Override
     public JoinClauseBuilder addProtocolDialectProperties(long deviceProtocolId, String relationTableName) {
-        this.joins.add(new ProtocolDialectPropertyJoinType(deviceProtocolId, relationTableName));
+        this.joins.add(new ProtocolDialectPropertyJoinType(deviceProtocolId));
+        this.joins.add(new ProtocolDialectDynamicPropertyJoinType(deviceProtocolId, relationTableName));
         return this;
     }
 

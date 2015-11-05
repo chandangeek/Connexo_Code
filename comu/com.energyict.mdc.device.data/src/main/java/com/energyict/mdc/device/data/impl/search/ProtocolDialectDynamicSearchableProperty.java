@@ -28,6 +28,16 @@ public class ProtocolDialectDynamicSearchableProperty extends AbstractDynamicSea
     }
 
     @Override
+    public String getName() {
+        return getGroup().get().getId() + "." + this.protocolDialect.getProtocolDialect().getDeviceProtocolDialectName() + "." + getPropertySpec().getName();
+    }
+
+    @Override
+    public String getDisplayName() {
+        return super.getDisplayName() + " (" + this.protocolDialect.getProtocolDialect().getDisplayName() + ")";
+    }
+
+    @Override
     public void appendJoinClauses(JoinClauseBuilder builder) {
         builder.addProtocolDialectProperties(this.protocolDialect.getPluggableClass().getId(), this.relationTableName);
     }
@@ -36,9 +46,7 @@ public class ProtocolDialectDynamicSearchableProperty extends AbstractDynamicSea
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
         SqlBuilder builder = new SqlBuilder();
         builder.openBracket();
-        builder.openBracket();
-        builder.add(this.toSqlFragment("druprops." + getPropertySpec().getName(), condition, now));
-        builder.closeBracket();
+        builder.add(this.toSqlFragment(this.relationTableName + "." + getPropertySpec().getName(), condition, now));
         builder.append(" OR " + JoinClauseBuilder.Aliases.DEVICE + ".DEVICECONFIGID IN ");
         builder.openBracket();
         builder.add(selectDeviceConfigurationProperties(condition, now));
@@ -47,7 +55,7 @@ public class ProtocolDialectDynamicSearchableProperty extends AbstractDynamicSea
         return builder;
     }
 
-    // If we want to search by configuration properties, the ProtocolDialectPropertyJoinType should use left join
+    // If we want to search by configuration properties, the ProtocolDialectDynamicPropertyJoinType should use left join
     private SqlFragment selectDeviceConfigurationProperties(Condition condition, Instant now) {
         SqlBuilder builder = new SqlBuilder();
         builder.append("SELECT dpcp.DEVICECONFIGURATION ");
