@@ -111,7 +111,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>yellowfin.extjs</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>system</artifactId>
+        </dependency>
     </dependencies>
 
     <profiles>

@@ -27,6 +27,8 @@ class SysAppPrivileges {
                 com.elster.jupiter.data.lifecycle.security.Privileges.Constants.ADMINISTRATE_DATA_PURGE,
                 //custom property sets
                 com.elster.jupiter.cps.Privileges.Constants.ADMINISTER_PRIVILEGES,
-                com.elster.jupiter.cps.Privileges.Constants.VIEW_PRIVILEGES);
+                com.elster.jupiter.cps.Privileges.Constants.VIEW_PRIVILEGES,
+                //deployment information
+                com.elster.jupiter.system.security.Privileges.Constants.VIEW_DEPLOYMENT_INFORMATION);
     }
 }
