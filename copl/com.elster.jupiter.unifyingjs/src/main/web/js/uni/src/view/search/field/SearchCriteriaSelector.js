@@ -99,8 +99,7 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
     onCriteriaChange: function (widget, value) {
         var me = this,
             deps = _.filter(me.menuItems, function (item) {
-                return item.rendered
-                && !!(item.criteria.get('constraints')
+                return !!(item.criteria.get('constraints')
                 && item.criteria.get('constraints').length
                 && item.criteria.get('constraints').indexOf(widget.property.get('name')) >= 0);
             });
@@ -142,12 +141,13 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
         me.setDisabled(!store.count());
         Ext.suspendLayouts();
         me.menu.removeAll();
+        me.menuItems = [];
         store.group('groupId');
 
         if (store.count()) {
             store.each(function (item) {
                 if (!item.get('groupId') && item.get('sticky') == false) {
-                    me.menu.add(me.createMenuItem(item));
+                    me.menuItems.push(me.menu.add(me.createMenuItem(item)));
                 }
             });
 
@@ -159,14 +159,14 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
                 });
 
                 if (items.length && !Ext.isEmpty(group.name)) {
-                    me.menu.add({
+                    me.menuItems = me.menuItems.concat(me.menu.add({
                         xtype: 'menuitem',
                         text: items[0].criteria.get('group').displayValue,
                         value: group.name,
                         menu: {
                             items: items
                         }
-                    })
+                    }).menu.items.getRange());
                 }
             });
         }
