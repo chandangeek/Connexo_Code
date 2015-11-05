@@ -121,10 +121,9 @@ public class DeviceSearchDomain implements SearchDomain {
                 }
                 String relationTableName = this.protocolPluggableService.getDeviceProtocolDialectUsagePluggableClass(protocolDialect.getPluggableClass(),
                         deviceProtocolDialectName).findRelationType().getDynamicAttributeTableName();
-                long deviceProtocolId = protocolDialect.getPluggableClass().getId();
                 for (PropertySpec propertySpec : protocolDialect.getProtocolDialect().getPropertySpecs()) {
                     dynamicProperties.add(injector.getInstance(ProtocolDialectDynamicSearchableProperty.class)
-                            .init(this, propertiesGroup, propertySpec, deviceProtocolId, relationTableName));
+                            .init(this, propertiesGroup, propertySpec, protocolDialect, relationTableName));
                 }
             }
             return dynamicProperties;

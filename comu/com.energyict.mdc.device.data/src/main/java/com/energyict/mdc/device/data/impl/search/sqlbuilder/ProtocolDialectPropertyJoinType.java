@@ -19,12 +19,12 @@ public class ProtocolDialectPropertyJoinType implements JoinType {
 
     @Override
     public void appendTo(SqlBuilder sqlBuilder) {
-        sqlBuilder.append(" join ");
+        sqlBuilder.append(" left join "); // left join to support a search by device configuration properties
         sqlBuilder.append(TableSpecs.DDC_PROTOCOLDIALECTPROPS.name());
         sqlBuilder.append(" " + JoinClauseBuilder.Aliases.PROTOCOL_DIALECT_PROPS + " on " + JoinClauseBuilder.Aliases.PROTOCOL_DIALECT_PROPS
                 + ".DEVICEID = "+ JoinClauseBuilder.Aliases.DEVICE + ".id and " + JoinClauseBuilder.Aliases.PROTOCOL_DIALECT_PROPS + ".DEVICEPROTOCOLID =");
         sqlBuilder.addLong(this.deviceProtocolId);
-        sqlBuilder.append(" join ");
+        sqlBuilder.append(" left join "); // left join to support a search by device configuration properties
         sqlBuilder.append(this.relationTableName);
         sqlBuilder.append(" druprops on druprops.");
         sqlBuilder.append(DeviceProtocolDialectPropertyRelationAttributeTypeNames.DEVICE_PROTOCOL_DIALECT_ATTRIBUTE_NAME);
