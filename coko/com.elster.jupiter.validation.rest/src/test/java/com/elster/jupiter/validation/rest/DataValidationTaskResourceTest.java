@@ -226,7 +226,7 @@ public class DataValidationTaskResourceTest extends BaseValidationRestTest {
         when(validationTask.getScheduleExpression()).thenReturn(Never.NEVER);
         when(validationTask.getName()).thenReturn("Name");
         when(validationTask.getLastRun()).thenReturn(Optional.<Instant> empty());
-        when(validationTask.getEndDeviceGroup()).thenReturn(endDeviceGroup);
+        when(validationTask.getEndDeviceGroup()).thenReturn(Optional.of(endDeviceGroup));
         DataValidationOccurrenceFinder finder = mock(DataValidationOccurrenceFinder.class);
         when(finder.setLimit(anyInt())).thenReturn(finder);
         when(finder.setStart(anyInt())).thenReturn(finder);
