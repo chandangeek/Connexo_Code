@@ -42,6 +42,7 @@ Ext.define('Uni.controller.Navigation', {
     applicationTitleSeparator: '-',
     searchEnabled: Uni.Auth.hasAnyPrivilege(['privilege.administrate.deviceData', 'privilege.view.device', 'privilege.administrate.deviceCommunication', 'privilege.operate.deviceCommunication']),
     onlineHelpEnabled: false,
+    skipRefresh: false,
 
     init: function (app) {
         var me = this;
@@ -190,9 +191,11 @@ Ext.define('Uni.controller.Navigation', {
         var menu = this.getNavigationMenu(),
             store = Uni.store.MenuItems;
 
-        this.removeDuplicatesFromStore(store);
-
-        if (menu !== undefined) {
+        if (!this.skipRefresh && menu !== undefined) {
+            debugger;
+            this.skipRefresh = true; // skip this method while removing duplicates in the next line
+            this.removeDuplicatesFromStore(store);
+            this.skipRefresh = false;
             if (menu.rendered) {
                 Ext.suspendLayouts();
             }
