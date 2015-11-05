@@ -16,13 +16,15 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResourceInfo {
     public String componentName;
+    public String translatedName;
     public String name;
     public String qualifiedName;
     public String description;
     public List<PrivilegeInfo> privileges = new ArrayList<>();
 
     public ResourceInfo(Thesaurus thesaurus, Resource resource) {
-        componentName = thesaurus.getStringBeyondComponent(resource.getComponentName(), resource.getComponentName());
+        componentName = resource.getComponentName();
+        translatedName = thesaurus.getStringBeyondComponent(resource.getComponentName(), resource.getComponentName());
         name = thesaurus.getStringBeyondComponent(resource.getName(), resource.getName());
         description = thesaurus.getStringBeyondComponent(resource.getDescription(), resource.getDescription());
         qualifiedName = componentName + "." + name;
