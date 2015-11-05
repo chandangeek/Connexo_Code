@@ -27,7 +27,7 @@ public class HasValidGroupTaskValidator implements ConstraintValidator<HasValidG
     }
 
     private boolean bothNotSet(Optional<EndDeviceGroup> deviceGroup, Optional<UsagePointGroup> upGroup) {
-        return (deviceGroup.isPresent() && upGroup.isPresent());
+        return !(deviceGroup.isPresent() && upGroup.isPresent());
     }
 
     private boolean bothNotNull(Optional<EndDeviceGroup> deviceGroup, Optional<UsagePointGroup> upGroup) {
