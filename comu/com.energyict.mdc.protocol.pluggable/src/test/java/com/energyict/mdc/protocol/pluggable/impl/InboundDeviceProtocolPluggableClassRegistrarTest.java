@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.junit.*;
 import org.junit.runner.*;
-
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -140,12 +139,9 @@ public class InboundDeviceProtocolPluggableClassRegistrarTest {
 
         @Override
         public List<PropertySpec> getPropertySpecs() {
-            return null;
+            return Collections.emptyList();
         }
 
-        @Override
-        public PropertySpec getPropertySpec(String s) {
-            return null;
-        }
     }
+
 }

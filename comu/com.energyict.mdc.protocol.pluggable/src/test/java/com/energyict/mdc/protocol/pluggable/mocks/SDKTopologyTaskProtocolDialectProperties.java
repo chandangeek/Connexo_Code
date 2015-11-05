@@ -36,17 +36,6 @@ public class SDKTopologyTaskProtocolDialectProperties extends AbstractDeviceProt
     }
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
-        if (name.equals(slaveOneSerialNumberPropertyName)) {
-            return getSlaveOneSerialNumber();
-        }
-        else if (name.equals(slaveTwoSerialNumberPropertyName)) {
-            return getSlaveTwoSerialNumber();
-        }
-        return null;
-    }
-
-    @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> optionalProperties = new ArrayList<>();
         optionalProperties.add(getSlaveOneSerialNumber());

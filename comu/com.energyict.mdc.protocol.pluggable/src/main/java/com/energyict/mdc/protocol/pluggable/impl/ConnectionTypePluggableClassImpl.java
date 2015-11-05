@@ -105,7 +105,7 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
     }
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
+    public Optional<PropertySpec> getPropertySpec(String name) {
         ConnectionType connectionType = this.newInstance();
         return connectionType.getPropertySpec(name);
     }

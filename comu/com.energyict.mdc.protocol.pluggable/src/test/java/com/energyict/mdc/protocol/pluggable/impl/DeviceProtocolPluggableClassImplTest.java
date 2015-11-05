@@ -249,7 +249,7 @@ public class DeviceProtocolPluggableClassImplTest {
         assertThat(deviceProtocol).isNotNull();
         assertThat(deviceProtocol).isInstanceOf(DeviceProtocol.class);
         assertThat(deviceProtocol.getPropertySpecs()).hasSize(1);
-        assertThat(deviceProtocol.getPropertySpec(DeviceMessageTestSpec.ACTIVATIONDATE_PROPERTY_SPEC_NAME)).isNotNull();
+        assertThat(deviceProtocol.getPropertySpec(DeviceMessageTestSpec.ACTIVATIONDATE_PROPERTY_SPEC_NAME)).isPresent();
         TypedProperties properties = deviceProtocolPluggableClass.getProperties();
         assertThat(properties.getProperty(DeviceMessageTestSpec.ACTIVATIONDATE_PROPERTY_SPEC_NAME)).isEqualTo(activationDate);
     }
@@ -269,7 +269,7 @@ public class DeviceProtocolPluggableClassImplTest {
                 execute(() -> {
                     DeviceProtocolPluggableClass deviceProtocolPluggableClass1 = protocolPluggableService.newDeviceProtocolPluggableClass(DEVICE_PROTOCOL_NAME, MOCK_DEVICE_PROTOCOL_WITH_PROPERTIES);
                     deviceProtocolPluggableClass1.setProperty(
-                            DeviceMessageTestSpec.extendedSpecs(propertySpecService).getPropertySpec(DeviceMessageTestSpec.ACTIVATIONDATE_PROPERTY_SPEC_NAME),
+                            DeviceMessageTestSpec.extendedSpecs(propertySpecService).getPropertySpec(DeviceMessageTestSpec.ACTIVATIONDATE_PROPERTY_SPEC_NAME).get(),
                             activationDate);
                     deviceProtocolPluggableClass1.save();
                     return deviceProtocolPluggableClass1;
@@ -283,7 +283,7 @@ public class DeviceProtocolPluggableClassImplTest {
         assertThat(deviceProtocol).isNotNull();
         assertThat(deviceProtocol).isInstanceOf(DeviceProtocol.class);
         assertThat(deviceProtocol.getPropertySpecs()).hasSize(1);
-        assertThat(deviceProtocol.getPropertySpec(DeviceMessageTestSpec.ACTIVATIONDATE_PROPERTY_SPEC_NAME)).isNotNull();
+        assertThat(deviceProtocol.getPropertySpec(DeviceMessageTestSpec.ACTIVATIONDATE_PROPERTY_SPEC_NAME)).isPresent();
         TypedProperties properties = deviceProtocolPluggableClass.getProperties();
         assertThat(properties.getProperty(DeviceMessageTestSpec.ACTIVATIONDATE_PROPERTY_SPEC_NAME)).isEqualTo(activationDate);
     }
@@ -361,7 +361,7 @@ public class DeviceProtocolPluggableClassImplTest {
     public void newInstanceSmartMeterProtocolIllegalPropertyTest() throws BusinessException, SQLException {
         transactionService.execute(() -> {
             DeviceProtocolPluggableClass deviceProtocolPluggableClass = protocolPluggableService.newDeviceProtocolPluggableClass("SDKDeviceProtocolTestWithMandatoryProperty", SDK_DEVICE_PROTOCOL_TEST_WITH_MANDATORY_PROPERTY);
-            PropertySpec deviceTimeZone = deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpec("SDKObisCodeProperty");
+            PropertySpec deviceTimeZone = deviceProtocolPluggableClass.getDeviceProtocol().getPropertySpec("SDKObisCodeProperty").get();
             deviceProtocolPluggableClass.setProperty(deviceTimeZone, new ObisCode(1,1,1,1,1,1));
             deviceProtocolPluggableClass.save();
             return deviceProtocolPluggableClass;

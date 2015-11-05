@@ -82,16 +82,6 @@ public final class DeviceMessageTestSpec implements DeviceMessageSpec {
     }
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
-        for (PropertySpec securityProperty : getPropertySpecs()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
-    }
-
-    @Override
     public String toString() {
         return "DeviceMessageTestSpec." + this.getName();
     }

@@ -1,11 +1,13 @@
 package com.energyict.mdc.protocol.pluggable;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassWithRelationSupport;
 import com.energyict.mdc.protocol.api.ConnectionType;
 
+import com.elster.jupiter.properties.PropertySpec;
+
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Models a {@link ConnectionType} that was registered
@@ -18,13 +20,13 @@ public interface ConnectionTypePluggableClass extends PluggableClassWithRelation
 
     /**
      * Returns the {@link PropertySpec} with the specified name
-     * or <code>null</code> if no such PropertySpec exists.
+     * or an empty Optional if no such PropertySpec exists.
      *
      * @param name The name of the property specification
      * @return The PropertySpec or <code>null</code>
      *         if no such PropertySpec exists
      */
-    public PropertySpec getPropertySpec (String name);
+    Optional<PropertySpec> getPropertySpec(String name);
 
     /**
      * Returns the version of the {@link ConnectionType} and removes
@@ -32,7 +34,7 @@ public interface ConnectionTypePluggableClass extends PluggableClassWithRelation
      *
      * @return The DeviceProtocol version
      */
-    public String getVersion ();
+    String getVersion();
 
     /**
      * Returns a {@link ConnectionType} that may be reused over different calls
@@ -40,7 +42,7 @@ public interface ConnectionTypePluggableClass extends PluggableClassWithRelation
      *
      * @return The ConnectionType
      */
-    public ConnectionType getConnectionType ();
+    ConnectionType getConnectionType();
 
     /**
      * Tests if the specified {@link ConnectionType}
@@ -52,8 +54,8 @@ public interface ConnectionTypePluggableClass extends PluggableClassWithRelation
      * @param connectionType The ConnectionType
      * @return A flag that indicates if the ConnectionType is an instance of this ConnectionTypePluggableClass
      */
-    public boolean isInstance (ConnectionType connectionType);
+    boolean isInstance(ConnectionType connectionType);
 
-    public List<PropertySpec> getPropertySpecs();
+    List<PropertySpec> getPropertySpecs();
 
 }

@@ -44,16 +44,6 @@ public class SDKStandardDeviceProtocolDialectProperties extends AbstractDevicePr
     }
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
-        if (name.equals(doSomeThingPropertyName)) {
-            return getDoSomeThingPropertySpec();
-        }
-        else {
-            return null;
-        }
-    }
-
-    @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> optionalProperties = new ArrayList<>();
         optionalProperties.add(getDoSomeThingPropertySpec());

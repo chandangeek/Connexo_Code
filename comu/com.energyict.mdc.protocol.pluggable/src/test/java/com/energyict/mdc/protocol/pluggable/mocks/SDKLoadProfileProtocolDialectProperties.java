@@ -40,14 +40,6 @@ public class SDKLoadProfileProtocolDialectProperties extends AbstractDeviceProto
     }
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
-        if (name.equals(notSupportedLoadProfileObisCodePropertyName)) {
-            return getNotSupportedLoadProfileObisCodePropertySpec();
-        }
-        return null;
-    }
-
-    @Override
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> optionalProperties = new ArrayList<>();
         optionalProperties.add(this.getNotSupportedLoadProfileObisCodePropertySpec());

@@ -1,13 +1,14 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
-import com.elster.jupiter.properties.HasDynamicProperties;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.legacy.dynamic.ConfigurationSupport;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
+import com.energyict.mdc.protocol.api.legacy.dynamic.ConfigurationSupport;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
+import com.elster.jupiter.properties.HasDynamicProperties;
+import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -78,16 +79,6 @@ public class AdapterDeviceProtocolDialect implements DeviceProtocolDialect {
         else {
             return this.protocolPluggableService.createOriginalAndConformRelationNameBasedOnJavaClassname(this.withDynamicProperties.getClass());
         }
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        for (PropertySpec propertySpec : getPropertySpecs()) {
-            if (propertySpec.getName().equals(name)) {
-                return propertySpec;
-            }
-        }
-        return null;
     }
 
     @Override

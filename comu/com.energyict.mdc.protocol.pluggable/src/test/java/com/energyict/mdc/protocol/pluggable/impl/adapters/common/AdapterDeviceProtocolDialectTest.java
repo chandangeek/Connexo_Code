@@ -57,7 +57,7 @@ import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -161,8 +161,10 @@ public class AdapterDeviceProtocolDialectTest {
         MockMeterProtocol mockDeviceProtocol = new MockMeterProtocol();
         AdapterDeviceProtocolDialect dialect = new AdapterDeviceProtocolDialect(propertySpecService, protocolPluggableService, mockDeviceProtocol, new ArrayList<>());
 
-        assertThat(dialect.getPropertySpec(REQUIRED_PROPERTY_NAME)).isEqualTo(getRequiredPropertySpec());
-        assertThat(dialect.getPropertySpec(OPTIONAL_PROPERTY_NAME)).isEqualTo(getOptionalPropertySpec());
+        assertThat(dialect.getPropertySpec(REQUIRED_PROPERTY_NAME)).isPresent();
+        assertThat(dialect.getPropertySpec(REQUIRED_PROPERTY_NAME).get()).isEqualTo(getRequiredPropertySpec());
+        assertThat(dialect.getPropertySpec(OPTIONAL_PROPERTY_NAME)).isPresent();
+        assertThat(dialect.getPropertySpec(OPTIONAL_PROPERTY_NAME).get()).isEqualTo(getOptionalPropertySpec());
     }
 
     @Test
