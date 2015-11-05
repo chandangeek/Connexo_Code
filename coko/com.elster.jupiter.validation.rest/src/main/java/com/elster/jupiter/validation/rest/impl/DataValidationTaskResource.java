@@ -146,10 +146,14 @@ public class DataValidationTaskResource {
             DataValidationTask task = findAndLockDataValidationTask(info);
             task.setName(info.name);
             task.setScheduleExpression(getScheduleExpression(info));
-            if (info.deviceGroup != null)
+            if (info.deviceGroup != null) {
                 task.setEndDeviceGroup(endDeviceGroup(info.deviceGroup.id));
-            if (info.usagePointGroup != null)
+                task.setUsagePointGroup(null);
+            }
+            if (info.usagePointGroup != null) {
                 task.setUsagePointGroup(usagePointGroup(info.usagePointGroup.id));
+                task.setEndDeviceGroup(null);
+            }
             task.setNextExecution(info.nextRun == null ? null : Instant.ofEpochMilli(info.nextRun));
             task.save();
             context.commit();

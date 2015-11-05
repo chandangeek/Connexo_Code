@@ -40,11 +40,11 @@ public class DataValidationTaskInfo {
 
         id = dataValidationTask.getId();
         name = dataValidationTask.getName();
-        if (dataValidationTask.getEndDeviceGroup() != null) {
-            deviceGroup = new MeterGroupInfo(dataValidationTask.getEndDeviceGroup());
+        if (dataValidationTask.getEndDeviceGroup().isPresent()) {
+            deviceGroup = new MeterGroupInfo(dataValidationTask.getEndDeviceGroup().get());
         }
-        if (dataValidationTask.getUsagePointGroup() != null) {
-            usagePointGroup = new UsagePointGroupInfo(dataValidationTask.getUsagePointGroup());
+        if (dataValidationTask.getUsagePointGroup().isPresent()) {
+            usagePointGroup = new UsagePointGroupInfo(dataValidationTask.getUsagePointGroup().get());
         }
 
         if (Never.NEVER.equals(dataValidationTask.getScheduleExpression())) {
