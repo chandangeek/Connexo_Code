@@ -51,7 +51,6 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit', {
 	                 height: 200,
 	                 layout: 'hbox',
 	                 items: [
-<<<<<<< HEAD
 	                    {
                             xtype: 'panel',
                             title: Uni.I18n.translate('validationTasks.general.assignedruleset', 'CFG', 'Linked Validation Rule sets'),
