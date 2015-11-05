@@ -12,6 +12,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
 
     stores: [
         'Mdc.store.DeviceGroups',
+        'Mdc.store.DevicesOfDeviceGroup',
         'Mdc.store.StaticGroupDevices',
         'Mdc.store.DynamicGroupDevices'
     ],
@@ -108,17 +109,29 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             mainView.setLoading();
             me.getModel(deviceGroupModelName).load(deviceGroupId, {
                 success: function (record) {
+                    var isDynamic,
+                        devices;
+
                     if (widget.rendered) {
+                        isDynamic = record.get('dynamic');
                         me.getApplication().fireEvent('loadDeviceGroup', record);
                         Ext.suspendLayouts();
                         widget.down('devicegroup-add-navigation').setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
                         widget.down('adddevicegroup-wizard').loadRecord(record);
-                        me.prepareStep2(null, {dynamic: record.get('dynamic')});
+                        me.prepareStep2(null, {dynamic: isDynamic});
                         Ext.resumeLayouts(true);
+                        if (!isDynamic) {
+                            devices = me.getStore('Mdc.store.DevicesOfDeviceGroup');
+                            devices.getProxy().setExtraParam('id', deviceGroupId);
+                            devices.load(function (records) {
+                                mainView.setLoading(false);
+                                widget.down('static-group-devices-grid').setDevices(records);
+                            });
+                        }
                     }
                 },
-                callback: function () {
-                    mainView.setLoading(false)
+                failure: function () {
+                    mainView.setLoading(false);
                 }
             });
         } else {
@@ -202,20 +215,17 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
     validateStep2: function () {
         var me = this,
             wizard = me.getAddDeviceGroupWizard(),
-            staticGrid = wizard.down('static-group-devices-grid'),
             record = Ext.clone(wizard.getRecord()),
             valid = true,
-            isDynamic;
+            isDynamic,
+            devices;
 
         wizard.updateRecord(record);
         isDynamic = record.get('dynamic');
+        devices = record.get('devices');
 
         if (!isDynamic) {
-            if (!staticGrid.getStore().getCount()) {
-                valid = false;
-            } else {
-                valid = !(!staticGrid.isAllSelected() && !staticGrid.getSelectionModel().getSelection().length);
-            }
+            valid = !devices || !!devices.length;
             me.getStep2FormErrorMessage().setVisible(!valid);
         }
 
@@ -280,18 +290,18 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             domainsStore = me.service.getSearchDomainsStore(),
             isDynamic = newValue.dynamic,
             staticGrid,
-            staticGridRadioBtnValue;
+            selectionGroupType;
 
         step2.getLayout().setActiveItem(isDynamic ? 1 : 0);
         me.service.setSearchResultsStore(me.getStore(isDynamic ? 'Mdc.store.DynamicGroupDevices' : 'Mdc.store.StaticGroupDevices'));
         me.setColumnPicker(isDynamic);
         if (!isDynamic) {
             staticGrid = step2.down('static-group-devices-grid');
-            staticGridRadioBtnValue = {};
+            selectionGroupType = {};
             staticGrid.getSelectionModel().deselectAll();
             staticGrid.getStore().data.clear();
-            staticGridRadioBtnValue[staticGrid.radioGroupName] = staticGrid.allInputValue;
-            staticGrid.getSelectionGroupType().setValue(staticGridRadioBtnValue);
+            selectionGroupType[staticGrid.radioGroupName] = staticGrid.allInputValue;
+            staticGrid.getSelectionGroupType().setValue(selectionGroupType);
         }
         if (domainsStore.isLoading()) {
             domainsStore.on('load', function () {

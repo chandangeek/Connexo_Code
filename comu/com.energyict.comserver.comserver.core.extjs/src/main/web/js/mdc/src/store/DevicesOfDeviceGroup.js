@@ -13,6 +13,9 @@ Ext.define('Mdc.store.DevicesOfDeviceGroup', {
         reader: {
             type: 'json',
             root: 'devices'
-        }
+        },
+        pageParam: false,
+        startParam: false,
+        limitParam: false
     }
 });

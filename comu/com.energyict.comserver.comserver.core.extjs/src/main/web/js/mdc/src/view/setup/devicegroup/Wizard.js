@@ -95,5 +95,39 @@ Ext.define('Mdc.view.setup.devicegroup.Wizard', {
         };
 
         me.callParent(arguments);
+    },
+
+    updateRecord: function (record) {
+        var me = this,
+            staticGrid,
+            updatedRecord,
+            devices;
+
+        me.callParent(arguments);
+        updatedRecord = record || me.getRecord();
+        updatedRecord.beginEdit();
+        updatedRecord.set('filter', me.parseFilter);
+        if (!updatedRecord.get('dynamic')) {
+            staticGrid = me.down('static-group-devices-grid');
+            if (staticGrid.isAllSelected()) {
+                updatedRecord.set('devices', null);
+            } else if (staticGrid.devices) {
+                updatedRecord.set('devices', staticGrid.devices);
+            } else {
+                devices = [];
+                Ext.Array.each(staticGrid.getSelectionModel().getSelection(), function (device) {
+                    devices.push(device.get('mRID'));
+                });
+                updatedRecord.set('devices', devices);
+            }
+        }
+        updatedRecord.endEdit();
+    },
+
+    parseFilter: function () {
+        var me = this,
+            store = me.service.getSearchResultsStore();
+
+        return store.getProxy().encodeFilters(store.filters.getRange());
     }
 });
