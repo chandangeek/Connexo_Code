@@ -166,6 +166,7 @@
                 <module>../com.energyict.mdc.api.rest</module>
                 <module>../com.energyict.mdc.app</module>
                 <module>../com.energyict.mdc.app.help</module>
+                <module>../com.energyict.mdc.bpm.extjs</module>
                 <module>../com.energyict.mdc.common</module>
                 <module>../com.energyict.mdc.dashboard</module>
                 <module>../com.energyict.mdc.dashboard.rest</module>
