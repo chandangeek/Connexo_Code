@@ -86,9 +86,6 @@ public class SearchApplication extends Application implements MessageSeedProvide
             bind(SearchCriterionInfoFactory.class).to(SearchCriterionInfoFactory.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
-//            bind(host==null? Optional.empty():Optional.of(host)).to(Optional.class).named("host");
-//            bind(port==null?Optional.empty():Optional.of(port)).to(Optional.class).named("port");
-//            bind(scheme==null?Optional.empty():Optional.of(scheme)).to(Optional.class).named("scheme");
         }
     }
 
