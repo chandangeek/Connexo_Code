@@ -1,12 +1,13 @@
 package com.elster.jupiter.fileimport;
 
-import com.elster.jupiter.nls.*;
-import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsKey;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.SimpleNlsKey;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.util.Pair;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -22,10 +23,10 @@ public abstract class FileImporterAbstractFactory  implements FileImporterFactor
     private Logger logger;
 
     public FileImporterAbstractFactory(){
-
     }
 
     protected FileImporterAbstractFactory(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+        this();
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         this.properties = Collections.emptyMap();
@@ -79,14 +80,6 @@ public abstract class FileImporterAbstractFactory  implements FileImporterFactor
                 .anyMatch(input -> property.equals(input.getName()));
     }
 
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        return getPropertySpecs().stream()
-                .filter(propertySpec -> name.equals(propertySpec.getName()))
-                .findFirst()
-                .orElse(null);
-    }
-
     protected final Object getProperty(String key) {
         return properties.get(key);
     }
@@ -112,7 +105,6 @@ public abstract class FileImporterAbstractFactory  implements FileImporterFactor
         return null;
     }
 
-
     public void setPropertySpecService(PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
     }
@@ -120,8 +112,5 @@ public abstract class FileImporterAbstractFactory  implements FileImporterFactor
     public void setThesaurus(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(getName(), Layer.DOMAIN);
     }
-
-
-
 
 }
