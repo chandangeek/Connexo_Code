@@ -82,13 +82,13 @@ Ext.define('Cfg.view.validationtask.Add', {
                                     {
                                         itemId: 'rbtn-device-group',
                                         name: 'grouptype',
-                                        boxLabel: Uni.I18n.translate('general.group.device', 'CFG', 'Device'),
+                                        boxLabel: Uni.I18n.translate('general.group.device', 'CFG', 'End Device'),
                                         inputValue: 'device',
                                     },
                                     {
                                         itemId: 'rbtn-usagepoint-group',
                                         name: 'grouptype',
-                                        boxLabel: Uni.I18n.translate('general.group.usagepoint', 'CFG', 'UsagePoint'),
+                                        boxLabel: Uni.I18n.translate('general.group.usagepoint', 'CFG', 'Usage Point'),
                                         inputValue: 'usagepoint',
                                     }
                                 ],

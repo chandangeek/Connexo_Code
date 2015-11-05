@@ -121,9 +121,9 @@ Ext.define('Cfg.model.ValidationTask', {
         	persist: false,
         	mapping: function(data) {
         		if (data.deviceGroup) {
-        			return 'device';
+        			return 'End Device';
         		} else if (data.usagePointGroup) {
-        			return 'usagepoint';
+        			return 'Usage Point';
         		} else {
         			return '-';
         		}
