@@ -192,7 +192,6 @@ Ext.define('Uni.controller.Navigation', {
             store = Uni.store.MenuItems;
 
         if (!this.skipRefresh && menu !== undefined) {
-            debugger;
             this.skipRefresh = true; // skip this method while removing duplicates in the next line
             this.removeDuplicatesFromStore(store);
             this.skipRefresh = false;
