@@ -1,7 +1,5 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
-import com.energyict.mdc.protocol.api.ConnectionType;
-
 /**
  * Insert your comments here.
  *
