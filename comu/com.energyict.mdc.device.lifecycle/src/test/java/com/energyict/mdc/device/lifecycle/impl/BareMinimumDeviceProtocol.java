@@ -66,12 +66,10 @@ public class BareMinimumDeviceProtocol implements DeviceProtocol {
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
-
     }
 
     @Override
     public void terminate() {
-
     }
 
     @Override
@@ -96,22 +94,18 @@ public class BareMinimumDeviceProtocol implements DeviceProtocol {
 
     @Override
     public void logOn() {
-
     }
 
     @Override
     public void daisyChainedLogOn() {
-
     }
 
     @Override
     public void logOff() {
-
     }
 
     @Override
     public void daisyChainedLogOff() {
-
     }
 
     @Override
@@ -126,7 +120,6 @@ public class BareMinimumDeviceProtocol implements DeviceProtocol {
 
     @Override
     public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-
     }
 
     @Override
@@ -136,7 +129,6 @@ public class BareMinimumDeviceProtocol implements DeviceProtocol {
 
     @Override
     public void setTime(Date timeToSet) {
-
     }
 
     @Override
@@ -176,7 +168,6 @@ public class BareMinimumDeviceProtocol implements DeviceProtocol {
 
     @Override
     public void addDeviceProtocolDialectProperties(TypedProperties dialectProperties) {
-
     }
 
     @Override
@@ -201,7 +192,6 @@ public class BareMinimumDeviceProtocol implements DeviceProtocol {
 
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-
     }
 
     @Override
@@ -216,17 +206,11 @@ public class BareMinimumDeviceProtocol implements DeviceProtocol {
 
     @Override
     public void copyProperties(TypedProperties properties) {
-
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Collections.emptyList();
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String s) {
-        return null;
     }
 
     @Override
