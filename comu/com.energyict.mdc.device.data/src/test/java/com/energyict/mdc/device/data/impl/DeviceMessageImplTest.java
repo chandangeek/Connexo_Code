@@ -826,13 +826,9 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         }
 
         @Override
-        public PropertySpec getPropertySpec(String name) {
-            return null;
-        }
-
-        @Override
         public CollectedFirmwareVersion getFirmwareVersions() {
             return null;
         }
     }
+
 }

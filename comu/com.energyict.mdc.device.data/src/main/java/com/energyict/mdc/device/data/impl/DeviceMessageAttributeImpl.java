@@ -53,7 +53,7 @@ public class DeviceMessageAttributeImpl extends PersistentIdObject<DeviceMessage
     @Override
     public PropertySpec getSpecification() {
         if (this.propertySpec == null) {
-            this.propertySpec = deviceMessage.get().getSpecification().getPropertySpec(name);
+            this.propertySpec = deviceMessage.get().getSpecification().getPropertySpec(name).get();
         }
         return propertySpec;
     }

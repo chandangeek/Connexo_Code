@@ -1,9 +1,5 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
@@ -25,10 +21,20 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-import org.junit.Before;
+
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.TimeZone;
+
+import org.junit.*;
 
 import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Mockito.mock;
@@ -236,10 +242,6 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
             return Collections.emptyList();
         }
 
-        @Override
-        public PropertySpec getPropertySpec(String name) {
-            return null;
-        }
     }
 
     protected class OtherComTaskExecutionDialect extends ComTaskExecutionDialect {

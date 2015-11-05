@@ -67,9 +67,4 @@ public class SimpleDiscoveryProtocol implements InboundDeviceProtocol {
         return Collections.emptyList();
     }
 
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        return null;
-    }
-
 }

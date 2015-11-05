@@ -55,12 +55,12 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
         properties
             .propertyNames()
             .stream()
-            .filter(propertyName -> deviceProtocolDialect.getPropertySpec(propertyName) == null)
+            .filter(propertyName -> !deviceProtocolDialect.getPropertySpec(propertyName).isPresent())
             .forEach(propertyName -> {
                 context
-                        .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DEVICE_PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC + "}")
-                        .addPropertyNode("properties").addConstraintViolation()
-                        .disableDefaultConstraintViolation();
+                    .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DEVICE_PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC + "}")
+                    .addPropertyNode("properties").addConstraintViolation()
+                    .disableDefaultConstraintViolation();
                 this.valid = false;
             });
     }
@@ -73,9 +73,9 @@ public class HasValidPropertiesValidator implements ConstraintValidator<HasValid
 
     @SuppressWarnings("unchecked")
     private void validatePropertyValue(String propertyName, Object propertyValue, DeviceProtocolDialect deviceProtocolDialect, ConstraintValidatorContext context) {
-        PropertySpec propertySpec=null;
+        PropertySpec propertySpec = null;
         try {
-            propertySpec = deviceProtocolDialect.getPropertySpec(propertyName);
+            propertySpec = deviceProtocolDialect.getPropertySpec(propertyName).get();
             propertySpec.validateValue(propertyValue);
         }
         catch (InvalidValueException e) {

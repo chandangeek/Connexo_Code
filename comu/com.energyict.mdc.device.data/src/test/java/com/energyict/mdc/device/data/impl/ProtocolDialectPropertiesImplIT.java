@@ -577,29 +577,10 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
 
         @Override
         public List<PropertySpec> getPropertySpecs() {
-            List<PropertySpec> propertySpecs = new ArrayList<>(3);
-            propertySpecs.add(this.requiredPropertySpec());
-            propertySpecs.add(this.optionalPropertySpec());
-            propertySpecs.add(this.optionalWithLongNamePropertySpec());
-            return propertySpecs;
-        }
-
-        @Override
-        public PropertySpec getPropertySpec(String name) {
-            switch (name) {
-                case REQUIRED_PROPERTY_NAME_D1: {
-                    return this.requiredPropertySpec();
-                }
-                case OPTIONAL_PROPERTY_NAME_D1: {
-                    return this.optionalPropertySpec();
-                }
-                case OPTIONAL_PROPERTY_WITH_LONG_NAME_D1: {
-                    return this.optionalWithLongNamePropertySpec();
-                }
-                default: {
-                    return null;
-                }
-            }
+            return Arrays.asList(
+                    this.requiredPropertySpec(),
+                    this.optionalPropertySpec(),
+                    this.optionalWithLongNamePropertySpec());
         }
 
         private PropertySpec requiredPropertySpec() {
@@ -630,25 +611,9 @@ public class ProtocolDialectPropertiesImplIT extends PersistenceIntegrationTest 
 
         @Override
         public List<PropertySpec> getPropertySpecs() {
-            List<PropertySpec> propertySpecs = new ArrayList<>(2);
-            propertySpecs.add(this.requiredPropertySpec());
-            propertySpecs.add(this.optionalPropertySpec());
-            return propertySpecs;
-        }
-
-        @Override
-        public PropertySpec getPropertySpec(String name) {
-            switch (name) {
-                case REQUIRED_PROPERTY_NAME_D2: {
-                    return this.requiredPropertySpec();
-                }
-                case OPTIONAL_PROPERTY_NAME_D2: {
-                    return this.optionalPropertySpec();
-                }
-                default: {
-                    return null;
-                }
-            }
+            return Arrays.asList(
+                    this.requiredPropertySpec(),
+                    this.optionalPropertySpec());
         }
 
         private PropertySpec requiredPropertySpec() {

@@ -1,37 +1,52 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.common.interval.PartialTime;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTaskBuilder;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichIsNotFromThisDevice;
+import com.energyict.mdc.device.data.impl.tasks.InboundNoParamsConnectionTypeImpl;
+import com.energyict.mdc.device.data.impl.tasks.IpConnectionProperties;
+import com.energyict.mdc.device.data.impl.tasks.OutboundIpConnectionTypeImpl;
+import com.energyict.mdc.device.data.impl.tasks.OutboundNoParamsConnectionTypeImpl;
+import com.energyict.mdc.device.data.impl.tasks.SimpleDiscoveryProtocol;
+import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
+import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
+import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.engine.config.InboundComPortPool;
+import com.energyict.mdc.engine.config.OutboundComPortPool;
+import com.energyict.mdc.protocol.api.ComPortType;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
+
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionContext;
-import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.interval.PartialTime;
-import com.energyict.mdc.device.config.*;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichIsNotFromThisDevice;
-import com.energyict.mdc.device.data.impl.tasks.*;
-import com.energyict.mdc.device.data.tasks.*;
-import com.energyict.mdc.engine.config.InboundComPortPool;
-import com.energyict.mdc.engine.config.OutboundComPortPool;
-import com.energyict.mdc.protocol.api.ComPortType;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.google.common.base.Strings;
-import org.assertj.core.api.Condition;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+
+import org.assertj.core.api.Condition;
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -516,8 +531,8 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithConnectionProps", MRID);
         device.save();
         Device.ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask);
-        scheduledConnectionTaskBuilder.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, ipAddress);
-        scheduledConnectionTaskBuilder.setProperty(IpConnectionType.PORT_PROPERTY_NAME, portNumber);
+        scheduledConnectionTaskBuilder.setProperty(IpConnectionProperties.IP_ADDRESS.propertyName(), ipAddress);
+        scheduledConnectionTaskBuilder.setProperty(IpConnectionProperties.PORT.propertyName(), portNumber);
         scheduledConnectionTaskBuilder.add();
         device.save();
 
@@ -527,10 +542,10 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
             public boolean matches(List<? extends ConnectionTaskProperty> value) {
                 int bothMatch = 0b0000;
                 for (ConnectionTaskProperty connectionTaskProperty : value) {
-                    if (connectionTaskProperty.getName().equals(IpConnectionType.IP_ADDRESS_PROPERTY_NAME) && connectionTaskProperty.getValue().toString().equals(ipAddress)) {
+                    if (connectionTaskProperty.getName().equals(IpConnectionProperties.IP_ADDRESS.propertyName()) && connectionTaskProperty.getValue().toString().equals(ipAddress)) {
                         bothMatch |= 0b0001;
                     }
-                    if (connectionTaskProperty.getName().equals(IpConnectionType.PORT_PROPERTY_NAME) && connectionTaskProperty.getValue().equals(portNumber)) {
+                    if (connectionTaskProperty.getName().equals(IpConnectionProperties.PORT.propertyName()) && connectionTaskProperty.getValue().equals(portNumber)) {
                         bothMatch |= 0b0010;
                     }
                 }
@@ -551,10 +566,10 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = createDeviceConfigWithPartialIpOutboundConnectionTask();
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithConnectionProps", MRID);
         Device.ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask);
-        scheduledConnectionTaskBuilder.setProperty(IpConnectionType.PORT_PROPERTY_NAME, portNumber);
+        scheduledConnectionTaskBuilder.setProperty(IpConnectionProperties.PORT.propertyName(), portNumber);
 
         // Business method
-        scheduledConnectionTaskBuilder.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, ipAddress);
+        scheduledConnectionTaskBuilder.setProperty(IpConnectionProperties.IP_ADDRESS.propertyName(), ipAddress);
         scheduledConnectionTaskBuilder.add();
         device.save();
 
@@ -608,10 +623,10 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = createDeviceConfigWithPartialIpInboundConnectionTask();
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithConnectionProps", MRID);
         Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = device.getInboundConnectionTaskBuilder(partialInboundConnectionTask);
-        inboundConnectionTaskBuilder.setProperty(IpConnectionType.PORT_PROPERTY_NAME, portNumber);
+        inboundConnectionTaskBuilder.setProperty(IpConnectionProperties.PORT.propertyName(), portNumber);
 
         // Business method
-        inboundConnectionTaskBuilder.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, ipAddress);
+        inboundConnectionTaskBuilder.setProperty(IpConnectionProperties.IP_ADDRESS.propertyName(), ipAddress);
         inboundConnectionTaskBuilder.add();
         device.save();
 

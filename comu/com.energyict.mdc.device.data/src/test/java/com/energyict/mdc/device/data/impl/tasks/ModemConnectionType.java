@@ -8,13 +8,15 @@ import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
 
 import javax.inject.Inject;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -26,7 +28,6 @@ import java.util.Set;
  */
 public class ModemConnectionType implements ConnectionType {
 
-    public static final String PHONE_NUMBER_PROPERTY_NAME = "phoneNumber";
     private static final int HASH_CODE = 91153; // Random prime number
 
     private final PropertySpecService propertySpecService;
@@ -53,22 +54,17 @@ public class ModemConnectionType implements ConnectionType {
     }
 
     @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return Arrays.asList(this.phoneNumberPropertySpec());
+    public Optional<CustomPropertySet<ConnectionType, ? extends PersistentDomainExtension<ConnectionType>>> getCustomPropertySet() {
+        return Optional.of(new ModemConnectionCustomPropertySet(this.propertySpecService));
     }
 
     @Override
-    public PropertySpec getPropertySpec (String name) {
-        if (PHONE_NUMBER_PROPERTY_NAME.equals(name)) {
-            return this.phoneNumberPropertySpec();
-        }
-        else {
-            return null;
-        }
+    public List<PropertySpec> getPropertySpecs() {
+        return Collections.singletonList(this.phoneNumberPropertySpec());
     }
 
     private PropertySpec phoneNumberPropertySpec () {
-        return this.propertySpecService.basicPropertySpec(PHONE_NUMBER_PROPERTY_NAME, true, new StringFactory());
+        return ModemConnectionProperties.PHONE_NUMBER.propertySpec(this.propertySpecService);
     }
 
     @Override

@@ -1,9 +1,5 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.transaction.VoidTransaction;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
@@ -34,17 +30,21 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.transaction.VoidTransaction;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.runners.MockitoJUnitRunner;
 
 /**
  * Provides code reuse opportunities for test classes
@@ -386,16 +386,16 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
     protected List<PropertySpec> getOutboundIpPropertySpecs() {
         return Arrays.asList(
-                outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME),
-                outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME));
+                outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionProperties.IP_ADDRESS.propertyName()).get(),
+                outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionProperties.PORT.propertyName()).get());
     }
 
     protected void setIpConnectionProperties(ConnectionTask connectionTask, String ipAddress, BigDecimal port) {
         if (ipAddress != null) {
-            connectionTask.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, ipAddress);
+            connectionTask.setProperty(IpConnectionProperties.IP_ADDRESS.propertyName(), ipAddress);
         }
         if (port != null) {
-            connectionTask.setProperty(IpConnectionType.PORT_PROPERTY_NAME, port);
+            connectionTask.setProperty(IpConnectionProperties.PORT.propertyName(), port);
         }
     }
 
@@ -494,9 +494,5 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
             return Collections.emptyList();
         }
 
-        @Override
-        public PropertySpec getPropertySpec(String name) {
-            return null;
-        }
     }
 }

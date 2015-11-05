@@ -73,9 +73,9 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         // Asserts
         assertThat(connectionInitiationTask).isNotNull();
         assertThat(connectionInitiationTask.getProperties()).hasSize(2);
-        assertThat(connectionInitiationTask.getProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME)).isNotNull();
-        assertThat(connectionInitiationTask.getProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME).getValue()).isEqualTo(IP_ADDRESS_PROPERTY_VALUE);
-        assertThat(connectionInitiationTask.getProperty(IpConnectionType.PORT_PROPERTY_NAME)).isNotNull();
+        assertThat(connectionInitiationTask.getProperty(IpConnectionProperties.IP_ADDRESS.propertyName())).isNotNull();
+        assertThat(connectionInitiationTask.getProperty(IpConnectionProperties.IP_ADDRESS.propertyName()).getValue()).isEqualTo(IP_ADDRESS_PROPERTY_VALUE);
+        assertThat(connectionInitiationTask.getProperty(IpConnectionProperties.PORT.propertyName())).isNotNull();
     }
 
     @Test
@@ -95,9 +95,9 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         // Asserts
         assertThat(connectionInitiationTask).isNotNull();
         assertThat(connectionInitiationTask.getProperties()).hasSize(1);
-        assertThat(connectionInitiationTask.getProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME)).isNotNull();
-        assertThat(connectionInitiationTask.getProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME).getValue()).isEqualTo(IP_ADDRESS_PROPERTY_VALUE);
-        assertThat(connectionInitiationTask.getProperty(IpConnectionType.PORT_PROPERTY_NAME)).isNull();
+        assertThat(connectionInitiationTask.getProperty(IpConnectionProperties.IP_ADDRESS.propertyName())).isNotNull();
+        assertThat(connectionInitiationTask.getProperty(IpConnectionProperties.IP_ADDRESS.propertyName()).getValue()).isEqualTo(IP_ADDRESS_PROPERTY_VALUE);
+        assertThat(connectionInitiationTask.getProperty(IpConnectionProperties.PORT.propertyName())).isNull();
         assertThat(connectionInitiationTask.getCurrentRetryCount()).isEqualTo(0);
     }
 
@@ -195,16 +195,16 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         connectionInitiationTask.save();
 
         // Business method
-        connectionInitiationTask.setProperty(IpConnectionType.PORT_PROPERTY_NAME, PORT_PROPERTY_VALUE);
+        connectionInitiationTask.setProperty(IpConnectionProperties.PORT.propertyName(), PORT_PROPERTY_VALUE);
         connectionInitiationTask.save();
 
         // Asserts
         ConnectionInitiationTask updated = inMemoryPersistence.getConnectionTaskService().findConnectionInitiationTask(connectionInitiationTask.getId()).get();
         assertThat(updated.getProperties()).hasSize(2);
-        assertThat(updated.getProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME)).isNotNull();
-        assertThat(updated.getProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME).getValue()).isEqualTo(IP_ADDRESS_PROPERTY_VALUE);
-        assertThat(updated.getProperty(IpConnectionType.PORT_PROPERTY_NAME)).isNotNull();
-        assertThat(updated.getProperty(IpConnectionType.PORT_PROPERTY_NAME).getValue()).isEqualTo(PORT_PROPERTY_VALUE);
+        assertThat(updated.getProperty(IpConnectionProperties.IP_ADDRESS.propertyName())).isNotNull();
+        assertThat(updated.getProperty(IpConnectionProperties.IP_ADDRESS.propertyName()).getValue()).isEqualTo(IP_ADDRESS_PROPERTY_VALUE);
+        assertThat(updated.getProperty(IpConnectionProperties.IP_ADDRESS.propertyName())).isNotNull();
+        assertThat(updated.getProperty(IpConnectionProperties.IP_ADDRESS.propertyName()).getValue()).isEqualTo(PORT_PROPERTY_VALUE);
     }
 
     @Test

@@ -11,7 +11,13 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
-import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
@@ -28,6 +34,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.mockito.Mockito.mock;
@@ -65,8 +72,8 @@ public class TestProtocolWithRequiredStringAndOptionalNumericDialectProperties i
         when(this.deviceProtocolDialect.getDeviceProtocolDialectName()).thenReturn(DIALECT_NAME);
         when(this.deviceProtocolDialect.getDisplayName()).thenReturn(DIALECT_NAME);
         when(this.deviceProtocolDialect.getPropertySpecs()).thenReturn(Arrays.asList(stringPropertySpec, numericPropertySpec));
-        when(this.deviceProtocolDialect.getPropertySpec(STRING_PROPERTY_NAME)).thenReturn(stringPropertySpec);
-        when(this.deviceProtocolDialect.getPropertySpec(NUMERIC_PROPERTY_NAME)).thenReturn(numericPropertySpec);
+        when(this.deviceProtocolDialect.getPropertySpec(STRING_PROPERTY_NAME)).thenReturn(Optional.of(stringPropertySpec));
+        when(this.deviceProtocolDialect.getPropertySpec(NUMERIC_PROPERTY_NAME)).thenReturn(Optional.of(numericPropertySpec));
     }
 
     @Override
@@ -250,12 +257,8 @@ public class TestProtocolWithRequiredStringAndOptionalNumericDialectProperties i
     }
 
     @Override
-    public PropertySpec getPropertySpec(String s) {
-        return null;
-    }
-
-    @Override
     public CollectedFirmwareVersion getFirmwareVersions() {
         return null;
     }
+
 }
