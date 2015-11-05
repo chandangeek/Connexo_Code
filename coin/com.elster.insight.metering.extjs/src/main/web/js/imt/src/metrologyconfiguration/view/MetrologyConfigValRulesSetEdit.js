@@ -2,7 +2,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.metrologyConfigValRulesSetEdit',
     itemId: 'metrologyConfigValRulesSetEdit',
-
+    requires: ['Ext.ux.form.MultiSelect'],
 //    edit: false,
 
     content: [
@@ -46,7 +46,6 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit', {
                     maxLength: 75,
                     width: 600
                 }, 
-               
                 {
                 	 xtype: 'panel',
 	                 required: true,
@@ -54,39 +53,30 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit', {
 	                 height: 200,
 	                 layout: 'hbox',
 	                 items: [
-		                {
-		                    xtype: 'panel',
-		                    title: Uni.I18n.translate('validationTasks.general.assignedruleset', 'CFG', 'Linked Validation Rule sets'),
-		                    required: true,
-			                border: '5 5 5 5',
-		                    frame: true,
-		                    height: 200,
-		                    width: 300,
-		                    border: 10,
-		                    layout: 'hbox',
-		                    items: [
-		                        {
-		                            xtype: 'combobox',
-		                            itemId: 'metrology-config-linked-val-rules-set',
-		                            name: 'linkedValidationRulesSets',
-		                            border: 10,
-		                            width: 235,
-		                            heigh: 500,
-		                            store: 'Imt.metrologyconfiguration.store.LinkedValidationRulesSet',
-		                            editable: false,
-		                            disabled: false,
-		                            multiSelect: true,
-		                            emptyText: Uni.I18n.translate('validationTasks.addValidationTask.deviceGroupPrompt22', 'CFG', 'Select linked validation rules sets...'),
-		                            allowBlank: true,
-		                            queryMode: 'local',
-		                            displayField: 'name',
-		                            valueField: 'id',
-		                            listConfig: {
-		                            	maxHeight: 500,
-		                            },
-		                        },
-		                    ]
-		                },
+	                    {
+                            xtype: 'panel',
+                            title: Uni.I18n.translate('validationTasks.general.assignedruleset', 'CFG', 'Linked Validation Rule sets'),
+                            required: true,
+                            border: '5 5 5 5',
+                            frame: true,
+                            height: 200,
+                            width: 300,
+                            border: 10,
+                            items: [
+        		                {
+                                    xtype: 'multiselect',                            
+                                    itemId: 'metrology-config-linked-val-rules-set',
+                                    name: 'linkedValidationRulesSets',
+                                    width: 235,
+                                    heigh: 500,
+                                    store: 'Imt.metrologyconfiguration.store.LinkedValidationRulesSet',
+                                    queryMode: 'local',
+                                    valueField: 'id',
+                                    displayField: 'name',
+                                    listConfig: { border: false }
+        		                }
+        		            ]
+                        },
 		                {
 		                    xtype: 'panel',
 		                    title: Uni.I18n.translate('validationTasks.general.assignableruleset', 'CFG', 'Actions'),
@@ -138,33 +128,28 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit', {
 		                    ]
 		                },
 		                {
-		                    xtype: 'panel',
-		                    title: Uni.I18n.translate('validationTasks.general.assignableruleset', 'CFG', 'Linkable Validation Rule sets'),
-		                    required: true,
-		                    frame: true,
-			                 border: '5 5 5 5',
-		                    height: 200,
-		                    width: 300,
-		                    border: 10,
-		                    layout: 'hbox',
-		                    items: [
-		                        {
-		                            xtype: 'combobox',
-		                            itemId: 'metrology-config-linkable-val-rules-set',
-		                            name: 'linkableValidationRulesSets',
-		                            width: 235,
-		                            store: 'Imt.metrologyconfiguration.store.LinkableValidationRulesSet',
-		                            editable: false,
-		                            disabled: false,
-		                            multiSelect: true,
-		                            emptyText: Uni.I18n.translate('validationTasks.addValidationTask.deviceGroupPrompt22', 'CFG', 'Select linkable validation rules sets...'),
-		                            allowBlank: true,
-		                            queryMode: 'local',
-		                            displayField: 'name',
-		                            valueField: 'id',
-		                        },
-		                    ]
-		                },
+                            xtype: 'panel',
+                            title: Uni.I18n.translate('validationTasks.general.assignableruleset', 'CFG', 'Linkable Validation Rule sets'),
+                            required: true,
+                            border: '5 5 5 5',
+                            frame: true,
+                            height: 200,
+                            width: 300,
+                            border: 10,
+                            items: [
+        		                {
+                                    xtype: 'multiselect',
+                                    itemId: 'metrology-config-linkable-val-rules-set',
+                                    name: 'linkableValidationRulesSets',
+                                    width: 235,
+                                    store: 'Imt.metrologyconfiguration.store.LinkableValidationRulesSet',
+                                    queryMode: 'local',
+                                    valueField: 'id',
+                                    displayField: 'name',
+                                    listConfig: { border: false }
+        		                }
+        		            ]
+                        }
 		            ]
                 },
 

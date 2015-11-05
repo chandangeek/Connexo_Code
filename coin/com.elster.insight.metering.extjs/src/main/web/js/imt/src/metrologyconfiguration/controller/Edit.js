@@ -219,8 +219,8 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
       var me = this,
       	view = Ext.create('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit',{mcid: id}),
       	metrologyConfigurationModel = me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration'),
-      	linkedValRulesSetCombo = view.down('#metrology-config-linked-val-rules-set'),
-      	linkableValRulesSetCombo = view.down('#metrology-config-linkable-val-rules-set');
+      	linkedValRulesSetCombo = view.down('[name=linkedValidationRulesSets]'),
+      	linkableValRulesSetCombo = view.down('[name=linkableValidationRulesSets]');
 	    me.getApplication().fireEvent('changecontentevent', view);
 
 	    metrologyConfigurationModel.load(id, {
