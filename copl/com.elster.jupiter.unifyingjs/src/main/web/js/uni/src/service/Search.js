@@ -179,7 +179,7 @@ Ext.define('Uni.service.Search', {
         Ext.resumeLayouts(true);
     },
 
-    onSearchPropertiesLoad: function (store, records) {
+    onSearchPropertiesLoad: function (store) {
         var me = this;
 
         me.filters.each(function(filter){
@@ -233,9 +233,8 @@ Ext.define('Uni.service.Search', {
     },
 
     clearFilters: function () {
-        var me = this;
-
-        me.onSearchPropertiesLoad();
+        this.init();
+        this.getSearchResultsStore().load();
     },
 
     getFilters: function() {
