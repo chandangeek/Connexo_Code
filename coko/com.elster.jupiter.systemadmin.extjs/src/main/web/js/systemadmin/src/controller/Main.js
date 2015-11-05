@@ -15,7 +15,8 @@ Ext.define('Sam.controller.Main', {
         'Sam.controller.datapurge.History',
         'Sam.controller.datapurge.Log',
         'Sam.controller.history.About',
-        'Sam.controller.about.About'
+        'Sam.controller.about.About',
+        'Sam.controller.systeminfo.SystemInfo'
     ],
 
     stores: [
