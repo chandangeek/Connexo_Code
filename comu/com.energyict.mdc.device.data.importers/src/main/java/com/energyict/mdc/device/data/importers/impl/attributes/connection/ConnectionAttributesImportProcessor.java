@@ -1,8 +1,5 @@
 package com.energyict.mdc.device.data.importers.impl.attributes.connection;
 
-import com.elster.jupiter.properties.InvalidValueException;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
@@ -19,6 +16,10 @@ import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFo
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.ValueFactory;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -47,7 +48,7 @@ public class ConnectionAttributesImportProcessor implements FileImportProcessor<
         if (connectionTask.isPresent()) {
             ConnectionTask task = connectionTask.get();
             data.getConnectionAttributes().forEach((key, value) -> {
-                task.setProperty(key, parseStringToValue(task.getConnectionType().getPropertySpec(key), value, data));
+                task.setProperty(key, parseStringToValue(task.getConnectionType().getPropertySpec(key).get(), value, data));
             });
             task.save();
             logMissingPropertiesIfIncomplete(task, data, logger);
@@ -115,7 +116,7 @@ public class ConnectionAttributesImportProcessor implements FileImportProcessor<
     private void addInboundConnectionTaskToDevice(Device device, PartialInboundConnectionTask partialConnectionTask, ConnectionAttributesImportRecord data, FileImportLogger logger) throws ProcessorException {
         Device.InboundConnectionTaskBuilder inboundConnectionTaskBuilder = device.getInboundConnectionTaskBuilder(partialConnectionTask);
         try {
-            data.getConnectionAttributes().forEach((key, value) -> inboundConnectionTaskBuilder.setProperty(key, parseStringToValue(partialConnectionTask.getConnectionType().getPropertySpec(key), value, data)));
+            data.getConnectionAttributes().forEach((key, value) -> inboundConnectionTaskBuilder.setProperty(key, parseStringToValue(partialConnectionTask.getConnectionType().getPropertySpec(key).get(), value, data)));
             inboundConnectionTaskBuilder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE).add();
         } catch (Exception e) {
             try {
@@ -131,7 +132,7 @@ public class ConnectionAttributesImportProcessor implements FileImportProcessor<
 
     private void addScheduledConnectionTaskToDevice(Device device, PartialOutboundConnectionTask partialConnectionTask, ConnectionAttributesImportRecord data, FileImportLogger logger) throws ProcessorException {
         Device.ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = device.getScheduledConnectionTaskBuilder(partialConnectionTask);
-        data.getConnectionAttributes().forEach((key, value) -> scheduledConnectionTaskBuilder.setProperty(key, parseStringToValue(partialConnectionTask.getConnectionType().getPropertySpec(key), value, data)));
+        data.getConnectionAttributes().forEach((key, value) -> scheduledConnectionTaskBuilder.setProperty(key, parseStringToValue(partialConnectionTask.getConnectionType().getPropertySpec(key).get(), value, data)));
         try {
             scheduledConnectionTaskBuilder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE).add();
         } catch (Exception e) {

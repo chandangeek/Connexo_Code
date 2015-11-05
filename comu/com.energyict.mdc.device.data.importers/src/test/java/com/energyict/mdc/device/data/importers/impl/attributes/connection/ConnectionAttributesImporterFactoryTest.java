@@ -492,7 +492,7 @@ public class ConnectionAttributesImporterFactoryTest {
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
         for (PropertySpec propertySpec : propertySpecs) {
             String key = propertySpec.getName();
-            when(connectionType.getPropertySpec(key)).thenReturn(propertySpec);
+            when(connectionType.getPropertySpec(key)).thenReturn(Optional.of(propertySpec));
         }
         when(connectionType.getPropertySpecs()).thenReturn(propertySpecs);
         TypedProperties typedProperties = mock(TypedProperties.class);
@@ -507,7 +507,7 @@ public class ConnectionAttributesImporterFactoryTest {
         when(connectionTask.getConnectionType()).thenReturn(connectionType);
         for (PropertySpec propertySpec : propertySpecs) {
             String key = propertySpec.getName();
-            when(connectionType.getPropertySpec(key)).thenReturn(propertySpec);
+            when(connectionType.getPropertySpec(key)).thenReturn(Optional.of(propertySpec));
         }
         when(connectionType.getPropertySpecs()).thenReturn(propertySpecs);
         TypedProperties typedProperties = mock(TypedProperties.class);
