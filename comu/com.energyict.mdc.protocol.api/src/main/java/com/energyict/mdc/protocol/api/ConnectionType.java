@@ -4,7 +4,11 @@ import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.pluggable.Pluggable;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -46,6 +50,17 @@ public interface ConnectionType extends Pluggable {
             return NULL;
         }
     }
+
+    /**
+     * Returns the {@link CustomPropertySet} that provides the storage area
+     * for the propeties of this ConnectionType or an empty Optional
+     * if this ConnectionType does not have any properties.
+     * In that case, {@link #getPropertySpecs()} should return
+     * an empty collection as well for consistency.
+     *
+     * @return The CustomPropertySet
+     */
+    Optional<CustomPropertySet<ConnectionType, ? extends PersistentDomainExtension<ConnectionType>>> getCustomPropertySet();
 
     /**
      * Returns if this ConnectionType allows simultaneous

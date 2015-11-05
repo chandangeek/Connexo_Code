@@ -1,7 +1,5 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
-import com.elster.jupiter.properties.BooleanFactory;
-import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.TimeDurationValueFactory;
@@ -9,14 +7,65 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
 import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.time.TimeDuration;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.ActiveChannelAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL1_CREDITWEIGHTAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL1_FMAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL1_FSAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL1_SNRAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL2_CREDITWEIGHTAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL2_FMAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL2_FSAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL2_SNRAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL3_CREDITWEIGHTAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL3_FMAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL3_FSAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL3_SNRAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL4_CREDITWEIGHTAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL4_FMAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL4_FSAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL4_SNRAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL5_CREDITWEIGHTAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL5_FMAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL5_FSAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL5_SNRAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL6_CREDITWEIGHTAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL6_FMAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL6_FSAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.CHANNEL6_SNRAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.G3PanIdAttributename;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.INITIATOR_ELECTRICAL_PHASEAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.MAX_FRAME_LENGTHAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.MAX_RECEIVING_GAINAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.MAX_TRANSMITTING_GAINAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.MaxOrphanTimerAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.MulticastAddress1AttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.MulticastAddress2AttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.MulticastAddress3AttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.REPEATERAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SEARCH_INITIATOR_GAINAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SEARCH_INITIATOR_TIMEOUTAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SYNCHRONIZATION_CONFIRMATION_TIMEOUTAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.TIME_OUT_FRAME_NOT_OKAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.TIME_OUT_NOT_ADDRESSEDAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.activeScanDurationAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.discoveryAttemptsSpeedAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.maxAgeTimeAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.maxNumberOfHopsAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.maxPANConflictsCountAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.panConflictWaitTimeAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.plcG3TimeoutAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.toneMaskAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.weakLQIValueAttributeName;
 
 /**
  * Copyrights EnergyICT
@@ -556,14 +605,5 @@ public enum PLCConfigurationDeviceMessage implements DeviceMessageSpecEnum {
     protected void addPropertySpecs (List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
         // Default behavior is not to add anything
     };
-
-    public final PropertySpec getPropertySpec(String name, PropertySpecService propertySpecService) {
-        for (PropertySpec securityProperty : getPropertySpecs(propertySpecService)) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
-    }
 
 }

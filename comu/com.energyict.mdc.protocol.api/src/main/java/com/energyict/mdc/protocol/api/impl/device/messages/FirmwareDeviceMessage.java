@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateURLAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateURLAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateVersionNumberAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.plcTypeFirmwareUpdateAttributeName;
 import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.resumeFirmwareUpdateAttributeName;
@@ -179,14 +179,6 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecEnum {
         // Default behavior is not to add anything
     };
 
-    public final PropertySpec getPropertySpec(String name, PropertySpecService propertySpecService) {
-        for (PropertySpec securityProperty : getPropertySpecs(propertySpecService)) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
-    }
-
     public abstract Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption();
+
 }

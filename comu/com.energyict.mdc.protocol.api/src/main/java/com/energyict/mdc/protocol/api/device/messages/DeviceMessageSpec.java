@@ -5,6 +5,7 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Models the specification of a device message,
@@ -28,21 +29,21 @@ public interface DeviceMessageSpec {
      *
      * @return The DeviceMessageCategory
      */
-    public DeviceMessageCategory getCategory();
+    DeviceMessageCategory getCategory();
 
     /**
      * Returns the translatable name of this DeviceMessageSpec
      *
      * @return the name of this DeviceMessageSpec
      */
-    public String getName();
+    String getName();
 
     /**
      * Gets the PrimaryKey for this {@link DeviceMessageSpec}
      *
      * @return the primary key
      */
-    public DeviceMessageId getId();
+    DeviceMessageId getId();
 
     /**
      * Gets the List of {@link PropertySpec propertySpecs} that
@@ -50,15 +51,19 @@ public interface DeviceMessageSpec {
      *
      * @return The List of PropertySpec
      */
-    public List<PropertySpec> getPropertySpecs();
+    List<PropertySpec> getPropertySpecs();
 
     /**
      * Gets the {@link PropertySpec} with the specified name.
      *
      * @param name The name
-     * @return The PropertySpec or <code>null</code>
-     *         if no such PropertySpec exists
+     * @return The PropertySpec or an empty Optional if no such PropertySpec exists
      */
-    public PropertySpec getPropertySpec(String name);
+    default Optional<PropertySpec> getPropertySpec (String name) {
+        return getPropertySpecs()
+                .stream()
+                .filter(propertySpec -> propertySpec.getName().equals(name))
+                .findAny();
+    }
 
 }

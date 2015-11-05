@@ -7,17 +7,50 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants;
 import com.energyict.mdc.protocol.api.device.messages.DlmsAuthenticationLevelMessageValues;
 import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessageValues;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+import com.energyict.mdc.protocol.api.messaging.KeyTUsage;
+import com.energyict.mdc.protocol.api.messaging.SealActions;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
-import com.energyict.mdc.protocol.api.messaging.KeyTUsage;
-import com.energyict.mdc.protocol.api.messaging.SealActions;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.SecurityTimeDurationAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.authenticationLevelAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.deviceListAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.downloadProgramSealAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.downloadProgramSealBreakTimeAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.encryptionLevelAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.eventLogResetSealBreakTimeAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.executionKeyAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.keyTActivationStatusAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.newFirmwareClientPasswordAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.newHexPasswordAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.newManagementClientPasswordAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.newPasswordAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.newReadingClientPasswordAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.preparedDataAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.pskAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.randomBytesAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.remoteAnalysisParametersConfigSealAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.remoteAnalysisParametersConfigSealBreakTimeAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.remoteConversionParametersConfigSealAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.remoteConversionParametersConfigSealBreakTimeAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.restoreDefaultPasswordSealAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.restoreDefaultPasswordSealBreakTimeAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.restoreDefaultSettingsSealAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.restoreDefaultSettingsSealBreakTimeAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.restoreFactorySettingsSealAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.restoreFactorySettingsSealBreakTimeAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.signatureAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.statusChangeSealAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.statusChangeSealBreakTimeAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.temporaryKeyAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.verificationKeyAttributeName;
 
 
 /**
@@ -304,14 +337,5 @@ public enum SecurityMessage implements DeviceMessageSpecEnum {
     protected void addPropertySpecs (List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
         // Default behavior is not to add anything
     };
-
-    public final PropertySpec getPropertySpec(String name, PropertySpecService propertySpecService) {
-        for (PropertySpec securityProperty : getPropertySpecs(propertySpecService)) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
-    }
 
 }

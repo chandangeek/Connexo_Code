@@ -232,13 +232,4 @@ public enum LoadBalanceDeviceMessage implements DeviceMessageSpecEnum {
         // Default behavior is not to add anything
     };
 
-    public final PropertySpec getPropertySpec(String name, PropertySpecService propertySpecService) {
-        for (PropertySpec securityProperty : getPropertySpecs(propertySpecService)) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
-    }
-
 }

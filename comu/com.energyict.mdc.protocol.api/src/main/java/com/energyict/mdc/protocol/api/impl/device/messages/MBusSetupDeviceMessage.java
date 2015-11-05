@@ -110,13 +110,4 @@ public enum MBusSetupDeviceMessage implements DeviceMessageSpecEnum {
         return propertySpecService.basicPropertySpec(name, true, new HexStringFactory());
     }
 
-    public final PropertySpec getPropertySpec(String name, PropertySpecService propertySpecService) {
-        for (PropertySpec securityProperty : getPropertySpecs(propertySpecService)) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
-    }
-
 }

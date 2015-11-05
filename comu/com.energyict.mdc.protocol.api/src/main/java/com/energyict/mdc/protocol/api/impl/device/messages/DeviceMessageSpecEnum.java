@@ -1,12 +1,13 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
-import com.elster.jupiter.nls.TranslationKey;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Models the minimal behavior of a specification of a device message,
@@ -23,11 +24,11 @@ public interface DeviceMessageSpecEnum extends TranslationKey {
      *
      * @return the name of this DeviceMessageSpec
      */
-    public String getKey();
+    String getKey();
 
-    public String getDefaultFormat();
+    String getDefaultFormat();
 
-    public DeviceMessageId getId();
+    DeviceMessageId getId();
 
     /**
      * Gets the List of {@link PropertySpec}s that
@@ -36,7 +37,7 @@ public interface DeviceMessageSpecEnum extends TranslationKey {
      * @param propertySpecService The PropertySpecService
      * @return The List of PropertySpec
      */
-    public List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService);
+    List<PropertySpec> getPropertySpecs(PropertySpecService propertySpecService);
 
     /**
      * Gets the {@link PropertySpec} with the specified name.
@@ -45,6 +46,11 @@ public interface DeviceMessageSpecEnum extends TranslationKey {
      * @param propertySpecService The PropertySpecService
      * @return The PropertySpec or <code>null</code> if no such PropertySpec exists
      */
-    public PropertySpec getPropertySpec(String name, PropertySpecService propertySpecService);
+    default Optional<PropertySpec> getPropertySpec(String name, PropertySpecService propertySpecService) {
+        return getPropertySpecs(propertySpecService)
+                .stream()
+                .filter(propertySpec -> propertySpec.getName().equals(name))
+                .findAny();
+    }
 
 }

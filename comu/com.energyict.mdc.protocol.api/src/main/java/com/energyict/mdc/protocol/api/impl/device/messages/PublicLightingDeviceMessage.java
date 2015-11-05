@@ -1,15 +1,23 @@
 package com.energyict.mdc.protocol.api.impl.device.messages;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
+import com.elster.jupiter.properties.PropertySpec;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.beginDatesAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.endDatesAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.latitudeAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.longitudeAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.offOffsetsAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.onOffsetsAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.relayNumberAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.relayOperatingModeAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.threshold;
 
 /**
  * Provides a summary of all <i>public lighting</i> related messages
@@ -110,16 +118,6 @@ public enum PublicLightingDeviceMessage  implements DeviceMessageSpecEnum {
     protected void addPropertySpecs (List<PropertySpec> propertySpecs, PropertySpecService propertySpecService) {
         // Default behavior is not to add anything
     };
-
-    @Override
-    public final PropertySpec getPropertySpec(String name, PropertySpecService propertySpecService) {
-        for (PropertySpec securityProperty : getPropertySpecs(propertySpecService)) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
-    }
 
 }
 
