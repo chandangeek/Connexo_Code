@@ -7,7 +7,11 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskGrid', {
     store: 'CommunicationTaskConfigsOfDeviceConfiguration',
     scroll: false,
     requires: [
-        'Mdc.view.setup.communicationtask.CommunicationTaskActionMenu'
+        'Uni.grid.column.Action',
+        'Mdc.view.setup.communicationtask.CommunicationTaskActionMenu',
+        'Uni.view.toolbar.PagingTop',
+        'Uni.view.toolbar.PagingBottom',
+        'Mdc.store.CommunicationTaskConfigsOfDeviceConfiguration'
     ],
     viewConfig: {
         style: { overflow: 'auto', overflowX: 'hidden' },
@@ -55,21 +59,13 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskGrid', {
 
         me.dockedItems = [
             {
-                xtype: 'container',
-                border: 0,
-                margin: '0 0 5 0',
-                align: 'left',
+                xtype: 'pagingtoolbartop',
+                store: me.store,
                 dock: 'top',
-                layout: {
-                    type: 'hbox',
-                    align: 'stretch'
-                },
+                displayMsg: Uni.I18n.translate('communicationtasks.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} communication tasks'),
+                displayMoreMsg: Uni.I18n.translate('communicationtasks.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} communication tasks'),
+                emptyMsg: Uni.I18n.translate('communicationtasks.pagingtoolbartop.emptyMsg', 'MDC', 'There are no communication tasks to display'),
                 items: [
-                    {
-                        xtype: 'container',
-                        itemId: 'communicationTasksCount',
-                        flex: 1
-                    },
                     {
                         xtype: 'button',
                         itemId: 'device-configuration-communication-task-configuration-add-btn',
@@ -78,6 +74,12 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskGrid', {
                         href: '#/administration/devicetypes/' + me.deviceTypeId + '/deviceconfigurations/' + me.deviceConfigurationId + '/comtaskenablements/add'
                     }
                 ]
+            },
+            {
+                xtype: 'pagingtoolbarbottom',
+                store: me.store,
+                itemsPerPageMsg: Uni.I18n.translate('communicationtasks.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Communication tasks per page'),
+                dock: 'bottom'
             }
         ];
         me.callParent(arguments);
