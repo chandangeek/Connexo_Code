@@ -59,6 +59,11 @@
             <artifactId>assertj-core</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>domain.util</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!--<dependency>-->
         <!--<groupId>com.google.inject</groupId>-->
         <!--<artifactId>guice</artifactId>-->
