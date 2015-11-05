@@ -27,7 +27,8 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
         {ref: 'addExecutionLevels', selector: 'add-execution-levels'},
         {ref: 'executionLevelGridPanel', selector: '#execution-level-grid'},
         {ref: 'executionLevelAddLink', selector: '#execution-level-grid #createExecutionLevel'},
-        {ref: 'executionLevelsForSecuritySettingPreview', selector: '#execution-level-grid-title'}
+        {ref: 'executionLevelsForSecuritySettingPreview', selector: '#execution-level-grid-title'},
+        {ref: 'executionLevelsPreviewContainer', selector: '#execution-levels-grid-preview-container'}
     ],
     config: {
         deviceTypeName: null,
@@ -121,7 +122,14 @@ Ext.define('Mdc.controller.setup.SecuritySettings', {
                 waitMsg: Uni.I18n.translate('general.removing', 'MDC', 'Removing...'),
                 success: function () {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('devicesecuritysetting.saveSuccess.msg.remove', 'MDC', 'Security setting removed'));
-                    me.store.load();
+                    me.store.load({
+                        callback: function(records) {
+                            if(records.length === 0){
+                                me.getExecutionLevelsForSecuritySettingPreview().setVisible(false);
+                                me.getExecutionLevelsPreviewContainer().setVisible(false);
+                            }
+                        }
+                    });
                 },
                 failure: function (response, request) {
                     var errorInfo = Uni.I18n.translate('devicesecuritysetting.removeErrorMsg', 'MDC', 'Error during removal of security setting'),
