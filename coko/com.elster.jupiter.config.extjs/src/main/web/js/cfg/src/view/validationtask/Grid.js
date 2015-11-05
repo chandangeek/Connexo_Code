@@ -64,6 +64,7 @@ Ext.define('Cfg.view.validationtask.Grid', {
                 items: [
                     {
                         xtype: 'button',
+                        itemId: 'btnAddValidationTask',
                         text: Uni.I18n.translate('validationTasks.general.addValidationTask', 'CFG', 'Add validation task'),
                         privileges: Cfg.privileges.Validation.admin,
                         href: '#/administration/validationtasks/add'
