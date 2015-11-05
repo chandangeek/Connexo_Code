@@ -73,31 +73,31 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
             }
         });
     },    
-    deleteMetrologyConfiguration: function(mcid) {
-        var me = this,
-        router = me.getController('Uni.controller.history.Router'),
-        model = me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration'),
-        store = me.getStore('Imt.metrologyconfiguration.store.MetrologyConfiguration'),
-        mcName,
-        mcRecord;
-        model.load(mcid, {
-            success: function (record) {
-            	mcName = record.get('name');
-            	mcRecord = record;
-            }
-	    });
-        var msg = 'Are you sure you woule like to delete - ' + mcName;
-
-        Ext.MessageBox.confirm('Delete', msg , function(btn){
-        	   if(btn === 'yes') {
-
-//        		   store.remove(mcRecord);
-//        		   store.sync();
-        		   
-        	   }
- 
-        });
-    },    
+//    deleteMetrologyConfiguration: function(mcid) {
+//        var me = this,
+//        router = me.getController('Uni.controller.history.Router'),
+//        model = me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration'),
+//        store = me.getStore('Imt.metrologyconfiguration.store.MetrologyConfiguration'),
+//        mcName,
+//        mcRecord;
+//        model.load(mcid, {
+//            success: function (record) {
+//            	mcName = record.get('name');
+//            	mcRecord = record;
+//            }
+//	    });
+//        var msg = 'Are you sure you woule like to delete - ' + mcName;
+//
+//        Ext.MessageBox.confirm('Delete', msg , function(btn){
+//        	   if(btn === 'yes') {
+//
+////        		   store.remove(mcRecord);
+////        		   store.sync();
+//        		   
+//        	   }
+// 
+//        });
+//    },    
     saveMetrologyConfiguration: function (button) {
         var me = this,
         router = me.getController('Uni.controller.history.Router'),
@@ -213,9 +213,6 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         }
     },
     manageValidationRuleSets: function(id) {
-    	this.manageValidationRuleSets1(id);
-    },
-    manageValidationRuleSets1: function(id) {
       var me = this,
       	view = Ext.create('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit',{mcid: id}),
       	metrologyConfigurationModel = me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration'),
@@ -318,29 +315,25 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         form = page.down('form'),
         values = form.getValues(),
         linkedStore = form.getForm().findField('linkedValidationRulesSets').getStore(),
-        assignedValidationRuleSets = Ext.create('Imt.metrologyconfiguration.model.LinkedValidationRulesSet');
+        assignedValidationRuleSets = Ext.create('Imt.metrologyconfiguration.model.LinkedValidationRulesSet'),
         formErrorsPanel = form.down('uni-form-error-message'),
         model,
         assignedRuleSetModelArray = new Array();
         
-        linkedStore.each(function(record) {
-        	model = Ext.create('Imt.metrologyconfiguration.model.ValidationRuleSet');
-        	model.set('id',record.get('id'));
-        	model.set('name',record.get('name'))
-        	assignedRuleSetModelArray.push(model.getData());
-        })
-     
-        
-        assignedValidationRuleSets.set('ruleSets', assignedRuleSetModelArray);
-
 	    if (form.getForm().isValid()) {
-//        model = me.formToValRuleSetModel();
-	
-	        button.setDisabled(true);
-	        page.setLoading('Saving...');
-	        formErrorsPanel.hide();
-	        assignedValidationRuleSets.getProxy().setUrl(values['mcid']);
-	        assignedValidationRuleSets.save({
+	    	 linkedStore.each(function(record) {
+	         	model = Ext.create('Imt.metrologyconfiguration.model.ValidationRuleSet');
+	         	model.set('id',record.get('id'));
+	         	model.set('name',record.get('name'))
+	         	assignedRuleSetModelArray.push(model.getData());
+	         })
+      
+	         assignedValidationRuleSets.set('ruleSets', assignedRuleSetModelArray);
+	    	 button.setDisabled(true);
+	    	 page.setLoading('Saving...');
+	    	 formErrorsPanel.hide();
+	    	 assignedValidationRuleSets.getProxy().setUrl(values['mcid']);
+	    	 assignedValidationRuleSets.save({
 	            callback: function (model, operation, success) {
 	                page.setLoading(false);
 	                button.setDisabled(false);
@@ -356,34 +349,16 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
 	        formErrorsPanel.show();
 	    }
     },
-
-    formToValRuleSetModel: function () {
-        var me=this,
-            form = this.getMetrologyConfigValRulesSetEditPage().down('form'),
-            values = form.getValues(),
-            model = form.getRecord();
-        if (!model) { 
-            model = Ext.create('Imt.metrologyconfiguration.model.MetrologyConfiguration');
-        }
-        model.beginEdit();
-        model.set(values);
-        model.set('name', values['name']);
-        
-        model.endEdit();
-
-        return model;
-    },
-
     onSuccessSavingValRuleSet: function (action) {
         var router = this.getController('Uni.controller.history.Router'),
             messageText;
 
         switch (action) {
             case 'create':
-                messageText = Uni.I18n.translate('metrologyConfiguration.acknowledge.createSuccess', 'IMT', 'Metrology Configuration added');
+                messageText = Uni.I18n.translate('metrologyConfiguration.acknowledge.createSuccess', 'IMT', 'Validation rule sets added to metrology configuration');
                 break;
             case 'update':
-                messageText = Uni.I18n.translate('metrologyConfiguration.acknowledge.updateSuccess', 'IMT', 'Metrology Configuration saved');
+                messageText = Uni.I18n.translate('metrologyConfiguration.acknowledge.updateSuccess', 'IMT', 'Validation rule sets updated to metrology configuration');
                 break;
         }
         this.getApplication().fireEvent('acknowledge', messageText);

@@ -3,8 +3,6 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit', {
     alias: 'widget.metrologyConfigValRulesSetEdit',
     itemId: 'metrologyConfigValRulesSetEdit',
     requires: ['Ext.ux.form.MultiSelect'],
-//    edit: false,
-
     content: [
         {
             xtype: 'form',
@@ -53,6 +51,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit', {
 	                 height: 200,
 	                 layout: 'hbox',
 	                 items: [
+<<<<<<< HEAD
 	                    {
                             xtype: 'panel',
                             title: Uni.I18n.translate('validationTasks.general.assignedruleset', 'CFG', 'Linked Validation Rule sets'),
@@ -157,20 +156,4 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit', {
         }
     ],
 
-//    isEdit: function () {
-//        return this.edit;
-//    },
-//
-//    setEdit: function (edit, returnLink) {
-//        if (edit) {
-//            this.edit = edit;
-//            this.down('form').setTitle(Uni.I18n.translate('metrologyConfiguration.edit.title', 'IMT', 'Manage metrology configuration validation rules set'));
-//            this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'IMT', 'Save'));
-////            this.down('textfield[name="name"]').setDisabled(false);
-//        } else {
-//            this.edit = edit;
-//            this.down('form').setTitle(Uni.I18n.translate('metrologyConfiguration.add.title', 'IMT', 'Manage metrology configuration validation rules set'));
-//            this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'IMT', 'Add'));
-//        }
-//    }
 });

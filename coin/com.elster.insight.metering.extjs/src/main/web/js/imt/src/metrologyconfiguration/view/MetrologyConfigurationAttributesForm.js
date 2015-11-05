@@ -2,13 +2,6 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm
     extend: 'Ext.form.Panel',
     alias: 'widget.metrologyConfigurationAttributesForm',
     itemId: 'metrologyConfigurationAttributesForm',
-//    title: Uni.I18n.translate('usagePointManagement.attributes', 'IMT', 'Usage Point Attributes'),
-//    router: null,
-//    ui: 'tile',
-    
-//    requires: [
-//        'Uni.form.field.Duration'
-//    ],
     layout: {
         type: 'vbox',
         align: 'stretch'

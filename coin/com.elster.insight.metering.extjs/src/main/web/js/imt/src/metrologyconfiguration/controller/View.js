@@ -9,8 +9,7 @@ Ext.define('Imt.metrologyconfiguration.controller.View', {
         'Imt.metrologyconfiguration.store.MetrologyConfiguration'
     ],
     views: [
-        'Imt.metrologyconfiguration.view.Setup'//,
-//        'Imt.metrologyconfiguration.view.AssociateMetrologyConfiguration'
+        'Imt.metrologyconfiguration.view.Setup'
     ],
     refs: [
         {ref: 'attributesPanel', selector: '#metrology-configuration-attributes-panel'},
