@@ -4,14 +4,15 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
 
 import javax.inject.Inject;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * An implementation of the {@link ConnectionType} interface specific for inbound SMS communication using Proximus as carrier.
@@ -22,19 +23,13 @@ import java.util.List;
 public class InboundProximusSmsConnectionType extends AbstractInboundSmsConnectionType {
 
     private final PropertySpecService propertySpecService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public InboundProximusSmsConnectionType(PropertySpecService propertySpecService) {
+    public InboundProximusSmsConnectionType(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
         this.propertySpecService = propertySpecService;
-    }
-
-    private PropertySpec phoneNumberPropertySpec() {
-        return this.propertySpecService.basicPropertySpec(DeviceProtocolProperty.phoneNumber.name(), true, new StringFactory());
-    }
-
-    private PropertySpec callHomeIdPropertySpec() {
-        return this.propertySpecService.basicPropertySpec(DeviceProtocolProperty.callHomeId.name(), true, new StringFactory());
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -48,10 +43,17 @@ public class InboundProximusSmsConnectionType extends AbstractInboundSmsConnecti
     }
 
     @Override
+    public Optional<CustomPropertySet<ConnectionType, ? extends PersistentDomainExtension<ConnectionType>>> getCustomPropertySet() {
+        return Optional.of(this.newCustomPropertySet());
+    }
+
+    private InboundProximusCustomPropertySet newCustomPropertySet() {
+        return new InboundProximusCustomPropertySet(this.thesaurus, propertySpecService);
+    }
+
+    @Override
     public List<PropertySpec> getPropertySpecs() {
-        return Arrays.asList(
-                this.phoneNumberPropertySpec(),
-                this.callHomeIdPropertySpec());
+        return this.newCustomPropertySet().getPropertySpecs();
     }
 
 }

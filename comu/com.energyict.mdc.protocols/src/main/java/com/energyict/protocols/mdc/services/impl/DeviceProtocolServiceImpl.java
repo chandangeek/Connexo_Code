@@ -33,6 +33,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.protocolimplv2.sdksample.SDKTranslationKeys;
 import com.energyict.protocols.impl.channels.serial.SioSerialTranslationKeys;
+import com.energyict.protocols.impl.channels.sms.ProximusTranslationKeys;
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
@@ -309,6 +310,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
         return Stream.of(
                 Arrays.stream(SDKTranslationKeys.values()),
                 Arrays.stream(SioSerialTranslationKeys.values()),
+                Arrays.stream(ProximusTranslationKeys.values()),
                 Arrays.stream(TranslationKeys.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());

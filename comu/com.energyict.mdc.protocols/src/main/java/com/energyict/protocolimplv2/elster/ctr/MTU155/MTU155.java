@@ -464,7 +464,7 @@ public class MTU155 implements DeviceProtocol {
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> connectionTypes = new ArrayList<>();
         connectionTypes.add(new CTRInboundDialHomeIdConnectionType(getPropertySpecService()));
-        connectionTypes.add(new InboundProximusSmsConnectionType(getPropertySpecService()));
+        connectionTypes.add(new InboundProximusSmsConnectionType(getPropertySpecService(), thesaurus));
         connectionTypes.add(new OutboundProximusSmsConnectionType(getPropertySpecService()));
         connectionTypes.add(new SioOpticalConnectionType(getSerialComponentService(), this.thesaurus));
         connectionTypes.add(new RxTxOpticalConnectionType(getSerialComponentService(), this.thesaurus));

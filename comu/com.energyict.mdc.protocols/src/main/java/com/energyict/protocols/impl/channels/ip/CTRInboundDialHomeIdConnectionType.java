@@ -33,11 +33,11 @@ public class CTRInboundDialHomeIdConnectionType extends ConnectionTypeImpl {
     }
 
     private PropertySpec callHomeIdPropertySpec() {
-        return this.propertySpecService.basicPropertySpec(DeviceProtocolProperty.callHomeId.name(), true, new StringFactory());
+        return this.propertySpecService.basicPropertySpec(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), true, new StringFactory());
     }
 
     protected String callHomeIdPropertyValue() {
-        return (String) this.getProperty(DeviceProtocolProperty.callHomeId.name());
+        return (String) this.getProperty(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName());
     }
 
     @Override

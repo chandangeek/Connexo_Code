@@ -1,8 +1,5 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155.discover;
 
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
-
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.issues.IssueService;
@@ -10,6 +7,9 @@ import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.GprsRequestFactory;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.MTU155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.RequestFactory;
@@ -83,7 +83,7 @@ public class CtrInboundDeviceProtocol extends AbstractDiscover {
     }
 
     protected void setCallHomeID(String callHomeID) {
-        this.deviceIdentifier = getIdentificationService().createDeviceIdentifierByConnectionTaskProperty(CTRInboundDialHomeIdConnectionType.class, DeviceProtocolProperty.callHomeId.name(), callHomeID);
+        this.deviceIdentifier = getIdentificationService().createDeviceIdentifierByConnectionTaskProperty(CTRInboundDialHomeIdConnectionType.class, DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), callHomeID);
     }
 
     private RequestFactory getRequestFactory() {

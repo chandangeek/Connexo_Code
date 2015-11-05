@@ -218,7 +218,7 @@ public class RtuPlusServer implements DeviceProtocol {
         }
         for (SAPAssignmentItem sapAssignmentItem : sapAssignmentList) {     //Using callHomeId as a general property
             if (!isGatewayNode(sapAssignmentItem)) {
-                DeviceIdentifier slaveDeviceIdentifier = this.identificationService.createDeviceIdentifierByProperty(DeviceProtocolProperty.callHomeId.name(), sapAssignmentItem.getLogicalDeviceName().trim().toUpperCase());
+                DeviceIdentifier slaveDeviceIdentifier = this.identificationService.createDeviceIdentifierByProperty(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), sapAssignmentItem.getLogicalDeviceName().trim().toUpperCase());
 
                 deviceTopology.addSlaveDevice(slaveDeviceIdentifier);
                 deviceTopology.addAdditionalCollectedDeviceInfo(
