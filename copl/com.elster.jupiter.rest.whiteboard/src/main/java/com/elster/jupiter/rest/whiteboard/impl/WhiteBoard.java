@@ -50,7 +50,7 @@ public class WhiteBoard {
 	
 	private static final Logger LOGGER = Logger.getLogger(WhiteBoard.class.getName());
 	
-	private volatile HttpContext httpContext;
+	private volatile HttpContextImpl httpContext;
 	private volatile HttpService httpService;
 	private volatile UserService userService;
     private volatile LicenseService licenseService;
@@ -60,6 +60,7 @@ public class WhiteBoard {
 	private volatile WhiteBoardConfiguration configuration;
 
     private final static String SESSION_TIMEOUT = "com.elster.jupiter.session.timeout";
+    private final UrlRewriteFilter urlRewriteFilter = new UrlRewriteFilter();
 
     private int sessionTimeout = 600; // default value 10 min
 
@@ -124,7 +125,7 @@ public class WhiteBoard {
     @Reference(name="YServiceLocator")
     public void setConfiguration(WhiteBoardConfigurationProvider provider) {
     	this.configuration = provider.getConfiguration();
-    	this.httpContext = new HttpContextImpl(this, createAuthentication(configuration.authenticationMethod()));
+    	this.httpContext = new HttpContextImpl(createAuthentication(configuration.authenticationMethod()));
     }
     
 	void fire(RestCallExecutedEvent event) {
@@ -157,6 +158,7 @@ public class WhiteBoard {
         secureConfig.register(JsonMappingExceptionMapper.class);
         secureConfig.register(OptimisticLockExceptionMapper.class);
         secureConfig.register(ConcurrentModificationExceptionMapper.class);
+        secureConfig.register(urlRewriteFilter);
 		secureConfig.register(new AbstractBinder() {
 			@Override
 			protected void configure() {
@@ -197,23 +199,31 @@ public class WhiteBoard {
     }
 
     @Activate
-    public void activate(BundleContext context){
-        if(context != null){
+    public void activate(BundleContext bundleContext){
+        if(bundleContext != null){
             int timeout = 0;
-            String sessionTimeoutParam = context.getProperty(SESSION_TIMEOUT);
+            String sessionTimeoutParam = bundleContext.getProperty(SESSION_TIMEOUT);
             if(sessionTimeoutParam != null){
                 try{
                     timeout = Integer.parseInt(sessionTimeoutParam);
+                    if (timeout>0) {
+                        httpContext.setSessionTimeout(timeout);
+                    }
                 } catch(NumberFormatException e){}
             }
 
-            if(timeout > 0){
-                sessionTimeout = timeout;
+            urlRewriteFilter.setHost(bundleContext.getProperty("com.elster.jupiter.url.rewrite.host"));
+            String portString = bundleContext.getProperty("com.elster.jupiter.url.rewrite.port");
+            if (!Strings.isNullOrEmpty(portString)) {
+                try{
+                    urlRewriteFilter.setPort(Integer.valueOf(portString));
+                } catch(NumberFormatException e){
+                    LOGGER.warning("Failed to read property com.elster.jupiter.url.rewrite.port:"+ e);
+                }
             }
+            urlRewriteFilter.setScheme(bundleContext.getProperty("com.elster.jupiter.url.rewrite.scheme"));
         }
+
     }
 
-    int getSessionTimeout(){
-        return sessionTimeout;
-    }
 }
