@@ -35,6 +35,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>validation.rest</artifactId>
         </dependency>
         <dependency>
@@ -120,12 +124,6 @@
             <artifactId>json-path</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>validation</artifactId>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
 
 
