@@ -20,6 +20,7 @@ Ext.define('Apr.view.appservers.ImportServicesGrid', {
         {
             xtype: 'actioncolumn',
             align: 'right',
+            header: Uni.I18n.translate('general.actions', 'APR', 'Actions'),
             items: [
                 {
                     iconCls: 'uni-icon-delete',
