@@ -98,7 +98,7 @@ Ext.define('Bpm.controller.Main', {
                 text: Uni.I18n.translate('general.administration', 'BPM', 'Administration'),
                 glyph: 'settings',
                 portal: 'administration',
-                index: 30
+                index: 10
             }));
         }
 
