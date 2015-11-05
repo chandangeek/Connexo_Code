@@ -1,6 +1,7 @@
 package com.elster.jupiter.properties;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Models the behavior of a component that has dynamic configuration.
@@ -19,17 +20,17 @@ public interface HasDynamicProperties {
 
     /**
      * Returns the {@link PropertySpec} with the specified name
-     * or <code>null</code> if no such PropertySpec exists.
+     * or an empty Optional if no such PropertySpec exists.
      *
      * @param name The name of the property specification
      * @return The PropertySpec or <code>null</code>
      *         if no such PropertySpec exists
      */
-    default PropertySpec getPropertySpec (String name) {
-        return getPropertySpecs().stream()
+    default Optional<PropertySpec> getPropertySpec (String name) {
+        return getPropertySpecs()
+                .stream()
                 .filter(propertySpec -> propertySpec.getName().equals(name))
-                .findAny()
-                .orElse(null);
+                .findAny();
     }
 
 }
