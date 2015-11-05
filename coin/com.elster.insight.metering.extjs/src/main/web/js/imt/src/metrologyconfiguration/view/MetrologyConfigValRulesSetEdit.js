@@ -3,8 +3,6 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit', {
     alias: 'widget.metrologyConfigValRulesSetEdit',
     itemId: 'metrologyConfigValRulesSetEdit',
 
-//    edit: false,
-
     content: [
         {
             xtype: 'form',
@@ -56,7 +54,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit', {
 	                 items: [
 		                {
 		                    xtype: 'panel',
-		                    title: Uni.I18n.translate('validationTasks.general.assignedruleset', 'CFG', 'Linked Validation Rule sets'),
+		                    title: Uni.I18n.translate('metrologyconfiguration.general.assignedruleset', 'CFG', 'Linked Validation Rule sets'),
 		                    required: true,
 			                border: '5 5 5 5',
 		                    frame: true,
@@ -76,7 +74,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit', {
 		                            editable: false,
 		                            disabled: false,
 		                            multiSelect: true,
-		                            emptyText: Uni.I18n.translate('validationTasks.addValidationTask.deviceGroupPrompt22', 'CFG', 'Select linked validation rules sets...'),
+		                            emptyText: Uni.I18n.translate('metrologyconfiguration.selectlinkedrulesets', 'CFG', 'Select linked validation rules sets...'),
 		                            allowBlank: true,
 		                            queryMode: 'local',
 		                            displayField: 'name',
@@ -157,7 +155,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit', {
 		                            editable: false,
 		                            disabled: false,
 		                            multiSelect: true,
-		                            emptyText: Uni.I18n.translate('validationTasks.addValidationTask.deviceGroupPrompt22', 'CFG', 'Select linkable validation rules sets...'),
+		                            emptyText: Uni.I18n.translate('metrologyconfiguration.rulesets.linkable', 'CFG', 'Select linkable validation rules sets...'),
 		                            allowBlank: true,
 		                            queryMode: 'local',
 		                            displayField: 'name',
@@ -172,20 +170,4 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit', {
         }
     ],
 
-//    isEdit: function () {
-//        return this.edit;
-//    },
-//
-//    setEdit: function (edit, returnLink) {
-//        if (edit) {
-//            this.edit = edit;
-//            this.down('form').setTitle(Uni.I18n.translate('metrologyConfiguration.edit.title', 'IMT', 'Manage metrology configuration validation rules set'));
-//            this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'IMT', 'Save'));
-////            this.down('textfield[name="name"]').setDisabled(false);
-//        } else {
-//            this.edit = edit;
-//            this.down('form').setTitle(Uni.I18n.translate('metrologyConfiguration.add.title', 'IMT', 'Manage metrology configuration validation rules set'));
-//            this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'IMT', 'Add'));
-//        }
-//    }
 });

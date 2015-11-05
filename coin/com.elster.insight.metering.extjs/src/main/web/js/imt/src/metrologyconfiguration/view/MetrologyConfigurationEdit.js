@@ -48,9 +48,6 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationEdit', {
                         {
                             text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
                             xtype: 'button',
-//                            ui: 'link',
-//                            itemId: 'cancelLink',
-//                            href: '#',
                             ui: 'action',
                             action: 'cancelButton',
                             itemId: 'cancelButton'

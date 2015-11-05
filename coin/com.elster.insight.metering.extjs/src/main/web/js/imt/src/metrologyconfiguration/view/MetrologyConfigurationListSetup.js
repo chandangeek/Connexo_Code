@@ -33,8 +33,6 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationListSetup', {
                     grid: {
                         xtype: 'metrologyConfigurationList',
 //                        router: me.router,
-//                        mRID: me.mRID,
-//                        registerId: me.registerId
                     },
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
