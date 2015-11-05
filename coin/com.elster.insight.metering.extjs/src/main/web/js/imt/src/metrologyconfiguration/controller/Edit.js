@@ -214,32 +214,24 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
     },
     manageValidationRuleSets: function(id) {
       var me = this,
-      	view = Ext.create('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit',{mcid: id}),
       	metrologyConfigurationModel = me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration'),
-      	linkedValRulesSetCombo = view.down('[name=linkedValidationRulesSets]'),
-      	linkableValRulesSetCombo = view.down('[name=linkableValidationRulesSets]');
-	    me.getApplication().fireEvent('changecontentevent', view);
+      	linkedStore=Ext.getStore('Imt.metrologyconfiguration.store.LinkedValidationRulesSet'),
+      	linkableStore=Ext.getStore('Imt.metrologyconfiguration.store.LinkableValidationRulesSet');
 
-	    metrologyConfigurationModel.load(id, {
+      linkedStore.getProxy().setUrl(id);
+      linkedStore.load();
+      linkableStore.getProxy().setUrl(id);
+      linkableStore.load();	    
+        
+        var view = Ext.create('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit',{mcid: id});        
+        me.getApplication().fireEvent('changecontentevent', view);
+        metrologyConfigurationModel.load(id, {
             success: function (record) {
-            	me.getMetrologyConfigValRulesSetEditForm().getForm().findField('mcid').setValue(id);
-            	me.getMetrologyConfigValRulesSetEditForm().getForm().findField('name').setValue(record.get('name'));
+                me.getMetrologyConfigValRulesSetEditForm().getForm().findField('mcid').setValue(id);
+                me.getMetrologyConfigValRulesSetEditForm().getForm().findField('name').setValue(record.get('name'));
             }
-	    });
+        });
 
-	    linkedValRulesSetCombo.store.getProxy().setUrl(id);
-	    linkedValRulesSetCombo.store.load(function () {
-	        if (this.getCount() === 0) {
-	        	linkedValRulesSetCombo.allowBlank = true;
-	        }
-	    });
-	    linkableValRulesSetCombo.store.getProxy().setUrl(id);
-	    linkableValRulesSetCombo.store.load(function () {
-	         if (this.getCount() === 0) {
-	        	 linkableValRulesSetCombo.allowBlank = true;
-	        }
-	    });
-    
     },
 	addRulesSetsToMetrologyConfiguration: function(mcid) {
 		var me = this,
