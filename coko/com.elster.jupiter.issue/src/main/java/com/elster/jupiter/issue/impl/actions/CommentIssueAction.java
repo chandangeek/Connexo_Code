@@ -44,9 +44,9 @@ public class CommentIssueAction extends AbstractIssueAction {
     private Optional<String> getCommentFromParameters(Map<String, Object> properties) {
         Object value = properties.get(ISSUE_COMMENT);
         if (value != null) {
-            @SuppressWarnings("unchecked")
-            String comment = getPropertySpec(ISSUE_COMMENT).getValueFactory().toStringValue(value);
-            return Optional.ofNullable(comment);
+            return this.getPropertySpec(ISSUE_COMMENT)
+                    .map(PropertySpec::getValueFactory)
+                    .map(valueFactory -> valueFactory.toStringValue(value));
         }
         return Optional.empty();
     }

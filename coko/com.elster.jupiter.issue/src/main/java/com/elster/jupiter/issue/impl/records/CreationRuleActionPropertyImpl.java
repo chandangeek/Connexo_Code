@@ -24,6 +24,7 @@ public class CreationRuleActionPropertyImpl extends AbstractPropertyImpl impleme
     }
 
     protected PropertySpec getPropertySpec() {
-        return action.get().getPropertySpec(getName());
+        return action.get().getPropertySpec(getName()).get();
     }
+
 }

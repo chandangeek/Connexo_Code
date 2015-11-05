@@ -66,7 +66,7 @@ public class AssignIssueAction extends AbstractIssueAction {
     private Optional<IssueAssignee> getAssigneeFromParameters(Map<String, Object> properties) {
         Object value = properties.get(ASSIGNEE);
         if (value != null) {
-            String assigneeId = getPropertySpec(ASSIGNEE).getValueFactory().toStringValue(value);
+            String assigneeId = getPropertySpec(ASSIGNEE).get().getValueFactory().toStringValue(value);
             return issueService.findIssueAssignee(AssigneeType.USER, Long.valueOf(assigneeId).longValue());
         }
         return Optional.empty();
@@ -76,7 +76,7 @@ public class AssignIssueAction extends AbstractIssueAction {
         Object value = properties.get(COMMENT);
         if (value != null) {
             @SuppressWarnings("unchecked")
-            String comment = getPropertySpec(COMMENT).getValueFactory().toStringValue(value);
+            String comment = getPropertySpec(COMMENT).get().getValueFactory().toStringValue(value);
             return Optional.ofNullable(comment);
         }
         return Optional.empty();

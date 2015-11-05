@@ -43,7 +43,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 @HasValidProperties(requiredPropertyMissingMessage = "{" + MessageSeeds.Keys.PROPERTY_MISSING + "}",
                     propertyNotInSpecMessage = "{" + MessageSeeds.Keys.PROPERTY_NOT_IN_PROPERTYSPECS + "}")
 public class CreationRuleImpl extends EntityImpl implements CreationRule {
-    
+
     private static final String PARAM_RULE_ID = "ruleId";
 
     @NotEmpty(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
@@ -61,13 +61,13 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     private String template;//creation rule template class name
     private Instant obsoleteTime;
-    
+
     @Valid
     private List<CreationRuleProperty> properties = new ArrayList<>();
     @Valid
     private List<CreationRuleAction> actions = new ArrayList<>();//for validation
     private List<CreationRuleAction> persistentActions = new ArrayList<>();
-    
+
     private final IssueService issueService;
 
     @Inject
@@ -192,23 +192,23 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
     private Condition getUniqueNameWhereCondition(boolean caseSensitive) {
         return caseSensitive ? where("name").isEqualTo(this.getName()) : where("name").isEqualToIgnoreCase(this.getName());
     }
-    
+
     @Override
     public List<PropertySpec> getPropertySpecs() {
         CreationRuleTemplate template = getTemplate();
         return template != null ? template.getPropertySpecs() : Collections.emptyList();
     }
-    
+
     @Override
     public CreationRuleUpdater startUpdate() {
         return new CreationRuleUpdaterImpl(getDataModel(), this);
     }
-    
+
     @Override
     public Map<String, Object> getProperties() {
         return properties.stream().collect(Collectors.toMap(CreationRuleProperty::getName, CreationRuleProperty::getValue));
     }
-    
+
     void setProperties(Map<String, Object> propertyMap) {
         Map<String, CreationRuleProperty> originalProps = properties.stream().collect(Collectors.toMap(CreationRuleProperty::getName, Function.identity()));
         DiffList<String> entryDiff = ArrayDiffList.fromOriginal(originalProps.keySet());
@@ -230,7 +230,7 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
             addProperty(property, propertyMap.get(property));
         }
     }
-    
+
     void removeActions() {
         persistentActions.clear();
         actions.clear();
@@ -250,7 +250,7 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
         persistentActions.addAll(actions);
         issueService.getIssueCreationService().reReadRules();
     }
-    
+
     @Override
     public void delete() {
         Condition condition = where("rule").isEqualTo(this);
@@ -267,12 +267,12 @@ public class CreationRuleImpl extends EntityImpl implements CreationRule {
     @SuppressWarnings("unchecked")
     private void updateContent() {
         CreationRuleTemplate template = getTemplate();
-        if (template == null ){
+        if (template == null ) {
             return;
         }
         String rawContent = template.getContent();
         for (CreationRuleProperty property : properties) {
-            PropertySpec propertySpec = getPropertySpec(property.getName());
+            PropertySpec propertySpec = getPropertySpec(property.getName()).get();
             rawContent = replaceParameterInContent(rawContent, property.getName(), propertySpec.getValueFactory().toStringValue(property.getValue()));
         }
         rawContent = replaceParameterInContent(rawContent, PARAM_RULE_ID, String.valueOf(getId()));

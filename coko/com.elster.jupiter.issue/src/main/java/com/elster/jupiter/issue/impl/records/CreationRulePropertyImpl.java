@@ -24,6 +24,7 @@ public class CreationRulePropertyImpl extends AbstractPropertyImpl implements Cr
     }
 
     protected PropertySpec getPropertySpec() {
-        return rule.get().getPropertySpec(getName());
+        return rule.get().getPropertySpec(getName()).get();
     }
+
 }
