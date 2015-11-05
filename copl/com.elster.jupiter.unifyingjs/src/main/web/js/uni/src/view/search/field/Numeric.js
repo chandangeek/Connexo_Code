@@ -126,6 +126,7 @@ Ext.define('Uni.view.search.field.Numeric', {
                             text: Uni.I18n.translate('general.addCriterion', 'UNI', 'Add criterion'),
                             action: 'addcriteria',
                             handler: me.addCriteria,
+                            disabled: true,
                             scope : me
                         }
                     ]

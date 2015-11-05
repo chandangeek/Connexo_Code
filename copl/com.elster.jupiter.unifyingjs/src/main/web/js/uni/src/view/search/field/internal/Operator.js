@@ -12,6 +12,10 @@ Ext.define('Uni.view.search.field.internal.Operator', {
     store: [
         ["==", "="],
         ["!=", "!="],
+        [">", ">"],
+        [">=", ">="],
+        ["<", "<"],
+        ["<=", "<="],
         ["BETWEEN", "Between"],
         ["NOTNULL", "Not empty"]
         //...
