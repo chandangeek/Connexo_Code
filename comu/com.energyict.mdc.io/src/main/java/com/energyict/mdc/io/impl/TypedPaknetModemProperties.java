@@ -9,7 +9,12 @@ import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.time.TimeDuration;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author sva
@@ -54,9 +59,9 @@ public class TypedPaknetModemProperties implements PaknetModemProperties, HasDyn
     }
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
+    public List<PropertySpec> getPropertySpecs () {
         this.ensurePropertySpecsInitialized();
-        return this.propertySpecs.get(name);
+        return new ArrayList<>(this.propertySpecs.values());
     }
 
     private void ensurePropertySpecsInitialized() {
@@ -78,12 +83,6 @@ public class TypedPaknetModemProperties implements PaknetModemProperties, HasDyn
         propertySpecs.put(DELAY_AFTER_CONNECT, delayAfterConnectSpec(this.propertySpecService));
         propertySpecs.put(DELAY_BEFORE_SEND, delayBeforeSendSpec(this.propertySpecService));
         propertySpecs.put(DTR_TOGGLE_DELAY, dtrToggleDelaySpec(this.propertySpecService));
-    }
-
-    @Override
-    public List<PropertySpec> getPropertySpecs () {
-        this.ensurePropertySpecsInitialized();
-        return new ArrayList<>(this.propertySpecs.values());
     }
 
     @Override

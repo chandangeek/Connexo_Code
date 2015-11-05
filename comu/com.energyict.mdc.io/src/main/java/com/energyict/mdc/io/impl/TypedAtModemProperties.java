@@ -66,9 +66,9 @@ public class TypedAtModemProperties implements AtModemProperties, HasDynamicProp
     }
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
+    public List<PropertySpec> getPropertySpecs () {
         this.ensurePropertySpecsInitialized();
-        return this.propertySpecs.get(name);
+        return new ArrayList<>(this.propertySpecs.values());
     }
 
     private void ensurePropertySpecsInitialized () {
@@ -92,12 +92,6 @@ public class TypedAtModemProperties implements AtModemProperties, HasDynamicProp
         propertySpecs.put(DELAY_AFTER_CONNECT, delayAfterConnectSpec(this.propertySpecService));
         propertySpecs.put(DELAY_BEFORE_SEND, delayBeforeSendSpec(this.propertySpecService));
         propertySpecs.put(DTR_TOGGLE_DELAY, dtrToggleDelaySpec(this.propertySpecService));
-    }
-
-    @Override
-    public List<PropertySpec> getPropertySpecs () {
-        this.ensurePropertySpecsInitialized();
-        return new ArrayList<>(this.propertySpecs.values());
     }
 
     @Override

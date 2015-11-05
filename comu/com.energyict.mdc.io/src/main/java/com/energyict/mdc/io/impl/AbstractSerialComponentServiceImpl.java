@@ -9,7 +9,6 @@ import com.energyict.mdc.io.SerialComChannel;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.io.ServerSerialPort;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Checks;
 
@@ -191,15 +190,6 @@ public abstract class AbstractSerialComponentServiceImpl implements SerialCompon
 
     protected PropertySpecService getPropertySpecService() {
         return propertySpecService;
-    }
-
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        return this.getPropertySpecs()
-                .stream()
-                .filter(p -> name.equals(p.getName()))
-                .findFirst()
-                .orElse(null);
     }
 
 }

@@ -8,6 +8,7 @@ import com.elster.jupiter.time.TimeDuration;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides factory services for serial IO components.
@@ -26,20 +27,25 @@ import java.util.List;
 @ProviderType
 public interface SerialComponentService {
 
-    public static final String COMPONENT_NAME = "MIO";
+    String COMPONENT_NAME = "MIO";
 
-    public ServerSerialPort newSerialPort(SerialPortConfiguration configuration);
+    ServerSerialPort newSerialPort(SerialPortConfiguration configuration);
 
-    public SerialComChannel newSerialComChannel(ServerSerialPort serialPort);
+    SerialComChannel newSerialComChannel(ServerSerialPort serialPort);
 
-    public List<PropertySpec> getPropertySpecs();
+    List<PropertySpec> getPropertySpecs();
 
-    public PropertySpec getPropertySpec(String name);
+    default Optional<PropertySpec> getPropertySpec(String name) {
+        return this.getPropertySpecs()
+                .stream()
+                .filter(p -> name.equals(p.getName()))
+                .findAny();
+    }
 
-    public ModemComponent newModemComponent(TypedProperties properties);
+    ModemComponent newModemComponent(TypedProperties properties);
 
-    public ModemComponent newModemComponent(String phoneNumber, String commandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration commandTimeout, BigDecimal commandTry, List<String> modemInitStrings, List<String> globalModemInitStrings, String addressSelector, TimeDuration lineToggleDelay, String postDialCommands);
+    ModemComponent newModemComponent(String phoneNumber, String commandPrefix, TimeDuration connectTimeout, TimeDuration delayAfterConnect, TimeDuration delayBeforeSend, TimeDuration commandTimeout, BigDecimal commandTry, List<String> modemInitStrings, List<String> globalModemInitStrings, String addressSelector, TimeDuration lineToggleDelay, String postDialCommands);
 
-    public OpticalComChannel createOpticalFromSerialComChannel(SerialComChannel serialComChannel);
+    OpticalComChannel createOpticalFromSerialComChannel(SerialComChannel serialComChannel);
 
 }

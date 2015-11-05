@@ -10,7 +10,12 @@ import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.time.TimeDuration;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author sva
@@ -70,9 +75,9 @@ public class TypedPEMPModemProperties implements PEMPModemProperties, HasDynamic
     }
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
+    public List<PropertySpec> getPropertySpecs () {
         this.ensurePropertySpecsInitialized();
-        return this.propertySpecs.get(name);
+        return new ArrayList<>(this.propertySpecs.values());
     }
 
     private void ensurePropertySpecsInitialized() {
@@ -95,12 +100,6 @@ public class TypedPEMPModemProperties implements PEMPModemProperties, HasDynamic
         propertySpecs.put(DELAY_BEFORE_SEND, delayBeforeSendSpec(this.propertySpecService));
         propertySpecs.put(DTR_TOGGLE_DELAY, dtrToggleDelaySpec(this.propertySpecService));
         propertySpecs.put(MODEM_CONFIGURATION_KEY, modemConfigurationKeySpec(this.propertySpecService));
-    }
-
-    @Override
-    public List<PropertySpec> getPropertySpecs () {
-        this.ensurePropertySpecsInitialized();
-        return new ArrayList<>(this.propertySpecs.values());
     }
 
     @Override
