@@ -10,7 +10,6 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validators.MissingRequiredProperty;
-import java.util.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 
@@ -18,6 +17,7 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -35,7 +35,7 @@ abstract class AbstractValidator implements IValidator {
         this.propertySpecService = propertySpecService;
         this.properties = Collections.emptyMap();
     }
-    
+
     AbstractValidator(Thesaurus thesaurus, PropertySpecService propertySpecService, Map<String, Object> properties) {
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
@@ -81,32 +81,22 @@ abstract class AbstractValidator implements IValidator {
             }
         });
     }
-    
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        for (PropertySpec propertySpec : getPropertySpecs()) {
-            if (name.equals(propertySpec.getName())) {
-                return propertySpec;
-            }
-        }
-        return null;
-    }
-    
+
     private void checkRequiredProperty(String propertyName, Map<String, Object> properties) {
         if (!properties.containsKey(propertyName)) {
             throw new MissingRequiredProperty(getThesaurus(), propertyName);
         }
     }
-    
+
     protected String getBaseKey() {
         return this.getClass().getName();
     }
-    
+
     @Override
     public NlsKey getNlsKey() {
         return SimpleNlsKey.key(MessageSeeds.COMPONENT_NAME, Layer.DOMAIN, getBaseKey());
     }
-    
+
     @Override
     public NlsKey getPropertyNlsKey(String property) {
         if (isAProperty(property)) {
@@ -117,7 +107,7 @@ abstract class AbstractValidator implements IValidator {
         }
         return null;
     }
-    
+
     @Override
     public List<Pair<? extends NlsKey, String>> getExtraTranslations() {
         return Collections.emptyList();

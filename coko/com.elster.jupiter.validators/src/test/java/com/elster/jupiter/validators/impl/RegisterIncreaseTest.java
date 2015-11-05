@@ -12,18 +12,17 @@ import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.validation.ValidationResult;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.validators.impl.RegisterIncreaseValidator.FAIL_EQUAL_DATA;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -150,12 +149,12 @@ public class RegisterIncreaseTest {
 
     @Test
     public void testGetPropertySpecByName() {
-        PropertySpec propertySpec = validator.getPropertySpec(FAIL_EQUAL_DATA);
+        PropertySpec propertySpec = validator.getPropertySpec(FAIL_EQUAL_DATA).get();
 
         assertThat(propertySpec.getName()).isEqualTo(FAIL_EQUAL_DATA);
         assertThat(propertySpec.getValueFactory().getValueType()).isEqualTo(Boolean.class);
 
-        propertySpec = validator.getPropertySpec("failEqualData~");
-        assertThat(propertySpec).isNull();
+        assertThat(validator.getPropertySpec("failEqualData~")).isEmpty();
     }
+
 }

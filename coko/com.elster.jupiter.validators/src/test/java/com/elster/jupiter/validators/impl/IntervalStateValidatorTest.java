@@ -14,17 +14,16 @@ import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.validation.ValidationResult;
 import com.elster.jupiter.validators.impl.IntervalStateValidator.IntervalFlag;
 import com.google.common.collect.Range;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.validators.impl.IntervalStateValidator.INTERVAL_FLAGS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,10 +54,10 @@ public class IntervalStateValidatorTest {
         Map<String, Object> properties = new HashMap<>();
         properties.put(INTERVAL_FLAGS, (Object) flags);
         validator = new IntervalStateValidator(thesaurus, propertySpecService, properties);
-        
+
         flags.addValue(validator.new IntervalFlag(Flag.BADTIME, "badTime", "Bad time"));
         flags.addValue(validator.new IntervalFlag(Flag.POWERDOWN, "powerDown", "Power down"));
-        
+
         validator.init(channel, readingType, Range.closed(Instant.ofEpochMilli(7000L), Instant.ofEpochMilli(14000L)));
     }
 
@@ -70,19 +69,19 @@ public class IntervalStateValidatorTest {
     public void testValidationOk() {
         ProfileStatus profileStatus = ProfileStatus.of();
         when(intervalReadingRecord.getProfileStatus()).thenReturn(profileStatus);
-        
+
         ValidationResult validationResult = validator.validate(intervalReadingRecord);
-        
+
         assertThat(validationResult).isEqualTo(ValidationResult.VALID);
     }
-    
+
     @Test
     public void testValidationOkDifferentFlags() {
         ProfileStatus profileStatus = ProfileStatus.of(Flag.POWERUP);
         when(intervalReadingRecord.getProfileStatus()).thenReturn(profileStatus);
-        
+
         ValidationResult validationResult = validator.validate(intervalReadingRecord);
-        
+
         assertThat(validationResult).isEqualTo(ValidationResult.VALID);
     }
 
@@ -90,12 +89,12 @@ public class IntervalStateValidatorTest {
     public void testValidationSuspect() {
         ProfileStatus profileStatus = ProfileStatus.of(Flag.BADTIME);
         when(intervalReadingRecord.getProfileStatus()).thenReturn(profileStatus);
-        
+
         ValidationResult validationResult = validator.validate(intervalReadingRecord);
-        
+
         assertThat(validationResult).isEqualTo(ValidationResult.SUSPECT);
     }
-    
+
     @Test
     public void testGetPropertyDefaultFormat() {
         assertThat(validator.getPropertyDefaultFormat(INTERVAL_FLAGS)).isEqualTo("Interval flags");
@@ -119,15 +118,14 @@ public class IntervalStateValidatorTest {
 
     @Test
     public void testGetPropertySpecByName() {
-        PropertySpec propertySpec = validator.getPropertySpec(INTERVAL_FLAGS);
+        PropertySpec propertySpec = validator.getPropertySpec(INTERVAL_FLAGS).get();
 
         assertThat(propertySpec.getName()).isEqualTo(INTERVAL_FLAGS);
         assertThat(propertySpec.getValueFactory().getValueType()).isEqualTo(ListValue.class);
 
-        propertySpec = validator.getPropertySpec("flags~");
-        assertThat(propertySpec).isNull();
+        assertThat(validator.getPropertySpec("flags~")).isEmpty();
     }
-    
+
     @Test
     public void validateRegisterReadings() {
         ReadingRecord readingRecord = mock(ReadingRecord.class);
@@ -136,4 +134,5 @@ public class IntervalStateValidatorTest {
 
         assertThat(validationResult).isEqualTo(ValidationResult.VALID);
     }
+
 }
