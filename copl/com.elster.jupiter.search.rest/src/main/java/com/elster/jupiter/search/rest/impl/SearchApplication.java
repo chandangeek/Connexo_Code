@@ -12,10 +12,7 @@ import com.elster.jupiter.search.rest.MessageSeeds;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.ws.rs.core.Application;
@@ -23,7 +20,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -40,9 +36,6 @@ public class SearchApplication extends Application implements MessageSeedProvide
     private volatile SearchService searchService;
     private volatile Thesaurus thesaurus;
     private volatile InfoFactoryService infoFactoryService;
-    private String host;
-    private Integer port;
-    private String scheme;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -57,18 +50,6 @@ public class SearchApplication extends Application implements MessageSeedProvide
         hashSet.addAll(super.getSingletons());
         hashSet.add(new HK2Binder());
         return Collections.unmodifiableSet(hashSet);
-    }
-
-    @Activate
-    public void activate(BundleContext bundleContext) {
-        host = bundleContext.getProperty("com.elster.jupiter.url.rewrite.host");
-        port = Integer.valueOf(bundleContext.getProperty("com.elster.jupiter.url.rewrite.port"));
-        scheme = bundleContext.getProperty("com.elster.jupiter.url.rewrite.scheme");
-    }
-
-    @Deactivate
-    public void deactivate() {
-        // No op
     }
 
     @Reference
@@ -105,9 +86,9 @@ public class SearchApplication extends Application implements MessageSeedProvide
             bind(SearchCriterionInfoFactory.class).to(SearchCriterionInfoFactory.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
-            bind(host==null? Optional.empty():Optional.of(host)).to(Optional.class).named("host");
-            bind(port==null?Optional.empty():Optional.of(port)).to(Optional.class).named("port");
-            bind(scheme==null?Optional.empty():Optional.of(scheme)).to(Optional.class).named("scheme");
+//            bind(host==null? Optional.empty():Optional.of(host)).to(Optional.class).named("host");
+//            bind(port==null?Optional.empty():Optional.of(port)).to(Optional.class).named("port");
+//            bind(scheme==null?Optional.empty():Optional.of(scheme)).to(Optional.class).named("scheme");
         }
     }
 
