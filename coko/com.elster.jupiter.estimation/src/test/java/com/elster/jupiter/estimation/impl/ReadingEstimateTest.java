@@ -58,13 +58,6 @@ import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.assertj.core.api.Assertions;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -73,12 +66,17 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.assertj.core.api.Assertions;
+import org.junit.*;
+import org.junit.runner.*;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import static com.elster.jupiter.cbo.MetricMultiplier.KILO;
 import static com.elster.jupiter.cbo.MetricMultiplier.quantity;
@@ -116,8 +114,6 @@ public class ReadingEstimateTest {
                 @Override
                 public EstimationResult estimate(List<EstimationBlock> estimationBlock) {
                     SimpleEstimationResult.EstimationResultBuilder builder = SimpleEstimationResult.builder();
-                    List<EstimationBlock> estimated = new ArrayList<>();
-                    List<EstimationBlock> notEstimated = new ArrayList<>();
                     estimationBlock.stream()
                             .peek(block -> {
                                 if (block.estimatables().size() > 3) {
@@ -150,11 +146,6 @@ public class ReadingEstimateTest {
                 @Override
                 public List<PropertySpec> getPropertySpecs() {
                     return Collections.emptyList();
-                }
-
-                @Override
-                public PropertySpec getPropertySpec(String name) {
-                    return null;
                 }
 
                 @Override
@@ -228,14 +219,11 @@ public class ReadingEstimateTest {
             throw new RuntimeException(e);
         }
         transactionService = injector.getInstance(TransactionService.class);
-        transactionService.execute(new Transaction<Void>() {
-            @Override
-            public Void perform() {
-                injector.getInstance(FiniteStateMachineService.class);
-                injector.getInstance(MeteringService.class);
-                estimationService = (EstimationServiceImpl) injector.getInstance(EstimationService.class);
-                return null;
-            }
+        transactionService.execute((Transaction<Void>) () -> {
+            injector.getInstance(FiniteStateMachineService.class);
+            injector.getInstance(MeteringService.class);
+            estimationService = (EstimationServiceImpl) injector.getInstance(EstimationService.class);
+            return null;
         });
     }
 
