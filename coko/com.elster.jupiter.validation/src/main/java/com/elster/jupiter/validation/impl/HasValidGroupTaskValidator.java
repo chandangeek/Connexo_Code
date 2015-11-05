@@ -1,5 +1,7 @@
 package com.elster.jupiter.validation.impl;
 
+import java.util.Optional;
+
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
@@ -18,18 +20,18 @@ public class HasValidGroupTaskValidator implements ConstraintValidator<HasValidG
 
     @Override
     public boolean isValid(DataValidationTask validationTask, ConstraintValidatorContext context) {
-        EndDeviceGroup deviceGroup = validationTask.getEndDeviceGroup();
-        UsagePointGroup upGroup = validationTask.getUsagePointGroup();
+        Optional<EndDeviceGroup> deviceGroup = validationTask.getEndDeviceGroup();
+        Optional<UsagePointGroup> upGroup = validationTask.getUsagePointGroup();
         
         return bothNotNull(deviceGroup, upGroup) && bothNotSet(deviceGroup, upGroup);
     }
 
-    private boolean bothNotSet(EndDeviceGroup deviceGroup, UsagePointGroup upGroup) {
-        return !(deviceGroup != null && upGroup != null);
+    private boolean bothNotSet(Optional<EndDeviceGroup> deviceGroup, Optional<UsagePointGroup> upGroup) {
+        return (deviceGroup.isPresent() && upGroup.isPresent());
     }
 
-    private boolean bothNotNull(EndDeviceGroup deviceGroup, UsagePointGroup upGroup) {
-        return !(deviceGroup == null && upGroup == null);
+    private boolean bothNotNull(Optional<EndDeviceGroup> deviceGroup, Optional<UsagePointGroup> upGroup) {
+        return (deviceGroup.isPresent() || upGroup.isPresent());
     }
 
 }

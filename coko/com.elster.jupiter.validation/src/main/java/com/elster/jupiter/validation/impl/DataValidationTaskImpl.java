@@ -177,13 +177,13 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     }
 
     @Override
-    public EndDeviceGroup getEndDeviceGroup() {
-        return endDeviceGroup.isPresent() ? endDeviceGroup.get() : null;
+    public Optional<EndDeviceGroup> getEndDeviceGroup() {
+        return endDeviceGroup.getOptional();
     }
 
     @Override
-    public UsagePointGroup getUsagePointGroup() {
-        return usagePointGroup.isPresent() ? usagePointGroup.get() : null;
+    public Optional<UsagePointGroup> getUsagePointGroup() {
+        return usagePointGroup.getOptional();
     }
 
     @Override

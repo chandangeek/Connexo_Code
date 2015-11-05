@@ -31,9 +31,9 @@ public interface DataValidationTask extends HasAuditInfo {
 
     public void setName(String name);
 
-    public EndDeviceGroup getEndDeviceGroup();
+    public Optional<EndDeviceGroup> getEndDeviceGroup();
 
-    public UsagePointGroup getUsagePointGroup();
+    public Optional<UsagePointGroup> getUsagePointGroup();
 
     public void setEndDeviceGroup(EndDeviceGroup endDeviceGroup);
 

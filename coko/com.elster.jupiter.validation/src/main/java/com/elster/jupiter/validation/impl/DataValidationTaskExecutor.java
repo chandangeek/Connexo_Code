@@ -75,8 +75,8 @@ public class DataValidationTaskExecutor implements TaskExecutor {
     private void doExecute(DataValidationOccurrence occurrence, Logger logger) {
         DataValidationTask task = occurrence.getTask();
 
-        if (task.getEndDeviceGroup() != null) {
-            List<EndDevice> devices = task.getEndDeviceGroup().getMembers(Instant.now());
+        if (task.getEndDeviceGroup().isPresent()) {
+            List<EndDevice> devices = task.getEndDeviceGroup().get().getMembers(Instant.now());
             for (EndDevice device : devices) {
                 Optional<Meter> found = device.getAmrSystem().findMeter(device.getAmrId());
                 if (found.isPresent()) {
@@ -91,8 +91,8 @@ public class DataValidationTaskExecutor implements TaskExecutor {
 
                 }
             }
-        } else if (task.getUsagePointGroup() != null) {
-            List<UsagePoint> usagePoints = task.getUsagePointGroup().getMembers(Instant.now());
+        } else if (task.getUsagePointGroup().isPresent()) {
+            List<UsagePoint> usagePoints = task.getUsagePointGroup().get().getMembers(Instant.now());
             for (UsagePoint usagePoint : usagePoints) {
                 List<? extends MeterActivation> activations = usagePoint.getMeterActivations();
                 for (MeterActivation activation : activations) {
