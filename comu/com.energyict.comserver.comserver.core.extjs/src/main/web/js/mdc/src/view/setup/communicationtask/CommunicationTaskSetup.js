@@ -30,7 +30,6 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskSetup', {
         ];
         me.content = [
             {
-                xtype: 'panel',
                 ui: 'large',
                 title: Uni.I18n.translate('communicationtasks.communicationtasks', 'MDC', 'Communication task configurations'),
                 items: [
@@ -65,7 +64,6 @@ Ext.define('Mdc.view.setup.communicationtask.CommunicationTaskSetup', {
                 ]
             }
         ];
-
         me.callParent(arguments);
     }
 });
