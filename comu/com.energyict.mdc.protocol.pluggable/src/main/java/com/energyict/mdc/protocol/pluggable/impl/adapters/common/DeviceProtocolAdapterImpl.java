@@ -208,7 +208,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     }
 
     private PropertySpec deviceTimeZonePropertySpec(boolean required) {
-        return this.propertySpecService.timeZonePropertySpec(DeviceProtocolProperty.deviceTimeZone.name(), required, TimeZone.getDefault());
+        return this.propertySpecService.timeZonePropertySpec(DeviceProtocolProperty.DEVICE_TIME_ZONE.javaFieldName(), required, TimeZone.getDefault());
     }
 
     private PropertySpec nodeAddressPropertySpec(boolean required) {
@@ -220,7 +220,7 @@ public abstract class DeviceProtocolAdapterImpl implements DeviceProtocolAdapter
     }
 
     private PropertySpec callHomeIdPropertySpec(boolean required) {
-        return this.propertySpecService.basicPropertySpec(DeviceProtocolProperty.callHomeId.name(), required, new StringFactory());
+        return this.propertySpecService.basicPropertySpec(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), required, new StringFactory());
     }
 
     protected abstract AbstractDeviceProtocolSecuritySupportAdapter getSecuritySupportAdapter();

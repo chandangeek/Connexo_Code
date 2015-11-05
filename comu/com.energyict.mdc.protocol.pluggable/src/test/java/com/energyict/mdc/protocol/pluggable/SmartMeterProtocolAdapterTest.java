@@ -1,10 +1,5 @@
 package com.energyict.mdc.protocol.pluggable;
 
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.PropertySpecBuilder;
-import com.elster.jupiter.properties.TimeZoneFactory;
-import com.elster.jupiter.properties.ValueFactory;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.TypedProperties;
@@ -12,6 +7,7 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.BasicPropertySpec;
 import com.energyict.mdc.dynamic.impl.PropertySpecBuilderImpl;
 import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.DeviceFunction;
 import com.energyict.mdc.protocol.api.DeviceProtocolCapabilities;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
@@ -24,7 +20,6 @@ import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.dialer.connection.ConnectionException;
 import com.energyict.mdc.protocol.api.dialer.core.SerialCommunicationChannel;
-import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.exceptions.LegacyProtocolException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.legacy.SmartMeterProtocol;
@@ -47,8 +42,13 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.Sim
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolSecuritySupportAdapter;
 import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocol;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.TimeZoneFactory;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import org.fest.assertions.api.Assertions;
 import org.fest.assertions.core.Condition;
@@ -68,7 +68,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -167,17 +170,17 @@ public class SmartMeterProtocolAdapterTest {
                 thenReturn(addressPropertySpec);
         PropertySpec callHomeIdPropertySpec = mock(PropertySpec.class);
         when(callHomeIdPropertySpec.isRequired()).thenReturn(false);
-        when(callHomeIdPropertySpec.getName()).thenReturn(DeviceProtocolProperty.callHomeId.name());
+        when(callHomeIdPropertySpec.getName()).thenReturn(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName());
         when(callHomeIdPropertySpec.getValueFactory()).thenReturn(new StringFactory());
         when(inMemoryPersistence.getPropertySpecService().
-                basicPropertySpec(eq(DeviceProtocolProperty.callHomeId.name()), eq(false), any(ValueFactory.class))).
+                basicPropertySpec(eq(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName()), eq(false), any(ValueFactory.class))).
                 thenReturn(callHomeIdPropertySpec);
         PropertySpec deviceTimeZonePropertySpec = mock(PropertySpec.class);
         when(deviceTimeZonePropertySpec.isRequired()).thenReturn(false);
-        when(deviceTimeZonePropertySpec.getName()).thenReturn(DeviceProtocolProperty.deviceTimeZone.name());
+        when(deviceTimeZonePropertySpec.getName()).thenReturn(DeviceProtocolProperty.DEVICE_TIME_ZONE.javaFieldName());
         when(deviceTimeZonePropertySpec.getValueFactory()).thenReturn(new StringFactory());
         when(inMemoryPersistence.getPropertySpecService().
-                basicPropertySpec(eq(DeviceProtocolProperty.deviceTimeZone.name()), eq(false), any(ValueFactory.class))).
+                basicPropertySpec(eq(DeviceProtocolProperty.DEVICE_TIME_ZONE.javaFieldName()), eq(false), any(ValueFactory.class))).
                 thenReturn(deviceTimeZonePropertySpec);
     }
 
@@ -295,9 +298,9 @@ public class SmartMeterProtocolAdapterTest {
                         count |= 0b0001;
                     } else if (propertySpec.getName().equals(MeterProtocol.ADDRESS)) {
                         count |= 0b0010;
-                    } else if (propertySpec.getName().equals(DeviceProtocolProperty.callHomeId.name())) {
+                    } else if (propertySpec.getName().equals(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName())) {
                         count |= 0b0100;
-                    } else if (propertySpec.getName().equals(DeviceProtocolProperty.deviceTimeZone.name())) {
+                    } else if (propertySpec.getName().equals(DeviceProtocolProperty.DEVICE_TIME_ZONE.javaFieldName())) {
                         count |= 0b1000;
                     } else {
                         count = -1;
