@@ -114,7 +114,8 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
             xtype: 'menucheckitem',
             text: criteria.get('displayValue'),
             value: criteria.get('name'),
-            criteria: criteria
+            criteria: criteria,
+            checked: this.service.filters.get(criteria.get('name'))
         };
 
         if (    criteria.get('constraints')

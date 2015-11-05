@@ -214,9 +214,7 @@ Ext.define('Uni.service.Search', {
         var me = this,
             filter;
 
-        filter = me.filters.findBy(function (filter) {
-            return filter.property === property;
-        });
+        filter = me.filters.get(property.getId());
 
         if (filter) {
             filter.reset();
