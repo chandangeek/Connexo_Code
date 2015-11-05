@@ -212,14 +212,14 @@ public class AddRemovePartialConnectionTaskPropertyTest {
         when(timeOutPropertySpec.isRequired()).thenReturn(false);
         when(timeOutPropertySpec.getValueFactory()).thenReturn(new BigDecimalFactory());
         when(this.connectionType.getPropertySpecs()).thenReturn(Arrays.asList(hostPropertySpec, portPropertySpec, timeOutPropertySpec));
-        when(this.connectionType.getPropertySpec(HOST_PROPERTY_SPEC_NAME)).thenReturn(hostPropertySpec);
-        when(this.connectionType.getPropertySpec(PORT_PROPERTY_SPEC_NAME)).thenReturn(portPropertySpec);
-        when(this.connectionType.getPropertySpec(TIMEOUT_PROPERTY_SPEC_NAME)).thenReturn(timeOutPropertySpec);
+        when(this.connectionType.getPropertySpec(HOST_PROPERTY_SPEC_NAME)).thenReturn(Optional.of(hostPropertySpec));
+        when(this.connectionType.getPropertySpec(PORT_PROPERTY_SPEC_NAME)).thenReturn(Optional.of(portPropertySpec));
+        when(this.connectionType.getPropertySpec(TIMEOUT_PROPERTY_SPEC_NAME)).thenReturn(Optional.of(timeOutPropertySpec));
         when(this.connectionTypePluggableClass.getConnectionType()).thenReturn(this.connectionType);
         when(this.connectionTypePluggableClass.getPropertySpecs()).thenReturn(Arrays.asList(hostPropertySpec, portPropertySpec, timeOutPropertySpec));
-        when(this.connectionTypePluggableClass.getPropertySpec(HOST_PROPERTY_SPEC_NAME)).thenReturn(hostPropertySpec);
-        when(this.connectionTypePluggableClass.getPropertySpec(PORT_PROPERTY_SPEC_NAME)).thenReturn(portPropertySpec);
-        when(this.connectionTypePluggableClass.getPropertySpec(TIMEOUT_PROPERTY_SPEC_NAME)).thenReturn(timeOutPropertySpec);
+        when(this.connectionTypePluggableClass.getPropertySpec(HOST_PROPERTY_SPEC_NAME)).thenReturn(Optional.of(hostPropertySpec));
+        when(this.connectionTypePluggableClass.getPropertySpec(PORT_PROPERTY_SPEC_NAME)).thenReturn(Optional.of(portPropertySpec));
+        when(this.connectionTypePluggableClass.getPropertySpec(TIMEOUT_PROPERTY_SPEC_NAME)).thenReturn(Optional.of(timeOutPropertySpec));
     }
 
     private void initializeDataModel() {

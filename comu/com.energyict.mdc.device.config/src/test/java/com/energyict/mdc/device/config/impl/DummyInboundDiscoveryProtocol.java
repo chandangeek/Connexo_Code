@@ -9,6 +9,7 @@ import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 
 import com.elster.jupiter.properties.PropertySpec;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -61,11 +62,7 @@ public class DummyInboundDiscoveryProtocol implements InboundDeviceProtocol {
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        return null;
+        return Collections.emptyList();
     }
 
-    @Override
-    public PropertySpec getPropertySpec(String name) {
-        return null;
-    }
 }

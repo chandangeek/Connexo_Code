@@ -48,18 +48,6 @@ public class DeviceProtocolConfigurationPropertiesImpl implements DeviceProtocol
     }
 
     @Override
-    public PropertySpec getPropertySpec(String name) {
-        return this.findPropertySpec(name).orElse(null);
-    }
-
-    private Optional<PropertySpec> findPropertySpec(String name) {
-        return this.getPropertySpecs()
-                .stream()
-                .filter(s -> s.getName().equals(name))
-                .findFirst();
-    }
-
-    @Override
     public TypedProperties getTypedProperties() {
         this.ensurePropertiesInitialized();
         return this.properties.getUnmodifiableView();
@@ -80,7 +68,7 @@ public class DeviceProtocolConfigurationPropertiesImpl implements DeviceProtocol
         TypedProperties defaultProperties = this.deviceConfiguration.getDeviceType().getDeviceProtocolPluggableClass().getProperties();
         TypedProperties properties = TypedProperties.inheritingFrom(defaultProperties);
         for (DeviceProtocolConfigurationProperty property : this.deviceConfiguration.getProtocolPropertyList()) {
-            ValueFactory<?> valueFactory = this.getPropertySpec(property.getName()).getValueFactory();
+            ValueFactory<?> valueFactory = this.getPropertySpec(property.getName()).get().getValueFactory();
             properties.setProperty(property.getName(), valueFactory.fromStringValue(property.getValue()));
         }
         return properties;
@@ -98,7 +86,7 @@ public class DeviceProtocolConfigurationPropertiesImpl implements DeviceProtocol
             if (this.properties.hasValueFor(name)) {
                 this.doRemoveProperty(name);
             }
-            Optional<PropertySpec> propertySpec = this.findPropertySpec(name);
+            Optional<PropertySpec> propertySpec = this.getPropertySpec(name);
             if (propertySpec.isPresent()) {
                 this.addProperty(name, value, propertySpec.get());
             }
@@ -126,7 +114,7 @@ public class DeviceProtocolConfigurationPropertiesImpl implements DeviceProtocol
     }
 
     private void doRemoveProperty(String name) {
-        this.findPropertySpec(name).orElseThrow(() -> new NoSuchPropertyException(this.getDeviceProtocolPluggableClass(), name, this.deviceConfiguration.getThesaurus(), MessageSeeds.PROTOCOL_HAS_NO_SUCH_PROPERTY));
+        this.getPropertySpec(name).orElseThrow(() -> new NoSuchPropertyException(this.getDeviceProtocolPluggableClass(), name, this.deviceConfiguration.getThesaurus(), MessageSeeds.PROTOCOL_HAS_NO_SUCH_PROPERTY));
         if (this.deviceConfiguration.removeProtocolProperty(name)) {
             this.properties.removeProperty(name);
         }
