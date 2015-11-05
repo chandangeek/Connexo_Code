@@ -40,7 +40,7 @@ Ext.define('Usr.controller.Main', {
                 text: Uni.I18n.translate('general.administration', 'USR', 'Administration'),
                 glyph: 'settings',
                 portal: 'administration',
-                index: -10
+                index: 10
             });
 
             Uni.store.MenuItems.add(menuItem);
