@@ -381,7 +381,12 @@ Ext.define('Cfg.controller.Tasks', {
             store,
             index,
             view;
-
+        if (!record.get('usagePointGroup') ||record.get('usagePointGroup') === "") {
+        	record.set('usagePointGroup', null);
+        } else {
+        	record.set('deviceGroup', null);
+        }
+        
         Ext.Ajax.request({			
             url: '/api/val/validationtasks/' + id + '/trigger',
             method: 'PUT',
