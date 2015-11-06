@@ -30,7 +30,7 @@ public class TaskInfo {
 
     public TaskInfo(RecurrentTask recurrentTask) {
         name = recurrentTask.getName();
-        application = "Multisense";
+        application = "MultiSense";
         queue = recurrentTask.getDestination().getName();
         Optional<TaskOccurrence> lastOccurrence = recurrentTask.getLastOccurrence();
         if (lastOccurrence.isPresent()) {
@@ -50,8 +50,8 @@ public class TaskInfo {
         setQueueStatus(PLANNED, plannedDate);
         if (lastOccurrence != null) {
             lastRunStatus = lastOccurrence.getStatus().toString();
-            lastRunDate = lastOccurrence.getStartDate().get().toEpochMilli();
-            lastRunDuration = lastOccurrence.getEndDate().get().toEpochMilli() - lastOccurrence.getStartDate().get().toEpochMilli();
+            //lastRunDate = lastOccurrence.getStartDate().get().toEpochMilli();
+            //lastRunDuration = lastOccurrence.getEndDate().get().toEpochMilli() - lastOccurrence.getStartDate().get().toEpochMilli();
         }
     }
 
