@@ -2,10 +2,12 @@ package com.energyict.protocolimplv2.nta.dsmr23.messages;
 
 import com.energyict.cbo.Password;
 import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdw.core.LoadProfile;
+import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
@@ -65,7 +67,7 @@ public class Dsmr23MbusMessaging extends AbstractDlmsMessaging implements Device
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
         switch (propertySpec.getName()) {
             case DeviceMessageConstants.loadProfileAttributeName:
                 return LoadProfileMessageUtils.formatLoadProfile((LoadProfile) messageAttribute);
@@ -80,6 +82,11 @@ public class Dsmr23MbusMessaging extends AbstractDlmsMessaging implements Device
             default:
                 return messageAttribute.toString();  //Used for String and BigDecimal attributes
         }
+    }
+
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return "";
     }
 
     @Override

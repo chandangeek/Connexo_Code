@@ -4,12 +4,14 @@ import com.energyict.cbo.TimeDuration;
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.ExchangeMode;
 import com.energyict.concentrator.communication.driver.rf.eictwavenis.WavenisParameterException;
 import com.energyict.cpo.PropertySpec;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
 import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
+import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
@@ -130,7 +132,7 @@ public class Messaging implements DeviceMessageSupport {
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(DeviceMessageConstants.WriteExchangeStatus)) {
             return String.valueOf(((BigDecimal) messageAttribute).intValue());
         } else if (propertySpec.getName().equals(DeviceMessageConstants.WriteRadioAcknowledge)) {
@@ -138,6 +140,11 @@ public class Messaging implements DeviceMessageSupport {
         } else if (propertySpec.getName().equals(DeviceMessageConstants.WriteRadioUserTimeout)) {
             return String.valueOf(((TimeDuration) messageAttribute).getSeconds());
         }
+        return "";
+    }
+
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
         return "";
     }
 }

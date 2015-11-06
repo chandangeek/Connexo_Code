@@ -7,6 +7,7 @@ import com.energyict.cpo.BusinessObject;
 import com.energyict.cpo.PropertySpec;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.*;
+import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageStatus;
 import com.energyict.mdc.meterdata.CollectedMessage;
@@ -17,6 +18,7 @@ import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdw.core.Device;
 import com.energyict.mdw.core.Group;
 import com.energyict.mdw.core.UserFile;
+import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
@@ -37,6 +39,7 @@ import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -152,14 +155,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     @Override
-    public String format(PropertySpec propertySpec, Object messageAttribute) {
-        if (propertySpec.getName().equals(DeviceMessageConstants.dcDeviceIDAttributeName)) {
-            return MasterDataSerializer.serializeMasterData(messageAttribute);
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.deviceConfigurationIDAttributeName)) {
-            return MasterDataSerializer.serializeMasterDataForOneConfig(messageAttribute);
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.dcDeviceID2AttributeName)) {
-            return MasterDataSerializer.serializeMeterDetails(messageAttribute);
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.broadcastEncryptionKeyAttributeName)
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+        if (propertySpec.getName().equals(DeviceMessageConstants.broadcastEncryptionKeyAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.passwordAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.broadcastAuthenticationKeyAttributeName)
                 || propertySpec.getName().equals(DeviceMessageConstants.newAuthenticationKeyAttributeName)
@@ -225,6 +222,20 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             return macAddresses.toString();
         } else {
             return messageAttribute.toString();     //Works for BigDecimal, boolean and (hex)string property specs
+        }
+    }
+
+    @Override
+    public String prepareMessageContext(OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        if (deviceMessage.getSpecification().equals(DeviceActionMessage.SyncMasterdataForDC)) {
+            return MasterDataSerializer.serializeMasterData(offlineDevice.getId());
+        } else if (deviceMessage.getSpecification().equals(DeviceActionMessage.SyncDeviceDataForDC)) {
+            return MasterDataSerializer.serializeMeterDetails(offlineDevice.getId());
+        } else if (deviceMessage.getSpecification().equals(DeviceActionMessage.SyncOneConfigurationForDC)) {
+            int configId = ((BigDecimal) deviceMessage.getAttributes().get(0).getValue()).intValue();
+            return MasterDataSerializer.serializeMasterDataForOneConfig(configId);
+        } else {
+            return "";
         }
     }
 

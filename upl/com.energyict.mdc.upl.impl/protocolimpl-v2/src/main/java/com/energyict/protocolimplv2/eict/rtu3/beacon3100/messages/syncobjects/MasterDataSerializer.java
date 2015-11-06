@@ -58,18 +58,21 @@ public class MasterDataSerializer {
     private static final int NO_SCHEDULE = -1;
     private static Logger logger;
 
-    public static String serializeMasterDataForOneConfig(Object messageAttribute) {
+    /**
+     * Return the serialized description of all master data (scheduling info, obiscodes, etc) for a given config.
+     */
+    public static String serializeMasterDataForOneConfig(int configId) {
 
-        final DeviceConfiguration deviceConfiguration = mw().getDeviceConfigurationFactory().find(((BigDecimal) messageAttribute).intValue());
+        final DeviceConfiguration deviceConfiguration = getMeteringWarehouse().getDeviceConfigurationFactory().find(configId);
         if (deviceConfiguration == null) {
-            throw invalidFormatException("'Device configuration ID'", messageAttribute.toString(), "ID should reference a unique device configuration");
+            throw invalidFormatException("'Device configuration ID'", String.valueOf(configId), "ID should reference a unique device configuration");
         }
 
         final AllMasterData allMasterData = new AllMasterData();
 
         //Use the CLIENT_MAC_ADDRESS of the first device of that config. Or the default value if there's no device available.
         Device slaveDevice = null;
-        final List<Device> devices = mw().getDeviceFactory().findByConfiguration(deviceConfiguration);
+        final List<Device> devices = getMeteringWarehouse().getDeviceFactory().findByConfiguration(deviceConfiguration);
         if (!devices.isEmpty()) {
             slaveDevice = devices.get(0);
         }
@@ -90,10 +93,13 @@ public class MasterDataSerializer {
 
     }
 
-    public static String serializeMasterData(Object messageAttribute) {
-        final Device masterDevice = mw().getDeviceFactory().find(((BigDecimal) messageAttribute).intValue());
+    /**
+     * Return the serialized description of all master data (scheduling info, obiscodes, etc) for the configs of all slave meters that are linked to a given device
+     */
+    public static String serializeMasterData(int deviceId) {
+        final Device masterDevice = getMeteringWarehouse().getDeviceFactory().find(deviceId);
         if (masterDevice == null) {
-            throw invalidFormatException("'DC device ID'", messageAttribute.toString(), "ID should reference a unique device");
+            throw invalidFormatException("'DC device ID'", String.valueOf(deviceId), "ID should reference a unique device");
         }
 
         final AllMasterData allMasterData = new AllMasterData();
@@ -157,10 +163,13 @@ public class MasterDataSerializer {
         return false;
     }
 
-    public static String serializeMeterDetails(Object messageAttribute) {
-        final Device masterDevice = mw().getDeviceFactory().find(((BigDecimal) messageAttribute).intValue());
+    /**
+     * Return the serialized description of all meter details of a given slave device
+     */
+    public static String serializeMeterDetails(int deviceId) {
+        final Device masterDevice = getMeteringWarehouse().getDeviceFactory().find(deviceId);
         if (masterDevice == null) {
-            throw invalidFormatException("'DC device ID'", messageAttribute.toString(), "ID should reference a unique device");
+            throw invalidFormatException("'DC device ID'", String.valueOf(deviceId), "ID should reference a unique device");
         }
 
         final List<Device> downstreamDevices = masterDevice.getDownstreamDevices();
@@ -210,13 +219,13 @@ public class MasterDataSerializer {
         return new Beacon3100MeterDetails(callHomeId, deviceTypeId, deviceTimeZone, device.getSerialNumber(), wrappedPassword, wrappedAK, wrappedEK);
     }
 
-    private static MeteringWarehouse mw() {
-        final MeteringWarehouse mw = MeteringWarehouse.getCurrent();
-        if (mw == null) {
+    private static MeteringWarehouse getMeteringWarehouse() {
+        final MeteringWarehouse meteringWarehouse = MeteringWarehouse.getCurrent();
+        if (meteringWarehouse == null) {
             MeteringWarehouse.createBatchContext();
             return MeteringWarehouse.getCurrent();
         } else {
-            return mw;
+            return meteringWarehouse;
         }
     }
 
