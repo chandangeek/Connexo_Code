@@ -39,19 +39,21 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
         var me = this,
         router = me.getController('Uni.controller.history.Router'),
         route;
-
+        router.arguments.mcid = menu.record.getId();
+        
         switch (item.action) {
         	case 'editMetrologyConfiguration':
-        		router.arguments.mcid = menu.record.getId();
+        		//router.arguments.mcid = menu.record.getId();
         		route = 'metrologyconfiguration/edit';
         		break;
         	case 'viewMetrologyConfiguration':
-        		router.arguments.mcid = menu.record.getId();
+        		//router.arguments.mcid = menu.record.getId();
         		route = 'metrologyconfiguration/view';
         		break;
-        	case 'deleteMetrologyConfiguration':
-        		router.arguments.mcid = menu.record.getId();
-        		alert('delete not yet implemented -- ' + ' ' + menu.record.getId());
+        	case 'removeMetrologyConfiguration':
+                me.removeMetrologyConfiguration(menu.record);
+        		//router.arguments.mcid = menu.record.getId();
+        		//alert('delete not yet implemented -- ' + ' ' + menu.record.getId());
  //       		route = 'metrologyconfiguration/delete';
         		break;
         }
@@ -104,6 +106,78 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
         previewContainer.removeAll();
         previewContainer.add(widget);
    	
+    },
+    removeMetrologyConfiguration: function (record) {
+        var me = this,
+            confirmationWindow = Ext.create('Uni.view.window.Confirmation');
+        confirmationWindow.show({
+            msg: Uni.I18n.translate('metrologyconfiguration.general.remove.msg', 'IMT', 'This metrology configuration will be removed.'),
+            title: Uni.I18n.translate('general.removex', 'IMT', "Remove '{0}'",[record.data.name]),
+            config: {},
+            fn: function (state) {
+                if (state === 'confirm') {
+                    me.removeOperation(record);
+                } else if (state === 'cancel') {
+                    this.close();
+                }
+            }
+        });
+    },
+
+    removeOperation: function (record) {
+        var me = this;
+        record.destroy({
+            success: function () {
+                if (me.getMetrologyConfigurationListSetup()) {
+                    var grid = me.getMetrologyConfigurationListSetup().down('metrologyConfigurationList');
+                    grid.down('pagingtoolbartop').totalCount = 0;
+                    grid.getStore().load();
+                } else {
+                    me.getController('Uni.controller.history.Router').getRoute('metrologyconfiguration/overview').forward();
+                }
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.general.remove.confirm.msg', 'CFG', 'Metrology configuration removed'));
+            },
+            failure: function (record, operation) {
+                if (operation.response.status === 409) {
+                    return
+                }
+                var json = Ext.decode(operation.response.responseText, true);
+                var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'IMT', 'Unknown error occurred');
+                if (json && json.errors) {
+                    errorText = json.errors[0].msg;
+                }
+
+                if (!Ext.ComponentQuery.query('#remove-error-messagebox')[0]) {
+                    Ext.widget('messagebox', {
+                        itemId: 'remove-error-messagebox',
+                        buttons: [
+                            {
+                                text: Uni.I18n.translate('general.retry','IMT','Retry'),
+                                ui: 'remove',
+                                handler: function (button, event) {
+                                    me.removeOperation(record);
+                                }
+                            },
+                            {
+                                text: Uni.I18n.translate('general.cancel','IMT','Cancel'),
+                                action: 'cancel',
+                                ui: 'link',
+                                href: '#metrologyconfiguration/overview',
+                                handler: function (button, event) {
+                                    this.up('messagebox').destroy();
+                                }
+                            }
+                        ]
+                    }).show({
+                        ui: 'notification-error',
+                        title: Uni.I18n.translate('metrologyconfiguration.general.remove.error.msg', 'CFG', 'Remove operation failed'),
+                        msg: errorText,
+                        modal: false,
+                        icon: Ext.MessageBox.ERROR
+                    })
+                }
+            }
+        });
     },
 });
 

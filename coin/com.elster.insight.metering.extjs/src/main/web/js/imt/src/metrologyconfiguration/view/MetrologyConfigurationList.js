@@ -25,12 +25,24 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationList', {
         {
             header: Uni.I18n.translate('metrologyconfigurations.createdDate', 'IMT', 'Created date'),
             flex: 1,
-            dataIndex: 'created'
+            dataIndex: 'created',
+            renderer: function(value){
+                if(!Ext.isEmpty(value)) {
+                    return Uni.DateTime.formatDateTimeLong(new Date(value));
+                }
+                return '-';
+            }
         },
         {
             header: Uni.I18n.translate('metrologyconfigurations.updatedDate', 'IMT', 'Updated date'),
             flex: 1,
-            dataIndex: 'updated'
+            dataIndex: 'updated',
+            renderer: function(value){
+                if(!Ext.isEmpty(value)) {
+                    return Uni.DateTime.formatDateTimeLong(new Date(value));
+                }
+                return '-';
+            }
         },
         {
             xtype: 'uni-actioncolumn',

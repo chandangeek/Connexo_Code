@@ -18,8 +18,8 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationActionMenu', {
         },
         {
             text: Uni.I18n.translate('metrologyconfiguration.remove', 'IMT', 'Remove'),
-            action: 'deleteMetrologyConfiguration',
-            itemId: 'deleteMetrologyConfiguration'
+            action: 'removeMetrologyConfiguration',
+            itemId: 'removeMetrologyConfiguration'
         }
     ]
 });

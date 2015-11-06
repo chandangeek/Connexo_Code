@@ -7,15 +7,17 @@ Ext.define('Imt.metrologyconfiguration.model.MetrologyConfiguration', {
         {
             name: 'created',
             persist: false,
-            mapping: function(data){
-                return Uni.DateTime.formatDateTimeLong(new Date(data.createTime));
+            mapping: function(data) {
+           		//return Uni.DateTime.formatDateTimeLong(new Date(data.createTime));
+            	return data.createTime;
             }
         },
         {
             name: 'updated',
             persist: false,
-            mapping: function(data){
-                return Uni.DateTime.formatDateTimeLong(new Date(data.modTime));
+            mapping: function(data) {
+           		//return Uni.DateTime.formatDateTimeLong(new Date(data.modTime));
+           		return data.modTime;
             }
         },
     ],
