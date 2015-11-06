@@ -72,7 +72,8 @@ Ext.define('Apr.view.appservers.MessageServicesGrid', {
             };
             me.columns[2].editor = {
                 xtype: 'numberfield',
-                minValue: 1
+                minValue: 1,
+                maxValue: 2147483647
             };
         }
 
