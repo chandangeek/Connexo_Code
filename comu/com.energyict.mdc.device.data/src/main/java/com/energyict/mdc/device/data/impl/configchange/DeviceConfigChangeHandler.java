@@ -109,8 +109,9 @@ public class DeviceConfigChangeHandler implements MessageHandler {
             @Override
             void handle(Map<String, Object> properties, ConfigChangeContext configChangeContext) {
                 long deviceConfigChangeRequestId = Long.valueOf((String) properties.get(ServerDeviceForConfigChange.CONFIG_CHANGE_MESSAGE_VALUE));
-                DeviceConfigChangeRequest deviceConfigChangeRequest = getDeviceConfigChangeRequest(configChangeContext, deviceConfigChangeRequestId);
-                deviceConfigChangeRequest.notifyDeviceInActionIsRemoved();
+                Optional<DeviceConfigChangeRequest> deviceConfigChangeRequest = configChangeContext.deviceService.findDeviceConfigChangeRequestById(deviceConfigChangeRequestId);
+                // if it is not present, then it is probably already removed
+                deviceConfigChangeRequest.ifPresent(DeviceConfigChangeRequest::notifyDeviceInActionIsRemoved);
             }
         };
 
