@@ -12,11 +12,6 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationActionMenu', {
             itemId: 'editMetrologyConfiguration'
         },
         {
-            text: Uni.I18n.translate('metrologyconfiguration.view', 'IMT', 'View'),
-            action: 'viewMetrologyConfiguration',
-            itemId: 'viewMetrologyConfiguration'
-        },
-        {
             text: Uni.I18n.translate('metrologyconfiguration.remove', 'IMT', 'Remove'),
             action: 'removeMetrologyConfiguration',
             itemId: 'removeMetrologyConfiguration'

@@ -73,31 +73,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
             }
         });
     },    
-//    deleteMetrologyConfiguration: function(mcid) {
-//        var me = this,
-//        router = me.getController('Uni.controller.history.Router'),
-//        model = me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration'),
-//        store = me.getStore('Imt.metrologyconfiguration.store.MetrologyConfiguration'),
-//        mcName,
-//        mcRecord;
-//        model.load(mcid, {
-//            success: function (record) {
-//            	mcName = record.get('name');
-//            	mcRecord = record;
-//            }
-//	    });
-//        var msg = 'Are you sure you woule like to delete - ' + mcName;
-//
-//        Ext.MessageBox.confirm('Delete', msg , function(btn){
-//        	   if(btn === 'yes') {
-//
-////        		   store.remove(mcRecord);
-////        		   store.sync();
-//        		   
-//        	   }
-// 
-//        });
-//    },    
+  
     saveMetrologyConfiguration: function (button) {
         var me = this,
         router = me.getController('Uni.controller.history.Router'),

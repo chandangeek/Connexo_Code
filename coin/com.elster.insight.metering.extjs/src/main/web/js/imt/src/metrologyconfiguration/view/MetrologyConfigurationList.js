@@ -21,6 +21,9 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationList', {
             header: Uni.I18n.translate('metrologyconfigurations.name', 'IMT', 'Name'),
             flex: 1,
             dataIndex: 'name', 
+            renderer: function (value, b, record) {
+            	 return '<a href="#/metrologyconfiguration/' + record.get('id') + '/view">' + Ext.String.htmlEncode(value) + '</a>';
+            }
         },
         {
             header: Uni.I18n.translate('metrologyconfigurations.createdDate', 'IMT', 'Created date'),

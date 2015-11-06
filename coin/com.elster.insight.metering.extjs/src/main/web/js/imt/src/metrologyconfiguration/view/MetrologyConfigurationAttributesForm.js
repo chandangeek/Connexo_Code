@@ -32,14 +32,23 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm
                     {
                         name: 'created',
                         itemId: 'fld-up-created',
-                        fieldLabel: Uni.I18n.translate('metrologyconfiguration.generalAttributes.created', 'IMT', 'Created')
+                        fieldLabel: Uni.I18n.translate('metrologyconfiguration.generalAttributes.created', 'IMT', 'Created'),
+                        renderer: function(value){
+                            if(!Ext.isEmpty(value)) {
+                                return Uni.DateTime.formatDateTimeLong(new Date(value));
+                            }
+                            return '-';
+                        }
                     },
                     {
                         name: 'updated',
                         itemId: 'fld-up-updated',
                         fieldLabel: Uni.I18n.translate('metrologyconfiguration.generalAttributes.lastUpdate', 'IMT', 'Last update'),
-                        renderer: function (value) {
-                            return value ? value : '-';
+                        renderer: function(value){
+                            if(!Ext.isEmpty(value)) {
+                                return Uni.DateTime.formatDateTimeLong(new Date(value));
+                            }
+                            return '-';
                         }
                     },
                     {
