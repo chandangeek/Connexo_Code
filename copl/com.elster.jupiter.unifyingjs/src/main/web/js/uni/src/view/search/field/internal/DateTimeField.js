@@ -1,6 +1,6 @@
-Ext.define('Uni.view.search.field.internal.DateLine', {
-    extend: 'Ext.panel.Panel',
-    xtype: 'uni-search-internal-dateline',
+Ext.define('Uni.view.search.field.internal.DateTimeField', {
+    extend: 'Ext.form.FieldContainer',
+    xtype: 'uni-search-internal-datetimefield',
     layout: 'hbox',
     requires: [
         'Uni.view.search.field.internal.Operator',
@@ -51,21 +51,6 @@ Ext.define('Uni.view.search.field.internal.DateLine', {
             "reset"
         );
 
-        me.lbar = {
-            itemId: 'filter-operator',
-            xtype: 'uni-search-internal-operator',
-            value: '==',
-            //margin: '0 5 0 0',
-            padding: 0,
-            operators: ['==', '!=', '>', '>=', '<', '<=', 'BETWEEN'],
-            listeners: {
-                change: {
-                    fn: me.onChange,
-                    scope: me
-                }
-            }
-        };
-
         me.items = [
             {
                 xtype: 'datefield',
@@ -114,38 +99,6 @@ Ext.define('Uni.view.search.field.internal.DateLine', {
             }
         ];
 
-        if (me.removable) {
-            me.rbar = {
-                width: 15,
-                items: {
-                    xtype: 'button',
-                    itemId: 'filter-clear',
-                    ui: 'plain',
-                    tooltip: Uni.I18n.translate('search.field.remove', 'UNI', 'Remove filter'),
-                    iconCls: ' icon-close4',
-                    hidden: true,
-                    style: {
-                        fontSize: '16px'
-                    },
-                    handler: me.onRemove,
-                    scope: me
-                }
-            };
-        }
-
-
         me.callParent(arguments);
-
-        if (me.removable) {
-            me.on('render', function() {
-                var button = me.down('#filter-clear');
-                me.getEl().on('mouseover', function () {
-                    button.setVisible(true);
-                });
-                me.getEl().on('mouseout', function () {
-                    button.setVisible(false);
-                });
-            });
-        }
     }
 });

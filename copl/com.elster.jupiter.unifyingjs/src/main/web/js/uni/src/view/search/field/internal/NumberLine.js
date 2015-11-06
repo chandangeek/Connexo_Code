@@ -20,7 +20,7 @@ Ext.define('Uni.view.search.field.internal.NumberLine', {
 
         return value ? Ext.create('Uni.model.search.Value', {
             operator: this.down('#filter-operator').getValue(),
-            criteria: this.down('#filter-input').getValue()
+            criteria: value
         }) : null
     },
 

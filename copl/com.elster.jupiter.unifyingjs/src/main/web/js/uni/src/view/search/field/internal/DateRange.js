@@ -1,11 +1,8 @@
-/**
- * @deprecated
- */
 Ext.define('Uni.view.search.field.internal.DateRange', {
-    extend: 'Ext.container.Container',
+    extend: 'Ext.form.FieldSet',
     xtype: 'uni-search-internal-daterange',
     requires: [
-        'Uni.view.search.field.internal.DateLine'
+        'Uni.view.search.field.internal.DateTimeField'
     ],
     layout: 'vbox',
     defaults: {
@@ -35,10 +32,8 @@ Ext.define('Uni.view.search.field.internal.DateRange', {
 
         me.items = [
             {
-                xtype: 'uni-search-internal-dateline',
+                xtype: 'uni-search-internal-datetimefield',
                 itemId: 'from',
-                isDefault: true,
-                operator: '>',
                 listeners: {
                     change: function(field) {
                         me.down('#to datefield').setMinValue(field.getValue());
@@ -50,10 +45,8 @@ Ext.define('Uni.view.search.field.internal.DateRange', {
                 }
             },
             {
-                xtype: 'uni-search-internal-dateline',
+                xtype: 'uni-search-internal-datetimefield',
                 itemId: 'to',
-                isDefault: true,
-                operator: '<',
                 listeners: {
                     change: function(field) {
                         me.down('#from datefield').setMaxValue(field.getValue());

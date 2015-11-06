@@ -2,7 +2,9 @@ Ext.define('Uni.view.search.field.DateTime', {
     extend: 'Uni.view.search.field.internal.CriteriaButton',
     xtype: 'uni-search-criteria-datetime',
     requires: [
-        'Uni.view.search.field.internal.DateLine'
+        'Uni.view.search.field.internal.CriteriaLine',
+        'Uni.view.search.field.internal.DateTimeField',
+        'Uni.view.search.field.internal.DateRange'
     ],
     text: Uni.I18n.translate('search.field.dateTime.text', 'UNI', 'DateTime'),
 
@@ -42,8 +44,9 @@ Ext.define('Uni.view.search.field.DateTime', {
 
     addRangeHandler: function () {
         var me = this;
-        me.down('menu').add({
-            xtype: 'uni-search-internal-dateline',
+
+        var criteriaLine = me.down('menu').add({
+            xtype: 'uni-search-internal-criterialine',
             operator: '=',
             removable: true,
             onRemove: function() {
@@ -59,31 +62,16 @@ Ext.define('Uni.view.search.field.DateTime', {
         });
     },
 
-    cleanup: function (menu) {
-        menu.items.each(function (item) {
-            if (item && item.removable && Ext.isEmpty(item.getValue())) {
-                menu.remove(item);
-            }
-        });
-    },
+    //cleanup: function (menu) {
+    //    menu.items.each(function (item) {
+    //        if (item && item.removable && Ext.isEmpty(item.getValue())) {
+    //            menu.remove(item);
+    //        }
+    //    });
+    //},
 
     initComponent: function () {
-        var me = this,
-            listeners = {
-                change: {
-                    fn: me.onInputChange,
-                    scope: me
-                }
-            };
-
-        me.items = [
-                {
-                    xtype: 'uni-search-internal-dateline',
-                    operator: '=',
-                    listeners: listeners
-                }
-            ]
-        ;
+        var me = this;
 
         me.menuConfig = {
             minWidth: 150,
@@ -132,6 +120,7 @@ Ext.define('Uni.view.search.field.DateTime', {
             ]
         };
 
-        this.callParent(arguments);
+        me.callParent(arguments);
+        me.addRangeHandler();
     }
 });
