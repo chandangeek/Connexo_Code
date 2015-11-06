@@ -79,7 +79,8 @@ Ext.define('Uni.view.search.field.Numeric', {
                 '>': 'uni-search-internal-numberfield',
                 '>=': 'uni-search-internal-numberfield',
                 '<': 'uni-search-internal-numberfield',
-                '<=': 'uni-search-internal-numberfield'
+                '<=': 'uni-search-internal-numberfield',
+                'BETWEEN': 'uni-search-internal-numberrange'
             },
             listeners: {
                 change: {

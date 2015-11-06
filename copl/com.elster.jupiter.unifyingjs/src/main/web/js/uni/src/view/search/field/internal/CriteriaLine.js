@@ -11,6 +11,7 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
         'Uni.view.search.field.internal.NumberField',
         'Uni.view.search.field.internal.DateTimeField',
         'Uni.view.search.field.internal.DateRange',
+        'Uni.view.search.field.internal.NumberRange',
         'Uni.view.search.field.internal.Operator',
         'Uni.model.search.Value'
     ],
@@ -28,7 +29,7 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
         '>=': 'uni-search-internal-numberfield',
         '<': 'uni-search-internal-numberfield',
         '<=': 'uni-search-internal-numberfield',
-        'BETWEEN': 'uni-search-internal-daterange'
+        'BETWEEN': 'uni-search-internal-numberrange'
     },
 
     onOperatorChange: function(operator, value, oldValue) {

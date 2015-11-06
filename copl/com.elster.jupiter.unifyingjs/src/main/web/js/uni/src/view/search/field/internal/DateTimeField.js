@@ -18,14 +18,10 @@ Ext.define('Uni.view.search.field.internal.DateTimeField', {
             date.setMinutes(this.down('#minutes').getValue());
         }
 
-        return date ? Ext.create('Uni.model.search.Value', {
-            operator: this.down('#filter-operator').getValue(),
-            criteria: date
-        }) : null;
+        return date.getTime();
     },
 
     reset: function() {
-        this.down('#filter-operator').reset();
         this.down('#date').reset();
         this.down('#hours').reset();
         this.down('#minutes').reset();

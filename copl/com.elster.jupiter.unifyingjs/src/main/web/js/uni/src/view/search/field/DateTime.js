@@ -2,11 +2,10 @@ Ext.define('Uni.view.search.field.DateTime', {
     extend: 'Uni.view.search.field.internal.CriteriaButton',
     xtype: 'uni-search-criteria-datetime',
     requires: [
-        'Uni.view.search.field.internal.CriteriaLine',
-        'Uni.view.search.field.internal.DateTimeField',
-        'Uni.view.search.field.internal.DateRange'
+        'Uni.view.search.field.internal.CriteriaLine'
     ],
     text: Uni.I18n.translate('search.field.dateTime.text', 'UNI', 'DateTime'),
+    menuConfig: {},
 
     getValue: function() {
         var value = [];
@@ -45,13 +44,31 @@ Ext.define('Uni.view.search.field.DateTime', {
     addRangeHandler: function () {
         var me = this;
 
-        var criteriaLine = me.down('menu').add({
+        me.down('menu').add(me.createCriteriaLine({
+            removable: true
+        }));
+    },
+
+    createCriteriaLine: function(config) {
+        var me = this;
+
+        return Ext.apply({
             xtype: 'uni-search-internal-criterialine',
-            operator: '=',
-            removable: true,
+            width: '455',
+            operator: '==',
+            removable: false,
             onRemove: function() {
                 me.menu.remove(this);
                 me.onInputChange();
+            },
+            operatorMap: {
+                '==': 'uni-search-internal-datetimefield',
+                '!=': 'uni-search-internal-datetimefield',
+                '>': 'uni-search-internal-datetimefield',
+                '>=': 'uni-search-internal-datetimefield',
+                '<': 'uni-search-internal-datetimefield',
+                '<=': 'uni-search-internal-datetimefield',
+                'BETWEEN': 'uni-search-internal-daterange'
             },
             listeners: {
                 change: {
@@ -59,21 +76,22 @@ Ext.define('Uni.view.search.field.DateTime', {
                     scope: me
                 }
             }
-        });
+        }, config)
     },
 
-    //cleanup: function (menu) {
-    //    menu.items.each(function (item) {
-    //        if (item && item.removable && Ext.isEmpty(item.getValue())) {
-    //            menu.remove(item);
-    //        }
-    //    });
-    //},
+    cleanup: function (menu) {
+        menu.items.each(function (item) {
+            if (item && item.removable && Ext.isEmpty(item.getValue())) {
+                menu.remove(item);
+            }
+        });
+    },
 
     initComponent: function () {
         var me = this;
 
-        me.menuConfig = {
+        me.items = me.createCriteriaLine();
+        Ext.apply(me.menuConfig, {
             minWidth: 150,
             defaults: {
                 margin: 0,
@@ -118,9 +136,8 @@ Ext.define('Uni.view.search.field.DateTime', {
                     ]
                 }
             ]
-        };
+        });
 
         me.callParent(arguments);
-        me.addRangeHandler();
     }
 });
