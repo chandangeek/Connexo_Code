@@ -135,6 +135,10 @@ public interface ImportSchedule {
 
     Instant getObsoleteTime();
 
+    default boolean isObsolete() {
+        return getObsoleteTime() != null;
+    }
+
     void setActive(Boolean active);
 
     boolean isDeleted();

@@ -1,5 +1,6 @@
 package com.elster.jupiter.fileimport.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.elster.jupiter.fileimport.ImportSchedule;
@@ -70,6 +71,8 @@ public class DefaultImportScheduleBuilderTest {
     private ValidatorFactory validatorFactory;
     @Mock
     private Validator validator;
+    @Mock
+    private EventService eventService;
     private FileSystem testFileSystem;
 
     @Before
@@ -87,7 +90,7 @@ public class DefaultImportScheduleBuilderTest {
         when(validatorFactory.getValidator()).thenReturn(validator);
         when(validator.validate(any(), anyVararg())).thenReturn(Collections.<ConstraintViolation<Object>>emptySet());
         when(dataModel.getInstance(ImportScheduleImpl.class)).thenReturn(
-                new ImportScheduleImpl(dataModel, fileImportService, messageService, scheduleExpressionParser, nameResolver, fileUtils,jsonService, thesaurus, testFileSystem));
+                new ImportScheduleImpl(dataModel, fileImportService, messageService, eventService, scheduleExpressionParser, nameResolver, fileUtils, jsonService, thesaurus, testFileSystem));
     }
 
     @After
