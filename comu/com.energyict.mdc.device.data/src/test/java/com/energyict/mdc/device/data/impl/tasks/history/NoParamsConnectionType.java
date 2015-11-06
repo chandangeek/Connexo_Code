@@ -9,9 +9,7 @@ import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.properties.PropertySpec;
 
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -50,11 +48,6 @@ public class NoParamsConnectionType implements ConnectionType {
     @Override
     public Optional<CustomPropertySet<ConnectionType, ? extends PersistentDomainExtension<ConnectionType>>> getCustomPropertySet() {
         return Optional.empty();
-    }
-
-    @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return Collections.emptyList();
     }
 
     @Override
