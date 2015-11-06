@@ -105,7 +105,7 @@ public abstract class AbstractDynamicSearchablePropertyTest {
         when(propertySpec.getName()).thenReturn(expected);
         SearchableProperty property = this.getTestInstance();
 
-        assertThat(property.getDisplayName()).isEqualTo(expected);
+        assertThat(property.getDisplayName()).startsWith(expected);
     }
 
     @Test

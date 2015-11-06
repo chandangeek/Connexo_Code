@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl.search;
 
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.And;
 import com.elster.jupiter.util.conditions.Comparison;
@@ -18,6 +19,7 @@ import com.elster.jupiter.util.conditions.Visitor;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
+import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -157,8 +159,9 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
             if (value instanceof HasId) {
                 HasId hasId = (HasId) value;
                 statement.setLong(bindPosition, hasId.getId());
-            }
-            else {
+            } else if (value instanceof TimeDuration){
+                new TimeDurationValueFactory().bind(statement, bindPosition, (TimeDuration) value);
+            } else {
                 statement.setObject(bindPosition, value);
             }
         }
