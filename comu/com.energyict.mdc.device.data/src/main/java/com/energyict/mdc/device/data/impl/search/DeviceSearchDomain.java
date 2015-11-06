@@ -143,6 +143,7 @@ public class DeviceSearchDomain implements SearchDomain {
         LogbookSearchablePropertyGroup logbookGroup = injector.getInstance(LogbookSearchablePropertyGroup.class);
         LoadProfileSearchablePropertyGroup loadProfileGroup = injector.getInstance(LoadProfileSearchablePropertyGroup.class);
         ComTaskSearchablePropertyGroup comTaskGroup = injector.getInstance(ComTaskSearchablePropertyGroup.class);
+        ConnectionSearchablePropertyGroup connectionGroup = injector.getInstance(ConnectionSearchablePropertyGroup.class);
         return Arrays.asList(
                 injector.getInstance(MasterResourceIdentifierSearchableProperty.class).init(this),
                 injector.getInstance(SerialNumberSearchableProperty.class).init(this),
@@ -176,7 +177,10 @@ public class DeviceSearchDomain implements SearchDomain {
                 injector.getInstance(LoadProfileNameSearchableProperty.class).init(this, loadProfileGroup),
                 injector.getInstance(ComTaskNameSearchableProperty.class).init(this, comTaskGroup),
                 injector.getInstance(ComTaskSecuritySettingSearchableProperty.class).init(this, comTaskGroup, deviceTypeSearchableProperty),
-                injector.getInstance(ComTaskConnectionMethodSearchableProperty.class).init(this, comTaskGroup)
+                injector.getInstance(ComTaskConnectionMethodSearchableProperty.class).init(this, comTaskGroup),
+                injector.getInstance(ConnectionNameSearchableProperty.class).init(this, connectionGroup),
+                injector.getInstance(ConnectionDirectionSearchableProperty.class).init(this, connectionGroup),
+                injector.getInstance(ConnectionCommunicationPortPoolSearchableProperty.class).init(this, connectionGroup)
         );
     }
 

@@ -18,6 +18,9 @@ import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -35,6 +38,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -84,6 +88,8 @@ public class DeviceSearchDomainTest {
     private MeteringService meteringService;
     @Mock
     private TaskService taskService;
+    @Mock
+    private EngineConfigurationService engineConfigurationService;
 
     private Injector injector;
 
@@ -124,6 +130,7 @@ public class DeviceSearchDomainTest {
         mockLogbookPropertySpecs();
         mockLoadProfilePropertySpecs();
         mockComTasks();
+        mockConnections();
     }
 
     @Test
@@ -186,6 +193,9 @@ public class DeviceSearchDomainTest {
         verify(this.dataModel).getInstance(ComTaskNameSearchableProperty.class);
         verify(this.dataModel).getInstance(ComTaskSecuritySettingSearchableProperty.class);
         verify(this.dataModel).getInstance(ComTaskConnectionMethodSearchableProperty.class);
+        verify(this.dataModel).getInstance(ConnectionNameSearchableProperty.class);
+        verify(this.dataModel).getInstance(ConnectionDirectionSearchableProperty.class);
+        verify(this.dataModel).getInstance(ConnectionCommunicationPortPoolSearchableProperty.class);
     }
 
     public void getPropertiesWithEmptyListOfConstrictions() {
@@ -506,6 +516,36 @@ public class DeviceSearchDomainTest {
         /** {@link #mockConnectionMethodPropertySpec()} */
     }
 
+    private void mockConnections() {
+
+        PropertySpec nameSpec = mock(PropertySpec.class);
+        when(nameSpec.getName()).thenReturn(ConnectionNameSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.basicPropertySpec(
+                eq(ConnectionNameSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                Matchers.<StringFactory>anyObject())).thenReturn(nameSpec);
+
+        PropertySpec directionSpec = mock(PropertySpec.class);
+        when(directionSpec.getName()).thenReturn(ConnectionDirectionSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.stringReferencePropertySpec(
+                eq(ConnectionDirectionSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                Matchers.anyObject(),
+                Matchers.anyVararg())).thenReturn(directionSpec);
+
+        InboundComPortPool mock = mock(InboundComPortPool.class);
+        List<ComPortPool> comPortPools = new ArrayList<>();
+        comPortPools.add(mock);
+        when(engineConfigurationService.findAllComPortPools()).thenReturn(comPortPools);
+        PropertySpec portPoolsSpec = mock(PropertySpec.class);
+        when(portPoolsSpec.getName()).thenReturn(ConnectionCommunicationPortPoolSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.referencePropertySpec(
+                eq(ConnectionCommunicationPortPoolSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                eq(FactoryIds.CONNECTION_TASK),
+                anyList())).thenReturn(portPoolsSpec);
+    }
+
     private DeviceSearchDomain getTestInstance() {
         return new DeviceSearchDomain(this.deviceDataModelService, this.clock, this.protocolPluggableService);
     }
@@ -526,6 +566,7 @@ public class DeviceSearchDomainTest {
                 bind(SchedulingService.class).toInstance(schedulingService);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(TaskService.class).toInstance(taskService);
+                bind(EngineConfigurationService.class).toInstance(engineConfigurationService);
             }
         };
     }
