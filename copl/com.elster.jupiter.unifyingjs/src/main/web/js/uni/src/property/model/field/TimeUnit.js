@@ -3,5 +3,5 @@
  */
 Ext.define('Uni.property.model.field.TimeUnit', {
     extend: 'Ext.data.Model',
-    fields: ['timeUnit']
+    fields: ['timeUnit', 'localizedValue', 'code']
 });
