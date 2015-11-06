@@ -16,17 +16,17 @@ import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link CustomPropertySet} interface
- * for the {@link InboundProximusSmsConnectionType}.
+ * for the {@link OutboundProximusSmsConnectionType}.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-11-04 (17:26)
+ * @since 2015-11-06 (12:03)
  */
-public class InboundProximusCustomPropertySet implements CustomPropertySet<ConnectionType, InboundProximusConnectionProperties> {
+public class OutboundProximusCustomPropertySet implements CustomPropertySet<ConnectionType, OutboundProximusConnectionProperties> {
 
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
 
-    public InboundProximusCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    public OutboundProximusCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super();
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
@@ -34,7 +34,7 @@ public class InboundProximusCustomPropertySet implements CustomPropertySet<Conne
 
     @Override
     public String getName() {
-        return this.thesaurus.getFormat(ProximusTranslationKeys.INBOUND_CUSTOM_PROPERTY_SET_NAME).format();
+        return this.thesaurus.getFormat(ProximusTranslationKeys.OUTBOUND_CUSTOM_PROPERTY_SET_NAME).format();
     }
 
     @Override
@@ -43,8 +43,8 @@ public class InboundProximusCustomPropertySet implements CustomPropertySet<Conne
     }
 
     @Override
-    public PersistenceSupport<ConnectionType, InboundProximusConnectionProperties> getPersistenceSupport() {
-        return new InboundProximusConnectionPropertiesPersistenceSupport();
+    public PersistenceSupport<ConnectionType, OutboundProximusConnectionProperties> getPersistenceSupport() {
+        return new OutboundProximusConnectionPropertiesPersistenceSupport();
     }
 
     @Override
@@ -69,8 +69,8 @@ public class InboundProximusCustomPropertySet implements CustomPropertySet<Conne
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
-        EnumSet<InboundProximusConnectionProperties.Fields> fields = EnumSet.allOf(InboundProximusConnectionProperties.Fields.class);
-        fields.remove(InboundProximusConnectionProperties.Fields.CONNECTION_TYPE);
+        EnumSet<OutboundProximusConnectionProperties.Fields> fields = EnumSet.allOf(OutboundProximusConnectionProperties.Fields.class);
+        fields.remove(OutboundProximusConnectionProperties.Fields.CONNECTION_TYPE);
         return fields.stream()
                 .map(prop -> prop.propertySpec(this.propertySpecService))
                 .collect(Collectors.toList());

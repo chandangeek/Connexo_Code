@@ -12,12 +12,12 @@ import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link PersistenceSupport} interface
- * to support the persistence of {@link InboundProximusConnectionProperties}.
+ * to support the persistence of {@link OutboundProximusConnectionProperties}.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-11-05 (17:43)
+ * @since 2015-11-06 (12:01)
  */
-public class InboundProximusConnectionPropertiesPersistenceSupport implements PersistenceSupport<ConnectionType, InboundProximusConnectionProperties> {
+public class OutboundProximusConnectionPropertiesPersistenceSupport implements PersistenceSupport<ConnectionType, OutboundProximusConnectionProperties> {
 
     @Override
     public String componentName() {
@@ -26,27 +26,27 @@ public class InboundProximusConnectionPropertiesPersistenceSupport implements Pe
 
     @Override
     public String tableName() {
-        return DeviceProtocolService.COMPONENT_NAME + "_PROXIMUS_SMS_IN_CT";
+        return DeviceProtocolService.COMPONENT_NAME + "_PROXIMUS_SMS_OUT_CT";
     }
 
     @Override
     public String domainFieldName() {
-        return InboundProximusConnectionProperties.Fields.CONNECTION_TYPE.javaName();
+        return OutboundProximusConnectionProperties.Fields.CONNECTION_TYPE.javaName();
     }
 
     @Override
     public String domainColumnName() {
-        return InboundProximusConnectionProperties.Fields.CONNECTION_TYPE.databaseName();
+        return OutboundProximusConnectionProperties.Fields.CONNECTION_TYPE.databaseName();
     }
 
     @Override
     public String domainForeignKeyName() {
-        return "FK_PR1_PROXIMUS_SMS_IN_CT";
+        return "FK_PR1_PROXIMUS_SMS_OUT_CT";
     }
 
     @Override
-    public Class<InboundProximusConnectionProperties> persistenceClass() {
-        return InboundProximusConnectionProperties.class;
+    public Class<OutboundProximusConnectionProperties> persistenceClass() {
+        return OutboundProximusConnectionProperties.class;
     }
 
     @Override
@@ -57,11 +57,11 @@ public class InboundProximusConnectionPropertiesPersistenceSupport implements Pe
     @Override
     public void addCustomPropertyColumnsTo(Table table) {
         Stream
-            .of(InboundProximusConnectionProperties.Fields.values())
+            .of(OutboundProximusConnectionProperties.Fields.values())
             .forEach(fieldName -> this.addCustomPropertyColumnTo(table, fieldName));
     }
 
-    private void addCustomPropertyColumnTo(Table table, InboundProximusConnectionProperties.Fields fieldName) {
+    private void addCustomPropertyColumnTo(Table table, OutboundProximusConnectionProperties.Fields fieldName) {
         table
             .column(fieldName.databaseName())
             .varChar()

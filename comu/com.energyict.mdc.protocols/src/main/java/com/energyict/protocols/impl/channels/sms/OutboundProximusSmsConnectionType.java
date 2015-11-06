@@ -1,20 +1,20 @@
 package com.energyict.protocols.impl.channels.sms;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 
 import javax.inject.Inject;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -26,58 +26,34 @@ import java.util.Set;
  */
 public class OutboundProximusSmsConnectionType extends ConnectionTypeImpl {
 
-    public static final String PHONE_NUMBER_PROPERTY_NAME = "SMS_phoneNumber";
-    public static final String CONNECTION_URL_PROPERTY_NAME = "API_connectionURL";
-    public static final String SOURCE_PROPERTY_NAME = "API_source";
-    public static final String AUTHENTICATION_PROPERTY_NAME = "API_authentication";
-    public static final String SERVICE_CODE_PROPERTY_NAME = "API_serviceCode";
-
     private final PropertySpecService propertySpecService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public OutboundProximusSmsConnectionType(PropertySpecService propertySpecService) {
+    public OutboundProximusSmsConnectionType(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
         this.propertySpecService = propertySpecService;
+        this.thesaurus = thesaurus;
     }
 
-    private PropertySpec phoneNumberPropertySpec() {
-        return this.propertySpecService.basicPropertySpec(PHONE_NUMBER_PROPERTY_NAME, true, new StringFactory());
+    private String phoneNumberPropertyValue() {
+        return (String) this.getProperty(OutboundProximusConnectionProperties.Fields.PHONE_NUMBER.javaName());
     }
 
-    protected String phoneNumberPropertyValue() {
-        return (String) this.getProperty(PHONE_NUMBER_PROPERTY_NAME);
+    private String connectionURLPropertyValue() {
+        return (String) this.getProperty(OutboundProximusConnectionProperties.Fields.CONNECTION_URL.javaName());
     }
 
-    private PropertySpec connectionURLPropertySpec() {
-        return this.propertySpecService.basicPropertySpec(CONNECTION_URL_PROPERTY_NAME, true, new StringFactory());
+    private String sourcePropertyValue() {
+        return (String) this.getProperty(OutboundProximusConnectionProperties.Fields.SOURCE.javaName());
     }
 
-    protected String connectionURLPropertyValue() {
-        return (String) this.getProperty(CONNECTION_URL_PROPERTY_NAME);
+    private String authenticationPropertyValue() {
+        return (String) this.getProperty(OutboundProximusConnectionProperties.Fields.AUTHENTICATION.javaName());
     }
 
-    private PropertySpec sourcePropertySpec() {
-        return this.propertySpecService.basicPropertySpec(SOURCE_PROPERTY_NAME, true, new StringFactory());
-    }
-
-    protected String sourcePropertyValue() {
-        return (String) this.getProperty(SOURCE_PROPERTY_NAME);
-    }
-
-    private PropertySpec authenticationPropertySpec() {
-        return this.propertySpecService.basicPropertySpec(AUTHENTICATION_PROPERTY_NAME, true, new StringFactory());
-    }
-
-    protected String authenticationPropertyValue() {
-        return (String) this.getProperty(AUTHENTICATION_PROPERTY_NAME);
-    }
-
-    private PropertySpec serviceCodePropertySpec() {
-        return this.propertySpecService.basicPropertySpec(SERVICE_CODE_PROPERTY_NAME, true, new StringFactory());
-    }
-
-    protected String serviceCodePropertyValue() {
-        return (String) this.getProperty(SERVICE_CODE_PROPERTY_NAME);
+    private String serviceCodePropertyValue() {
+        return (String) this.getProperty(OutboundProximusConnectionProperties.Fields.SERVICE_CODE.javaName());
     }
 
     @Override
@@ -97,11 +73,7 @@ public class OutboundProximusSmsConnectionType extends ConnectionTypeImpl {
 
     @Override
     public ComChannel connect (List<ConnectionProperty> properties) throws ConnectionException {
-        for (ConnectionProperty property : properties) {
-            if (property.getValue() != null) {
-                this.setProperty(property.getName(), property.getValue());
-            }
-        }
+        this.copyProperties(properties);
         return new ProximusSmsComChannel(
                 this.phoneNumberPropertyValue(),
                 this.connectionURLPropertyValue(),
@@ -110,20 +82,29 @@ public class OutboundProximusSmsConnectionType extends ConnectionTypeImpl {
                 this.serviceCodePropertyValue());
     }
 
+    private void copyProperties(List<ConnectionProperty> properties) {
+        properties
+            .stream()
+            .filter(this::hasValue)
+            .forEach(this::copyProperty);
+    }
+
+    private boolean hasValue(ConnectionProperty property) {
+        return property.getName() != null;
+    }
+
+    private void copyProperty(ConnectionProperty property) {
+        this.setProperty(property.getName(), property.getValue());
+    }
+
     @Override
     public void disconnect(ComChannel comChannel) throws ConnectionException {
         // No explicit disconnect for OutboundProximusSmsConnectionType
     }
 
     @Override
-    @Obsolete
-    public List<PropertySpec> getPropertySpecs () {
-        return Arrays.asList(
-                this.phoneNumberPropertySpec(),
-                this.connectionURLPropertySpec(),
-                this.sourcePropertySpec(),
-                this.authenticationPropertySpec(),
-                this.serviceCodePropertySpec());
+    public Optional<CustomPropertySet<ConnectionType, ? extends PersistentDomainExtension<ConnectionType>>> getCustomPropertySet() {
+        return Optional.of(new OutboundProximusCustomPropertySet(this.thesaurus, this.propertySpecService));
     }
 
     @Override

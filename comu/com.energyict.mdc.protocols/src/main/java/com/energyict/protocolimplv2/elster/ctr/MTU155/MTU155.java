@@ -1,5 +1,8 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -39,14 +42,6 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.events.CTRMeterEvent;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
-import com.energyict.protocolimplv2.elster.ctr.MTU155.messaging.Messaging;
-import com.energyict.protocolimplv2.security.Mtu155SecuritySupport;
 import com.energyict.protocols.impl.channels.ip.CTRInboundDialHomeIdConnectionType;
 import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
@@ -55,6 +50,11 @@ import com.energyict.protocols.impl.channels.sms.OutboundProximusSmsConnectionTy
 import com.energyict.protocols.impl.channels.sms.ProximusSmsComChannel;
 import com.energyict.protocols.mdc.protocoltasks.CTRDeviceProtocolDialect;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+
+import com.energyict.protocolimplv2.elster.ctr.MTU155.events.CTRMeterEvent;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
+import com.energyict.protocolimplv2.elster.ctr.MTU155.messaging.Messaging;
+import com.energyict.protocolimplv2.security.Mtu155SecuritySupport;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -465,7 +465,7 @@ public class MTU155 implements DeviceProtocol {
         List<ConnectionType> connectionTypes = new ArrayList<>();
         connectionTypes.add(new CTRInboundDialHomeIdConnectionType(getPropertySpecService()));
         connectionTypes.add(new InboundProximusSmsConnectionType(getPropertySpecService(), thesaurus));
-        connectionTypes.add(new OutboundProximusSmsConnectionType(getPropertySpecService()));
+        connectionTypes.add(new OutboundProximusSmsConnectionType(getPropertySpecService(), thesaurus));
         connectionTypes.add(new SioOpticalConnectionType(getSerialComponentService(), this.thesaurus));
         connectionTypes.add(new RxTxOpticalConnectionType(getSerialComponentService(), this.thesaurus));
         return connectionTypes;

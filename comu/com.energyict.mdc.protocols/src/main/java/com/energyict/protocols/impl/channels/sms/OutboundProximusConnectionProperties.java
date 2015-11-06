@@ -16,12 +16,12 @@ import javax.validation.constraints.Size;
 
 /**
  * Provides an implementation for the {@link PersistentDomainExtension} interface
- * for the {@link InboundProximusSmsConnectionType}.
+ * for the {@link OutboundProximusSmsConnectionType}.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-11-04 (17:26)
+ * @since 2015-11-06 (11:36)
  */
-public class InboundProximusConnectionProperties implements PersistentDomainExtension<ConnectionType> {
+public class OutboundProximusConnectionProperties implements PersistentDomainExtension<ConnectionType> {
 
     public enum Fields {
         CONNECTION_TYPE {
@@ -46,15 +46,48 @@ public class InboundProximusConnectionProperties implements PersistentDomainExte
                 return "PHONENUMBER";
             }
         },
-        CALL_HOME_ID {
+        SOURCE {
             @Override
             public String javaName() {
-                return "callHomeId";
+                return "source";
             }
 
             @Override
             public String databaseName() {
-                return "CALLHOMEID";
+                return "SOURCE";
+            }
+        },
+        AUTHENTICATION {
+            @Override
+            public String javaName() {
+                return "authentication";
+            }
+
+            @Override
+            public String databaseName() {
+                return "AUTHENTICATION";
+            }
+        },
+        SERVICE_CODE {
+            @Override
+            public String javaName() {
+                return "serviceCode";
+            }
+
+            @Override
+            public String databaseName() {
+                return "SERVICECODE";
+            }
+        },
+        CONNECTION_URL {
+            @Override
+            public String javaName() {
+                return "connectionUrl";
+            }
+
+            @Override
+            public String databaseName() {
+                return "CONNECTIONURL";
             }
         };
 
@@ -77,19 +110,34 @@ public class InboundProximusConnectionProperties implements PersistentDomainExte
     private String phoneNumber;
     @NotEmpty
     @Size(max = Table.MAX_STRING_LENGTH)
-    private String callHomeId;
+    private String connectionUrl;
+    @NotEmpty
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String source;
+    @NotEmpty
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String authentication;
+    @NotEmpty
+    @Size(max = Table.MAX_STRING_LENGTH)
+    private String serviceCode;
 
     @Override
     public void copyFrom(ConnectionType connectionType, CustomPropertySetValues propertyValues) {
         this.connectionType.set(connectionType);
         this.phoneNumber = (String) propertyValues.getProperty(DeviceProtocolProperty.PHONE_NUMBER.javaFieldName());
-        this.callHomeId = (String) propertyValues.getProperty(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName());
+        this.connectionUrl = (String) propertyValues.getProperty(Fields.CONNECTION_URL.javaName());
+        this.source = (String) propertyValues.getProperty(Fields.SOURCE.javaName());
+        this.authentication = (String) propertyValues.getProperty(Fields.AUTHENTICATION.javaName());
+        this.serviceCode = (String) propertyValues.getProperty(Fields.SERVICE_CODE.javaName());
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues) {
         propertySetValues.setProperty(DeviceProtocolProperty.PHONE_NUMBER.javaFieldName(), this.phoneNumber);
-        propertySetValues.setProperty(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), this.callHomeId);
+        propertySetValues.setProperty(Fields.CONNECTION_URL.javaName(), this.connectionUrl);
+        propertySetValues.setProperty(Fields.SOURCE.javaName(), this.source);
+        propertySetValues.setProperty(Fields.AUTHENTICATION.javaName(), this.authentication);
+        propertySetValues.setProperty(Fields.SERVICE_CODE.javaName(), this.serviceCode);
     }
 
 }
