@@ -81,13 +81,14 @@ public enum SearchablePropertyOperator {
     },
     BETWEEN("BETWEEN") {
         @Override
-        protected void appendList(SearchableProperty searchableProperty, SearchBuilder.CriterionBuilder<?> criterionBuilder, List<Object> values) throws InvalidValueException {
-            if (values.size() != 2){ // min and max value
+        public void appendCriteria(SearchableProperty searchableProperty, SearchBuilder.CriterionBuilder<?> criterionBuilder, List<Object> values) throws InvalidValueException {
+            if (values == null || values.size() != 2){ // min and max value
                 throw new InvalidValueException(MessageSeeds.INVALID_VALUE.getKey(), MessageSeeds.INVALID_VALUE.getDefaultFormat(), searchableProperty.getName());
             }
             criterionBuilder.isBetween(values.get(0), values.get(1));
         }
-    },;
+    },
+    ;
 
     private String code;
 
