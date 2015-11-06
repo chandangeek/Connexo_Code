@@ -58,16 +58,28 @@ Ext.define('InsightApp.controller.Main', {
                     href: '#/usagepoints/add',
                     itemId: 'add-usagepoints'
                 },
-                {
-                    text: Uni.I18n.translate('general.usagePointAdd', 'IMT', 'Metrology Configurations'),
-                    href: '#/metrologyconfiguration/overview',
-                    itemId: 'overview-metrologyconfiguration'
-                }
             ]
         });
 
         Uni.store.PortalItems.add(
             portalItem1
+        );
+        
+        var portalItem2 = Ext.create('Uni.model.PortalItem', {
+            title: Uni.I18n.translate('general.metrologyconfiguration', 'IMT', 'Metrology configuration'),
+            portal: 'administration',
+            items: [
+                {
+                    text: Uni.I18n.translate('general.metrologyconfiguration', 'IMT', 'Metrology configuration'),
+                    href: '#/metrologyconfiguration/overview',
+                    itemId: 'overview-metrologyconfiguration'
+                },
+            ]
+        });
+
+
+        Uni.store.PortalItems.add(
+            portalItem2
         );
     }
 });
