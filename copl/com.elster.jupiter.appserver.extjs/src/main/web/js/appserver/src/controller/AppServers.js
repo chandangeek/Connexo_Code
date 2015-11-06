@@ -1009,13 +1009,10 @@ Ext.define('Apr.controller.AppServers', {
                 me.getController('Uni.controller.history.Router').getRoute('administration/appservers/overview/messageservices').forward({appServerName: record.get('name')});
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('appServers.saveSuccessMsg', 'APR', 'Application server saved'));
             },
-            failure: function (record, operation) {
-                me.getAddPage().setLoading(false);
-                formErrorsPanel.show();
-                var json = Ext.decode(operation.response.responseText);
-                if (json && json.errors) {
-                    form.getForm().markInvalid(json.errors);
-                }
+            failure: function (response, operation) {
+                var errorText = Uni.I18n.translate('appServers.error.unknown', 'APR', 'Unknown error occurred');
+                var titleText =  Uni.I18n.translate('appServers.save.operation.failed', 'APR', 'Save operation failed')
+                me.getApplication().getController('Uni.controller.Error').showError(titleText, errorText);
             }
         });
     },

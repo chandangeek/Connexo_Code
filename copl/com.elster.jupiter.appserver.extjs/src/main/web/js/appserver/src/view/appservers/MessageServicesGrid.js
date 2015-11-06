@@ -64,6 +64,7 @@ Ext.define('Apr.view.appservers.MessageServicesGrid', {
             me.columns[1].editor = {
                 xtype: 'combobox',
                 allowBlank: false,
+                editable: false,
                 displayField: 'displayName',
                 valueField: 'active',
                 queryMode: 'local',
