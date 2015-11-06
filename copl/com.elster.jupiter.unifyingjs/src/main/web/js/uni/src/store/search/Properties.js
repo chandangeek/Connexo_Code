@@ -27,7 +27,7 @@ Ext.define('Uni.store.search.Properties', {
                 if (    !(o1.get('constraints') && o1.get('constraints').length)
                     &&  !(o2.get('constraints') && o2.get('constraints').length)
                 ) {
-                    return 0;
+                    return o1.get('displayValue') < o2.get('displayValue') ? -1 : 1;
                 }
                 if (o1.get('constraints').length) {
                     if (o1.get('constraints').indexOf(o2.get('name')) >= 0) {
@@ -41,13 +41,8 @@ Ext.define('Uni.store.search.Properties', {
                     }
                 }
 
-                return 0;
+                return o1.get('displayValue') < o2.get('displayValue') ? -1 : 1;
             }
         }
-        //{
-        //    sorterFn: function (o1, o2) {
-        //        return o1.get('displayValue') < o2.get('displayValue') ? -1 : 1;
-        //    }
-        //}
     ]
 });

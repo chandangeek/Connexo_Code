@@ -138,7 +138,8 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
     },
 
     onStoreLoad: function (store) {
-        var me = this;
+        var me = this,
+            groups;
         me.setDisabled(!store.count());
         Ext.suspendLayouts();
         me.menu.removeAll();
@@ -152,7 +153,13 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
                 }
             });
 
-            store.getGroups().map(function(group) {
+            groups = store.getGroups();
+            _.sortBy(groups, function (item) {
+                var group = item.children[0].get('group');
+
+                return group.displayValue || group;
+            });
+            groups.map(function(group) {
                 var items = [];
 
                 group.children.map(function(item) {

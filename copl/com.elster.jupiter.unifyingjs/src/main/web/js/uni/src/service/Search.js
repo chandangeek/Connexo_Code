@@ -55,7 +55,7 @@ Ext.define('Uni.service.Search', {
     criteriaMap: {
         'Boolean':      'uni-search-criteria-boolean',
         'Instant':      'uni-search-criteria-datetime',
-        'TimeDuration': 'uni-search-criteria-datetime',
+        'TimeDuration': 'uni-search-criteria-timeduration',
         'BigDecimal':   'uni-search-criteria-numeric',
         'Selection':    'uni-search-criteria-selection'
     },
@@ -167,6 +167,7 @@ Ext.define('Uni.service.Search', {
     init: function() {
         var me = this;
 
+        Ext.getStore('Uni.property.store.TimeUnits').load();
         me.initStoreListeners();
         Ext.suspendLayouts();
 
