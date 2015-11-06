@@ -22,7 +22,7 @@ Ext.define('Apr.view.taskoverview.TaskFilter', {
             multiSelect: true,
             displayField: 'queue',
             valueField: 'queue',
-            store: 'Apr.store.Applications'
+            store: 'Apr.store.Queues'
             //   hidden: !me.includeServiceCombo
         },
         {

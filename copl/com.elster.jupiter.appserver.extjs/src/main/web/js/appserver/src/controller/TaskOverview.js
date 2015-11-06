@@ -8,11 +8,13 @@ Ext.define('Apr.controller.TaskOverview', {
     ],
     stores: [
         'Apr.store.Tasks',
-        'Apr.store.Applications'
+        'Apr.store.Applications',
+        'Apr.store.Queues'
     ],
     models: [
         'Apr.model.Task',
-        'Apr.model.Application'
+        'Apr.model.Application',
+        'Apr.model.Queue'
     ],
     refs: [
         {

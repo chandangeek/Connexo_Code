@@ -1,34 +1,33 @@
-Ext.define('Apr.store.Applications', {
+Ext.define('Apr.store.Queues', {
     extend: 'Ext.data.Store',
-    model: 'Apr.model.Application',
+    model: 'Apr.model.Queue',
     autoLoad: false,
     /*data: {
-        applications: [
+        queues: [
             {
-                application: 'app111'
+                queue: 'queue1'
             },
             {
-                application: 'app222'
+                queue: 'queue2'
             }
         ]
-    },*/
+    },
 
 
-    /*proxy: {
+    proxy: {
         type: 'memory',
         reader: {
             type: 'json',
-            root: 'applications'
+            root: 'queues'
         }
     }*/
 
     proxy: {
         type: 'rest',
-        url: '/api/tsk/task/applications',
+        url: '/api/tsk/task/queues',
         reader: {
             type: 'json',
-            root: 'applications'
+            root: 'queues'
         }
     }
-
 });
