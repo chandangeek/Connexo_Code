@@ -18,6 +18,7 @@ import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -84,6 +85,8 @@ public class DeviceSearchDomainTest {
     private MeteringService meteringService;
     @Mock
     private TaskService taskService;
+    @Mock
+    private MasterDataService masterDataService;
 
     private Injector injector;
 
@@ -452,12 +455,13 @@ public class DeviceSearchDomainTest {
                 eq(false),
                 Matchers.anyObject(),
                 Matchers.anyVararg())).thenReturn(unitOfMeasure);
-        PropertySpec channelInterval = mock(PropertySpec.class);
-        when(channelInterval.getName()).thenReturn(ChannelIntervalSearchableProperty.PROPERTY_NAME);
-        when(this.propertySpecService.longPropertySpec( // TODO change to the actual spec builder
+        PropertySpec channelIntervalSpec = mock(PropertySpec.class);
+        when(channelIntervalSpec.getName()).thenReturn(ChannelIntervalSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.stringReferencePropertySpec(
                 eq(ChannelIntervalSearchableProperty.PROPERTY_NAME),
                 eq(false),
-                anyLong())).thenReturn(channelInterval);
+                Matchers.anyObject(),
+                Matchers.anyVararg())).thenReturn(channelIntervalSpec);
     }
 
     private void mockLogbookPropertySpecs() {
@@ -533,6 +537,7 @@ public class DeviceSearchDomainTest {
                 bind(SchedulingService.class).toInstance(schedulingService);
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(TaskService.class).toInstance(taskService);
+                bind(MasterDataService.class).toInstance(masterDataService);
             }
         };
     }
