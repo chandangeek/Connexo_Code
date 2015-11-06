@@ -160,12 +160,12 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
             if (value instanceof HasId) {
                 HasId hasId = (HasId) value;
                 statement.setLong(bindPosition, hasId.getId());
-            } else if (value instanceof HasIdAndName){
+            } else if (value instanceof HasIdAndName) {
                 HasIdAndName hasId = (HasIdAndName) value;
                 statement.setObject(bindPosition, hasId.getId());
-            }  else if (value instanceof TimeDuration){
-            new TimeDurationValueFactory().bind(statement, bindPosition, (TimeDuration) value);
-        } else {
+            } else if (value instanceof TimeDuration) {
+                new TimeDurationValueFactory().bind(statement, bindPosition, (TimeDuration) value);
+            } else {
                 statement.setObject(bindPosition, value);
             }
         }
