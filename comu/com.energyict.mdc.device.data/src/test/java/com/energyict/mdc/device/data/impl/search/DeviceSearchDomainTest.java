@@ -190,6 +190,7 @@ public class DeviceSearchDomainTest {
         verify(this.dataModel).getInstance(LogbookNameSearchableProperty.class);
         verify(this.dataModel).getInstance(LogbookObisCodeSearchableProperty.class);
         verify(this.dataModel).getInstance(LoadProfileNameSearchableProperty.class);
+        verify(this.dataModel).getInstance(LoadProfileLastReadingSearchableProperty.class);
         verify(this.dataModel).getInstance(ComTaskNameSearchableProperty.class);
         verify(this.dataModel).getInstance(ComTaskSecuritySettingSearchableProperty.class);
         verify(this.dataModel).getInstance(ComTaskConnectionMethodSearchableProperty.class);
@@ -492,6 +493,12 @@ public class DeviceSearchDomainTest {
                 eq(LoadProfileNameSearchableProperty.PROPERTY_NAME),
                 eq(false),
                 Matchers.<StringFactory>anyObject())).thenReturn(nameSpec);
+        PropertySpec lastReadingSpec = mock(PropertySpec.class);
+        when(lastReadingSpec.getName()).thenReturn(LoadProfileLastReadingSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.basicPropertySpec(
+                eq(LoadProfileLastReadingSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                Matchers.<StringFactory>anyObject())).thenReturn(lastReadingSpec);
     }
 
     private void mockComTasks() {
