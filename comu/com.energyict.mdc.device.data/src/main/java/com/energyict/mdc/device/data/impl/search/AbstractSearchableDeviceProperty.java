@@ -165,6 +165,8 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
                 statement.setObject(bindPosition, hasId.getId());
             } else if (value instanceof TimeDuration) {
                 new TimeDurationValueFactory().bind(statement, bindPosition, (TimeDuration) value);
+            } else if (value instanceof Instant){
+                statement.setLong(bindPosition, ((Instant) value).toEpochMilli());
             } else {
                 statement.setObject(bindPosition, value);
             }
