@@ -1,17 +1,11 @@
 package com.energyict.protocols.impl.channels.ip;
 
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.TimeDurationValueFactory;
-
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Groups common behavior for outbound IP related connectionTypes.
@@ -22,44 +16,35 @@ import java.util.List;
  */
 public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
 
-    public static final String HOST_PROPERTY_NAME = "host";
-    public static final String PORT_PROPERTY_NAME = "portNumber";
-    public static final String CONNECTION_TIMEOUT_PROPERTY_NAME = "connectionTimeout";
     private static final TimeDuration DEFAULT_CONNECTION_TIMEOUT = TimeDuration.seconds(10);
 
     private final PropertySpecService propertySpecService;
+    private final Thesaurus thesaurus;
 
-    public OutboundIpConnectionType(PropertySpecService propertySpecService) {
+    public OutboundIpConnectionType(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
         this.propertySpecService = propertySpecService;
+        this.thesaurus = thesaurus;
+    }
+
+    protected Thesaurus getThesaurus() {
+        return thesaurus;
     }
 
     protected PropertySpecService getPropertySpecService() {
         return propertySpecService;
     }
 
-    private PropertySpec hostPropertySpec() {
-        return this.propertySpecService.basicPropertySpec(HOST_PROPERTY_NAME, true, new StringFactory());
-    }
-
     protected String hostPropertyValue() {
-        return (String) this.getProperty(HOST_PROPERTY_NAME);
-    }
-
-    private PropertySpec portNumberPropertySpec() {
-        return this.getPropertySpecService().basicPropertySpec(PORT_PROPERTY_NAME, true, new BigDecimalFactory());
-    }
-
-    private PropertySpec connectionTimeOutPropertySpec() {
-        return  this.getPropertySpecService().basicPropertySpec(CONNECTION_TIMEOUT_PROPERTY_NAME, false, new TimeDurationValueFactory());
+        return (String) this.getProperty(OutboundIpConnectionProperties.Fields.HOST.javaName());
     }
 
     protected int portNumberPropertyValue() {
-        return intProperty((BigDecimal) getProperty(PORT_PROPERTY_NAME));
+        return intProperty((BigDecimal) getProperty(OutboundIpConnectionProperties.Fields.PORT.javaName()));
     }
 
     protected int connectionTimeOutPropertyValue() {
-        TimeDuration value = (TimeDuration) this.getProperty(CONNECTION_TIMEOUT_PROPERTY_NAME, DEFAULT_CONNECTION_TIMEOUT);
+        TimeDuration value = (TimeDuration) this.getProperty(OutboundIpConnectionProperties.Fields.CONNECTION_TIMEOUT.javaName(), DEFAULT_CONNECTION_TIMEOUT);
         return this.intProperty(value);
     }
 
@@ -79,15 +64,6 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
         else {
             return (int) value.getMilliSeconds();
         }
-    }
-
-    @Override
-    @Obsolete
-    public List<PropertySpec> getPropertySpecs() {
-        return Arrays.asList(
-                this.hostPropertySpec(),
-                this.portNumberPropertySpec(),
-                this.connectionTimeOutPropertySpec());
     }
 
     @Override

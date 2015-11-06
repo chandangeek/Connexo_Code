@@ -58,16 +58,7 @@ public class InboundProximusConnectionPropertiesPersistenceSupport implements Pe
     public void addCustomPropertyColumnsTo(Table table) {
         Stream
             .of(InboundProximusConnectionProperties.Fields.values())
-            .forEach(fieldName -> this.addCustomPropertyColumnTo(table, fieldName));
-    }
-
-    private void addCustomPropertyColumnTo(Table table, InboundProximusConnectionProperties.Fields fieldName) {
-        table
-            .column(fieldName.databaseName())
-            .varChar()
-            .notNull()
-            .map(fieldName.javaName())
-            .add();
+            .forEach(fieldName -> fieldName.addTo(table));
     }
 
 }

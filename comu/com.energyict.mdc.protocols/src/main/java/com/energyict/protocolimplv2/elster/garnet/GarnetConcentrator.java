@@ -1,5 +1,8 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
@@ -33,20 +36,17 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.elster.garnet.common.TopologyMaintainer;
-import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
-import com.energyict.protocolimplv2.elster.garnet.structure.ConcentratorVersionResponseStructure;
 import com.energyict.protocols.exception.UnsupportedMethodException;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.protocols.impl.channels.serial.direct.rxtx.RxTxPlainSerialConnectionType;
 import com.energyict.protocols.impl.channels.serial.direct.serialio.SioPlainSerialConnectionType;
 import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+
+import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.elster.garnet.common.TopologyMaintainer;
+import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
+import com.energyict.protocolimplv2.elster.garnet.structure.ConcentratorVersionResponseStructure;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -119,7 +119,7 @@ public class GarnetConcentrator implements DeviceProtocol {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         return Arrays.asList(
-                new OutboundTcpIpConnectionType(getPropertySpecService(), getSocketService()),
+                new OutboundTcpIpConnectionType(this.thesaurus, getPropertySpecService(), getSocketService()),
                 new SioPlainSerialConnectionType(getSerialComponentService(), this.thesaurus),
                 new RxTxPlainSerialConnectionType(getSerialComponentService(), this.thesaurus));
     }

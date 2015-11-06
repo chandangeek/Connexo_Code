@@ -1,5 +1,8 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.idis;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
@@ -32,9 +35,9 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
+import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
 
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.dlms.cosem.SAPAssignmentItem;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.events.IDISGatewayEvents;
@@ -43,8 +46,6 @@ import com.energyict.protocolimplv2.eict.rtuplusserver.idis.properties.IDISGatew
 import com.energyict.protocolimplv2.eict.rtuplusserver.idis.registers.IDISGatewayRegisters;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
-import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
-import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -72,6 +73,7 @@ public class RtuPlusServer implements DeviceProtocol {
     private IDISGatewayRegisters idisGatewayRegisters;
     private IDISGatewayDynamicPropertySupportSupport dynamicPropertySupport;
 
+    private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
     private final SocketService socketService;
     private final IssueService issueService;
@@ -81,9 +83,11 @@ public class RtuPlusServer implements DeviceProtocol {
     private final Provider<DsmrSecuritySupport> dmsrSecuritySupportProvider;
 
     @Inject
-    public RtuPlusServer(PropertySpecService propertySpecService, SocketService socketService, IssueService issueService,
-                         IdentificationService identificationService, CollectedDataFactory collectedDataFactory,
-                         MeteringService meteringService, Provider<DsmrSecuritySupport> dmsrSecuritySupportProvider) {
+    public RtuPlusServer(
+            Thesaurus thesaurus, PropertySpecService propertySpecService, SocketService socketService, IssueService issueService,
+            IdentificationService identificationService, CollectedDataFactory collectedDataFactory,
+            MeteringService meteringService, Provider<DsmrSecuritySupport> dmsrSecuritySupportProvider) {
+        this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         this.socketService = socketService;
         this.issueService = issueService;
@@ -251,7 +255,7 @@ public class RtuPlusServer implements DeviceProtocol {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Arrays.<ConnectionType>asList(new OutboundTcpIpConnectionType(getPropertySpecService(), getSocketService()));
+        return Arrays.<ConnectionType>asList(new OutboundTcpIpConnectionType(this.thesaurus, getPropertySpecService(), getSocketService()));
     }
 
     private SocketService getSocketService() {

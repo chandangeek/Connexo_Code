@@ -1,5 +1,17 @@
 package com.energyict.protocols.mdc.services.impl;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.SerialComponentService;
@@ -18,22 +30,12 @@ import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.MessageSeedProvider;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.protocolimplv2.sdksample.SDKTranslationKeys;
+import com.energyict.protocols.impl.channels.ip.IpMessageSeeds;
+import com.energyict.protocols.impl.channels.ip.IpTranslationKeys;
 import com.energyict.protocols.impl.channels.serial.SioSerialTranslationKeys;
 import com.energyict.protocols.impl.channels.sms.ProximusTranslationKeys;
+
+import com.energyict.protocolimplv2.sdksample.SDKTranslationKeys;
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
@@ -297,7 +299,11 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
 
     @Override
     public List<MessageSeed> getSeeds() {
-        return Arrays.asList(MessageSeeds.values());
+        return Stream.of(
+                Arrays.stream(IpMessageSeeds.values()),
+                Arrays.stream(MessageSeeds.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -310,6 +316,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
         return Stream.of(
                 Arrays.stream(SDKTranslationKeys.values()),
                 Arrays.stream(SioSerialTranslationKeys.values()),
+                Arrays.stream(IpTranslationKeys.values()),
                 Arrays.stream(ProximusTranslationKeys.values()),
                 Arrays.stream(TranslationKeys.values()))
                 .flatMap(Function.identity())

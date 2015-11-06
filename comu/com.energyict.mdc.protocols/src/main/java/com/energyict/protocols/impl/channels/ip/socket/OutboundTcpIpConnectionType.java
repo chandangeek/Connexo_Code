@@ -1,5 +1,8 @@
 package com.energyict.protocols.impl.channels.ip.socket;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.SocketService;
@@ -12,6 +15,7 @@ import com.energyict.protocols.impl.channels.ip.OutboundIpConnectionType;
 import javax.inject.Inject;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -25,8 +29,8 @@ public class OutboundTcpIpConnectionType extends OutboundIpConnectionType {
     private final SocketService socketService;
 
     @Inject
-    public OutboundTcpIpConnectionType(PropertySpecService propertySpecService, SocketService socketService) {
-        super(propertySpecService);
+    public OutboundTcpIpConnectionType(Thesaurus thesaurus, PropertySpecService propertySpecService, SocketService socketService) {
+        super(propertySpecService, thesaurus);
         this.socketService = socketService;
     }
 
@@ -55,13 +59,28 @@ public class OutboundTcpIpConnectionType extends OutboundIpConnectionType {
     }
 
     @Override
+    public Optional<CustomPropertySet<ConnectionType, ? extends PersistentDomainExtension<ConnectionType>>> getCustomPropertySet() {
+        return Optional.of(new OutboundTcpIpCustomPropertySet(this.getThesaurus(), this.getPropertySpecService()));
+    }
+
     public ComChannel connect (List<ConnectionProperty> properties) throws ConnectionException {
-        for (ConnectionProperty property : properties) {
-            if (property.getValue() != null) {
-                this.setProperty(property.getName(), property.getValue());
-            }
-        }
+        this.copyProperties(properties);
         return this.newTcpIpConnection(this.socketService, this.hostPropertyValue(), this.portNumberPropertyValue(), this.connectionTimeOutPropertyValue());
+    }
+
+    protected void copyProperties(List<ConnectionProperty> properties) {
+        properties
+            .stream()
+            .filter(this::hasValue)
+            .forEach(this::copyProperty);
+    }
+
+    private boolean hasValue(ConnectionProperty property) {
+        return property.getValue() != null;
+    }
+
+    private void copyProperty(ConnectionProperty property) {
+        this.setProperty(property.getName(), property.getValue());
     }
 
     @Override

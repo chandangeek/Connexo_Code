@@ -1,5 +1,8 @@
 package com.energyict.protocols.impl.channels.ip.datagrams;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.SocketService;
@@ -7,16 +10,14 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.protocols.impl.channels.ip.OutboundIpConnectionProperties;
 import com.energyict.protocols.impl.channels.ip.OutboundIpConnectionType;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -28,13 +29,11 @@ import java.util.Set;
  */
 public class OutboundUdpConnectionType extends OutboundIpConnectionType {
 
-    public static final String BUFFER_SIZE_NAME = "udpdatagrambuffersize";
-
     private final SocketService socketService;
 
     @Inject
-    public OutboundUdpConnectionType(PropertySpecService propertySpecService, SocketService socketService) {
-        super(propertySpecService);
+    public OutboundUdpConnectionType(Thesaurus thesaurus, PropertySpecService propertySpecService, SocketService socketService) {
+        super(propertySpecService, thesaurus);
         this.socketService = socketService;
     }
 
@@ -54,6 +53,11 @@ public class OutboundUdpConnectionType extends OutboundIpConnectionType {
     }
 
     @Override
+    public Optional<CustomPropertySet<ConnectionType, ? extends PersistentDomainExtension<ConnectionType>>> getCustomPropertySet() {
+        return Optional.of(new OutboundUdpCustomPropertySet(this.getThesaurus(), this.getPropertySpecService()));
+    }
+
+    @Override
     public ComChannel connect(List<ConnectionProperty> properties) throws ConnectionException {
         properties
             .stream()
@@ -68,20 +72,8 @@ public class OutboundUdpConnectionType extends OutboundIpConnectionType {
     }
 
     private int getBufferSizePropertyValue() {
-        BigDecimal value = (BigDecimal) this.getProperty(BUFFER_SIZE_NAME);
+        BigDecimal value = (BigDecimal) this.getProperty(OutboundIpConnectionProperties.Fields.BUFFER_SIZE.javaName());
         return this.intProperty(value);
-    }
-
-    @Override
-    @Obsolete
-    public List<PropertySpec> getPropertySpecs() {
-        List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
-        propertySpecs.add(this.bufferSizePropertySpec());
-        return propertySpecs;
-    }
-
-    private PropertySpec bufferSizePropertySpec() {
-        return this.getPropertySpecService().basicPropertySpec(BUFFER_SIZE_NAME, true, new BigDecimalFactory());
     }
 
     @Override

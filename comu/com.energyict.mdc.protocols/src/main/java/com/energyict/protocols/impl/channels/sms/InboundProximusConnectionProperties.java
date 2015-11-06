@@ -34,6 +34,11 @@ public class InboundProximusConnectionProperties implements PersistentDomainExte
             public String databaseName() {
                 return "CONNECTIONTYPE";
             }
+
+            @Override
+            public void addTo(Table table) {
+                // Connection type is the domain extension and that is added by the CustomPropertySetService
+            }
         },
         PHONE_NUMBER {
             @Override
@@ -61,6 +66,15 @@ public class InboundProximusConnectionProperties implements PersistentDomainExte
         public abstract String javaName();
 
         public abstract String databaseName();
+
+        public void addTo(Table table) {
+            table
+                .column(this.databaseName())
+                .varChar()
+                .notNull()
+                .map(this.javaName())
+                .add();
+        }
 
         public PropertySpec propertySpec(PropertySpecService propertySpecService) {
             return propertySpecService.basicPropertySpec(this.javaName(), true, new StringFactory());
