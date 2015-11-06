@@ -20,7 +20,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Why the wrapped return value? JavaScript people didn't want to see a naked JSON list, had to be
@@ -30,9 +32,12 @@ import java.util.List;
 @Path("/field")
 public class ComServerFieldResource extends FieldResource {
 
+    private final Thesaurus thesaurus;
+
     @Inject
     public ComServerFieldResource(Thesaurus thesaurus) {
         super(thesaurus);
+        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -48,7 +53,6 @@ public class ComServerFieldResource extends FieldResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
     public Object getTimeUnits() {
-        final List<Object> timeUnitStrings = new ArrayList<>();
         int[] timeDurations = new int[] {
                 TimeDuration.TimeUnit.MILLISECONDS.getCode(),
                 TimeDuration.TimeUnit.SECONDS.getCode(),
@@ -60,12 +64,21 @@ public class ComServerFieldResource extends FieldResource {
                 TimeDuration.TimeUnit.YEARS.getCode()
         };
 
-        for (final int timeDuration : timeDurations) {
-            timeUnitStrings.add(TimeDuration.getTimeUnitDescription(timeDuration));
+        Map<String, Object> response = new HashMap<>();
+        List<Map<String, Object>> list = new ArrayList<>();
+        response.put("timeUnits", list);
+        for (final int timeDuration: timeDurations) {
+            String timeUnitDescription = TimeDuration.getTimeUnitDescription(timeDuration);
+            Map<String, Object> subMap = new HashMap<>();
+            subMap.put("timeUnit", timeUnitDescription);
+            subMap.put("localizedValue", thesaurus.getString(timeUnitDescription.toString(), timeUnitDescription.toString()));
+            subMap.put("code", timeDuration);
+            list.add(subMap);
         }
-
-        return asJsonArrayObjectWithTranslation("timeUnits", "timeUnit", timeUnitStrings);
+        sortList(list);
+        return response;
     }
+
 
     @GET
     @Path("/comPortType")
