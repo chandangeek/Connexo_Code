@@ -61,7 +61,8 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
                 padding: 0,
                 minWidth: 273,
                 items: me.items,
-                onMouseOver: Ext.emptyFn
+                onMouseOver: Ext.emptyFn,
+                enableKeyNav: false
             }, me.menuConfig)
         });
 
