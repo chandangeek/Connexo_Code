@@ -30,10 +30,8 @@ import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
 import com.energyict.protocols.impl.channels.ip.IpMessageSeeds;
-import com.energyict.protocols.impl.channels.ip.IpTranslationKeys;
-import com.energyict.protocols.impl.channels.serial.SioSerialTranslationKeys;
-import com.energyict.protocols.impl.channels.sms.ProximusTranslationKeys;
 
 import com.energyict.protocolimplv2.sdksample.SDKTranslationKeys;
 import com.google.inject.AbstractModule;
@@ -315,9 +313,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
     public List<TranslationKey> getKeys() {
         return Stream.of(
                 Arrays.stream(SDKTranslationKeys.values()),
-                Arrays.stream(SioSerialTranslationKeys.values()),
-                Arrays.stream(IpTranslationKeys.values()),
-                Arrays.stream(ProximusTranslationKeys.values()),
+                Arrays.stream(CustomPropertySetTranslationKeys.values()),
                 Arrays.stream(TranslationKeys.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());

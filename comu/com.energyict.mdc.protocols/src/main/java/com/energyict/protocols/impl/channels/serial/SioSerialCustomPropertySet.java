@@ -1,14 +1,14 @@
 package com.energyict.protocols.impl.channels.serial;
 
-import com.energyict.mdc.io.SerialComponentService;
-import com.energyict.mdc.protocol.api.ConnectionType;
-
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.io.SerialComponentService;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -42,7 +42,7 @@ public class SioSerialCustomPropertySet implements CustomPropertySet<ConnectionT
 
     @Override
     public String getName() {
-        return this.thesaurus.getFormat(SioSerialTranslationKeys.CUSTOM_PROPERTY_SET_NAME).format();
+        return this.thesaurus.getFormat(CustomPropertySetTranslationKeys.SIO_SERIAL_CUSTOM_PROPERTY_SET_NAME).format();
     }
 
     @Override

@@ -6,7 +6,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.protocols.impl.channels.ip.IpTranslationKeys;
+import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
 import com.energyict.protocols.impl.channels.ip.OutboundIpConnectionProperties;
 import com.energyict.protocols.impl.channels.ip.OutboundIpConnectionPropertiesPersistenceSupport;
 
@@ -23,7 +23,7 @@ import java.util.List;
 public class TcpIpPostDialCustomPropertySet extends OutboundTcpIpCustomPropertySet {
 
     public TcpIpPostDialCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
-        super(thesaurus, IpTranslationKeys.OUTBOUND_TCP_POST_DIAL_CUSTOM_PROPERTY_SET_NAME, propertySpecService);
+        super(thesaurus, CustomPropertySetTranslationKeys.OUTBOUND_TCP_POST_DIAL_CUSTOM_PROPERTY_SET_NAME, propertySpecService);
     }
 
     @Override

@@ -57,8 +57,8 @@ public class OutboundIpConnectionPropertiesPersistenceSupport implements Persist
 
     @Override
     public void addCustomPropertyColumnsTo(Table table) {
-        this.addRquiredStringColumnTo(table, OutboundIpConnectionProperties.Fields.HOST);
-        this.addRquiredStringColumnTo(table, OutboundIpConnectionProperties.Fields.PORT);
+        this.addRequiredStringColumnTo(table, OutboundIpConnectionProperties.Fields.HOST);
+        this.addRequiredStringColumnTo(table, OutboundIpConnectionProperties.Fields.PORT);
         table
             .column("CONNTIMEOUTVALUE")
             .number()
@@ -88,7 +88,7 @@ public class OutboundIpConnectionPropertiesPersistenceSupport implements Persist
             .add();
     }
 
-    private void addRquiredStringColumnTo(Table table, OutboundIpConnectionProperties.Fields fieldName) {
+    private void addRequiredStringColumnTo(Table table, OutboundIpConnectionProperties.Fields fieldName) {
         table
             .column(fieldName.databaseName())
             .varChar()

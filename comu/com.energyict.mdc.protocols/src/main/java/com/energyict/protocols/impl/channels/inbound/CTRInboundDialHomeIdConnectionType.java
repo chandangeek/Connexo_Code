@@ -1,20 +1,21 @@
-package com.energyict.protocols.impl.channels.ip;
+package com.energyict.protocols.impl.channels.inbound;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
-import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
+import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.protocols.impl.channels.VoidComChannel;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 
 import javax.inject.Inject;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -24,26 +25,24 @@ import java.util.Set;
  */
 public class CTRInboundDialHomeIdConnectionType extends ConnectionTypeImpl {
 
+    private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
 
     @Inject
-    public CTRInboundDialHomeIdConnectionType(PropertySpecService propertySpecService) {
+    public CTRInboundDialHomeIdConnectionType(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super();
+        this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
     }
 
-    private PropertySpec callHomeIdPropertySpec() {
-        return this.propertySpecService.basicPropertySpec(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), true, new StringFactory());
-    }
-
-    protected String callHomeIdPropertyValue() {
-        return (String) this.getProperty(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName());
+    @Override
+    public Direction getDirection() {
+        return Direction.INBOUND;
     }
 
     @Override
-    @Obsolete
-    public List<PropertySpec> getPropertySpecs() {
-        return Collections.singletonList(this.callHomeIdPropertySpec());
+    public Optional<CustomPropertySet<ConnectionType, ? extends PersistentDomainExtension<ConnectionType>>> getCustomPropertySet() {
+        return Optional.of(new CTRInboundDialHomeIdCustomPropertySet(this.thesaurus, this.propertySpecService));
     }
 
     @Override
@@ -69,11 +68,6 @@ public class CTRInboundDialHomeIdConnectionType extends ConnectionTypeImpl {
     @Override
     public void disconnect(ComChannel comChannel) throws ConnectionException {
         // No explicit disconnect for this CTRInboundDialHomeIdConnectionType
-    }
-
-    @Override
-    public Direction getDirection() {
-        return Direction.INBOUND;
     }
 
     @Override

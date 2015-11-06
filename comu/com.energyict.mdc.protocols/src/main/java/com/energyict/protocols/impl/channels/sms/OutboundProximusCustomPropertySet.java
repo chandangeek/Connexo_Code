@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -34,7 +35,7 @@ public class OutboundProximusCustomPropertySet implements CustomPropertySet<Conn
 
     @Override
     public String getName() {
-        return this.thesaurus.getFormat(ProximusTranslationKeys.OUTBOUND_CUSTOM_PROPERTY_SET_NAME).format();
+        return this.thesaurus.getFormat(CustomPropertySetTranslationKeys.OUTBOUND_PROXIMUS_CUSTOM_PROPERTY_SET_NAME).format();
     }
 
     @Override

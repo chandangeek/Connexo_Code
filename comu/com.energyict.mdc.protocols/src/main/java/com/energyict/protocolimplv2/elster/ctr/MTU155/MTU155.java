@@ -42,7 +42,7 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.protocols.impl.channels.ip.CTRInboundDialHomeIdConnectionType;
+import com.energyict.protocols.impl.channels.inbound.CTRInboundDialHomeIdConnectionType;
 import com.energyict.protocols.impl.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.protocols.impl.channels.sms.InboundProximusSmsConnectionType;
@@ -463,7 +463,7 @@ public class MTU155 implements DeviceProtocol {
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
         List<ConnectionType> connectionTypes = new ArrayList<>();
-        connectionTypes.add(new CTRInboundDialHomeIdConnectionType(getPropertySpecService()));
+        connectionTypes.add(new CTRInboundDialHomeIdConnectionType(thesaurus, getPropertySpecService()));
         connectionTypes.add(new InboundProximusSmsConnectionType(getPropertySpecService(), thesaurus));
         connectionTypes.add(new OutboundProximusSmsConnectionType(getPropertySpecService(), thesaurus));
         connectionTypes.add(new SioOpticalConnectionType(getSerialComponentService(), this.thesaurus));

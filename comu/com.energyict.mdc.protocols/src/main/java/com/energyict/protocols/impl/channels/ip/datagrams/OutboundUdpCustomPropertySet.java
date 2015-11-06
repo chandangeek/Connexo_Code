@@ -6,7 +6,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.protocols.impl.channels.ip.IpTranslationKeys;
+import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
 import com.energyict.protocols.impl.channels.ip.OutboundIpConnectionProperties;
 import com.energyict.protocols.impl.channels.ip.OutboundIpConnectionPropertiesPersistenceSupport;
 import com.energyict.protocols.impl.channels.ip.OutboundIpCustomPropertySet;
@@ -25,7 +25,7 @@ import java.util.List;
 public class OutboundUdpCustomPropertySet extends OutboundIpCustomPropertySet {
 
     public OutboundUdpCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
-        super(thesaurus, IpTranslationKeys.OUTBOUND_UDP_CUSTOM_PROPERTY_SET_NAME, propertySpecService);
+        super(thesaurus, CustomPropertySetTranslationKeys.OUTBOUND_UDP_CUSTOM_PROPERTY_SET_NAME, propertySpecService);
     }
 
     @Override
