@@ -13,6 +13,7 @@ Ext.define('Apr.controller.AppServers', {
         'Apr.view.appservers.ImportServicePreview'
     ],
     stores: [
+        'Apr.store.Clipboard',
         'Apr.store.AppServers',
         'Apr.store.ServedMessageServices',
         'Apr.store.UnservedMessageServices',
