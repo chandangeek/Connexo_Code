@@ -28,7 +28,7 @@ Ext.define('Uni.view.search.field.TimeDuration', {
     },
 
     getUnitField: function () {
-        return this.menu.down('combobox[displayField=timeUnit]');
+        return this.menu.down('combobox[valueField=code]');
     },
 
     onInputChange: function () {
@@ -100,7 +100,7 @@ Ext.define('Uni.view.search.field.TimeDuration', {
                         xtype: 'combobox',
                         fieldLabel: Uni.I18n.translate('general.unit', 'UNI', 'Unit'),
                         store: 'Uni.property.store.TimeUnits',
-                        displayField: 'timeUnit',
+                        displayField: 'localizedValue',
                         valueField: 'code',
                         forceSelection: false,
                         editable: false,
