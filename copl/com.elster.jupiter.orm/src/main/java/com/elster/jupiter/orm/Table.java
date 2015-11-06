@@ -18,7 +18,8 @@ public interface Table<T> {
 
     int NAME_LENGTH = 80;
     int SHORT_DESCRIPTION_LENGTH = 256;
-    int DESCRIPTION_LENGTH = 4000;
+    int MAX_STRING_LENGTH = 4000;
+    int DESCRIPTION_LENGTH = MAX_STRING_LENGTH;
 
     // datamodel construction api
     Column.Builder column(String name);
