@@ -54,6 +54,10 @@ public enum PropertyTranslationKeys implements TranslationKey {
     COMTASK_NAME("device.comtask.name", "Name"),
     COMTASK_SECURITY_SETTING("device.comtask.security", "Security settings"),
     PROTOCOL_DIALECT_DYNAMIC_PROP("protocol.dialect.dynamic", "Protocol dialect dynamic properties"),
+    CONNECTION("device.connection", "Connection"),
+    CONNECTION_NAME("device.connection.name", "Name"),
+    CONNECTION_DIRECTION("device.connection.direction", "Direction"),
+    CONNECTION_PORTPOOL("device.connection.portpool", "Communication port pool")
     ;
 
     private String key;
