@@ -504,4 +504,15 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         getUserActions().stream().forEach(builder::addUserAction);
         return builder.build();
     }
+
+    @Override
+    public boolean equals(Object obj){
+        if(obj instanceof SecurityPropertySetImpl){
+            SecurityPropertySetImpl impl = (SecurityPropertySetImpl) obj;
+            return impl.getId() == this.getId();
+        }
+        return false;
+    }
+
+
 }
