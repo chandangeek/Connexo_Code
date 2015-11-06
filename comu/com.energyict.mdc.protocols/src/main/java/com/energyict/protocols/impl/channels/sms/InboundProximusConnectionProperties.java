@@ -5,8 +5,12 @@ import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.domain.util.NotEmpty;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.util.time.Interval;
+
+import javax.validation.constraints.Size;
 
 /**
  * Provides an implementation for the {@link PersistentDomainExtension} interface
@@ -62,7 +66,11 @@ public class InboundProximusConnectionProperties implements PersistentDomainExte
     private Reference<ConnectionType> connectionType = Reference.empty();
     @SuppressWarnings("unused")
     private Interval interval;
+    @NotEmpty
+    @Size(max = Table.MAX_STRING_LENGTH)
     private String phoneNumber;
+    @NotEmpty
+    @Size(max = Table.MAX_STRING_LENGTH)
     private String callHomeId;
 
     @Override
