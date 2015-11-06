@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
@@ -28,12 +30,11 @@ import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.protocols.impl.channels.inbound.EIWebConnectionType;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.messages.convertor.EIWebMessageConverter;
 import com.energyict.protocolimplv2.security.SimplePasswordSecuritySupport;
-import com.energyict.protocols.impl.channels.inbound.EIWebConnectionType;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -54,6 +55,7 @@ import java.util.Set;
 public class EIWeb implements DeviceProtocol {
 
     private final Clock clock;
+    private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
     private final CollectedDataFactory collectedDataFactory;
     private SimplePasswordSecuritySupport securitySupport;
@@ -61,9 +63,10 @@ public class EIWeb implements DeviceProtocol {
     private LegacyMessageConverter messageConverter;
 
     @Inject
-    public EIWeb(Clock clock, PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, SimplePasswordSecuritySupport simplePasswordSecuritySupport) {
+    public EIWeb(Clock clock, Thesaurus thesaurus, PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, SimplePasswordSecuritySupport simplePasswordSecuritySupport) {
         super();
         this.clock = clock;
+        this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
         this.collectedDataFactory = collectedDataFactory;
         this.securitySupport = simplePasswordSecuritySupport;
@@ -92,7 +95,7 @@ public class EIWeb implements DeviceProtocol {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Collections.<ConnectionType>singletonList(new EIWebConnectionType(propertySpecService));
+        return Collections.<ConnectionType>singletonList(new EIWebConnectionType(this.thesaurus, this.propertySpecService));
     }
 
     @Override
@@ -189,7 +192,7 @@ public class EIWeb implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new NoParamsDeviceProtocolDialect(propertySpecService));
+        return Collections.<DeviceProtocolDialect>singletonList(new NoParamsDeviceProtocolDialect(propertySpecService));
     }
 
     @Override
@@ -269,4 +272,5 @@ public class EIWeb implements DeviceProtocol {
     public CollectedFirmwareVersion getFirmwareVersions() {
         return getCollectedDataFactory().createFirmwareVersionsCollectedData(offlineDevice.getDeviceIdentifier());
     }
+
 }

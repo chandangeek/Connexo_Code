@@ -1,15 +1,16 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
 import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.crypto.Cryptographer;
 import com.energyict.mdc.protocol.api.crypto.MD5Seed;
-import com.energyict.mdc.io.CommunicationException;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
-import com.energyict.protocols.impl.channels.inbound.EIWebConnectionType;
+import com.energyict.protocols.impl.channels.inbound.EIWebConnectionProperties;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
+
+import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.util.List;
 
@@ -49,7 +50,7 @@ public class EIWebCryptographer implements Cryptographer {
             List<SecurityProperty> securityProperties = this.inboundDiscoveryContext.getDeviceProtocolSecurityProperties(deviceIdentifier);
             if (securityProperties != null) {
                 String encryptionPassword = this.getEncryptionPassword(securityProperties);
-                String macAddress = connectionTypeProperties.getStringProperty(EIWebConnectionType.MAC_ADDRESS_PROPERTY_NAME);
+                String macAddress = connectionTypeProperties.getStringProperty(EIWebConnectionProperties.Fields.MAC_ADDRESS.javaName());
                 return new StringBasedMD5Seed(source + macAddress + encryptionPassword);
             }
             else {

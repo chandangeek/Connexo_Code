@@ -12,6 +12,8 @@ import com.elster.jupiter.nls.TranslationKey;
  */
 public enum CustomPropertySetTranslationKeys implements TranslationKey {
 
+    EIWEB_CUSTOM_PROPERTY_SET_NAME("EIWebCustomPropertySet", "EIWeb"),
+    EIWEB_PLUS_CUSTOM_PROPERTY_SET_NAME("EIWebPlusCustomPropertySet", "EIWeb+"),
     SIO_SERIAL_CUSTOM_PROPERTY_SET_NAME("SioSerialCustomPropertySet", "Sio serial"),
     CTR_INBOUND_DIAL_HOME_ID_CUSTOM_PROPERTY_SET_NAME("CTRInboundDialHomeIdCustomPropertySet", "CTR Inbound dial home id"),
     INBOUND_PROXIMUS_CUSTOM_PROPERTY_SET_NAME("InboundProximusSmsCustomPropertySet", "Inbound proximus"),

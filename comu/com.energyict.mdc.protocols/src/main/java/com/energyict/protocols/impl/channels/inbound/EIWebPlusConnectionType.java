@@ -1,5 +1,8 @@
 package com.energyict.protocols.impl.channels.inbound;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
@@ -8,17 +11,16 @@ import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 
-import com.elster.jupiter.properties.PropertySpec;
-
+import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlRootElement;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
- * Specific ConnectionType used for the EIWeb plus Protocol
- * <p>
+ * Specific ConnectionType used for the EIWeb plus Protocol.
+ *
  * Copyrights EnergyICT
  * Date: 13/12/12
  * Time: 15:46
@@ -26,33 +28,13 @@ import java.util.Set;
 @XmlRootElement
 public class EIWebPlusConnectionType implements ConnectionType {
 
-    private TypedProperties properties = TypedProperties.empty();
+    private final Thesaurus thesaurus;
+    private final PropertySpecService propertySpecService;
 
-    public static final String IP_ADDRESS_PROPERTY_NAME = "ipAddress";
-    private PropertySpecService propertySpecService;
-
-    private PropertySpec ipAddressPropertySpec() {
-        return propertySpecService.stringPropertySpec(IP_ADDRESS_PROPERTY_NAME, true, "");
-    }
-
-    public PropertySpecService getPropertySpecService() {
-        return propertySpecService;
-    }
-
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
+    @Inject
+    public EIWebPlusConnectionType(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+        this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
-    }
-
-    protected TypedProperties getAllProperties() {
-        return this.properties;
-    }
-
-    protected Object getProperty(String propertyName) {
-        return this.getAllProperties().getProperty(propertyName);
-    }
-
-    public String ipAddressValue() {
-        return (String) this.getProperty(IP_ADDRESS_PROPERTY_NAME);
     }
 
     @Override
@@ -80,9 +62,8 @@ public class EIWebPlusConnectionType implements ConnectionType {
     }
 
     @Override
-    @Obsolete
-    public List<PropertySpec> getPropertySpecs() {
-        return Collections.singletonList(ipAddressPropertySpec());
+    public Optional<CustomPropertySet<ConnectionType, ? extends PersistentDomainExtension<ConnectionType>>> getCustomPropertySet() {
+        return Optional.of(new EIWebPlusCustomPropertySet(this.thesaurus, this.propertySpecService));
     }
 
     @Override
@@ -92,7 +73,7 @@ public class EIWebPlusConnectionType implements ConnectionType {
 
     @Override
     public void copyProperties(TypedProperties properties) {
-
+        // No implementation needed
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.eiwebplus;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
@@ -28,12 +30,11 @@ import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-
-import com.elster.jupiter.properties.PropertySpec;
-import com.energyict.protocolimplv2.messages.convertor.EIWebPlusMessageConverter;
-import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
 import com.energyict.protocols.impl.channels.inbound.EIWebPlusConnectionType;
 import com.energyict.protocols.mdc.protocoltasks.EiWebPlusDialect;
+
+import com.energyict.protocolimplv2.messages.convertor.EIWebPlusMessageConverter;
+import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -70,13 +71,15 @@ public class RtuServer implements DeviceProtocol {
     private final PropertySpecService propertySpecService;
     private final NoOrPasswordSecuritySupport securitySupport;
     private final Clock clock;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public RtuServer(NoOrPasswordSecuritySupport securitySupport, CollectedDataFactory collectedDataFactory, PropertySpecService propertySpecService, Clock clock) {
+    public RtuServer(NoOrPasswordSecuritySupport securitySupport, CollectedDataFactory collectedDataFactory, PropertySpecService propertySpecService, Clock clock, Thesaurus thesaurus) {
         this.collectedDataFactory = collectedDataFactory;
         this.propertySpecService = propertySpecService;
         this.clock = clock;
         this.securitySupport = securitySupport;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -97,7 +100,7 @@ public class RtuServer implements DeviceProtocol {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Arrays.<ConnectionType>asList(new EIWebPlusConnectionType());
+        return Collections.<ConnectionType>singletonList(new EIWebPlusConnectionType(this.thesaurus, this.propertySpecService));
     }
 
     @Override
@@ -198,7 +201,7 @@ public class RtuServer implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new EiWebPlusDialect(this.propertySpecService));
+        return Collections.<DeviceProtocolDialect>singletonList(new EiWebPlusDialect(this.propertySpecService));
     }
 
     @Override

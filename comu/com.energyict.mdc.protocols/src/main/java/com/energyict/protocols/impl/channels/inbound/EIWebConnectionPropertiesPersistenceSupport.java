@@ -11,12 +11,12 @@ import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link PersistenceSupport} interface
- * to support the persistence of {@link CTRInboundDialHomeIdConnectionProperties}.
+ * to support the persistence of {@link EIWebConnectionProperties}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-06 (15:46)
  */
-public class CTRInboundDialHomeIdConnectionPropertiesPersistenceSupport implements PersistenceSupport<ConnectionType, CTRInboundDialHomeIdConnectionProperties> {
+public class EIWebConnectionPropertiesPersistenceSupport implements PersistenceSupport<ConnectionType, EIWebConnectionProperties> {
 
     @Override
     public String componentName() {
@@ -25,27 +25,27 @@ public class CTRInboundDialHomeIdConnectionPropertiesPersistenceSupport implemen
 
     @Override
     public String tableName() {
-        return DeviceProtocolService.COMPONENT_NAME + "_CTR_DIALHOMEID_CT";
+        return DeviceProtocolService.COMPONENT_NAME + "_EIWEB_CONNECTION_TYPE";
     }
 
     @Override
     public String domainFieldName() {
-        return CTRInboundDialHomeIdConnectionProperties.Fields.CONNECTION_TYPE.javaName();
+        return EIWebConnectionProperties.Fields.CONNECTION_TYPE.javaName();
     }
 
     @Override
     public String domainColumnName() {
-        return CTRInboundDialHomeIdConnectionProperties.Fields.CONNECTION_TYPE.databaseName();
+        return EIWebConnectionProperties.Fields.CONNECTION_TYPE.databaseName();
     }
 
     @Override
     public String domainForeignKeyName() {
-        return "FK_PR1_DIALHOMEID_CT";
+        return "FK_PR1_EIWEB_CT";
     }
 
     @Override
-    public Class<CTRInboundDialHomeIdConnectionProperties> persistenceClass() {
-        return CTRInboundDialHomeIdConnectionProperties.class;
+    public Class<EIWebConnectionProperties> persistenceClass() {
+        return EIWebConnectionProperties.class;
     }
 
     @Override
@@ -55,15 +55,10 @@ public class CTRInboundDialHomeIdConnectionPropertiesPersistenceSupport implemen
 
     @Override
     public void addCustomPropertyColumnsTo(Table table) {
-        this.addRequiredStringColumnTo(table, CTRInboundDialHomeIdConnectionProperties.Fields.DIAL_HOME_ID);
-    }
-
-    private void addRequiredStringColumnTo(Table table, CTRInboundDialHomeIdConnectionProperties.Fields fieldName) {
         table
-            .column(fieldName.databaseName())
+            .column(EIWebConnectionProperties.Fields.IP_ADDRESS.databaseName())
             .varChar()
-            .notNull()
-            .map(fieldName.javaName())
+            .map(EIWebConnectionProperties.Fields.IP_ADDRESS.javaName())
             .add();
     }
 
