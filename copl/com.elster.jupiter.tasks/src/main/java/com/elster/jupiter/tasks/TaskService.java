@@ -3,6 +3,7 @@ package com.elster.jupiter.tasks;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -20,6 +21,10 @@ public interface TaskService {
     Optional<RecurrentTask> getRecurrentTask(long id);
 
     Optional<RecurrentTask> getRecurrentTask(String name);
+
+    List<RecurrentTask> getRecurrentTasks();
+
+    TaskFinder getTaskFinder(RecurrentTaskFilterSpecification filterSpecification);
 
     Optional<TaskOccurrence> getOccurrence(Long id);
 

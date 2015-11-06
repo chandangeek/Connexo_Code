@@ -1,5 +1,7 @@
 package com.elster.jupiter.tasks.impl;
 
+import com.elster.jupiter.domain.util.DefaultFinder;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.messaging.MessageService;
@@ -16,7 +18,9 @@ import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskBuilder;
+import com.elster.jupiter.tasks.RecurrentTaskFilterSpecification;
 import com.elster.jupiter.tasks.TaskExecutor;
+import com.elster.jupiter.tasks.TaskFinder;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.tasks.TaskServiceAlreadyLaunched;
@@ -24,6 +28,8 @@ import com.elster.jupiter.tasks.TaskStatus;
 import com.elster.jupiter.time.PeriodicalScheduleExpressionParser;
 import com.elster.jupiter.time.TemporalExpressionParser;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
@@ -154,6 +160,32 @@ public class TaskServiceImpl implements TaskService, InstallService, Translation
     @Override
     public Optional<RecurrentTask> getRecurrentTask(String name) {
         return dataModel.stream(RecurrentTask.class).filter(Where.where("name").isEqualTo(name)).findFirst();
+    }
+
+    @Override
+    public List<RecurrentTask> getRecurrentTasks() {
+        return dataModel.stream(RecurrentTask.class).select();
+    }
+
+    @Override
+    public TaskFinder getTaskFinder(RecurrentTaskFilterSpecification filterSpecification) {
+        Condition condition = Condition.TRUE;
+        /*if (!filterSpecification.applications.isEmpty()) {
+            Condition appCondition = Condition.FALSE;
+            for (String app : filterSpecification.applications) {
+                appCondition = appCondition.or(Where.where("application").isEqualTo(app));
+            }
+            condition = condition.and(appCondition);
+        }*/
+        if (!filterSpecification.queues.isEmpty()) {
+            Condition queueCondition = Condition.FALSE;
+            for (String queue : filterSpecification.queues) {
+                queueCondition = queueCondition.or(Where.where("destination").isEqualTo(queue));
+            }
+            condition = condition.and(queueCondition);
+        }
+        Order[] orders = new Order[]{Order.ascending("nextExecution")};
+        return new RecurrentTaskFinder(dataModel.query(RecurrentTask.class), condition, orders);
     }
 
     @Override
