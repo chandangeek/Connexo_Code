@@ -53,7 +53,8 @@ public class HasValidDeviceMessageAttributesValidator implements ConstraintValid
             } catch (InvalidValueException e) {
                 context
                     .buildConstraintViolationWithTemplate(MessageFormat.format(e.getDefaultPattern(), e.getArguments()))
-                    .addPropertyNode("properties").addPropertyNode(deviceMessageAttribute.getName()).addConstraintViolation()
+                        .addPropertyNode(DeviceMessageImpl.Fields.DEVICEMESSAGEATTRIBUTES.fieldName())
+                        .addPropertyNode(deviceMessageAttribute.getName()).addConstraintViolation()
                     .disableDefaultConstraintViolation();
                 this.valid = false;
             }
@@ -69,7 +70,7 @@ public class HasValidDeviceMessageAttributesValidator implements ConstraintValid
                 this.valid = false;
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DEVICE_MESSAGE_ATTRIBUTE_NOT_IN_SPEC + "}")
-                        .addPropertyNode("deviceMessageAttributes")
+                        .addPropertyNode(DeviceMessageImpl.Fields.DEVICEMESSAGEATTRIBUTES.fieldName())
                         .addPropertyNode(deviceMessageAttribute.getName())
                         .addConstraintViolation();
             }
@@ -86,7 +87,7 @@ public class HasValidDeviceMessageAttributesValidator implements ConstraintValid
                     this.valid = false;
                     context.disableDefaultConstraintViolation();
                     context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DEVICE_MESSAGE_ATTRIBUTE_IS_REQUIRED + "}")
-                            .addPropertyNode("deviceMessageAttributes")
+                            .addPropertyNode(DeviceMessageImpl.Fields.DEVICEMESSAGEATTRIBUTES.fieldName())
                             .addPropertyNode(propertySpec.getName())
                             .addConstraintViolation();
                 }
