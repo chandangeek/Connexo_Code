@@ -116,6 +116,7 @@ public class OutboundProximusSmsConnectionType extends ConnectionTypeImpl {
     }
 
     @Override
+    @Obsolete
     public List<PropertySpec> getPropertySpecs () {
         return Arrays.asList(
                 this.phoneNumberPropertySpec(),

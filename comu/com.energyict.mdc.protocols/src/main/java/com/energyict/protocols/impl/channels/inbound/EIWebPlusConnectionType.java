@@ -80,6 +80,7 @@ public class EIWebPlusConnectionType implements ConnectionType {
     }
 
     @Override
+    @Obsolete
     public List<PropertySpec> getPropertySpecs() {
         return Collections.singletonList(ipAddressPropertySpec());
     }

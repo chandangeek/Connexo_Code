@@ -73,6 +73,7 @@ public class OutboundUdpConnectionType extends OutboundIpConnectionType {
     }
 
     @Override
+    @Obsolete
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getPropertySpecs());
         propertySpecs.add(this.bufferSizePropertySpec());

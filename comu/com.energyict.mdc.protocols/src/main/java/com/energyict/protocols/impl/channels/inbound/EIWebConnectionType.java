@@ -101,6 +101,7 @@ public class EIWebConnectionType implements ServerConnectionType {
     }
 
     @Override
+    @Obsolete
     public List<PropertySpec> getPropertySpecs () {
         return Arrays.asList(this.ipAddressPropertySpec(), this.macAddressPropertySpec());
     }

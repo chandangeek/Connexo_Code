@@ -16,7 +16,6 @@ import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.protocols.mdc.protocoltasks.ConnectionTypeImpl;
 
@@ -67,11 +66,6 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
     @Override
     public Optional<CustomPropertySet<ConnectionType, ? extends PersistentDomainExtension<ConnectionType>>> getCustomPropertySet() {
         return Optional.of(new SioSerialCustomPropertySet(this.thesaurus, this.serialComponentService));
-    }
-
-    @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return this.serialComponentService.getPropertySpecs();
     }
 
     protected Parities getParityValue() {

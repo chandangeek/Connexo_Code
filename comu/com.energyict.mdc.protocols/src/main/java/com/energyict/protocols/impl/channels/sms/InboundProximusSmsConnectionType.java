@@ -8,10 +8,8 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
 
 import javax.inject.Inject;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -49,11 +47,6 @@ public class InboundProximusSmsConnectionType extends AbstractInboundSmsConnecti
 
     private InboundProximusCustomPropertySet newCustomPropertySet() {
         return new InboundProximusCustomPropertySet(this.thesaurus, propertySpecService);
-    }
-
-    @Override
-    public List<PropertySpec> getPropertySpecs() {
-        return this.newCustomPropertySet().getPropertySpecs();
     }
 
 }

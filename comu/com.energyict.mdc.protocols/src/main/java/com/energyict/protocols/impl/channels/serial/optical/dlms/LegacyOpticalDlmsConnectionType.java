@@ -62,6 +62,7 @@ public class LegacyOpticalDlmsConnectionType extends DlmsConnectionType {
     }
 
     @Override
+    @Obsolete
     public List<PropertySpec> getPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(this.getActualConnectionType().getPropertySpecs());
         propertySpecs.add(this.getAddressingModePropertySpec());

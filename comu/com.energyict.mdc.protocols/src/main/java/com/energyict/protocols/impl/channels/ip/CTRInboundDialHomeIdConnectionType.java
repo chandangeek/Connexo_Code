@@ -41,6 +41,7 @@ public class CTRInboundDialHomeIdConnectionType extends ConnectionTypeImpl {
     }
 
     @Override
+    @Obsolete
     public List<PropertySpec> getPropertySpecs() {
         return Collections.singletonList(this.callHomeIdPropertySpec());
     }
