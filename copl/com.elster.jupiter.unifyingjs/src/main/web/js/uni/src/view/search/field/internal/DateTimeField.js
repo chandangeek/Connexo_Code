@@ -18,7 +18,7 @@ Ext.define('Uni.view.search.field.internal.DateTimeField', {
             date.setMinutes(this.down('#minutes').getValue());
         }
 
-        return date.getTime();
+        return date ? date.getTime() : null;
     },
 
     reset: function() {

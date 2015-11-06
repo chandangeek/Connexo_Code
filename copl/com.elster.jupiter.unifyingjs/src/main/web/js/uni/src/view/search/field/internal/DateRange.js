@@ -36,7 +36,7 @@ Ext.define('Uni.view.search.field.internal.DateRange', {
                 itemId: 'from',
                 listeners: {
                     change: function(field) {
-                        me.down('#to datefield').setMinValue(field.getValue());
+                        me.down('#to datefield').setMinValue(new Date(field.getValue()));
                         me.fireEvent('change', me, me.getValue());
                     },
                     reset: function() {
@@ -49,7 +49,7 @@ Ext.define('Uni.view.search.field.internal.DateRange', {
                 itemId: 'to',
                 listeners: {
                     change: function(field) {
-                        me.down('#from datefield').setMaxValue(field.getValue());
+                        me.down('#from datefield').setMaxValue(new Date(field.getValue()));
                         me.fireEvent('change', me, me.getValue());
                     },
                     reset: function() {
