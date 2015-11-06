@@ -236,6 +236,7 @@ Ext.define('Cfg.controller.Tasks', {
         var taskModel = me.getModel('Cfg.model.ValidationTask'),
             taskForm = view.down('#frm-add-validation-task'),
             deviceGroupCombo = view.down('#cbo-validation-task-device-group'),
+            usagepointGroupCombo = view.down('#cbo-validation-task-usagepoint-group'),
             recurrenceTypeCombo = view.down('#cbo-recurrence-type');
 
         if (!Cfg.privileges.Validation.canAdministrate()) {
@@ -260,8 +261,24 @@ Ext.define('Cfg.controller.Tasks', {
                             view.down('#no-device').show();
                         }
                         deviceGroupCombo.setValue(deviceGroupCombo.store.getById(record.data.deviceGroup.id));
+                        if (record.data.deviceGroup.id)
+                           view.down('#rbtn-device-group').setValue(true);
                     }
                 });
+                
+                usagepointGroupCombo.store.load({
+                    callback: function () {
+                        if (this.getCount() === 0) {
+                        	usagepointGroupCombo.allowBlank = true;
+                        	usagepointGroupCombo.hide();
+                            view.down('#no-device').show();
+                        }
+                        usagepointGroupCombo.setValue(usagepointGroupCombo.store.getById(record.data.usagePointGroup.id));
+                        if (record.data.usagePointGroup.id)
+                            view.down('#rbtn-usagepoint-group').setValue(true);
+                    }
+                });
+                
                 if (record.data.nextRun && (record.data.nextRun !== 0)) {
                     //if (schedule) {
                     view.down('#rgr-validation-tasks-recurrence-trigger').setValue({recurrence: true});
@@ -450,6 +467,11 @@ Ext.define('Cfg.controller.Tasks', {
     },
 
     removeOperation: function (record) {
+    	  if (!record.get('usagePointGroup') ||record.get('usagePointGroup') === "") {
+          	record.set('usagePointGroup', null);
+          } else {
+          	record.set('deviceGroup', null);
+          }
         var me = this;
         record.destroy({
             success: function () {

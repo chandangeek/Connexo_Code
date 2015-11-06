@@ -83,24 +83,26 @@ Ext.define('Cfg.view.validationtask.Add', {
                                         itemId: 'rbtn-device-group',
                                         name: 'grouptype',
                                         boxLabel: Uni.I18n.translate('general.group.device', 'CFG', 'End Device'),
-                                        inputValue: 'device',
+                                        inputValue: 'End Device',
                                     },
                                     {
                                         itemId: 'rbtn-usagepoint-group',
                                         name: 'grouptype',
                                         boxLabel: Uni.I18n.translate('general.group.usagepoint', 'CFG', 'Usage Point'),
-                                        inputValue: 'usagepoint',
+                                        inputValue: 'Usage Point',
                                     }
                                 ],
                                 listeners: {
                                     change: function(field, newValue, oldVallue) {
                                         
-                                        if (newValue['grouptype'] == 'device') {
+                                        if (newValue['grouptype'] == 'End Device') {
                                         	me.down('#cbo-validation-task-usagepoint-group').hide();
                                             me.down('#cbo-validation-task-device-group').show();
-                                          } else if (newValue['grouptype'] == 'usagepoint') {
-                                              me.down('#cbo-validation-task-device-group').hide();
+                                            me.down('#cbo-validation-task-usagepoint-group').clearValue();
+                                          } else if (newValue['grouptype'] == 'Usage Point') {
+                                            me.down('#cbo-validation-task-device-group').hide();
                                         	me.down('#cbo-validation-task-usagepoint-group').show();
+                                        	me.down('#cbo-validation-task-device-group').clearValue();
                                         }
                                     }
                                 }
