@@ -19,13 +19,6 @@ import java.util.Optional;
 @ProviderType
 public interface DeviceService {
 
-    public String CONFIG_CHANGE_BULK_QUEUE_DESTINATION = "ConfigChangeBulkQD";
-    public String CONFIG_CHANGE_BULK_QUEUE_SUBSCRIBER = "ConfigChangeBulkQS";
-    public String CONFIG_CHANGE_SINGLE_QUEUE_DESTINATION = "ConfigChangeSingleQD";
-    public String CONFIG_CHANGE_SINGLE_QUEUE_SUBSCRIBER = "ConfigChangeSingleQS";
-    public String FINISHED_SINGLE_DEVICE_CONFIG_CHANGE_DESTINATION = "ConfigChangeDeviceFinishQD";
-    public String FINISHED_SINGLE_DEVICE_CONFIG_CHANGE_SUBSCRIBER = "ConfigChangeDeviceFinishQS";
-
     /**
      * Creates a new Device based on the given name and DeviceConfiguration
      *
@@ -121,9 +114,8 @@ public interface DeviceService {
      * <b>NOTE:</b> Make sure you don't create your own transaction. This will be performed during the execution
      * of this method. Multiple transactions are required to perform Business Locks.
      *
-     * @param device                         the Device(s) to change their configuration
      * @param deviceId
-     *@param deviceVersion
+     * @param deviceVersion
      * @param destinationDeviceConfigId      the ID fo the DestinationDeviceConfig
      * @param destinationDeviceConfigVersion the version to check   @return the given device with the new configuration applied
      */
@@ -132,9 +124,10 @@ public interface DeviceService {
     /**
      * Change the DeviceConfiguration for the given set of Devices to the provided destinationDeviceConfiguration.
      * The action will be queued and the processing is asynchronously.
+     *
      * @param destinationDeviceConfiguration the configuration which should be applied
      * @param devicesForConfigChangeSearch
-     * @param deviceMRIDs a list of device MRIDs
+     * @param deviceMRIDs                    a list of device MRIDs
      */
     public void changeDeviceConfigurationForDevices(DeviceConfiguration destinationDeviceConfiguration, DevicesForConfigChangeSearch devicesForConfigChangeSearch, String... deviceMRIDs);
 

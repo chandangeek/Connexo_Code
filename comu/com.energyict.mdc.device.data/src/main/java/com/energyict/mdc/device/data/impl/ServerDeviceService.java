@@ -67,4 +67,6 @@ public interface ServerDeviceService extends DeviceService, ReferencePropertySpe
 
     public Optional<DeviceConfigChangeRequest> findDeviceConfigChangeRequestById(long id);
 
+    public Optional<DeviceConfigChangeInAction> findDeviceConfigChangeInActionById(long id);
+
 }

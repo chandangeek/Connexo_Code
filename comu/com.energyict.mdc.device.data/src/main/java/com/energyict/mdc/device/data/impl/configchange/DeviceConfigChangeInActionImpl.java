@@ -58,7 +58,7 @@ public class DeviceConfigChangeInActionImpl implements DeviceConfigChangeInActio
 
     @Override
     public void remove() {
-        this.dataModel.remove(this);
+        ((DeviceConfigChangeRequestImpl) deviceConfigChangeRequest.get()).removeDeviceConfigChangeInAction(this);
     }
 
     @Override

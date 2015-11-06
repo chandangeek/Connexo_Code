@@ -17,6 +17,15 @@ import java.util.List;
  */
 public interface ServerDeviceForConfigChange extends Device, CanLock {
 
+    String CONFIG_CHANGE_BULK_QUEUE_DESTINATION = "ConfigChangeBulkQD";
+    String DEVICE_CONFIG_CHANGE_SUBSCRIBER = "DeviceConfigChangeSubscriber";
+    String DEVICE_CONFIG_CHANGE_SUBSCRIBER_DISPLAY_NAME = "Handles bulk actions for device configuration changes";
+
+    String CONFIG_CHANGE_MESSAGE_VALUE = "ConfigChangeMessageValue";
+    String DEVICE_CONFIG_CHANGE_BULK_SETUP_ACTION = "deviceConfigChange/SETUP";
+    String DEVICE_CONFIG_CHANGE_SINGLE_START_ACTION = "deviceConfigChange/START";
+    String DEVICE_CONFIG_CHANGE_SINGLE_COMPLETED_ACTION = "deviceConfigChange/COMPLETED";
+
     /**
      * Validates whether or not this device can change its configuration to the given destinationDeviceConfig
      *

@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,6 +21,10 @@ public class DevicesForConfigChangeSearch {
         public String singleData;
         public List<String> multipleData;
 
+        @SuppressWarnings("unused")
+        public DeviceSearchItem() {
+        }
+
         public DeviceSearchItem(String propertyName, Operator operator, String data) {
             this.propertyName = propertyName;
             this.operator = operator;
@@ -34,6 +39,10 @@ public class DevicesForConfigChangeSearch {
 
     }
 
-    public List<DeviceSearchItem> searchItems;
+    @SuppressWarnings("unused")
+    public DevicesForConfigChangeSearch() {
+    }
+
+    public List<DeviceSearchItem> searchItems = new ArrayList<>();
 
 }

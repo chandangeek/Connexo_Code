@@ -75,9 +75,14 @@ public final class DeviceConfigChangeRequestImpl implements DeviceConfigChangeRe
 
     @Override
     public void notifyDeviceInActionIsRemoved() {
-//        if (this.deviceConfigChangeInActions.isEmpty()) {
-//            this.dataModel.remove(this);
-//        }
+        if (this.deviceConfigChangeInActions.isEmpty()) {
+            this.dataModel.remove(this);
+        }
+    }
+
+
+    public void removeDeviceConfigChangeInAction(DeviceConfigChangeInActionImpl deviceConfigChangeInAction) {
+        this.deviceConfigChangeInActions.remove(deviceConfigChangeInAction);
     }
 
     @Override

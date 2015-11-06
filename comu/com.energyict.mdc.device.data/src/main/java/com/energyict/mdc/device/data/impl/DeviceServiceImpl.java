@@ -47,6 +47,7 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.util.HasId;
+import org.osgi.service.event.EventConstants;
 
 import javax.inject.Inject;
 import java.sql.PreparedStatement;
@@ -278,8 +279,16 @@ public class DeviceServiceImpl implements ServerDeviceService {
         deviceConfigChangeRequest.save();
         ItemizeConfigChangeQueueMessage itemizeConfigChangeQueueMessage = new ItemizeConfigChangeQueueMessage(destinationDeviceConfiguration.getId(), Arrays.asList(deviceMRIDs), devicesForConfigChangeSearch, deviceConfigChangeRequest.getId());
 
-        DestinationSpec destinationSpec = deviceDataModelService.messageService().getDestinationSpec(DeviceService.CONFIG_CHANGE_BULK_QUEUE_DESTINATION).orElseThrow(new NoDestinationSpecFound(thesaurus, DeviceService.CONFIG_CHANGE_BULK_QUEUE_DESTINATION));
-        destinationSpec.message(deviceDataModelService.jsonService().serialize(itemizeConfigChangeQueueMessage));
+        DestinationSpec destinationSpec = deviceDataModelService.messageService().getDestinationSpec(ServerDeviceForConfigChange.CONFIG_CHANGE_BULK_QUEUE_DESTINATION).orElseThrow(new NoDestinationSpecFound(thesaurus, ServerDeviceForConfigChange.CONFIG_CHANGE_BULK_QUEUE_DESTINATION));
+        Map<String, Object> message = createConfigChangeQueueMessage(itemizeConfigChangeQueueMessage);
+        destinationSpec.message(deviceDataModelService.jsonService().serialize(message)).send();
+    }
+
+    private Map<String, Object> createConfigChangeQueueMessage(ItemizeConfigChangeQueueMessage itemizeConfigChangeQueueMessage) {
+        Map<String, Object> message = new HashMap<>(2);
+        message.put(EventConstants.EVENT_TOPIC, ServerDeviceForConfigChange.DEVICE_CONFIG_CHANGE_BULK_SETUP_ACTION);
+        message.put(ServerDeviceForConfigChange.CONFIG_CHANGE_MESSAGE_VALUE, deviceDataModelService.jsonService().serialize(itemizeConfigChangeQueueMessage));
+        return message;
     }
 
     @Override
@@ -293,5 +302,10 @@ public class DeviceServiceImpl implements ServerDeviceService {
     @Override
     public Optional<DeviceConfigChangeRequest> findDeviceConfigChangeRequestById(long id) {
         return deviceDataModelService.dataModel().mapper(DeviceConfigChangeRequest.class).getUnique("id", id);
+    }
+
+    @Override
+    public Optional<DeviceConfigChangeInAction> findDeviceConfigChangeInActionById(long id) {
+        return deviceDataModelService.dataModel().mapper(DeviceConfigChangeInAction.class).getUnique("id", id);
     }
 }

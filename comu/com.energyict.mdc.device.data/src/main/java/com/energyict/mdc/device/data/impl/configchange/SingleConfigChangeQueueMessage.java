@@ -11,10 +11,15 @@ public class SingleConfigChangeQueueMessage implements QueueMessage {
     public String deviceMrid;
     public long destinationDeviceConfigurationId;
     public long deviceConfigChangeInActionId;
+    public long deviceConfigChangeRequestId;
 
-    public SingleConfigChangeQueueMessage(String deviceMrid, long destinationDeviceConfigurationId, long deviceConfigChangeInActionId) {
+    public SingleConfigChangeQueueMessage() {
+    }
+
+    public SingleConfigChangeQueueMessage(String deviceMrid, long destinationDeviceConfigurationId, long deviceConfigChangeInActionId, long deviceConfigChangeRequestId) {
         this.deviceMrid = deviceMrid;
         this.destinationDeviceConfigurationId = destinationDeviceConfigurationId;
         this.deviceConfigChangeInActionId = deviceConfigChangeInActionId;
+        this.deviceConfigChangeRequestId = deviceConfigChangeRequestId;
     }
 }
