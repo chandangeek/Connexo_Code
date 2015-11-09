@@ -54,7 +54,7 @@ public class ComServerStatusSummaryResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION, com.energyict.mdc.device.data.security.Privileges.VIEW_DEVICE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE})
     public ComServerStatusSummaryInfo getComServerStatusSummary(@Context UriInfo uriInfo) {
         Client jerseyClient = this.newJerseyClient();
         UriBuilder uriBuilder = UriBuilder.fromUri(uriInfo.getBaseUri()).path(ComServerStatusResource.class).host("{host}");

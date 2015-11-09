@@ -1,6 +1,5 @@
 package com.energyict.mdc.dashboard.rest;
 
-import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.dashboard.DashboardService;
@@ -30,6 +29,7 @@ import com.energyict.mdc.dashboard.rest.status.impl.KpiScoreFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.LabeledDeviceResource;
 import com.energyict.mdc.dashboard.rest.status.impl.MessageSeeds;
 import com.energyict.mdc.dashboard.rest.status.impl.OverviewFactory;
+import com.energyict.mdc.dashboard.rest.status.impl.ResourceHelper;
 import com.energyict.mdc.dashboard.rest.status.impl.SummaryInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.TaskStatusTranslationKeys;
 import com.energyict.mdc.dashboard.rest.status.impl.TranslationKeys;
@@ -62,6 +62,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
@@ -334,6 +335,7 @@ public class DashboardApplication extends Application implements MessageSeedProv
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
             bind(firmwareService).to(FirmwareService.class);
             bind(FilterFactory.class).to(FilterFactory.class);
+            bind(ResourceHelper.class).to(ResourceHelper.class);
         }
     }
 

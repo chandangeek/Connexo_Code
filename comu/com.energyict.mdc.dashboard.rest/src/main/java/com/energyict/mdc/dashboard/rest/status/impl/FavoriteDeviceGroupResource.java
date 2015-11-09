@@ -24,6 +24,7 @@ import javax.ws.rs.core.SecurityContext;
 
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -35,11 +36,13 @@ public class FavoriteDeviceGroupResource {
     
     private final MeteringGroupsService meteringGroupsService;
     private final FavoritesService favoritesService;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public FavoriteDeviceGroupResource(MeteringGroupsService meteringGroupsService, FavoritesService favoritesService) {
+    public FavoriteDeviceGroupResource(MeteringGroupsService meteringGroupsService, FavoritesService favoritesService, ConcurrentModificationExceptionFactory conflictFactory) {
         this.meteringGroupsService = meteringGroupsService;
         this.favoritesService = favoritesService;
+        this.conflictFactory = conflictFactory;
     }
     
     @GET
@@ -63,16 +66,54 @@ public class FavoriteDeviceGroupResource {
     //@RolesAllowed({Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP})
     public Response updateFavoriteDeviceGroups(FavoriteDeviceGroupInfo.SelectionInfo selection, @Context SecurityContext securityContext) {
         User user = (User) securityContext.getUserPrincipal();
-        Map<Long, FavoriteDeviceGroup> groups = favoritesService.getFavoriteDeviceGroups(user).stream().collect(Collectors.toMap(fdg -> fdg.getEndDeviceGroup().getId(), Function.identity()));
-        selection.ids.stream().distinct().forEach(id -> {
-            if (groups.containsKey(id)) {
-                groups.remove(id);
-            } else {
-                Optional<EndDeviceGroup> endDeviceGroupToAdd = meteringGroupsService.findEndDeviceGroup(id);
-                endDeviceGroupToAdd.ifPresent(edg -> favoritesService.findOrCreateFavoriteDeviceGroup(edg, user));
+        Map<Long, FavoriteDeviceGroup> currentFavGroupList = favoritesService.getFavoriteDeviceGroups(user)
+                .stream()
+                .collect(Collectors.toMap(fdg -> fdg.getEndDeviceGroup().getId(), Function.identity()));
+        for (FavoriteDeviceGroupInfo info : selection.ids) {
+            boolean alreadyMarkedAsFavorite = currentFavGroupList.containsKey(info.id);
+            /*
+            +--------------+-----------+----------+--------+
+            | was favorite | should be | already  | action |
+            |(version == 1)| favorite  | favorite |        |
+            +--------------+-----------+----------+--------+
+            |      -       |     +     |     +    |nothing |
+            +--------------+-----------+----------+--------+
+            |      -       |     +     |     -    |add     |
+            +--------------+-----------+----------+--------+
+            |      -       |     -     |     +    |thr ex  |
+            +--------------+-----------+----------+--------+
+            |      -       |     -     |     -    |nothing |
+            +--------------+-----------+----------+--------+
+            |      +       |     +     |     +    |nothing |
+            +--------------+-----------+----------+--------+
+            |      +       |     +     |     -    |thr ex  |
+            +--------------+-----------+----------+--------+
+            |      +       |     -     |     +    |remove  |
+            +--------------+-----------+----------+--------+
+            |      +       |     -     |     -    |nothing |
+            +--------------+-----------+----------+--------+
+             */
+            if (info.favorite != alreadyMarkedAsFavorite){
+                if (info.favorite && info.version == 0){ // group was marked as favorite
+                    EndDeviceGroup endDeviceGroup = getLockedEndDeviceGroup(info);
+                    favoritesService.findOrCreateFavoriteDeviceGroup(endDeviceGroup, user);
+                } else if (alreadyMarkedAsFavorite && info.version == 1){ // group was unmarked as favorite
+                    getLockedEndDeviceGroup(info);
+                    favoritesService.removeFavoriteDeviceGroup(currentFavGroupList.get(info.id));
+                } else {
+                    throw conflictFactory.contextDependentConflictOn(info.name)
+                            .withActualVersion(() -> meteringGroupsService.findEndDeviceGroup(info.id).map(EndDeviceGroup::getVersion).orElse(null))
+                            .build();
+                }
             }
-        });
-        groups.values().stream().forEach(favoritesService::removeFavoriteDeviceGroup);
+        }
         return Response.ok().build();
+    }
+
+    private EndDeviceGroup getLockedEndDeviceGroup(FavoriteDeviceGroupInfo info) {
+        return meteringGroupsService.findAndLockEndDeviceGroupByIdAndVersion(info.parent.id, info.parent.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                        .withActualVersion(() -> meteringGroupsService.findEndDeviceGroup(info.id).map(EndDeviceGroup::getVersion).orElse(null))
+                        .supplier());
     }
 }

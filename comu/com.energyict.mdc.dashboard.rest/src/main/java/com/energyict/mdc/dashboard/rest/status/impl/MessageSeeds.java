@@ -18,6 +18,8 @@ public enum MessageSeeds implements MessageSeed {
     CONNECTION_TASK_NOT_UNIQUE(8, "NotUniqueConnectionTask", "Only a single connection type can be handled in connection task attributes update"),
     ONE_CONNECTION_TYPE_REQUIRED(9, "OneConnetionTypeRequired", "No connection type could be identified"),
     UNSUPPORTED_KPI_PERIOD(10, "UnsupportedKpiPeriod", "Read-outs are not available for this period"),
+    CONCURRENT_RUN_TITLE(11, "ConcurrentRunTitle", "Failed to run ''{0}''"),
+    CONCURRENT_RUN_BODY(12, "ConcurrentRunMessage", "{0} has changed since the page was last updated."),
     ;
 
     private final int number;
