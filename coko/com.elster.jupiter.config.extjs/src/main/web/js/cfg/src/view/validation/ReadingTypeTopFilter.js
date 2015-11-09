@@ -17,6 +17,7 @@ Ext.define('Cfg.view.validation.ReadingTypeTopFilter', {
             {
                 type: 'text',
                 dataIndex: 'name',
+                itemId: 'readingTypeNameCombo',
                 emptyText: Uni.I18n.translate('validation.readingTypeName', 'CFG', 'Reading type name'),
             },
             {
@@ -41,6 +42,7 @@ Ext.define('Cfg.view.validation.ReadingTypeTopFilter', {
                 type: 'combobox',
                 dataIndex: 'tou',
                 emptyText: Uni.I18n.translate('validation.timeOfUse', 'CFG', 'Time of use'),
+                itemId: 'timeOfUseCombo',
                 store: 'TimeOfUse',
                 displayField: 'name',
                 valueField: 'tou'
@@ -51,6 +53,7 @@ Ext.define('Cfg.view.validation.ReadingTypeTopFilter', {
                 type: 'combobox',
                 dataIndex: 'time',
                 emptyText: Uni.I18n.translate('validation.interval', 'CFG', 'Interval'),
+                itemId: 'intervalCombo',
                 store: 'Intervals',
                 displayField: 'name',
                 valueField: 'name',
