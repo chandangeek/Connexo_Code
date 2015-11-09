@@ -137,7 +137,7 @@ Ext.define('InsightApp.controller.History', {
                     action: 'manageValidationRuleSets',
            			callback: function (route) {
                         this.getApplication().on('metrologyConfigurationValRuleSetLoaded', function (record) {
-                            route.setTitle(record.get('name'));
+                            route.setTitle('Manage metrology configuration validation rules sets');
                             return true;
                         }, {single: true});
 
