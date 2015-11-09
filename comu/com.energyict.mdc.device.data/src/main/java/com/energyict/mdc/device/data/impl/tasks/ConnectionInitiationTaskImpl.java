@@ -90,10 +90,6 @@ public class ConnectionInitiationTaskImpl extends OutboundConnectionTaskImpl<Par
             this.connectionInitiationTask = connectionInitiationTask;
         }
 
-//        protected ConnectionInitiationTaskImpl getConnectionInitiationTask() {
-//            return connectionInitiationTask;
-//        }
-
         @Override
         public Device.ConnectionInitiationTaskBuilder setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus status) {
             this.connectionInitiationTask.setStatus(status);

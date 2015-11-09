@@ -33,6 +33,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -346,7 +347,7 @@ public enum TableSpecs {
             table.column("STATUS").number().conversion(NUMBER2BOOLEAN).notNull().map(ComSessionImpl.Fields.STATUS.fieldName()).add();
             table.foreignKey("FK_DDC_COMSESSION_COMPORTPOOL").
                     on(comportPool).
-                    references(EngineConfigurationService.COMPONENT_NAME, "MDC_COMPORTPOOL").
+                    references(ComPortPool.class).
                     onDelete(CASCADE).
                     map(ComSessionImpl.Fields.COMPORT_POOL.fieldName()).
                     add();

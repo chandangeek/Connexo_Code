@@ -405,19 +405,22 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfigurationWithConnectionType = createDeviceConfigWithPartialOutboundConnectionTask();
         deviceConfigurationWithConnectionType.activate();
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfigurationWithConnectionType, "DeviceWithConnectionTasks", MRID);
-        device.save();
+
         ScheduledConnectionTask scheduledConnectionTask = device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask).add();
 
         ScheduledConnectionTask reloaded = inMemoryPersistence.getConnectionTaskService().findScheduledConnectionTask(scheduledConnectionTask.getId()).get();
         Device reloadedDevice = getReloadedDevice(device);
         reloadedDevice.removeConnectionTask(reloaded);
+        assertThat(reloadedDevice.getInboundConnectionTasks()).isEmpty();
+        assertThat(reloadedDevice.getScheduledConnectionTasks()).isEmpty();
+        assertThat(reloadedDevice.getConnectionInitiationTasks()).isEmpty();
 
         Device deviceWithoutConnectionTasks = getReloadedDevice(reloadedDevice);
 
         assertThat(deviceWithoutConnectionTasks.getConnectionTasks()).isEmpty();
-        assertThat(reloadedDevice.getInboundConnectionTasks()).isEmpty();
-        assertThat(reloadedDevice.getScheduledConnectionTasks()).isEmpty();
-        assertThat(reloadedDevice.getConnectionInitiationTasks()).isEmpty();
+        assertThat(deviceWithoutConnectionTasks.getInboundConnectionTasks()).isEmpty();
+        assertThat(deviceWithoutConnectionTasks.getScheduledConnectionTasks()).isEmpty();
+        assertThat(deviceWithoutConnectionTasks.getConnectionInitiationTasks()).isEmpty();
     }
 
     @Test

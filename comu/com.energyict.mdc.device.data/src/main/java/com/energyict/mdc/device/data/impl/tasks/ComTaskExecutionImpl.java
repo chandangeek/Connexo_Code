@@ -134,7 +134,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         if (comTaskEnablement.usesDefaultConnectionTask() || !comTaskEnablement.hasPartialConnectionTask()) {
             this.setUseDefaultConnectionTask(true);
         } else if (comTaskEnablement.hasPartialConnectionTask()) {
-            this.setMatchingConnectionTaskOrUseDefaultIfNotFound(getDevice(), comTaskEnablement);
+            this.setMatchingConnectionTaskOrUseDefaultIfNotFound(device, comTaskEnablement);
         }
     }
 
@@ -152,7 +152,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         }
     }
 
-    protected void initializeDevice(Device device) {
+    void initializeDevice(Device device) {
         this.device.set(device);
     }
 
@@ -320,13 +320,11 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
     private void setLastSessionAndUpdate(ComTaskExecutionSession session) {
         this.setLastSession(session);
-//      Bug in the DataModel that does not support foreign key columns in the update method
         this.getDataModel()
                 .update(this,
                         ComTaskExecutionFields.LAST_SESSION.fieldName(),
                         ComTaskExecutionFields.LAST_SESSION_HIGHEST_PRIORITY_COMPLETION_CODE.fieldName(),
                         ComTaskExecutionFields.LAST_SESSION_SUCCESSINDICATOR.fieldName());
-//        this.update();
     }
 
     private void setLastSession(ComTaskExecutionSession session) {
@@ -370,7 +368,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         return this.plannedPriority;
     }
 
-    protected void setPlannedPriority(int plannedPriority) {
+    void setPlannedPriority(int plannedPriority) {
         this.plannedPriority = plannedPriority;
     }
 
@@ -517,12 +515,11 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
         Instant currentDate = clock.instant();
         this.setPlannedNextExecutionTimestamp(currentDate);
         this.nextExecutionTimestamp = currentDate;
-
-        if (this.connectionTaskIsScheduled()) {
-            ((ScheduledConnectionTaskImpl) this.getConnectionTask().get()).scheduleConnectionNow();
-        }
         if (this.getId() > 0) {
             this.updateForScheduling();
+        }
+        if (this.connectionTaskIsScheduled()) {
+            ((ScheduledConnectionTaskImpl) this.getConnectionTask().get()).scheduleConnectionNow();
         }
     }
 
@@ -729,6 +726,7 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
      */
     public void prepareForSaving() {
         validateNotObsolete();
+        Save.CREATE.validate(getDataModel(), this, Save.Create.class, Save.Update.class);
     }
 
     protected Instant now() {
@@ -743,14 +741,10 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
     public abstract static class AbstractComTaskExecutionBuilder<C extends ComTaskExecution, CI extends ComTaskExecutionImpl> implements ComTaskExecutionBuilder<C> {
 
-        private final CI comTaskExecution;
+        protected final CI comTaskExecution;
 
         protected AbstractComTaskExecutionBuilder(CI instance) {
             this.comTaskExecution = instance;
-        }
-
-        protected CI getComTaskExecution() {
-            return this.comTaskExecution;
         }
 
         @Override

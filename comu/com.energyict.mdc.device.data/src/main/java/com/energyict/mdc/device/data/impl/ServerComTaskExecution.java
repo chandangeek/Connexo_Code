@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.tasks.HasLastComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.config.ComPort;
@@ -61,6 +62,14 @@ public interface ServerComTaskExecution extends ComTaskExecution, HasLastComTask
      * @see #getExecutingComPort()
      */
     public void executionStarted (ComPort comPort);
+
+    /**
+     * Makes this ComTaskExecution obsolete, i.e. it will no longer execute
+     * nor will it be returned by {@link DeviceService} finder methods.
+     * <p>
+     * Note: the call needs to run in a Transaction, no additional save() is required.
+     */
+    public void makeObsolete();
 
     /**
      * Notifies this ComTaskExecution that the ConnectionTask

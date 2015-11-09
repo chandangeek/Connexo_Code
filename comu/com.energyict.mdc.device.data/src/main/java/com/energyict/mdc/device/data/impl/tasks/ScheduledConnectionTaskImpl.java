@@ -92,46 +92,12 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     @Override
-    protected void validateAndCreate() {
-        if (this.nextExecutionSpecs.isPresent()) {
-            this.getNextExecutionSpecs().update();
-        }
-        super.validateAndCreate();
-        if (this.getNextExecutionSpecs() != null) {
-            this.doUpdateNextExecutionTimestamp(PostingMode.NOW);
-        } else {
-            // ConnectionStrategy must be ASAP
-            this.updateNextExecutionTimeStampBasedOnComTask();
-        }
-    }
-
-    @Override
-    public void save() {
-        super.save();
+    public void update() {
+        this.updateStrategy.prepare();
+        Save.UPDATE.save(getDataModel(), this, Save.Create.class, Save.Update.class);
+        this.updateStrategy.complete();
         this.updateStrategy = new Noop();
-    }
-
-    @Override
-    protected void validateAndUpdate() {
-        this.updateStrategy.prepare();
-        super.validateAndUpdate();
-        this.updateStrategy.complete();
-    }
-
-    @Override
-    protected void update() {
-        this.updateStrategy.prepare();
-        super.update();
-        this.updateStrategy.complete();
-    }
-
-    @Override
-    protected void doDelete() {
-        NextExecutionSpecs nextExecutionSpecs = this.getNextExecutionSpecs();
-        super.doDelete();
-        if (nextExecutionSpecs != null) {
-            nextExecutionSpecs.delete();
-        }
+        getDataModel().touch(getDevice());
     }
 
     @Override
@@ -175,6 +141,10 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     public void setConnectionStrategy(ConnectionStrategy newConnectionStrategy) {
         this.updateStrategy = this.updateStrategy.connectionStrategyChanged(this.connectionStrategy, newConnectionStrategy);
         this.connectionStrategy = newConnectionStrategy;
+    }
+
+    public void clearUpdateStrategy(){
+        this.updateStrategy = new Noop();
     }
 
     private void prepareStrategyChange(ConnectionStrategy oldStrategy) {

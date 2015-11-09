@@ -6,8 +6,6 @@ import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.ConnectionTaskFields;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteUsedDefaultConnectionTaskException;
-import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteConnectionTaskException;
-import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsAlreadyObsoleteException;
 import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsExecutingAndCannotBecomeObsoleteException;
 import com.energyict.mdc.device.data.exceptions.DuplicateConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.IncompatiblePartialConnectionTaskException;
@@ -72,6 +70,7 @@ import static com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelatio
 @XmlRootElement
 @HasValidProperties(groups = {Save.Create.class, Save.Update.class})
 @ComPortPoolIsCompatibleWithConnectionType(groups = {Save.Create.class, Save.Update.class})
+@ConnectionTaskIsNotObsolete(groups = {Save.Update.class})
 public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPPT extends ComPortPool>
     extends PersistentIdObject<ConnectionTask>
     implements
@@ -155,6 +154,10 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         }
     }
 
+    @Override
+    public boolean hasDirtyProperties() {
+        return cache.isDirty();
+    }
 
     @Override
     public void lock() {
@@ -222,22 +225,16 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
-    protected void doDelete() {
-        this.deleteAllProperties();
-        this.deleteDependents();
-        this.getDataMapper().remove(this);
-    }
-
     /**
-     * Deletes the {@link Relation}s that hold the values of
-     * all the {@link com.energyict.mdc.pluggable.PluggableClass properties}.
+     * Delete not supported as ORM does not allow to delete a 'child' of device
      */
-    private void deleteAllProperties() {
-        this.obsoleteAllProperties();
+    public void delete() {
+        throw new UnsupportedOperationException();
     }
 
-    protected void deleteDependents() {
-        this.unRegisterConnectionTaskFromComTasks();
+    @Override
+    protected void doDelete() {
+        // nothing to do as delete() is not supported
     }
 
     /**
@@ -248,6 +245,11 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         for (ComTaskExecution comTaskExecution : this.findDependentComTaskExecutions()) {
             ((ServerComTaskExecution)comTaskExecution).connectionTaskRemoved();
         }
+    }
+
+    @Override
+    public void save() {
+        throw new UnsupportedOperationException();
     }
 
     public void saveAllProperties() {
@@ -266,7 +268,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         }
     }
 
-    protected void removeAllProperties() {
+    public void removeAllProperties() {
         Relation relation = getDefaultRelation();
         if (relation != null) {
             try {
@@ -291,20 +293,15 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         return clock.instant();
     }
 
-    protected void validateNotObsolete() {
-        if (this.obsoleteDate != null) {
-            throw new CannotUpdateObsoleteConnectionTaskException(this, this.getThesaurus(), MessageSeeds.CONNECTION_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE);
-        }
-    }
-
     @Override
     public void makeObsolete() {
+        Save.UPDATE.validate(getDataModel(), this, Save.Update.class);
         this.reloadComServerAndObsoleteDate();
         this.validateMakeObsolete();
         this.obsoleteDate = this.clock.instant();
+        this.getDataModel().update(this);
         this.makeDependentsObsolete();
         this.unRegisterConnectionTaskFromComTasks();
-        this.validateAndUpdate();
     }
 
     /**
@@ -337,9 +334,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     private void validateMakeObsolete() {
-        if (this.isObsolete()) {
-            throw new ConnectionTaskIsAlreadyObsoleteException(this, this.getThesaurus(), MessageSeeds.CONNECTION_TASK_IS_ALREADY_OBSOLETE);
-        } else if (this.comServer.isPresent()) {
+        if (this.comServer.isPresent()) {
             throw new ConnectionTaskIsExecutingAndCannotBecomeObsoleteException(this, this.getExecutingComServer(), this.getThesaurus(), MessageSeeds.CONNECTION_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE);
         }
     }
@@ -838,8 +833,8 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
-    protected void update() {
-        super.update();
+    public void update() {
+        Save.UPDATE.save(getDataModel(), this, Save.Create.class, Save.Update.class);
         if (!doNotTouchParentDevice) {
             getDataModel().touch(device.get());
         }

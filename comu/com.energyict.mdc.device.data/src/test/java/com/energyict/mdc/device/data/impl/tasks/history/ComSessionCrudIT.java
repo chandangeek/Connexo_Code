@@ -327,8 +327,6 @@ public class ComSessionCrudIT {
                     .setComPortPool(outboundTcpipComPortPool)
                     .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                     .add();
-            device.save();
-            connectionTask.save();
 
             OnlineComServer.OnlineComServerBuilder<? extends OnlineComServer> onlineComServerBuilder = engineConfigurationService.newOnlineComServerBuilder();
             onlineComServerBuilder.name("ComServer");

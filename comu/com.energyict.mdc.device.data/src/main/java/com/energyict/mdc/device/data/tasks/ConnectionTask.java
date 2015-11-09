@@ -194,12 +194,6 @@ public interface ConnectionTask<CPPT extends ComPortPool, PCTT extends PartialCo
     public ConnectionTaskLifecycleStatus getStatus();
 
     /**
-     * Makes this ConnectionTask obsolete, i.e. it will no longer execute
-     * nor will it be returned by {@link DeviceService} finder methods.
-     */
-    public void makeObsolete();
-
-    /**
      * Tests if this ConnectionTask is obsolete.
      *
      * @return A flag that indicates if this ConnectionTask is obsolete

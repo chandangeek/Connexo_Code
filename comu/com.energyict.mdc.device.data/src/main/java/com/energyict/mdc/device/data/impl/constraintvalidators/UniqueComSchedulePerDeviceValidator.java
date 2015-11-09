@@ -25,8 +25,7 @@ public class UniqueComSchedulePerDeviceValidator implements ConstraintValidator<
     public boolean isValid(ScheduledComTaskExecutionImpl scheduledComTaskExecution, ConstraintValidatorContext context) {
         for (ComTaskExecution other : scheduledComTaskExecution.getDevice().getComTaskExecutions()) {
             if (other.getId() != scheduledComTaskExecution.getId()) {
-                ComTaskExecutionImpl serverComTaskExecution = (ComTaskExecutionImpl) other;
-                if (this.isScheduled(serverComTaskExecution) && serverComTaskExecution.executesComSchedule(scheduledComTaskExecution.getComSchedule())) {
+                if (this.isScheduled(other) && other.executesComSchedule(scheduledComTaskExecution.getComSchedule())) {
                     context.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.DUPLICATE_COMTASK_SCHEDULING + "}")
                             .addConstraintViolation()
                             .disableDefaultConstraintViolation();
@@ -37,8 +36,8 @@ public class UniqueComSchedulePerDeviceValidator implements ConstraintValidator<
         return true;
     }
 
-    private boolean isScheduled(ComTaskExecutionImpl serverComTaskExecution) {
-        return serverComTaskExecution.usesSharedSchedule() && !serverComTaskExecution.isScheduledManually();
+    private boolean isScheduled(ComTaskExecution comTaskExecution) {
+        return comTaskExecution.usesSharedSchedule() && !comTaskExecution.isScheduledManually();
     }
 
 }

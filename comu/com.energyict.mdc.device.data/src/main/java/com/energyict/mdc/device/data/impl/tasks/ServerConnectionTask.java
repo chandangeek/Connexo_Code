@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.config.ComPortPool;
 
@@ -13,7 +14,11 @@ import com.energyict.mdc.engine.config.ComPortPool;
  */
 public interface ServerConnectionTask<CPPT extends ComPortPool, PCTT extends PartialConnectionTask> extends ConnectionTask<CPPT, PCTT> {
 
-    void saveAllProperties();
+    /**
+     * Makes this ConnectionTask obsolete, i.e. it will no longer execute
+     * nor will it be returned by {@link DeviceService} finder methods.
+     */
+    void makeObsolete();
 
     /**
      * Revalidates the properties of this ConnectionTask and will

@@ -110,7 +110,7 @@ public abstract class PersistentIdObject<D> {
     /**
      * Updates the changes made to this object without running validation.
      */
-    protected void update() {
+    public void update() {
         this.getDataModel().update(this);
     }
 
