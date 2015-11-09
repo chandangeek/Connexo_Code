@@ -172,6 +172,7 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
                         text: items[0].criteria.get('group').displayValue,
                         value: group.name,
                         menu: {
+                            itemId: 'search-criteria-sub-menu',
                             items: items
                         }
                     }).menu.items.getRange());

@@ -77,6 +77,10 @@ Ext.define('Uni.form.field.DateTime', {
                     change: {
                         fn: me.onItemChange,
                         scope: me
+                    },
+                    blur: {
+                        fn: me.fireBlurEvent,
+                        scope: me
                     }
                 }
             },
@@ -120,7 +124,10 @@ Ext.define('Uni.form.field.DateTime', {
                             fn: me.onItemChange,
                             scope: me
                         },
-                        blur: me.numberFieldValidation
+                        blur: {
+                            fn: me.numberFieldValidation,
+                            scope: me
+                        }
                     }
                 }
             };
@@ -149,6 +156,20 @@ Ext.define('Uni.form.field.DateTime', {
         }
     },
 
+    fireBlurEvent: function () {
+        var me = this,
+            dateField = me.down('#date-time-field-date'),
+            hoursField = me.down('#date-time-field-hours'),
+            minutesField = me.down('#date-time-field-minutes');
+
+        Ext.defer(function () {
+            if (!dateField.hasFocus && !hoursField.hasFocus && !minutesField.hasFocus) {
+                me.fireEvent('blur', me, me.getValue());
+            }
+        }, 100);
+
+    },
+
     formatDisplayOfTime: function (value) {
         var result = '00';
 
@@ -170,6 +191,7 @@ Ext.define('Uni.form.field.DateTime', {
         } else if (value > field.maxValue) {
             field.setValue(field.maxValue);
         }
+        this.fireBlurEvent();
     },
 
     setValue: function (value) {
@@ -203,18 +225,23 @@ Ext.define('Uni.form.field.DateTime', {
 
         if (Ext.isDate(date)) {
             date = date.getTime();
-            if (hours) date += hours * 3600000;
-            if (minutes) date += minutes * 60000;
-            if (me.getRawValue) {
-                return date;
-            } else {
-                date = new Date(date);
-                return me.submitFormat ? Ext.Date.format(date, me.submitFormat) : date;
+            if (hours) {
+                date += hours * 3600000;
             }
+            if (minutes) {
+                date += minutes * 60000;
+            }
+
+            date = new Date(date);
+            return me.submitFormat ? Ext.Date.format(date, me.submitFormat) : date;
         } else {
             me.down('#date-time-field-date').setValue(null);
             return null;
         }
+    },
+
+    getRawValue: function () {
+        return this.getValue().toString();
     },
 
     markInvalid: function (fields) {

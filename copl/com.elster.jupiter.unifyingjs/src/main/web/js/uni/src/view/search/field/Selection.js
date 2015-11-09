@@ -135,6 +135,7 @@ Ext.define('Uni.view.search.field.Selection', {
                 items: [
                     {
                         xtype: 'toolbar',
+                        itemId: 'toolbar',
                         layout: 'hbox',
                         items: [
                             {

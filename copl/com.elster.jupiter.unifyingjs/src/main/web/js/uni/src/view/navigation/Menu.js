@@ -83,15 +83,7 @@ Ext.define('Uni.view.navigation.Menu', {
     },
 
     addMenuItem: function (model) {
-        var me = this,
-            item = me.createMenuItemFromModel(model);
-
-        // TODO Sort the buttons on their model's index value, instead of relying on insert.
-        if (model.data.index === '' || model.data.index === null || model.data.index === undefined) {
-            me.getMenuContainer().add(item);
-        } else {
-            me.getMenuContainer().insert(model.data.index, item);
-        }
+        this.getMenuContainer().add(this.createMenuItemFromModel(model));
     },
 
     createMenuItemFromModel: function (model) {
