@@ -3,10 +3,7 @@ package com.elster.jupiter.users.impl;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.MessageSeedProvider;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.*;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -51,17 +48,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.Checks.is;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
         name = "com.elster.jupiter.users",
-        service = {UserService.class, InstallService.class, MessageSeedProvider.class, PrivilegesProvider.class},
+        service = {UserService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class, PrivilegesProvider.class},
         immediate = true,
         property = "name=" + UserService.COMPONENTNAME)
-public class UserServiceImpl implements UserService, InstallService, MessageSeedProvider, PrivilegesProvider {
+public class UserServiceImpl implements UserService, InstallService, MessageSeedProvider, TranslationKeyProvider, PrivilegesProvider {
 
     private volatile DataModel dataModel;
     private volatile TransactionService transactionService;
@@ -352,6 +351,11 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     }
 
     @Override
+    public Optional<Group> findAndLockGroupByIdAndVersion(long id, long version) {
+        return dataModel.mapper(Group.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public List<Group> getGroups() {
         return dataModel
                 .query(Group.class, PrivilegeInGroup.class)
@@ -434,6 +438,11 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     }
 
     @Override
+    public Optional<User> findAndLockUserByIdAndVersion(long id, long version) {
+        return userFactory().lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public Query<User> getUserQuery() {
         return getQueryService().wrap(dataModel.query(User.class));
     }
@@ -470,8 +479,22 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
     }
 
     @Override
+    public List<TranslationKey> getKeys() {
+        return Stream.of(
+                Arrays.stream(Privileges.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
+    }
+
+
+    @Override
+    public String getComponentName() {
+        return UserService.COMPONENTNAME;
     }
 
     @Override
@@ -674,8 +697,8 @@ public class UserServiceImpl implements UserService, InstallService, MessageSeed
         List<ResourceDefinition> resources = new ArrayList<>();
         resources.add(createModuleResourceWithPrivileges(
                 UserService.COMPONENTNAME,
-                "userAndRole.usersAndRoles", "userAndRole.usersAndRoles.description",
-                Arrays.asList(Privileges.ADMINISTRATE_USER_ROLE, Privileges.VIEW_USER_ROLE)));
+                Privileges.RESOURCE_USERS.getKey(), Privileges.RESOURCE_USERS_DESCRIPTION.getKey(),
+                Arrays.asList(Privileges.Constants.ADMINISTRATE_USER_ROLE, Privileges.Constants.VIEW_USER_ROLE)));
 
         return resources;
     }

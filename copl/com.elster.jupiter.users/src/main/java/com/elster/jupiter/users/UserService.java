@@ -37,6 +37,7 @@ public interface UserService {
 
     Optional<Group> getGroup(long id);
 
+    Optional<Group> findAndLockGroupByIdAndVersion(long id, long version);
     /**
      * @return the group with specified name
      */
@@ -49,6 +50,8 @@ public interface UserService {
     Query<Group> getGroupsQuery();
 
     Optional<User> getUser(long id);
+
+    Optional<User> findAndLockUserByIdAndVersion(long id, long version);
 
     Optional<Privilege> getPrivilege(String privilegeName);
 

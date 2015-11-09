@@ -129,13 +129,13 @@ public final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
         env.putAll(commonEnvLDAP);
         env.put(Context.PROVIDER_URL, urls.get(0));
         try {
+            env.put(Context.SECURITY_PRINCIPAL, name + "@" + getRealDomain(getBaseUser()));
+            env.put(Context.SECURITY_CREDENTIALS, password);
             LdapContext ctx = new InitialLdapContext(env, null);
             ExtendedRequest tlsRequest = new StartTlsRequest();
             ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
             tls = (StartTlsResponse) tlsResponse;
             tls.negotiate();
-            env.put(Context.SECURITY_PRINCIPAL, name + "@" + getRealDomain(getBaseUser()));
-            env.put(Context.SECURITY_CREDENTIALS, password);
             return findUser(name);
         } catch (NumberFormatException | IOException | NamingException e) {
             if (urls.size() > 1) {
@@ -288,16 +288,16 @@ public final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
         env.put(Context.PROVIDER_URL, urls.get(0));
         try {
             String userName;
+            env.put(Context.SECURITY_PRINCIPAL, getDirectoryUser());
+            env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
             LdapContext ctx = new InitialLdapContext(env, null);
             ExtendedRequest tlsRequest = new StartTlsRequest();
             ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
             tls = (StartTlsResponse) tlsResponse;
             tls.negotiate();
-            env.put(Context.SECURITY_PRINCIPAL, getDirectoryUser());
-            env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
             SearchControls controls = new SearchControls();
             controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
-            results = ctx.search(getBaseUser(), "(objectclass=person)", controls);
+            results = ctx.search(getBaseUser(), "(&(objectclass=person))", controls);
             while (results.hasMore()) {
                 LdapUser ldapUser = new LdapUserImpl();
                 SearchResult searchResult = (SearchResult) results.next();
@@ -410,13 +410,13 @@ public final class ActiveDirectoryImpl extends AbstractLdapDirectoryImpl {
         NamingEnumeration results = null;
         env.put(Context.PROVIDER_URL, urls.get(0));
         try {
+            env.put(Context.SECURITY_PRINCIPAL, getDirectoryUser());
+            env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
             LdapContext ctx = new InitialLdapContext(env, null);
             ExtendedRequest tlsRequest = new StartTlsRequest();
             ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
             tls = (StartTlsResponse) tlsResponse;
             tls.negotiate();
-            env.put(Context.SECURITY_PRINCIPAL, getDirectoryUser());
-            env.put(Context.SECURITY_CREDENTIALS, getPasswordDecrypt());
             SearchControls controls = new SearchControls();
             controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
             results = ctx.search(getBaseUser(), "(sAMAccountName=" + user + ")", controls);
