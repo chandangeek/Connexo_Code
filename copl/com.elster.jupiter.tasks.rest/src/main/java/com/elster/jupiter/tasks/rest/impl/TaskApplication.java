@@ -5,6 +5,7 @@ package com.elster.jupiter.tasks.rest.impl;
         import com.elster.jupiter.nls.Thesaurus;
         import com.elster.jupiter.rest.util.RestQueryService;
         import com.elster.jupiter.tasks.TaskService;
+        import com.elster.jupiter.time.TimeService;
         import com.elster.jupiter.transaction.TransactionService;
         import com.google.common.collect.ImmutableSet;
         import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -20,6 +21,7 @@ public class TaskApplication extends Application {
     public static final String COMPONENT_NAME = "TSK";
 
     private volatile TaskService taskService;
+    private volatile TimeService timeService;
     private volatile TransactionService transactionService;
     private volatile RestQueryService restQueryService;
     private volatile Thesaurus thesaurus;
@@ -31,6 +33,11 @@ public class TaskApplication extends Application {
     @Reference
     public void setTaskService(TaskService taskService) {
         this.taskService = taskService;
+    }
+
+    @Reference
+    public void setTimeService(TimeService timeService) {
+        this.timeService = timeService;
     }
 
     @Reference
@@ -61,6 +68,7 @@ public class TaskApplication extends Application {
         protected void configure() {
             bind(restQueryService).to(RestQueryService.class);
             bind(transactionService).to(TransactionService.class);
+            bind(timeService).to(TimeService.class);
             bind(taskService).to(TaskService.class);
             bind(thesaurus).to(Thesaurus.class);
         }

@@ -40,13 +40,15 @@ public class TaskResource {
     private final Thesaurus thesaurus;
     private final TransactionService transactionService;
     private final TaskService taskService;
+    private final TimeService timeService;
 
     @Inject
-    public TaskResource(TaskService taskService, RestQueryService queryService, Thesaurus thesaurus, TransactionService transactionService) {
+    public TaskResource(TaskService taskService, RestQueryService queryService, Thesaurus thesaurus, TransactionService transactionService,TimeService timeService) {
         this.queryService = queryService;
         this.thesaurus = thesaurus;
         this.transactionService = transactionService;
         this.taskService = taskService;
+        this.timeService = timeService;
     }
 
     @GET
@@ -65,13 +67,8 @@ public class TaskResource {
                 .setLimit(params.getLimit());
 
         List<? extends RecurrentTask> list = finder.find();
-        TaskInfos infos = new TaskInfos(params.clipToLimit(list));
+        TaskInfos infos = new TaskInfos(params.clipToLimit(list), thesaurus, timeService);
         return infos;
-
-        /*QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<? extends RecurrentTask> list = queryTasks(params);
-        TaskInfos infos = new TaskInfos(params.clipToLimit(list));
-        return infos;*/
     }
 
     private List<? extends RecurrentTask> queryTasks(QueryParameters queryParameters) {

@@ -1,11 +1,19 @@
 package com.elster.jupiter.tasks.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskStatus;
+import com.elster.jupiter.time.PeriodicalScheduleExpression;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.util.time.Never;
+import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -18,6 +26,7 @@ public class TaskInfo {
     public String queue;
     public String queueStatus;
     public Long queueStatusDate;
+    public String trigger;
     public Long nextRun;
     public Long currentRunDuration;
     public String lastRunStatus;
@@ -28,40 +37,121 @@ public class TaskInfo {
     static String PLANNED = "Planned";
     static String BUSY = "Busy";
 
-    public TaskInfo(RecurrentTask recurrentTask) {
+    public TaskInfo(RecurrentTask recurrentTask, Thesaurus thesaurus, TimeService timeService) {
         name = recurrentTask.getName();
         application = "MultiSense";
         queue = recurrentTask.getDestination().getName();
+        trigger = getScheduledTriggerDescription(recurrentTask.getScheduleExpression(), thesaurus, timeService);
         Optional<TaskOccurrence> lastOccurrence = recurrentTask.getLastOccurrence();
         if (lastOccurrence.isPresent()) {
             TaskOccurrence occurrence = lastOccurrence.get();
             if (occurrence.getStatus().equals(TaskStatus.BUSY)) {
-                setBusySince(occurrence.getStartDate().get().toEpochMilli());
+                setBusySince(recurrentTask, occurrence.getStartDate().get().toEpochMilli());
             } else {
-                setPlannedOn(recurrentTask.getNextExecution().toEpochMilli(), occurrence);
+                setPlannedOn(recurrentTask, occurrence);
             }
         } else {
-            setPlannedOn(recurrentTask.getNextExecution().toEpochMilli(), null);
+            setPlannedOn(recurrentTask, null);
         }
         nextRun = recurrentTask.getNextExecution().toEpochMilli();
     }
 
-    private void setPlannedOn(Long plannedDate, TaskOccurrence lastOccurrence) {
+    private void setPlannedOn(RecurrentTask recurrentTask, TaskOccurrence lastOccurrence) {
+        long plannedDate = recurrentTask.getNextExecution().toEpochMilli();
         setQueueStatus(PLANNED, plannedDate);
         if (lastOccurrence != null) {
-            lastRunStatus = lastOccurrence.getStatus().toString();
-            //lastRunDate = lastOccurrence.getStartDate().get().toEpochMilli();
-            //lastRunDuration = lastOccurrence.getEndDate().get().toEpochMilli() - lastOccurrence.getStartDate().get().toEpochMilli();
+            if (lastOccurrence.getStartDate().isPresent()) {
+                setLastRunStatus(lastOccurrence);
+            } else {
+                // startdate is not set yet because task is not picked up by the queue yet, so we take the previous ocurence
+                List<TaskOccurrence> occurences = recurrentTask.getTaskOccurrences();
+                if (occurences.size() > 1) {
+                    setLastRunStatus(occurences.get(1));
+                }
+            }
         }
     }
 
-    private void setBusySince(Long startDate) {
+    private void setLastRunStatus(TaskOccurrence lastOccurrence) {
+        lastRunStatus = lastOccurrence.getStatus().toString();
+        if (lastOccurrence.getStartDate().isPresent()) {
+            lastRunDate = lastOccurrence.getStartDate().get().toEpochMilli();
+            lastRunDuration = lastOccurrence.getEndDate().get().toEpochMilli() - lastOccurrence.getStartDate().get().toEpochMilli();
+        }
+    }
+
+    private void setBusySince(RecurrentTask recurrentTask, Long startDate) {
         setQueueStatus(BUSY, startDate);
+        // Take the previous occurence to check the last run status
+        List<TaskOccurrence> occurences = recurrentTask.getTaskOccurrences();
+        if (occurences.size() > 1) {
+            setLastRunStatus(occurences.get(1));
+        }
+
         currentRunDuration = Instant.now().toEpochMilli() - startDate;
     }
 
     private void setQueueStatus(String status, Long date) {
         queueStatus = status;
         queueStatusDate = date;
+    }
+
+    private String getScheduledTriggerDescription(ScheduleExpression scheduleExpression, Thesaurus thesaurus, TimeService timeService) {
+        if (Never.NEVER.equals(scheduleExpression)) {
+            return null;
+        }
+        if (scheduleExpression instanceof PeriodicalScheduleExpression) {
+            return fromPeriodicalScheduleExpression((PeriodicalScheduleExpression) scheduleExpression, timeService);
+        }
+        if (scheduleExpression instanceof TemporalExpression) {
+            return fromTemporalExpression((TemporalExpression) scheduleExpression, thesaurus);
+        }
+        return scheduleExpression.toString();
+    }
+
+    private String fromPeriodicalScheduleExpression(PeriodicalScheduleExpression scheduleExpression, TimeService timeService) {
+        return timeService.toLocalizedString(scheduleExpression);
+    }
+
+    private String fromTemporalExpression(TemporalExpression scheduleExpression, Thesaurus thesaurus) {
+        TimeDuration every = scheduleExpression.getEvery();
+        int count = every.getCount();
+        TimeDuration.TimeUnit unit = every.getTimeUnit();
+        String everyTranslation = thesaurus.getString("every", "every");
+
+        String unitTranslation = unit.getDescription();
+        if (unit.equals(TimeDuration.TimeUnit.DAYS)) {
+            if (count == 1) {
+                unitTranslation = thesaurus.getString("day", "day");
+            } else {
+                unitTranslation = thesaurus.getString("multipleDays", "days");
+            }
+        }
+        else if (unit.equals(TimeDuration.TimeUnit.WEEKS)) {
+            if (count == 1) {
+                unitTranslation = thesaurus.getString("week", "week");
+            } else {
+                unitTranslation = thesaurus.getString("multipleWeeks", "weeks");
+            }
+        }
+        else if (unit.equals(TimeDuration.TimeUnit.MONTHS)) {
+            if (count == 1) {
+                unitTranslation = thesaurus.getString("month", "month");
+            } else {
+                unitTranslation = thesaurus.getString("multipleMonths", "months");
+            }
+        }
+        else if (unit.equals(TimeDuration.TimeUnit.YEARS)) {
+            if (count == 1) {
+                unitTranslation = thesaurus.getString("year", "year");
+            } else {
+                unitTranslation = thesaurus.getString("multipleYears", "years");
+            }
+        }
+        if (count == 1) {
+            return everyTranslation + " " + unitTranslation;
+        } else {
+            return everyTranslation + " " + count + " " + unitTranslation;
+        }
     }
 }

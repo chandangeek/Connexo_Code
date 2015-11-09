@@ -18,10 +18,10 @@ public class TaskInfos {
     public TaskInfos() {
     }
 
-    public TaskInfos(Iterable<? extends RecurrentTask> allTasks) {
+    public TaskInfos(Iterable<? extends RecurrentTask> allTasks, Thesaurus thesaurus, TimeService timeService) {
         for (RecurrentTask each : allTasks) {
             if (each.getNextExecution() != null)  {
-                tasks.add(new TaskInfo(each));
+                tasks.add(new TaskInfo(each, thesaurus, timeService));
                 total++;
             }
         }
