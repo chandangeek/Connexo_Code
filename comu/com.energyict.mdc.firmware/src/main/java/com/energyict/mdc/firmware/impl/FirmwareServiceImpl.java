@@ -51,7 +51,7 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
