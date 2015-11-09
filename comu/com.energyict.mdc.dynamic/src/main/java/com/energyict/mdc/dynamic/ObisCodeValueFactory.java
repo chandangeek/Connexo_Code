@@ -31,7 +31,7 @@ public class ObisCodeValueFactory extends AbstractValueFactory<ObisCode> {
     }
 
     @Override
-    public ObisCode valueFromDatabase (Object object) throws SQLException {
+    public ObisCode valueFromDatabase (Object object) {
         if (object == null) {
             return null;
         }

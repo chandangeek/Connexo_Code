@@ -3,8 +3,6 @@ package com.energyict.mdc.dynamic;
 import com.elster.jupiter.properties.AbstractValueFactory;
 import com.energyict.mdc.common.TimeOfDay;
 
-import java.sql.SQLException;
-
 /**
  * Insert your comments here.
  *
@@ -29,7 +27,7 @@ public class TimeOfDayFactory extends AbstractValueFactory<TimeOfDay> {
     }
 
     @Override
-    public TimeOfDay valueFromDatabase (Object object) throws SQLException {
+    public TimeOfDay valueFromDatabase (Object object) {
         if (object != null) {
             return new TimeOfDay(((Number) object).intValue());
         }

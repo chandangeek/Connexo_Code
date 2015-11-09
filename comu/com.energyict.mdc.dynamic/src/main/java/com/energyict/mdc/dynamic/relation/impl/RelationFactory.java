@@ -2,7 +2,7 @@ package com.energyict.mdc.dynamic.relation.impl;
 
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.DatabaseException;
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.IdBusinessObject;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.dynamic.relation.Constraint;

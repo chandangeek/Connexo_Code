@@ -41,7 +41,7 @@ public class EncryptedStringFactory extends AbstractValueFactory<String> {
     }
 
     @Override
-    public String valueFromDatabase (Object object) throws SQLException {
+    public String valueFromDatabase (Object object) {
         return this.valueFromDb((String) object);
     }
 

@@ -10,6 +10,7 @@ import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.time.TimeDuration;
 
+import java.util.List;
 import java.util.TimeZone;
 
 /**
@@ -94,7 +95,19 @@ public interface PropertySpecService extends com.elster.jupiter.properties.Prope
      * @param factoryId The id of the AbstractValueFactory
      * @return The PropertySpec
      */
-    PropertySpec referencePropertySpec (String name, String description, boolean required, FactoryIds factoryId);
+    public PropertySpec referencePropertySpec (String name, String description, boolean required, FactoryIds factoryId);
+
+    /**
+     * Creates a {@link PropertySpec} that references objects provided by the
+     * {@link com.elster.jupiter.properties.AbstractValueFactory} with the specified factoryId.
+     *
+     * @param name The PropertySpec name
+     * @param required A flag that indicates if the PropertySpec should be required or not
+     * @param factoryId The id of the AbstractValueFactory
+     * @param possibleValues The exhaustive list of possible values
+     * @return The PropertySpec
+     */
+    public PropertySpec referencePropertySpec(String name, boolean required, FactoryIds factoryId, List<? extends Object> possibleValues);
 
     /**
      * Todo: remove as part of COPL-1151

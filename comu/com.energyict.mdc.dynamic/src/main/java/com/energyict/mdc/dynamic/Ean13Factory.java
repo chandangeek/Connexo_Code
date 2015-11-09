@@ -37,7 +37,7 @@ public class Ean13Factory extends AbstractValueFactory<Ean13> {
     }
 
     @Override
-    public Ean13 valueFromDatabase (Object object) throws SQLException {
+    public Ean13 valueFromDatabase (Object object) {
         try {
             if (object == null || ((String) object).trim().isEmpty()) {
                 return null;
@@ -47,7 +47,7 @@ public class Ean13Factory extends AbstractValueFactory<Ean13> {
             }
         }
         catch (ParseException ex) {
-            throw new SQLException(ex.toString());
+            throw new IllegalArgumentException(ex.toString());
         }
     }
 
