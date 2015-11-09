@@ -3,6 +3,7 @@ package com.elster.jupiter.metering.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ServiceKind;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import org.junit.After;
 import org.junit.Before;
@@ -30,6 +31,8 @@ public class ServiceCategoryImplTest {
     @Mock
     private DataModel dataModel;
     @Mock
+    private Thesaurus thesaurus;
+    @Mock
     private EventService eventService;
     @Mock
     private Provider<MeterActivationImpl> meterActivationFactory;
@@ -49,7 +52,7 @@ public class ServiceCategoryImplTest {
 				return new UsagePointImpl(dataModel, eventService, meterActivationFactory, accountabilityFactory);
 			}
     	};
-        serviceCategory = new ServiceCategoryImpl(dataModel,usagePointFactory).init(ServiceKind.ELECTRICITY);
+        serviceCategory = new ServiceCategoryImpl(dataModel,usagePointFactory,thesaurus).init(ServiceKind.ELECTRICITY);
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(validatorFactory.getValidator()).thenReturn(validator);
         when(validator.validate(any(), anyVararg())).thenReturn(Collections.emptySet());
@@ -97,8 +100,5 @@ public class ServiceCategoryImplTest {
 
         UsagePoint usagePoint = serviceCategory.newUsagePoint("mrId").create();
         assertThat(usagePoint).isInstanceOf(UsagePointImpl.class);
-
-
     }
-
 }

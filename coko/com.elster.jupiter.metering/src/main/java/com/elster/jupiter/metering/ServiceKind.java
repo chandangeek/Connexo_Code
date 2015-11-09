@@ -1,33 +1,40 @@
 package com.elster.jupiter.metering;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 
 public enum ServiceKind implements TranslationKey {
-	ELECTRICITY ("electricity"),
-	GAS ("gas"),
-	WATER ("water"),
-	TIME ("time"),
-	HEAT ("heat"),
-	REFUSE ("refuse"),
-	SEWERAGE ("sewerage"),
-	RATES ("rates"),
-	TVLICENSE ("tvLicense"),
-	INTERNET ("internet"),
-	OTHER ("other");
-	
+	ELECTRICITY ("electricity", "Electricity"),
+	GAS ("gas", "Gas"),
+	WATER ("water", "Water"),
+	TIME ("time", "Time"),
+	HEAT ("heat", "Heat"),
+	REFUSE ("refuse", "Refuse"),
+	SEWERAGE ("sewerage", "Sewerage"),
+	RATES ("rates", "Rates"),
+	TVLICENSE ("tvLicense", "TV license"),
+	INTERNET ("internet", "Internet"),
+	OTHER ("other", "Other");
+
 	private final String displayName;
-	
-	ServiceKind(String displayName) {
+	private final String defaultFormat;
+
+	ServiceKind(String displayName, String defaultFormat) {
 		this.displayName = displayName;
+		this.defaultFormat = defaultFormat;
 	}
-	
+
 	public String getDisplayName() {
-		return displayName;
+		return this.displayName;
 	}
-	
+
+	public String getDisplayName(Thesaurus thesaurus) {
+		return thesaurus.getString(getTranslationKey(this), this.defaultFormat);
+	}
+
 	@Override
 	public String toString() {
-		return displayName;
+		return defaultFormat;
 	}
 
 	@Override
@@ -41,6 +48,6 @@ public enum ServiceKind implements TranslationKey {
 
 	@Override
 	public String getDefaultFormat() {
-		return displayName;
+		return this.defaultFormat;
 	}
 }

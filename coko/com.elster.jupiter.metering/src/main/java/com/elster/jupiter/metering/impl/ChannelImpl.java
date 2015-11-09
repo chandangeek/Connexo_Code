@@ -53,6 +53,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.util.Checks.is;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 public final class ChannelImpl implements ChannelContract {
@@ -308,17 +309,34 @@ public final class ChannelImpl implements ChannelContract {
     @Override
     public List<BaseReadingRecord> getReadingsUpdatedSince(ReadingType readingType, Range<Instant> interval, Instant since) {
         List<TimeSeriesEntry> entries = getTimeSeries().getEntriesUpdatedSince(interval, since);
-        return toReadings(readingType, entries);
+        return entries.stream()
+                .map(entry -> asDifferingReading(entry, readingType, since))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    private BaseReadingRecord asDifferingReading(TimeSeriesEntry entry, ReadingType readingType, Instant since) {
+        BaseReadingRecord currentReading = toReadingFunction().apply(entry);
+        Optional<TimeSeriesEntry> oldEntry = entry.getVersion(since);
+        if (!oldEntry.isPresent()) {
+            return currentReading;
+        }
+        BaseReadingRecord oldReading = oldEntry.map(toReadingFunction()).get();
+        return is(oldReading.getQuantity(readingType)).equalTo(currentReading.getQuantity(readingType)) ? null : currentReading;
     }
 
     private List<BaseReadingRecord> toReadings(ReadingType readingType, List<TimeSeriesEntry> entries) {
-        Function<TimeSeriesEntry, BaseReadingRecord> readingMapper = isRegular() ?
-                entry -> new IntervalReadingRecordImpl(this, entry) :
-                entry -> new ReadingRecordImpl(this, entry);
+        Function<TimeSeriesEntry, BaseReadingRecord> readingMapper = toReadingFunction();
         return entries.stream()
                 .map(readingMapper)
                 .map(reading -> reading.filter(readingType))
                 .collect(ExtraCollectors.toImmutableList());
+    }
+
+    private Function<TimeSeriesEntry, BaseReadingRecord> toReadingFunction() {
+        return isRegular() ?
+                entry -> new IntervalReadingRecordImpl(this, entry) :
+                entry -> new ReadingRecordImpl(this, entry);
     }
 
     @Override
