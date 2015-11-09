@@ -44,17 +44,17 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
         switch (item.action) {
         	case 'editMetrologyConfiguration':
         		//router.arguments.mcid = menu.record.getId();
-        		route = 'metrologyconfiguration/edit';
+        		route = 'administration/metrologyconfiguration/edit';
         		break;
         	case 'viewMetrologyConfiguration':
         		//router.arguments.mcid = menu.record.getId();
-        		route = 'metrologyconfiguration/view';
+        		route = 'administration/metrologyconfiguration/view';
         		break;
         	case 'removeMetrologyConfiguration':
                 me.removeMetrologyConfiguration(menu.record);
         		//router.arguments.mcid = menu.record.getId();
         		//alert('delete not yet implemented -- ' + ' ' + menu.record.getId());
- //       		route = 'metrologyconfiguration/delete';
+ //       		route = 'administration/metrologyconfiguration/delete';
         		break;
         }
 
@@ -65,7 +65,7 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
         var me = this,
         router = me.getController('Uni.controller.history.Router'),
         route;
-   		route = 'metrologyconfiguration/add';
+   		route = 'administration/metrologyconfiguration/add';
 
         route && (route = router.getRoute(route));
         route && route.forward(router.arguments, {previousRoute: router.getRoute().buildUrl()});
@@ -133,7 +133,7 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
                     grid.down('pagingtoolbartop').totalCount = 0;
                     grid.getStore().load();
                 } else {
-                    me.getController('Uni.controller.history.Router').getRoute('metrologyconfiguration/overview').forward();
+                    me.getController('Uni.controller.history.Router').getRoute('administration/metrologyconfiguration').forward();
                 }
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.general.remove.confirm.msg', 'CFG', 'Metrology configuration removed'));
             },
@@ -162,7 +162,7 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
                                 text: Uni.I18n.translate('general.cancel','IMT','Cancel'),
                                 action: 'cancel',
                                 ui: 'link',
-                                href: '#metrologyconfiguration/overview',
+                                href: '#/administration/metrologyconfiguration',
                                 handler: function (button, event) {
                                     this.up('messagebox').destroy();
                                 }

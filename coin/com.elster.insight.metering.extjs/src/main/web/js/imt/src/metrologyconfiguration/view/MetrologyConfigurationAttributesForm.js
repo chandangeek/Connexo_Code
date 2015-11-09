@@ -61,7 +61,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm
                                 xtype: 'button',
                                 ui: 'action',
                                 itemId: 'backLink',
-                                href: me.router.getRoute('metrologyconfiguration/overview').buildUrl(),
+                                href: me.router.getRoute('administration/metrologyconfiguration').buildUrl(),
                             }
                         ]
                     }

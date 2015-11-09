@@ -9,7 +9,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationSideMenu', {
             {
                 text: Uni.I18n.translate('metrologyconfiguration.overview', 'IMT', 'Overview'),
                 itemId: 'metrology-configuration-overview-link',
-                href: me.router.getRoute('metrologyconfiguration/view').buildUrl({mcid: me.mcid})
+                href: me.router.getRoute('administration/metrologyconfiguration/view').buildUrl({mcid: me.mcid})
             },           
             {
                 title: 'Configurations',
@@ -18,7 +18,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationSideMenu', {
                     {
                         text: Uni.I18n.translate('metrologyconfiguration.validationRuleSets', 'IMT', 'Validation Rule Sets'),
                         itemId: 'metrology-configuration-validation-rulesets-link',
-                        href: me.router.getRoute('metrologyconfiguration/manage').buildUrl({mcid: me.mcid})
+                        href: me.router.getRoute('administration/metrologyconfiguration/manage').buildUrl({mcid: me.mcid})
                     },
                 ]
             }

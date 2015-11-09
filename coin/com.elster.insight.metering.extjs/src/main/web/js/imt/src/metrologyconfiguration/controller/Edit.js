@@ -81,7 +81,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
 
         switch (button.action) {
         	case 'cancelButton':
-        		route = 'metrologyconfiguration/overview';
+        		route = '#/administration/metrologyconfiguration';
         		break;
         	case 'saveModel':
         		me.saveModel(button);
@@ -263,7 +263,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
         route;
         switch (button.action) {
         	case 'cancelButton':
-        		route = 'metrologyconfiguration/overview';
+        		route = '#/administration/metrologyconfiguration';
         		break;
         	case 'saveModel':
         		me.saveMetrologyConfigValRuleSetsModel(button);
