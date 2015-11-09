@@ -8,6 +8,7 @@ import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 
@@ -52,6 +53,8 @@ public interface RecurrentTask extends HasName, HasAuditInfo {
     TaskOccurrence runNow(TaskExecutor executor);
 
     Optional<TaskOccurrence> getLastOccurrence();
+
+    List<TaskOccurrence> getTaskOccurrences();
 
     /**
      * @since v1.1

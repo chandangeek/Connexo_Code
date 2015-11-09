@@ -25,6 +25,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NOT_UNIQUE + "}")
 class RecurrentTaskImpl implements RecurrentTask {
@@ -231,6 +232,11 @@ class RecurrentTaskImpl implements RecurrentTask {
     public Optional<TaskOccurrence> getLastOccurrence() {
         return dataModel.query(TaskOccurrence.class).select(Operator.EQUAL.compare("recurrentTaskId", this.getId()), new Order[]{Order.descending("id")},
                 false, new String[]{}, 1, 1).stream().findAny();
+    }
+
+    @Override
+    public List<TaskOccurrence> getTaskOccurrences() {
+        return dataModel.mapper(TaskOccurrence.class).find("recurrentTask", this, Order.descending("id"));
     }
 
     public long getVersion() {
