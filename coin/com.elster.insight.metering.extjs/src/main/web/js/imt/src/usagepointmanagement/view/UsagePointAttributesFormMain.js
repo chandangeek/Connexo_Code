@@ -146,6 +146,14 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointAttributesFormMain', {
                             return value ? value : '-';
                         }
                     },
+//                    {
+//                        name: 'metrologyConfiguration',
+//                        itemId: 'fld-up-metrologyConfiguration-name',
+//                        fieldLabel: Uni.I18n.translate('usagePointManagement.generalAttributes.connectionState', 'IMT', 'Metrology config name'),
+//                        renderer: function (data) {
+//                            return data.name ? data.name : '-';
+//                        }
+//                    },
                     {
                         name: 'created',
                         itemId: 'fld-up-created',
