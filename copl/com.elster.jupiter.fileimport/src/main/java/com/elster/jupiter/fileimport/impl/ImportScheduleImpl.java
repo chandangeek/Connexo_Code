@@ -148,7 +148,7 @@ final class ImportScheduleImpl implements ImportSchedule {
 
     @Override
     public boolean isActive() {
-        return !this.isDeleted() && isImporterAvailable() && this.active;
+        return !this.isDeleted() && this.active;
     }
 
     @Override
