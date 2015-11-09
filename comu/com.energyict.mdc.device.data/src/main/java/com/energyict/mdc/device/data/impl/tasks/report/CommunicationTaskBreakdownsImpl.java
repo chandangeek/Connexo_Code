@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.impl.tasks.report;
 
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskBreakdowns;

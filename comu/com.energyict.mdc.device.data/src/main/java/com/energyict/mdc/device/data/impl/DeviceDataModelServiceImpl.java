@@ -479,7 +479,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.connectionTaskReportService = new ConnectionTaskReportServiceImpl(this, meteringService);
         this.communicationTaskService = new CommunicationTaskServiceImpl(this, meteringService);
         this.communicationTaskReportService = new CommunicationTaskReportServiceImpl(this, meteringService);
-        this.deviceService = new DeviceServiceImpl(this, protocolPluggableService, queryService, thesaurus);
+        this.deviceService = new DeviceServiceImpl(this, protocolPluggableService, queryService, thesaurus, meteringGroupsService);
         this.loadProfileService = new LoadProfileServiceImpl(this);
         this.logBookService = new LogBookServiceImpl(this);
         this.dataCollectionKpiService = new DataCollectionKpiServiceImpl(this);

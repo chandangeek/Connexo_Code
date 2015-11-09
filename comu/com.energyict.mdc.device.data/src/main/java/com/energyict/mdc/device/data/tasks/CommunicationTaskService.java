@@ -69,6 +69,8 @@ public interface CommunicationTaskService {
      */
     Optional<ComTaskExecution> findComTaskExecution(long id);
 
+    public Optional<ComTaskExecution> findAndLockComTaskExecutionByIdAndVersion(long id, long version);
+
     /**
      * Finds all {@link ConnectionTask}s that match the specified filter.
      *

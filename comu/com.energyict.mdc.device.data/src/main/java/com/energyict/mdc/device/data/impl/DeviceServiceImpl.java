@@ -1,6 +1,10 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.util.HasId;
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;

@@ -40,6 +40,8 @@ public interface ConnectionTaskService {
 
     Optional<ConnectionTask> findConnectionTask(long id);
 
+    Optional<ConnectionTask> findAndLockConnectionTaskByIdAndVersion(long id, long version);
+
     Optional<OutboundConnectionTask> findOutboundConnectionTask(long id);
 
     Optional<InboundConnectionTask> findInboundConnectionTask(long id);
