@@ -298,6 +298,11 @@ public class FirmwareCampaignImpl implements FirmwareCampaign, HasUniqueName {
         return this.devicesStatus.get().getStatusMap();
     }
 
+    @Override
+    public long getVersion() {
+        return this.version;
+    }
+
     public void updateStatistic(){
         DevicesInFirmwareCampaignStatusImpl devicesStatus = this.devicesStatus.get();
         devicesStatus.update();
