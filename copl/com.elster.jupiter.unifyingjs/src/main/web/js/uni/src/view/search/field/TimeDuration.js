@@ -49,8 +49,9 @@ Ext.define('Uni.view.search.field.TimeDuration', {
                     valueField: 'code',
                     forceSelection: false,
                     editable: false,
-                    width: 200,
+                    width: 190,
                     labelWidth: 50,
+                    margin: '0 10 0 0',
                     queryMode: 'local',
                     value: 14
                 }
