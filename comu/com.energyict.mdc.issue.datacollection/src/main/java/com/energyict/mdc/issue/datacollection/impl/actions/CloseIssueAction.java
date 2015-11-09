@@ -1,5 +1,6 @@
 package com.energyict.mdc.issue.datacollection.impl.actions;
 
+import com.elster.jupiter.issue.security.Privileges;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
 
@@ -79,6 +80,11 @@ public class CloseIssueAction extends AbstractIssueAction {
     @Override
     public boolean isApplicable(Issue issue) {
         return super.isApplicable(issue) && IssueStatus.OPEN.equals(issue.getStatus().getKey());
+    }
+
+    @Override
+    public boolean isApplicableForUser(User user) {
+        return super.isApplicableForUser(user) && user.getPrivileges().stream().filter(p -> Privileges.CLOSE_ISSUE.equals(p.getName())).findAny().isPresent();
     }
 
     private Optional<IssueStatus> getStatusFromParameters(Map<String, Object> properties){
