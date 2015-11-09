@@ -20,6 +20,7 @@ import org.mockito.Matchers;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
+import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.nio.file.Path;
@@ -97,7 +98,7 @@ public class AppServerResourceTest extends AppServerApplicationTest {
         when(cronExpressionParser.parse(any(String.class))).thenReturn(Optional.of(cronExpression));
         when(appService.createAppServer(eq("NEW-APP-SERVER"), eq(cronExpression))).thenReturn(newAppServer);
 
-        AppServerInfo info = new AppServerInfo(newAppServer, null, null, thesaurus);
+        AppServerInfo info = new AppServerInfo(newAppServer, "bla", "bla", thesaurus);
         Entity<AppServerInfo> json = Entity.json(info);
 
         Response response = target("/appserver").request().post(json);
@@ -107,7 +108,7 @@ public class AppServerResourceTest extends AppServerApplicationTest {
     @Test
     public void testUpdateAppServer() {
         AppServer appServer = mockAppServer();
-        AppServerInfo info = new AppServerInfo(appServer, null, null, thesaurus);
+        AppServerInfo info = new AppServerInfo(appServer, "bla", "bla", thesaurus);
         ImportScheduleInfo updateImportInfo = new ImportScheduleInfo();
         updateImportInfo.id = 2;
         updateImportInfo.name = "UPDATE-IMPORT";
@@ -142,7 +143,10 @@ public class AppServerResourceTest extends AppServerApplicationTest {
     @Test
     public void testRemoveAppServer() {
         AppServer appServer = mockAppServer();
-        Response response = target("/appserver/APPSERVER").request().delete();
+        AppServerInfo info = new AppServerInfo(appServer, "bla", "bla", thesaurus);
+        Entity<AppServerInfo> json = Entity.json(info);
+
+        Response response = target("/appserver/APPSERVER").request().build(HttpMethod.DELETE, json).invoke();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(appServer).delete();
@@ -152,6 +156,8 @@ public class AppServerResourceTest extends AppServerApplicationTest {
     public void testActivateAppServer() {
         AppServer appServer = mockAppServer();
         when(appServer.isActive()).thenReturn(false);
+        AppServerInfo info = new AppServerInfo(appServer, null, null, thesaurus);
+        Entity<AppServerInfo> json = Entity.json(info);
 
         Response response = target("/appserver/APPSERVER/activate").request().put(Entity.json(null));
 
@@ -163,6 +169,8 @@ public class AppServerResourceTest extends AppServerApplicationTest {
     public void testDeactivateAppServer() {
         AppServer appServer = mockAppServer();
         when(appServer.isActive()).thenReturn(true);
+        AppServerInfo info = new AppServerInfo(appServer, null, null, thesaurus);
+        Entity<AppServerInfo> json = Entity.json(info);
 
         Response response = target("/appserver/APPSERVER/deactivate").request().put(Entity.json(null));
 
@@ -300,7 +308,8 @@ public class AppServerResourceTest extends AppServerApplicationTest {
         when(appService.findAndLockAppServerByNameAndVersion("appserverName", 7)).thenReturn(Optional.empty());
         when(appService.findAppServer("appserverName")).thenReturn(Optional.empty());
 
-        AppServerInfo info = new AppServerInfo();
+        AppServer appServer = mockAppServer();
+        AppServerInfo info = new AppServerInfo(appServer, "bla", "bla", thesaurus);
         info.name = "appserverName";
         info.version = 7;
         Response response = target("appserver/appserverName").request().put(Entity.json(info));

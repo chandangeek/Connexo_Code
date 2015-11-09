@@ -11,6 +11,7 @@ import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.ImportSchedule;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.QueryParameters;
@@ -47,6 +48,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Path("/appserver")
@@ -73,9 +76,9 @@ public class AppServerResource {
         this.transactionService = transactionService;
         this.cronExpressionParser = cronExpressionParser;
         this.thesaurus = thesaurus;
+        this.conflictFactory = conflictFactory;
         this.dataExportService = dataExportService;
         this.fileSystem = fileSystem;
-        this.conflictFactory = conflictFactory;
     }
 
     private AppServer fetchAppServer(String appServerName) {
@@ -83,10 +86,10 @@ public class AppServerResource {
                 .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
-    private AppServer fetchAndLockAppServer(AppServerInfo info) {
-        return appService.findAndLockAppServerByNameAndVersion(info.name, info.version)
-                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
-                        .withActualVersion(() -> appService.findAppServer(info.name).map(AppServer::getVersion).orElse(null))
+    private AppServer fetchAndLockAppServer(String appServerName, AppServerInfo info) {
+        return appService.findAndLockAppServerByNameAndVersion(appServerName, info.version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(appServerName)
+                        .withActualVersion(() -> appService.findAppServer(appServerName).map(AppServer::getVersion).orElse(null))
                         .supplier());
     }
 
@@ -126,6 +129,8 @@ public class AppServerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
     public Response addAppServer(AppServerInfo info) {
+        checkPath(info.exportDirectory, "exportDirectory");
+        checkPath(info.importDirectory, "importDirectory");
         AppServer appServer = null;
         try (TransactionContext context = transactionService.getContext()) {
             AppServer underConstruction = appService.createAppServer(info.name, cronExpressionParser.parse("0 0 * * * ? *").get());
@@ -172,8 +177,11 @@ public class AppServerResource {
     @Path("/{appserverName}")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
     public Response updateAppServer(@PathParam("appserverName") String appServerName, AppServerInfo info) {
-        AppServer appServer = fetchAppServer(appServerName);
+        checkPath(info.exportDirectory, "exportDirectory");
+        checkPath(info.importDirectory, "importDirectory");
+        AppServer appServer = null;
         try (TransactionContext context = transactionService.getContext()) {
+            appServer = fetchAndLockAppServer(appServerName, info);
             doUpdateAppServer(info, appServer);
 
             String currentExportDir = dataExportService.getExportDirectory(appServer)
@@ -198,9 +206,9 @@ public class AppServerResource {
     @Path("/{appserverName}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
-    public Response removeAppServer(AppServerInfo info) {
+    public Response removeAppServer(@PathParam("appserverName") String appServerName, AppServerInfo info) {
         try (TransactionContext context = transactionService.getContext()) {
-            AppServer appServer = fetchAndLockAppServer(info);
+            AppServer appServer = fetchAndLockAppServer(appServerName, info);
             dataExportService.removeExportDirectory(appServer);
             appServer.delete();
             context.commit();
@@ -213,15 +221,15 @@ public class AppServerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
-    public Response activateAppServer(@PathParam("appserverName") String appServerName, AppServerInfo info) {
+    public Response activateAppServer(@PathParam("appserverName") String appServerName) {
         AppServer appServer = fetchAppServer(appServerName);
         if (!appServer.isActive()) {
             try (TransactionContext context = transactionService.getContext()) {
-                appServer = appService.findAndLockAppServerByNameAndVersion(info.name, info.version)
+                appServer = appService.findAndLockAppServerByNameAndVersion(appServerName, appServer.getVersion())
                         .orElseThrow(conflictFactory.conflict()
-                                .withActualVersion(() -> appService.findAppServer(info.name).map(AppServer::getVersion).orElse(null))
-                                .withMessageTitle(MessageSeeds.APP_SERVER_FAIL_ACTIVATE_TITLE, info.name)
-                                .withMessageBody(MessageSeeds.APP_SERVER_FAIL_ACTIVATE_BODY, info.name)
+                                .withActualVersion(() -> appService.findAppServer(appServerName).map(AppServer::getVersion).orElse(null))
+                                .withMessageTitle(MessageSeeds.APP_SERVER_FAIL_ACTIVATE_TITLE, appServerName)
+                                .withMessageBody(MessageSeeds.APP_SERVER_FAIL_ACTIVATE_BODY, appServerName)
                                 .supplier());
                 appServer.activate();
                 context.commit();
@@ -235,15 +243,15 @@ public class AppServerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
-    public Response deactivateAppServer(@PathParam("appserverName") String appServerName, AppServerInfo info) {
+    public Response deactivateAppServer(@PathParam("appserverName") String appServerName) {
         AppServer appServer = fetchAppServer(appServerName);
         if (appServer.isActive()) {
             try (TransactionContext context = transactionService.getContext()) {
-                appServer = appService.findAndLockAppServerByNameAndVersion(info.name, info.version)
+                appServer = appService.findAndLockAppServerByNameAndVersion(appServerName, appServer.getVersion())
                         .orElseThrow(conflictFactory.conflict()
-                                .withActualVersion(() -> appService.findAppServer(info.name).map(AppServer::getVersion).orElse(null))
-                                .withMessageTitle(MessageSeeds.APP_SERVER_FAIL_DEACTIVATE_TITLE, info.name)
-                                .withMessageBody(MessageSeeds.APP_SERVER_FAIL_DEACTIVATE_BODY, info.name)
+                                .withActualVersion(() -> appService.findAppServer(appServerName).map(AppServer::getVersion).orElse(null))
+                                .withMessageTitle(MessageSeeds.APP_SERVER_FAIL_DEACTIVATE_TITLE, appServerName)
+                                .withMessageBody(MessageSeeds.APP_SERVER_FAIL_DEACTIVATE_BODY, appServerName)
                                 .supplier());
                 appServer.deactivate();
                 context.commit();
@@ -285,7 +293,16 @@ public class AppServerResource {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
 
-        toAdd.forEach(pair -> updater.createActiveSubscriberExecutionSpec(pair.getFirst(), pair.getLast().numberOfThreads));
+        for (Pair<SubscriberSpec, SubscriberExecutionSpecInfo> pair: toAdd) {
+            SubscriberSpec spec = pair.getFirst();
+            SubscriberExecutionSpecInfo executionSpecInfo = pair.getLast();
+            if (executionSpecInfo.active) {
+                updater.createActiveSubscriberExecutionSpec(spec, executionSpecInfo.numberOfThreads);
+            } else {
+                updater.createInactiveSubscriberExecutionSpec(spec, executionSpecInfo.numberOfThreads);
+            }
+
+        }
     }
 
     private void doMessageServicesRemovals(List<Pair<SubscriberExecutionSpec, SubscriberExecutionSpecInfo>> pairs, AppServer.BatchUpdate updater) {
@@ -417,5 +434,13 @@ public class AppServerResource {
                 .map(ImportScheduleOnAppServer::getImportSchedule)
                 .flatMap(Functions.asStream())
                 .collect(Collectors.toList());
+    }
+
+    private void checkPath(String path, String field) {
+        Pattern p = Pattern.compile("[#\\<\\>$\\+%\\!`\\&\\*'\\|\\{\\}\\?\"\\=@\\s]");
+        Matcher m = p.matcher(path);
+        if (m.find()) {
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALIDCHARS_EXCEPTION, field, "#<>$+%!`&*'|?{@}\"=");
+        }
     }
 }
