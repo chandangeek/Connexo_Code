@@ -20,7 +20,7 @@ Ext.define('Uni.view.search.field.TimeDuration', {
         var me = this;
 
         me.menuConfig = {
-            width: 350
+            width: 400
         };
 
         Ext.suspendLayouts();
@@ -49,7 +49,7 @@ Ext.define('Uni.view.search.field.TimeDuration', {
                     valueField: 'code',
                     forceSelection: false,
                     editable: false,
-                    width: 150,
+                    width: 200,
                     labelWidth: 50,
                     queryMode: 'local',
                     value: 14
