@@ -1,13 +1,13 @@
 package com.energyict.mdc.device.data.tasks.history;
 
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.tasks.ComTask;
 
 import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.domain.util.Finder;
 
 import java.time.Instant;
 import java.util.EnumSet;

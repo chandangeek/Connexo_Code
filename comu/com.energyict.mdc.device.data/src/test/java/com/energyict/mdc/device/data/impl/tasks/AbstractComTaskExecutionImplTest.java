@@ -108,7 +108,7 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
     protected static OutboundComPortPool createOutboundIpComPortPool(String name) {
         OutboundComPortPool ipComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool(name, ComPortType.TCP, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
         ipComPortPool.setActive(true);
-        ipComPortPool.save();
+        ipComPortPool.update();
         return ipComPortPool;
     }
 
@@ -185,10 +185,10 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
     }
 
     protected ComSchedule createComSchedule(String name, ComTask comTask, TemporalExpression temporalExpression) {
-        ComSchedule comSchedule = inMemoryPersistence.getSchedulingService().newComSchedule(name, temporalExpression, Instant.now()).build();
-        comSchedule.addComTask(comTask);
-        comSchedule.save();
-        return comSchedule;
+        return inMemoryPersistence.getSchedulingService()
+                .newComSchedule(name, temporalExpression, Instant.now())
+                .addComTask(comTask)
+                .build();
     }
 
     protected OutboundComPort createOutboundComPort() {

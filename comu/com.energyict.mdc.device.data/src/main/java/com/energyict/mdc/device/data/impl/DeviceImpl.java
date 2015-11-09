@@ -169,7 +169,7 @@ import static java.util.stream.Collectors.toList;
 
 @LiteralSql
 @UniqueMrid(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_DEVICE_MRID + "}")
-@UniqueComTaskScheduling(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK_SCHEDULING + "}")
+@UniqueComTaskScheduling(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_COMTASK + "}")
 public class DeviceImpl implements Device, CanLock {
 
     private final DataModel dataModel;
@@ -242,7 +242,8 @@ public class DeviceImpl implements Device, CanLock {
     public DeviceImpl(
             DataModel dataModel,
             EventService eventService,
-            IssueService issueService, Thesaurus thesaurus,
+            IssueService issueService,
+            Thesaurus thesaurus,
             Clock clock,
             MeteringService meteringService,
             ValidationService validationService,
@@ -335,8 +336,8 @@ public class DeviceImpl implements Device, CanLock {
         this.saveAllComTaskExecutions();
         if (alreadyPersistent) {
             this.notifyUpdated();
-        }
-        else {
+            deviceConfiguration.get().touch();
+        } else {
             this.notifyCreated();
         }
     }
@@ -448,8 +449,16 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     private void deleteAllIssues() {
-        this.issueService.findStatus(IssueStatus.WONT_FIX).ifPresent(issueStatus -> getOpenIssues().stream().forEach(openIssue -> openIssue.close(issueStatus)));
+        this.issueService
+                .findStatus(IssueStatus.WONT_FIX)
+                .ifPresent(this::wontFixOpenIssues);
         getListMeterAspect(this::getAllHistoricalIssuesForMeter).stream().forEach(Issue::delete);
+    }
+
+    private void wontFixOpenIssues(IssueStatus issueStatus) {
+        this.getOpenIssues()
+                .stream()
+                .forEach(openIssue -> openIssue.close(issueStatus));
     }
 
     private void deleteSecuritySettings() {
@@ -693,6 +702,12 @@ public class DeviceImpl implements Device, CanLock {
         protected LoadProfileUpdaterForDevice(LoadProfileImpl loadProfile) {
             super(loadProfile);
         }
+
+        @Override
+        public void update() {
+            super.update();
+            dataModel.touch(DeviceImpl.this);
+        }
     }
 
     @Override
@@ -780,6 +795,9 @@ public class DeviceImpl implements Device, CanLock {
             if (notUpdated) {
                 addDeviceProperty(name, propertyValue);
             }
+            if (getId() > 0) {
+                dataModel.touch(this);
+            }
         } else {
             throw DeviceProtocolPropertyException.propertyDoesNotExistForDeviceProtocol(name, this.getDeviceProtocolPluggableClass().getDeviceProtocol(), this, thesaurus, MessageSeeds.DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL);
         }
@@ -814,6 +832,7 @@ public class DeviceImpl implements Device, CanLock {
         for (DeviceProtocolProperty deviceProtocolProperty : deviceProperties) {
             if (deviceProtocolProperty.getName().equals(name)) {
                 this.deviceProperties.remove(deviceProtocolProperty);
+                dataModel.touch(this);
                 break;
             }
         }
@@ -1669,6 +1688,7 @@ public class DeviceImpl implements Device, CanLock {
             if (comTaskExecutionToRemove.getId() == comTaskExecution.getId()) {
                 comTaskExecution.makeObsolete();
                 comTaskExecutionIterator.remove();
+                dataModel.touch(this);
                 return;
             }
         }
@@ -1684,6 +1704,7 @@ public class DeviceImpl implements Device, CanLock {
             if (comTaskExecution.executesComSchedule(comSchedule)) {
                 comTaskExecution.makeObsolete();
                 comTaskExecutionIterator.remove();
+                dataModel.touch(this);
                 return;
             }
         }

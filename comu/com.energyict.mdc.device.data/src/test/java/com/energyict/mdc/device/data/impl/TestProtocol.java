@@ -167,7 +167,7 @@ public class TestProtocol implements DeviceProtocol {
             }
 
             @Override
-            public String getTranslationKey() {
+            public String getTranslation() {
                 return "Zero";
             }
 
@@ -187,7 +187,7 @@ public class TestProtocol implements DeviceProtocol {
             }
 
             @Override
-            public String getTranslationKey() {
+            public String getTranslation() {
                 return "Zero";
             }
 

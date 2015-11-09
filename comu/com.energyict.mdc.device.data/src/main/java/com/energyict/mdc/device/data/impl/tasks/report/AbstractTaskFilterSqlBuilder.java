@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.impl.tasks.report;
 
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
@@ -109,7 +109,7 @@ public abstract class AbstractTaskFilterSqlBuilder {
                     .map(chunk -> chunk.stream().filter(Objects::nonNull).map(objectMapper).collect(Collectors.joining(", ")))
                     .collect(Collectors.joining(") OR " + columnName + " IN (" , columnName + " IN (", ") ")));
         }
-    }
+                }
 
     protected <T extends HasId> void appendInClause(String columnName, Set<T> idBusinessObjects) {
         this.appendInClause(columnName, idBusinessObjects, obj -> String.valueOf(obj.getId()));

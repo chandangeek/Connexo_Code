@@ -8,6 +8,7 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -25,12 +26,13 @@ public class ComScheduleOnDeviceFilterItemizerFactory implements MessageHandlerF
     private volatile DataModel dataModel;
     private volatile MessageService messageService;
     private volatile DeviceService deviceService;
+    private volatile SearchService searchService;
 
     @Override
     public MessageHandler newMessageHandler() {
         return dataModel.
                 getInstance(ComScheduleOnDeviceFilterItimizer.class).
-                init(messageService, jsonService, deviceService);
+                init(messageService, jsonService, deviceService, searchService);
     }
 
     @Reference
@@ -53,6 +55,11 @@ public class ComScheduleOnDeviceFilterItemizerFactory implements MessageHandlerF
         this.messageService = messageService;
     }
 
+    @Reference
+    public void setSearchService(SearchService searchService) {
+        this.searchService = searchService;
+    }
+
     @Activate
     public void activate() {
         this.dataModel.register(this.getModule());
@@ -66,6 +73,7 @@ public class ComScheduleOnDeviceFilterItemizerFactory implements MessageHandlerF
                 bind(JsonService.class).toInstance(jsonService);
                 bind(DeviceService.class).toInstance(deviceService);
                 bind(MessageService.class).toInstance(messageService);
+                bind(SearchService.class).toInstance(searchService);
             }
         };
     }

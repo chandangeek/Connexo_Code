@@ -40,7 +40,7 @@ class ComTaskExecutionComScheduleCounterSqlBuilder extends AbstractComTaskExecut
     private void appendSelectClause() {
         this.append("select '");
         this.append(this.taskStatus.getPublicStatus().name());
-        this.append("', ctincs.comschedule, count(*)");
+        this.append("', ctincs.comschedule, count(distinct cte.id)");
     }
 
     private void appendFromClause() {

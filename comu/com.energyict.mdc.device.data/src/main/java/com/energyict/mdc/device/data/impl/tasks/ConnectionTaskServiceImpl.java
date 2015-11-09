@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -126,6 +126,11 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     @Override
     public Optional<ConnectionTask> findConnectionTask(long id) {
         return this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<ConnectionTask> findAndLockConnectionTaskByIdAndVersion(long id, long version) {
+        return this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).lockObjectIfVersion(version, id);
     }
 
     @Override

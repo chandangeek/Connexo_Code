@@ -93,7 +93,7 @@ public class CommunicationFilterItimizerMessageHandler implements MessageHandler
         filter.comSchedules = new HashSet<>();
         if (primitiveFilter.comSchedules!=null) {
             // already optimized
-            for (ComSchedule comSchedule : schedulingService.findAllSchedules()) {
+            for (ComSchedule comSchedule : schedulingService.getAllSchedules()) {
                 filter.comSchedules.addAll(primitiveFilter.comSchedules.stream().
                         filter(scheduleId -> comSchedule.getId() == scheduleId).
                         map(scheduleId -> comSchedule).

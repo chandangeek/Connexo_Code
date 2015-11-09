@@ -47,7 +47,9 @@ public interface DataCollectionKpiService {
      * @param id The unique identifier
      * @return The DataCollectionKpi
      */
-    Optional<DataCollectionKpi> findDataCollectionKpi(long id);
+    public Optional<DataCollectionKpi> findDataCollectionKpi(long id);
+
+    Optional<DataCollectionKpi> findAndLockDataCollectionKpiByIdAndVersion(long id, long version);
 
     /**
      * Finds the {@link DataCollectionKpi} for the specified {@link EndDeviceGroup}.

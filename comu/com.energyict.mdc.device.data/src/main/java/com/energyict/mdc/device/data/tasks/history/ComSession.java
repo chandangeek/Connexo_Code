@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.data.tasks.history;
 
-import com.energyict.mdc.common.HasId;
+import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;

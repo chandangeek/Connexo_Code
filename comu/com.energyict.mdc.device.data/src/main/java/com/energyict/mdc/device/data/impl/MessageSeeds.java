@@ -40,7 +40,7 @@ public enum MessageSeeds implements MessageSeed {
     CONNECTION_TASK_IS_OBSOLETE_AND_CANNOT_UPDATE(2007, Keys.CONNECTION_TASK_IS_OBSOLETE_AND_CANNOT_UPDATE, "The connection task ''{0}'' on device {1} cannot be updated because it is already obsolete since {2,date,yyyy-MM-dd HH:mm:ss}"),
     DEFAULT_CONNECTION_TASK_IS_INUSE_AND_CANNOT_DELETE(2008, Keys.DEFAULT_CONNECTION_TASK_IS_IN_USE_AND_CANNOT_OBSOLETE, "The default connection task ''{0}'' on device {1} cannot be removed because it is still in use by communication tasks"),
     CONNECTION_TASK_INVALID_PROPERTY(2009, Keys.CONNECTION_TASK_INVALID_PROPERTY, "Invalid value"),
-    CONNECTION_TASK_PROPERTY_NOT_IN_SPEC(2010, Keys.CONNECTION_TASK_PROPERTY_NOT_IN_SPEC, "ConnectionType '{0}' does not contain a specification for attribute '{1}'"),
+    CONNECTION_TASK_PROPERTY_NOT_IN_SPEC(2010, Keys.CONNECTION_TASK_PROPERTY_NOT_IN_SPEC, "ConnectionType ''{0}'' does not contain a specification for attribute ''{1}''"),
     CONNECTION_TASK_PROPERTY_INVALID_VALUE(2011, Keys.CONNECTION_TASK_PROPERTY_INVALID_VALUE, "''{0}'' is not a valid value for attribute ''{1}'' of ConnectionType ''{2}''"),
     CONNECTION_TASK_REQUIRED_PROPERTY_MISSING(2012, Keys.CONNECTION_TASK_REQUIRED_PROPERTY_MISSING, "This value is required"),
     CONNECTION_TASK_UNIQUE_INBOUND_COMPORT_POOL_PER_DEVICE(2013, Keys.CONNECTION_TASK_UNIQUE_INBOUND_COMPORT_POOL_PER_DEVICE, "An inbound communication port pool can only be used once on the same device"),
@@ -50,10 +50,10 @@ public enum MessageSeeds implements MessageSeed {
     OUTBOUND_CONNECTION_TASK_OFFSET_IS_BIGGER_THEN_FREQUENCY(2017, Keys.OUTBOUND_CONNECTION_TASK_OFFSET_IS_BIGGER_THEN_FREQUENCY, "The offset of the next execution scheduling specifications should not extend its frequency"),
     OUTBOUND_CONNECTION_TASK_OFFSET_IS_NOT_WITHIN_WINDOW(2018, Keys.OUTBOUND_CONNECTION_TASK_OFFSET_IS_NOT_WITHIN_WINDOW, "The offset of the next execution scheduling specifications is not within the communication window"),
     OUTBOUND_CONNECTION_TASK_LONG_OFFSET_IS_NOT_WITHIN_WINDOW(2019, Keys.OUTBOUND_CONNECTION_TASK_LONG_OFFSET_IS_NOT_WITHIN_WINDOW, "The offset of the next execution scheduling specifications within a week or month, once calculated back to a daily offset is not within the communication window"),
-    DEVICE_IS_STILL_LINKED_AS_PHYSICAL_GATEWAY(2020, Keys.PHYSICAL_GATEWAY_STILL_IN_USE, "You can not remove device '{0}' because it is still used as a physical gateway for '{1}'"),
-    DEVICE_IS_STILL_LINKED_AS_COMMUNICATION_GATEWAY(2021, Keys.COMMUNICATION_GATEWAY_STILL_IN_USE, "You can not remove device '{0}' because it is still used as a communication gateway for '{1}'"),
-    DEVICE_PROPERTY_HAS_NO_SPEC(2022, Keys.PROPERTY_SPEC_DOESNT_EXIST, "The property specification for property value '{0}' does not exist."),
-    DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL(2023, Keys.PROPERTY_NOT_ON_DEVICE_PROTOCOL, "The property '{0}' is not defined by the device protocol '{1}' of device '{2}'"),
+    DEVICE_IS_STILL_LINKED_AS_PHYSICAL_GATEWAY(2020, Keys.PHYSICAL_GATEWAY_STILL_IN_USE, "You can not remove device ''{0}'' because it is still used as a physical gateway for ''{1}''"),
+    DEVICE_IS_STILL_LINKED_AS_COMMUNICATION_GATEWAY(2021, Keys.COMMUNICATION_GATEWAY_STILL_IN_USE, "You can not remove device ''{0}'' because it is still used as a communication gateway for ''{1}''"),
+    DEVICE_PROPERTY_HAS_NO_SPEC(2022, Keys.PROPERTY_SPEC_DOESNT_EXIST, "The property specification for property value ''{0}'' does not exist."),
+    DEVICE_PROPERTY_NOT_ON_DEVICE_PROTOCOL(2023, Keys.PROPERTY_NOT_ON_DEVICE_PROTOCOL, "The property ''{0}'' is not defined by the device protocol ''{1}'' of device ''{2}''"),
     PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED(2024, Keys.PROTOCOL_DIALECT_CONFIGURATION_PROPERTIES_REQUIRED, "The protocol dialect configuration properties are required to add device protocol dialect properties"),
     DEVICE_PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC(2025, Keys.DEVICE_PROTOCOL_DIALECT_PROPERTY_NOT_IN_SPEC, "The protocol dialect ''{0}'' does not contain a specification for attribute ''{1}''"),
     DEVICE_PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE(2026, Keys.DEVICE_PROTOCOL_DIALECT_PROPERTY_INVALID_VALUE, "''{0}'' is not a valid value for attribute ''{1}'' of device dialect protocol ''{2}''"),
@@ -64,7 +64,7 @@ public enum MessageSeeds implements MessageSeed {
     COM_TASK_EXECUTION_IS_ALREADY_OBSOLETE(2031, Keys.COM_TASK_EXECUTION_IS_ALREADY_OBSOLETE, "You can not make comtaskexecution {0} for device {1} obsolete because it has already been made obsolete on {2}"),
     COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE(2032, Keys.COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE, "You can not make comtaskexecution {0} for device {1} obsolete because it is currently executing on comserver {2}"),
     COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE(2033, Keys.COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE, "You can not remove comtaskexecution {0} because it is not owned by device {1}"),
-    VETO_COM_TASK_ENABLEMENT_DELETION(2034, Keys.VETO_COM_TASK_ENABLEMENT_DELETION, "The communication task '{0}' is still used by devices having the configuration '{1}'"),
+    VETO_COM_TASK_ENABLEMENT_DELETION(2034, Keys.VETO_COM_TASK_ENABLEMENT_DELETION, "The communication task ''{0}'' is still used by devices having the configuration ''{1}''"),
     VETO_DEVICE_CONFIGURATION_DEACTIVATION(2035, Keys.VETO_DEVICE_CONFIGURATION_IN_USE_BY_DEVICES, "The device configuration {0} is still used by at least one device"),
     VETO_PROTOCOL_DIALECT_CONFIGURATION_DELETION(2036, Keys.VETO_PROTOCOL_DIALECT_CONFIGURATION_DELETION, "The properties of protocol dialect {0} cannot be deleted because they are still used by at least one device"),
     VETO_PROTOCOL_DIALECT_CONFIGURATION_VALUE_DELETION(2037, Keys.VETO_PROTOCOL_DIALECT_CONFIGURATION_VALUE_DELETION, "The property ''{0}'' of protocol dialect ''{1}'' cannot be deleted because at least one device does not specify a value for it and therefore relies on the configuration level value"),
@@ -92,11 +92,11 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_MESSAGE_STATUS_INVALID_MOVE(2062, Keys.DEVICE_MESSAGE_STATUS_INVALID_MOVE, "You can not move a device message from status {0} to {1}"),
     DEVICE_MESSAGE_INVALID_REVOKE(2063, Keys.DEVICE_MESSAGE_INVALID_REVOKE, "You can not revoke this command anymore"),
     RELEASE_DATE_IS_REQUIRED(2064, Keys.DEVICE_MESSAGE_RELEASE_DATE_IS_REQUIRED, "The release date is required for a device message"),
-    DUPLICATE_FOUND(2065, Keys.DUPLICATE_FOUND, "A duplicate '{0}' was found when a unique result was expected for '{1}'"),
-    CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER(2066, Keys.CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER, "Could not find a device for identifier '{0}'"),
-    CAN_NOT_FIND_FOR_LOADPROFILE_IDENTIFIER(2067, Keys.CAN_NOT_FIND_FOR_LOADPROFILE_IDENTIFIER, "Could not find a loadprofile for identifier '{0}'"),
-    CAN_NOT_FIND_FOR_LOGBOOK_IDENTIFIER(2068, Keys.CAN_NOT_FIND_FOR_LOGBOOK_IDENTIFIER, "Could not find a logbook for identifier '{0}'"),
-    CAN_NOT_FIND_FOR_MESSAGE_IDENTIFIER(2069, Keys.CAN_NOT_FIND_FOR_MESSAGE_IDENTIFIER, "Could not find a message for identifier '{0}'"),
+    DUPLICATE_FOUND(2065, Keys.DUPLICATE_FOUND, "A duplicate ''{0}'' was found when a unique result was expected for ''{1}''"),
+    CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER(2066, Keys.CAN_NOT_FIND_FOR_DEVICE_IDENTIFIER, "Could not find a device for identifier ''{0}''"),
+    CAN_NOT_FIND_FOR_LOADPROFILE_IDENTIFIER(2067, Keys.CAN_NOT_FIND_FOR_LOADPROFILE_IDENTIFIER, "Could not find a loadprofile for identifier ''{0}''"),
+    CAN_NOT_FIND_FOR_LOGBOOK_IDENTIFIER(2068, Keys.CAN_NOT_FIND_FOR_LOGBOOK_IDENTIFIER, "Could not find a logbook for identifier ''{0}''"),
+    CAN_NOT_FIND_FOR_MESSAGE_IDENTIFIER(2069, Keys.CAN_NOT_FIND_FOR_MESSAGE_IDENTIFIER, "Could not find a message for identifier ''{0}''"),
     CAN_NOT_REPLACE_EXISTING_KPI(2070, Keys.CAN_NOT_REPLACE_EXISTING_KPI, "An existing KPI can not be replaced", Level.SEVERE ),
     DUPLICATE_DEVICE_MRID(2071, Keys.DUPLICATE_DEVICE_MRID, "MRID must be unique"),
     FIRMWARE_COMTASKEXEC_NEEDS_FIRMAWARE_COMTASKENABLEMENT(2072, Keys.FIRMWARE_COMTASKEXEC_NEEDS_FIRMAWARE_COMTASKENABLEMENT, "The firmware comtask execution needs to have the 'Firmware management' ComTask"),
@@ -107,7 +107,8 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_DEVICE(2077, "NoSuchDevice" , "No device with MRID {0}"),
     NO_METER_ACTIVATION_AT(2078, Keys.NO_METER_ACTIVATION_AT, "There is no meter activation at {0}"),
     LAST_CHECKED_CANNOT_BE_NULL(2079, Keys.LAST_CHECKED_CANNOT_BE_NULL, "The new last checked timestamp cannot be null"),
-    LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED(2080, Keys.LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED, "The new last checked {2,date,yyyy-MM-dd} cannot be after current last checked {1,date,yyyy-MM-dd}"),
+    LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED(2080, Keys.LAST_CHECKED_AFTER_CURRENT_LAST_CHECKED, "The new last checked {2,date,yyyy-MM-dd HH:mm:ss} cannot be after current last checked {1,date,yyyy-MM-dd HH:mm:ss}"),
+    DUPLICATE_COMTASK(2081, Keys.DUPLICATE_COMTASK, "One or more communication tasks in the communication schedule are already scheduled on the device"),
     ;
 
     private final int number;
@@ -212,6 +213,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String PRIORITY_NOT_IN_RANGE = "priorityNotInRange";
         public static final String UNIQUE_ADDHOC_COMTASKS_PER_DEVICE = "uniqueComTasksPerDevice";
         public static final String DUPLICATE_COMTASK_SCHEDULING = "duplicateComTaskScheduling";
+        public static final String DUPLICATE_COMTASK = "duplicateComTask";
         public static final String COMTASK_CONFIGURATION_INCONSISTENT = "comTaskConfigurationInconsistent";
         public static final String COMTASKS_MUST_BE_ENABLED_BY_CONFIGURATION = "comTasksMustBeEnabledByConfiguration";
         public static final String VETO_COM_SCHEDULE_DELETION = "comTaskExecution.comSchedule.inUse";

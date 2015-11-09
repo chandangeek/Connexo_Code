@@ -1,11 +1,11 @@
 package com.energyict.mdc.device.data;
 
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.util.HasId;
 
 @ProviderType
-public interface Batch {
-
-    long getId();
+public interface Batch extends HasId {
 
     String getName();
 

@@ -1,7 +1,15 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
@@ -21,12 +29,6 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.validation.ValidationService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 
@@ -49,6 +51,7 @@ public class DeviceDataModule extends AbstractModule {
         requireBinding(DeviceConfigurationService.class);
         requireBinding(MeteringService.class);
         requireBinding(ValidationService.class);
+        requireBinding(PropertySpecService.class);
         requireBinding(Clock.class);
         requireBinding(RelationService.class);
         requireBinding(ProtocolPluggableService.class);
@@ -67,6 +70,7 @@ public class DeviceDataModule extends AbstractModule {
         bind(IdentificationService.class).to(IdentificationServiceImpl.class).in(Scopes.SINGLETON);
         bind(DataCollectionKpiService.class).to(DataCollectionKpiServiceImpl.class).in(Scopes.SINGLETON);
         bind(BatchService.class).to(BatchServiceImpl.class).in(Scopes.SINGLETON);
+        bind(DeviceMessageService.class).to(DeviceMessageServiceImpl.class).in(Scopes.SINGLETON);
     }
 
 }

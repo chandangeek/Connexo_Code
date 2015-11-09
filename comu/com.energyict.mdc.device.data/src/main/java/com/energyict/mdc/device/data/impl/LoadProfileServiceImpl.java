@@ -1,7 +1,7 @@
 package com.energyict.mdc.device.data.impl;
 
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.device.data.LoadProfile;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.impl.finders.LoadProfileFinder;
@@ -43,6 +43,11 @@ public class LoadProfileServiceImpl implements ServerLoadProfileService, LoadPro
     @Override
     public Optional<LoadProfile> findById(long id) {
         return this.deviceDataModelService.dataModel().mapper(LoadProfile.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<LoadProfile> findAndLockLoadProfileByIdAndVersion(long id, long version) {
+        return this.deviceDataModelService.dataModel().mapper(LoadProfile.class).lockObjectIfVersion(version, id);
     }
 
     @Override

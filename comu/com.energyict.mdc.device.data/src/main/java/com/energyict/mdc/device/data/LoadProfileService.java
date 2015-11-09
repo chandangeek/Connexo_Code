@@ -21,4 +21,5 @@ public interface LoadProfileService {
      */
     Optional<LoadProfile> findById(long id);
 
+    Optional<LoadProfile> findAndLockLoadProfileByIdAndVersion(long id, long version);
 }
