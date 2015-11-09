@@ -60,6 +60,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     CONNECTION_PORTPOOL("device.connection.portpool", "Communication port pool"),
     TRANSITIONS("device.transition", "Transitions"),
     TRANSITION_SHIPMENT("device.transition.shipment", "Shipment date"),
+    TRANSITION_INSTALLATION("device.transition.installation", "Installation date"),
     ;
 
     private String key;

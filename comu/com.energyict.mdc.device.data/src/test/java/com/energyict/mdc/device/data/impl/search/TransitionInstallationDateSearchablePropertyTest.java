@@ -13,15 +13,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TransitionShipmentDateSearchablePropertyTest extends AbstractTransitionSearchablePropertyTest {
+public class TransitionInstallationDateSearchablePropertyTest extends AbstractTransitionSearchablePropertyTest {
 
     @Before
     public void initializeMocks() {
         super.initializeMocks();
 
         NlsMessageFormat propertyName = mock(NlsMessageFormat.class);
-        when(propertyName.format(anyVararg())).thenReturn(PropertyTranslationKeys.TRANSITION_SHIPMENT.getDefaultFormat());
-        when(this.thesaurus.getFormat(PropertyTranslationKeys.TRANSITION_SHIPMENT)).thenReturn(propertyName);
+        when(propertyName.format(anyVararg())).thenReturn(PropertyTranslationKeys.TRANSITION_INSTALLATION.getDefaultFormat());
+        when(this.thesaurus.getFormat(PropertyTranslationKeys.TRANSITION_INSTALLATION)).thenReturn(propertyName);
     }
 
     @Test
@@ -32,10 +32,10 @@ public class TransitionShipmentDateSearchablePropertyTest extends AbstractTransi
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getFormat(PropertyTranslationKeys.TRANSITION_SHIPMENT);
+        verify(this.thesaurus).getFormat(PropertyTranslationKeys.TRANSITION_INSTALLATION);
     }
 
     protected SearchableProperty getTestInstance() {
-        return new TransitionShipmentDateSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain, this.parentGroup);
+        return new TransitionInstallationDateSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain, this.parentGroup);
     }
 }
