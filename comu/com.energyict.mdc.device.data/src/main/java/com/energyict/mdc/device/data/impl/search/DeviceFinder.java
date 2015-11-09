@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -12,6 +13,7 @@ import com.energyict.mdc.device.data.impl.search.sqlbuilder.DeviceSearchSqlBuild
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Provides an implementation for the {@link Finder} interface
@@ -25,16 +27,23 @@ public class DeviceFinder implements Finder<Device> {
     private final DataModel dataModel;
     private final DeviceSearchSqlBuilder sqlBuilder;
     private Pager pager = new NoPaging();
+    private List<Order> orders;
 
     public DeviceFinder(DeviceSearchSqlBuilder sqlBuilder, DataModel dataModel) {
         super();
         this.sqlBuilder = sqlBuilder;
         this.dataModel = dataModel;
+        this.orders = new ArrayList<>();
+        this.orders.add(Order.ascending("mRID"));
     }
 
     @Override
     public List<Device> find() {
-        SqlBuilder sqlBuilder = this.pager.addPaging(this.sqlBuilder.toSqlBuilder());
+        SqlBuilder sqlBuilder = this.sqlBuilder.toSqlBuilder();
+        sqlBuilder.append(" ORDER BY " + this.orders.stream()
+                .map(order -> order.getClause(order.getName()))
+                .collect(Collectors.joining(", ")));
+        sqlBuilder = this.pager.addPaging(sqlBuilder);
         try (Fetcher<Device> fetcher = this.dataModel.mapper(Device.class).fetcher(sqlBuilder)) {
             List<Device> matchingDevices = new ArrayList<>();
             Iterator<Device> deviceIterator = fetcher.iterator();
@@ -53,7 +62,8 @@ public class DeviceFinder implements Finder<Device> {
 
     @Override
     public Finder<Device> sorted(String s, boolean b) {
-        throw new UnsupportedOperationException("Sorting is not implemented yet");
+        orders.add(b ? Order.ascending(s) : Order.descending(s));
+        return this;
     }
 
     @Override
@@ -96,7 +106,7 @@ public class DeviceFinder implements Finder<Device> {
 
         @Override
         public SqlBuilder addPaging(SqlBuilder sqlBuilder) {
-            return sqlBuilder.asPageBuilder(this.from, this.to+1);
+            return sqlBuilder.asPageBuilder(this.from, this.to + 1);
         }
     }
 }
