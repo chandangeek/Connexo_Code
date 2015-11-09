@@ -13,8 +13,6 @@ import com.elster.jupiter.tasks.TaskFinder;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;

@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskStatus;
+import com.elster.jupiter.tasks.TranslationKeys;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
@@ -12,7 +13,6 @@ import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.time.Instant;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,7 +41,7 @@ public class TaskInfo {
         name = recurrentTask.getName();
         application = "MultiSense";
         queue = recurrentTask.getDestination().getName();
-        trigger = getScheduledTriggerDescription(recurrentTask.getScheduleExpression(), thesaurus, timeService);
+        trigger = thesaurus.getFormat(TranslationKeys.SCHEDULED).format() + " (" + getScheduledTriggerDescription(recurrentTask.getScheduleExpression(), thesaurus, timeService) + ")";
         Optional<TaskOccurrence> lastOccurrence = recurrentTask.getLastOccurrence();
         if (lastOccurrence.isPresent()) {
             TaskOccurrence occurrence = lastOccurrence.get();
