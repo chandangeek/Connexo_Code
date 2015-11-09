@@ -76,6 +76,7 @@ public interface JoinClauseBuilder {
         private Aliases(){ /* constant class */}
 
         public static final String DEVICE = "dev";
+        public static final String END_DEVICE = "ed";
         public static final String DEVICE_TYPE = "dev_Type";
         public static final String DEVICE_LOGBOOK = "dev_lb";
         public static final String LOGBOOK_SPEC = "lb_spec";

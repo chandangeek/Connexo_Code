@@ -50,6 +50,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.startsWith;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.mock;
@@ -134,6 +135,7 @@ public class DeviceSearchDomainTest {
         mockLoadProfilePropertySpecs();
         mockComTasks();
         mockConnections();
+        mockTransitions();
     }
 
     @Test
@@ -200,6 +202,7 @@ public class DeviceSearchDomainTest {
         verify(this.dataModel).getInstance(ConnectionNameSearchableProperty.class);
         verify(this.dataModel).getInstance(ConnectionDirectionSearchableProperty.class);
         verify(this.dataModel).getInstance(ConnectionCommunicationPortPoolSearchableProperty.class);
+        verify(this.dataModel).getInstance(TransitionShipmentDateSearchableProperty.class);
     }
 
     public void getPropertiesWithEmptyListOfConstrictions() {
@@ -555,6 +558,15 @@ public class DeviceSearchDomainTest {
                 eq(false),
                 eq(FactoryIds.CONNECTION_TASK),
                 anyList())).thenReturn(portPoolsSpec);
+    }
+
+    private void mockTransitions(){
+            PropertySpec anyDateProperty = mock(PropertySpec.class);
+            when(anyDateProperty.getName()).thenReturn("device.transition.");
+            when(this.propertySpecService.basicPropertySpec(
+                    startsWith("device.transition."),
+                    eq(false),
+                    Matchers.<StringFactory>anyObject())).thenReturn(anyDateProperty);
     }
 
     private DeviceSearchDomain getTestInstance() {

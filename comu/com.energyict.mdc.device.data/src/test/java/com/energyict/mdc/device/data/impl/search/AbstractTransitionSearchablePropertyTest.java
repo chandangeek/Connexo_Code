@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.datavault.DataVaultService;
-import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -11,15 +10,10 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
-import com.energyict.mdc.tasks.TaskService;
-import com.energyict.mdc.tasks.impl.TaskFinder;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Instant;
 import java.util.List;
@@ -27,39 +21,31 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.anyVararg;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
-public class LoadProfileLastReadingSearchablePropertyTest {
+public abstract class AbstractTransitionSearchablePropertyTest {
 
     @Mock
-    private DeviceSearchDomain domain;
+    DeviceSearchDomain domain;
     @Mock
-    private Thesaurus thesaurus;
+    Thesaurus thesaurus;
     @Mock
-    private DataVaultService dataVaultService;
+    DataVaultService dataVaultService;
     @Mock
-    private TimeService timeService;
+    TimeService timeService;
     @Mock
-    private DataModel dataModel;
+    DataModel dataModel;
     @Mock
-    private OrmService ormService;
+    OrmService ormService;
     @Mock
-    private SearchablePropertyGroup parentGroup;
+    SearchablePropertyGroup parentGroup;
 
-    private PropertySpecService propertySpecService;
+    PropertySpecService propertySpecService;
 
     @Before
     public void initializeMocks() {
         when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
         this.propertySpecService = new PropertySpecServiceImpl(new com.elster.jupiter.properties.impl.PropertySpecServiceImpl(this.timeService), this.dataVaultService, this.timeService, this.ormService);
-
-        NlsMessageFormat propertyName = mock(NlsMessageFormat.class);
-        when(propertyName.format(anyVararg())).thenReturn(PropertyTranslationKeys.LOADPROFILE_LAST_READING.getDefaultFormat());
-        when(this.thesaurus.getFormat(PropertyTranslationKeys.LOADPROFILE_LAST_READING)).thenReturn(propertyName);
     }
 
     @Test
@@ -108,17 +94,6 @@ public class LoadProfileLastReadingSearchablePropertyTest {
     }
 
     @Test
-    public void testTranslation() {
-        SearchableProperty property = this.getTestInstance();
-
-        // Business method
-        property.getDisplayName();
-
-        // Asserts
-        verify(this.thesaurus).getFormat(PropertyTranslationKeys.LOADPROFILE_LAST_READING);
-    }
-
-    @Test
     public void testSpecification() {
         SearchableProperty property = this.getTestInstance();
 
@@ -153,7 +128,5 @@ public class LoadProfileLastReadingSearchablePropertyTest {
         assertThat(constraints).isEmpty();
     }
 
-    private SearchableProperty getTestInstance() {
-        return new LoadProfileLastReadingSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain, this.parentGroup);
-    }
+    protected abstract SearchableProperty getTestInstance();
 }
