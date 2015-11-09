@@ -1,5 +1,6 @@
 package com.elster.jupiter.demo.impl.commands;
 
+import com.elster.jupiter.demo.impl.builders.device.SetValidateOnStorePostBuilder;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.engine.config.ComServer;
