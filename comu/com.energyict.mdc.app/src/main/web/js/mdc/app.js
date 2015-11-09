@@ -4,6 +4,10 @@ Ext.onReady(function () {
     // <debug>
     var packages = [
         {
+            name: 'Sam',
+            path: '../../apps/sam/src'
+        },
+        {
             name: 'Cfg',
             path: '../../apps/cfg/src'
         },
@@ -62,7 +66,11 @@ Ext.onReady(function () {
         {
             name: 'Bpm',
             path: '../../apps/bpm/src'
-        }
+        },
+        {
+            name: 'Dbp',
+            path: '../../apps/dbp/src'
+        },
 //        {
 //            name: 'PlaygroundApp',
 //            path: '../../apps/playground/app'
