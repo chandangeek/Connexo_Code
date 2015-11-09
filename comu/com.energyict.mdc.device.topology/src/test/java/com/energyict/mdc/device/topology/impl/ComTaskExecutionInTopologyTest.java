@@ -42,7 +42,7 @@ public class ComTaskExecutionInTopologyTest extends AbstractComTaskExecutionInTo
         inMemoryPersistence.update("update " + com.energyict.mdc.device.data.impl.TableSpecs.DDC_CONNECTIONTASK.name() + " set comserver = " + comServer.getId() + "where id = " + connectionTask.getId());
 
         // Business method
-        comTaskExecution.makeObsolete();
+        device.removeComTaskExecution(comTaskExecution);
 
         // Asserts: see expected exception rule
     }

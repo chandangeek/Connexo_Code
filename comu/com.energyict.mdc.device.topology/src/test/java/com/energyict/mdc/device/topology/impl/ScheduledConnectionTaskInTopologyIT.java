@@ -245,7 +245,8 @@ public class ScheduledConnectionTaskInTopologyIT extends PersistenceIntegrationT
         connectionTask.save();
         inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
         // We need to reload the comTaskExecution because ConnectionTaskService#setDefaultConnectionTask updates all executions
-        inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get().makeObsolete();
+        ComTaskExecution reloaded = inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
+        device.removeComTaskExecution(reloaded);
         inMemoryPersistence.getConnectionTaskService().clearDefaultConnectionTask(connectionTask.getDevice());
 
         ComTaskExecution reloadedComTaskExecution = inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
