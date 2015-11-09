@@ -15,6 +15,7 @@ public class DataCollectionKpiInfoFactory {
         kpiInfo.deviceGroup = new LongIdWithNameInfo(kpi.getDeviceGroup().getId(), kpi.getDeviceGroup().getName());
         kpiInfo.displayRange = new TimeDurationInfo(kpi.getDisplayRange());
         kpiInfo.frequency = kpi.getFrequency()!=null?TemporalExpressionInfo.from(kpi.getFrequency()):null;
+        kpiInfo.version = kpi.getVersion();
         kpi.getStaticCommunicationKpiTarget().ifPresent(target -> kpiInfo.communicationTarget = target);
         kpi.getStaticConnectionKpiTarget().ifPresent(target -> kpiInfo.connectionTarget = target);
         kpi.getLatestCalculation().ifPresent(target -> kpiInfo.latestCalculationDate = target);

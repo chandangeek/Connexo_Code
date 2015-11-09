@@ -2,13 +2,13 @@ package com.energyict.mdc.device.data.rest;
 
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.energyict.mdc.device.data.rest.impl.ConnectionTaskVersionInfo;
 import com.energyict.mdc.device.data.tasks.ConnectionTask.ConnectionTaskLifecycleStatus;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.Instant;
 
-public class DeviceConnectionTaskInfo {
-    public long id;
+public class DeviceConnectionTaskInfo extends ConnectionTaskVersionInfo {
     public TaskStatusInfo currentState;
     public LatestStatusInfo latestStatus;
     public SuccessIndicatorInfo latestResult;
@@ -26,6 +26,7 @@ public class DeviceConnectionTaskInfo {
     public ConnectionStrategyInfo connectionStrategy;
     public Instant nextExecution;
     public long comSessionId;
+    public long version;
 
     public static class LatestStatusInfo {
         public String id;

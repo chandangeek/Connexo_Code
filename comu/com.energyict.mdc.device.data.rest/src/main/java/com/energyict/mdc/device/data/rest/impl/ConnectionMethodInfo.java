@@ -1,5 +1,10 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.rest.util.VersionInfo;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -10,11 +15,6 @@ import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
-
-import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.rest.util.properties.PropertyInfo;
-import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -33,10 +33,8 @@ import java.util.Optional;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = InboundConnectionMethodInfo.class, name = "Inbound"),
         @JsonSubTypes.Type(value = ScheduledConnectionMethodInfo.class, name = "Outbound")})
-public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends ComPortPool, ? extends PartialConnectionTask>> {
+public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends ComPortPool, ? extends PartialConnectionTask>> extends ConnectionTaskVersionInfo{
 
-    public long id;
-    public String name;
     @XmlJavaTypeAdapter(ConnectionTaskLifecycleStateAdapter.class)
     public ConnectionTask.ConnectionTaskLifecycleStatus status;
     public String connectionType;
@@ -65,6 +63,9 @@ public abstract class ConnectionMethodInfo<T extends ConnectionTask<? extends Co
         TypedProperties typedProperties = connectionTask.getTypedProperties();
         this.properties = new ArrayList<>();
         mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo, propertySpecs, typedProperties, this.properties);
+        this.version = connectionTask.getVersion();
+        Device device = connectionTask.getDevice();
+        this.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
     }
 
 

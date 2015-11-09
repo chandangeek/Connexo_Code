@@ -1,9 +1,9 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
-import com.elster.jupiter.validation.DataValidationStatus;
-import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.validation.DataValidationStatus;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -11,7 +11,6 @@ import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
-
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;

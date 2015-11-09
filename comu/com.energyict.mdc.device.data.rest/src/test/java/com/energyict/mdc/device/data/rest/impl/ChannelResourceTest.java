@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.cbo.QualityCodeCategory;
-import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
+import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.estimation.EstimationRule;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.metering.IntervalReadingRecord;
@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingQualityType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.ProfileStatus;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -22,6 +23,7 @@ import com.elster.jupiter.validation.impl.IValidationRule;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.ChannelDataUpdater;
 import com.energyict.mdc.device.data.Device;
@@ -39,8 +41,8 @@ import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.net.URLEncoder;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -53,7 +55,11 @@ import java.util.Optional;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.anyList;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
@@ -93,6 +99,8 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     private ValidationEvaluator evaluator;
     @Mock
     private IntervalReadingRecord readingRecord, addedReadingRecord, editedReadingRecord, confirmedReadingRecord;
+    @Mock
+    private DeviceConfiguration deviceConfiguration;
 
     private ReadingQualityType readingQualityTypeValidated = new ReadingQualityType("3.0.1"),
                                 readingQualityTypeEdited = new ReadingQualityType("3.7.0"),
@@ -100,13 +108,16 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
                                  readingQualityTypeRejected = new ReadingQualityType("3.7.3"),
                                 readingQualityTypeConfirmed = new ReadingQualityType("3.10.1");
 
-    public ChannelResourceTest() {
-    }
-
     @Before
     public void setUpStubs() {
         when(deviceService.findByUniqueMrid("1")).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceBymRIDAndVersion("1", 1L)).thenReturn(Optional.of(device));
         when(device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile));
+        when(device.getVersion()).thenReturn(1L);
+        when(device.getmRID()).thenReturn("1");
+        when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        LoadProfile.LoadProfileUpdater loadProfileUpdater = mock(LoadProfile.LoadProfileUpdater.class);
+        when(device.getLoadProfileUpdaterFor(loadProfile)).thenReturn(loadProfileUpdater);
         when(loadProfile.getId()).thenReturn(1L);
         when(loadProfile.getChannels()).thenReturn(Arrays.asList(channel));
 
@@ -205,6 +216,16 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(channel.getLastDateTime()).thenReturn(Optional.of(NOW));
         when(channel.getUnit()).thenReturn(unit);
         when(deviceValidation.getLastChecked(channel)).thenReturn(Optional.of(NOW));
+
+        when(deviceConfiguration.getId()).thenReturn(1L);
+        when(deviceConfiguration.getVersion()).thenReturn(1L);
+        when(deviceConfigurationService.findDeviceConfiguration(deviceConfiguration.getId())).thenReturn(Optional.of(deviceConfiguration));
+        when(deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(deviceConfiguration.getId(), deviceConfiguration.getVersion())).thenReturn(Optional.of(deviceConfiguration));
+
+        when(loadProfile.getVersion()).thenReturn(1L);
+        when(loadProfileService.findById(loadProfile.getId())).thenReturn(Optional.of(loadProfile));
+        when(loadProfileService.findAndLockLoadProfileByIdAndVersion(loadProfile.getId(), loadProfile.getVersion())).thenReturn(Optional.of(loadProfile));
+        when(loadProfile.getDevice()).thenReturn(device);
     }
 
     private ReadingQualityRecord mockReadingQuality(String code) {
@@ -229,14 +250,12 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testChannelData() {
-        String filter = URLEncoder.encode("[{\"property\":\"intervalStart\",\"value\":1410774630000},{\"property\":\"intervalEnd\",\"value\":1410828630000}]");
+    public void testChannelData() throws UnsupportedEncodingException {
+        String filter = ExtjsFilter.filter().property("intervalStart", 1410774630000L).property("intervalEnd", 1410828630000L).create();
 
         String json = target("devices/1/channels/" + CHANNEL_ID1 + "/data")
                 .queryParam("filter", filter)
                 .request().get(String.class);
-
-        System.out.println(json);
 
         JsonModel jsonModel = JsonModel.create(json);
 
@@ -307,16 +326,14 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testChannelDataFiltered() {
+    public void testChannelDataFiltered() throws UnsupportedEncodingException {
         when(evaluator.getValidationResult(any())).thenReturn(ValidationResult.VALID);
         when(deviceValidation.getValidationResult(any())).thenReturn(ValidationResult.VALID);
 
-        String filter = URLEncoder.encode("[{\"property\":\"intervalStart\",\"value\":1410774630000},{\"property\":\"intervalEnd\",\"value\":1410828630000},{\"property\":\"suspect\",\"value\":\"suspect\"}]");
+        String filter = ExtjsFilter.filter().property("intervalStart", 1410774630000L).property("intervalEnd", 1410828630000L).property("suspect", "suspect").create();
         String json = target("devices/1/channels/" + CHANNEL_ID1 + "/data")
                 .queryParam("filter", filter)
                 .request().get(String.class);
-
-        System.out.println(json);
 
         JsonModel jsonModel = JsonModel.create(json);
 
@@ -324,15 +341,11 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     @Test
-    public void testChannelDataFilteredMatches() {
-
-        String filter = URLEncoder.encode("[{\"property\":\"intervalStart\",\"value\":1410774630000},{\"property\":\"intervalEnd\",\"value\":1410828630000},{\"property\":\"suspect\",\"value\":\"suspect\"}]");
-
+    public void testChannelDataFilteredMatches() throws UnsupportedEncodingException {
+        String filter = ExtjsFilter.filter().property("intervalStart", 1410774630000L).property("intervalEnd", 1410828630000L).property("suspect","suspect").create();
         String json = target("devices/1/channels/" + CHANNEL_ID1 + "/data")
                 .queryParam("filter", filter)
                 .request().get(String.class);
-
-        System.out.println(json);
 
         JsonModel jsonModel = JsonModel.create(json);
 
@@ -345,9 +358,15 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.forValidation()).thenReturn(deviceValidation);
         when(channel.getLastReading()).thenReturn(Optional.of(LAST_READING));
 
+        LoadProfileTriggerValidationInfo info = new LoadProfileTriggerValidationInfo();
+        info.version = device.getVersion();
+        info.id = CHANNEL_ID1;
+        info.version = loadProfile.getVersion();
+        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+
         Response response = target("devices/1/channels/" + CHANNEL_ID1 + "/validate")
                 .request()
-                .put(Entity.json(new TriggerValidationInfo()));
+                .put(Entity.json(info));
 
         assertThat(response.getEntity()).isNotNull();
         verify(deviceValidation).validateChannel(channel);
@@ -359,11 +378,16 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(device.forValidation()).thenReturn(deviceValidation);
         when(channel.getLastReading()).thenReturn(Optional.of(LAST_READING));
 
-        TriggerValidationInfo triggerValidationInfo = new TriggerValidationInfo();
-        triggerValidationInfo.lastChecked = LAST_CHECKED.getTime();
+
+        LoadProfileTriggerValidationInfo info = new LoadProfileTriggerValidationInfo();
+        info.version = device.getVersion();
+        info.id = CHANNEL_ID1;
+        info.version = loadProfile.getVersion();
+        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
+        info.lastChecked = LAST_CHECKED.getTime();
         Response response = target("devices/1/channels/" + CHANNEL_ID1 + "/validate")
                 .request()
-                .put(Entity.json(triggerValidationInfo));
+                .put(Entity.json(info));
 
         assertThat(response.getEntity()).isNotNull();
         verify(deviceValidation).setLastChecked(channel, LAST_CHECKED.toInstant());

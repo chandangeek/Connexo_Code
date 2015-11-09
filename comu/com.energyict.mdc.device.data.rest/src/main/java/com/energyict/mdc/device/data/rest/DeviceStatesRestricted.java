@@ -20,7 +20,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({TYPE, METHOD})
 public @interface DeviceStatesRestricted {
     /**
-     * List of restricted device states (if device in one of these state, the 404 code will be returned as a response for request)
+     * List of restricted device states (if device in one of these states, the 404 code will be returned as a response for request)
      */
     DefaultState[] value();
 

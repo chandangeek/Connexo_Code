@@ -3,9 +3,14 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.appserver.rest.AppServerHelper;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
+import com.elster.jupiter.search.SearchDomain;
+import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.common.rest.ExceptionFactory;
+import com.energyict.mdc.device.data.ComScheduleOnDevicesFilterSpecification;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ItemizeComScheduleQueueMessage;
 import com.energyict.mdc.device.data.QueueMessage;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -14,7 +19,6 @@ import com.energyict.mdc.scheduling.SchedulingService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.BeanParam;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -27,20 +31,22 @@ public class BulkScheduleResource {
     private final AppServerHelper appServerHelper;
     private final JsonService jsonService;
     private final MessageService messageService;
+    private final SearchService searchService;
 
     @Inject
     public BulkScheduleResource(ExceptionFactory exceptionFactory, AppServerHelper appServerHelper,
-                                JsonService jsonService, MessageService messageService) {
+                                JsonService jsonService, MessageService messageService, SearchService searchService) {
         this.exceptionFactory = exceptionFactory;
         this.appServerHelper = appServerHelper;
         this.jsonService = jsonService;
         this.messageService = messageService;
+        this.searchService = searchService;
     }
 
     @PUT
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_COMMUNICATION)
-    public Response addComScheduleToDeviceSet(BulkRequestInfo request, @BeanParam JsonQueryFilter queryFilter) {
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION)
+    public Response addOrRemoveComScheduleToDeviceSet(BulkRequestInfo request) {
         if (!appServerHelper.verifyActiveAppServerExists(SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION) || !appServerHelper.verifyActiveAppServerExists(SchedulingService.COM_SCHEDULER_QUEUE_DESTINATION)) {
             throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
         }
@@ -48,10 +54,25 @@ public class BulkScheduleResource {
             throw exceptionFactory.newException(MessageSeeds.BAD_ACTION);
         }
         ItemizeComScheduleQueueMessage message = new ItemizeComScheduleQueueMessage();
-        message.action = request.action.equalsIgnoreCase("add")?ScheduleAction.Add:ScheduleAction.Remove;
+        message.action = request.action.equalsIgnoreCase("add") ? ScheduleAction.Add : ScheduleAction.Remove;
         message.deviceMRIDs = request.deviceMRIDs;
         message.scheduleIds = request.scheduleIds;
-        message.filter = request.filter;
+        if (request.filter != null) {
+            JsonQueryFilter filter = new JsonQueryFilter(request.filter);
+            Optional<SearchDomain> deviceSearchDomain = searchService.findDomain(Device.class.getName());
+            if (filter.hasFilters() && deviceSearchDomain.isPresent()) {
+                message.filter = new ComScheduleOnDevicesFilterSpecification();
+                deviceSearchDomain.get().getProperties().stream().
+                        filter(p -> filter.hasProperty(p.getName())).
+                        forEach(searchableProperty -> {
+                            if (searchableProperty.getSelectionMode() == SearchableProperty.SelectionMode.MULTI) {
+                                message.filter.listProperties.put(searchableProperty.getName(), filter.getStringList(searchableProperty.getName()));
+                            } else {
+                                message.filter.singleProperties.put(searchableProperty.getName(), filter.getString(searchableProperty.getName()));
+                            }
+                        });
+            }
+        }
 
         Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(SchedulingService.FILTER_ITEMIZER_QUEUE_DESTINATION);
         if (destinationSpec.isPresent()) {

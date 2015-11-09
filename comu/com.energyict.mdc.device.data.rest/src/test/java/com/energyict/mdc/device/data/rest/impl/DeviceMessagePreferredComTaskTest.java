@@ -35,7 +35,9 @@ import java.util.stream.Collectors;
 
 import static com.energyict.mdc.device.data.rest.impl.DeviceMessagePreferredComTaskTest.Progress.OnHold;
 import static com.energyict.mdc.device.data.rest.impl.DeviceMessagePreferredComTaskTest.Progress.Planned;
-import static com.energyict.mdc.device.data.rest.impl.DeviceMessagePreferredComTaskTest.RunMode.*;
+import static com.energyict.mdc.device.data.rest.impl.DeviceMessagePreferredComTaskTest.RunMode.AdHoc;
+import static com.energyict.mdc.device.data.rest.impl.DeviceMessagePreferredComTaskTest.RunMode.ManuallyScheduled;
+import static com.energyict.mdc.device.data.rest.impl.DeviceMessagePreferredComTaskTest.RunMode.SharedScheduled;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.mock;

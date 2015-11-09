@@ -1,9 +1,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.favorites.FavoritesService;
-
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.energyict.mdc.favorites.FavoritesService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 

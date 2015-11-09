@@ -1,14 +1,13 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.yellowfin.groups.AdHocDeviceGroup;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
-import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.elster.jupiter.domain.util.Finder;
-import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -46,7 +45,7 @@ public class AdhocGroupResource {
     @POST
     @Path("/adhoc")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(com.elster.jupiter.yellowfin.security.Privileges.VIEW_REPORTS)
+    @RolesAllowed(com.elster.jupiter.yellowfin.security.Privileges.Constants.VIEW_REPORTS)
     public AdhocGroupInfo cacheAdHocGroup(@BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params,  @Context UriInfo uriInfo) {
         AdhocGroupInfo groupInfo = new AdhocGroupInfo();
 

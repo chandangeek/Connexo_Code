@@ -1,12 +1,24 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.rest.util.RestQuery;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
+import com.jayway.jsonpath.JsonModel;
+import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mock;
 
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -14,23 +26,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
-
-import org.junit.Test;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-
-import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.nls.LocalizedException;
-import com.elster.jupiter.rest.util.RestQuery;
-import com.elster.jupiter.domain.util.Finder;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
-import com.jayway.jsonpath.JsonModel;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Created by bvn on 10/13/14.
@@ -89,9 +90,15 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
 
     @Test
     public void testRemoveEndDeviceGroup() {
+        when(meteringGroupService.findAndLockEndDeviceGroupByIdAndVersion(111, 1L)).thenReturn(Optional.of(endDeviceGroup));
         when(meteringGroupService.findEndDeviceGroup(111)).thenReturn(Optional.of(endDeviceGroup));
 
-        target("/devicegroups/111").request().delete();
+        DeviceGroupInfo info = new DeviceGroupInfo();
+        info.version = 1L;
+        info.id = 111L;
+
+        Response response = target("/devicegroups/111").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
 
         verify(endDeviceGroup).delete();
     }
@@ -99,22 +106,29 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
     @Test
     public void testRemoveNonExistingEndDeviceGroup() {
         when(meteringGroupService.findEndDeviceGroup(111)).thenReturn(Optional.empty());
+        when(meteringGroupService.findAndLockEndDeviceGroupByIdAndVersion(111, 1L)).thenReturn(Optional.empty());
 
-        try {
-            target("/devicegroups/111").request().delete();
-        } catch (WebApplicationException e) {
-            assertThat(e.getResponse().getStatus()).isEqualTo(Response.Status.NOT_FOUND);
-        }
+        DeviceGroupInfo info = new DeviceGroupInfo();
+        info.version = 1L;
+        info.id = 111L;
 
+        Response response = target("/devicegroups/111").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
     }
 
     @Test
     public void testVetoingHandlerPreventsDeletion() {
+        when(meteringGroupService.findAndLockEndDeviceGroupByIdAndVersion(111, 1L)).thenReturn(Optional.of(endDeviceGroup));
         when(meteringGroupService.findEndDeviceGroup(111)).thenReturn(Optional.of(endDeviceGroup));
+
+        DeviceGroupInfo info = new DeviceGroupInfo();
+        info.version = 1L;
+        info.id = 111L;
+
         doThrow(new LocalizedException(thesaurus,MessageSeeds.NO_SUCH_MESSAGE) { // Bogus exception, real exception originates in DeviceData.impl
         }).when(endDeviceGroup).delete();
 
-        Response response = target("/devicegroups/111").request().delete();
+        Response response = target("/devicegroups/111").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
     }
     

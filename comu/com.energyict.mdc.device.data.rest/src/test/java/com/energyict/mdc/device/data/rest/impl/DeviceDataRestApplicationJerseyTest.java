@@ -6,8 +6,6 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
-import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -37,6 +35,7 @@ import com.elster.jupiter.cbo.Phase;
 import com.elster.jupiter.cbo.RationalNumber;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.cbo.TimeAttribute;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
@@ -49,9 +48,16 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.DeviceMessageService;
+import com.energyict.mdc.device.data.LoadProfileService;
+import org.junit.Before;
+import org.mockito.Mock;
 
 import javax.ws.rs.core.Application;
 import java.time.Clock;
@@ -63,9 +69,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import org.junit.*;
-import org.mockito.Mock;
-
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyLong;
@@ -74,9 +77,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Created by bvn on 9/19/14.
- */
 public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJerseyTest {
 
     static long firmwareComTaskId = 445632136865L;
@@ -143,6 +143,14 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
     AppService appService;
     @Mock
     MessageService messageService;
+    @Mock
+    LoadProfileService loadProfileService;
+    @Mock
+    SearchService searchService;
+    @Mock
+    DeviceMessageService deviceMessageService;
+    @Mock
+    CustomPropertySetService customPropertySetService;
 
     @Before
     public void setup() {
@@ -153,17 +161,17 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         when(firmwareComTask.isUserComTask()).thenReturn(false);
     }
 
-    protected boolean disableDeviceConstraintsBasedOnDeviceState(){
+    protected boolean disableDeviceConstraintsBasedOnDeviceState() {
         return true;
     }
 
     @Override
     protected Application getApplication() {
-        DeviceApplication application = new DeviceApplication(){
+        DeviceApplication application = new DeviceApplication() {
             @Override
             public Set<Class<?>> getClasses() {
                 Set<Class<?>> classes = new HashSet<>(super.getClasses());
-                if (disableDeviceConstraintsBasedOnDeviceState()){
+                if (disableDeviceConstraintsBasedOnDeviceState()) {
                     classes.remove(DeviceStateAccessFeature.class);
                 }
                 return classes;
@@ -200,10 +208,14 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         application.setDeviceLifeCycleService(deviceLifeCycleService);
         application.setAppService(appService);
         application.setMessageService(messageService);
+        application.setSearchService(searchService);
+        application.setLoadProfileService(loadProfileService);
+        application.setDeviceMessageService(deviceMessageService);
+        application.setCustomPropertySetService(customPropertySetService);
         return application;
     }
 
-    public ReadingType mockReadingType(String mrid){
+    public ReadingType mockReadingType(String mrid) {
         ReadingType readingType = mock(ReadingType.class);
         when(readingType.getMRID()).thenReturn(mrid);
         when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
@@ -213,8 +225,8 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         when(readingType.getFlowDirection()).thenReturn(FlowDirection.FORWARD);
         when(readingType.getCommodity()).thenReturn(Commodity.AIR);
         when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ACVOLTAGEPEAK);
-        when(readingType.getInterharmonic()).thenReturn(new RationalNumber(1,2));
-        when(readingType.getArgument()).thenReturn(new RationalNumber(1,2));
+        when(readingType.getInterharmonic()).thenReturn(new RationalNumber(1, 2));
+        when(readingType.getArgument()).thenReturn(new RationalNumber(1, 2));
         when(readingType.getTou()).thenReturn(3);
         when(readingType.getCpp()).thenReturn(4);
         when(readingType.getConsumptionTier()).thenReturn(5);
@@ -225,10 +237,10 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         return readingType;
     }
 
-    AppServer mockAppServers(String ...name) {
+    AppServer mockAppServers(String... name) {
         AppServer appServer = mock(AppServer.class);
         List<SubscriberExecutionSpec> execSpecs = new ArrayList<>();
-        for (String specName: name) {
+        for (String specName : name) {
             SubscriberExecutionSpec subscriberExecutionSpec = mock(SubscriberExecutionSpec.class);
             SubscriberSpec spec = mock(SubscriberSpec.class);
             when(subscriberExecutionSpec.getSubscriberSpec()).thenReturn(spec);
@@ -257,5 +269,4 @@ public class DeviceDataRestApplicationJerseyTest extends FelixRestApplicationJer
         when(finder.stream()).thenReturn(list.stream());
         return finder;
     }
-
 }

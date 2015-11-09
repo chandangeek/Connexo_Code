@@ -1,8 +1,11 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo.ComTaskCountInfo;
 import com.energyict.mdc.device.data.rest.DeviceConnectionTaskInfo.ConnectionMethodInfo;
@@ -14,8 +17,6 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.device.data.tasks.history.ComSession;
-
-import com.elster.jupiter.nls.Thesaurus;
 
 import javax.inject.Inject;
 import java.time.Duration;
@@ -61,11 +62,12 @@ public class DeviceConnectionTaskInfoFactory {
             info.comSessionId = comSession.getId();
         }
         info.comPortPool = new IdWithNameInfo(connectionTask.getComPortPool());
-        info.direction=thesaurus.getString(connectionTask.getConnectionType().getDirection().name(),connectionTask.getConnectionType().getDirection().name());
+        info.direction=thesaurus.getString(connectionTask.getConnectionType().getDirection().name(), connectionTask.getConnectionType().getDirection().name());
         info.connectionType = connectionTask.getPluggableClass().getName();
         info.connectionMethod = new ConnectionMethodInfo();
         info.connectionMethod.id = connectionTask.getPartialConnectionTask().getId();
         info.connectionMethod.name = connectionTask.getPartialConnectionTask().getName();
+        info.name = info.connectionMethod.name; // need it for concurrency check
         info.connectionMethod.status = connectionTask.getStatus();
         info.connectionMethod.isDefault = connectionTask.isDefault();
         if (connectionTask instanceof ScheduledConnectionTask) {
@@ -86,6 +88,9 @@ public class DeviceConnectionTaskInfoFactory {
             }
             info.nextExecution=scheduledConnectionTask.getNextExecutionTimestamp();
         }
+        info.version = connectionTask.getVersion();
+        Device device = connectionTask.getDevice();
+        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         return info;
     }
 

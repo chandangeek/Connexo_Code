@@ -1,12 +1,11 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.rest.util.JsonInstantAdapter;
 import com.energyict.mdc.device.data.rest.LogLevelAdapter;
 import com.energyict.mdc.engine.config.ComServer;
 
-import com.elster.jupiter.rest.util.JsonInstantAdapter;
-
-import java.time.Instant;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.time.Instant;
 
 /**
  * Created by bvn on 10/14/14.

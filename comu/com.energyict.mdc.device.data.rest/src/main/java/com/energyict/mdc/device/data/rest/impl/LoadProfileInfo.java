@@ -1,17 +1,19 @@
 package com.energyict.mdc.device.data.rest.impl;
 
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.common.rest.TimeDurationInfo;
 import com.energyict.mdc.device.data.Channel;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfile;
 
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 
 /**
  * JSON structure for load profiles
@@ -27,6 +29,8 @@ public class LoadProfileInfo {
     public TimeDurationInfo interval; // the interval definition of the load profile
     public Instant lastReading;
     public List<ChannelInfo> channels;
+    public long version;
+    public VersionInfo<String> parent;
 
     // optionally filled if requesting details
     public DetailedValidationInfo validationInfo;
@@ -46,6 +50,9 @@ public class LoadProfileInfo {
         info.obisCode=loadProfile.getDeviceObisCode();
         info.interval=new TimeDurationInfo(loadProfile.getInterval());
         info.lastReading=loadProfile.getLastReading().orElse(null);
+        info.version = loadProfile.getVersion();
+        Device device = loadProfile.getDevice();
+        info.parent = new VersionInfo<>(device.getmRID(), device.getVersion());
         return info;
     }
 

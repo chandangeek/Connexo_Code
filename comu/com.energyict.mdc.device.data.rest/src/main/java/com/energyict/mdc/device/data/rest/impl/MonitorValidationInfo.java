@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import java.util.*;
+import java.util.List;
 
 public class MonitorValidationInfo {
 

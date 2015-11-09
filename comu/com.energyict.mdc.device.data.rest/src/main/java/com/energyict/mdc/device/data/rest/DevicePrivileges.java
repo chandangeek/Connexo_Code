@@ -48,7 +48,7 @@ public final class DevicePrivileges {
             @Override
             List<String> getPrivileges(User user) {
                 List<String> privileges = new ArrayList<>();
-                if (user != null && user.hasPrivilege("MDC", Privileges.ADMINISTER_DECOMMISSIONED_DEVICE_DATA)) {
+                if (user != null && user.hasPrivilege("MDC", Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA)) {
                     privileges.add(DEVICES_ACTIONS_DATA_EDIT);
                 }
                 return privileges;

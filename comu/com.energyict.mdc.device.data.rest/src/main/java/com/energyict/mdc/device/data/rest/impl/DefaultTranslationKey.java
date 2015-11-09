@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
-import com.energyict.mdc.protocol.api.ConnectionType;
-
 import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.protocol.api.ConnectionType;
 
 public enum DefaultTranslationKey implements TranslationKey {
     PRE_TRANSITION_CHECKS_FAILED("PreTransitionChecksFailed" , "Pretransition checks failed"),
@@ -119,9 +118,9 @@ public enum DefaultTranslationKey implements TranslationKey {
     DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_8(Keys.DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_8, "No Encryption Extended DataCollection client"),
     DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_9(Keys.DLMSSECURITYSUPPORTPERCLIENT_ENCRYPTIONLEVEL_9, "Message Encryption Extended DataCollection client"),
     IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_0(Keys.IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_0, "No Authentication"),
-    IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_1(Keys.IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_1, "Level 1authentication"),
-    IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_2(Keys.IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_2, "Level 2authentication"),
-    IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_3(Keys.IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_3, "Level three authentication"),
+    IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_1(Keys.IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_1, "Level 1 authentication"),
+    IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_2(Keys.IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_2, "Level 2 authentication"),
+    IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_3(Keys.IEC1107SECURITYSUPPORT_AUTHENTICATIONLEVEL_3, "Level 3 authentication"),
     MTU155SECURITYSUPPORT_AUTHENTICATIONLEVEL_0(Keys.MTU155SECURITYSUPPORT_AUTHENTICATIONLEVEL_0, "Default authentication"),
     MTU155SECURITYSUPPORT_ENCRYPTIONLEVEL_0(Keys.MTU155SECURITYSUPPORT_ENCRYPTIONLEVEL_0, "KeyT encryption"),
     MTU155SECURITYSUPPORT_ENCRYPTIONLEVEL_1(Keys.MTU155SECURITYSUPPORT_ENCRYPTIONLEVEL_1, "KeyC encryption"),

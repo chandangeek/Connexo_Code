@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.common.rest.IdWithNameInfo;
-
+import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.energyict.mdc.common.rest.IdWithNameInfo;
 
 import java.time.Instant;
 import java.util.List;
@@ -26,6 +26,8 @@ public class DeviceMessageInfo {
     public Boolean willBePickedUpByPlannedComTask;
     public List<PropertyInfo> properties;
     public IdWithNameInfo preferredComTask;
+    public long version;
+    public VersionInfo<String> parent;
 
     public DeviceMessageInfo() {
     }

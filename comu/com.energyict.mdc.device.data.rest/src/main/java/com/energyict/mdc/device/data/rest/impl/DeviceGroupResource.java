@@ -9,15 +9,15 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
-import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.common.rest.ExceptionFactory;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
@@ -66,9 +66,10 @@ public class DeviceGroupResource {
     private final DeviceService deviceService;
     private final ExceptionFactory exceptionFactory;
     private final DeviceGroupInfoFactory deviceGroupInfoFactory;
+    private final ResourceHelper resourceHelper;
 
     @Inject
-    public DeviceGroupResource(MeteringGroupsService meteringGroupsService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, RestQueryService restQueryService, DeviceService deviceService, ExceptionFactory exceptionFactory, DeviceGroupInfoFactory deviceGroupInfoFactory) {
+    public DeviceGroupResource(MeteringGroupsService meteringGroupsService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, RestQueryService restQueryService, DeviceService deviceService, ExceptionFactory exceptionFactory, DeviceGroupInfoFactory deviceGroupInfoFactory, ResourceHelper resourceHelper) {
         this.meteringGroupsService = meteringGroupsService;
         this.deviceConfigurationService = deviceConfigurationService;
         this.meteringService = meteringService;
@@ -76,22 +77,23 @@ public class DeviceGroupResource {
         this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
         this.deviceGroupInfoFactory = deviceGroupInfoFactory;
+        this.resourceHelper = resourceHelper;
     }
 
     @GET
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.VIEW_DEVICE_GROUP_DETAIL})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_GROUP, Privileges.Constants.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL})
     public DeviceGroupInfo getDeviceGroup(@PathParam("id") long id) {
-        return deviceGroupInfoFactory.from(fetchDeviceGroup(id));
+        return deviceGroupInfoFactory.from(resourceHelper.findEndDeviceGroupOrThrowException(id));
     }
 
     @GET
     @Path("/{id}/devices")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.VIEW_DEVICE_GROUP_DETAIL})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_GROUP, Privileges.Constants.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL})
     public PagedInfoList getDevices(@PathParam("id") long deviceGroupId, @BeanParam JsonQueryParameters queryParameters) {
-        EndDeviceGroup endDeviceGroup = fetchDeviceGroup(deviceGroupId);
+        EndDeviceGroup endDeviceGroup = resourceHelper.findEndDeviceGroupOrThrowException(deviceGroupId);
         List<? extends EndDevice> endDevices;
         if (queryParameters.getStart().isPresent() && queryParameters.getLimit().isPresent()) {
             endDevices = endDeviceGroup.getMembers(Instant.now(), queryParameters.getStart().get(), queryParameters.getLimit().get());
@@ -129,19 +131,19 @@ public class DeviceGroupResource {
     @PUT
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.VIEW_DEVICE_GROUP_DETAIL})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_GROUP, Privileges.Constants.ADMINISTRATE_DEVICE_ENUMERATED_GROUP, Privileges.Constants.VIEW_DEVICE_GROUP_DETAIL})
     @Path("/{id}")
-    public Response editDeviceGroup(DeviceGroupInfo deviceGroupInfo, @PathParam("id") long id) {
-        EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup(id)
-                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
+    public Response editDeviceGroup(DeviceGroupInfo info, @PathParam("id") long id) {
+        info.id = id;
+        EndDeviceGroup endDeviceGroup = resourceHelper.lockEndDeviceGroupOrThrowException(info);
 
-        endDeviceGroup.setName(deviceGroupInfo.name);
-        endDeviceGroup.setMRID("MDC:" + deviceGroupInfo.name);
+        endDeviceGroup.setName(info.name);
+        endDeviceGroup.setMRID("MDC:" + info.name);
 
-        if (deviceGroupInfo.dynamic) {
-            ((QueryEndDeviceGroup) endDeviceGroup).setCondition(getCondition(deviceGroupInfo));
+        if (info.dynamic) {
+            ((QueryEndDeviceGroup) endDeviceGroup).setCondition(getCondition(info));
         } else {
-            syncListWithInfo((EnumeratedEndDeviceGroup) endDeviceGroup, deviceGroupInfo);
+            syncListWithInfo((EnumeratedEndDeviceGroup) endDeviceGroup, info);
         }
         endDeviceGroup.save();
         return Response.status(Response.Status.CREATED).entity(deviceGroupInfoFactory.from(endDeviceGroup)).build();
@@ -150,12 +152,11 @@ public class DeviceGroupResource {
     @DELETE
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_GROUP)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_GROUP)
     @Path("/{id}")
-    public Response removeDeviceGroup(@PathParam("id") long id) {
-        EndDeviceGroup endDeviceGroup = meteringGroupsService.findEndDeviceGroup(id)
-                .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
-
+    public Response removeDeviceGroup(@PathParam("id") long id, DeviceGroupInfo info) {
+        info.id = id;
+        EndDeviceGroup endDeviceGroup = resourceHelper.lockEndDeviceGroupOrThrowException(info);
         endDeviceGroup.delete();
         return Response.ok().build();
     }
@@ -163,7 +164,7 @@ public class DeviceGroupResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DEVICE_GROUP)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_GROUP)
     public Response createDeviceGroup(DeviceGroupInfo deviceGroupInfo) {
         if (meteringGroupsService.findEndDeviceGroupByName(deviceGroupInfo.name).isPresent()) {
             throw exceptionFactory.newException(MessageSeeds.DEVICEGROUPNAME_ALREADY_EXISTS, deviceGroupInfo.name);
@@ -191,10 +192,6 @@ public class DeviceGroupResource {
         }
 
         return Response.status(Response.Status.CREATED).entity(deviceGroupInfoFactory.from(endDeviceGroup)).build();
-    }
-
-    private EndDeviceGroup fetchDeviceGroup(long id) {
-        return meteringGroupsService.findEndDeviceGroup(id).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
     private void syncListWithInfo(EnumeratedEndDeviceGroup enumeratedEndDeviceGroup, DeviceGroupInfo deviceGroupInfo) {

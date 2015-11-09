@@ -4,10 +4,11 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
-import java.util.ArrayList;
-import java.util.List;
+
 import javax.inject.Inject;
 import javax.ws.rs.core.UriInfo;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ConnectionMethodInfoFactory {
 

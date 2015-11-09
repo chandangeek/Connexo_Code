@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.data.rest;
 
-import java.time.Instant;
-
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
+
+import java.time.Instant;
 
 public class BaseComTaskExecutionInfo {
 

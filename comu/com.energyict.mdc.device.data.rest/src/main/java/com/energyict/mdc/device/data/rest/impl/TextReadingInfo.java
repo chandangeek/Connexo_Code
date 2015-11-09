@@ -1,8 +1,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.device.data.Register;
 import com.elster.jupiter.metering.readings.BaseReading;
 import com.elster.jupiter.metering.readings.beans.ReadingImpl;
+import com.energyict.mdc.device.data.Register;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class TextReadingInfo extends ReadingInfo {

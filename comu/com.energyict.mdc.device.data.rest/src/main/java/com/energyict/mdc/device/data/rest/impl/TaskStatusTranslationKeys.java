@@ -1,9 +1,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.device.data.tasks.TaskStatus;
 
 import java.util.stream.Stream;
 

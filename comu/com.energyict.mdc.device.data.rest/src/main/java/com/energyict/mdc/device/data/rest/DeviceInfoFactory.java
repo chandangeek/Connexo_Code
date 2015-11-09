@@ -2,26 +2,37 @@ package com.energyict.mdc.device.data.rest;
 
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.rest.util.InfoFactory;
+import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.rest.impl.DeviceApplication;
 import com.energyict.mdc.device.data.rest.impl.DeviceInfo;
 import com.energyict.mdc.device.data.rest.impl.DeviceTopologyInfo;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class DeviceInfoFactory {
+@Component(name="device.info.factory", service = { InfoFactory.class }, immediate = true)
+public class DeviceInfoFactory implements InfoFactory<Device> {
 
-    private final Thesaurus thesaurus;
-    private final BatchService batchService;
-    private final TopologyService topologyService;
-    private final IssueService issueService;
-    private final IssueDataValidationService issueDataValidationService;
-    private final MeteringService meteringService;
+    private Thesaurus thesaurus;
+    private BatchService batchService;
+    private TopologyService topologyService;
+    private IssueService issueService;
+    private IssueDataValidationService issueDataValidationService;
+    private MeteringService meteringService;
+
+    public DeviceInfoFactory() {}
 
     @Inject
     public DeviceInfoFactory(Thesaurus thesaurus, BatchService batchService, TopologyService topologyService, IssueService issueService, IssueDataValidationService issueDataValidationService, MeteringService meteringService) {
@@ -33,16 +44,81 @@ public class DeviceInfoFactory {
         this.meteringService = meteringService;
     }
 
+    @Reference
+    public void setBatchService(BatchService batchService) {
+        this.batchService = batchService;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(DeviceApplication.COMPONENT_NAME, Layer.REST);
+    }
+
+    @Reference
+    public void setTopologyService(TopologyService topologyService) {
+        this.topologyService = topologyService;
+    }
+
+    @Reference
+    public void setIssueService(IssueService issueService) {
+        this.issueService = issueService;
+    }
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setIssueDataValidationService(IssueDataValidationService issueDataValidationService) {
+        this.issueDataValidationService = issueDataValidationService;
+    }
+
     public List<DeviceInfo> from(List<Device> devices) {
         return devices.stream().map(this::from).collect(Collectors.toList());
     }
 
+    @Override
     public DeviceInfo from(Device device) {
         return DeviceInfo.from(device);
     }
 
     public DeviceInfo from(Device device, List<DeviceTopologyInfo> slaveDevices) {
         return DeviceInfo.from(device, slaveDevices, batchService, topologyService, issueService, issueDataValidationService, meteringService, thesaurus);
+    }
+
+    @Override
+    public Class<Device> getDomainClass() {
+        return Device.class;
+    }
+
+    @Override
+    public List<PropertyDescriptionInfo> modelStructure() {
+        List<PropertyDescriptionInfo> infos = new ArrayList<>();
+        infos.add(createDescription("mRID", String.class));
+        infos.add(createDescription("serialNumber", String.class));
+        infos.add(createDescription("deviceTypeName", String.class));
+        infos.add(createDescription("deviceTypeId", Long.class));
+        infos.add(createDescription("deviceConfigurationName", String.class));
+        infos.add(createDescription("deviceConfigurationId", Long.class));
+        infos.add(createDescription("deviceProtocolPluggeableClassId", Long.class));
+        infos.add(createDescription("yearOfCertification", Integer.class));
+        infos.add(createDescription("batch", String.class));
+        infos.add(createDescription("masterDevicemRID", String.class));
+        infos.add(createDescription("masterDeviceId", Long.class));
+        infos.add(createDescription("nbrOfDataCollectionIssues", Integer.class));
+        infos.add(createDescription("openDataValidationIssue", Long.class));
+        infos.add(createDescription("hasRegisters", Boolean.class));
+        infos.add(createDescription("hasLogBooks", Boolean.class));
+        infos.add(createDescription("hasLoadProfiles", Boolean.class));
+        infos.add(createDescription("isDirectlyAddressed", Boolean.class));
+        infos.add(createDescription("isGateway", Boolean.class));
+        infos.add(createDescription("serviceCategory", String.class));
+        return infos;
+    }
+
+    private PropertyDescriptionInfo createDescription(String propertyName, Class<?> aClass) {
+        return new PropertyDescriptionInfo(propertyName, aClass, thesaurus.getString(propertyName, propertyName));
     }
 
 }

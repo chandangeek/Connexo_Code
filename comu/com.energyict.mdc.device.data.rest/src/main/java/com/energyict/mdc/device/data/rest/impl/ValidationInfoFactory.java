@@ -32,6 +32,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -234,7 +235,10 @@ public class ValidationInfoFactory {
     }
 
     private List<IdWithNameInfo> getReadingQualities(IntervalReadingRecord intervalReadingRecord) {
-        return intervalReadingRecord.getReadingQualities().stream()
+        if (intervalReadingRecord == null) {
+            return Collections.emptyList();
+        }
+        return  intervalReadingRecord.getReadingQualities().stream()
                 .filter(ReadingQualityRecord::isActual)
                 .map(ReadingQuality::getType)
                 .distinct()

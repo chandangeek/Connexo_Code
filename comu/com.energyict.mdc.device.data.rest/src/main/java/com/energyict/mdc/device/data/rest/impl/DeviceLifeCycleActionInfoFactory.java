@@ -13,7 +13,6 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class DeviceLifeCycleActionInfoFactory {
@@ -29,7 +28,7 @@ public class DeviceLifeCycleActionInfoFactory {
 
     public DeviceLifeCycleActionInfo from(ExecutableAction executableAction){
         DeviceLifeCycleActionInfo info = new DeviceLifeCycleActionInfo();
-        info.deviceVersion = executableAction.getDevice().getVersion();
+        info.device = DeviceInfo.from(executableAction.getDevice());
         if (executableAction != null && executableAction.getAction() instanceof AuthorizedTransitionAction){
             info.id = executableAction.getAction().getId();
             info.name = executableAction.getAction().getName();
