@@ -144,7 +144,7 @@ public abstract class AbstractComTaskExecutionInTopologyTest extends Persistence
     protected OutboundComPortPool createOutboundIpComPortPool(String name) {
         OutboundComPortPool ipComPortPool = inMemoryPersistence.getEngineConfigurationService().newOutboundComPortPool(name, ComPortType.TCP, new TimeDuration(1, TimeDuration.TimeUnit.MINUTES));
         ipComPortPool.setActive(true);
-        ipComPortPool.save();
+        ipComPortPool.update();
         return ipComPortPool;
     }
 
@@ -156,7 +156,6 @@ public abstract class AbstractComTaskExecutionInTopologyTest extends Persistence
                 .setComPortPool(outboundTcpipComPortPool)
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .add();
-        device.save();
         return scheduledConnectionTask;
     }
 

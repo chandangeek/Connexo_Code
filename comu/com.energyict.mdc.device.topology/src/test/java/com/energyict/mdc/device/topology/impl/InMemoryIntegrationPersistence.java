@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.topology.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
@@ -169,6 +171,7 @@ public class InMemoryIntegrationPersistence {
                 new MockModule(),
                 bootstrapModule,
                 new UtilModule(clock),
+                new CustomPropertySetsModule(),
                 new ThreadSecurityModule(this.principal),
                 new EventsModule(),
                 new PubSubModule(),
@@ -237,6 +240,7 @@ public class InMemoryIntegrationPersistence {
         this.transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.jsonService = injector.getInstance(JsonService.class);
+            injector.getInstance(CustomPropertySetService.class);
             this.ormService = injector.getInstance(OrmService.class);
             this.transactionService = injector.getInstance(TransactionService.class);
             this.publisher = injector.getInstance(Publisher.class);
