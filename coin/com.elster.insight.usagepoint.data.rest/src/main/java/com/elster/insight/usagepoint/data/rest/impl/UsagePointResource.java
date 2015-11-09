@@ -129,7 +129,9 @@ public class UsagePointResource {
             });
         } else {
             //new link
-            link(usagePoint, metrologyConfiguration);
+            if(info.metrologyConfiguration != null) {
+                link(usagePoint, metrologyConfiguration);
+            }
         }
         return Response.status(Response.Status.CREATED).entity(getUsagePoint(info.mRID, securityContext)).build();
     }
