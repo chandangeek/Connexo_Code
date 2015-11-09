@@ -14,8 +14,11 @@ import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.elster.jupiter.metering.MeteringService;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaMbusDevice;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MbusMessaging;
+import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccessLevel;
+import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.time.Clock;
 
 /**
@@ -27,8 +30,12 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     private Dsmr23MbusMessaging dsmr23MbusMessaging;
 
     @Inject
-    public MbusDevice(Clock clock, PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, LoadProfileFactory loadProfileFactory) {
-        super(clock, propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService, collectedDataFactory, meteringService, loadProfileFactory);
+    public MbusDevice(PropertySpecService propertySpecService,
+                      TopologyService topologyService,
+                      Provider<InheritedAuthenticationDeviceAccessLevel> authenticationDeviceAccessLevelProvider,
+                      Provider<InheritedEncryptionDeviceAccessLevel> encryptionDeviceAccessLevelProvider, WebRTUKP webRtuKp) {
+        super(propertySpecService, topologyService,
+                authenticationDeviceAccessLevelProvider, encryptionDeviceAccessLevelProvider, webRtuKp);
     }
 
     @Override

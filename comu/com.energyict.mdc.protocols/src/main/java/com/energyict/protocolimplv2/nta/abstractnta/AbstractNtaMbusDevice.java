@@ -32,11 +32,13 @@ import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
 import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccessLevel;
 import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
 import com.energyict.protocols.exception.UnsupportedMethodException;
 
+import javax.inject.Provider;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,12 +66,19 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
     private final String serialNumber;
     private final int physicalAddress;
     private final TopologyService topologyService;
+    private final Provider<InheritedAuthenticationDeviceAccessLevel> authenticationDeviceAccessLevelProvider;
+    private final Provider<InheritedEncryptionDeviceAccessLevel> encryptionDeviceAccessLevelProvider;
 
-    public AbstractNtaMbusDevice(Clock clock, PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, LoadProfileFactory loadProfileFactory) {
+    public AbstractNtaMbusDevice(PropertySpecService propertySpecService,  TopologyService topologyService,
+                                 Provider<InheritedAuthenticationDeviceAccessLevel> authenticationDeviceAccessLevelProvider,
+                                 Provider<InheritedEncryptionDeviceAccessLevel> encryptionDeviceAccessLevelProvider,
+                                 WebRTUKP webRTUKP) {
         this.propertySpecService = propertySpecService;
         this.topologyService = topologyService;
+        this.authenticationDeviceAccessLevelProvider = authenticationDeviceAccessLevelProvider;
+        this.encryptionDeviceAccessLevelProvider = encryptionDeviceAccessLevelProvider;
         //TODO, what? wait! Is this even correct?
-        this.meterProtocol = new WebRTUKP(clock, this.propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService, collectedDataFactory, meteringService, loadProfileFactory);
+        this.meterProtocol = webRTUKP;
         this.serialNumber = "CurrentlyUnKnown";
         this.physicalAddress = -1;
     }
@@ -188,7 +197,7 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
         List<AuthenticationDeviceAccessLevel> authenticationAccessLevels = new ArrayList<>();
         authenticationAccessLevels.addAll(getMeterProtocol().getAuthenticationAccessLevels());
-        authenticationAccessLevels.add(new InheritedAuthenticationDeviceAccessLevel());
+        authenticationAccessLevels.add(authenticationDeviceAccessLevelProvider.get());
         return authenticationAccessLevels;
     }
 
@@ -201,7 +210,7 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         List<EncryptionDeviceAccessLevel> encryptionAccessLevels = new ArrayList<>();
         encryptionAccessLevels.addAll(getMeterProtocol().getEncryptionAccessLevels());
-        encryptionAccessLevels.add(new InheritedEncryptionDeviceAccessLevel());
+        encryptionAccessLevels.add(encryptionDeviceAccessLevelProvider.get());
         return encryptionAccessLevels;
     }
 

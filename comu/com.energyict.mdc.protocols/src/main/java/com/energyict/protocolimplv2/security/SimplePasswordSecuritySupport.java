@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.security;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.Password;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
@@ -10,6 +11,7 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilitie
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
+import com.energyict.protocols.mdc.services.impl.TranslationKeys;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -28,11 +30,13 @@ public class SimplePasswordSecuritySupport implements DeviceProtocolSecurityCapa
 
     private static final int AUTH_DEVICE_ACCESS_LEVEL = 0;
     private final PropertySpecService propertySpecService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public SimplePasswordSecuritySupport(PropertySpecService propertySpecService) {
+    public SimplePasswordSecuritySupport(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
         this.propertySpecService = propertySpecService;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -113,8 +117,8 @@ public class SimplePasswordSecuritySupport implements DeviceProtocolSecurityCapa
         }
 
         @Override
-        public String getTranslationKey() {
-            return "SimplePasswordSecuritySupport.authenticationlevel." + getId();
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.SIMPLEPASSWORDSECURITYSUPPORT_AUTHENTICATIONLEVEL_0).format();
         }
 
         @Override

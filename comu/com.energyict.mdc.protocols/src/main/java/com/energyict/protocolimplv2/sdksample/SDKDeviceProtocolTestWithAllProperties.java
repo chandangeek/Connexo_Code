@@ -106,13 +106,15 @@ public class SDKDeviceProtocolTestWithAllProperties extends SDKDeviceProtocol {
     private final CollectedDataFactory collectedDataFactory;
 
     @Inject
-    public SDKDeviceProtocolTestWithAllProperties(ProtocolPluggableService protocolPluggableService, PropertySpecService propertySpecService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
-        super(protocolPluggableService, propertySpecService, identificationService, collectedDataFactory);
+    public SDKDeviceProtocolTestWithAllProperties(ProtocolPluggableService protocolPluggableService, PropertySpecService propertySpecService,
+                                                  IdentificationService identificationService, CollectedDataFactory collectedDataFactory,
+                                                  DlmsSecuritySupport dlmsSecuritySupport) {
+        super(protocolPluggableService, propertySpecService, identificationService, collectedDataFactory, dlmsSecuritySupport);
         this.protocolPluggableService = protocolPluggableService;
         this.propertySpecService = propertySpecService;
         this.identificationService = identificationService;
         this.collectedDataFactory = collectedDataFactory;
-        this.deviceProtocolSecurityCapabilities = new DlmsSecuritySupport(propertySpecService);
+        this.deviceProtocolSecurityCapabilities = dlmsSecuritySupport;
     }
 
     @Override

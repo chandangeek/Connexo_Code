@@ -54,8 +54,8 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     S4_DGCOM(26, "com.energyict.protocolimpl.landisgyr.s4.protocol.dgcom.S4"),
     G3B(27, "com.energyict.protocolimpl.dlms.elgama.G3B"),
     JANZC280(28, "com.energyict.protocolimpl.dlms.JanzC280.JanzC280"),
-    IDIS(29, "com.energyict.protocolimpl.dlms.idis.IDIS", ProtocolFamily.IDIS_GATEWAY, ProtocolFamily.IDIS_P1),
-    IDIS_MBUS(30, "com.energyict.protocolimpl.dlms.idis.IDISMBus", ProtocolFamily.IDIS_GATEWAY, ProtocolFamily.IDIS_P1),
+    IDIS(29, "com.energyict.protocolimpl.dlms.idis.IDIS", ProtocolFamily.ELSTER_IDIS, ProtocolFamily.ELSTER_IDIS_P1),
+    IDIS_MBUS(30, "com.energyict.protocolimpl.dlms.idis.IDISMBus", ProtocolFamily.ELSTER_IDIS, ProtocolFamily.ELSTER_IDIS_P1),
     WAVE_THERM(31, "com.energyict.protocolimpl.coronis.wavetherm.WaveTherm", ProtocolFamily.CORONIS),
     PROMETER(32, "com.energyict.protocolimpl.iec1107.cewe.prometer.Prometer"),
     GEKV(33, "com.energyict.protocolimpl.ge.kv.GEKV"),
@@ -186,10 +186,10 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     // SmartMeterProtocols
 //    MX372(157, "com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.MbusDevice", ProtocolFamily.ISKRA_PRE_NTA),
     DSMR23_MBUS_EICT(158, "com.energyict.smartmeterprotocolimpl.nta.dsmr23.eict.MbusDevice", ProtocolFamily.EICT_NTA),
-    DSMR23_MBUS_ISKRA(159, "com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra.MbusDevice", ProtocolFamily.ISKRA_NTA),
+    DSMR23_MBUS_ISKRA(159, "com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra.MbusDevice", ProtocolFamily.EICT_NTA),
     DSMR40_MBUS_XEMEX(160, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.MbusDevice", ProtocolFamily.XEMEX),
     DSMR40_MBUS_LANDISGYR(161, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.MBusDevice", ProtocolFamily.DSMR_NTA),
-    DSMR40_MBUS_ELSTER(162, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.elster.MBusDevice", ProtocolFamily.DSMR),
+    DSMR40_MBUS_ELSTER(162, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.elster.MBusDevice", ProtocolFamily.DSMR_NTA),
     DSMR40_MBUS_IBM(163, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.ibm.MBusDevice", ProtocolFamily.DSMR_NTA),
 //    WEB_RTU_Z3_SLAVE(164, "com.energyict.smartmeterprotocolimpl.eict.webrtuz3.SlaveMeter", ProtocolFamily.EICT_Z3),
 //    WEB_RTU_Z3_MBUS(165, "com.energyict.smartmeterprotocolimpl.eict.webrtuz3.MbusDevice", ProtocolFamily.EICT_Z3),
@@ -199,7 +199,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
 //    ISKRA_MX372(169, "com.energyict.smartmeterprotocolimpl.prenta.iskra.mx372.IskraMx372", ProtocolFamily.ISKRA_PRE_NTA),
     UKHUB_ZIGBEE_GAS(170, "com.energyict.smartmeterprotocolimpl.eict.ukhub.zigbee.gas.ZigbeeGas", ProtocolFamily.ELSTER_SSWG_IC),
 //    WEB_RTU_Z3(171, "com.energyict.smartmeterprotocolimpl.eict.webrtuz3.WebRTUZ3", ProtocolFamily.EICT_Z3),
-    MX382(172, "com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra.Mx382", ProtocolFamily.ISKRA_NTA),
+    MX382(172, "com.energyict.smartmeterprotocolimpl.nta.dsmr23.iskra.Mx382", ProtocolFamily.EICT_NTA),
     E350(173, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.landisgyr.E350", ProtocolFamily.DSMR_NTA),
     KAIFA(174, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.ibm.Kaifa", ProtocolFamily.DSMR_NTA),
     REMI(175, "com.energyict.smartmeterprotocolimpl.nta.dsmr40.xemex.REMIDatalogger", ProtocolFamily.XEMEX),
@@ -223,8 +223,8 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     ACE4000_OUTBOUND(191, "com.energyict.protocolimplv2.ace4000.ACE4000Outbound", ProtocolFamily.ACTARIS),
     ACE4000_MBUS(192, "com.energyict.protocolimplv2.ace4000.ACE4000MBus", ProtocolFamily.ACTARIS),
     SDK_DEVICE_PROTOCOL(193, "com.energyict.protocolimplv2.sdksample.SDKDeviceProtocol", ProtocolFamily.TEST),
-    RTU_PLUS_IDIS(194, "com.energyict.protocolimplv2.eict.rtuplusserver.idis.RtuPlusServer", ProtocolFamily.IDIS_GATEWAY),
-    AS220_GAS(195, "com.energyict.protocolimpl.dlms.as220.GasDevice", ProtocolFamily.ELSTER_PLC),
+    RTU_PLUS_IDIS(194, "com.energyict.protocolimplv2.eict.rtuplusserver.idis.RtuPlusServer", ProtocolFamily.ELSTER_IDIS),
+    AS220_GAS(195, "com.energyict.protocolimpl.dlms.as220.GasDevice", ProtocolFamily.ELSTER_MULTI_FREQ),
 
     // Rtu+ Server
 //    RtuServer(196, "com.energyict.rtuprotocol.RtuServer", ProtocolFamily.EICT_RTU_EMS, ProtocolFamily.ELSTER_PLC, ProtocolFamily.IDIS_P1),
@@ -242,7 +242,8 @@ public enum LicensedProtocolRule implements LicensedProtocol {
 //    SDK_SMART_SAMPLE_PROTOCOL(215, "test.com.energyict.smartmeterprotocolimpl.sdksample.SDKSmartMeterProtocol", ProtocolFamily.TEST),
 
     ELSTER_AM540(219, "com.energyict.smartmeterprotocolimpl.nta.dsmr50.elster.am540.AM540", ProtocolFamily.DSMR_NTA),
-    AM540(224, "com.energyict.protocolimplv2.nta.dsmr50.elster.am540.AM540", ProtocolFamily.G3_LINKY_DLMS),
+    AM540(224, "com.energyict.protocolimplv2.nta.dsmr50.elster.am540.AM540", ProtocolFamily.ELSTER_IDIS, ProtocolFamily.ELSTER_IDIS_P2),
+    AM540_MBUS_DEVICE(229, "com.energyict.protocolimplv2.nta.dsmr50.elster.am540.MBusDevice", ProtocolFamily.ELSTER_IDIS, ProtocolFamily.ELSTER_IDIS_P2),
 
     // Deprecated
 //    AS300D_ELSTER(10000, "com.energyict.protocolimpl.dlms.elster.as300d.AS300D"),
@@ -318,4 +319,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
         return null;
     }
 
+    public static void main(String[] args) {
+        System.out.println(LicensedProtocolRule.values().length);
+    }
 }

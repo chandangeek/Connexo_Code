@@ -13,8 +13,10 @@ import com.energyict.mdc.protocol.api.services.IdentificationService;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
+import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.time.Clock;
 
 /**
@@ -26,8 +28,13 @@ import java.time.Clock;
 public class AM100 extends WebRTUKP {
 
     @Inject
-    public AM100(Clock clock, PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, LoadProfileFactory loadProfileFactory) {
-        super(clock, propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService, collectedDataFactory, meteringService, loadProfileFactory);
+    public AM100(Clock clock, PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService,
+                 IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService,
+                 IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService,
+                 LoadProfileFactory loadProfileFactory, Provider<DsmrSecuritySupport> dsmrSecurityPropertyProvider) {
+        super(clock, propertySpecService, socketService, serialComponentService, issueService, topologyService,
+                readingTypeUtilService, identificationService, collectedDataFactory, meteringService, loadProfileFactory,
+                dsmrSecurityPropertyProvider);
     }
 
     @Override

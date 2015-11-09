@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.security;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 
@@ -18,8 +19,8 @@ import java.util.List;
 public class DsmrSecuritySupport extends DlmsSecuritySupport {
 
     @Inject
-    public DsmrSecuritySupport(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public DsmrSecuritySupport(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
     }
 
     @Override

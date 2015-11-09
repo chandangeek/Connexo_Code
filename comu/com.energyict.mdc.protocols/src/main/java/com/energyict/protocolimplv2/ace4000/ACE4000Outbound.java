@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.ace4000;
 
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
@@ -62,11 +63,12 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
     private Logger logger;
     private Long cachedMeterTimeDifference = null;
     private ACE4000MessageExecutor messageExecutor = null;
-    private DeviceProtocolSecurityPropertySet securityProperties;
 
     @Inject
-    public ACE4000Outbound(Clock clock, PropertySpecService propertySpecService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
-        super(propertySpecService, identificationService);
+    public ACE4000Outbound(Clock clock, PropertySpecService propertySpecService, IssueService issueService,
+                           MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService,
+                           CollectedDataFactory collectedDataFactory, MeteringService meteringService, Thesaurus thesaurus) {
+        super(propertySpecService, identificationService, thesaurus);
         this.clock = clock;
         this.issueService = issueService;
         this.readingTypeUtilService = readingTypeUtilService;
@@ -349,7 +351,6 @@ public class ACE4000Outbound extends ACE4000 implements DeviceProtocol {
 
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
-        securityProperties = deviceProtocolSecurityPropertySet;
         //TODO use the password property for SMS communication
     }
 

@@ -1,5 +1,7 @@
 package com.energyict.protocols.mdc.services.impl;
 
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.SerialComponentService;
@@ -60,8 +62,11 @@ import java.util.stream.Stream;
  * Date: 06/11/13
  * Time: 11:03
  */
-@Component(name = "com.energyict.mdc.service.deviceprotocols", service = {DeviceProtocolService.class, InstallService.class, MessageSeedProvider.class}, immediate = true, property = "name=" + DeviceProtocolService.COMPONENT_NAME)
-public class DeviceProtocolServiceImpl implements DeviceProtocolService, InstallService, MessageSeedProvider {
+@Component(name = "com.energyict.mdc.service.deviceprotocols", 
+        service = {DeviceProtocolService.class, InstallService.class, MessageSeedProvider.class, TranslationKeyProvider.class},
+        immediate = true,
+        property = "name=" + DeviceProtocolService.COMPONENT_NAME)
+public class DeviceProtocolServiceImpl implements DeviceProtocolService, InstallService, MessageSeedProvider, TranslationKeyProvider {
 
     /* Services required by one of the actual protocol classes in this bundle
      * and therefore must be available in the Module provided to the guice injector. */
@@ -293,6 +298,16 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Install
                 Arrays.stream(MessageSeeds.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public String getComponentName() {
+        return DeviceProtocolServiceImpl.COMPONENT_NAME;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        return Arrays.asList(TranslationKeys.values());
     }
 
     private class CompositeLoadProfileFactory implements LoadProfileFactory {

@@ -16,8 +16,9 @@ import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
+import com.energyict.protocolimplv2.nta.dsmr40.messages.DSMR40ActivityCalendarController;
 import com.energyict.protocolimplv2.nta.dsmr40.messages.Dsmr40MessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.DSMR50Properties;
 
@@ -172,5 +173,14 @@ public class Dsmr50MessageExecutor  extends Dsmr40MessageExecutor {
         strDateTime.addDataType(date);
         dateTimeArray.addDataType(strDateTime);
         return dateTimeArray;
+    }
+
+    /**
+     * The correct controller, who will use 0-based day profile IDs;
+     * all other logic is equal to the DSMR40 variant
+     */
+    @Override
+    protected DSMR40ActivityCalendarController getActivityCalendarController() {
+        return new DSMR50ActivityCalendarController(getCosemObjectFactory(), getProtocol().getDlmsSession().getTimeZone());
     }
 }

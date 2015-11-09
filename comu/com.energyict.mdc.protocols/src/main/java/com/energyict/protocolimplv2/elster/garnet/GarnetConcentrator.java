@@ -40,6 +40,7 @@ import com.energyict.protocols.mdc.protocoltasks.TcpDeviceProtocolDialect;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,9 +73,10 @@ public class GarnetConcentrator implements DeviceProtocol {
     private final IdentificationService identificationService;
     private final CollectedDataFactory collectedDataFactory;
     private final MeteringService meteringService;
+    private final Provider<SecuritySupport> securitySupportProvider;
 
     @Inject
-    public GarnetConcentrator(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, Clock clock, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
+    public GarnetConcentrator(PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, Clock clock, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, Provider<SecuritySupport> securitySupportProvider) {
         this.propertySpecService = propertySpecService;
         this.socketService = socketService;
         this.serialComponentService = serialComponentService;
@@ -83,6 +85,7 @@ public class GarnetConcentrator implements DeviceProtocol {
         this.identificationService = identificationService;
         this.collectedDataFactory = collectedDataFactory;
         this.meteringService = meteringService;
+        this.securitySupportProvider = securitySupportProvider;
     }
 
     @Override
@@ -338,7 +341,7 @@ public class GarnetConcentrator implements DeviceProtocol {
 
     public SecuritySupport getSecuritySupport() {
         if (securitySupport == null) {
-            this.securitySupport = new SecuritySupport(propertySpecService);
+            this.securitySupport = securitySupportProvider.get();
         }
         return securitySupport;
     }

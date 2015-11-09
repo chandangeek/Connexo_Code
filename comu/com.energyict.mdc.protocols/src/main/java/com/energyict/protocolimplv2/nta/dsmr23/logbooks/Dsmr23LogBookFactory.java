@@ -17,7 +17,7 @@ import com.energyict.dlms.DLMSMeterConfig;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.util.ProtocolUtils;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;

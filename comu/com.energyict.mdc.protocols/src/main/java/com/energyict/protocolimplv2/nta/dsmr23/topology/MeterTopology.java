@@ -16,7 +16,7 @@ import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMbusSerialNumber;
 

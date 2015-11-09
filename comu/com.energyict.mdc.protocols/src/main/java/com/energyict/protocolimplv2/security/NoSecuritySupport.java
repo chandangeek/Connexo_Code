@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.security;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.TypedProperties;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
@@ -8,7 +9,9 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilitie
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
+import com.energyict.protocols.mdc.services.impl.TranslationKeys;
 
+import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -21,8 +24,14 @@ import java.util.List;
  */
 public class NoSecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
-    public static final int NO_SECURITY_SUPPORT_ID = 0;
-    private final String authenticationTranslationKeyConstant = "NoSecuritySupport.authenticationlevel.";
+    private static final int NO_SECURITY_SUPPORT_ID = 0;
+
+    private final Thesaurus thesaurus;
+
+    @Inject
+    public NoSecuritySupport(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
+    }
 
     @Override
     public List<PropertySpec> getSecurityPropertySpecs() {
@@ -85,8 +94,8 @@ public class NoSecuritySupport implements DeviceProtocolSecurityCapabilities, Le
         }
 
         @Override
-        public String getTranslationKey() {
-            return authenticationTranslationKeyConstant + getId();
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.NOSECURITYSUPPORT_AUTHENTICATIONLEVEL_0).format();
         }
 
         @Override

@@ -22,12 +22,14 @@ import com.energyict.mdc.protocol.api.messaging.LegacyMessageConverter;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.protocolimplv2.elster.garnet.SecuritySupport;
 import com.energyict.protocolimplv2.messages.convertor.EIWebPlusMessageConverter;
 import com.energyict.protocolimplv2.security.NoOrPasswordSecuritySupport;
 import com.energyict.protocols.impl.channels.inbound.EIWebPlusConnectionType;
 import com.energyict.protocols.mdc.protocoltasks.EiWebPlusDialect;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Collections;
@@ -64,11 +66,11 @@ public class RtuServer implements DeviceProtocol {
     private final Clock clock;
 
     @Inject
-    public RtuServer(CollectedDataFactory collectedDataFactory, PropertySpecService propertySpecService, Clock clock) {
+    public RtuServer(NoOrPasswordSecuritySupport securitySupport, CollectedDataFactory collectedDataFactory, PropertySpecService propertySpecService, Clock clock) {
         this.collectedDataFactory = collectedDataFactory;
         this.propertySpecService = propertySpecService;
         this.clock = clock;
-        this.securitySupport = new NoOrPasswordSecuritySupport(propertySpecService);
+        this.securitySupport = securitySupport;
     }
 
     @Override

@@ -15,6 +15,8 @@ import com.energyict.protocols.util.ProtocolUtils;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.math.BigDecimal;
+
 /**
  *
  * @author  Koen
@@ -103,6 +105,24 @@ public class DataStructure implements Serializable {
 			return false;
 		}
 	}
+
+	public BigDecimal getBigDecimalValue(int index) throws ProtocolException {
+		if (isLong(index)) {
+			return BigDecimal.valueOf(getLong(index));
+		} else if (isInteger(index)) {
+			return BigDecimal.valueOf(getInteger(index));
+		} else if (isFloat(index)) {
+			return BigDecimal.valueOf(getFloat(index));
+		} else {
+			throw new ProtocolException("Cannot parse element " + index + " (" + getElement(index).toString() + ") of the structure as a number");
+		}
+	}
+
+	public boolean isFloat(int index) {
+		Object element = this.element[index];
+		return (element != null) && (element instanceof Float);
+	}
+
 	public boolean isString(int index) {
 		if(this.element[index] == null){
 			return false;

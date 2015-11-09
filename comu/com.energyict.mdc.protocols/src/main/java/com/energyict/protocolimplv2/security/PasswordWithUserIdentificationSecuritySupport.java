@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.security;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.Password;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
@@ -10,6 +11,7 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.protocols.mdc.services.impl.TranslationKeys;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -31,11 +33,13 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceProt
     private static final int STANDARD_ENCRYPTION_DEVICE_ACCESS_LEVEL = 20;
 
     private final PropertySpecService propertySpecService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public PasswordWithUserIdentificationSecuritySupport(PropertySpecService propertySpecService) {
+    public PasswordWithUserIdentificationSecuritySupport(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
         this.propertySpecService = propertySpecService;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -132,8 +136,8 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceProt
         }
 
         @Override
-        public String getTranslationKey() {
-            return "PasswordWithUserIdentificationSecuritySupport.accesslevel.10";
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.PASSWORDWITHLEVELSECURITYSUPPORT_ACCESSLEVEL_10).format();
         }
 
         @Override
@@ -156,8 +160,8 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceProt
         }
 
         @Override
-        public String getTranslationKey() {
-            return "PasswordWithUserIdentificationSecuritySupport.accesslevel.20";
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.PASSWORDWITHLEVELSECURITYSUPPORT_ACCESSLEVEL_20).format();
         }
 
         @Override

@@ -95,13 +95,15 @@ public class SDKDeviceProtocol implements DeviceProtocol {
     private final String delayAfterRequest = "DelayAfterRequest";
 
     @Inject
-    public SDKDeviceProtocol(ProtocolPluggableService protocolPluggableService, PropertySpecService propertySpecService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory) {
+    public SDKDeviceProtocol(ProtocolPluggableService protocolPluggableService, PropertySpecService propertySpecService,
+                             IdentificationService identificationService, CollectedDataFactory collectedDataFactory,
+                             DlmsSecuritySupport dlmsSecuritySupport) {
         super();
         this.protocolPluggableService = protocolPluggableService;
         this.propertySpecService = propertySpecService;
         this.identificationService = identificationService;
         this.collectedDataFactory = collectedDataFactory;
-        this.deviceProtocolSecurityCapabilities = new DlmsSecuritySupport(propertySpecService);
+        this.deviceProtocolSecurityCapabilities = dlmsSecuritySupport;
     }
 
     @Override

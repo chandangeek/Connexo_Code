@@ -7,7 +7,7 @@ import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MbusMessageExecutor;
 
 import java.io.IOException;

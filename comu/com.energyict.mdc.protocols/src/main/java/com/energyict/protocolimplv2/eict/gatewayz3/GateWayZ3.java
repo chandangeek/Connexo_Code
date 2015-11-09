@@ -28,9 +28,11 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.time.Clock;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -45,8 +47,15 @@ import java.util.Set;
 public class GateWayZ3 extends AbstractDlmsProtocol {
 
     @Inject
-    public GateWayZ3(Clock clock, PropertySpecService propertySpecService, SocketService socketService, SerialComponentService serialComponentService, IssueService issueService, TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService, IdentificationService identificationService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, LoadProfileFactory loadProfileFactory) {
-        super(clock, propertySpecService, socketService, serialComponentService, issueService, topologyService, readingTypeUtilService, identificationService, collectedDataFactory, meteringService, loadProfileFactory);
+    public GateWayZ3(Clock clock, PropertySpecService propertySpecService, SocketService socketService,
+                     SerialComponentService serialComponentService, IssueService issueService,
+                     TopologyService topologyService, MdcReadingTypeUtilService readingTypeUtilService,
+                     IdentificationService identificationService, CollectedDataFactory collectedDataFactory,
+                     MeteringService meteringService, LoadProfileFactory loadProfileFactory,
+                     Provider<DsmrSecuritySupport> dsmrSecuritySupportProvider) {
+        super(clock, propertySpecService, socketService, serialComponentService, issueService, topologyService,
+                readingTypeUtilService, identificationService, collectedDataFactory, meteringService, loadProfileFactory,
+                dsmrSecuritySupportProvider);
     }
 
     @Override

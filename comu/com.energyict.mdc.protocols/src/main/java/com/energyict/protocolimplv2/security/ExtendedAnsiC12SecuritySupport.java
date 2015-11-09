@@ -1,11 +1,13 @@
 package com.energyict.protocolimplv2.security;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.TypedProperties;
 import com.elster.jupiter.properties.PropertySpec;
 
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.protocols.mdc.services.impl.TranslationKeys;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -22,11 +24,12 @@ import java.util.List;
  */
 public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
 
-    private static final String encryptionTranslationKeyConstant = "AnsiC12SecuritySupport.encryptionlevel.";
+    private final Thesaurus thesaurus;
 
     @Inject
-    public ExtendedAnsiC12SecuritySupport(PropertySpecService propertySpecService) {
-        super(propertySpecService);
+    public ExtendedAnsiC12SecuritySupport(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(propertySpecService, thesaurus);
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -104,8 +107,8 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
         }
 
         @Override
-        public String getTranslationKey() {
-            return encryptionTranslationKeyConstant + getId();
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.ANSIC12SECURITYSUPPORT_ENCRYPTIONLEVEL_0).format();
         }
 
         @Override
@@ -125,8 +128,8 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
         }
 
         @Override
-        public String getTranslationKey() {
-            return encryptionTranslationKeyConstant + getId();
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.ANSIC12SECURITYSUPPORT_ENCRYPTIONLEVEL_1).format();
         }
 
         @Override
@@ -148,8 +151,8 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
         }
 
         @Override
-        public String getTranslationKey() {
-            return encryptionTranslationKeyConstant + getId();
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.ANSIC12SECURITYSUPPORT_ENCRYPTIONLEVEL_2).format();
         }
 
         @Override

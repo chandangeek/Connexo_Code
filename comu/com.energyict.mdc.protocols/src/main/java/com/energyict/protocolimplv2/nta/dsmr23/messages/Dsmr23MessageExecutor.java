@@ -63,7 +63,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.convertor.utils.LoadProfileMessageUtils;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocols.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import org.xml.sax.SAXException;
@@ -640,7 +640,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         }
     }
 
-    private void addPhoneNumberToWhiteList(OfflineDeviceMessage pendingMessage) throws IOException {
+    protected void addPhoneNumberToWhiteList(OfflineDeviceMessage pendingMessage) throws IOException {
         //semicolon separated list of phone numbers
         String numbers = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, whiteListPhoneNumbersAttributeName).getDeviceMessageAttributeValue();
         Array list = new Array();
@@ -650,8 +650,12 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         getCosemObjectFactory().getAutoConnect().writeDestinationList(list);
     }
 
-    private void activateWakeUp() throws IOException {   //Enable the wake up via SMS
+    protected void activateWakeUp() throws IOException {   //Enable the wake up via SMS
         getCosemObjectFactory().getAutoConnect().writeMode(4);
+    }
+
+    protected void deactivateWakeUp() throws IOException {   //Disable the wake up via SMS
+        getCosemObjectFactory().getAutoConnect().writeMode(1);
     }
 
     private void writeGprsSettings(String userName, String password) throws IOException {
@@ -666,10 +670,6 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         if ((userName != null) || (password != null)) {
             getCosemObjectFactory().getPPPSetup().writePPPAuthenticationType(pppat);
         }
-    }
-
-    private void deactivateWakeUp() throws IOException {   //Disable the wake up via SMS
-        getCosemObjectFactory().getAutoConnect().writeMode(1);
     }
 
     private void changePassword(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -738,14 +738,14 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         }
     }
 
-    private void activityCalendar(OfflineDeviceMessage pendingMessage) throws IOException {
+    protected void activityCalendar(OfflineDeviceMessage pendingMessage) throws IOException {
         String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getDeviceMessageAttributeValue();
         String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarCodeTableAttributeName).getDeviceMessageAttributeValue();
         if (calendarName.length() > 8) {
             calendarName = calendarName.substring(0, 8);
         }
 
-        ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getDlmsSession().getTimeZone());
+        ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getDlmsSession().getTimeZone(), false);
         activityCalendarController.parseContent(activityCalendarContents);
         activityCalendarController.writeCalendarName(calendarName);
         activityCalendarController.writeCalendar(); //Does not activate it yet
@@ -762,7 +762,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         }
     }
 
-    private void activityCalendarWithActivationDate(OfflineDeviceMessage pendingMessage) throws IOException {
+    protected void activityCalendarWithActivationDate(OfflineDeviceMessage pendingMessage) throws IOException {
         String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getDeviceMessageAttributeValue();
         String epoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarActivationDateAttributeName).getDeviceMessageAttributeValue();
         String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarCodeTableAttributeName).getDeviceMessageAttributeValue();
@@ -770,7 +770,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             calendarName = calendarName.substring(0, 8);
         }
 
-        ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getDlmsSession().getTimeZone());
+        ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getDlmsSession().getTimeZone(), false);
         activityCalendarController.parseContent(activityCalendarContents);
         activityCalendarController.writeCalendarName(calendarName);
         activityCalendarController.writeCalendar(); //Does not activate it yet

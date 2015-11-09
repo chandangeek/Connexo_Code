@@ -40,6 +40,7 @@ import com.energyict.protocolimplv2.abnt.common.exception.AbntException;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
 import com.energyict.protocolimplv2.abnt.common.field.DateTimeField;
 import com.energyict.protocolimplv2.abnt.common.structure.ReadParameterFields;
+import com.energyict.protocolimplv2.elster.garnet.SecuritySupport;
 import com.energyict.protocolimplv2.security.NoSecuritySupport;
 import com.energyict.protocols.impl.channels.serial.direct.rxtx.RxTxPlainSerialConnectionType;
 import com.energyict.protocols.impl.channels.serial.direct.serialio.SioPlainSerialConnectionType;
@@ -48,6 +49,7 @@ import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalC
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import java.time.Clock;
 import java.util.Arrays;
 import java.util.Date;
@@ -75,9 +77,10 @@ public class A1055 extends AbstractAbntProtocol {
     private final IssueService issueService;
     private final CollectedDataFactory collectedDataFactory;
     private final MeteringService meteringService;
+    private final Provider<SecuritySupport> securitySupportProvider;
 
     @Inject
-    public A1055(PropertySpecService propertySpecService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, Clock clock, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
+    public A1055(PropertySpecService propertySpecService, SerialComponentService serialComponentService, MdcReadingTypeUtilService readingTypeUtilService, Clock clock, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService, Provider<SecuritySupport> securitySupportProvider) {
         this.propertySpecService = propertySpecService;
         this.serialComponentService = serialComponentService;
         this.readingTypeUtilService = readingTypeUtilService;
@@ -85,6 +88,7 @@ public class A1055 extends AbstractAbntProtocol {
         this.issueService = issueService;
         this.collectedDataFactory = collectedDataFactory;
         this.meteringService = meteringService;
+        this.securitySupportProvider = securitySupportProvider;
     }
 
     @Override
@@ -344,7 +348,7 @@ public class A1055 extends AbstractAbntProtocol {
 
     public DeviceProtocolSecurityCapabilities getSecuritySupport() {
         if (this.securitySupport == null) {
-            this.securitySupport = new NoSecuritySupport();
+            this.securitySupport = securitySupportProvider.get();
         }
         return this.securitySupport;
     }

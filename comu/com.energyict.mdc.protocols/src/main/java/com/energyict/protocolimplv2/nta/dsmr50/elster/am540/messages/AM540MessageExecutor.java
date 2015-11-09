@@ -20,9 +20,11 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.idis.am500.messages.mbus.IDISMBusMessageExecutor;
+import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
-import com.energyict.protocolimplv2.nta.abstractnta.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.DSMR50Properties;
 
@@ -32,9 +34,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
-import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName;
+import static com.energyict.mdc.protocol.api.device.messages.DeviceMessageConstants.*;
 
 /**
  * @author sva
@@ -47,6 +47,7 @@ public class AM540MessageExecutor extends Dsmr50MessageExecutor {
 
     private AbstractMessageExecutor dsmr50MessageExecutor;
     private AbstractMessageExecutor mbusMessageExecutor;
+    private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor;
 
     public AM540MessageExecutor(AbstractDlmsProtocol protocol, Clock clock, TopologyService topologyService, IssueService issueService, MdcReadingTypeUtilService readingTypeUtilService, CollectedDataFactory collectedDataFactory, LoadProfileFactory loadProfileFactory) {
         super(protocol, clock, topologyService, issueService, readingTypeUtilService, collectedDataFactory, loadProfileFactory);
@@ -69,61 +70,16 @@ public class AM540MessageExecutor extends Dsmr50MessageExecutor {
                 collectedMessage = createCollectedMessage(pendingMessage);
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
                 try {
-                    if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_TMR_TTL)) {
-                        setTMRTTL(pendingMessage);
-                    } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_MAX_FRAME_RETRIES)) {
-                        setMaxFrameRetries(pendingMessage);
-                    } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_NEIGHBOUR_TABLE_ENTRY_TTL)) {
-                        setNeighbourTableEntryTTL(pendingMessage);
-                    } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_HIGH_PRIORITY_WINDOW_SIZE)) {
-                        setHighPriorityWindowSize(pendingMessage);
-                    } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_CSMA_FAIRNESS_LIMIT)) {
-                        setCSMAFairnessLimit(pendingMessage);
-                    } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_BEACON_RANDOMIZATION_WINDOW_LENGTH)) {
-                        setBeaconRandomizationWindowLength(pendingMessage);
-                    } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_MAC_A)) {
-                        setMacA(pendingMessage);
-                    } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_MAC_K)) {
-                        setMacK(pendingMessage);
-                    } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_MINIMUM_CW_ATTEMPTS)) {
-                        setMinimumCWAttempts(pendingMessage);
-                    } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_MAX_BE)) {
-                        setMaxBe(pendingMessage);
-                    } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_MAX_CSMA_BACK_OFF)) {
-                        setMaxCSMABackOff(pendingMessage);
-                    } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_MIN_BE)) {
-                        setMinBe(pendingMessage);
-                    } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_MAX_NUMBER_OF_HOPS_ATTRIBUTENAME)) {
-                        setMaxNumberOfHops(pendingMessage);
-                    } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_WEAK_LQI_VALUE_ATTRIBUTENAME)) {
-                        setWeakLQIValue(pendingMessage);
-                    } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_SECURITY_LEVEL)) {
-                        setSecurityLevelpendingMessage(pendingMessage);
-                    } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_ROUTING_CONFIGURATION)) {
-                        setRoutingConfiguration(pendingMessage);
-                    } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_BROAD_CAST_LOG_TABLE_ENTRY_TTL)) {
-                        setBroadCastLogTableEntryTTL(pendingMessage);
-                    } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_MAX_JOIN_WAIT_TIME)) {
-                        setMaxJoinWaitTime(pendingMessage);
-                    } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_PATH_DISCOVERY_TIME)) {
-                        setPathDiscoveryTime(pendingMessage);
-                    } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_METRIC_TYPE)) {
-                        setMetricType(pendingMessage);
-                    } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_COORD_SHORT_ADDRESS)) {
-                        setCoordShortAddress(pendingMessage);
-                    } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_DISABLE_DEFAULT_ROUTING)) {
-                        setDisableDefaultRouting(pendingMessage);
-                    } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_SET_DEVICE_TYPE)) {
-                        setDeviceType(pendingMessage);
-                    } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.PLC_CONFIGURATION_WRITE_PLC_G3_TIMEOUT)) {
-                        writePlcG3Timeout(pendingMessage);
-                    } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.CONTACTOR_CLOSE_RELAY)) {
-                        closeRelay(pendingMessage);
-                    } else if (pendingMessage.getDeviceMessageId().equals(DeviceMessageId.CONTACTOR_OPEN_RELAY)) {
-                        openRelay(pendingMessage);
-                    } else {
-                        collectedMessage = null;
-                        dsmr40Messages.add(pendingMessage); // These messages are not specific for AM540, but can be executed by the super (= Dsmr 4.0) messageExecutor
+                    boolean messageExecuted = getPLCConfigurationDeviceMessageExecutor().executePendingMessage(pendingMessage, collectedMessage);
+                    if (!messageExecuted) { // if it was not a PLC message
+                        if (pendingMessage.getSpecification().getId().equals(DeviceMessageId.CONTACTOR_CLOSE_RELAY)) {
+                            closeRelay(pendingMessage);
+                        } else if (pendingMessage.getSpecification().getId().equals(DeviceMessageId.CONTACTOR_OPEN_RELAY)) {
+                            openRelay(pendingMessage);
+                        } else {
+                            collectedMessage = null;
+                            dsmr40Messages.add(pendingMessage); // These messages are not specific for AM540, but can be executed by the super (= Dsmr 4.0) messageExecutor
+                        }
                     }
                 } catch (IOException e) {
                     if (IOExceptionHandler.isUnexpectedResponse(e, getProtocol().getDlmsSession())) {
@@ -132,6 +88,9 @@ public class AM540MessageExecutor extends Dsmr50MessageExecutor {
                         collectedMessage.setDeviceProtocolInformation(e.getMessage());
                     }   //Else: throw communication exception
                 } catch (IndexOutOfBoundsException | NumberFormatException e) {
+                    if (collectedMessage == null) {
+                        collectedMessage = getCollectedDataFactory().createCollectedMessage(pendingMessage.getIdentifier());
+                    }
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
                     collectedMessage.setDeviceProtocolInformation(e.getMessage());
@@ -143,15 +102,12 @@ public class AM540MessageExecutor extends Dsmr50MessageExecutor {
         }
 
         // Then delegate all other messages to the Dsmr 5.0 message executor
-        super.executePendingMessages(dsmr40Messages).getCollectedMessages()
-                .stream()
-                .forEach(result::addCollectedMessages);
+        getDsmr50MessageExecutor().executePendingMessages(dsmr40Messages).getCollectedMessages()
+                .stream().forEach(result::addCollectedMessages);
 
-//        // Then delegate all MBus related messages to the Mbus message executor
-//        getMbusMessageExecutor().executePendingMessages(mbusMessages).getCollectedMessages()
-//                .stream()
-//                .forEach(result::addCollectedMessages);
-
+        // Then delegate all MBus related messages to the Mbus message executor
+        getMbusMessageExecutor().executePendingMessages(mbusMessages).getCollectedMessages()
+                .stream().forEach(result::addCollectedMessages);
         return result;
     }
 
@@ -328,7 +284,7 @@ public class AM540MessageExecutor extends Dsmr50MessageExecutor {
         String activationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateActivationDateAttributeName).getDeviceMessageAttributeValue();   // Will return empty string if the MessageAttribute could not be found
         byte[] image = ProtocolTools.getBytesFromHexString(userFile, "");
         String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getDeviceMessageAttributeValue(); // Will return empty string if the MessageAttribute could not be found
-        if(imageIdentifier.isEmpty()){
+        if (imageIdentifier.isEmpty()) {
             imageIdentifier = getImageIdentifierFromFile(image);
         }
 
@@ -409,5 +365,26 @@ public class AM540MessageExecutor extends Dsmr50MessageExecutor {
      */
     public static boolean isAsciiPrintable(char ch) {
         return ch >= 32 && ch < 127;
+    }
+
+    private PLCConfigurationDeviceMessageExecutor getPLCConfigurationDeviceMessageExecutor() {
+        if (plcConfigurationDeviceMessageExecutor == null) {
+            plcConfigurationDeviceMessageExecutor = new PLCConfigurationDeviceMessageExecutor(getProtocol().getDlmsSession(), getProtocol().getOfflineDevice(), getCollectedDataFactory(), getClock(), getIssueService());
+        }
+        return plcConfigurationDeviceMessageExecutor;
+    }
+
+    public AbstractMessageExecutor getDsmr50MessageExecutor() {
+        if (dsmr50MessageExecutor == null) {
+            dsmr50MessageExecutor = new Dsmr50MessageExecutor(getProtocol(), getClock(), getTopologyService(), getIssueService(), getReadingTypeUtilService(), getCollectedDataFactory(), getLoadProfileFactory());
+        }
+        return dsmr50MessageExecutor;
+    }
+
+    public AbstractMessageExecutor getMbusMessageExecutor() {
+        if (mbusMessageExecutor == null) {
+            mbusMessageExecutor = new IDISMBusMessageExecutor(getProtocol(), getIssueService(), getReadingTypeUtilService(), getCollectedDataFactory());
+        }
+        return mbusMessageExecutor;
     }
 }

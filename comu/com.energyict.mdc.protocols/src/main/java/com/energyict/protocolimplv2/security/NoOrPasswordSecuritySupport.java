@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.security;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
 import com.elster.jupiter.properties.PropertySpec;
@@ -10,6 +11,7 @@ import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilitie
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
+import com.energyict.protocols.mdc.services.impl.TranslationKeys;
 
 import javax.inject.Inject;
 import java.util.Arrays;
@@ -27,14 +29,14 @@ import java.util.List;
  */
 public class NoOrPasswordSecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
-    private static final String authenticationTranslationKeyConstant = "NoOrPasswordSecuritySupport.authenticationlevel.";
-
     private final PropertySpecService propertySpecService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public NoOrPasswordSecuritySupport(PropertySpecService propertySpecService) {
+    public NoOrPasswordSecuritySupport(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         super();
         this.propertySpecService = propertySpecService;
+        this.thesaurus = thesaurus;
     }
 
     public PropertySpecService getPropertySpecService() {
@@ -128,8 +130,8 @@ public class NoOrPasswordSecuritySupport implements DeviceProtocolSecurityCapabi
         }
 
         @Override
-        public String getTranslationKey() {
-            return authenticationTranslationKeyConstant + getId();
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.NOORPASSWORDSECURITYSUPPORT_AUTHENTICATIONLEVEL_0).format();
         }
 
         @Override
@@ -149,8 +151,8 @@ public class NoOrPasswordSecuritySupport implements DeviceProtocolSecurityCapabi
         }
 
         @Override
-        public String getTranslationKey() {
-            return authenticationTranslationKeyConstant + getId();
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.NOORPASSWORDSECURITYSUPPORT_AUTHENTICATIONLEVEL_1).format();
         }
 
         @Override
