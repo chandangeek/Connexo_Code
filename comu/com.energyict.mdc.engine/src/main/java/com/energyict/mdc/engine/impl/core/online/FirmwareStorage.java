@@ -46,9 +46,7 @@ public class FirmwareStorage {
     }
 
     private FirmwareVersion createNewGhostFirmwareVersion(Device device, String version, FirmwareType firmwareType) {
-        FirmwareVersion ghostVersion = getFirmwareService().newFirmwareVersion(device.getDeviceType(), version, FirmwareStatus.GHOST, firmwareType);
-        ghostVersion.save();
-        return ghostVersion;
+        return getFirmwareService().newFirmwareVersion(device.getDeviceType(), version, FirmwareStatus.GHOST, firmwareType).create();
     }
 
     private ActivatedFirmwareVersion createOrUpdateActiveVersion(Device device, FirmwareVersion collectedFirmwareVersion) {

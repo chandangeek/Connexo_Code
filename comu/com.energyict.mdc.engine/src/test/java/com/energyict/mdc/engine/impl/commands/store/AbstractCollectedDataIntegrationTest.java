@@ -1,5 +1,7 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
@@ -170,6 +172,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
                 new TasksModule(),
                 new IssuesModule(),
                 new TopologyModule(),
+                new CustomPropertySetsModule(),
                 new FirmwareModule());
         initializeTopModuleInATransaction();
     }
@@ -179,6 +182,7 @@ public abstract class AbstractCollectedDataIntegrationTest {
         transactionService.execute(new VoidTransaction() {
             @Override
             protected void doPerform() {
+                injector.getInstance(CustomPropertySetService.class);
                 injector.getInstance(FiniteStateMachineService.class);
                 injector.getInstance(MeteringService.class);
                 injector.getInstance(MasterDataService.class);

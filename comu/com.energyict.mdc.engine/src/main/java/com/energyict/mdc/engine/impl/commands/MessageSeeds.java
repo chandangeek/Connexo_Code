@@ -57,6 +57,7 @@ public enum MessageSeeds implements MessageSeed {
     MODEM_COULD_NOT_ESTABLISH_CONNECTION(5041, "modemConnectError", "Failed to establish a connection between modem on COM port {0} and its receiver within timeout [{1} ms]"),
     UNEXPECTED_IO_EXCEPTION(5042, "unexpectedIOException", "Exception occurred while communication with a device"),
     COMMUNICATION_FAILURE(5043, "communicationFailure", "Communication with device failed", Level.SEVERE),
+    NO_NEW_LOAD_PROFILE_DATA_COLLECTED(5044, "noLoadProfileDataCollected", "No new loadprofile data was collected for {0} since {1}", Level.WARNING),
     ;
 
     private final int number;

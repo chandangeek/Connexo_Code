@@ -200,11 +200,22 @@ public class LoadProfileCommandImpl extends CompositeComCommandImpl implements R
                                 channelInfos.size(),
                                 lpChannel.getObisCode().toString(),
                                 lpChannel.getUnit(),
-                                lpChannel.getMasterSerialNumber(),
+                                getMasterDeviceIdentifier(lpChannel, offlineLoadProfile),
                                 lpChannel.getReadingType()));
             }
         }
         return channelInfos;
+    }
+
+    /**
+     * In case no serialNumber is provided, we take the identifier of the loadProfile (which will most likely be the MRID)
+     *
+     * @param lpChannel the offlineLoadProfileChannel
+     * @param offlineLoadProfile the offlineLoadProfile
+     * @return the masterIdentifier
+     */
+    private String getMasterDeviceIdentifier(OfflineLoadProfileChannel lpChannel, OfflineLoadProfile offlineLoadProfile) {
+        return lpChannel.getMasterSerialNumber() == null || lpChannel.getMasterSerialNumber().equals("")? offlineLoadProfile.getDeviceIdentifier().getIdentifier() : lpChannel.getMasterSerialNumber();
     }
 
     /**

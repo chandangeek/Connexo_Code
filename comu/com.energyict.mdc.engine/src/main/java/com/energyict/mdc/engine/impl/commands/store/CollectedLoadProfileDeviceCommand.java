@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.metering.readings.IntervalBlock;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
 import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.device.data.Device;
@@ -11,9 +12,10 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.protocol.api.device.data.ChannelInfo;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
+import com.energyict.mdc.protocol.api.device.offline.OfflineLoadProfile;
 
-import com.elster.jupiter.util.Pair;
-
+import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -37,9 +39,18 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl {
     @Override
     public void doExecute (ComServerDAO comServerDAO) {
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(this.getClock(), this.getMdcReadingTypeUtilService(), comServerDAO);
-        Optional<Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile>> localLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
-        if (localLoadProfile.isPresent()) {
-            updateMeterDataStorer(localLoadProfile.get());
+        PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = loadProfilePreStorer.preStore(collectedLoadProfile);
+        if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK)) {
+            updateMeterDataStorer(preStoredLoadProfile.getDeviceIdentifier(), preStoredLoadProfile.getIntervalBlocks(), preStoredLoadProfile.getLastReading());
+        } else if(preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.NO_INTERVALS_COLLECTED)){
+            final Optional<OfflineLoadProfile> optionalLoadProfile = comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier());
+            this.addIssue(
+                    CompletionCode.Ok,
+                    this.getIssueService().newWarning(
+                            this,
+                            MessageSeeds.NO_NEW_LOAD_PROFILE_DATA_COLLECTED.getKey(),
+                            optionalLoadProfile.get().getObisCode().toString(),
+                            optionalLoadProfile.get().getLastReading().map(instant -> instant).orElse(Instant.EPOCH)));
         }
         else {
             this.addIssue(
@@ -47,14 +58,14 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl {
                     this.getIssueService().newWarning(
                             this,
                             MessageSeeds.UNKNOWN_DEVICE_LOAD_PROFILE.getKey(),
-                            this.collectedLoadProfile.getLoadProfileIdentifier()));
+                            comServerDAO.findOfflineLoadProfile(this.collectedLoadProfile.getLoadProfileIdentifier()).map(offlineLoadProfile -> offlineLoadProfile.getObisCode().toString()).orElse("")));
         }
     }
 
-    private void updateMeterDataStorer(final Pair<DeviceIdentifier<Device>, PreStoreLoadProfile.LocalLoadProfile> localLoadProfile) {
-        if (!localLoadProfile.getLast().getIntervalBlocks().isEmpty()) {
-            this.meterDataStoreCommand.addIntervalReadings(localLoadProfile.getFirst(), localLoadProfile.getLast().getIntervalBlocks());
-            this.meterDataStoreCommand.addLastReadingUpdater(this.collectedLoadProfile.getLoadProfileIdentifier(), localLoadProfile.getLast().getLastReading());
+    private void updateMeterDataStorer(DeviceIdentifier<Device> deviceIdentifier, List<IntervalBlock> intervalBlocks, Instant lastReading) {
+        if (!intervalBlocks.isEmpty()) {
+            this.meterDataStoreCommand.addIntervalReadings(deviceIdentifier, intervalBlocks);
+            this.meterDataStoreCommand.addLastReadingUpdater(this.collectedLoadProfile.getLoadProfileIdentifier(), lastReading);
         }
     }
 
