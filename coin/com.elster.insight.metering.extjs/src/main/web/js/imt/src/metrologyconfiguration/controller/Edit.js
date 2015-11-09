@@ -190,6 +190,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
     },
     manageValidationRuleSets: function(id) {
       var me = this,
+      	router = me.getController('Uni.controller.history.Router'),
       	metrologyConfigurationModel = me.getModel('Imt.metrologyconfiguration.model.MetrologyConfiguration'),
       	linkedStore=Ext.getStore('Imt.metrologyconfiguration.store.LinkedValidationRulesSet'),
       	linkableStore=Ext.getStore('Imt.metrologyconfiguration.store.LinkableValidationRulesSet');
@@ -199,12 +200,12 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
       linkableStore.getProxy().setUrl(id);
       linkableStore.load();	    
         
-        var view = Ext.create('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit',{mcid: id});        
+        var view = Ext.create('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetSetup',{router: router, mcid: id});
         me.getApplication().fireEvent('changecontentevent', view);
         metrologyConfigurationModel.load(id, {
             success: function (record) {
-                me.getMetrologyConfigValRulesSetEditForm().getForm().findField('mcid').setValue(id);
-                me.getMetrologyConfigValRulesSetEditForm().getForm().findField('name').setValue(record.get('name'));
+                view.down('#metrologyConfigValRulesSetEditForm').getForm().findField('mcid').setValue(id);
+                view.down('#metrologyConfigValRulesSetEditForm').getForm().findField('name').setValue(record.get('name'));  
             }
         });
 

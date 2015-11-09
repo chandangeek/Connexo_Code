@@ -3,7 +3,7 @@ Ext.define('Imt.metrologyconfiguration.view.Setup', {
     alias: 'widget.metrology-configuration-setup',
     itemId: 'metrology-configuration-setup',
     requires: [
-        //'Imt.metrologyconfiguration.view.MetrologyConfigurationSideMenu',
+        'Imt.metrologyconfiguration.view.MetrologyConfigurationSideMenu',
         'Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm'
     ],
     router: null,
@@ -14,7 +14,7 @@ Ext.define('Imt.metrologyconfiguration.view.Setup', {
             itemId: 'metrologyConfigurationSetupPanel',
             layout: {
                 type: 'fit',
-//                align: 'stretch'
+                align: 'stretch'
             }
         }
     ],
@@ -22,21 +22,21 @@ Ext.define('Imt.metrologyconfiguration.view.Setup', {
     initComponent: function () {
         var me = this,
             panel = me.content[0];
-//        panel.title = me.router.getRoute().getTitle();
-//        me.side = [
-//            {
-//                xtype: 'panel',
-//                ui: 'medium',
-//                items: [
-//                    {
-//                        xtype: 'metrology-configuration-side-menu',
-//                        itemId: 'metrology-configuration-side-menu',
-//                        router: me.router,
-//  //                      id: me.id
-//                    }
-//                ]
-//            }
-//        ];
+        panel.title = me.router.getRoute().getTitle();
+        me.side = [
+            {
+                xtype: 'panel',
+                ui: 'medium',
+                items: [
+                    {
+                        xtype: 'metrology-configuration-side-menu',
+                        itemId: 'metrology-configuration-side-menu',
+                        router: me.router,
+  //                      id: me.id
+                    }
+                ]
+            }
+        ];
         this.callParent(arguments);
 
         me.down('#metrologyConfigurationSetupPanel').add(

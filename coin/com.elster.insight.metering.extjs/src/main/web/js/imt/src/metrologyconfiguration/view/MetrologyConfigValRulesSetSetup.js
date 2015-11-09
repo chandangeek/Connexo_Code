@@ -3,14 +3,28 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetSetup', {
     alias: 'widget.metrologyConfigValRulesSetSetup',
     itemId: 'metrologyConfigValRulesSetSetup',
     requires: [
-        'Imt.metrologyconfiguration.view.MetrologyConfigurationSideMenu',
-        'Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm',
+        'Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetSideMenu',
+//        'Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm',
         'Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit',
     ],
     router: null,
 
+    content: [
+              {
+                  xtype: 'panel',
+                  ui: 'large',
+                  itemId: 'metrologyConfigValRulesSetSetupPanel',
+                  layout: {
+                      type: 'fit',
+                      align: 'stretch'
+                  }
+              }
+    ],
+    
     initComponent: function () {
-        var me = this;
+        var me = this,
+        	panel = me.content[0];
+        panel.title = me.router.getRoute().getTitle();
 
         me.side = [
             {
@@ -18,45 +32,40 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetSetup', {
                 ui: 'medium',
                 items: [
                     {
-                        xtype: 'metrology-configuration-side-menu',
-                        itemId: 'metrology-configuration-side-menu',
+                        xtype: 'metrology-config-valrulesset-side-menu',
+                        itemId: 'metrology-config-valrulesset-side-menu',
                         router: me.router,
-                        mcid: me.mcid,
                     }
                 ]
             }
         ];
+        this.callParent(arguments);
         
-        me.content = [
-            {
-                xtype: 'panel',
-                ui: 'large',
-                itemId: 'MetrologyConfigValRulesSetSetupPanel',
-                title: Uni.I18n.translate('metrologyconfiguration.managevalrulesets', 'IMT', 'Validation Rule Sets'),
-                layout: {
-                    type: 'fit',
-                    align: 'stretch'
-                },
-                defaults: {
-                    style: {
-                        marginRight: '20px',
-                        padding: '20px'
-                    }
-                },       
-
-                items: [{
-                    xtype: 'preview-container',    
-                    grid: {
-                        xtype: 'metrologyConfigValRulesSetEditPanel',
-                        router: me.router,
-                        mcid: me.mcid,
+        me.down('#metrologyConfigValRulesSetSetupPanel').add(
+                {
+                    xtype: 'panel',
+                    layout: {
+                        type: 'hbox'
                     },
-                }],
-            }
-        ];
-        me.callParent(arguments);
-    }
-    
-    
-    
-});
+                    defaults: {
+                        style: {
+                            marginRight: '20px',
+                            padding: '20px'
+                        },
+                        flex: 1
+                    },
+                    items: [
+                        {
+                            //xtype: 'panel',
+                            xtype: 'metrologyConfigValRulesSetEdit',
+                 //           title: Uni.I18n.translate('metrologyConfiguration.attributes', 'IMT', 'Metrology Configuration Validation Rules Set'),
+                            ui: 'tile',
+                            itemId: 'metrologyConfigValRulesSetEdit',
+                            router: me.router,
+                            mcid: me.mcid,
+                        }
+                    ]
+                }
+            );
+        }
+    });
