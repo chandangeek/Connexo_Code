@@ -30,11 +30,11 @@ Ext.define('Cfg.view.validationtask.PreviewForm', {
                 },
                 items: [
                     {
-                        fieldLabel: Uni.I18n.translate('validationTasks.general.deviceGroup2', 'CFG', 'Group type'),
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.deviceType', 'CFG', 'Group type'),
                         name: 'groupType',
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('validationTasks.general.deviceGroup2', 'CFG', 'Group name'),
+                        fieldLabel: Uni.I18n.translate('validationTasks.general.groupName', 'CFG', 'Group name'),
                         name: 'groupName',
                     },
                 ]

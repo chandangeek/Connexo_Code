@@ -111,7 +111,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                     },
                     {
                         xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('validationTasks.general.deviceGroup2', 'CFG', '        '),
+                        fieldLabel: ' ',
                         required: true,
                         layout: 'hbox',
                         items: [
@@ -143,7 +143,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                     },
                     {
                         xtype: 'fieldcontainer',
-                        fieldLabel: Uni.I18n.translate('validationTasks.general.usagePointGroup', 'CFG', '       '),
+                        fieldLabel: ' ',
                         required: true,
                         layout: 'hbox',
                         items: [
