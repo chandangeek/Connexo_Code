@@ -93,7 +93,7 @@ public class IdsServiceImpl implements IdsService, InstallService, MessageSeedPr
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Collections.singletonList("ORM");
+        return Arrays.asList("ORM", "APS");
     }
 
     @Override

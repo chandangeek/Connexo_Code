@@ -35,14 +35,14 @@ public class InstallerImpl {
 	}
 
 	private void createVaults() {
-		Vault newVault = idsService.createVault("IDS", 1, "Regular TimeSeries Default ", DEFAULT_SLOT_COUNT, 0, true);
+		Vault newVault = idsService.createVault(IdsService.COMPONENTNAME, 1, "Regular TimeSeries Default ", DEFAULT_SLOT_COUNT, 0, true);
 		Instant start = Instant.now().truncatedTo(ChronoUnit.DAYS);
 		newVault.activate(start);		
 		newVault.extendTo(start.plus(360, ChronoUnit.DAYS), Logger.getLogger(getClass().getPackage().getName()));		
 	}
 	
 	private void createRecordSpecs() {
-		RecordSpecBuilder builder = idsService.createRecordSpec("IDS", 1, "Simple");
+		RecordSpecBuilder builder = idsService.createRecordSpec(IdsService.COMPONENTNAME, 1, "Simple");
 		builder.addFieldSpec("value", FieldType.NUMBER);
 		builder.create();
 	}
