@@ -13,13 +13,18 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         'setup.deviceregisterconfiguration.Setup',
         'setup.deviceregisterconfiguration.Grid',
         'setup.deviceregisterconfiguration.ValidationPreview',
-        'setup.deviceregisterconfiguration.TabbedDeviceRegisterView'
+        'setup.deviceregisterconfiguration.TabbedDeviceRegisterView',
+        'Mdc.view.setup.deviceregisterconfiguration.EditCustomAttributes',
+        'Mdc.customattributesonvaluesobjects.view.AttributeSetsPlaceholderForm'
     ],
 
     models: [
-        'Mdc.model.RegisterValidationPreview'
-        ],
+        'Mdc.model.RegisterValidationPreview',
+        'Mdc.customattributesonvaluesobjects.model.AttributeSetOnRegister'
+    ],
+
     stores: [
+        'Mdc.customattributesonvaluesobjects.store.RegisterCustomAttributeSets',
         'RegisterConfigsOfDevice'
     ],
 
@@ -30,8 +35,13 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         {ref: 'deviceRegisterConfigurationPreviewForm', selector: '#deviceRegisterConfigurationPreviewForm'},
         {ref: 'deviceRegisterConfigurationDetailForm', selector: '#deviceRegisterConfigurationDetailForm'},
         {ref: 'stepsMenu', selector: '#stepsMenu'},
+        {ref: 'editPropertyForm', selector: '#deviceRegisterConfigurationEditCustomAttributes property-form'},
+        {ref: 'editCustomAttributesPanel', selector: '#deviceRegisterConfigurationEditCustomAttributes'},
+        {ref: 'editCustomRestoreBtn', selector: '#deviceRegisterCustomRestoreBtn'},
         {ref: 'deviceRegistersOverview', selector: 'tabbedDeviceRegisterView'}
     ],
+
+    fromSpecification: false,
 
     init: function () {
         var me = this;
@@ -44,6 +54,18 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
             },
             '#registerActionMenu': {
                 click: this.chooseAction
+            },
+            '#deviceRegisterConfigurationEditCustomAttributes #deviceRegisterCustomSaveBtn': {
+                click: this.saveRegisterConfigurationCustomAttributes
+            },
+            '#deviceRegisterConfigurationEditCustomAttributes #deviceRegisterCustomRestoreBtn': {
+                click: this.restoreRegisterConfigurationCustomAttributes
+            },
+            '#deviceRegisterConfigurationEditCustomAttributes #deviceRegisterCustomCancelBtn': {
+                click: this.toPreviousPage
+            },
+            '#deviceRegisterConfigurationEditCustomAttributes #device-register-configuration-property-form': {
+                showRestoreAllBtn: this.showRestoreAllBtn
             }
         });
     },
@@ -74,11 +96,15 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         var me = this,
             viewport = Ext.ComponentQuery.query('viewport')[0];
         me.mRID = mRID;
+        me.fromSpecification = false;
         viewport.setLoading();
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
             success: function (device) {
-                var widget = Ext.widget('deviceRegisterConfigurationSetup', {device: device, router: me.getController('Uni.controller.history.Router')});
+                var widget = Ext.widget('deviceRegisterConfigurationSetup', {
+                    device: device,
+                    router: me.getController('Uni.controller.history.Router')
+                });
                 me.getApplication().fireEvent('loadDevice', device);
                 me.getApplication().fireEvent('changecontentevent', widget);
                 viewport.setLoading(false);
@@ -103,19 +129,18 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         viewport.setLoading(false);
     },
 
-    updateValidationData: function(record)
-    {
+    updateValidationData: function (record) {
         var me = this,
             form = me.getDeviceRegisterConfigurationPreviewForm(),
             formRecord;
-        if(form)
+        if (form)
             formRecord = form.getRecord();
-        else{
+        else {
             form = me.getDeviceRegisterConfigurationDetailForm();
             formRecord = form.getRecord();
         }
         formRecord.set('validationInfo_dataValidated',
-            record.get('dataValidated')? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
+            record.get('dataValidated') ? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
                 : Uni.I18n.translate('general.no', 'MDC', 'No') + ' ' + '<span class="icon-validation icon-validation-black"></span>');
         formRecord.set('lastChecked_formatted',
             Uni.DateTime.formatDateTimeLong(new Date(record.get('lastChecked'))));
@@ -124,7 +149,10 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
     },
 
     onDeviceRegisterConfigurationGridSelect: function (rowmodel, record) {
-        var me = this;
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            routeParams = router.arguments;
+        routeParams.registerId = record.getId();
         me.previewRegisterConfiguration(record);
     },
 
@@ -137,6 +165,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
 
         me.registerId = record.get('id');
         me.registerName = record.get('name');
+        previewContainer.setLoading(true);
         Ext.suspendLayouts();
         form.loadRecord(record);
         widget.setTitle(record.get('readingType').fullAliasName);
@@ -145,6 +174,12 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         widget.on('render', function () {
             widget.down('#deviceRegisterConfigurationActionMenu').record = record;
         }, me, {single: true});
+        var customAttributesStore = me.getStore('Mdc.customattributesonvaluesobjects.store.RegisterCustomAttributeSets');
+        customAttributesStore.getProxy().setUrl(me.mRID, record.get('id'));
+        customAttributesStore.load(function () {
+            widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
+            previewContainer.setLoading(false);
+        });
         Ext.resumeLayouts(true);
     },
 
@@ -161,11 +196,23 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                 model.load(registerId, {
                     success: function (register) {
                         var type = register.get('type');
-                        var widget = Ext.widget('tabbedDeviceRegisterView', {device: device, router: me.getController('Uni.controller.history.Router')});
+                        var widget = Ext.widget('tabbedDeviceRegisterView', {
+                            device: device,
+                            router: me.getController('Uni.controller.history.Router')
+                        });
                         var func = function () {
+                            var customAttributesStore = me.getStore('Mdc.customattributesonvaluesobjects.store.RegisterCustomAttributeSets');
+                            customAttributesStore.getProxy().setUrl(mRID, registerId);
+                            customAttributesStore.load(function () {
+                                widget.down('#custom-attribute-sets-placeholder-form-id').loadStore(customAttributesStore);
+                            });
                             me.getApplication().fireEvent('changecontentevent', widget);
                             widget.down('#registerTabPanel').setTitle(register.get('readingType').fullAliasName);
-                            var config = Ext.widget('deviceRegisterConfigurationDetail-' + type, {mRID: encodeURIComponent(mRID), registerId: registerId, router: me.getController('Uni.controller.history.Router')});
+                            var config = Ext.widget('deviceRegisterConfigurationDetail-' + type, {
+                                mRID: encodeURIComponent(mRID),
+                                registerId: registerId,
+                                router: me.getController('Uni.controller.history.Router')
+                            });
                             var form = config.down('#deviceRegisterConfigurationDetailForm');
                             me.getApplication().fireEvent('loadRegisterConfiguration', register);
                             form.loadRecord(register);
@@ -300,13 +347,103 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
                 }
             ]
         });
-    }
+    },
 
-    // showValidationActivationErrors: function (errors) {
-    //     if (Ext.ComponentQuery.query('#validateNowRegisterConfirmationWindow')[0]) {
-    //         Ext.ComponentQuery.query('#validateNowRegisterConfirmationWindow')[0].down('#validateRegisterDateErrors').update(errors);
-    //         Ext.ComponentQuery.query('#validateNowRegisterConfirmationWindow')[0].down('#validateRegisterDateErrors').setVisible(true);
-    //     }
-    //}
+    loadRegisterConfigurationCustomAttributes: function (mRID, registerId, customAttributeSetId) {
+        var me = this,
+            contentPanel = Ext.ComponentQuery.query('viewport')[0];
+        contentPanel.setLoading(true);
+        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
+            success: function (device) {
+                var model = Ext.ModelManager.getModel('Mdc.model.Register');
+                model.getProxy().setExtraParam('mRID', encodeURIComponent(mRID));
+                model.load(registerId, {
+                    success: function (register) {
+
+                        var widget = Ext.widget('deviceRegisterConfigurationEditCustomAttributes', {device: device});
+                        me.getApplication().fireEvent('loadDevice', device);
+                        me.getApplication().fireEvent('loadRegisterConfiguration', register);
+                        me.getApplication().fireEvent('changecontentevent', widget);
+                        me.loadPropertiesRecord(widget, mRID, registerId, customAttributeSetId);
+                    },
+                    failure: function () {
+                        contentPanel.setLoading(false);
+                    }
+                });
+            }
+        });
+
+    },
+
+    loadPropertiesRecord: function (widget, mRID, registerId, customAttributeSetId) {
+        var me = this,
+            viewport = Ext.ComponentQuery.query('viewport')[0],
+            model = Ext.ModelManager.getModel('Mdc.customattributesonvaluesobjects.model.AttributeSetOnRegister'),
+            form = widget.down('property-form');
+
+        model.getProxy().setUrl(mRID, registerId);
+
+        model.load(customAttributeSetId, {
+            success: function (record) {
+                widget.down('#registerEditPanel').setTitle(Uni.I18n.translate('deviceregisters.EditCustomAttributeSet', 'MDC', "Edit '{0}'", [record.get('name')]));
+                me.getApplication().fireEvent('loadRegisterConfigurationCustomAttributes', record);
+                form.loadRecord(record);
+            },
+            callback: function () {
+                viewport.setLoading(false);
+            }
+        });
+    },
+
+    restoreRegisterConfigurationCustomAttributes: function () {
+        this.getEditPropertyForm().restoreAll();
+    },
+
+    toPreviousPage: function () {
+        if (this.fromSpecification == true) {
+            this.getController('Uni.controller.history.Router').getRoute('devices/device/registers/register').forward();
+        } else {
+            this.getController('Uni.controller.history.Router').getRoute('devices/device/registers').forward();
+        }
+    },
+
+    getPreviousPageUrl: function () {
+        if (this.fromSpecification == true) {
+            return this.getController('Uni.controller.history.Router').getRoute('devices/device/registers/register').buildUrl();
+        } else {
+            return this.getController('Uni.controller.history.Router').getRoute('devices/device/registers').buildUrl();
+        }
+    },
+
+    saveRegisterConfigurationCustomAttributes: function () {
+        var me = this,
+            form = me.getEditPropertyForm(),
+            editView = me.getEditCustomAttributesPanel();
+
+        editView.setLoading();
+
+        form.updateRecord();
+        form.getRecord().save({
+            backUrl: me.getPreviousPageUrl(),
+            success: function () {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('registerAttributes.saved', 'MDC', 'Register attributes saved'));
+                me.toPreviousPage();
+            },
+            callback: function () {
+                editView.setLoading(false);
+            }
+        });
+    },
+
+    showRestoreAllBtn: function (value) {
+        var restoreBtn = this.getEditCustomRestoreBtn();
+        if (restoreBtn) {
+            if (value) {
+                restoreBtn.disable();
+            } else {
+                restoreBtn.enable();
+            }
+        }
+    }
 });
 

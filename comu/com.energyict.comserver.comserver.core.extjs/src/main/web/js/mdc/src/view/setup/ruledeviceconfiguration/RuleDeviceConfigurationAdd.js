@@ -18,6 +18,7 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationAdd', 
                         xtype: 'preview-container',
                         grid: {
                             xtype: 'rule-device-configuration-add-grid',
+                            itemId: 'rule-device-configuration-add-grid-table',
                             ruleSetId: this.ruleSetId
                         },
                         emptyComponent: {

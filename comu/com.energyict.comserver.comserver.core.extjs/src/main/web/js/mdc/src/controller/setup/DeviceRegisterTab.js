@@ -23,6 +23,7 @@ Ext.define('Mdc.controller.setup.DeviceRegisterTab', {
     initTabDeviceRegisterConfigurationDetailsView: function(mrId,registerId){
         this.mrId = mrId;
         this.registerId = registerId;
+        this.getController('Mdc.controller.setup.DeviceRegisterConfiguration').fromSpecification = true;
         var c = this.getController('Mdc.controller.setup.DeviceRegisterConfiguration');
         c.showDeviceRegisterConfigurationDetailsView(mrId,registerId,this);
         this.veto = true;

@@ -128,7 +128,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
             } else {
                 str = '<span style="word-wrap: break-word; display: inline-block; width: 800px">';
                 if (Cfg.privileges.Validation.canViewOrAdministrate()) {
-                    str += '<a href="#/administration/validation/rulesets/' + rule.ruleSetVersion.id + '/rules/' + rule.id + '">' + rule.name + '</a>';
+                    str += '<a href="#/administration/validation/rulesets/' + rule.ruleSetVersion.ruleSet.id + '/versions/' + rule.ruleSetVersion.id + '/rules/' + rule.id + '">' + rule.name + '</a>';
                 } else {
                     str += rule.name;
                 }
@@ -221,7 +221,11 @@ Ext.define('Mdc.view.setup.devicechannels.DataPreview', {
                 return !Ext.isEmpty(formatValue) ? formatValue + ' ' + measurementType + ' ' + validationResultText : '';
             }
         } else {
-            return Uni.I18n.translate('general.missingx', 'MDC', 'Missing {0}',[validationResultText], false);
+            if(type === 'main'){
+                return Uni.I18n.translate('general.missingx', 'MDC', 'Missing {0}',[validationResultText], false);
+            } else {
+                return '-';
+            }
         }
     },
 

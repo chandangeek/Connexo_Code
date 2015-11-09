@@ -56,11 +56,13 @@ Ext.define('Mdc.model.ComServerComPort', {
         },
         {
             name: 'schedulingInterPollDelay',
-            type: 'auto'
+            type: 'auto',
+            defaultValue: null
         },
         {
             name: 'inboundComPorts',
-            type: 'auto'
+            type: 'auto',
+            defaultValue: null
         },
         {
             name: 'type',
@@ -181,7 +183,8 @@ Ext.define('Mdc.model.ComServerComPort', {
         },
         {
             name: 'addressSelector',
-            type: 'auto'
+            type: 'auto',
+            defaultValue: null
         },
         {
             name: 'status',
@@ -195,6 +198,7 @@ Ext.define('Mdc.model.ComServerComPort', {
             type: 'string',
             useNull: true,
             defaultValue: null,
+            persist: false,
             mapping: function (data) {
                 var comPortPools = data.outboundComPortPoolIds,
                     portPoolsStore = Ext.getStore('Mdc.store.ComPortPools'),

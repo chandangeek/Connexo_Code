@@ -1203,11 +1203,26 @@ Ext.define('Mdc.controller.history.Setup', {
                             action: 'showDeviceAttributesView',
                             items: {
                                 edit: {
-                                    title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                    title: Uni.I18n.translate('deviceconfiguration.deviceAttributes.edit.general', 'MDC', 'Edit \'General\''),
                                     route: 'edit',
                                     privileges: Mdc.privileges.Device.editDeviceAttributes,
                                     controller: 'Mdc.controller.setup.DeviceAttributes',
                                     action: 'showEditDeviceAttributesView'
+                                },
+                                editcustomattributes: {
+                                    title: Uni.I18n.translate('general.edit', 'MDC', 'Edit'),
+                                    route: '{customAttributeSetId}/edit',
+                                    privileges: Mdc.privileges.Device.administrateDeviceData,
+                                    controller: 'Mdc.controller.setup.DeviceAttributes',
+                                    action: 'showEditCustomAttributeSetsView',
+                                    callback: function (route) {
+                                        this.getApplication().on('loadCustomAttributeSetOnDevice', function (record) {
+                                            route.setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
+                                            return true;
+                                        }, {single: true});
+
+                                        return this;
+                                    }
                                 }
                             }
                         },
@@ -1311,6 +1326,22 @@ Ext.define('Mdc.controller.history.Setup', {
                                         }, {single: true});
 
                                         return this;
+                                    },
+                                    items: {
+                                        editcustomattributes: {
+                                            route: 'customattributes/{customAttributeSetId}/edit',
+                                            controller: 'Mdc.controller.setup.DeviceRegisterConfiguration',
+                                            privileges: Mdc.privileges.Device.administrateDeviceData,
+                                            action: 'loadRegisterConfigurationCustomAttributes',
+                                            callback: function (route) {
+                                                this.getApplication().on('loadRegisterConfigurationCustomAttributes', function (record) {
+                                                    route.setTitle(Uni.I18n.translate('deviceregisterconfiguration.editCustomAttributes', 'MDC', "Edit '{0}'", [record.get('name')]));
+                                                    return true;
+                                                }, {single: true});
+
+                                                return this;
+                                            }
+                                        }
                                     }
                                 },
                                 registerdata: {
@@ -1565,6 +1596,22 @@ Ext.define('Mdc.controller.history.Setup', {
                                             return true;
                                         }, {single: true});
                                         return this;
+                                    },
+                                    items: {
+                                        editcustomattributes: {
+                                            route: 'customattributes/{customAttributeSetId}/edit',
+                                            controller: 'Mdc.controller.setup.DeviceChannelData',
+                                            privileges: Mdc.privileges.Device.administrateDeviceData,
+                                            action: 'showEditChannelOfLoadProfileCustomAttributes',
+                                            callback: function (route) {
+                                                this.getApplication().on('channelOfLoadProfileCustomAttributes', function (record) {
+                                                    route.setTitle(Uni.I18n.translate('deviceChannelOfLoadProfile.editCustomAttributes', 'MDC', "Edit '{0}'", [record.get('name')]));
+                                                    return true;
+                                                }, {single: true});
+
+                                                return this;
+                                            }
+                                        }
                                     }
                                 },
                                 channeldata: {
