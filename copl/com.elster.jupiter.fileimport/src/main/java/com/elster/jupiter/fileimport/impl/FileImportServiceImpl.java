@@ -14,7 +14,12 @@ import com.elster.jupiter.fileimport.ImportScheduleBuilder;
 import com.elster.jupiter.fileimport.security.Privileges;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
-import com.elster.jupiter.nls.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
@@ -42,6 +47,7 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.nio.file.FileSystem;
@@ -51,8 +57,10 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -89,6 +97,9 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
     private CronExpressionScheduler cronExpressionScheduler;
     private Path basePath;
     private EventService eventService;
+    private final Object delayedSchedulerLock = new Object();
+    @GuardedBy("delayedSchedulerLock")
+    private Set<DelayedScheduler> delayedSchedulers = new HashSet<>();
 
     public FileImportServiceImpl() {
     }
@@ -134,7 +145,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
 
     @Override
     public List<String> getPrerequisiteModules() {
-        return Arrays.asList("ORM", "NLS", "USR");
+        return Arrays.asList("ORM", "NLS", "USR", "EVT");
     }
 
     @Reference
@@ -206,6 +217,13 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addFileImporter(FileImporterFactory fileImporterFactory) {
         importerFactories.add(fileImporterFactory);
+        synchronized (delayedSchedulerLock) {
+            Set<DelayedScheduler> canBeLaunched = delayedSchedulers.stream()
+                    .filter(delayedScheduler -> delayedScheduler.matches(fileImporterFactory))
+                    .collect(Collectors.toSet());
+            delayedSchedulers.removeAll(canBeLaunched);
+            canBeLaunched.forEach(DelayedScheduler::scheduleNow);
+        }
     }
 
     public void removeFileImporter(FileImporterFactory fileImporterFactory) {
@@ -238,9 +256,13 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
 
     @Override
     public void schedule(ImportSchedule importSchedule) {
-        if (importSchedule.getObsoleteTime() == null) {
-            cronExpressionScheduler.submit(new ImportScheduleJob(path -> !Files.isDirectory(path), fileUtils, jsonService,
-                    this, importSchedule.getId(), transactionService, thesaurus, cronExpressionParser, clock));
+        if (!importSchedule.isDeleted()) {
+            if (importSchedule.isImporterAvailable()) {
+                cronExpressionScheduler.submit(new ImportScheduleJob(path -> !Files.isDirectory(path), fileUtils, jsonService,
+                        this, importSchedule.getId(), transactionService, thesaurus, cronExpressionParser, clock));
+            } else {
+                register(new DelayedScheduler(importSchedule));
+            }
         }
     }
 
@@ -389,7 +411,7 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
         resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
-                "fileImport.importServices", "fileImport.importServices.description",
+                Privileges.RESOURCE_IMPORT_SERVICES.getKey(), Privileges.RESOURCE_IMPORT_SERVICES_DESCRIPTION.getKey(),
                 Arrays.asList(Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES, Privileges.Constants.VIEW_IMPORT_SERVICES)));
         return resources;
     }
@@ -417,4 +439,30 @@ public class FileImportServiceImpl implements InstallService, FileImportService,
         return Arrays.asList(MessageSeeds.values());
     }
 
+    private void register(DelayedScheduler delayedScheduler) {
+        synchronized (delayedSchedulerLock) {
+            delayedSchedulers.add(delayedScheduler);
+            if (importerFactories.stream().anyMatch(delayedScheduler::matches)) {
+                delayedScheduler.scheduleNow();
+                delayedSchedulers.remove(delayedScheduler);
+            }
+        }
+    }
+
+    private class DelayedScheduler {
+
+        private final ImportSchedule importSchedule;
+
+        private DelayedScheduler(ImportSchedule importSchedule) {
+            this.importSchedule = importSchedule;
+        }
+
+        void scheduleNow() {
+            schedule(importSchedule);
+        }
+
+        boolean matches(FileImporterFactory fileImporterFactory) {
+            return fileImporterFactory.getName().equals(importSchedule.getImporterName());
+        }
+    }
 }
