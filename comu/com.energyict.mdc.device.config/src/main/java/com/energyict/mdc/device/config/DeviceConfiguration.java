@@ -8,7 +8,7 @@ import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.collections.KPermutation;
 import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.validation.ValidationRuleSet;
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
@@ -84,6 +84,8 @@ public interface DeviceConfiguration extends HasId, HasName, DeviceCommunication
     boolean hasLogBookSpecForConfig(int logBookTypeId, int updateId);
 
     void save();
+
+    void touch();
 
     Set<DeviceCommunicationFunction> getCommunicationFunctions();
 

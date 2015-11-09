@@ -1,6 +1,6 @@
 package com.energyict.mdc.device.config;
 
-import com.energyict.mdc.common.HasId;
+import com.elster.jupiter.util.HasId;
 
 import java.util.List;
 
@@ -24,6 +24,8 @@ public interface DeviceConfigConflictMapping extends HasId {
     DeviceConfiguration getDestinationDeviceConfiguration();
     List<ConflictingConnectionMethodSolution> getConflictingConnectionMethodSolutions();
     List<ConflictingSecuritySetSolution> getConflictingSecuritySetSolutions();
+    DeviceType getDeviceType();
 
     boolean isSolved();
+    long getVersion();
 }

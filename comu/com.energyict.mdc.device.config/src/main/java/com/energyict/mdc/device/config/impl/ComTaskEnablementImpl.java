@@ -173,6 +173,11 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
     }
 
     @Override
+    public long getVersion() {
+        return this.version;
+    }
+
+    @Override
     public boolean isSuspended() {
         return this.suspended;
     }
@@ -570,5 +575,14 @@ public class ComTaskEnablementImpl extends PersistentIdObject<ComTaskEnablement>
             ).findFirst().orElse(null);
         }
         return correspondingSecurityPropertySet;
+    }
+
+    @Override
+    public void save() {
+        boolean update = getId() > 0;
+        super.save();
+        if (update) {
+            getDataModel().touch(deviceConfiguration.get());
+        }
     }
 }

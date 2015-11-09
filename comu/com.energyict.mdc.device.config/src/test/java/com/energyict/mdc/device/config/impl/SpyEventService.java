@@ -40,6 +40,11 @@ public class SpyEventService implements EventService {
     }
 
     @Override
+    public Optional<EventType> findAndLockEventTypeByNameAndVersion(String topic, long version) {
+        return eventService.findAndLockEventTypeByNameAndVersion(topic, version);
+    }
+
+    @Override
     public List<EventType> getEventTypesForComponent(String component) {
         return eventService.getEventTypesForComponent(component);
     }

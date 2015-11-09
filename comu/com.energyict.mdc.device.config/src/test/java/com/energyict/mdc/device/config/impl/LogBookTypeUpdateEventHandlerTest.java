@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.*;
 import com.elster.jupiter.events.EventType;
@@ -81,6 +82,7 @@ public class LogBookTypeUpdateEventHandlerTest {
         Injector injector = Guice.createInjector(
                 new MockModule(),
                 this.bootstrapModule,
+                new DataVaultModule(),
                 new ThreadSecurityModule(this.principal),
                 new OrmModule(),
                 new EventsModule(),

@@ -81,6 +81,12 @@ public class LogBookSpecImpl extends PersistentIdObject<LogBookSpec> implements 
     public void save() {
         validateDeviceTypeContainsLogbookType();
         super.save();
+        getDataModel().touch(deviceConfiguration.get());
+    }
+
+    @Override
+    public long getVersion() {
+        return this.version;
     }
 
     private void validateBeforeAddToConfiguration() {

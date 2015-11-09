@@ -10,7 +10,10 @@ import com.elster.jupiter.nls.TranslationKey;
  */
 public enum TranslationKeys implements TranslationKey {
 
-    DEVICE_TYPE("deviceType.with.article", "a device type");
+    DEVICE_TYPE("deviceType.with.article", "a device type"),
+    NO_ENCRYPTION("noEncryption", "No encryption"),
+    NO_AUTHENTICATION("noAuthentication", "No authentication"),
+    ;
 
     private final String key;
     private final String defaultFormat;

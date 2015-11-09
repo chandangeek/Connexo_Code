@@ -1,6 +1,8 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
@@ -41,11 +43,22 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
-import com.energyict.mdc.common.*;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
+import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.common.FactoryIds;
+import com.energyict.mdc.common.IdBusinessObjectFactory;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.events.EventType;
 import com.energyict.mdc.device.config.events.PartialConnectionTaskUpdateDetails;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingHandler;
@@ -83,9 +96,13 @@ import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import org.fest.assertions.core.Condition;
+import org.assertj.core.api.Condition;
 import org.joda.time.DateTimeConstants;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -105,7 +122,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.fest.assertions.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -141,7 +158,6 @@ public class PartialOutboundConnectionTaskCrudIT {
     private static SchedulingService schedulingService;
     private static Injector injector = null;
 
-
     @Mock
     private MyDeviceProtocolPluggableClass deviceProtocolPluggableClass;
     @Mock
@@ -165,6 +181,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         initializeStaticMocks();
         Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn(PartialOutboundConnectionTaskCrudIT.class.getSimpleName());
+        injector = null;
         try {
             injector = Guice.createInjector(
                     new MockModule(),
@@ -204,7 +221,8 @@ public class PartialOutboundConnectionTaskCrudIT {
                     new MdcDynamicModule(),
                     new PluggableModule(),
                     new SchedulingModule(),
-                    new TimeModule());
+                    new TimeModule(),
+                    new CustomPropertySetsModule());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -215,8 +233,9 @@ public class PartialOutboundConnectionTaskCrudIT {
             NlsService nlsService = injector.getInstance(NlsService.class);
             PropertySpecServiceImpl propertySpecService = (PropertySpecServiceImpl) injector.getInstance(PropertySpecService.class);
             initializeConnectionTypes(propertySpecService);
-            injector.getInstance(FiniteStateMachineService.class);
+            FiniteStateMachineService finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
             injector.getInstance(MeteringService.class);
+            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(MdcReadingTypeUtilService.class);
             engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
             protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
@@ -242,6 +261,7 @@ public class PartialOutboundConnectionTaskCrudIT {
                     injector.getInstance(ValidationService.class),
                     injector.getInstance(EstimationService.class),
                     injector.getInstance(MasterDataService.class),
+                    finiteStateMachineService,
                     injector.getInstance(DeviceLifeCycleConfigurationService.class));
             DataModel dataModel = deviceConfigurationService.getDataModel();
             createOracleAliases(dataModel.getConnection(true));
@@ -281,10 +301,10 @@ public class PartialOutboundConnectionTaskCrudIT {
             connectionTypePluggableClass2.save();
             outboundComPortPool = engineConfigurationService.newOutboundComPortPool("inboundComPortPool", ComPortType.TCP, FIFTEEN_MINUTES);
             outboundComPortPool.setActive(true);
-            outboundComPortPool.save();
+            outboundComPortPool.update();
             outboundComPortPool1 = engineConfigurationService.newOutboundComPortPool("inboundComPortPool2", ComPortType.TCP, TimeDuration.minutes(5));
             outboundComPortPool1.setActive(true);
-            outboundComPortPool1.save();
+            outboundComPortPool1.update();
             context.commit();
         }
     }
@@ -550,9 +570,7 @@ public class PartialOutboundConnectionTaskCrudIT {
 
         PartialScheduledConnectionTask task;
         task = deviceConfiguration.getPartialOutboundConnectionTasks().get(0);
-        NextExecutionSpecsImpl instance = (NextExecutionSpecsImpl) schedulingService.newNextExecutionSpecs(null);
-        instance.setTemporalExpression(new TemporalExpression(ONE_HOUR_IN_MINUTES, ONE_HOUR_IN_MINUTES));
-        instance.save();
+        NextExecutionSpecsImpl instance = (NextExecutionSpecsImpl) schedulingService.newNextExecutionSpecs(new TemporalExpression(ONE_HOUR_IN_MINUTES, ONE_HOUR_IN_MINUTES));
         task.setNextExecutionSpecs(instance);
         task.save();
 
@@ -628,9 +646,7 @@ public class PartialOutboundConnectionTaskCrudIT {
 
         PartialScheduledConnectionTask task;
         task = deviceConfiguration.getPartialOutboundConnectionTasks().get(0);
-        NextExecutionSpecsImpl instance = (NextExecutionSpecsImpl) schedulingService.newNextExecutionSpecs(null);
-        instance.setTemporalExpression(new TemporalExpression(ONE_HOUR_IN_MINUTES, ONE_HOUR_IN_MINUTES));
-        instance.save();
+        schedulingService.newNextExecutionSpecs(new TemporalExpression(ONE_HOUR_IN_MINUTES, ONE_HOUR_IN_MINUTES));
         task.save();
 
         Optional<PartialConnectionTask> found = deviceConfigurationService.findPartialConnectionTask(outboundConnectionTask.getId());

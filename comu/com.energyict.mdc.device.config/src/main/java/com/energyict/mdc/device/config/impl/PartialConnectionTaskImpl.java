@@ -235,23 +235,16 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
 
     public void setDefault(boolean asDefault) {
         if (asDefault) {
-            getPartialConnectionTasksImpls().forEach(PartialConnectionTaskImpl::clearDefault);
+            ((DeviceConfigurationImpl)this.configuration.get()).clearDefaultExcept(this);
         }
         this.isDefault = asDefault;
-    }
-
-    private List<PartialConnectionTaskImpl> getPartialConnectionTasksImpls() {
-        return getConfiguration()
-                .getPartialConnectionTasks()
-                .stream()
-                .map(PartialConnectionTaskImpl.class::cast)
-                .collect(Collectors.toList());
     }
 
     @Override
     public void save() {
         super.save();
         this.addedOrRemovedRequiredProperties.clear();
+        getDataModel().touch(configuration.get());
     }
 
     @Override
@@ -297,4 +290,8 @@ public abstract class PartialConnectionTaskImpl extends PersistentNamedObject<Pa
         return true;
     }
 
+    @Override
+    public long getVersion() {
+        return version;
+    }
 }

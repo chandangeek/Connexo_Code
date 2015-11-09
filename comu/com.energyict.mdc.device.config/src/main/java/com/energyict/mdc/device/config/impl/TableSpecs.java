@@ -1,12 +1,30 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.validation.ValidationService;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
+import com.energyict.mdc.device.config.ConflictingSecuritySetSolution;
+import com.energyict.mdc.device.config.DeviceConfValidationRuleSetUsage;
+import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceConfigurationEstimationRuleSetUsage;
+import com.energyict.mdc.device.config.DeviceMessageEnablement;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.DeviceTypeFields;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperty;
+import com.energyict.mdc.device.config.RegisterSpec;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.ConflictingConnectionMethodSolutionImpl;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.ConflictingSecuritySetSolutionImpl;
 import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConflictMappingImpl;
@@ -81,6 +99,7 @@ public enum TableSpecs {
             table.map(DeviceTypeLoadProfileTypeUsage.class);
             Column loadProfileType = table.column("LOADPROFILETYPEID").number().notNull().add();
             Column deviceType = table.column("DEVICETYPEID").number().notNull().add();
+            Column customPropertySet = table.column("CUSTOMPROPERTYSETID").number().add();
             table.addAuditColumns();
             table.primaryKey("PK_DTC_LOADPRFTYPEFORDEVTYPE").on(loadProfileType, deviceType).add();
             table.foreignKey("FK_DTC_DEVTYPE_LPT_DEVTYPE").
@@ -96,6 +115,11 @@ public enum TableSpecs {
                     references(MasterDataService.COMPONENTNAME, "MDS_LOADPROFILETYPE").
                     map("loadProfileType").
                     add();
+            table.foreignKey("FK_DTC_LPT_CPS_CPS")
+                    .references(RegisteredCustomPropertySet.class)
+                    .on(customPropertySet)
+                    .map("customPropertySet")
+                    .add();
         }
     },
 
@@ -106,6 +130,7 @@ public enum TableSpecs {
             table.map(DeviceTypeRegisterTypeUsage.class);
             Column registerType = table.column("REGISTERTYPEID").number().notNull().add();
             Column deviceType = table.column("DEVICETYPEID").number().notNull().add();
+            Column customPropertySet = table.column("CUSTOMPROPERTYSETID").number().add();
             table.addAuditColumns();
             table.primaryKey("PK_DTC_REGTYPEFORDEVICETYPE").on(registerType, deviceType).add();
             table.foreignKey("FK_DTC_DEVTYPE_REGTYPE_DEVTYPE").
@@ -121,6 +146,11 @@ public enum TableSpecs {
                     references(MasterDataService.COMPONENTNAME, "MDS_MEASUREMENTTYPE")
                     .map("registerType").
                     add();
+            table.foreignKey("FK_DTC_REGTYPE_CPS_CPS")
+                    .references(RegisteredCustomPropertySet.class)
+                    .on(customPropertySet)
+                    .map("registeredCustomPropertySet")
+                    .add();
         }
     },
 
@@ -156,7 +186,7 @@ public enum TableSpecs {
             table.map(DeviceConfigurationImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
-            table.column("NAME").varChar().notNull().map("name").add();
+            Column nameColumn = table.column("NAME").varChar().notNull().map("name").add();
             table.column("DESCRIPTION").varChar().map("description").add();
             Column deviceType = table.column("DEVICETYPEID").number().notNull().add();
             table.column("ACTIVE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("active").add();
@@ -173,6 +203,7 @@ public enum TableSpecs {
                     composition().
                     onDelete(CASCADE).
                     add();
+            table.unique("UQ_DTC_DEVICECONFIG_NAME").on(deviceType, nameColumn).add();
         }
     },
 
@@ -312,7 +343,7 @@ public enum TableSpecs {
             table.addAuditColumns();
             Column deviceConfiguration = table.column("DEVICECONFIGURATION").number().notNull().add();
             table.column("DEVICEPROTOCOLDIALECT").varChar().notNull().map("protocolDialectName").add();
-            table.column("NAME").varChar().notNull().map("name").add();
+            Column nameColumn = table.column("NAME").varChar().notNull().map("name").add();
             table.foreignKey("FK_DTC_DIALECTCONFPROPS_CONFIG").
                     on(deviceConfiguration).
                     references(DTC_DEVICECONFIG.name()).
@@ -322,6 +353,7 @@ public enum TableSpecs {
                     composition().
                     add();
             table.primaryKey("PK_DTC_DIALECTCONFIGPROPS").on(id).add();
+            table.unique("UQ_DTC_CONFIGPROPS_NAME").on(deviceConfiguration, nameColumn).add();
         }
     },
 
@@ -374,7 +406,7 @@ public enum TableSpecs {
             table.map(PartialConnectionTaskImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
-            table.column("NAME").varChar().notNull().map("name").add();
+            Column nameColumn = table.column("NAME").varChar().notNull().map("name").add();
             table.addDiscriminatorColumn("DISCRIMINATOR", "number");
             Column deviceConfiguration = table.column("DEVICECONFIG").number().add();
             Column connectionType = table.column("CONNECTIONTYPE").number().conversion(NUMBER2LONG).map("pluggableClassId").add();
@@ -418,8 +450,10 @@ public enum TableSpecs {
                     references(DTC_PARTIALCONNECTIONTASK.name()).
                     map("initiator").
                     add();
+            table.unique("UQ_DTC_PARTIALCT_NAME").on(deviceConfiguration, nameColumn).add();
         }
     },
+
     DTC_PARTIALCONNECTIONTASKPROPS {
         @Override
         public void addTo(DataModel dataModel) {
@@ -440,6 +474,7 @@ public enum TableSpecs {
             table.primaryKey("PK_DTC_PARTIALCONTASKPROPS").on(partialconnectiontask, name).add();
         }
     },
+
     DTC_MESSAGEENABLEMENT {
         @Override
         void addTo(DataModel dataModel) {
@@ -460,6 +495,7 @@ public enum TableSpecs {
             table.primaryKey("PK_DTC_DEVMESENABLEMENT").on(id).add();
         }
     },
+
     DTC_MSGABLEMENTUSERACTION {
         @Override
         public void addTo(DataModel dataModel) {
@@ -479,6 +515,7 @@ public enum TableSpecs {
             table.primaryKey("PK_DTC_MESENABLEUSERACTION").on(useraction, deviceMessageEnablement).add();
         }
     },
+
     DTC_SECURITYPROPERTYSET {
         @Override
         public void addTo(DataModel dataModel) {
@@ -502,6 +539,7 @@ public enum TableSpecs {
             table.unique("UK_DTC_SECPROPSET_NAME").on(deviceConfiguration, name).add();
         }
     },
+
     DTC_SECURITYPROPSETUSERACTION {
         @Override
         public void addTo(DataModel dataModel) {
@@ -521,6 +559,7 @@ public enum TableSpecs {
             table.primaryKey("PK_DTC_SECPROPSETUSERACTION").on(useraction, securitypropertyset).add();
         }
     },
+
     DTC_COMTASKENABLEMENT {
         @Override
         public void addTo(DataModel dataModel) {
@@ -629,6 +668,7 @@ public enum TableSpecs {
             Column originDeviceConfig = table.column("ORIGINDEVCONFIG").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
             Column destinationDeviceConfig = table.column("DESTINATIONDEVCONFIG").notNull().number().conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("SOLVED").type("char(1)").notNull().map(DeviceConfigConflictMappingImpl.Fields.SOLVED.fieldName()).conversion(ColumnConversion.CHAR2BOOLEAN).add();
+            table.addAuditColumns();
             table.primaryKey("PK_DTC_CONFLMAP").on(id).add();
             table.foreignKey("FK_DTC_CONFLMAPDEVTYPE")
                     .references(DTC_DEVICETYPE.name())
@@ -709,8 +749,32 @@ public enum TableSpecs {
                     .on(destinationSecuritySet)
                     .map(ConflictingSecuritySetSolutionImpl.Fields.DESTINATIONSECURITYSET.fieldName()).add();
         }
+    },
+
+    DTC_DEVICETYPECPSUSAGE {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<DeviceTypeCustomPropertySetUsage> table = dataModel.addTable(name(), DeviceTypeCustomPropertySetUsage.class);
+            table.map(DeviceTypeCustomPropertySetUsageImpl.class);
+            Column deviceType = table.column("DEVICETYPE").number().notNull().add();
+            Column customPropertySet = table.column("CUSTOMPROPERTYSET").number().notNull().add();
+            table.primaryKey("PK_DTC_CPSUSAGE").on(deviceType, customPropertySet).add();
+            table.foreignKey("FK_DTC_CPSDEVICETYPE")
+                    .references(DTC_DEVICETYPE.name())
+                    .on(deviceType)
+                    .onDelete(CASCADE)
+                    .map(DeviceTypeCustomPropertySetUsageImpl.Fields.DEVICETYPE.fieldName())
+                    .reverseMap(DeviceTypeImpl.Fields.CUSTOMPROPERTYSETUSAGE.fieldName())
+                    .composition()
+                    .add();
+            table.foreignKey("FK_DTC_CPS")
+                    .references(RegisteredCustomPropertySet.class)
+                    .on(customPropertySet)
+                    .onDelete(CASCADE)
+                    .map(DeviceTypeCustomPropertySetUsageImpl.Fields.CUSTOMPROPERTYSET.fieldName())
+                    .add();
+        }
     };
 
     abstract void addTo(DataModel component);
-
 }

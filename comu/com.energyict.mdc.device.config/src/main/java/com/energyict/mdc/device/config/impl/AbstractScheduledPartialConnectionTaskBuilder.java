@@ -65,7 +65,6 @@ public abstract class AbstractScheduledPartialConnectionTaskBuilder<S, U extends
     void populate(U instance) {
         instance.setComportPool(comPortPool);
         if (nextExecutionSpecs != null) {
-            nextExecutionSpecs.save();
             instance.setNextExecutionSpecs(nextExecutionSpecs);
         }
         instance.setRescheduleRetryDelay(retryDelay);

@@ -2,7 +2,6 @@ package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.SecurityPropertySet;
@@ -72,7 +71,6 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     private Set<DeviceSecurityUserAction> userActions = EnumSet.noneOf(DeviceSecurityUserAction.class);
     private List<UserActionRecord> userActionRecords = new ArrayList<>();
     private final ThreadPrincipalService threadPrincipalService;
-    private final DeviceConfigurationService deviceConfigurationService;
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -81,6 +79,14 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     private Instant createTime;
     @SuppressWarnings("unused")
     private Instant modTime;
+
+    @Inject
+    public SecurityPropertySetImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus,
+                                   ThreadPrincipalService threadPrincipalService) {
+        super(SecurityPropertySet.class, dataModel, eventService, thesaurus);
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
 
     @Override
     public String getName() {
@@ -167,13 +173,6 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         userActions.addAll(userActionRecords.stream().map(userActionRecord -> userActionRecord.userAction).collect(Collectors.toList()));
     }
 
-    @Inject
-    public SecurityPropertySetImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, DeviceConfigurationService deviceConfigurationService) {
-        super(SecurityPropertySet.class, dataModel, eventService, thesaurus);
-        this.threadPrincipalService = threadPrincipalService;
-        this.deviceConfigurationService = deviceConfigurationService;
-    }
-
     static SecurityPropertySetImpl from(DataModel dataModel, DeviceConfigurationImpl deviceConfiguration, String name) {
         return dataModel.getInstance(SecurityPropertySetImpl.class).init(deviceConfiguration, name);
     }
@@ -208,7 +207,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     public AuthenticationDeviceAccessLevel getAuthenticationDeviceAccessLevel() {
         if (this.authenticationLevel == null) {
             if (this.authenticationLevelId == NOT_USED_DEVICE_ACCESS_LEVEL_ID) {
-                this.authenticationLevel = new NoAuthentication();
+                this.authenticationLevel = new NoAuthentication(getThesaurus());
             } else {
                 this.authenticationLevel = this.findAuthenticationLevel(this.authenticationLevelId);
             }
@@ -231,14 +230,14 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
                 return level;
             }
         }
-        return new NoAuthentication();
+        return new NoAuthentication(getThesaurus());
     }
 
     @Override
     public EncryptionDeviceAccessLevel getEncryptionDeviceAccessLevel() {
         if (this.encryptionLevel == null) {
             if (this.encryptionLevelId == NOT_USED_DEVICE_ACCESS_LEVEL_ID) {
-                this.encryptionLevel = new NoEncryption();
+                this.encryptionLevel = new NoEncryption(getThesaurus());
             } else {
                 this.encryptionLevel = this.findEncryptionLevel(this.encryptionLevelId);
             }
@@ -261,7 +260,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
                 return level;
             }
         }
-        return new NoEncryption();
+        return new NoEncryption(getThesaurus());
     }
 
     private DeviceProtocol getDeviceProtocol() {
@@ -329,6 +328,8 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
             for (Iterator<UserActionRecord> iterator = userActionRecords.iterator(); iterator.hasNext(); ) {
                 if (iterator.next().userAction.equals(userAction)) {
                     iterator.remove();
+                    getDataModel().touch(this);
+                    break;
                 }
             }
         }
@@ -390,14 +391,21 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     }
 
     private static class NoAuthentication implements AuthenticationDeviceAccessLevel {
+
+        private final Thesaurus thesaurus;
+
+        public NoAuthentication(Thesaurus thesaurus) {
+            this.thesaurus = thesaurus;
+        }
+
         @Override
         public int getId() {
             return NOT_USED_DEVICE_ACCESS_LEVEL_ID;
         }
 
         @Override
-        public String getTranslationKey() {
-            return "NoAuthenthication";
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.NO_AUTHENTICATION).format();
         }
 
         @Override
@@ -407,14 +415,20 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     }
 
     private static class NoEncryption implements EncryptionDeviceAccessLevel {
+        private final Thesaurus thesaurus;
+
+        private NoEncryption(Thesaurus thesaurus) {
+            this.thesaurus = thesaurus;
+        }
+
         @Override
         public int getId() {
             return NOT_USED_DEVICE_ACCESS_LEVEL_ID;
         }
 
         @Override
-        public String getTranslationKey() {
-            return "NoEncryption";
+        public String getTranslation() {
+            return thesaurus.getFormat(TranslationKeys.NO_ENCRYPTION).format();
         }
 
         @Override
@@ -427,9 +441,22 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
     @Override
     public void update() {
         save();
+        getDataModel().touch(deviceConfiguration.get());
+    }
+
+    @Override
+    public long getVersion() {
+        return version;
     }
 
     public static class LevelsAreSupportedValidator implements ConstraintValidator<LevelMustBeProvidedIfSupportedByDevice, SecurityPropertySetImpl> {
+
+        private final Thesaurus thesaurus;
+
+        @Inject
+        public LevelsAreSupportedValidator(Thesaurus thesaurus) {
+            this.thesaurus = thesaurus;
+        }
 
         @Override
         public void initialize(LevelMustBeProvidedIfSupportedByDevice constraintAnnotation) {
@@ -451,7 +478,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
         private List<EncryptionDeviceAccessLevel> supportedEncryptionlevels(SecurityPropertySetImpl value) {
             List<EncryptionDeviceAccessLevel> levels = value.getDeviceProtocol().getEncryptionAccessLevels();
-            return levels.isEmpty() ? Arrays.<EncryptionDeviceAccessLevel>asList(new NoEncryption()) : levels;
+            return levels.isEmpty() ? Arrays.<EncryptionDeviceAccessLevel>asList(new NoEncryption(thesaurus)) : levels;
         }
 
         private boolean authLevelSupported(SecurityPropertySetImpl value) {
@@ -465,7 +492,7 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
 
         private List<AuthenticationDeviceAccessLevel> supportedAutheticationLevels(SecurityPropertySetImpl value) {
             List<AuthenticationDeviceAccessLevel> levels = value.getDeviceProtocol().getAuthenticationAccessLevels();
-            return levels.isEmpty() ? Arrays.<AuthenticationDeviceAccessLevel>asList(new NoAuthentication()) : levels;
+            return levels.isEmpty() ? Arrays.<AuthenticationDeviceAccessLevel>asList(new NoAuthentication(thesaurus)) : levels;
         }
     }
 
@@ -477,4 +504,15 @@ public class SecurityPropertySetImpl extends PersistentNamedObject<SecurityPrope
         getUserActions().stream().forEach(builder::addUserAction);
         return builder.build();
     }
+
+    @Override
+    public boolean equals(Object obj){
+        if(obj instanceof SecurityPropertySetImpl){
+            SecurityPropertySetImpl impl = (SecurityPropertySetImpl) obj;
+            return impl.getId() == this.getId();
+        }
+        return false;
+    }
+
+
 }

@@ -1,7 +1,8 @@
 package com.energyict.mdc.device.config.impl.deviceconfigchange;
 
-import com.energyict.mdc.common.HasId;
 import com.energyict.mdc.device.config.DeviceConfiguration;
+
+import com.elster.jupiter.util.HasId;
 
 import java.util.List;
 import java.util.function.Predicate;

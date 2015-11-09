@@ -1,13 +1,14 @@
 package com.energyict.mdc.device.config.impl.deviceconfigchange;
 
+import com.energyict.mdc.device.config.ConflictingSolution;
+import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
+
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.energyict.mdc.common.HasId;
-import com.energyict.mdc.device.config.ConflictingSolution;
-import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
+import com.elster.jupiter.util.HasId;
 
 import javax.validation.constraints.NotNull;
 

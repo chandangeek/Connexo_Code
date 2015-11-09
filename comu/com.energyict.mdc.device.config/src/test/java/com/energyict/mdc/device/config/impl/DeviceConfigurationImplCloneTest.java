@@ -239,7 +239,7 @@ public class DeviceConfigurationImplCloneTest extends PersistenceTest {
                     }
 
                     @Override
-                    public String getTranslationKey() {
+                    public String getTranslation() {
                         return null;
                     }
 
@@ -254,7 +254,7 @@ public class DeviceConfigurationImplCloneTest extends PersistenceTest {
                     }
 
                     @Override
-                    public String getTranslationKey() {
+                    public String getTranslation() {
                         return null;
                     }
 
@@ -271,7 +271,7 @@ public class DeviceConfigurationImplCloneTest extends PersistenceTest {
                     }
 
                     @Override
-                    public String getTranslationKey() {
+                    public String getTranslation() {
                         return null;
                     }
 
@@ -286,7 +286,7 @@ public class DeviceConfigurationImplCloneTest extends PersistenceTest {
                     }
 
                     @Override
-                    public String getTranslationKey() {
+                    public String getTranslation() {
                         return null;
                     }
 
