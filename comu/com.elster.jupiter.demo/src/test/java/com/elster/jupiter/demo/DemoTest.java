@@ -1,5 +1,82 @@
 package com.elster.jupiter.demo;
 
+import com.elster.jupiter.appserver.impl.AppServiceModule;
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.bpm.impl.BpmModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
+import com.elster.jupiter.datavault.impl.DataVaultServiceImpl;
+import com.elster.jupiter.demo.impl.ConsoleUser;
+import com.elster.jupiter.demo.impl.DemoServiceImpl;
+import com.elster.jupiter.demo.impl.UnableToCreate;
+import com.elster.jupiter.demo.impl.commands.SetupFirmwareManagementCommand;
+import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
+import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
+import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
+import com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl;
+import com.elster.jupiter.demo.impl.templates.LogBookTypeTpl;
+import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
+import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
+import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.estimation.impl.EstimationModule;
+import com.elster.jupiter.estimation.impl.EstimationServiceImpl;
+import com.elster.jupiter.estimators.impl.DefaultEstimatorFactory;
+import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.impl.DataExportServiceImpl;
+import com.elster.jupiter.export.impl.ExportModule;
+import com.elster.jupiter.export.processor.impl.StandardCsvDataFormatterFactory;
+import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fileimport.impl.FileImportModule;
+import com.elster.jupiter.fileimport.impl.FileImportServiceImpl;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.ftpclient.FtpClientService;
+import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
+import com.elster.jupiter.issue.share.service.IssueCreationService;
+import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.kpi.impl.KpiModule;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.mail.impl.MailModule;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
+import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.orm.impl.OrmServiceImpl;
+import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
+import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.time.impl.TimeModule;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.User;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.impl.UserModule;
+import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.streams.DecoratedStream;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.ValidationModule;
+import com.elster.jupiter.validation.impl.ValidationServiceImpl;
+import com.elster.jupiter.validators.impl.DefaultValidatorFactory;
 import com.energyict.mdc.app.impl.MdcAppInstaller;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.device.config.ComTaskEnablement;
@@ -85,76 +162,6 @@ import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.tasks.impl.TasksModule;
 
-import com.elster.jupiter.appserver.impl.AppServiceModule;
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.bpm.impl.BpmModule;
-import com.elster.jupiter.datavault.impl.DataVaultModule;
-import com.elster.jupiter.datavault.impl.DataVaultServiceImpl;
-import com.elster.jupiter.demo.impl.ConsoleUser;
-import com.elster.jupiter.demo.impl.DemoServiceImpl;
-import com.elster.jupiter.demo.impl.UnableToCreate;
-import com.elster.jupiter.demo.impl.commands.SetupFirmwareManagementCommand;
-import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
-import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
-import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
-import com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl;
-import com.elster.jupiter.demo.impl.templates.LogBookTypeTpl;
-import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
-import com.elster.jupiter.demo.impl.templates.RegisterTypeTpl;
-import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.estimation.impl.EstimationModule;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.impl.DataExportServiceImpl;
-import com.elster.jupiter.export.impl.ExportModule;
-import com.elster.jupiter.export.processor.impl.StandardCsvDataFormatterFactory;
-import com.elster.jupiter.fileimport.FileImportService;
-import com.elster.jupiter.fileimport.impl.FileImportModule;
-import com.elster.jupiter.fileimport.impl.FileImportServiceImpl;
-import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
-import com.elster.jupiter.ftpclient.FtpClientService;
-import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
-import com.elster.jupiter.issue.share.service.IssueCreationService;
-import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.kpi.impl.KpiModule;
-import com.elster.jupiter.license.License;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.mail.impl.MailModule;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
-import com.elster.jupiter.metering.impl.MeteringModule;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.orm.impl.OrmServiceImpl;
-import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.properties.impl.BasicPropertiesModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.tasks.impl.TaskModule;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.time.impl.TimeModule;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.User;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.streams.DecoratedStream;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.impl.ValidationModule;
-import com.elster.jupiter.validation.impl.ValidationServiceImpl;
-import com.elster.jupiter.validators.impl.DefaultValidatorFactory;
 import com.energyict.protocolimpl.elster.a3.AlphaA3;
 import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
@@ -191,9 +198,7 @@ import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class DemoTest {
     private static final Logger LOG = Logger.getLogger(DemoTest.class.getName());
@@ -323,7 +328,8 @@ public class DemoTest {
                 new FirmwareModule(),
                 new FileImportModule(),
                 new MailModule(),
-                new DemoModule()
+                new DemoModule(),
+                new CustomPropertySetsModule()
         );
         doPreparations();
     }
@@ -477,7 +483,7 @@ public class DemoTest {
     }
 
     private void checkCreatedG3SlaveDevice(String mridDevice) {
-        String SERIAL_NUMBER = "Demo board AS3000".equals(mridDevice) ? "05206854" : "35075302";
+        String SERIAL_NUMBER = "Demo board AS3000".equals(mridDevice) ? "E0023000520685414" : "123457S";
         String MAC_ADDRESS = "Demo board AS3000".equals(mridDevice) ? "02237EFFFEFD835B" : "02237EFFFEFD82F4";
         String SECURITY_SET_NAME = "High level MD5 authentication - No encryption";
 
@@ -543,7 +549,7 @@ public class DemoTest {
                 DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.VIEWDEVICESECURITYPROPERTIES2,
                 DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES1, DeviceSecurityUserAction.EDITDEVICESECURITYPROPERTIES2);
         assertThat(configuration.getPartialOutboundConnectionTasks().isEmpty()).isTrue();
-        assertThat(configuration.getComTaskEnablements()).hasSize(4);
+        assertThat(configuration.getComTaskEnablements()).hasSize(3);
         for (ComTaskEnablement enablement : configuration.getComTaskEnablements()) {
             if ( ComTaskTpl.TOPOLOGY_UPDATE.getName().equals(enablement.getComTask().getName()) ||
                  ComTaskTpl.READ_LOAD_PROFILE_DATA.getName().equals(enablement.getComTask().getName()) ||
@@ -737,7 +743,9 @@ public class DemoTest {
     protected void doPreparations() {
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             createOracleTablesSubstitutes();
+            injector.getInstance(CustomPropertySetService.class);
             injector.getInstance(DataVaultServiceImpl.class);
+            injector.getInstance(FiniteStateMachineService.class);
             createRequiredProtocols();
             createDefaultStuff();
             injector.getInstance(DemoServiceImpl.class);
@@ -788,6 +796,7 @@ public class DemoTest {
         propertySpecService.addFactoryProvider((DeviceServiceImpl) injector.getInstance(DeviceService.class));
         propertySpecService.addFactoryProvider((ConnectionTaskServiceImpl) injector.getInstance(ConnectionTaskService.class));
 
+
         DefaultValidatorFactory defaultValidatorFactory = new DefaultValidatorFactory();
         defaultValidatorFactory.setPropertySpecService(propertySpecService);
         defaultValidatorFactory.setNlsService(injector.getInstance(NlsService.class));
@@ -805,11 +814,12 @@ public class DemoTest {
         ((FileImportServiceImpl) fileImportService).addFileImporter(injector.getInstance(DeviceRemoveImportFactory.class));
 
         ((DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class)).setQueryService(injector.getInstance(QueryService.class));
-        ((DataExportServiceImpl) injector.getInstance(DataExportService.class)).addFormatter(injector.getInstance(StandardCsvDataFormatterFactory.class), ImmutableMap.of(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_DATA_TYPE));
+        ((DataExportServiceImpl) injector.getInstance(DataExportService.class)).addFormatter(injector.getInstance(StandardCsvDataFormatterFactory.class), ImmutableMap.of(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_READING_DATA_TYPE));
 
         injector.getInstance(IssueDataCollectionService.class);
         injector.getInstance(IssueDataValidationService.class);
         fixIssueTemplates();
+        fixEstimators(propertySpecService, injector.getInstance(TimeService.class));
     }
 
     private void fixIssueTemplates() {
@@ -819,6 +829,15 @@ public class DemoTest {
         IssueServiceImpl issueService = (IssueServiceImpl) injector.getInstance(IssueService.class);
         issueService.addCreationRuleTemplate(template);
         issueService.addCreationRuleTemplate(dataValidationIssueCreationRuleTemplate);
+    }
+
+    private void fixEstimators(PropertySpecService propertySpecService, TimeService timeService){
+        EstimationServiceImpl estimationService = (EstimationServiceImpl) injector.getInstance(EstimationService.class);
+        DefaultEstimatorFactory estimatorFactory = new DefaultEstimatorFactory();
+        estimatorFactory.setPropertySpecService(propertySpecService);
+        estimatorFactory.setTimeService(timeService);
+        estimationService.addEstimatorFactory(estimatorFactory);
+
     }
 
     private void createDefaultStuff() {

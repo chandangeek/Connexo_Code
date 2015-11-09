@@ -15,22 +15,23 @@ import java.util.stream.Collectors;
  * Time: 9:56
  */
 public enum DeviceGroupTpl implements Template<EndDeviceGroup, DeviceGroupBuilder> {
-    NORTH_REGION("South region", Arrays.asList(
+    NORTH_REGION("South region",
             DeviceTypeTpl.Elster_AS1440, DeviceTypeTpl.Landis_Gyr_ZMD, DeviceTypeTpl.Actaris_SL7000
-    )),
-    SOUTH_REGION("North region", Arrays.asList(
+    ),
+    SOUTH_REGION("North region",
             DeviceTypeTpl.Elster_A1800, DeviceTypeTpl.Siemens_7ED, DeviceTypeTpl.Iskra_38
-    )),
-    ALL_ELECTRICITY_DEVICES("All electricity devices", Arrays.asList(
+    ),
+    ALL_ELECTRICITY_DEVICES("All electricity devices",
             DeviceTypeTpl.Elster_AS1440, DeviceTypeTpl.Landis_Gyr_ZMD, DeviceTypeTpl.Actaris_SL7000,
             DeviceTypeTpl.Elster_A1800, DeviceTypeTpl.Siemens_7ED, DeviceTypeTpl.Iskra_38
-    )),
+    ),
+    A1800_DEVICES("Elster A1800 devices", DeviceTypeTpl.Elster_A1800);
     ;
 
     private String name;
-    private List<DeviceTypeTpl> deviceTypes;
+    private DeviceTypeTpl[] deviceTypes;
 
-    DeviceGroupTpl(String name, List<DeviceTypeTpl> deviceTypes) {
+    DeviceGroupTpl(String name, DeviceTypeTpl... deviceTypes) {
         this.name = name;
         this.deviceTypes = deviceTypes;
     }
@@ -42,7 +43,7 @@ public enum DeviceGroupTpl implements Template<EndDeviceGroup, DeviceGroupBuilde
 
     @Override
     public DeviceGroupBuilder get(DeviceGroupBuilder builder) {
-        return builder.withName(this.name).withDeviceTypes(this.deviceTypes.stream().map(DeviceTypeTpl::getLongName).collect(Collectors.toList()));
+        return builder.withName(this.name).withDeviceTypes(Arrays.stream(this.deviceTypes).map(DeviceTypeTpl::getLongName).collect(Collectors.toList()));
     }
 
     public String getName() {

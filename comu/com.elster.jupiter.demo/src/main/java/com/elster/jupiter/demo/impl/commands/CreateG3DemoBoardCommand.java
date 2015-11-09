@@ -27,7 +27,7 @@ public class CreateG3DemoBoardCommand {
     private final Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider;
     private final Provider<SetDeviceInActiveLifeCycleStatePostBuilder> activeLifeCyclestatePostBuilder;
 
-    private String gatewayMrid = "Demo board RTU+Server G3";
+    private String gatewayMrid = "Demo_board_RTU_Server_G3";
 
     @Inject
     public  CreateG3DemoBoardCommand(DeviceService deviceService,
@@ -57,6 +57,7 @@ public class CreateG3DemoBoardCommand {
                 connectionMethodsProvider,
                 activeLifeCyclestatePostBuilder);
         gatewayCommand.setGatewayMrid(gatewayMrid);
+        gatewayCommand.setSerialNumber("Demo board RTU+Server G3");
 
         CreateG3SlaveCommand firstSlave = new CreateG3SlaveCommand(activeLifeCyclestatePostBuilder);
         firstSlave.setConfig("AS3000");

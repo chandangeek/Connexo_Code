@@ -60,7 +60,7 @@ public class ConsoleUser implements User {
     }
 
     @Override
-    public void save() {
+    public void update() {
         throw new UnsupportedOperationException(this.getClass().getName() + " is not designed to be saved");
     }
 

@@ -102,7 +102,7 @@ public class UserBuilder extends NamedBuilder<User, UserBuilder> {
                 user.join(group);
             }
         }
-        user.save();
+        user.update();
         return user;
     }
 }

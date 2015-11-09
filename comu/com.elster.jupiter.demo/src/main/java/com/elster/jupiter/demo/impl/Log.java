@@ -4,6 +4,7 @@ import com.energyict.mdc.common.HasId;
 
 import com.elster.jupiter.demo.impl.builders.Builder;
 import com.elster.jupiter.demo.impl.builders.NamedBuilder;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 
 import java.lang.reflect.Field;

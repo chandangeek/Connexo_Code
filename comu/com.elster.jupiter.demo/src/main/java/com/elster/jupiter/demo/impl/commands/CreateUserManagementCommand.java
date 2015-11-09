@@ -29,6 +29,6 @@ public class CreateUserManagementCommand {
     private void updateDefaultUsers(){
         User admin = userService.findUser("admin").get();
         admin.setPassword("D3moAdmin");
-        admin.save();
+        admin.update();
     }
 }

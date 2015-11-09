@@ -43,7 +43,6 @@ public class OutboundTCPComPortBuilder extends NamedBuilder<OutboundComPort, Out
         OutboundComPort.OutboundComPortBuilder outboundComPortBuilder = comServer.newOutboundComPort(getName(), 5);
         outboundComPortBuilder.comPortType(ComPortType.TCP).active(true);
         OutboundComPort comPort = outboundComPortBuilder.add();
-        comPort.save();
         return comPort;
     }
 }

@@ -22,6 +22,7 @@ public class ComTaskBuilder extends NamedBuilder<ComTask, ComTaskBuilder> {
     private List<RegisterGroup> registerGroups;
     private List<TopologyAction> topologyActions;
     private List<Clock> clocks;
+    private boolean statusInformationTask = false;
 
     @Inject
     public ComTaskBuilder(TaskService taskService) {
@@ -54,6 +55,11 @@ public class ComTaskBuilder extends NamedBuilder<ComTask, ComTaskBuilder> {
         return this;
     }
 
+    public ComTaskBuilder withStatusInformationTask(boolean statusInformationTaskFlag){
+        this.statusInformationTask = statusInformationTaskFlag;
+        return this;
+    }
+
     @Override
     public Optional<ComTask> find(){
         return taskService.findAllComTasks().stream().filter(ct -> ct.getName().equals(getName())).findFirst();
@@ -81,6 +87,9 @@ public class ComTaskBuilder extends NamedBuilder<ComTask, ComTaskBuilder> {
             for (Clock clock : clocks) {
                 comTask.createClockTask(clock.type).maximumClockDifference(clock.maximumClockDiff).minimumClockDifference(clock.minimumClockDiff).maximumClockShift(clock.maximumClockShift).add();
             }
+        }
+        if (statusInformationTask) {
+            comTask.createStatusInformationTask();
         }
         comTask.save();
         return comTask;

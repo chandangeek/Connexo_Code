@@ -1,5 +1,10 @@
 package com.elster.jupiter.demo.impl;
 
+import com.elster.jupiter.demo.impl.commands.*;
+import com.elster.jupiter.demo.impl.commands.devices.*;
+import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
@@ -85,6 +90,7 @@ import java.time.Clock;
         "osgi.command.function=createDeliverDataSetup",
         "osgi.command.function=createCollectRemoteDataSetup",
         "osgi.command.function=createValidationSetup",
+        "osgi.command.function=createEstimationSetup",
         "osgi.command.function=createAssignmentRules",
         "osgi.command.function=addIntervalChannelReadings",
         "osgi.command.function=addNoneIntervalChannelReadings",
@@ -102,6 +108,7 @@ public class DemoServiceImpl {
     private volatile EngineConfigurationService engineConfigurationService;
     private volatile UserService userService;
     private volatile ValidationService validationService;
+    private volatile EstimationService estimationService;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile ProtocolPluggableService protocolPluggableService;
@@ -147,6 +154,7 @@ public class DemoServiceImpl {
             EngineConfigurationService engineConfigurationService,
             UserService userService,
             ValidationService validationService,
+            EstimationService estimationService,
             TransactionService transactionService,
             ThreadPrincipalService threadPrincipalService,
             ProtocolPluggableService protocolPluggableService,
@@ -177,11 +185,13 @@ public class DemoServiceImpl {
             FiniteStateMachineService finiteStateMachineService,
             DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
             DeviceLifeCycleService deviceLifeCycleService,
-            FileImportService fileImportService) {
+            FileImportService fileImportService
+            ) {
         this();
         setEngineConfigurationService(engineConfigurationService);
         setUserService(userService);
         setValidationService(validationService);
+        setEstimationService(estimationService);
         setTransactionService(transactionService);
         setThreadPrincipalService(threadPrincipalService);
         setProtocolPluggableService(protocolPluggableService);
@@ -213,7 +223,6 @@ public class DemoServiceImpl {
         setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         setDeviceLifeCycleService(deviceLifeCycleService);
         setFileImportService(fileImportService);
-
         activate();
         reThrowEx = true;
     }
@@ -226,6 +235,7 @@ public class DemoServiceImpl {
                 bind(EngineConfigurationService.class).toInstance(engineConfigurationService);
                 bind(UserService.class).toInstance(userService);
                 bind(ValidationService.class).toInstance(validationService);
+                bind(EstimationService.class).toInstance(estimationService);
                 bind(TransactionService.class).toInstance(transactionService);
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(ProtocolPluggableService.class).toInstance(protocolPluggableService);
@@ -260,6 +270,7 @@ public class DemoServiceImpl {
                 bind(DeviceLifeCycleService.class).toInstance(deviceLifeCycleService);
                 bind(FileSystem.class).toInstance(FileSystems.getDefault());
                 bind(FileImportService.class).toInstance(fileImportService);
+                bind(EstimationService.class).toInstance(estimationService);
             }
         });
         Builders.initWith(this.injector);
@@ -281,6 +292,12 @@ public class DemoServiceImpl {
     @SuppressWarnings("unused")
     public final void setValidationService(ValidationService validationService) {
         this.validationService = validationService;
+    }
+
+    @Reference
+    @SuppressWarnings("unused")
+    public final void setEstimationService(EstimationService estimationService) {
+        this.estimationService = estimationService;
     }
 
     @Reference
@@ -655,6 +672,14 @@ public class DemoServiceImpl {
     public void createValidationSetup(){
         executeTransaction(() -> {
             CreateValidationSetupCommand command = injector.getInstance(CreateValidationSetupCommand.class);
+            command.run();
+        });
+    }
+
+    @SuppressWarnings("unused")
+    public void createEstimationSetup(){
+        executeTransaction(() -> {
+            CreateEstimationSetupCommand command = injector.getInstance(CreateEstimationSetupCommand.class);
             command.run();
         });
     }

@@ -29,7 +29,7 @@ public enum DeviceConfigurationTpl implements Template<DeviceConfiguration, Devi
         Arrays.<RegisterTypeTpl>asList(RegisterTypeTpl.B_F_E_S_M_E, RegisterTypeTpl.B_R_E_S_M_E, RegisterTypeTpl.S_F_E_S_M_E_T1, RegisterTypeTpl.S_F_E_S_M_E_T2, RegisterTypeTpl.S_R_E_S_M_E_T1, RegisterTypeTpl.S_R_E_S_M_E_T2),
         Arrays.<LoadProfileTypeTpl>asList(LoadProfileTypeTpl._15_MIN_ELECTRICITY, LoadProfileTypeTpl.DAILY_ELECTRICITY, LoadProfileTypeTpl.MONTHLY_ELECTRICITY),
         Collections.singletonList(LogBookTypeTpl.GENERIC),
-        Arrays.<ComTaskTpl>asList(ComTaskTpl.TOPOLOGY_UPDATE, ComTaskTpl.READ_LOAD_PROFILE_DATA, ComTaskTpl.READ_LOG_BOOK_DATA, ComTaskTpl.READ_REGISTER_DATA)),
+        Arrays.<ComTaskTpl>asList(ComTaskTpl.READ_LOAD_PROFILE_DATA, ComTaskTpl.READ_LOG_BOOK_DATA, ComTaskTpl.READ_REGISTER_DATA)),
     RTU_Plus_G3("Default", GatewayType.LOCAL_AREA_NETWORK,
         Collections.singletonList(SecurityPropertySetTpl.HIGH_LEVEL_NO_ENCRYPTION),
         Collections.EMPTY_LIST,

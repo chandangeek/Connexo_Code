@@ -14,10 +14,8 @@ import com.elster.jupiter.demo.impl.UnableToCreate;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration, DeviceConfigurationBuilder> {
     private DeviceType deviceType;
@@ -29,8 +27,6 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
     private List<LogBookType> logBookTypes;
     private List<ComTask> comTasks;
     private List<SecurityPropertySetBuilder> securityPropertySetBuilders;
-
-    private List<Consumer<DeviceConfiguration>> postBuilders;
 
     @Inject
     public DeviceConfigurationBuilder() {
@@ -76,14 +72,6 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
         this.comTasks = comTasks;
         return this;
     }
-
-    public DeviceConfigurationBuilder withPostBuilder(Consumer<DeviceConfiguration> postBuilder) {
-            if (this.postBuilders == null) {
-                this.postBuilders = new ArrayList<>();
-            }
-            this.postBuilders.add(postBuilder);
-            return this;
-        }
 
     public DeviceConfigurationBuilder withSecurityPropertySetBuilders(List<SecurityPropertySetBuilder> securityPropertySetBuilders) {
         this.securityPropertySetBuilders = securityPropertySetBuilders;
@@ -147,14 +135,6 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
         if (securityPropertySetBuilders != null) {
             for (SecurityPropertySetBuilder securityPropertySetBuilder : securityPropertySetBuilders) {
                 securityPropertySetBuilder.withDeviceConfiguration(configuration).get();
-            }
-        }
-    }
-
-    private void applyPostBuilders(DeviceConfiguration configuration) {
-        if (postBuilders != null) {
-            for (Consumer<DeviceConfiguration> postBuilder : postBuilders) {
-                postBuilder.accept(configuration);
             }
         }
     }

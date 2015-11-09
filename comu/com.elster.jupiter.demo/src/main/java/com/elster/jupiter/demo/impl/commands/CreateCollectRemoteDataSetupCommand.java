@@ -48,6 +48,7 @@ public class CreateCollectRemoteDataSetupCommand {
     private final Provider<ConnectionsDevicePostBuilder> connectionsDevicePostBuilderProvider;
     private final Provider<SetDeviceInActiveLifeCycleStatePostBuilder> setDeviceInActiveLifeCycleStatePostBuilderProvider;
     private final Provider<SetUsagePointToDevicePostBuilder> setUsagePointToDevicePostBuilderProvider;
+    private final Provider<SetValidateOnStorePostBuilder> setValidateOnStorePostBuilderProvider;
 
     private String comServerName;
     private String host;
@@ -61,13 +62,15 @@ public class CreateCollectRemoteDataSetupCommand {
             Provider<OutboundTCPConnectionMethodsDevConfPostBuilder> connectionMethodsProvider,
             Provider<ConnectionsDevicePostBuilder> connectionsDevicePostBuilderProvider,
             Provider<SetDeviceInActiveLifeCycleStatePostBuilder> setDeviceInActiveLifeCycleStatePostBuilderProvider,
-            Provider<SetUsagePointToDevicePostBuilder> setUsagePointToDevicePostBuilderProvider) {
+            Provider<SetUsagePointToDevicePostBuilder> setUsagePointToDevicePostBuilderProvider,
+            Provider<SetValidateOnStorePostBuilder> setValidateOnStorePostBuilderProvider) {
         this.licenseService = licenseService;
         this.createAssignmentRulesCommandProvider = createAssignmentRulesCommandProvider;
         this.connectionMethodsProvider = connectionMethodsProvider;
         this.connectionsDevicePostBuilderProvider = connectionsDevicePostBuilderProvider;
         this.setDeviceInActiveLifeCycleStatePostBuilderProvider = setDeviceInActiveLifeCycleStatePostBuilderProvider;
         this.setUsagePointToDevicePostBuilderProvider = setUsagePointToDevicePostBuilderProvider;
+        this.setValidateOnStorePostBuilderProvider = setValidateOnStorePostBuilderProvider;
     }
 
     public void setComServerName(String comServerName) {
@@ -221,6 +224,7 @@ public class CreateCollectRemoteDataSetupCommand {
                 .withPostBuilder(new WebRTUNTASimultationToolPropertyPostBuilder())
                 .withPostBuilder(this.setDeviceInActiveLifeCycleStatePostBuilderProvider.get())
                 .withPostBuilder(this.setUsagePointToDevicePostBuilderProvider.get())
+                .withPostBuilder(this.setValidateOnStorePostBuilderProvider.get())
                 .get();
     }
 

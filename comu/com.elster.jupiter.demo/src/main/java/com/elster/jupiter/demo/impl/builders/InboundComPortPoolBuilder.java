@@ -37,7 +37,7 @@ public class InboundComPortPoolBuilder extends NamedBuilder<InboundComPortPool, 
         InboundDeviceProtocolPluggableClass protocolPluggableClass = protocolPluggableService.findInboundDeviceProtocolPluggableClassByClassName("com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover").get(0);
         InboundComPortPool inboundComPortPool = engineConfigurationService.newInboundComPortPool(getName(), ComPortType.SERVLET, protocolPluggableClass);
         inboundComPortPool.setActive(isActive);
-        inboundComPortPool.save();
+        inboundComPortPool.update();
         return inboundComPortPool;
     }
 }

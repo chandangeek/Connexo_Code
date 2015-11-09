@@ -63,18 +63,22 @@ public class DataExportTaskBuilder extends NamedBuilder<ExportTask, DataExportTa
                 .setDataFormatterName("standardCsvDataProcessorFactory")
                 .setScheduleExpression(new TemporalExpression(TimeDuration.days(1), TimeDuration.hours(11)))
                 .setNextExecution(startOn.toInstant(ZoneOffset.UTC))
-                .selectingStandard()
+                .selectingReadingTypes()
                 .fromExportPeriod(yesterday.get())
                 .fromUpdatePeriod(yesterday.get())
                 .withValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
                 .fromEndDeviceGroup(endDeviceGroup.get())
                 .continuousData(false)
-                .exportUpdate(false)
+                .exportUpdate(true)
                 .fromReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0")
                 .fromReadingType("0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0")
                 .endSelection();
-        builder.addProperty("formatterProperties.separator").withValue("comma");
+
+        builder.addProperty("formatterProperties.separator").withValue("Semicolon (;)");
+        builder.addProperty("formatterProperties.tag").withValue("new");
+        builder.addProperty("formatterProperties.update.tag").withValue("update");
         ExportTask dataExportTask = builder.create();
+        dataExportTask.addFileDestination("readings",String.format("%s-<identifier>-<date>-<time>",group.substring(0,group.indexOf(" "))),"csv");
         return dataExportTask;
     }
 }

@@ -56,17 +56,17 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
             Arrays.<RegisterTypeTpl>asList(RegisterTypeTpl.B_F_E_S_M_E, RegisterTypeTpl.B_R_E_S_M_E, RegisterTypeTpl.S_F_E_S_M_E_T1, RegisterTypeTpl.S_F_E_S_M_E_T2, RegisterTypeTpl.S_R_E_S_M_E_T1, RegisterTypeTpl.S_R_E_S_M_E_T2),
             Arrays.<LoadProfileTypeTpl>asList(LoadProfileTypeTpl._15_MIN_ELECTRICITY, LoadProfileTypeTpl.DAILY_ELECTRICITY, LoadProfileTypeTpl.MONTHLY_ELECTRICITY),
             Collections.singletonList(LogBookTypeTpl.GENERIC)),
-    AS3000 ("Elster_AS3000", "com.energyict.protocolimplv2.nta.dsmr50.elster.am540.AM540", 1, OutboundTCPComPortPoolTpl.ORANGE,
+    AS3000 ("Elster AS3000", "com.energyict.protocolimplv2.nta.dsmr50.elster.am540.AM540", 1, OutboundTCPComPortPoolTpl.ORANGE,
             Arrays.<RegisterTypeTpl>asList(RegisterTypeTpl.B_F_E_S_M_E, RegisterTypeTpl.B_R_E_S_M_E, RegisterTypeTpl.S_F_E_S_M_E_T1, RegisterTypeTpl.S_F_E_S_M_E_T2, RegisterTypeTpl.S_R_E_S_M_E_T1, RegisterTypeTpl.S_R_E_S_M_E_T2),
             Arrays.<LoadProfileTypeTpl>asList(com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl._15_MIN_ELECTRICITY, com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl.DAILY_ELECTRICITY, com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl.MONTHLY_ELECTRICITY),
             Collections.singletonList(com.elster.jupiter.demo.impl.templates.LogBookTypeTpl.GENERIC)),
-    AS220 ("Elster_AS220", "com.energyict.protocolimplv2.nta.dsmr50.elster.am540.AM540", 1, OutboundTCPComPortPoolTpl.ORANGE,
+    AS220 ("Elster AS220", "com.energyict.protocolimplv2.nta.dsmr50.elster.am540.AM540", 1, OutboundTCPComPortPoolTpl.ORANGE,
             Arrays.<RegisterTypeTpl>asList(RegisterTypeTpl.B_F_E_S_M_E, RegisterTypeTpl.B_R_E_S_M_E, RegisterTypeTpl.S_F_E_S_M_E_T1, RegisterTypeTpl.S_F_E_S_M_E_T2, RegisterTypeTpl.S_R_E_S_M_E_T1, RegisterTypeTpl.S_R_E_S_M_E_T2),
             Arrays.<LoadProfileTypeTpl>asList(com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl._15_MIN_ELECTRICITY, com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl.DAILY_ELECTRICITY, com.elster.jupiter.demo.impl.templates.LoadProfileTypeTpl.MONTHLY_ELECTRICITY),
             Collections.singletonList(com.elster.jupiter.demo.impl.templates.LogBookTypeTpl.GENERIC))
     ;
 
-    private String LongName;
+    private String longName;
     private String protocol;
     private int deviceCount;
     private OutboundTCPComPortPoolTpl poolTpl;
@@ -76,7 +76,7 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
     private List<LogBookTypeTpl> logBookTypes;
 
     DeviceTypeTpl(String name, String protocol, int deviceCount, OutboundTCPComPortPoolTpl poolTpl, List<RegisterTypeTpl> registerTypes, List<LoadProfileTypeTpl> loadProfileTypes, List<LogBookTypeTpl> logBookTypes) {
-        this.LongName = name;
+        this.longName = name;
         this.protocol = protocol;
         this.deviceCount = deviceCount;
         this.poolTpl = poolTpl;
@@ -96,7 +96,7 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
 
     @Override
     public DeviceTypeBuilder get(DeviceTypeBuilder builder){
-        return builder.withName(this.LongName).withProtocol(this.protocol)
+        return builder.withName(this.longName).withProtocol(this.protocol)
                 .withRegisterTypes(this.registerTypes.stream().map(tpl -> Builders.from(tpl).get()).collect(Collectors.toList()))
                 .withLoadProfileTypes(this.loadProfileTypes.stream().map(tpl -> Builders.from(tpl).get()).collect(Collectors.<LoadProfileType>toList()))
                 .withLogBookTypes(this.logBookTypes.stream().map(tpl -> Builders.from(tpl).get()).collect(Collectors.<LogBookType>toList()));
@@ -111,12 +111,12 @@ public enum DeviceTypeTpl implements Template<DeviceType, DeviceTypeBuilder> {
     }
 
     public String getLongName() {
-        return LongName;
+        return longName;
     }
 
     public String getProtocol() { return protocol; }
 
     public static DeviceTypeTpl fromName(String name){
-        return Arrays.stream(values()).filter(x -> x.name().equals(name)).findFirst().orElseThrow(() -> new IllegalArgumentException("No template having LongName '" + name + "'"));
+        return Arrays.stream(values()).filter(x -> x.name().equals(name)).findFirst().orElseThrow(() -> new IllegalArgumentException("No template having longName '" + name + "'"));
     }
 }

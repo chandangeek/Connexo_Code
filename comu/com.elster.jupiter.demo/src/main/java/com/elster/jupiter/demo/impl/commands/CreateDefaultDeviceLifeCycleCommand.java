@@ -16,7 +16,7 @@ import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.streams.DecoratedStream;
 
 import javax.inject.Inject;
@@ -72,7 +72,7 @@ public class CreateDefaultDeviceLifeCycleCommand {
         defaultLifeCycle = DLCconfigurationService.findDefaultDeviceLifeCycle().orElseGet(()->DLCconfigurationService.newDefaultDeviceLifeCycle("dlc.standard.device.life.cycle"));
         // Use this one as device life cycle for each existing device type
         // And set all devices of this type to the 'Active State'
-        deviceConfigurationService.findAllDeviceTypes().stream().forEach(type -> changeDeviceLifeCycle(type, deviceService.deviceQuery().select(Operator.EQUAL.compare("deviceType", type))));
+        deviceConfigurationService.findAllDeviceTypes().stream().forEach(type -> changeDeviceLifeCycle(type, deviceService.findAllDevices(Where.where("deviceType").isEqualTo(type)).paged(0, 1000).find()));
     }
 
     private void changeDeviceLifeCycle(DeviceType deviceType, List<Device> devices){

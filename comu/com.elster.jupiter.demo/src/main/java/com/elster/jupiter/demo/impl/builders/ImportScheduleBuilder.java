@@ -21,7 +21,7 @@ import java.util.function.Consumer;
  * Date: 15/09/2015
  * Time: 11:24
  */
-public class ImportScheduleBuilder extends com.elster.jupiter.demo.impl.builders.NamedBuilder<ImportSchedule, ImportScheduleBuilder>{
+public class ImportScheduleBuilder extends NamedBuilder<ImportSchedule, ImportScheduleBuilder>{
 
     private FileSystem fileSystem;
     private FileImportService fileImportService;
@@ -83,13 +83,6 @@ public class ImportScheduleBuilder extends com.elster.jupiter.demo.impl.builders
         return this;
     }
 
-    public ImportScheduleBuilder withPostBuilder(Consumer<ImportSchedule> postBuilder) {
-        if (this.postBuilders == null) {
-            this.postBuilders = new ArrayList<>();
-        }
-        this.postBuilders.add(postBuilder);
-        return this;
-    }
 
     @Override
     public Optional<ImportSchedule> find() {
@@ -118,9 +111,10 @@ public class ImportScheduleBuilder extends com.elster.jupiter.demo.impl.builders
 
         ImportSchedule importSchedule = builder.create();
         importSchedule.setActive(true);
-        if (postBuilders != null){
-            postBuilders.stream().forEach(x -> x.accept(importSchedule));
-        }
+        importSchedule.update();
+
+        applyPostBuilders(importSchedule);
+
         return importSchedule;
     }
 }
