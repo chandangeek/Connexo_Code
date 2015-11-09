@@ -61,6 +61,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     TRANSITIONS("device.transition", "Transitions"),
     TRANSITION_SHIPMENT("device.transition.shipment", "Shipment date"),
     TRANSITION_INSTALLATION("device.transition.installation", "Installation date"),
+    TRANSITION_DEACTIVATION("device.transition.deactivation", "Deactivation date"),
     ;
 
     private String key;
