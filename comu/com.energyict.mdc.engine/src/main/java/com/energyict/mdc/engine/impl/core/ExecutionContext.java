@@ -663,6 +663,21 @@ public final class ExecutionContext implements JournalEntryFactory {
         }
 
         @Override
+        public boolean hasDirtyProperties() {
+            return getConnectionTask().hasDirtyProperties();
+        }
+
+        @Override
+        public void saveAllProperties() {
+            getConnectionTask().saveAllProperties();
+        }
+
+        @Override
+        public void removeAllProperties() {
+            getConnectionTask().removeAllProperties();
+        }
+
+        @Override
         public TypedProperties getTypedProperties() {
             return TypedProperties.empty();
         }
