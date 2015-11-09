@@ -1,4 +1,4 @@
-package com.elster.resteasy.test;
+package com.elster.partners.jbpm.extension;
 
 import org.codehaus.jackson.annotate.JsonProperty;
 

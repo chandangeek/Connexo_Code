@@ -1,4 +1,4 @@
-package com.elster.resteasy.test;
+package com.elster.partners.jbpm.extension;
 
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;

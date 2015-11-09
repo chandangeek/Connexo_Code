@@ -1,4 +1,4 @@
-package com.elster.resteasy.test;
+package com.elster.partners.jbpm.extension;
 
 
 import org.codehaus.jackson.JsonNode;
@@ -233,7 +233,7 @@ public class JbpmTaskResource {
             }
             return taskSummaryList;
         }
-        throw new WebApplicationException("Cannot inject entity manager factory!");
+        throw new WebApplicationException(null, Response.serverError().entity("Cannot inject entity manager factory!").build());
     }
 
     @GET

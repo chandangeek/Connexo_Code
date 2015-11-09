@@ -1,4 +1,4 @@
-package com.elster.resteasy.test;
+package com.elster.partners.jbpm.extension;
 
 
 import java.util.ArrayList;
