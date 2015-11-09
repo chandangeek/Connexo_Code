@@ -87,64 +87,66 @@ Ext.define('InsightApp.controller.History', {
                 }
             }
         },
-        metrologyconfiguration: {
+        administration: {
             title: Uni.I18n.translate('general.metrologyConfiguration', 'INS', 'Metrology Configuration'),
-            route: 'metrologyconfiguration',
+            route: 'administration',
             disabled: true,
             items: {
-            	add: {
-                	title: Uni.I18n.translate('general.metrologyConfigurationAdd', 'INS', 'Add Metrology Configuration'),
-                    route: 'add',
-                    controller: 'Imt.metrologyconfiguration.controller.Edit',
-                    action: 'createMetrologyConfiguration'
-            	},
-            	overview: {
-                	title: Uni.I18n.translate('general.metrologyConfigurationAdd', 'INS', 'List Metrology Configuration'),
-                    route: 'overview',
+                metrologyconfiguration: {
+                    title: Uni.I18n.translate('general.metrologyConfigurations', 'INS', 'Metrology Configurations'),
+                    route: 'metrologyconfiguration',
                     controller: 'Imt.metrologyconfiguration.controller.ViewList',
-                    action: 'showMetrologyConfigurationList'
-            	},
-           		view: {
-           			title: Uni.I18n.translate('general.metrologyConfigurationView', 'INS', 'View Metrology Configuration'),
-           			route: '{mcid}/view',
-           			controller: 'Imt.metrologyconfiguration.controller.View',
-           			action: 'showMetrologyConfiguration',
-           			callback: function (route) {
-                        this.getApplication().on('metrologyConfigurationLoaded', function (record) {
-                            route.setTitle(record.get('name'));
-                            return true;
-                        }, {single: true});
+                    action: 'showMetrologyConfigurationList',
+                    items: {
+                        add: {
+                            title: Uni.I18n.translate('general.metrologyConfigurationAdd', 'INS', 'Add Metrology Configuration'),
+                            route: 'add',
+                            controller: 'Imt.metrologyconfiguration.controller.Edit',
+                            action: 'createMetrologyConfiguration'
+                        },
+                        view: {
+                            title: Uni.I18n.translate('general.metrologyConfigurationView', 'INS', 'View Metrology Configuration'),
+                            route: '{mcid}/view',
+                            controller: 'Imt.metrologyconfiguration.controller.View',
+                            action: 'showMetrologyConfiguration',
+                            callback: function (route) {
+                                this.getApplication().on('metrologyConfigurationLoaded', function (record) {
+                                    route.setTitle(record.get('name'));
+                                    return true;
+                                }, {single: true});
 
-                        return this;
-                    },
-           		},
-   				edit: {
-                	title: Uni.I18n.translate('general.metrologyConfigurationEdit', 'INS', 'Edit Metrology Configuration'),
-                    route: '{mcid}/edit',
-                    controller: 'Imt.metrologyconfiguration.controller.Edit',
-                    action: 'editMetrologyConfiguration'               					
-   				},
-   				remove: {
-                	title: Uni.I18n.translate('general.metrologyConfigurationEdit', 'INS', 'Edit Metrology Configuration'),
-                    route: '{mcid}/delete',
-                    controller: 'Imt.metrologyconfiguration.controller.Edit',
-                    action: 'deleteMetrologyConfiguration'               					
-   				},
-   				manage: {
-                	title: Uni.I18n.translate('general.metrologyConfigurationRuleSetEdit', 'INS', 'Manage Validation Rule Sets for Metrology Configuration'),
-                    route: '{mcid}/manage',
-                    controller: 'Imt.metrologyconfiguration.controller.Edit',
-                    action: 'manageValidationRuleSets',
-           			callback: function (route) {
-                        this.getApplication().on('metrologyConfigurationValRuleSetLoaded', function (record) {
-                            route.setTitle('Manage metrology configuration validation rules sets');
-                            return true;
-                        }, {single: true});
+                                return this;
+                            },
+                        },
+                        edit: {
+                            title: Uni.I18n.translate('general.metrologyConfigurationEdit', 'INS', 'Edit Metrology Configuration'),
+                            route: '{mcid}/edit',
+                            controller: 'Imt.metrologyconfiguration.controller.Edit',
+                            action: 'editMetrologyConfiguration'                                
+                        },
+                        remove: {
+                            title: Uni.I18n.translate('general.metrologyConfigurationEdit', 'INS', 'Edit Metrology Configuration'),
+                            route: '{mcid}/delete',
+                            controller: 'Imt.metrologyconfiguration.controller.Edit',
+                            action: 'deleteMetrologyConfiguration'                                  
+                        },
+                        manage: {
+                            title: Uni.I18n.translate('general.metrologyConfigurationRuleSetEdit', 'INS', 'Manage Validation Rule Sets for Metrology Configuration'),
+                            route: '{mcid}/manage',
+                            controller: 'Imt.metrologyconfiguration.controller.Edit',
+                            action: 'manageValidationRuleSets',
+                            callback: function (route) {
+                                this.getApplication().on('metrologyConfigurationValRuleSetLoaded', function (record) {
+                                    route.setTitle('Manage metrology configuration validation rules sets');
+                                    return true;
+                                }, {single: true});
 
-                        return this;
-                    },
-   				},
+                                return this;
+                            }
+                        }                        
+                    }
+                }
             }
-        },
+        }
     }
 });

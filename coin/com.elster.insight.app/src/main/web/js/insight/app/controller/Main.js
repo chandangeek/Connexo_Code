@@ -70,8 +70,8 @@ Ext.define('InsightApp.controller.Main', {
             portal: 'administration',
             items: [
                 {
-                    text: Uni.I18n.translate('general.metrologyconfiguration', 'IMT', 'Metrology configuration'),
-                    href: '#/metrologyconfiguration/overview',
+                    text: Uni.I18n.translate('general.metrologyConfigurations', 'INS', 'Metrology Configurations'),
+                    href: '#/administration/metrologyconfiguration',
                     itemId: 'overview-metrologyconfiguration'
                 },
             ]
