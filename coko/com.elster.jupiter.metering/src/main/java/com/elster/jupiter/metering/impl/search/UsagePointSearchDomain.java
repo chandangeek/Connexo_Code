@@ -78,6 +78,7 @@ public class UsagePointSearchDomain implements SearchDomain {
     public List<SearchableProperty> getProperties() {
         return new ArrayList<>(Arrays.asList(
                 new MasterResourceIdentifierSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
+                new NameSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new ServiceCategorySearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new ConnectionStateSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus()),
                 new OutageRegionSearchableProperty(this, this.propertySpecService, this.meteringService.getThesaurus())
