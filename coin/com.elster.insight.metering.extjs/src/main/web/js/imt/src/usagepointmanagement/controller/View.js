@@ -12,7 +12,8 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
         'Imt.usagepointmanagement.view.Setup'
     ],
     refs: [
-        {ref: 'metrologyConfiguration', selector: 'metrology-configuration'},
+        {ref: 'associatedDevices', selector: 'associated-devices'},
+        {ref: 'associatedMetrologyConfiguration', selector: 'associated-metrology-configuration'},
         {ref: 'overviewLink', selector: '#usage-point-overview-link'},
         {ref: 'attributesPanel', selector: '#usage-point-attributes-panel'},
         {ref: 'usagePointTechnicalAttributesDeviceLink', selector: '#usagePointTechnicalAttributesDeviceLink'},
@@ -57,15 +58,30 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
                 me.getAttributesPanel().add(actualForm);
                 actualForm.getForm().loadRecord(actualModel);
 
+                var associatedMetrologyConfiguration = me.getAssociatedMetrologyConfiguration();
+                
+                associatedMetrologyConfiguration.down('#associatedMetrologyConfiguration').removeAll();
+                associatedMetrologyConfiguration.down('#associatedMetrologyConfiguration').add(
+                    {
+                        xtype: 'component',
+                        cls: 'x-form-display-field',
+                        autoEl: {
+                            tag: 'a',
+                            href: router.getRoute('metrologyconfiguration/view').buildUrl({mcid: record.get('metrologyConfiguration').id}),
+                            html: record.get('metrologyConfiguration').name
+                        }
+                    });
+   
+                
                 var store = me.getStore('Imt.usagepointmanagement.store.MeterActivations'),
-                    metrologyConfiguration = me.getMetrologyConfiguration();
+                		associatedDevices = me.getAssociatedDevices();
                 store.getProxy().setExtraParam('usagePointMRID', mRID);
                 store.load({
                     callback: function () {
                         store.each(function (item) {
                             if (!item.get('end')) {
-                                metrologyConfiguration.down('#metrologyLinkedDevice').removeAll();
-                                metrologyConfiguration.down('#metrologyLinkedDevice').add(
+                            	associatedDevices.down('#associatedDevicesLinked').removeAll();
+                            	associatedDevices.down('#associatedDevicesLinked').add(
                                     {
                                         xtype: 'component',
                                         cls: 'x-form-display-field',
@@ -81,9 +97,9 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
                                     }
                                 );
                             } else {
-                                metrologyConfiguration.down('#metrologyHistory').show();
-                                metrologyConfiguration.down('#metrologySeparator').show();
-                                metrologyConfiguration.down('#metrologyHistory').add(0,
+                            	associatedDevices.down('#associatedDevicesHistory').show();
+                            	associatedDevices.down('#associatedDevicesSeparator').show();
+                            	associatedDevices.down('#associatedDevicesHistory').add(0,
 
                                     {
                                         xtype: 'component',

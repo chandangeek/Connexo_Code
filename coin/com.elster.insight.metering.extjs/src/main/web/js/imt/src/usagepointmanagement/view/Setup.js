@@ -3,9 +3,10 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
     alias: 'widget.usage-point-management-setup',
     itemId: 'usage-point-management-setup',
     requires: [
-        'Imt.usagepointmanagement.view.MetrologyConfiguration',
+        'Imt.usagepointmanagement.view.AssociatedDevices',
+        'Imt.usagepointmanagement.view.AssociatedMetrologyConfiguration',
         'Imt.usagepointmanagement.view.UsagePointSideMenu',
-        'Imt.usagepointmanagement.view.UsagePointAttributesFormMain'
+        'Imt.usagepointmanagement.view.UsagePointAttributesFormMain',
     ],
     router: null,
     content: [
@@ -48,17 +49,38 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                 },
                 defaults: {
                     style: {
-                        marginRight: '20px',
-                        padding: '20px'
+//                        marginRight: '20px',
+//                        padding: '20px'
                     },
                     flex: 1
                 },
                 items: [
                     {
-                        xtype: 'metrology-configuration',
-                        router: me.router
+                    	  xtype: 'panel',
+                          layout: {
+                              type: 'vbox'
+                          },
+                          defaults: {
+                              style: {
+//                                  marginRight: '20px',
+//                                  padding: '20px'
+                              },
+                              flex: 1
+                          },
+                          items: [
+                               {
+                            	   xtype: 'associated-devices',
+                            	   router: me.router,
+                            	   width: 400,
+                               },
+                               {
+                            	   xtype: 'associated-metrology-configuration',
+                            	   router: me.router,
+                            	   width: 400,
+                               },
+                          ]
                     },
-                    {
+                   {
                         xtype: 'panel',
                         title: Uni.I18n.translate('usagePointManagement.attributes', 'IMT', 'Usage Point Attributes'),
                         ui: 'tile',
