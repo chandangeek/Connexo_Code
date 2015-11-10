@@ -66,7 +66,6 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_SEARCH_DOMAIN_NOT_REGISTERED(247, "DeviceSearchDomainNotRegistered", "Device search domain is not registered"),
     AT_LEAST_ONE_SEARCH_CRITERIA(248, "AtLeastOneCriteria" , "At least one search criterion has to be provided"),
     SEARCHABLE_PROPERTY_INVALID_VALUE(249, "SearchablePropertyInvalidValue", "Invalid value"),
-
     ;
     private final int number;
     private final String key;
