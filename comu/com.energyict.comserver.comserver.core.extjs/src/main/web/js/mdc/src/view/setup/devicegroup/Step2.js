@@ -133,7 +133,7 @@ Ext.define('Mdc.view.setup.devicegroup.Step2', {
                     xtype: 'component',
                     itemId: 'selection-criteria-error',
                     cls: 'x-form-invalid-under',
-                    html: Uni.I18n.translate('devicegroup.noCriteriasSelected', 'MDC', 'Specify at least one search criteria'),
+                    html: Uni.I18n.translate('devicegroup.noCriteriasSelected', 'MDC', 'Specify at least one search criterion'),
                     hidden: true
                 }
             ]
