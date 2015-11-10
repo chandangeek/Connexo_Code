@@ -3,6 +3,8 @@ package com.energyict.mdc.device.lifecycle.impl;
 import com.elster.jupiter.appserver.AppService;
 import com.elster.jupiter.appserver.impl.AppServiceModule;
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.estimation.impl.EstimationModule;
@@ -167,7 +169,8 @@ public class InMemoryIntegrationPersistence {
                 new TasksModule(),
                 new TopologyModule(),
                 new DeviceDataModule(),
-                new DeviceLifeCycleModule());
+                new DeviceLifeCycleModule(),
+                new CustomPropertySetsModule());
         this.transactionService = this.injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = this.transactionService.getContext()) {
             this.transactionService = this.injector.getInstance(TransactionService.class);
@@ -179,6 +182,7 @@ public class InMemoryIntegrationPersistence {
             this.propertySpecService = this.injector.getInstance(PropertySpecService.class);
             this.injector.getInstance(UserService.class);
             this.injector.getInstance(ThreadPrincipalService.class);
+            this.injector.getInstance(CustomPropertySetService.class);
             StateTransitionTriggerEventTopicHandler stateTransitionTriggerEventTopicHandler = new StateTransitionTriggerEventTopicHandler(this.injector.getInstance(EventService.class));
             ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(stateTransitionTriggerEventTopicHandler);
             com.elster.jupiter.metering.impl.StateTransitionChangeEventTopicHandler meteringTopicHandler =
