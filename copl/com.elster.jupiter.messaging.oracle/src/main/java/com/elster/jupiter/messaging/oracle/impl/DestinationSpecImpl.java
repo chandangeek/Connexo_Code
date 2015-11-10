@@ -1,10 +1,13 @@
 package com.elster.jupiter.messaging.oracle.impl;
 
+import com.elster.jupiter.domain.util.Range;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.messaging.AlreadyASubscriberForQueueException;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.DuplicateSubscriberNameException;
 import com.elster.jupiter.messaging.InactiveDestinationException;
 import com.elster.jupiter.messaging.MessageBuilder;
+import com.elster.jupiter.messaging.MessageSeeds;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.messaging.UnderlyingJmsException;
@@ -60,7 +63,9 @@ class DestinationSpecImpl implements DestinationSpec {
     private String name;
     private String queueTableName;
     private boolean active;
+    @Range(min = 0, max = Integer.MAX_VALUE, message = "{" + MessageSeeds.Keys.RETRY_DELAY_OUT_OF_RANGE_KEY + "}")
     private int retryDelay;
+    @Range(min = 1, max = Integer.MAX_VALUE, message = "{" + MessageSeeds.Keys.MAX_NUMBER_OF_RETRIES_OUT_OF_RANGE_KEY + "}")
     private int retries;
     private boolean buffered;
 
@@ -182,9 +187,9 @@ class DestinationSpecImpl implements DestinationSpec {
     @Override
     public void save() {
         if (fromDB) {
-            dataModel.mapper(DestinationSpec.class).update(this);
+            Save.UPDATE.save(dataModel, this);
         } else {
-            dataModel.mapper(DestinationSpec.class).persist(this);
+            Save.CREATE.save(dataModel, this);
             fromDB = true;
         }
 
