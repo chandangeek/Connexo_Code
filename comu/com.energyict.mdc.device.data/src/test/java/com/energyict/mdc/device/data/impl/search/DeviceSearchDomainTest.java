@@ -192,6 +192,7 @@ public class DeviceSearchDomainTest {
         verify(this.dataModel).getInstance(ChannelReadingTypeUnitOfMeasureSearchableProperty.class);
         verify(this.dataModel).getInstance(ChannelReadingTypeTimeOfUseSearchableProperty.class);
         verify(this.dataModel).getInstance(ChannelLastReadingSearchableProperty.class);
+        verify(this.dataModel).getInstance(ChannelLastValueSearchableProperty.class);
         verify(this.dataModel).getInstance(ChannelIntervalSearchableProperty.class);
         verify(this.dataModel).getInstance(LogbookNameSearchableProperty.class);
         verify(this.dataModel).getInstance(LogbookObisCodeSearchableProperty.class);
@@ -479,12 +480,12 @@ public class DeviceSearchDomainTest {
                 eq(false),
                 Matchers.anyObject(),
                 Matchers.anyVararg())).thenReturn(channelIntervalSpec);
-        PropertySpec lastReadingSpec = mock(PropertySpec.class);
-        when(lastReadingSpec.getName()).thenReturn(ChannelLastReadingSearchableProperty.PROPERTY_NAME);
+        PropertySpec lastDateProperty = mock(PropertySpec.class);
+        when(lastDateProperty.getName()).thenReturn("device.channel.last.");
         when(this.propertySpecService.basicPropertySpec(
-                eq(ChannelLastReadingSearchableProperty.PROPERTY_NAME),
+                startsWith("device.channel.last."),
                 eq(false),
-                Matchers.<StringFactory>anyObject())).thenReturn(lastReadingSpec);
+                Matchers.<StringFactory>anyObject())).thenReturn(lastDateProperty);
     }
 
     private void mockLogbookPropertySpecs() {
