@@ -232,10 +232,12 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    protected void doDelete() {
-        // nothing to do as delete() is not supported
-    }
+    /**
+     * Deletes this object using the mapper.
+     */
+    protected void doDelete(){
+        //not supported
+    };
 
     /**
      * Notifies all ComTaskExecution (including obsoletes) which refer to this ConnectionTask
@@ -302,6 +304,22 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.getDataModel().update(this);
         this.makeDependentsObsolete();
         this.unRegisterConnectionTaskFromComTasks();
+        this.notifyUpdated();
+    }
+
+    @Override
+    public void update() {
+        Save.UPDATE.save(getDataModel(), this, Save.Create.class, Save.Update.class);
+        if (!doNotTouchParentDevice) {
+            getDataModel().touch(device.get());
+        }
+        this.notifyUpdated();
+    }
+
+    @Override
+    protected void update(String... fieldNames) {
+        this.getDataModel().update(this, fieldNames);
+        this.notifyUpdated();
     }
 
     /**
@@ -362,7 +380,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     public void executionStarted(ComServer comServer) {
         List<String> updatedColumns = new ArrayList<>();
         this.doExecutionStarted(comServer, updatedColumns);
-        this.update(updatedColumns);
+        this.update(updatedColumns.toArray(new String[updatedColumns.size()]));
     }
 
     protected void doExecutionStarted(ComServer comServer, List<String> updatedColumns) {
@@ -832,13 +850,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         return this.status.equals(ConnectionTaskLifecycleStatus.ACTIVE);
     }
 
-    @Override
-    public void update() {
-        Save.UPDATE.save(getDataModel(), this, Save.Create.class, Save.Update.class);
-        if (!doNotTouchParentDevice) {
-            getDataModel().touch(device.get());
-        }
-    }
+
 
     @Override
     public boolean isExecuting() {

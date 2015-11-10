@@ -48,6 +48,7 @@ import org.junit.*;
 
 import javax.validation.ConstraintViolationException;
 
+import static junit.framework.Assert.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -123,7 +124,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testCreateOfDifferentConfig", partialScheduledConnectionTask);
 
         // Business method
-        connectionTask.save();
+        connectionTask.update();
 
         // Asserts: see expected exception rule
     }
@@ -456,7 +457,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         this.setIpConnectionProperties(scheduledConnectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
 
         // Business method
-        scheduledConnectionTask.save();
+        scheduledConnectionTask.update();
 
         // Expected BusinessException because the ComPortType of the ComPortPool is not supported by the ConnectionType
         //assertThat(e.getMessageId()).isEqualTo("comPortTypeXOfComPortPoolYIsNotSupportedByConnectionTypePluggableClassZ");
@@ -532,7 +533,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         this.setIpConnectionProperties(scheduledConnectionTask, null, PORT_PROPERTY_VALUE);
 
         // Business method
-        scheduledConnectionTask.save();
+        scheduledConnectionTask.update();
 
         // Asserts: see ExpectedConstraintViolation rule
     }
@@ -960,7 +961,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         // Asserts
         assertThat(connectionTask.getPlannedNextExecutionTimestamp()).isEqualTo(expectedNextExecutionTimestamp);
     }
-/*
+
     @Test
     @Transactional
     public void testDeleteWithNoProperties() {
@@ -968,29 +969,28 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         long id = connectionTask.getId();
 
         // Business method
-        connectionTask.delete();
+        device.removeConnectionTask(connectionTask);
 
         // Asserts
-        assertThat(inMemoryPersistence.getConnectionTaskService().findScheduledConnectionTask(id).isPresent()).isFalse();
+        assertTrue(inMemoryPersistence.getConnectionTaskService().findScheduledConnectionTask(id).get().isObsolete());
     }
 
     @Test
     @Transactional
     public void testDeleteWithProperties() {
         ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) this.createOutboundWithIpPropertiesWithoutViolations("testDeleteWithProperties");
-        connectionTask.save();
         long id = connectionTask.getId();
 
         // Business method
-        connectionTask.delete();
+        device.removeConnectionTask(connectionTask);
 
         // Asserts
-        assertThat(inMemoryPersistence.getConnectionTaskService().findScheduledConnectionTask(id).isPresent()).isFalse();
+        assertTrue(inMemoryPersistence.getConnectionTaskService().findScheduledConnectionTask(id).get().isObsolete());
         RelationAttributeType connectionMethodAttributeType = outboundIpConnectionTypePluggableClass.getDefaultAttributeType();
         assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), false)).isEmpty();
         assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), true)).isNotEmpty();    // The relations should have been made obsolete
     }
-*/
+
     @Test(expected = ConnectionTaskIsExecutingAndCannotBecomeObsoleteException.class)
     @Transactional
     public void makeObsoleteWhenComServerIsExecutingTest() throws SQLException, BusinessException {

@@ -278,7 +278,9 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
             ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
             comTaskExecutionUpdater.forceNextExecutionTimeStampAndPriority(nextExecutionTimestamp, priority);
             comTaskExecutionUpdater.updateFields(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName(),
+                                                ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName(),
                                                 ComTaskExecutionFields.EXECUTION_PRIORITY.fieldName());
+
         }
     }
 

@@ -104,11 +104,10 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
                 .setComPortPool(outboundTcpipComPortPool)
                 .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
                 .add();
-        device.save();
         this.setIpConnectionProperties(connectionInitiationTask, null, PORT_PROPERTY_VALUE);
 
         // Business method
-        connectionInitiationTask.save();
+        connectionInitiationTask.update();
 
         // Asserts: see ExpectedConstraintViolation rule
     }

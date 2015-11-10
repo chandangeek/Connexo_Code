@@ -542,11 +542,10 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
                 .setComPortPool(inboundTcpipComPortPool)
                 .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
                 .add();
-        device.save();
         this.setIpConnectionProperties(connectionTask, null, PORT_PROPERTY_VALUE);
 
         // Business method
-        connectionTask.save();
+        connectionTask.update();
 
         // Asserts: see ExpectedConstraintViolation rule
     }
@@ -566,8 +565,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
         // Asserts: see ExpectedConstraintViolation rule
     }
-/*
-    Irrelevant as delete is not supported
+
     @Test
     @Transactional
     public void testDeleteWithNoProperties() {
@@ -575,10 +573,10 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         long id = connectionTask.getId();
 
         // Business method
-        connectionTask.delete();
+        device.removeConnectionTask(connectionTask);
 
         // Asserts
-        assertFalse(inMemoryPersistence.getConnectionTaskService().findConnectionTask(id).isPresent());
+        assertTrue(inMemoryPersistence.getConnectionTaskService().findConnectionTask(id).get().isObsolete());
     }
 
 
@@ -589,15 +587,15 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         long id = connectionTask.getId();
 
         // Business method
-        connectionTask.delete();
+        device.removeConnectionTask(connectionTask);
 
         // Asserts
-        assertFalse(inMemoryPersistence.getConnectionTaskService().findConnectionTask(id).isPresent());
+        assertTrue(inMemoryPersistence.getConnectionTaskService().findConnectionTask(id).get().isObsolete());
         RelationAttributeType connectionMethodAttributeType = inboundIpConnectionTypePluggableClass.getDefaultAttributeType();
         assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), false)).isEmpty();
         assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), true)).isNotEmpty();    // The relations should have been made obsolete
     }
-*/
+
     @Test
     @Transactional
     public void testMakeObsoleteWithNoProperties() {
