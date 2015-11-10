@@ -66,7 +66,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 movetostep: me.moveTo
             },
             '#add-devicegroup-browse search-criteria-selector menu menucheckitem': {
-                checkchange: function(field, checked) {
+                checkchange: function (field, checked) {
                     checked
                         ? me.service.addProperty(field.criteria)
                         : me.service.removeProperty(field.criteria);
@@ -286,7 +286,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
     prepareStep2: function (field, newValue) {
         var me = this,
             wizard = me.getAddDeviceGroupWizard(),
-            step2 =  wizard.down('device-group-wizard-step2'),
+            step2 = wizard.down('device-group-wizard-step2'),
             deviceDomain = 'com.energyict.mdc.device.data.Device',
             domainsStore = me.service.getSearchDomainsStore(),
             isDynamic = newValue.dynamic,
@@ -300,7 +300,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             staticGrid = step2.down('static-group-devices-grid');
             selectionGroupType = {};
             staticGrid.setDevices([]);
-            staticGrid.getSelectionModel().deselectAll(true);
+            staticGrid.getSelectionModel().deselectAll(true); // fix the ExtJS error: "getById called for ID that is not present in local cache"
             staticGrid.getStore().data.clear();
             selectionGroupType[staticGrid.radioGroupName] = staticGrid.allInputValue;
             staticGrid.getSelectionGroupType().setValue(selectionGroupType);
@@ -342,7 +342,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
 
     prepareStep3: function (wizard, navigationMenu, buttons) {
         var me = this,
-            step3 =  wizard.down('device-group-wizard-step3'),
+            step3 = wizard.down('device-group-wizard-step3'),
             progressbar = step3.down('progressbar'),
             record = Ext.clone(wizard.getRecord()),
             deviceGroupName,
@@ -416,7 +416,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
     },
 
     prepareStep4: function (wizard, finishBtn) {
-        var step4 =  wizard.down('device-group-wizard-step4'),
+        var step4 = wizard.down('device-group-wizard-step4'),
             progressbar = step4.down('progressbar');
 
         Ext.suspendLayouts();
