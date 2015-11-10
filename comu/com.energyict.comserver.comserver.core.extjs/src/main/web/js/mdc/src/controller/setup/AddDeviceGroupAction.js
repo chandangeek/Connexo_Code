@@ -3,7 +3,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
 
     requires: [
         'Uni.util.Filters',
-        'Mdc.service.Search'
+        'Mdc.service.DeviceGroupSearch'
     ],
 
     views: [
@@ -51,7 +51,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
     init: function () {
         var me = this;
 
-        me.service = Ext.create('Mdc.service.Search', {
+        me.service = Ext.create('Mdc.service.DeviceGroupSearch', {
             router: me.getController('Uni.controller.history.Router')
         });
 
@@ -297,6 +297,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         me.service.setSearchResultsStore(me.getStore(isDynamic ? 'Mdc.store.DynamicGroupDevices' : 'Mdc.store.StaticGroupDevices'));
         me.setColumnPicker(isDynamic);
         if (!isDynamic) {
+            me.service.excludedCriteria = undefined;
             staticGrid = step2.down('static-group-devices-grid');
             selectionGroupType = {};
             staticGrid.setDevices([]);
@@ -304,6 +305,8 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             staticGrid.getStore().data.clear();
             selectionGroupType[staticGrid.radioGroupName] = staticGrid.allInputValue;
             staticGrid.getSelectionGroupType().setValue(selectionGroupType);
+        } else {
+            me.service.excludedCriteria = 'deviceGroup';
         }
         if (domainsStore.isLoading()) {
             domainsStore.on('load', function () {
