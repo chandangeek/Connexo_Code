@@ -51,6 +51,7 @@ Ext.define('Mdc.view.setup.devicevalidationresults.ValidationResultsFilter', {
         }
 
         Ext.apply(options.params, params);
+        me.down('button[action=clearAll]').setDisabled(!((options.params.filter && Ext.decode(options.params.filter).length)));
     },
 
     getIntervalLoadProfileParam: function () {
