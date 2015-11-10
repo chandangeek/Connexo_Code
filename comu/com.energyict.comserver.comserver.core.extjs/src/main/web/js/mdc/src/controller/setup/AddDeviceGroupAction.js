@@ -127,6 +127,8 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                                 mainView.setLoading(false);
                                 widget.down('static-group-devices-grid').setDevices(records);
                             });
+                        } else {
+                            mainView.setLoading(false);
                         }
                     }
                 },
@@ -339,17 +341,37 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
     },
 
     prepareStep3: function (wizard, navigationMenu, buttons) {
-        var step3 =  wizard.down('device-group-wizard-step3'),
+        var me = this,
+            step3 =  wizard.down('device-group-wizard-step3'),
             progressbar = step3.down('progressbar'),
             record = Ext.clone(wizard.getRecord()),
             deviceGroupName,
             isDynamic,
+            devices,
             confirmationTitle,
-            confirmationMessage;
+            confirmationMessage,
+            showConfirmationMsg = function (numberOfDevices, numberOfSearchCriteria) {
+                if (isDynamic) {
+                    confirmationMessage = Uni.I18n.translate('devicegroup.wizard.dynamic.confirmationMessage.criteriaNumber', 'MDC', 'Number of specified search criteria: {0}', [numberOfSearchCriteria])
+                        + '<br>'
+                        + Uni.I18n.translate('devicegroup.wizard.dynamic.confirmationMessage.devicesNumber', 'MDC', 'Current number of devices: {0}', [numberOfDevices]);
+                } else {
+                    confirmationMessage = Uni.I18n.translate('devicegroup.wizard.static.confirmationMessage', 'MDC', 'Number of devices: {0}', [numberOfDevices]);
+                }
+                Ext.suspendLayouts();
+                progressbar.hide();
+                Ext.Array.each(buttons, function (button) {
+                    button.show();
+                });
+                navigationMenu.jumpBack = true;
+                step3.update('<h3>' + confirmationTitle + '</h3><br>' + confirmationMessage);
+                Ext.resumeLayouts(true);
+            };
 
         wizard.updateRecord(record);
         deviceGroupName = record.get('name');
         isDynamic = record.get('dynamic');
+        devices = record.get('devices');
 
         if (wizard.isEdit) {
             confirmationTitle = Uni.I18n.translate('devicegroup.wizard.edit.confirmationTitle', 'MDC', "Save device group '{0}'?", [deviceGroupName]);
@@ -359,32 +381,38 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 : Uni.I18n.translate('devicegroup.wizard.add.static.confirmationTitle', 'MDC', "Add static device group '{0}'?", [deviceGroupName]);
         }
 
-        Ext.suspendLayouts();
-        step3.update(Uni.I18n.translate('devicegroup.wizard.progress.countingDevices', 'MDC', 'Counting of number of devices. Please wait...'));
-        progressbar.show();
-        progressbar.wait({
-            interval: 50,
-            increment: 20
-        });
-        Ext.resumeLayouts(true);
-
-        setTimeout(function () {
-            if (isDynamic) {
-                confirmationMessage = Uni.I18n.translate('devicegroup.wizard.dynamic.confirmationMessage.criteriaNumber', 'MDC', 'Number of specified search criteria: {0}', [5])
-                    + '<br>'
-                    + Uni.I18n.translate('devicegroup.wizard.dynamic.confirmationMessage.devicesNumber', 'MDC', 'Current number of devices: {0}', [20100]);
-            } else {
-                confirmationMessage = Uni.I18n.translate('devicegroup.wizard.static.confirmationMessage', 'MDC', 'Number of devices: {0}', [1321]);
-            }
+        if (!isDynamic && devices) {
+            showConfirmationMsg(devices.length);
+        } else {
             Ext.suspendLayouts();
-            progressbar.hide();
-            Ext.Array.each(buttons, function (button) {
-                button.show();
+            step3.update(Uni.I18n.translate('devicegroup.wizard.progress.countingDevices', 'MDC', 'Counting of number of devices. Please wait...'));
+            progressbar.show();
+            progressbar.wait({
+                interval: 50,
+                increment: 20
             });
-            navigationMenu.jumpBack = true;
-            step3.update('<h3>' + confirmationTitle + '</h3><br>' + confirmationMessage);
             Ext.resumeLayouts(true);
-        }, 2000);
+            record.getNumberOfSearchResults(function (options, success, response) {
+                var responseResult,
+                    numberOfSearchCriteria;
+
+                if (success && response && response.responseText) {
+                    responseResult = Ext.decode(response.responseText, true);
+                    if (responseResult) {
+                        if (isDynamic) {
+                            numberOfSearchCriteria = me.countNumberOfSearchCriteria();
+                        }
+                        showConfirmationMsg(responseResult.numberOfSearchResults, numberOfSearchCriteria);
+                    }
+                }
+            });
+        }
+    },
+
+    countNumberOfSearchCriteria: function () {
+        var me = this;
+
+        return me.service.getSearchResultsStore().filters.getCount();
     },
 
     prepareStep4: function (wizard, finishBtn) {
@@ -403,30 +431,19 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         Ext.resumeLayouts(true);
 
         wizard.updateRecord();
-        //wizard.getRecord().save({
-        //    backUrl: finishBtn.href,
-        //    success: function (record) {
-        //        var deviceGroupName = record.get('name');
-        //
-        //        Ext.suspendLayouts();
-        //        finishBtn.show();
-        //        progressbar.hide();
-        //        step4.update(wizard.isEdit
-        //            ? Uni.I18n.translate('devicegroup.wizard.save.success', 'MDC', "Device group '{0}' has been saved.", [deviceGroupName])
-        //            : Uni.I18n.translate('devicegroup.wizard.add.success', 'MDC', "Device group '{0}' has been created.", [deviceGroupName]));
-        //        Ext.resumeLayouts(true);
-        //    }
-        //});
-        setTimeout(function () {
-            var deviceGroupName = wizard.getRecord().get('name');
+        wizard.getRecord().save({
+            backUrl: finishBtn.href,
+            success: function (record) {
+                var deviceGroupName = record.get('name');
 
-            Ext.suspendLayouts();
-            finishBtn.show();
-            progressbar.hide();
-            step4.update(wizard.isEdit
-                ? Uni.I18n.translate('devicegroup.wizard.save.success', 'MDC', "Device group '{0}' has been saved.", [deviceGroupName])
-                : Uni.I18n.translate('devicegroup.wizard.add.success', 'MDC', "Device group '{0}' has been created.", [deviceGroupName]));
-            Ext.resumeLayouts(true);
-        }, 2000);
+                Ext.suspendLayouts();
+                finishBtn.show();
+                progressbar.hide();
+                step4.update(wizard.isEdit
+                    ? Uni.I18n.translate('devicegroup.wizard.save.success', 'MDC', "Device group '{0}' has been saved.", [deviceGroupName])
+                    : Uni.I18n.translate('devicegroup.wizard.add.success', 'MDC', "Device group '{0}' has been created.", [deviceGroupName]));
+                Ext.resumeLayouts(true);
+            }
+        });
     }
 });

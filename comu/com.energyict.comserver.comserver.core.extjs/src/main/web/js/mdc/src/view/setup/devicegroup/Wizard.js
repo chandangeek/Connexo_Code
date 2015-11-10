@@ -99,6 +99,7 @@ Ext.define('Mdc.view.setup.devicegroup.Wizard', {
 
     updateRecord: function (record) {
         var me = this,
+            filter = me.parseFilter(),
             staticGrid,
             updatedRecord,
             devices;
@@ -106,7 +107,7 @@ Ext.define('Mdc.view.setup.devicegroup.Wizard', {
         me.callParent(arguments);
         updatedRecord = record || me.getRecord();
         updatedRecord.beginEdit();
-        updatedRecord.set('filter', me.parseFilter);
+        updatedRecord.set('filter', filter);
         if (!updatedRecord.get('dynamic')) {
             staticGrid = me.down('static-group-devices-grid');
             if (staticGrid.isAllSelected()) {

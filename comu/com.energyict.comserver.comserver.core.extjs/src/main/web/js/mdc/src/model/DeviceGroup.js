@@ -14,21 +14,24 @@ Ext.define('Mdc.model.DeviceGroup', {
         {name: 'selectedDevices', persist: false}
     ],
 
-    associations: [
-        {
-            type: 'hasMany',
-            model: 'Mdc.model.SearchCriteria',
-            associationKey: 'criteria',
-            name: 'criteria'
-        }
-    ],
-
     proxy: {
         type: 'rest',
         url: '../../api/ddr/devicegroups',
         reader: {
             type: 'json'
         }
-    }
+    },
 
+    getNumberOfSearchResults: function (callback) {
+        var me = this;
+
+        Ext.Ajax.request({
+            method: 'GET',
+            url: '/api/jsr/search/com.energyict.mdc.device.data.Device/count',
+            params: {
+                filter: me.get('filter')
+            },
+            callback: callback
+        });
+    }
 });

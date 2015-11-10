@@ -122,39 +122,7 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
         Ext.Array.each(Ext.ComponentQuery.query('#edit-device-group'), function (item) {
             func(item);
         });
-        if (record.get('dynamic')) {
-            me.getSearchCriteriaContainer().setVisible(true);
-            var criteria = record.criteriaStore.data.items;
-            //Ext.suspendLayouts();
-            me.getSearchCriteriaContainer().removeAll();
-            for (var i = 0; i < criteria.length; i++) {
-                var foundCriteria = criteria[i].data;
-                var criteriaName = foundCriteria.criteriaName;
-                var criteriaValues = foundCriteria.criteriaValues;
-                criteriaName = me.translateCriteriaName(criteriaName);
-                var criteriaValue = '';
-                for (var j = 0; j < criteriaValues.length; j++) {
-                    singleCriteriaValue = criteriaValues[j];
-                    criteriaValue = criteriaValue + singleCriteriaValue;
-                    if (j != (criteriaValues.length - 1)) {
-                        criteriaValue = criteriaValue + ', '
-                    }
-                }
-                me.getSearchCriteriaContainer().add(
-                    {
-                        xtype: 'displayfield',
-                        name: 'name',
-                        labelWidth: 150,
-                        labelAlign: 'left',
-                        fieldLabel: criteriaName,
-                        renderer: function (value) {
-                            return Ext.String.htmlEncode(criteriaValue);
-                        }
-                    }
-                )
-            }
-            //Ext.resumeLayouts();
-        } else {
+        if (!record.get('dynamic')) {
             Ext.Array.each(Ext.ComponentQuery.query('#edit-device-group'), function (item) {
                 if (Mdc.privileges.DeviceGroup.canAdministrateDeviceOfEnumeratedGroup()) { item.show(); }
             });
