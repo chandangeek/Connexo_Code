@@ -12,7 +12,10 @@ public enum MessageSeeds implements MessageSeed {
     DUPLICATE_SUBSCRIBER_NAME(1002, "subscriber.duplicatename", "A subscriber with name {0} already exists."),
     MULTIPLE_SUBSCRIBER_ON_QUEUE(1003, "queue.multiplesubscriber", "Cannot register multiple subscribers on a queue, there is already a subscriber on queue {0}"),
     UNDERLYING_JMS_EXCEPTION(1004, "jms.failed", "Underlying JMS Exception"),
-    UNDERLYING_AQ_EXCEPTION(1005, "aq.failed", "Underlying AQ Exception");
+    UNDERLYING_AQ_EXCEPTION(1005, "aq.failed", "Underlying AQ Exception"),
+    MAX_NUMBER_OF_RETRIES_OUT_OF_RANGE(1006, Keys.MAX_NUMBER_OF_RETRIES_OUT_OF_RANGE_KEY, "The number of retries of a queue should be between {min} and {max}"),
+    RETRY_DELAY_OUT_OF_RANGE(1007, Keys.RETRY_DELAY_OUT_OF_RANGE_KEY, "The retry delay of a queue should be between {min} and {max} seconds")
+    ;
 
     private final int number;
     private final String key;
@@ -65,4 +68,8 @@ public enum MessageSeeds implements MessageSeed {
         logger.log(getLevel(), format.format(args), t);
     }
 
+    public static interface Keys {
+        String MAX_NUMBER_OF_RETRIES_OUT_OF_RANGE_KEY = "queue.retries.outofrange";
+        String RETRY_DELAY_OUT_OF_RANGE_KEY = "queue.retrydelay.outofrange";
+    }
 }
