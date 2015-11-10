@@ -63,6 +63,7 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_ESTIMATOR_PROPERTY_VALUE(244, "invalidEstimatorPropertyValue", "Invalid property value"),
     CONCURRENT_RUN_TITLE(245, "ConcurrentRunTitle", "Failed to run ''{0}''"),
     CONCURRENT_RUN_BODY(246, "ConcurrentRunMessage", "{0} has changed since the page was last updated."),
+    INVALID_VALUE(247, "InvalidValue", "Invalid value"),
     ;
     private final int number;
     private final String key;
