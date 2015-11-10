@@ -11,6 +11,7 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.time.TimeService;
+import com.energyict.mdc.masterdata.MasterDataService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,6 +41,8 @@ public class ChannelIntervalSearchablePropertyTest {
     private DataModel dataModel;
     @Mock
     private OrmService ormService;
+    @Mock
+    private MasterDataService masterDataService;
 
     private PropertySpecService propertySpecService;
     private SearchablePropertyGroup channelGroup;
@@ -119,9 +122,9 @@ public class ChannelIntervalSearchablePropertyTest {
         PropertySpec specification = property.getSpecification();
 
         // Asserts
-//        assertThat(specification).isNotNull();
-//        assertThat(specification.isReference()).isFalse();
-//        assertThat(specification.getValueFactory().getValueType()).isEqualTo(Object.class); // TODO check your info type
+        assertThat(specification).isNotNull();
+        assertThat(specification.isReference()).isFalse();
+        assertThat(specification.getValueFactory().getValueType()).isEqualTo(ChannelIntervalSearchableProperty.TimeDurationWrapper.class);
     }
 
     @Test
@@ -132,7 +135,7 @@ public class ChannelIntervalSearchablePropertyTest {
         PropertySpec specification = property.getSpecification();
 
         // Asserts
-//        assertThat(specification.getPossibleValues()).isNull(); // TODO check possible values
+        assertThat(specification.getPossibleValues()).isNotNull();
     }
 
     @Test
@@ -147,6 +150,6 @@ public class ChannelIntervalSearchablePropertyTest {
     }
 
     private ChannelIntervalSearchableProperty getTestInstance() {
-        return new ChannelIntervalSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain, this.channelGroup);
+        return new ChannelIntervalSearchableProperty(this.propertySpecService, this.masterDataService, this.thesaurus).init(this.domain, this.channelGroup);
     }
 }

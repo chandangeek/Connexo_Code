@@ -10,46 +10,37 @@ import java.time.Instant;
 public class ProtocolDialectPropertyJoinType implements JoinType {
 
     private final long deviceProtocolId;
-    private final String relationTableName;
 
-    public ProtocolDialectPropertyJoinType(long deviceProtocolId, String relationTableName) {
+    public ProtocolDialectPropertyJoinType(long deviceProtocolId) {
         this.deviceProtocolId = deviceProtocolId;
-        this.relationTableName = relationTableName;
+    }
+
+    private String alias(){
+        return JoinClauseBuilder.Aliases.PROTOCOL_DIALECT_PROPS + deviceProtocolId;
     }
 
     @Override
     public void appendTo(SqlBuilder sqlBuilder) {
-        sqlBuilder.append(" join ");
+        sqlBuilder.append(" left join "); // left join to support a search by device configuration properties
         sqlBuilder.append(TableSpecs.DDC_PROTOCOLDIALECTPROPS.name());
-        sqlBuilder.append(" " + JoinClauseBuilder.Aliases.PROTOCOL_DIALECT_PROPS + " on " + JoinClauseBuilder.Aliases.PROTOCOL_DIALECT_PROPS
-                + ".DEVICEID = "+ JoinClauseBuilder.Aliases.DEVICE + ".id and " + JoinClauseBuilder.Aliases.PROTOCOL_DIALECT_PROPS + ".DEVICEPROTOCOLID =");
+        sqlBuilder.append(" " + alias() + " on " + alias()
+                + ".DEVICEID = "+ JoinClauseBuilder.Aliases.DEVICE + ".id and " + alias() + ".DEVICEPROTOCOLID =");
         sqlBuilder.addLong(this.deviceProtocolId);
-        sqlBuilder.append(" join ");
-        sqlBuilder.append(this.relationTableName);
-        sqlBuilder.append(" druprops on druprops.");
-        sqlBuilder.append(DeviceProtocolDialectPropertyRelationAttributeTypeNames.DEVICE_PROTOCOL_DIALECT_ATTRIBUTE_NAME);
-        sqlBuilder.append(" = " + JoinClauseBuilder.Aliases.PROTOCOL_DIALECT_PROPS + ".id");
-        sqlBuilder.append(" and (druprops.todate is null or druprops.todate >");
-        sqlBuilder.addLong(Instant.now().getEpochSecond());
-        sqlBuilder.closeBracketSpace();
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
         ProtocolDialectPropertyJoinType that = (ProtocolDialectPropertyJoinType) o;
-        return this.deviceProtocolId == that.deviceProtocolId;
+
+        return deviceProtocolId == that.deviceProtocolId;
 
     }
 
     @Override
     public int hashCode() {
-        return Long.hashCode(this.deviceProtocolId);
+        return Long.hashCode(deviceProtocolId);
     }
-
 }

@@ -1,17 +1,24 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.CanFindByStringKey;
+import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Contains;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
+import com.elster.jupiter.util.streams.DecoratedStream;
+import com.energyict.mdc.dynamic.TimeDurationValueFactory;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.MasterDataService;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -22,15 +29,20 @@ import java.util.stream.Collectors;
 
 public class ChannelIntervalSearchableProperty extends AbstractSearchableDeviceProperty {
 
+    static final TimeDurationValueFactory TIME_DURATION_VALUE_FACTORY = new TimeDurationValueFactory();
     static final String PROPERTY_NAME = "device.channel.interval";
+
     private final PropertySpecService propertySpecService;
+    private final MasterDataService masterDataService;
     private final Thesaurus thesaurus;
+
     private DeviceSearchDomain domain;
     private SearchablePropertyGroup group;
 
     @Inject
-    public ChannelIntervalSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public ChannelIntervalSearchableProperty(PropertySpecService propertySpecService, MasterDataService masterDataService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
+        this.masterDataService = masterDataService;
         this.thesaurus = thesaurus;
     }
 
@@ -42,17 +54,16 @@ public class ChannelIntervalSearchableProperty extends AbstractSearchableDeviceP
 
     @Override
     protected boolean valueCompatibleForDisplay(Object value) {
-        return false; // TODO
+        return value instanceof TimeDurationWrapper;
     }
 
     @Override
     protected String toDisplayAfterValidation(Object value) {
-        return null; // TODO
+        return value.toString();
     }
 
     @Override
     public void appendJoinClauses(JoinClauseBuilder builder) {
-        builder.addChannelSpec();
     }
 
     @Override
@@ -62,21 +73,24 @@ public class ChannelIntervalSearchableProperty extends AbstractSearchableDeviceP
         }
         Contains contains = (Contains) condition;
         SqlBuilder sqlBuilder = new SqlBuilder();
+        sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE + ".DEVICECONFIGID IN (");
+        sqlBuilder.append("select DEVICECONFIGID from DTC_CHANNELSPEC where ");
         if (contains.getOperator() == ListOperator.NOT_IN) {
             sqlBuilder.append(" NOT ");
         }
         sqlBuilder.openBracket();
         sqlBuilder.append(contains.getCollection().stream()
-                .map(Object.class::cast) // TODO: cast to your info type
+                .map(TimeDurationWrapper.class::cast)
                 .map(interval -> {
                     StringBuilder builder = new StringBuilder();
-                    builder.append("ch_spec.interval = ");
-                    builder.append(0); // TODO: get interval value
-                    builder.append(" AND ch_spec.intervalcode = ");
-                    builder.append(0); // TODO: get interval code
+                    builder.append("interval = ");
+                    builder.append(interval.getCount());
+                    builder.append(" AND intervalcode = ");
+                    builder.append(interval.getUnitCode());
                     return builder.toString();
                 })
                 .collect(Collectors.joining(" OR ")));
+        sqlBuilder.closeBracket();
         sqlBuilder.closeBracket();
         return sqlBuilder;
     }
@@ -98,10 +112,16 @@ public class ChannelIntervalSearchableProperty extends AbstractSearchableDeviceP
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.longPropertySpec(
+        List<TimeDurationWrapper> defaultValues = DecoratedStream.decorate(this.masterDataService.findAllLoadProfileTypes().stream())
+                .map(LoadProfileType::getInterval)
+                .map(TimeDurationWrapper::new)
+                .distinct(TimeDurationWrapper::getId)
+                .collect(Collectors.toList());
+        return this.propertySpecService.stringReferencePropertySpec(
                 PROPERTY_NAME,
                 false,
-                0L); // TODO replace by correct definition
+                new TimeDurationFinder(),
+                defaultValues.toArray(new TimeDurationWrapper[defaultValues.size()]));
     }
 
     @Override
@@ -127,5 +147,49 @@ public class ChannelIntervalSearchableProperty extends AbstractSearchableDeviceP
     @Override
     public void refreshWithConstrictions(List<SearchablePropertyConstriction> constrictions) {
         //nothing to refresh
+    }
+
+    static class TimeDurationWrapper extends HasIdAndName {
+        private TimeDuration timeDuration;
+
+        public TimeDurationWrapper(TimeDuration timeDuration) {
+            this.timeDuration = timeDuration;
+        }
+
+        @Override
+        public String getId() {
+            return TIME_DURATION_VALUE_FACTORY.toStringValue(this.timeDuration);
+        }
+
+        @Override
+        public String getName() {
+            return this.timeDuration.toString();
+        }
+
+        public int getCount(){
+            return this.timeDuration.getCount();
+        }
+
+        public int getUnitCode(){
+            return this.timeDuration.getTimeUnitCode();
+        }
+
+        @Override
+        public String toString() {
+            return this.timeDuration.toString();
+        }
+    }
+
+    static class TimeDurationFinder implements CanFindByStringKey<TimeDurationWrapper> {
+
+        @Override
+        public Optional<TimeDurationWrapper> find(String key) {
+            return Optional.of(new TimeDurationWrapper(TIME_DURATION_VALUE_FACTORY.fromStringValue(key)));
+        }
+
+        @Override
+        public Class<TimeDurationWrapper> valueDomain() {
+            return TimeDurationWrapper.class;
+        }
     }
 }

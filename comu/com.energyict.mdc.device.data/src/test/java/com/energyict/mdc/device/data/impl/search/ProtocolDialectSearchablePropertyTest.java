@@ -44,7 +44,7 @@ import static org.mockito.Mockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)
-public class ProtocolDialectSearchableProprtyTest {
+public class ProtocolDialectSearchablePropertyTest {
 
     @Mock
     private DeviceSearchDomain domain;
@@ -130,6 +130,17 @@ public class ProtocolDialectSearchableProprtyTest {
 
         // Asserts
         assertThat(selectionMode).isEqualTo(SearchableProperty.SelectionMode.MULTI);
+    }
+
+    @Test
+    public void testAffectsDomainSearchProperties() {
+        ProtocolDialectSearchableProperty property = this.getTestInstance();
+
+        // Business method
+        boolean affectsAvailableDomainProperties = property.affectsAvailableDomainProperties();
+
+        // Asserts
+        assertThat(affectsAvailableDomainProperties).isTrue();
     }
 
     @Test
