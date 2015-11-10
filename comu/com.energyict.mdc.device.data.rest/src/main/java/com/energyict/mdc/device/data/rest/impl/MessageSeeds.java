@@ -29,7 +29,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_SUCH_COM_TASK(91, "NoSucComTaskOnDevice", "No such communication task exists for device ''{0}''"),
     COM_TASK_IS_NOT_ENABLED_FOR_THIS_DEVICE(92, "NoEnablementForDevice", "Communication task ''{0}'' is not enabled for device ''{1}''"),
     NO_SUCH_COM_TASK_EXEC_SESSION(93, "NoSuchComTaskExecSession", "The communication task logging could not be found"),
-    DEVICEGROUPNAME_ALREADY_EXISTS(94, "deviceGroupNameAlreadyExists", "A devicegroup with name {0} already exists"),
+    DEVICEGROUPNAME_ALREADY_EXISTS(94, "deviceGroupNameAlreadyExists", "A device group with name {0} already exists"),
     INCOMPLETE(96, "Incomplete", "Incomplete"),
     NO_SUCH_SECURITY_PROPERTY_SET_ON_DEVICE(97, "NoSuchSecurityPropertySetOnDevice", "No security settings with id {0} exist for device ''{1}''"),
     NO_SUCH_SECURITY_PROPERTY_SET(98, "NoSuchSecurityPropertySet", "No security settings with id {0} exist"),
@@ -63,6 +63,10 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_ESTIMATOR_PROPERTY_VALUE(244, "invalidEstimatorPropertyValue", "Invalid property value"),
     CONCURRENT_RUN_TITLE(245, "ConcurrentRunTitle", "Failed to run ''{0}''"),
     CONCURRENT_RUN_BODY(246, "ConcurrentRunMessage", "{0} has changed since the page was last updated."),
+    DEVICE_SEARCH_DOMAIN_NOT_REGISTERED(247, "DeviceSearchDomainNotRegistered", "Device search domain is not registered"),
+    AT_LEAST_ONE_SEARCH_CRITERIA(248, "AtLeastOneCriteria" , "At least one search criterion has to be provided"),
+    SEARCHABLE_PROPERTY_INVALID_VALUE(249, "SearchablePropertyInvalidValue", "Invalid value"),
+
     ;
     private final int number;
     private final String key;
