@@ -126,7 +126,6 @@ Ext.define('Mdc.controller.setup.DeviceGroups', {
             Ext.Array.each(Ext.ComponentQuery.query('#edit-device-group'), function (item) {
                 if (Mdc.privileges.DeviceGroup.canAdministrateDeviceOfEnumeratedGroup()) { item.show(); }
             });
-            me.getSearchCriteriaContainer().setVisible(false);
         }
     },
 
