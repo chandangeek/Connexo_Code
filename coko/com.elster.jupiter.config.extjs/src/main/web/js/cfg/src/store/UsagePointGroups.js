@@ -7,7 +7,7 @@ Ext.define('Cfg.store.UsagePointGroups', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        url: '/api/udr/usagepointgroups',
+        url: '/api/val/usagepointgroups',
         pageParam: undefined,
         startParam: undefined,
         limitParam: undefined,
