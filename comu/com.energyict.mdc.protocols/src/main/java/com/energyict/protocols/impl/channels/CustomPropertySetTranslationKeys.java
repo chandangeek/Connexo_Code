@@ -15,6 +15,7 @@ public enum CustomPropertySetTranslationKeys implements TranslationKey {
     EIWEB_CUSTOM_PROPERTY_SET_NAME("EIWebCustomPropertySet", "EIWeb"),
     EIWEB_PLUS_CUSTOM_PROPERTY_SET_NAME("EIWebPlusCustomPropertySet", "EIWeb+"),
     SIO_SERIAL_CUSTOM_PROPERTY_SET_NAME("SioSerialCustomPropertySet", "Sio serial"),
+    LEGACY_OPTICAL_DLMS_CUSTOM_PROPERTY_SET_NAME("LegacyOpticalDlmsCustomPropertySet", "Legacy optical dlms"),
     CTR_INBOUND_DIAL_HOME_ID_CUSTOM_PROPERTY_SET_NAME("CTRInboundDialHomeIdCustomPropertySet", "CTR Inbound dial home id"),
     INBOUND_PROXIMUS_CUSTOM_PROPERTY_SET_NAME("InboundProximusSmsCustomPropertySet", "Inbound proximus"),
     OUTBOUND_PROXIMUS_CUSTOM_PROPERTY_SET_NAME("OutboundProximusSmsCustomPropertySet", "Outbound proximus"),
