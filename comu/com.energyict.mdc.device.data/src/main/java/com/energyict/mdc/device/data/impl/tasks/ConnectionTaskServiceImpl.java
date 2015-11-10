@@ -908,8 +908,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
             sqlBuilder.append(connectionTaskAliasName);
             sqlBuilder.append(".device in (");
             if (deviceGroup instanceof QueryEndDeviceGroup) {
-                QueryExecutor<Device> queryExecutor = this.deviceFromDeviceGroupQueryExecutor();
-                sqlBuilder.add(queryExecutor.asFragment(((QueryEndDeviceGroup) deviceGroup).getCondition(), "id"));
+                sqlBuilder.add(((QueryEndDeviceGroup) deviceGroup).toFragment());
             }
             else {
                 sqlBuilder.add(((EnumeratedEndDeviceGroup) deviceGroup).getAmrIdSubQuery(getMdcAmrSystem().get()).toFragment());

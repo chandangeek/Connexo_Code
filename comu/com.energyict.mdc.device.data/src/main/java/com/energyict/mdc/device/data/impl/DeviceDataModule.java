@@ -28,6 +28,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
+
 import java.time.Clock;
 
 /**

@@ -5,13 +5,20 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.sql.SqlFragment;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.search.sqlbuilder.DeviceSearchSqlBuilder;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link Finder} interface
@@ -21,6 +28,8 @@ import java.util.List;
  * @since 2015-05-29 (09:51)
  */
 public class DeviceFinder implements Finder<Device> {
+
+    private static Logger LOGGER = Logger.getLogger(DeviceFinder.class.getName());
 
     private final DataModel dataModel;
     private final DeviceSearchSqlBuilder sqlBuilder;
@@ -58,12 +67,31 @@ public class DeviceFinder implements Finder<Device> {
 
     @Override
     public Subquery asSubQuery(String... strings) {
-        throw new UnsupportedOperationException("Too hard for now, maybe in a future release");
+        return () -> asFragment(strings);
     }
 
     @Override
-    public SqlFragment asFragment(String... strings) {
-        throw new UnsupportedOperationException("Too hard for now, maybe in a future release");
+    public SqlBuilder asFragment(String... strings) {
+        SqlBuilder sqlBuilder = new SqlBuilder("select " + Stream.of(strings).collect(Collectors.joining(", ")) + " from ");
+        sqlBuilder.openBracket();
+        sqlBuilder.add(this.sqlBuilder.toSqlBuilder());
+        sqlBuilder.closeBracket();
+        return sqlBuilder;
+    }
+
+    @Override
+    public int count() {
+        try (Connection conn = dataModel.getConnection(false)) {
+            PreparedStatement statement = asFragment("count(*)").prepare(conn);
+            try(ResultSet resultSet = statement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+        }
+        return 0;
     }
 
     private interface Pager {

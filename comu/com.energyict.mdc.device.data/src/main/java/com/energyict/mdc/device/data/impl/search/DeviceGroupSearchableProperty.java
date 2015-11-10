@@ -152,7 +152,7 @@ public class DeviceGroupSearchableProperty extends AbstractSearchableDevicePrope
         sqlBuilder.append("dev.ID ");
         sqlBuilder.append(operator.getSymbol());
         sqlBuilder.spaceOpenBracket();
-        sqlBuilder.add(deviceService.findAllDevices(endDeviceGroup.getCondition()).asFragment("id"));
+        sqlBuilder.add(endDeviceGroup.toFragment());
         sqlBuilder.closeBracket();
         return sqlBuilder;
     }
