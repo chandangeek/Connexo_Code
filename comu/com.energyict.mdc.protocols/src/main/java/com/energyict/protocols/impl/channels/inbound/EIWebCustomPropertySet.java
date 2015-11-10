@@ -23,7 +23,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-06 (16:19)
  */
-public class EIWebCustomPropertySet implements CustomPropertySet<ConnectionType, EIWebConnectionPropertiesToFixCaseSensitivyProblem> {
+public class EIWebCustomPropertySet implements CustomPropertySet<ConnectionType, EIWebConnectionProperties> {
 
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
@@ -74,7 +74,7 @@ public class EIWebCustomPropertySet implements CustomPropertySet<ConnectionType,
     }
 
     @Override
-    public PersistenceSupport<ConnectionType, EIWebConnectionPropertiesToFixCaseSensitivyProblem> getPersistenceSupport() {
+    public PersistenceSupport<ConnectionType, EIWebConnectionProperties> getPersistenceSupport() {
         return new EIWebConnectionPropertiesPersistenceSupport();
     }
 
@@ -88,7 +88,7 @@ public class EIWebCustomPropertySet implements CustomPropertySet<ConnectionType,
     private PropertySpec ipAddressPropertySpec() {
         return this.getPropertySpecService()
                 .basicPropertySpec(
-                        EIWebConnectionPropertiesToFixCaseSensitivyProblem.Fields.IP_ADDRESS.javaName(),
+                        EIWebConnectionProperties.Fields.IP_ADDRESS.javaName(),
                         false,
                         new StringFactory());
     }
@@ -96,7 +96,7 @@ public class EIWebCustomPropertySet implements CustomPropertySet<ConnectionType,
     private PropertySpec macAddressPropertySpec() {
         return this.getPropertySpecService()
                 .basicPropertySpec(
-                        EIWebConnectionPropertiesToFixCaseSensitivyProblem.Fields.MAC_ADDRESS.javaName(),
+                        EIWebConnectionProperties.Fields.MAC_ADDRESS.javaName(),
                         false,
                         new StringFactory());
     }

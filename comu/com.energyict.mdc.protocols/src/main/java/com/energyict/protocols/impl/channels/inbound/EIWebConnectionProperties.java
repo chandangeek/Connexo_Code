@@ -17,7 +17,7 @@ import javax.validation.constraints.Size;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-06 (15:43)
  */
-public class EIWebConnectionPropertiesToFixCaseSensitivyProblem implements PersistentDomainExtension<ConnectionType> {
+public class EIWebConnectionProperties implements PersistentDomainExtension<ConnectionType> {
 
     public enum Fields {
         CONNECTION_TYPE {
