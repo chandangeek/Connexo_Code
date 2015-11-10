@@ -25,7 +25,7 @@ Ext.define('Bpm.model.task.Task', {
             name: 'dueDateParsed',
             type: 'number',
             convert: function (value, record) {
-                return value === '' ? undefined : value;
+                return record.get('dueDate') == 0 ? null : record.get('dueDate');
             }
         },
         {
@@ -58,23 +58,6 @@ Ext.define('Bpm.model.task.Task', {
             type: 'number'
         },
         {
-            name: 'priorityTranslation',
-            type: 'number',
-            convert: function (value, record) {
-                var priority = record.get('priority');
-                if (priority <= 3) {
-                    return 3;
-                }
-                else if (priority <= 6) {
-                    return 6;
-                }
-                else {
-                    return 10;
-                }
-                return 0;
-            }
-        },
-        {
             name: 'priorityDisplay',
             type: 'string',
             convert: function (value, record) {
@@ -82,7 +65,7 @@ Ext.define('Bpm.model.task.Task', {
                 if (priority <= 3) {
                     return Uni.I18n.translate('bpm.task.priority.high', 'BPM', 'High');
                 }
-                else if (priority <= 6) {
+                else if (priority <= 7) {
                     return Uni.I18n.translate('bpm.task.priority.medium', 'BPM', 'Medium');
                 }
                 else {

@@ -3,12 +3,14 @@ Ext.define('Bpm.view.task.OpenTask', {
     alias: 'widget.bpm-task-open-task',
     requires: [
         'Bpm.store.task.Tasks',
-        'Bpm.store.task.Priorities',
-        'Uni.view.toolbar.PreviousNextNavigation'
+        'Uni.view.toolbar.PreviousNextNavigation',
+        'Uni.property.form.Property',
+        'Uni.property.form.GroupedPropertyForm'
     ],
     taskRecord: null,
     edit: false,
     router: null,
+    itemNameLink: '',
     initComponent: function () {
         var me = this;
         me.content = [
@@ -26,8 +28,8 @@ Ext.define('Bpm.view.task.OpenTask', {
                         margin: '10 0 0 0',
                         store: 'Bpm.store.task.Tasks',
                         router: me.router,
-                        routerIdArgument: 'taskId'
-                     //   itemsName:
+                        routerIdArgument: 'taskId',
+                        itemsName: me.itemNameLink,
                     }
                 ]
             },
@@ -115,7 +117,7 @@ Ext.define('Bpm.view.task.OpenTask', {
                                                         xtype: 'date-time',
                                                         itemId: 'due-date',
                                                         layout: 'hbox',
-                                                        name: 'dueDate',
+                                                        name: 'dueDateParsed',
                                                         allowBlank: true,
                                                         dateConfig: {
 
@@ -141,19 +143,15 @@ Ext.define('Bpm.view.task.OpenTask', {
                                                 },
                                                 items: [
                                                     {
-                                                        xtype: 'combobox',
-                                                        itemId: 'cbo-priority',
-                                                        name: 'priorityTranslation',
+                                                        xtype: 'numberfield',
+                                                        itemId: 'num-priority',
+                                                        minValue: 0,
+                                                        maxValue: 10,
+                                                        name: 'priority',
                                                         width: 330,
                                                         fieldLabel: Uni.I18n.translate('task.task.edit.priority', 'BPM', 'Priority'),
                                                         labelWidth: 250,
-                                                        store: 'Bpm.store.task.Priorities',
-                                                        editable: false,
-                                                        emptyText: Uni.I18n.translate('task.task.edit.priority', 'BPM', 'Priority'),
-                                                        allowBlank: false,
-                                                        queryMode: 'local',
-                                                        displayField: 'name',
-                                                        valueField: 'name'
+                                                        allowBlank: false
                                                     },
                                                     {
                                                         xtype: 'label',
@@ -220,6 +218,7 @@ Ext.define('Bpm.view.task.OpenTask', {
                             type: 'vbox',
                             align: 'stretch'
                         },
+                        itemId: 'task-execution-form',
                         items: [
                             {
                                 xtype: 'container',
@@ -228,36 +227,38 @@ Ext.define('Bpm.view.task.OpenTask', {
                                     type: 'vbox',
                                     align: 'stretch'
                                 },
+                                itemId: 'task-execution-content',
                                 privileges: Bpm.privileges.BpmManagement.execute,
                                 items: [
                                     {
-                                        xtype: 'container',
-                                        margin: 10,
-                                        padding: 10,
-                                        border: 1,
-                                        style: {
-                                            borderColor: 'lightgray',
-                                            borderStyle: 'solid'
-                                        },
-                                        height: 320,
-                                        layout: {
-                                            type: 'vbox',
-                                            align: 'stretch'
-                                        },
-                                        items: [
-                                            {
-                                                xtype: 'container',
-                                                itemId: 'formContent',
-                                                height: 300
-                                            }
-                                        ]
+                                        xtype: 'grouped-property-form'
                                     },
+
+                                    /*   {
+                                           xtype: 'container',
+                                           margin: 10,
+                                           padding: 10,
+                                           border: 1,
+
+                                           height: 320,
+                                           layout: {
+                                               type: 'vbox',
+                                               align: 'stretch'
+                                           },
+                                           items: [
+                                               {
+                                                   xtype: 'container',
+                                                   itemId: 'formContent',
+                                                   height: 300
+                                               }
+                                           ]
+                                       },*/
                                     {
                                         xtype: 'container',
-                                        margin: '10 0 0 0',
+                                        margin: '10 0 0 265',
                                         layout: 'hbox',
                                         items: [
-                                            {
+                                        /*    {
                                                 text: Uni.I18n.translate('task.action.claim', 'BPM', 'Claim'),
                                                 xtype: 'button',
                                                 hidden: true,
@@ -265,7 +266,7 @@ Ext.define('Bpm.view.task.OpenTask', {
                                                 itemId: 'btn-claim',
                                                 action: 'claimTask',
                                                 taskRecord: me.taskRecord
-                                            },
+                                            },*/
                                             {
                                                 text: Uni.I18n.translate('task.action.save', 'BPM', 'Save'),
                                                 xtype: 'button',
@@ -300,15 +301,6 @@ Ext.define('Bpm.view.task.OpenTask', {
                                                 ui: 'action',
                                                 itemId: 'btn-complete',
                                                 action: 'completeTask',
-                                                taskRecord: me.taskRecord
-                                            },
-                                            {
-                                                text: Uni.I18n.translate('task.action.taskactions', 'BPM', 'Task actions'),
-                                                xtype: 'button',
-                                                hidden: true,
-                                                ui: 'action',
-                                                itemId: 'btn-taskactions',
-                                                action: 'taskaction',
                                                 taskRecord: me.taskRecord
                                             }
                                         ]

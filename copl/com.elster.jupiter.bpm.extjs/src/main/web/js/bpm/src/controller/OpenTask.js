@@ -1,12 +1,11 @@
 Ext.define('Bpm.controller.OpenTask', {
     extend: 'Ext.app.Controller',
-    stores: [
-        'Bpm.store.task.Priorities'
-    ],
+    stores: [],
 
     models: [
         'Bpm.model.task.TaskEdit',
-        'Bpm.model.task.Assign'
+        'Bpm.model.task.Assign',
+        'Bpm.model.task.OpenTask'
     ],
     views: [
         'Bpm.view.task.OpenTask'
@@ -29,8 +28,8 @@ Ext.define('Bpm.controller.OpenTask', {
             selector: 'bpm-task-open-task #frm-edit-task'
         },
         {
-            ref: 'cboPriority',
-            selector: 'bpm-task-open-task #cbo-priority'
+            ref: 'numPriority',
+            selector: 'bpm-task-open-task #num-priority'
         },
         {
             ref: 'priorityDisplay',
@@ -44,6 +43,14 @@ Ext.define('Bpm.controller.OpenTask', {
         {
             ref: 'formContainer',
             selector: 'bpm-task-open-task #frm-form-container'
+        },
+        {
+            ref: 'taskExecutionContent',
+            selector: 'bpm-task-open-task #task-execution-content'
+        },
+        {
+            ref: 'taskExecutionForm',
+            selector: 'bpm-task-open-task #task-execution-form'
         },
         {
             ref: 'btnClaim',
@@ -64,13 +71,7 @@ Ext.define('Bpm.controller.OpenTask', {
         {
             ref: 'btnComplete',
             selector: 'bpm-task-open-task #btn-complete'
-        },
-        {
-            ref: 'btnTaskActions',
-            selector: 'bpm-task-open-task #btn-taskactions'
         }
-
-
     ],
     listener: null,
     loadingObject: null,
@@ -98,11 +99,11 @@ Ext.define('Bpm.controller.OpenTask', {
             'bpm-task-open-task #btn-complete': {
                 click: this.chooseAction
             },
-            'bpm-task-open-task #cbo-priority': {
-                select: this.updatePriority
+            'bpm-task-open-task #num-priority': {
+                change: this.updatePriority
             }
         });
-        var me = this;
+        /*var me = this;
         listener = function dolisten(event) {
 
             me.getFormContainer().setLoading(false);
@@ -117,7 +118,7 @@ Ext.define('Bpm.controller.OpenTask', {
             addEventListener("message", listener, false)
         } else {
             attachEvent("onmessage", listener)
-        }
+        }*/
     },
 
     showOpenTask: function (taskId) {
@@ -149,7 +150,7 @@ Ext.define('Bpm.controller.OpenTask', {
             success: function (taskRecord) {
 
                 openTaskView = Ext.create('Bpm.view.task.OpenTask', {
-                    //    returnLink: router.getRoute('workspace/taksmanagementtasks').buildUrl({}, queryParams),
+                    itemNameLink: '<a href="' + tasksRoute.buildUrl({}, queryParams) + '">' + Uni.I18n.translate('bpm.task.tasksName', 'BPM', 'tasks') + '</a>',
                     router: me.getController('Uni.controller.history.Router'),
                     taskRecord: taskRecord
                 });
@@ -167,8 +168,8 @@ Ext.define('Bpm.controller.OpenTask', {
                 me.loadAssigneeForm(taskRecord);
                 me.loadEditTaskForm(taskRecord);
                 me.loadAboutTaskForm(taskRecord);
-            //    me.loadBpmForm(taskRecord);
-
+                me.loadJbpmForm(taskRecord);
+                //    me.loadBpmForm(taskRecord);
 
 
             },
@@ -181,7 +182,7 @@ Ext.define('Bpm.controller.OpenTask', {
         var me = this,
             assigneeForm = me.getAssigneeUserForm();
 
-        if (!assigneeForm){
+        if (!assigneeForm) {
             return;
         }
         var assigneeCombo = assigneeForm.down('#cbo-assignee-user');
@@ -195,12 +196,9 @@ Ext.define('Bpm.controller.OpenTask', {
     loadEditTaskForm: function (taskRecord) {
         var me = this,
             editTaskForm = me.getEditTaskForm(),
-            cboPriority = me.getCboPriority();
+            numPriority = me.getNumPriority();
 
         editTaskForm && editTaskForm.loadRecord(taskRecord);
-
-        var record = cboPriority.getStore().findRecord('name', taskRecord.get('priority'));
-        cboPriority.fireEvent('select', cboPriority, [record]);
     },
 
     saveTask: function (button) {
@@ -216,7 +214,7 @@ Ext.define('Bpm.controller.OpenTask', {
             assignUser = Ext.create('Bpm.model.task.Assign'),
             assigneeForm = me.getAssigneeUserForm();
 
-        assignUser.getProxy().extraParams = { username: assigneeForm.down('#cbo-assignee-user').getValue()};
+        assignUser.getProxy().extraParams = {username: assigneeForm.down('#cbo-assignee-user').getValue()};
         assignUser.getProxy().setUrl(taskRecord.get('id'));
         assigneeForm.setLoading();
         assignUser.save({
@@ -224,6 +222,11 @@ Ext.define('Bpm.controller.OpenTask', {
                 assigneeForm.setLoading(false);
             },
             failure: function (record, operation) {
+                var json = Ext.decode(operation.response.responseText, true);
+                if (json && json.errors) {
+                    assigneeForm.getForm().markInvalid(json.errors);
+                }
+
                 assigneeForm.setLoading(false);
             }
         })
@@ -237,8 +240,10 @@ Ext.define('Bpm.controller.OpenTask', {
 
         editTaskForm.setLoading();
         editTaskForm.updateRecord(taskRecord);
-        taskEdit.getProxy().extraParams = { priority: editTaskForm.down('#cbo-priority').getValue(),
-            duedate: editTaskForm.down('#due-date').getValue() ? moment(editTaskForm.down('#due-date').getValue()).valueOf() : ''};
+        taskEdit.getProxy().extraParams = {
+            priority: editTaskForm.down('#num-priority').getValue(),
+            duedate: editTaskForm.down('#due-date').getValue() ? moment(editTaskForm.down('#due-date').getValue()).valueOf() : ''
+        };
 
         taskEdit.getProxy().setUrl(taskRecord.get('id'));
         taskEdit.save({
@@ -258,17 +263,135 @@ Ext.define('Bpm.controller.OpenTask', {
         aboutTaskForm && aboutTaskForm.loadRecord(taskRecord);
     },
 
-    updatePriority: function(control, record){
-        var me = this;
+    updatePriority: function (control, newValue, oldValue) {
+        var me = this,
+            label = '';
 
-        me.getPriorityDisplay().setText(record[0].get('label'));
+        if (newValue <= 3) {
+            label = Uni.I18n.translate('bpm.task.priority.high', 'BPM', 'High');
+        }
+        else if (newValue <= 7) {
+            label = Uni.I18n.translate('bpm.task.priority.medium', 'BPM', 'Medium');
+        }
+        else {
+            label = Uni.I18n.translate('bpm.task.priority.low', 'BPM', 'Low');
+        }
+
+        me.getPriorityDisplay().setText(label);
     },
 
-    loadBpmForm: function(taskRecord){
+    loadJbpmForm: function (taskRecord) {
+        var me = this,
+            taskExecutionContent = me.getTaskExecutionContent(),
+            openTask = me.getModel('Bpm.model.task.OpenTask'),
+            propertyForm = taskExecutionContent.down('grouped-property-form');
+
+
+        taskExecutionContent.setLoading();
+
+        openTask.load(taskRecord.get('id'), {
+            success: function (openTaskRecord) {
+
+                taskExecutionContent.openTaskRecord = openTaskRecord;
+                if (openTaskRecord && openTaskRecord.properties() && openTaskRecord.properties().count()) {
+                    propertyForm.loadRecord(openTaskRecord);
+                    propertyForm.show();
+                } else {
+                    propertyForm.hide();
+                }
+                propertyForm.up('#frm-open-task').doLayout();
+                me.refreshButtons(openTaskRecord);
+                taskExecutionContent.setLoading(false);
+            },
+            failure: function (record, operation) {
+            }
+        });
+
+    },
+
+    refreshButtons: function (taskRecord) {
+        var me = this,
+            status = taskRecord.get('status');
+
+        //me.getBtnClaim().setVisible(status == "Ready");
+        me.getBtnRelease().setVisible((status == "Reserved") || (status == "InProgress"));
+        me.getBtnStart().setVisible((status == "Reserved"));
+        me.getBtnSave().setVisible(status == "InProgress");
+        me.getBtnComplete().setVisible(status == "InProgress");
+    },
+
+    chooseAction: function (button, item) {
+        var me = this,
+            action = button.action,
+            taskExecutionForm = me.getTaskExecutionForm(),
+            taskExecutionContent = me.getTaskExecutionContent(),
+            openTaskRecord = taskExecutionContent.openTaskRecord,
+            propertyForm = taskExecutionContent.down('grouped-property-form');
+
+        propertyForm.updateRecord();
+
+        openTaskRecord.beginEdit();
+        if (propertyForm.getRecord()) {
+            openTaskRecord.propertiesStore = propertyForm.getRecord().properties();
+        }
+        openTaskRecord.set('action', action);
+        openTaskRecord.endEdit();
+
+        // remove abocve code
+        var task = me.getModel('Bpm.model.task.Task');
+        task.load(openTaskRecord.get('id'), {
+            success: function (taskRecord) {
+                me.loadAssigneeForm(taskRecord);
+                me.loadEditTaskForm(taskRecord);
+                me.loadAboutTaskForm(taskRecord);
+                me.loadJbpmForm(taskRecord);
+            }
+        });
+/*
+        openTaskRecord.save({
+            success: function () {
+
+                //if (button.action === 'claimTask') {
+                //    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.task.openTask.claimed', 'BPM', 'Task claimed.'));
+                //} else
+                if (button.action === 'saveTask') {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.task.openTask.saved', 'BPM', 'Task saved.'));
+                } else if (button.action === 'releaseTask') {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.task.openTask.released', 'BPM', 'Task released.'));
+                } else if (button.action === 'startTask') {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.task.openTask.started', 'BPM', 'Task started.'));
+                } else if (button.action === 'completeTask') {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.task.openTask.completed', 'BPM', 'Task completed.'));
+                }
+
+                var task = me.getModel('Bpm.model.task.Task');
+                task.load(openTaskRecord.get('id'), {
+                    success: function (taskRecord) {
+                        me.loadAssigneeForm(taskRecord);
+                        me.loadEditTaskForm(taskRecord);
+                        me.loadAboutTaskForm(taskRecord);
+                        me.loadJbpmForm(taskRecord);
+                    }
+                });
+
+            },
+            failure: function (record, operation) {
+                if (operation.response.status == 400) {
+                    var json = Ext.decode(operation.response.responseText, true);
+                    if (json && json.errors) {
+                        taskExecutionForm.getForm().markInvalid(json.errors);
+                    }
+                }
+            }
+        })*/
+    }
+    /*
+
+    loadBpmForm: function (taskRecord) {
         var me = this,
             flowUrl;
 
-        if (!me.getFormContainer()){
+        if (!me.getFormContainer()) {
             return;
         }
 
@@ -378,5 +501,5 @@ Ext.define('Bpm.controller.OpenTask', {
             frame.postMessage(request, me.getOpenTaskPage().formURL);
         }
     }
-
+*/
 });
