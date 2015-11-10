@@ -1,11 +1,10 @@
-package com.elster.jupiter.search.rest.impl;
+package com.elster.jupiter.search.rest;
 
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
-import com.elster.jupiter.search.rest.MessageSeeds;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import java.util.ArrayList;

@@ -15,6 +15,7 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.rest.InfoFactoryService;
 import com.elster.jupiter.search.rest.MessageSeeds;
+import com.elster.jupiter.search.rest.SearchablePropertyValueConverter;
 import com.elster.jupiter.util.HasId;
 
 import javax.inject.Inject;
@@ -34,7 +35,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -115,26 +115,13 @@ public class DynamicSearchResource {
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
         final SearchBuilder<Object> searchBuilder = searchService.search(searchDomain);
         if (jsonQueryFilter.hasFilters()) {
-            List<SearchableProperty> fixedProperties = searchDomain.getProperties();
-            List<SearchablePropertyConstriction> propertyConstrictions = fixedProperties
+            searchDomain.getPropertiesValues(searchableProperty -> SearchablePropertyValueConverter.convert(searchableProperty, jsonQueryFilter))
                     .stream()
-                    .filter(SearchableProperty::affectsAvailableDomainProperties)
-                    .map(searchableProperty -> SearchablePropertyValueConverter.convert(searchableProperty, jsonQueryFilter).asConstriction())
-                    .collect(Collectors.toList());
-            (propertyConstrictions.isEmpty() ? fixedProperties : searchDomain.getPropertiesWithConstrictions(propertyConstrictions))
-                    .stream()
-                    .filter(p -> jsonQueryFilter.hasProperty(p.getName()))
-                    .forEach(searchableProperty -> {
-                        List<SearchablePropertyConstriction> searchablePropertyConstrictions =
-                                searchableProperty.getConstraints()
-                                        .stream()
-                                        .map(constrainingProperty -> SearchablePropertyValueConverter.convert(constrainingProperty, jsonQueryFilter).asConstriction())
-                                        .collect(toList());
-                        searchableProperty.refreshWithConstrictions(searchablePropertyConstrictions);
+                    .forEach(propertyValue -> {
                         try {
-                            SearchablePropertyValueConverter.convert(searchableProperty, jsonQueryFilter).addAsCondition(searchBuilder);
+                            propertyValue.addAsCondition(searchBuilder);
                         } catch (InvalidValueException e) {
-                            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "filter." + searchableProperty.getName());
+                            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "filter." + propertyValue.getProperty().getName());
                         }
                     });
         } else {
