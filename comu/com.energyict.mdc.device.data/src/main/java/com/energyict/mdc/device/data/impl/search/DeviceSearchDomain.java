@@ -7,6 +7,7 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
+import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -28,9 +29,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -89,49 +94,6 @@ public class DeviceSearchDomain implements SearchDomain {
 
     @Override
     public List<SearchableProperty> getProperties() {
-        List<SearchableProperty> properties = new ArrayList<>();
-        properties.addAll(this.fixedProperties());
-        return properties;
-    }
-
-    private List<SearchableProperty> getProperties(List<SearchablePropertyConstriction> constrictions) {
-        List<SearchableProperty> properties = new ArrayList<>();
-        Set<String> uniqueNames = new HashSet<>();
-        Predicate<SearchableProperty> uniqueName = p -> uniqueNames.add(p.getName());
-        this.fixedProperties().stream().filter(uniqueName).forEach(properties::add);
-        getProtocolDialectDynamicProperties(constrictions).stream().filter(uniqueName).forEach(properties::add);
-        return properties;
-    }
-
-    private List<SearchableProperty> getProtocolDialectDynamicProperties(List<SearchablePropertyConstriction> constrictions) {
-        Optional<SearchablePropertyConstriction> protocolDialectConstriction = constrictions
-                .stream()
-                .filter(p -> ProtocolDialectSearchableProperty.PROPERTY_NAME.equals(p.getConstrainingProperty().getName()))
-                .findFirst();
-        if (protocolDialectConstriction.isPresent()) {
-            DataModel injector = this.deviceDataModelService.dataModel();
-            ProtocolDialectDynamicSearchableGroup propertiesGroup = injector.getInstance(ProtocolDialectDynamicSearchableGroup.class);
-            List<SearchableProperty> dynamicProperties = new ArrayList<>();
-            Set<String> uniqueDeviceProtocolDialects = new HashSet<>();
-            for (Object value : protocolDialectConstriction.get().getConstrainingValues()) {
-                ProtocolDialectSearchableProperty.ProtocolDialect protocolDialect = (ProtocolDialectSearchableProperty.ProtocolDialect) value;
-                String deviceProtocolDialectName = protocolDialect.getProtocolDialect().getDeviceProtocolDialectName();
-                if (!uniqueDeviceProtocolDialects.add(deviceProtocolDialectName)) {
-                    continue;
-                }
-                String relationTableName = this.protocolPluggableService.getDeviceProtocolDialectUsagePluggableClass(protocolDialect.getPluggableClass(),
-                        deviceProtocolDialectName).findRelationType().getDynamicAttributeTableName();
-                for (PropertySpec propertySpec : protocolDialect.getProtocolDialect().getPropertySpecs()) {
-                    dynamicProperties.add(injector.getInstance(ProtocolDialectDynamicSearchableProperty.class)
-                            .init(this, propertiesGroup, propertySpec, protocolDialect, relationTableName));
-                }
-            }
-            return dynamicProperties;
-        }
-        return Collections.emptyList();
-    }
-
-    private List<SearchableProperty> fixedProperties() {
         DataModel injector = this.deviceDataModelService.dataModel();
         DeviceTypeSearchableProperty deviceTypeSearchableProperty = injector.getInstance(DeviceTypeSearchableProperty.class).init(this);
         TopologySearchablePropertyGroup topologyGroup = injector.getInstance(TopologySearchablePropertyGroup.class);
@@ -192,6 +154,43 @@ public class DeviceSearchDomain implements SearchDomain {
         );
     }
 
+    private List<SearchableProperty> addDynamicProperties(List<SearchableProperty> fixedProperties, Collection<SearchablePropertyConstriction> constrictions) {
+        List<SearchableProperty> properties = new ArrayList<>();
+        Set<String> uniqueNames = new HashSet<>();
+        Predicate<SearchableProperty> uniqueName = p -> uniqueNames.add(p.getName());
+        fixedProperties.stream().filter(uniqueName).forEach(properties::add);
+        getProtocolDialectDynamicProperties(constrictions).stream().filter(uniqueName).forEach(properties::add);
+        return properties;
+    }
+
+    private List<SearchableProperty> getProtocolDialectDynamicProperties(Collection<SearchablePropertyConstriction> constrictions) {
+        Optional<SearchablePropertyConstriction> protocolDialectConstriction = constrictions
+                .stream()
+                .filter(p -> ProtocolDialectSearchableProperty.PROPERTY_NAME.equals(p.getConstrainingProperty().getName()))
+                .findFirst();
+        if (protocolDialectConstriction.isPresent()) {
+            DataModel injector = this.deviceDataModelService.dataModel();
+            ProtocolDialectDynamicSearchableGroup propertiesGroup = injector.getInstance(ProtocolDialectDynamicSearchableGroup.class);
+            List<SearchableProperty> dynamicProperties = new ArrayList<>();
+            Set<String> uniqueDeviceProtocolDialects = new HashSet<>();
+            for (Object value : protocolDialectConstriction.get().getConstrainingValues()) {
+                ProtocolDialectSearchableProperty.ProtocolDialect protocolDialect = (ProtocolDialectSearchableProperty.ProtocolDialect) value;
+                String deviceProtocolDialectName = protocolDialect.getProtocolDialect().getDeviceProtocolDialectName();
+                if (!uniqueDeviceProtocolDialects.add(deviceProtocolDialectName)) {
+                    continue;
+                }
+                String relationTableName = this.protocolPluggableService.getDeviceProtocolDialectUsagePluggableClass(protocolDialect.getPluggableClass(),
+                        deviceProtocolDialectName).findRelationType().getDynamicAttributeTableName();
+                for (PropertySpec propertySpec : protocolDialect.getProtocolDialect().getPropertySpecs()) {
+                    dynamicProperties.add(injector.getInstance(ProtocolDialectDynamicSearchableProperty.class)
+                            .init(this, propertiesGroup, propertySpec, protocolDialect, relationTableName));
+                }
+            }
+            return dynamicProperties;
+        }
+        return Collections.emptyList();
+    }
+
     private Collection<? extends SearchableProperty> connectionTypeProperties() {
         return this.connectionTypeProperties(this.protocolPluggableService.findAllConnectionTypePluggableClasses());
     }
@@ -213,7 +212,36 @@ public class DeviceSearchDomain implements SearchDomain {
         if (constrictions == null || constrictions.isEmpty()) {
             return getProperties();
         }
-        return getProperties(constrictions);
+        return addDynamicProperties(getProperties(), constrictions);
+    }
+
+    @Override
+    public List<SearchablePropertyValue> getPropertiesValues(Function<SearchableProperty, SearchablePropertyValue> mapper) {
+        // 1) retrieve all fixed search properties
+        List<SearchableProperty> fixedProperties = getProperties();
+        // 2) check properties which affect available domain properties
+        List<SearchablePropertyConstriction> constrictions = fixedProperties.stream()
+                .filter(SearchableProperty::affectsAvailableDomainProperties)
+                .map(mapper::apply)
+                .filter(propertyValue -> propertyValue != null && propertyValue.getValueBean() != null && propertyValue.getValueBean().values != null)
+                .map(SearchablePropertyValue::asConstriction)
+                .collect(Collectors.toList());
+        // 3) update list of available properties and convert these properties into properties values
+        Map<String, SearchablePropertyValue> valuesMap = (constrictions.isEmpty() ? getProperties() : addDynamicProperties(fixedProperties, constrictions))
+                .stream()
+                .map(mapper::apply)
+                .filter(propertyValue -> propertyValue != null && propertyValue.getValueBean() != null && propertyValue.getValueBean().values != null)
+                .collect(Collectors.toMap(propertyValue -> propertyValue.getProperty().getName(), Function.identity()));
+        // 4) refresh all properties with their constrictions
+        for (SearchablePropertyValue propertyValue : valuesMap.values()) {
+            SearchableProperty property = propertyValue.getProperty();
+            property.refreshWithConstrictions(property.getConstraints().stream()
+                    .map(constrainingProperty -> valuesMap.get(constrainingProperty.getName()))
+                    .filter(Objects::nonNull)
+                    .map(SearchablePropertyValue::asConstriction)
+                    .collect(Collectors.toList()));
+        }
+        return new ArrayList<>(valuesMap.values());
     }
 
     @Override

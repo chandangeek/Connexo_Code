@@ -9,9 +9,9 @@ import com.elster.jupiter.search.SearchBuilder;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.json.JsonService;
-import com.energyict.mdc.device.data.ComScheduleOnDevicesFilterSpecification;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.ItemizeComScheduleQueueMessage;
@@ -20,7 +20,6 @@ import com.energyict.mdc.device.data.impl.ComScheduleOnDeviceQueueMessage;
 import com.energyict.mdc.scheduling.SchedulingService;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
@@ -29,8 +28,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
-
-import static java.util.stream.Collectors.toList;
 
 /**
  * This message handler will add/remove comschedules on devices, either listed exhaustively or defined by a filter.
@@ -55,23 +52,13 @@ public class ComScheduleOnDeviceFilterItimizer implements MessageHandler {
                         break;
                     }
                     SearchBuilder<Object> searchBuilder = searchService.search(searchDomain.get());
-                    searchDomain.get().getProperties().stream().
-                            filter(p -> queueMessage.filter.getPropertyValue(p) != null).
-                            forEach(searchableProperty -> {
-                                try {
-                                    if (searchableProperty.getSelectionMode() == SearchableProperty.SelectionMode.MULTI) {
-                                        searchBuilder.where(searchableProperty).in(getQueryParameterAsObjectList(queueMessage.filter, searchableProperty));
-                                    } else if (searchableProperty.getSpecification().getValueFactory().getValueType().equals(String.class)) {
-                                        searchBuilder.where(searchableProperty).likeIgnoreCase((String) getQueryParameterAsObject(queueMessage.filter, searchableProperty));
-                                    } else if (searchableProperty.getSpecification().getValueFactory().getValueType().equals(Boolean.class)) {
-                                        searchBuilder.where(searchableProperty).is((Boolean) getQueryParameterAsObject(queueMessage.filter, searchableProperty));
-                                    } else {
-                                        searchBuilder.where(searchableProperty).isEqualTo(getQueryParameterAsObject(queueMessage.filter, searchableProperty));
-                                    }
-                                } catch (InvalidValueException e) {
-                                    // LOG failure
-                                }
-                            });
+                    for (SearchablePropertyValue propertyValue : searchDomain.get().getPropertiesValues(getPropertyMapper(queueMessage))) {
+                        try {
+                            propertyValue.addAsCondition(searchBuilder);
+                        } catch (InvalidValueException e) {
+                            // LOG failure
+                        }
+                    }
                     deviceStream = searchBuilder.toFinder().stream().map(Device.class::cast);
                 } else {
                     deviceStream = queueMessage.deviceMRIDs.stream().map(deviceService::findByUniqueMrid).filter(Optional::isPresent).map(Optional::get);
@@ -84,14 +71,8 @@ public class ComScheduleOnDeviceFilterItimizer implements MessageHandler {
         }
     }
 
-    private Object getQueryParameterAsObject(ComScheduleOnDevicesFilterSpecification filter, SearchableProperty constrainingProperty) {
-        return constrainingProperty.getSpecification().getValueFactory().fromStringValue(filter.singleProperties.get(constrainingProperty.getName()));
-    }
-
-    private List<Object> getQueryParameterAsObjectList(ComScheduleOnDevicesFilterSpecification filter, SearchableProperty constrainingProperty) {
-        return filter.listProperties.get(constrainingProperty.getName()).stream().
-                map(p -> constrainingProperty.getSpecification().getValueFactory().fromStringValue(p)).
-                collect(toList());
+    private Function<SearchableProperty, SearchablePropertyValue> getPropertyMapper(ItemizeComScheduleQueueMessage queueMessage) {
+        return searchableProperty -> new SearchablePropertyValue(searchableProperty, queueMessage.filter.properties.get(searchableProperty.getName()));
     }
 
     private void processMessagePost(QueueMessage message, DestinationSpec destinationSpec) {
