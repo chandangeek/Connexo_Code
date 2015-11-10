@@ -373,21 +373,28 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
                 .setComPortPool(outboundTcpipComPortPool)
                 .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE)
                 .setConnectionStrategy(connectionStrategy);
-        device.save();
+
         if (ConnectionStrategy.MINIMIZE_CONNECTIONS.equals(connectionStrategy)) {
             TemporalExpression nextExecutionSpecs = new TemporalExpression(EVERY_HOUR);
             scheduledConnectionTaskBuilder.setNextExecutionSpecsFrom(nextExecutionSpecs);
         }
-        ScheduledConnectionTaskImpl scheduledConnectionTask = (ScheduledConnectionTaskImpl) scheduledConnectionTaskBuilder.add();
-        this.setIpConnectionProperties(scheduledConnectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
-        scheduledConnectionTask.save();
-        return scheduledConnectionTask;
+        this.setIpConnectionProperties(scheduledConnectionTaskBuilder, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
+        return scheduledConnectionTaskBuilder.add();
     }
 
     protected List<PropertySpec> getOutboundIpPropertySpecs() {
         return Arrays.asList(
                 outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.IP_ADDRESS_PROPERTY_NAME),
                 outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionType.PORT_PROPERTY_NAME));
+    }
+
+    protected void setIpConnectionProperties(Device.ScheduledConnectionTaskBuilder connectionTaskBuilder, String ipAddress, BigDecimal port) {
+        if (ipAddress != null) {
+            connectionTaskBuilder.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, ipAddress);
+        }
+        if (port != null) {
+            connectionTaskBuilder.setProperty(IpConnectionType.PORT_PROPERTY_NAME, port);
+        }
     }
 
     protected void setIpConnectionProperties(ConnectionTask connectionTask, String ipAddress, BigDecimal port) {
@@ -472,9 +479,8 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
                 .build();
     }
 
-    protected ComTaskExecution getReloadedComTaskExecution(Device device) {
-        Device reloadedDevice = getReloadedDevice(device);
-        return reloadedDevice.getComTaskExecutions().get(0);
+    protected ComTaskExecution getReloadedComTaskExecution(ComTaskExecution comTaskExecution) {
+        return  inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
     }
 
     private class ComTaskExecutionDialect implements DeviceProtocolDialect {

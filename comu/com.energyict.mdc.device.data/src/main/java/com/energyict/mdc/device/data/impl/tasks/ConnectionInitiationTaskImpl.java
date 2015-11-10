@@ -84,14 +84,10 @@ public class ConnectionInitiationTaskImpl extends OutboundConnectionTaskImpl<Par
 
     public abstract static class AbstractConnectionInitiationTaskBuilder implements Device.ConnectionInitiationTaskBuilder {
 
-        private final ConnectionInitiationTaskImpl connectionInitiationTask;
+        protected final ConnectionInitiationTaskImpl connectionInitiationTask;
 
         public AbstractConnectionInitiationTaskBuilder(ConnectionInitiationTaskImpl connectionInitiationTask) {
             this.connectionInitiationTask = connectionInitiationTask;
-        }
-
-        protected ConnectionInitiationTaskImpl getConnectionInitiationTask() {
-            return connectionInitiationTask;
         }
 
         @Override

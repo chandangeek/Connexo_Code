@@ -14,9 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
@@ -55,7 +53,7 @@ public class DeviceConfigValidationRuleSetResolverTest {
         when(meter.getAmrId()).thenReturn(Long.toString(DEVICE_ID));
         when(deviceService.findDeviceById(eq(DEVICE_ID))).thenReturn(Optional.of(device));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        when(deviceConfiguration.getValidationRuleSets()).thenReturn(Arrays.asList(ruleSet));
+        when(deviceConfiguration.getValidationRuleSets()).thenReturn(Collections.singletonList(ruleSet));
 
     }
 

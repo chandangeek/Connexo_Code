@@ -163,26 +163,6 @@ public class DeviceDeleteTest {
     }
 
     @Test
-    public void deleteWithComTaskExecutionsTest() {
-        DeviceImpl device = getNewDeviceWithMockedServices();
-        setupWithComTaskExecutions(device);
-        device.delete();
-
-        verify(comTaskExecution1).delete();
-        verify(comTaskExecution2).delete();
-    }
-
-    @Test
-    public void deleteWithConnectionTasksTest() {
-        DeviceImpl device = getNewDeviceWithMockedServices();
-        setupWithConnectionTasks(device);
-        device.delete();
-
-        verify(connectionTask1).delete();
-        verify(connectionTask2).delete();
-    }
-
-    @Test
     public void deleteWithMessagesTest() {
         DeviceImpl device = getNewDeviceWithMockedServices();
         setupWithMessages(device);
@@ -254,7 +234,7 @@ public class DeviceDeleteTest {
 
     private DeviceImpl getNewDeviceWithMockedServices() {
         return new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService,
-                connectionTaskService, communicationTaskService, securityPropertyService, scheduledConnectionTaskProvider, inboundConnectionTaskProvider,
+                securityPropertyService, scheduledConnectionTaskProvider, inboundConnectionTaskProvider,
                 connectionInitiationProvider, scheduledComTaskExecutionProvider, protocolPluggableService, manuallyScheduledComTaskExecutionProvider, firmwareComTaskExecutionProvider,
                 meteringGroupsService);
     }

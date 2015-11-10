@@ -125,6 +125,10 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         }
     }
 
+    private ServerComTaskExecution refreshComTaskExecution(ComTaskExecution comTaskExecution) {
+    return (ServerComTaskExecution) this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class).getUnique("id", comTaskExecution.getId()).get();
+    }
+
     private int minimumWaitTime(int currentWaitTime, int comPortPoolTaskExecutionTimeout) {
         if (currentWaitTime < 0) {
             return comPortPoolTaskExecutionTimeout;
@@ -875,17 +879,20 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     @Override
     public void executionCompletedFor(ComTaskExecution comTaskExecution) {
-        getServerComTaskExecution(comTaskExecution).executionCompleted();
+        //Avoid OptimisticLockException
+        refreshComTaskExecution(comTaskExecution).executionCompleted();
     }
 
     @Override
     public void executionFailedFor(ComTaskExecution comTaskExecution) {
-        getServerComTaskExecution(comTaskExecution).executionFailed();
+        //Avoid OptimisticLockException
+        refreshComTaskExecution(comTaskExecution).executionFailed();
     }
 
     @Override
     public void executionStartedFor(ComTaskExecution comTaskExecution, ComPort comPort) {
-        getServerComTaskExecution(comTaskExecution).executionStarted(comPort);
+        //Avoid OptimisticLockException
+        refreshComTaskExecution(comTaskExecution).executionStarted(comPort);
     }
 
     private Map<DeviceType, List<Long>> buildDeviceTypeHeatMap(Map<Long, Map<CompletionCode, Long>> partialCounters) {

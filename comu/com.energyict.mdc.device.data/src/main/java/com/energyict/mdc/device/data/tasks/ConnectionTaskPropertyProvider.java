@@ -15,13 +15,19 @@ import java.util.List;
 @ProviderType
 public interface ConnectionTaskPropertyProvider {
 
-    public List<ConnectionTaskProperty> getProperties ();
+    List<ConnectionTaskProperty> getProperties ();
 
     /**
      * Provides the current properties ({@link #getProperties()} in the TypedProperties format.
      *
      * @return the TypedProperties
      */
-    public TypedProperties getTypedProperties ();
+    TypedProperties getTypedProperties ();
+
+    boolean hasDirtyProperties();
+
+    void saveAllProperties();
+
+    void removeAllProperties();
 
 }

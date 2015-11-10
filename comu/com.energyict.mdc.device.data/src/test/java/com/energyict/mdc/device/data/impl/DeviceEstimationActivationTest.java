@@ -82,9 +82,7 @@ public class DeviceEstimationActivationTest extends PersistenceIntegrationTest {
         deviceConfiguration.save();
         
         List<DeviceEstimationRuleSetActivation> ruleSetActivations = null;
-        Device device = null;
-        
-        device = createSimpleDeviceWithName("device", "device");
+        Device device = createSimpleDeviceWithName("device", "device");
         ruleSetActivations = device.forEstimation().getEstimationRuleSetActivations();
         
         assertThat(device.getVersion()).isEqualTo(1l);
@@ -147,9 +145,7 @@ public class DeviceEstimationActivationTest extends PersistenceIntegrationTest {
     }
     
     private Device createSimpleDeviceWithName(String name, String mRID){
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, mRID);
-        device.save();
-        return device;
+        return inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, mRID);
     }
     
     private EstimationRuleSet createEstimationRuleSet(String name) {

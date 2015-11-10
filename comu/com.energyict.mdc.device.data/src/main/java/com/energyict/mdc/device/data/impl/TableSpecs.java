@@ -33,6 +33,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
@@ -184,11 +185,12 @@ public enum TableSpecs {
             // InboundConnectionTaskImpl columns: none at this moment
             // ConnectionInitiationTaskImpl columns: none at this moment
             table.primaryKey("PK_DDC_CONNECTIONTASK").on(id).add();
-            table.foreignKey("FK_DDC_CONNECTIONTASK_DEVICE").
-                    on(device).
-                    references(DDC_DEVICE.name()).
-                    map(ConnectionTaskFields.DEVICE.fieldName()).
-                    add();
+            table.foreignKey("FK_DDC_CONNECTIONTASK_DEVICE")
+                    .on(device)
+                    .references(DDC_DEVICE.name())
+                    .map(ConnectionTaskFields.DEVICE.fieldName())
+                    .reverseMap("connectionTasks").composition()
+                    .add();
             table.foreignKey("FK_DDC_CONNECTIONTASK_CLASS").
                     on(connectionTypePluggableClass).
                     references(PluggableService.COMPONENTNAME, "CPC_PLUGGABLECLASS").
@@ -313,6 +315,7 @@ public enum TableSpecs {
             table.foreignKey("FK_DDC_COMTASKEXEC_DEVICE")
                     .on(device).references(DDC_DEVICE.name())
                     .map(ComTaskExecutionFields.DEVICE.fieldName())
+                    .reverseMap("comTaskExecutions").composition()
                     .add();
             table.index("IX_DDCCOMTASKEXEC_NXTEXEC").on(nextExecutionTimestamp, priority, connectionTask, obsoleteDate, comPort).add();
         }
@@ -324,7 +327,6 @@ public enum TableSpecs {
             Table<ComSession> table = dataModel.addTable(name(), ComSession.class);
             table.map(ComSessionImpl.class);
             Column id = table.addAutoIdColumn();
-            table.addAuditColumns();
             Column connectionTask = table.column("CONNECTIONTASK").number().notNull().add();
             Column comport = table.column("COMPORT").number().notNull().add();
             Column comportPool = table.column("COMPORTPOOL").number().notNull().add();
@@ -345,7 +347,7 @@ public enum TableSpecs {
             table.column("STATUS").number().conversion(NUMBER2BOOLEAN).notNull().map(ComSessionImpl.Fields.STATUS.fieldName()).add();
             table.foreignKey("FK_DDC_COMSESSION_COMPORTPOOL").
                     on(comportPool).
-                    references(EngineConfigurationService.COMPONENT_NAME, "MDC_COMPORTPOOL").
+                    references(ComPortPool.class).
                     onDelete(CASCADE).
                     map(ComSessionImpl.Fields.COMPORT_POOL.fieldName()).
                     add();

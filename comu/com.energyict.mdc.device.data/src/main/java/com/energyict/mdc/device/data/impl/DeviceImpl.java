@@ -31,8 +31,6 @@ import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
-import com.energyict.mdc.device.data.exceptions.CannotDeleteComTaskExecutionWhichIsNotFromThisDevice;
-import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichIsNotFromThisDevice;
 import com.energyict.mdc.device.data.exceptions.DeviceProtocolPropertyException;
 import com.energyict.mdc.device.data.exceptions.NoMeterActivationAt;
 import com.energyict.mdc.device.data.exceptions.ProtocolDialectConfigurationPropertiesIsRequiredException;
@@ -40,28 +38,8 @@ import com.energyict.mdc.device.data.impl.constraintvalidators.DeviceConfigurati
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueComTaskScheduling;
 import com.energyict.mdc.device.data.impl.constraintvalidators.UniqueMrid;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
-import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.FirmwareComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ManuallyScheduledComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.ScheduledComTaskExecutionImpl;
-import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
-import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
-import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.device.data.tasks.ConnectionInitiationTask;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecution;
-import com.energyict.mdc.device.data.tasks.FirmwareComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ManuallyScheduledComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecution;
-import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
+import com.energyict.mdc.device.data.impl.tasks.*;
+import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.dynamic.relation.CanLock;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
@@ -150,7 +128,6 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.EnumSet;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -158,8 +135,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.function.*;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -177,8 +153,6 @@ public class DeviceImpl implements Device, CanLock {
     private final Clock clock;
     private final MeteringService meteringService;
     private final ValidationService validationService;
-    private final ServerConnectionTaskService connectionTaskService;
-    private final ServerCommunicationTaskService communicationTaskService;
     private final SecurityPropertyService securityPropertyService;
     private final ProtocolPluggableService protocolPluggableService;
     private final MeteringGroupsService meteringGroupsService;
@@ -217,9 +191,9 @@ public class DeviceImpl implements Device, CanLock {
     @Valid
     private List<DeviceProtocolProperty> deviceProperties = new ArrayList<>();
     @Valid
-    private List<ConnectionTaskImpl<?, ?>> connectionTasks;
+    private List<ConnectionTaskImpl<?, ?>> connectionTasks = new ArrayList<>();
     @Valid
-    private List<ComTaskExecutionImpl> comTaskExecutions;
+    private List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
     @Valid
     private List<DeviceMessageImpl> deviceMessages = new ArrayList<>();
 
@@ -245,8 +219,6 @@ public class DeviceImpl implements Device, CanLock {
             Clock clock,
             MeteringService meteringService,
             ValidationService validationService,
-            ServerConnectionTaskService connectionTaskService,
-            ServerCommunicationTaskService communicationTaskService,
             SecurityPropertyService securityPropertyService,
             Provider<ScheduledConnectionTaskImpl> scheduledConnectionTaskProvider,
             Provider<InboundConnectionTaskImpl> inboundConnectionTaskProvider,
@@ -263,8 +235,6 @@ public class DeviceImpl implements Device, CanLock {
         this.clock = clock;
         this.meteringService = meteringService;
         this.validationService = validationService;
-        this.connectionTaskService = connectionTaskService;
-        this.communicationTaskService = communicationTaskService;
         this.securityPropertyService = securityPropertyService;
         this.scheduledConnectionTaskProvider = scheduledConnectionTaskProvider;
         this.inboundConnectionTaskProvider = inboundConnectionTaskProvider;
@@ -324,20 +294,19 @@ public class DeviceImpl implements Device, CanLock {
         boolean alreadyPersistent = this.id > 0;
         if (alreadyPersistent) {
             Save.UPDATE.save(dataModel, this);
+            this.saveDirtyConnectionProperties();
             this.saveNewAndDirtyDialectProperties();
+            this.notifyUpdated();
         } else {
             Save.CREATE.save(dataModel, this);
             this.createKoreMeter();
             this.saveNewDialectProperties();
-        }
-        this.saveAllConnectionTasks();
-        this.saveAllComTaskExecutions();
-        if (alreadyPersistent) {
-            this.notifyUpdated();
-            deviceConfiguration.get().touch();
-        } else {
             this.notifyCreated();
         }
+    }
+
+    private void saveDirtyConnectionProperties(){
+        this.getConnectionTasks().stream().filter(ConnectionTaskPropertyProvider::hasDirtyProperties).forEach(ConnectionTaskPropertyProvider::saveAllProperties);
     }
 
     private void saveNewAndDirtyDialectProperties() {
@@ -357,31 +326,7 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     private void saveDialectProperties(List<ProtocolDialectProperties> dialectProperties) {
-        for (ProtocolDialectProperties newDialectProperty : dialectProperties) {
-            this.save((ProtocolDialectPropertiesImpl) newDialectProperty);
-        }
-    }
-
-    private void save(ProtocolDialectPropertiesImpl dialectProperties) {
-        dialectProperties.save();
-    }
-
-    private void saveAllConnectionTasks() {
-        if (this.connectionTasks != null) {
-            // No need to call the getConnectionTaskImpls getter because if they have not been loaded before, they cannot be dirty
-            for (ConnectionTaskImpl<?, ?> connectionTask : connectionTasks) {
-                connectionTask.save();
-            }
-        }
-    }
-
-    private void saveAllComTaskExecutions() {
-        if (this.comTaskExecutions != null) {
-            // No need to call the getComTaskExecutionImpls getter because if they have not been loaded before, they cannot be dirty
-            this.comTaskExecutions
-                    .stream()
-                    .forEach(ComTaskExecutionImpl::save);
-        }
+        dialectProperties.stream().map(ProtocolDialectPropertiesImpl.class::cast).forEach(ProtocolDialectPropertiesImpl::save);
     }
 
     private void notifyUpdated() {
@@ -468,13 +413,11 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     private void deleteComTaskExecutions() {
-        for (ComTaskExecution comTaskExecution : this.communicationTaskService.findAllComTaskExecutionsIncludingObsoleteForDevice(this)) {
-            ((ComTaskExecutionImpl) comTaskExecution).delete();
-        }
+        this.comTaskExecutions.clear();
     }
 
     private void deleteConnectionTasks() {
-        this.getConnectionTaskImpls().forEach(PersistentIdObject::delete);
+        this.connectionTasks.clear();
     }
 
     private void deleteDeviceMessages(){
@@ -1530,25 +1473,13 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     private List<ConnectionTaskImpl<?, ?>> getConnectionTaskImpls() {
-        if (this.connectionTasks == null) {
-            this.loadConnectionTasks();
-        }
-        return this.connectionTasks;
-    }
-
-    private void loadConnectionTasks() {
-        List<ConnectionTaskImpl<?, ?>> connectionTaskImpls = new ArrayList<>();
-        for (ConnectionTask connectionTask : this.connectionTaskService.findConnectionTasksByDevice(this)) {
-            connectionTaskImpls.add((ConnectionTaskImpl<?, ?>) connectionTask);
-        }
-        this.connectionTasks = connectionTaskImpls;
+        return this.connectionTasks.stream().filter(x -> !x.isObsolete()).collect(Collectors.toList());
     }
 
     @Override
     public List<ScheduledConnectionTask> getScheduledConnectionTasks() {
-        List<ConnectionTask<?, ?>> allConnectionTasks = this.getConnectionTasks();
-        List<ScheduledConnectionTask> outboundConnectionTasks = new ArrayList<>(allConnectionTasks.size());   // Worst case: all connection tasks are scheduled
-        for (ConnectionTask<?, ?> connectionTask : allConnectionTasks) {
+        List<ScheduledConnectionTask> outboundConnectionTasks = new ArrayList<>(connectionTasks.size());   // Worst case: all connection tasks are scheduled
+        for (ConnectionTask<?, ?> connectionTask : getConnectionTasks()) {
             if (connectionTask instanceof ScheduledConnectionTask) {
                 outboundConnectionTasks.add((ScheduledConnectionTask) connectionTask);
             }
@@ -1558,9 +1489,8 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public List<ConnectionInitiationTask> getConnectionInitiationTasks() {
-        List<ConnectionTask<?, ?>> allConnectionTasks = this.getConnectionTasks();
-        List<ConnectionInitiationTask> initiationTasks = new ArrayList<>(allConnectionTasks.size());   // Worst case: all connection tasks are initiators
-        for (ConnectionTask<?, ?> connectionTask : allConnectionTasks) {
+        List<ConnectionInitiationTask> initiationTasks = new ArrayList<>(connectionTasks.size());   // Worst case: all connection tasks are initiators
+        for (ConnectionTask<?, ?> connectionTask : getConnectionTasks()) {
             if (connectionTask instanceof ConnectionInitiationTask) {
                 initiationTasks.add((ConnectionInitiationTask) connectionTask);
             }
@@ -1570,9 +1500,8 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public List<InboundConnectionTask> getInboundConnectionTasks() {
-        List<ConnectionTask<?, ?>> allConnectionTasks = this.getConnectionTasks();
-        List<InboundConnectionTask> inboundConnectionTasks = new ArrayList<>(allConnectionTasks.size());   // Worst case: all connection tasks are inbound
-        for (ConnectionTask<?, ?> connectionTask : allConnectionTasks) {
+        List<InboundConnectionTask> inboundConnectionTasks = new ArrayList<>(connectionTasks.size());   // Worst case: all connection tasks are inbound
+        for (ConnectionTask<?, ?> connectionTask : getConnectionTasks()) {
             if (connectionTask instanceof InboundConnectionTask) {
                 inboundConnectionTasks.add((InboundConnectionTask) connectionTask);
             }
@@ -1582,82 +1511,69 @@ public class DeviceImpl implements Device, CanLock {
 
     @Override
     public void removeConnectionTask(ConnectionTask<?, ?> connectionTask) {
-        Iterator<ConnectionTaskImpl<?, ?>> connectionTaskIterator = this.getConnectionTaskImpls().iterator();
-        boolean removedNone = true;
-        while (connectionTaskIterator.hasNext() && removedNone) {
-            ConnectionTaskImpl<?, ?> connectionTaskToRemove = connectionTaskIterator.next();
-            if (connectionTaskToRemove.getId() == connectionTask.getId()) {
-                connectionTaskToRemove.delete();
-                connectionTaskIterator.remove();
-                removedNone = false;
-            }
-        }
-        if (removedNone) {
-            throw new CannotDeleteConnectionTaskWhichIsNotFromThisDevice(connectionTask, this, this.thesaurus, MessageSeeds.CONNECTION_TASK_CANNOT_DELETE_IF_NOT_FROM_DEVICE);
+        removeConnectionTask(connectionTask, true);
+    }
 
+    private void removeConnectionTask(ConnectionTask<?, ?> connectionTask, boolean notify ) {
+        Optional<ConnectionTaskImpl<?, ?>> inList = connectionTasks.stream().filter(x -> x.getId() == connectionTask.getId()).findAny();
+        if (inList.isPresent()) {
+            ConnectionTask<?,?> toRemove = inList.get();
+            ((ServerConnectionTask) toRemove).makeObsolete();
+            if (notify && this.id != 0) {
+                if (connectionTask instanceof PersistentIdObject) {
+                    ((PersistentIdObject) connectionTask).notifyUpdated();
+                }
+            }
         }
     }
 
     @Override
     public List<ComTaskExecution> getComTaskExecutions() {
-        return new ArrayList<>(this.getComTaskExecutionImpls());
+        return comTaskExecutions.stream().filter(x -> !x.isObsolete()).collect(Collectors.toList());
     }
 
-    private List<ComTaskExecutionImpl> getComTaskExecutionImpls() {
-        return this.getAllComTaskExecutionImpls()
-                .stream()
-                .filter(cte -> !cte.isObsolete())
-                .collect(Collectors.toList());
-    }
-
-    private List<ComTaskExecutionImpl> getAllComTaskExecutionImpls() {
-        this.ensureComTaskExecutionsLoaded();
-        return this.comTaskExecutions;
-    }
-
-    private void ensureComTaskExecutionsLoaded() {
-        if (this.comTaskExecutions == null) {
-            this.loadComTaskExecutions();
-        }
-    }
-
-    private void loadComTaskExecutions() {
-        this.comTaskExecutions =
-            this.communicationTaskService
-                .findComTaskExecutionsByDevice(this)
-                .stream()
-                .map(comTaskExecution -> (ComTaskExecutionImpl) comTaskExecution)
-                .collect(Collectors.toList());
-    }
-
-    private void add(ComTaskExecutionImpl comTaskExecution) {
-        this.ensureComTaskExecutionsLoaded();
+    private ComTaskExecution add(ComTaskExecutionImpl comTaskExecution) {
+        Save.CREATE.validate(DeviceImpl.this.dataModel, comTaskExecution, Save.Create.class, Save.Update.class);
         this.comTaskExecutions.add(comTaskExecution);
+        Save.UPDATE.validate(DeviceImpl.this.dataModel, this, Save.Create.class, Save.Update.class);
         if (this.id != 0) {
-            Save.CREATE.validate(this.dataModel, this);  // To validate that all scheduled ComTasks are unique
+            comTaskExecution.notifyCreated();
+            dataModel.touch(DeviceImpl.this);
         }
+        return comTaskExecution;
+    }
+
+    private ConnectionTask add(ConnectionTaskImpl connectionTask){
+        Save.CREATE.validate(DeviceImpl.this.dataModel, connectionTask, Save.Create.class, Save.Update.class);
+        DeviceImpl.this.connectionTasks.add(connectionTask);
+        if (this.id != 0){
+             // saving the connection properties
+            connectionTask.saveAllProperties();
+            connectionTask.notifyCreated();
+            dataModel.touch(DeviceImpl.this);
+        }
+        return connectionTask;
     }
 
     @Override
     public ComTaskExecutionBuilder<ScheduledComTaskExecution> newScheduledComTaskExecution(ComSchedule comSchedule) {
-        return new ScheduledComTaskExecutionBuilderForDevice(scheduledComTaskExecutionProvider, this, comSchedule);
+        return new ScheduledComTaskExecutionBuilderForDevice(scheduledComTaskExecutionProvider, comSchedule);
     }
 
     @Override
     public AdHocComTaskExecutionBuilderForDevice newAdHocComTaskExecution(ComTaskEnablement comTaskEnablement) {
-        return new AdHocComTaskExecutionBuilderForDevice(manuallyScheduledComTaskExecutionProvider, this, comTaskEnablement);
+        return new AdHocComTaskExecutionBuilderForDevice(manuallyScheduledComTaskExecutionProvider, comTaskEnablement);
     }
 
     @Override
     public ComTaskExecutionBuilder<FirmwareComTaskExecution> newFirmwareComTaskExecution(ComTaskEnablement comTaskEnablement) {
-        return new FirmwareComTaskExecutionBuilderForDevice(firmwareComTaskExecutionProvider, this, comTaskEnablement);
+        return new FirmwareComTaskExecutionBuilderForDevice(firmwareComTaskExecutionProvider, comTaskEnablement);
     }
 
     @Override
     public ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> newManuallyScheduledComTaskExecution(ComTaskEnablement comTaskEnablement, TemporalExpression temporalExpression) {
         return new ManuallyScheduledComTaskExecutionBuilderForDevice(
                 this.manuallyScheduledComTaskExecutionProvider,
-                this,
                 comTaskEnablement,
                 temporalExpression);
     }
@@ -1678,35 +1594,30 @@ public class DeviceImpl implements Device, CanLock {
     }
 
     @Override
-    public void removeComTaskExecution(ComTaskExecution comTaskExecution) {
-        this.ensureComTaskExecutionsLoaded();
-        Iterator<ComTaskExecutionImpl> comTaskExecutionIterator = this.comTaskExecutions.iterator();
-        while (comTaskExecutionIterator.hasNext()) {
-            ComTaskExecution comTaskExecutionToRemove = comTaskExecutionIterator.next();
-            if (comTaskExecutionToRemove.getId() == comTaskExecution.getId()) {
-                comTaskExecution.makeObsolete();
-                comTaskExecutionIterator.remove();
-                dataModel.touch(this);
-                return;
+    public void removeComTaskExecution(ComTaskExecution comTaskExecution){
+        removeComTaskExecution(comTaskExecution, true);
+    }
+
+    private void removeComTaskExecution(ComTaskExecution comTaskExecution, boolean notify) {
+        Optional<ComTaskExecution> inList = this.comTaskExecutions.stream().filter(x -> x.getId() == comTaskExecution.getId()).findAny();
+        if (inList.isPresent()) {
+            ComTaskExecution toRemove = inList.get();
+            ((ServerComTaskExecution)toRemove).makeObsolete();
+    //            boolean removed = connectionTasks.remove(inList.get());
+            if (notify && this.id != 0) {
+                if (comTaskExecution instanceof PersistentIdObject) {
+                    ((PersistentIdObject) comTaskExecution).notifyUpdated();
+                }
             }
         }
-        throw new CannotDeleteComTaskExecutionWhichIsNotFromThisDevice(comTaskExecution, this, thesaurus, MessageSeeds.COM_TASK_EXECUTION_CANNOT_DELETE_IF_NOT_FROM_DEVICE);
     }
 
     @Override
     public void removeComSchedule(ComSchedule comSchedule) {
-        this.ensureComTaskExecutionsLoaded();
-        Iterator<ComTaskExecutionImpl> comTaskExecutionIterator = this.comTaskExecutions.iterator();
-        while (comTaskExecutionIterator.hasNext()) {
-            ComTaskExecutionImpl comTaskExecution = comTaskExecutionIterator.next();
-            if (comTaskExecution.executesComSchedule(comSchedule)) {
-                comTaskExecution.makeObsolete();
-                comTaskExecutionIterator.remove();
-                dataModel.touch(this);
-                return;
-            }
-        }
-        throw new CannotDeleteComScheduleFromDevice(comSchedule, this, this.thesaurus, MessageSeeds.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE);
+        ComTaskExecution toRemove = this.comTaskExecutions.stream().filter(x-> x.executesComSchedule(comSchedule))
+                .findFirst().
+                orElseThrow(()-> new CannotDeleteComScheduleFromDevice(comSchedule, this, this.thesaurus, MessageSeeds.COM_SCHEDULE_CANNOT_DELETE_IF_NOT_FROM_DEVICE));
+        removeComTaskExecution(toRemove);
     }
 
     @Override
@@ -1945,26 +1856,24 @@ public class DeviceImpl implements Device, CanLock {
 
         private ConnectionInitiationTaskBuilderForDevice(Device device, PartialConnectionInitiationTask partialConnectionInitiationTask) {
             super(connectionInitiationTaskProvider.get());
-            getConnectionInitiationTask().initialize(device, partialConnectionInitiationTask, partialConnectionInitiationTask.getComPortPool());
+            connectionInitiationTask.initialize(device, partialConnectionInitiationTask, partialConnectionInitiationTask.getComPortPool());
         }
 
         @Override
         public ConnectionInitiationTaskBuilder setComPortPool(OutboundComPortPool comPortPool) {
-            getConnectionInitiationTask().setComPortPool(comPortPool);
+            connectionInitiationTask.setComPortPool(comPortPool);
             return this;
         }
 
         @Override
         public ConnectionInitiationTaskBuilder setProperty(String propertyName, Object value) {
-            getConnectionInitiationTask().setProperty(propertyName, value);
+            connectionInitiationTask.setProperty(propertyName, value);
             return this;
         }
 
         @Override
         public ConnectionInitiationTask add() {
-            getConnectionInitiationTask().save();
-            DeviceImpl.this.connectionTasks = null;
-            return getConnectionInitiationTask();
+            return (ConnectionInitiationTask) DeviceImpl.this.add(connectionInitiationTask);
         }
     }
 
@@ -1972,27 +1881,24 @@ public class DeviceImpl implements Device, CanLock {
 
         private InboundConnectionTaskBuilderForDevice(Device device, PartialInboundConnectionTask partialInboundConnectionTask) {
             super(inboundConnectionTaskProvider.get());
-            this.getInboundConnectionTask().initialize(device, partialInboundConnectionTask, partialInboundConnectionTask.getComPortPool());
+            inboundConnectionTask.initialize(device, partialInboundConnectionTask, partialInboundConnectionTask.getComPortPool());
         }
 
         @Override
         public InboundConnectionTaskBuilder setComPortPool(InboundComPortPool comPortPool) {
-            this.getInboundConnectionTask().setComPortPool(comPortPool);
+            inboundConnectionTask.setComPortPool(comPortPool);
             return this;
         }
 
         @Override
         public InboundConnectionTaskBuilder setProperty(String propertyName, Object value) {
-            this.getInboundConnectionTask().setProperty(propertyName, value);
+            inboundConnectionTask.setProperty(propertyName, value);
             return this;
         }
 
         @Override
         public InboundConnectionTask add() {
-            InboundConnectionTaskImpl inboundConnectionTask = this.getInboundConnectionTask();
-            inboundConnectionTask.save();
-            DeviceImpl.this.connectionTasks = null;
-            return this.getInboundConnectionTask();
+            return (InboundConnectionTask) DeviceImpl.this.add(inboundConnectionTask);
         }
     }
 
@@ -2000,61 +1906,61 @@ public class DeviceImpl implements Device, CanLock {
 
         private ScheduledConnectionTaskBuilderForDevice(Device device, PartialOutboundConnectionTask partialOutboundConnectionTask) {
             super(scheduledConnectionTaskProvider.get());
-            this.getScheduledConnectionTask().initialize(device, (PartialScheduledConnectionTask) partialOutboundConnectionTask, partialOutboundConnectionTask.getComPortPool());
+            scheduledConnectionTask.initialize(device, (PartialScheduledConnectionTask) partialOutboundConnectionTask, partialOutboundConnectionTask.getComPortPool());
             if (partialOutboundConnectionTask.getNextExecutionSpecs() != null) {
-                this.getScheduledConnectionTask().setNextExecutionSpecsFrom(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression());
+                scheduledConnectionTask.setNextExecutionSpecsFrom(partialOutboundConnectionTask.getNextExecutionSpecs().getTemporalExpression());
             }
-            this.getScheduledConnectionTask().setConnectionStrategy(((PartialScheduledConnectionTask) partialOutboundConnectionTask).getConnectionStrategy());
+            this.scheduledConnectionTask.setConnectionStrategy(((PartialScheduledConnectionTask) partialOutboundConnectionTask).getConnectionStrategy());
             this.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
         }
 
         @Override
         public ScheduledConnectionTaskBuilder setCommunicationWindow(ComWindow communicationWindow) {
-            this.getScheduledConnectionTask().setCommunicationWindow(communicationWindow);
+            scheduledConnectionTask.setCommunicationWindow(communicationWindow);
             return this;
         }
 
         @Override
         public ScheduledConnectionTaskBuilder setComPortPool(OutboundComPortPool comPortPool) {
-            this.getScheduledConnectionTask().setComPortPool(comPortPool);
+            scheduledConnectionTask.setComPortPool(comPortPool);
             return this;
         }
 
         @Override
         public ScheduledConnectionTaskBuilder setConnectionStrategy(ConnectionStrategy connectionStrategy) {
-            this.getScheduledConnectionTask().setConnectionStrategy(connectionStrategy);
+            scheduledConnectionTask.setConnectionStrategy(connectionStrategy);
             return this;
         }
 
         @Override
         public ScheduledConnectionTaskBuilder setInitiatorTask(ConnectionInitiationTask connectionInitiationTask) {
-            this.getScheduledConnectionTask().setInitiatorTask(connectionInitiationTask);
+            scheduledConnectionTask.setInitiatorTask(connectionInitiationTask);
             return this;
         }
 
         @Override
         public ScheduledConnectionTaskBuilder setNextExecutionSpecsFrom(TemporalExpression temporalExpression) {
-            this.getScheduledConnectionTask().setNextExecutionSpecsFrom(temporalExpression);
+            scheduledConnectionTask.setNextExecutionSpecsFrom(temporalExpression);
             return this;
         }
 
         @Override
         public ScheduledConnectionTaskBuilder setProperty(String propertyName, Object value) {
-            this.getScheduledConnectionTask().setProperty(propertyName, value);
+            scheduledConnectionTask.setProperty(propertyName, value);
             return this;
         }
 
         @Override
         public ScheduledConnectionTaskBuilder setSimultaneousConnectionsAllowed(boolean allowSimultaneousConnections) {
-            this.getScheduledConnectionTask().setSimultaneousConnectionsAllowed(allowSimultaneousConnections);
+            scheduledConnectionTask.setSimultaneousConnectionsAllowed(allowSimultaneousConnections);
             return this;
         }
 
         @Override
         public ScheduledConnectionTask add() {
-            this.getScheduledConnectionTask().save();
-            DeviceImpl.this.connectionTasks = null;
-            return this.getScheduledConnectionTask();
+            ScheduledConnectionTaskImpl added = (ScheduledConnectionTaskImpl) DeviceImpl.this.add(scheduledConnectionTask);
+            added.clearUpdateStrategy();
+            return added;
         }
     }
 
@@ -2063,14 +1969,14 @@ public class DeviceImpl implements Device, CanLock {
 
         private Set<ComTaskExecution> executionsToDelete = new HashSet<>();
 
-        private ScheduledComTaskExecutionBuilderForDevice(Provider<ScheduledComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComSchedule comSchedule) {
+        private ScheduledComTaskExecutionBuilderForDevice(Provider<ScheduledComTaskExecutionImpl> comTaskExecutionProvider, ComSchedule comSchedule) {
             super(comTaskExecutionProvider.get());
-            this.initExecutionsToDelete(device, comSchedule);
-            this.getComTaskExecution().initialize(device, comSchedule);
+            this.initExecutionsToDelete(comSchedule);
+            this.comTaskExecution.initialize(DeviceImpl.this, comSchedule);
         }
 
-        private void initExecutionsToDelete(Device device, ComSchedule comSchedule) {
-            for(ComTaskExecution comTaskExecution:device.getComTaskExecutions()){
+        private void initExecutionsToDelete(ComSchedule comSchedule) {
+            for(ComTaskExecution comTaskExecution:DeviceImpl.this.comTaskExecutions){
                 if(!comTaskExecution.usesSharedSchedule()){
                     for(ComTask comTask : comSchedule.getComTasks()){
                         if(comTaskExecution.getComTasks().get(0).getId()==comTask.getId()){
@@ -2084,60 +1990,56 @@ public class DeviceImpl implements Device, CanLock {
 
         @Override
         public ScheduledComTaskExecution add() {
-            for(ComTaskExecution comTaskExecutionToDelete:executionsToDelete){
-                DeviceImpl.this.removeComTaskExecution(comTaskExecutionToDelete);
+            for(ComTaskExecution comTaskExecutionToDelete : executionsToDelete){
+                DeviceImpl.this.removeComTaskExecution(comTaskExecutionToDelete, false);
             }
             ScheduledComTaskExecution comTaskExecution = super.add();
-            DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
-            return comTaskExecution;
+            return (ScheduledComTaskExecution ) DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
         }
     }
 
     public class AdHocComTaskExecutionBuilderForDevice
             extends ManuallyScheduledComTaskExecutionImpl.ManuallyScheduledComTaskExecutionBuilderImpl {
 
-        private AdHocComTaskExecutionBuilderForDevice(Provider<ManuallyScheduledComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComTaskEnablement comTaskEnablement) {
+        private AdHocComTaskExecutionBuilderForDevice(Provider<ManuallyScheduledComTaskExecutionImpl> comTaskExecutionProvider, ComTaskEnablement comTaskEnablement) {
             super(comTaskExecutionProvider.get());
-            this.getComTaskExecution().initializeAdhoc(device, comTaskEnablement);
+            comTaskExecution.initializeAdhoc(DeviceImpl.this, comTaskEnablement);
         }
 
 
         @Override
         public ManuallyScheduledComTaskExecution add() {
             ManuallyScheduledComTaskExecution comTaskExecution = super.add();
-            DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
-            return comTaskExecution;
+            return (ManuallyScheduledComTaskExecution) DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
         }
     }
 
     public class FirmwareComTaskExecutionBuilderForDevice extends FirmwareComTaskExecutionImpl.FirmwareComTaskExecutionBuilderImpl {
 
-        private FirmwareComTaskExecutionBuilderForDevice(Provider<FirmwareComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComTaskEnablement comTaskEnablement) {
+        private FirmwareComTaskExecutionBuilderForDevice(Provider<FirmwareComTaskExecutionImpl> comTaskExecutionProvider, ComTaskEnablement comTaskEnablement) {
             super(comTaskExecutionProvider.get());
-            this.getComTaskExecution().initializeFirmwareTask(device, comTaskEnablement);
+            comTaskExecution.initializeFirmwareTask(DeviceImpl.this, comTaskEnablement);
         }
 
         @Override
         public FirmwareComTaskExecution add() {
             FirmwareComTaskExecution firmwareComTaskExecution = super.add();
-            DeviceImpl.this.add((ComTaskExecutionImpl) firmwareComTaskExecution);
-            return firmwareComTaskExecution;
+            return (FirmwareComTaskExecution) DeviceImpl.this.add((ComTaskExecutionImpl) firmwareComTaskExecution);
         }
     }
 
     public class ManuallyScheduledComTaskExecutionBuilderForDevice
             extends ManuallyScheduledComTaskExecutionImpl.ManuallyScheduledComTaskExecutionBuilderImpl {
 
-        private ManuallyScheduledComTaskExecutionBuilderForDevice(Provider<ManuallyScheduledComTaskExecutionImpl> comTaskExecutionProvider, Device device, ComTaskEnablement comTaskEnablement, TemporalExpression temporalExpression) {
+        private ManuallyScheduledComTaskExecutionBuilderForDevice(Provider<ManuallyScheduledComTaskExecutionImpl> comTaskExecutionProvider, ComTaskEnablement comTaskEnablement, TemporalExpression temporalExpression) {
             super(comTaskExecutionProvider.get());
-            this.getComTaskExecution().initialize(device, comTaskEnablement, temporalExpression);
+            comTaskExecution.initialize(DeviceImpl.this, comTaskEnablement, temporalExpression);
         }
 
         @Override
         public ManuallyScheduledComTaskExecution add() {
             ManuallyScheduledComTaskExecution comTaskExecution = super.add();
-            DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
-            return comTaskExecution;
+            return (ManuallyScheduledComTaskExecution) DeviceImpl.this.add((ComTaskExecutionImpl) comTaskExecution);
         }
     }
 
