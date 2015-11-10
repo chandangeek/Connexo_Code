@@ -10,14 +10,17 @@ import com.fasterxml.jackson.databind.node.IntNode;
 import com.fasterxml.jackson.databind.node.LongNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
+import com.jayway.jsonpath.JsonModel;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 
 @RunWith(MockitoJUnitRunner.class)
@@ -148,5 +151,88 @@ public class SearchablePropertyValueConverterTest {
         assertThat(propertyValue.values).hasSize(2);
         assertThat((String) propertyValue.values.get(0)).contains("answer", "42!");
         assertThat((String) propertyValue.values.get(0)).contains("bla-bla", "17");
+    }
+
+    @Test
+    public void testConvertToFilterMultiSelectPropertyWithMultipleValues() {
+        when(propertySpec.getName()).thenReturn("propertyName");
+        when(propertySpec.getSelectionMode()).thenReturn(SearchableProperty.SelectionMode.MULTI);
+        SearchablePropertyValue searchablePropertyValue = new SearchablePropertyValue(propertySpec);
+        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
+        valueBean.operator = SearchablePropertyOperator.EQUAL;
+        valueBean.values = Arrays.asList("one", "two", "three");
+        searchablePropertyValue.setValueBean(valueBean);
+
+        String jsonFilter = SearchablePropertyValueConverter.convert(Arrays.asList(searchablePropertyValue));
+
+        JsonModel model = JsonModel.model(jsonFilter);
+        assertThat(model.<List<?>>get("$.")).hasSize(1);
+        assertThat(model.<String>get("$.[0].property")).isEqualTo("propertyName");
+        assertThat(model.<List<String>>get("$.[0].value")).hasSize(1);
+        assertThat(model.<String>get("$.[0].value[0].operator")).isEqualTo(SearchablePropertyOperator.EQUAL.code());
+        assertThat(model.<List<String>>get("$.[0].value[0].criteria")).hasSize(3);
+        assertThat(model.<List<String>>get("$.[0].value[0].criteria")).containsExactly("one", "two", "three");
+    }
+
+    @Test
+    public void testConvertToFilterMultiSelectPropertyWithSingleValue() {
+        when(propertySpec.getName()).thenReturn("propertyName");
+        when(propertySpec.getSelectionMode()).thenReturn(SearchableProperty.SelectionMode.MULTI);
+        SearchablePropertyValue searchablePropertyValue = new SearchablePropertyValue(propertySpec);
+        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
+        valueBean.operator = SearchablePropertyOperator.NOT_EQUAL;
+        valueBean.values = Arrays.asList("one");
+        searchablePropertyValue.setValueBean(valueBean);
+
+        String jsonFilter = SearchablePropertyValueConverter.convert(Arrays.asList(searchablePropertyValue));
+
+        JsonModel model = JsonModel.model(jsonFilter);
+        assertThat(model.<List<?>>get("$.")).hasSize(1);
+        assertThat(model.<String>get("$.[0].property")).isEqualTo("propertyName");
+        assertThat(model.<List<String>>get("$.[0].value")).hasSize(1);
+        assertThat(model.<String>get("$.[0].value[0].operator")).isEqualTo(SearchablePropertyOperator.NOT_EQUAL.code());
+        assertThat(model.<List<String>>get("$.[0].value[0].criteria")).hasSize(1);
+        assertThat(model.<List<String>>get("$.[0].value[0].criteria")).containsExactly("one");
+    }
+
+    @Test
+    public void testConvertToFilterSingleSelectPropertyWithMultipleValues() {
+        when(propertySpec.getName()).thenReturn("propertyName");
+        when(propertySpec.getSelectionMode()).thenReturn(SearchableProperty.SelectionMode.SINGLE);
+        SearchablePropertyValue searchablePropertyValue = new SearchablePropertyValue(propertySpec);
+        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
+        valueBean.operator = SearchablePropertyOperator.BETWEEN;
+        valueBean.values = Arrays.asList("one", "two");
+        searchablePropertyValue.setValueBean(valueBean);
+
+        String jsonFilter = SearchablePropertyValueConverter.convert(Arrays.asList(searchablePropertyValue));
+
+        JsonModel model = JsonModel.model(jsonFilter);
+        assertThat(model.<List<?>>get("$.")).hasSize(1);
+        assertThat(model.<String>get("$.[0].property")).isEqualTo("propertyName");
+        assertThat(model.<List<String>>get("$.[0].value")).hasSize(1);
+        assertThat(model.<String>get("$.[0].value[0].operator")).isEqualTo(SearchablePropertyOperator.BETWEEN.code());
+        assertThat(model.<List<String>>get("$.[0].value[0].criteria")).hasSize(2);
+        assertThat(model.<List<String>>get("$.[0].value[0].criteria")).containsExactly("one", "two");
+    }
+
+    @Test
+    public void testConvertToFilterSingleSelectPropertyWithSingleValue() {
+        when(propertySpec.getName()).thenReturn("propertyName");
+        when(propertySpec.getSelectionMode()).thenReturn(SearchableProperty.SelectionMode.SINGLE);
+        SearchablePropertyValue searchablePropertyValue = new SearchablePropertyValue(propertySpec);
+        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
+        valueBean.operator = SearchablePropertyOperator.EQUAL;
+        valueBean.values = Arrays.asList("one");
+        searchablePropertyValue.setValueBean(valueBean);
+
+        String jsonFilter = SearchablePropertyValueConverter.convert(Arrays.asList(searchablePropertyValue));
+
+        JsonModel model = JsonModel.model(jsonFilter);
+        assertThat(model.<List<?>>get("$.")).hasSize(1);
+        assertThat(model.<String>get("$.[0].property")).isEqualTo("propertyName");
+        assertThat(model.<List<String>>get("$.[0].value")).hasSize(1);
+        assertThat(model.<String>get("$.[0].value[0].operator")).isEqualTo(SearchablePropertyOperator.EQUAL.code());
+        assertThat(model.<String>get("$.[0].value[0].criteria")).isEqualTo("one");
     }
 }

@@ -33,7 +33,9 @@ import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 
 import static java.util.stream.Collectors.toList;
@@ -105,15 +107,37 @@ public class DynamicSearchResource {
     }
 
     @GET
-    @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{domain}")
     public Response doSearch(@PathParam("domain") String domainId,
                              @BeanParam JsonQueryFilter jsonQueryFilter,
                              @BeanParam JsonQueryParameters jsonQueryParameters,
                              @Context UriInfo uriInfo) throws InvalidValueException {
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
-        final SearchBuilder<Object> searchBuilder = searchService.search(searchDomain);
+        List<Object> searchResults = initSearchBuilder(searchDomain, jsonQueryFilter).toFinder().from(jsonQueryParameters).stream()
+                .map(o -> infoFactoryService.getInfoFactoryFor(searchDomain).from(o))
+                .collect(toList());
+        return Response.ok().entity(PagedInfoList.fromPagedList("searchResults", searchResults, jsonQueryParameters)).build();
+    }
+
+    @GET
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Path("/{domain}/count")
+    public Response doCountSearchResults(@PathParam("domain") String domainId,
+                                         @BeanParam JsonQueryFilter jsonQueryFilter,
+                                         @BeanParam JsonQueryParameters jsonQueryParameters,
+                                         @Context UriInfo uriInfo) {
+        SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
+        int numberOfSearchResults = initSearchBuilder(searchDomain, jsonQueryFilter).toFinder().count();
+        Map<String, Object> jsonResponse = new HashMap<>();
+        jsonResponse.put("numberOfSearchResults", numberOfSearchResults);
+        return Response.ok().entity(jsonResponse).build();
+    }
+
+    private SearchBuilder<?> initSearchBuilder(SearchDomain searchDomain, JsonQueryFilter jsonQueryFilter) {
+        final SearchBuilder<?> searchBuilder = searchService.search(searchDomain);
         if (jsonQueryFilter.hasFilters()) {
             searchDomain.getPropertiesValues(searchableProperty -> SearchablePropertyValueConverter.convert(searchableProperty, jsonQueryFilter))
                     .stream()
@@ -127,10 +151,7 @@ public class DynamicSearchResource {
         } else {
             throw new LocalizedFieldValidationException(MessageSeeds.AT_LEAST_ONE_CRITERIA, "filter");
         }
-        List<Object> searchResults = searchBuilder.toFinder().from(jsonQueryParameters).stream().
-                map(o -> infoFactoryService.getInfoFactoryFor(searchDomain).from(o)).
-                collect(toList());
-        return Response.ok().entity(PagedInfoList.fromPagedList("searchResults", searchResults, jsonQueryParameters)).build();
+        return searchBuilder;
     }
 
     private SearchDomain findSearchDomainOrThrowException(@PathParam("domain") String domainId) {
