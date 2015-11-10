@@ -8,7 +8,7 @@ import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.identifiers.DeviceIdentifier;
 import com.energyict.mdc.protocol.api.exceptions.DataEncryptionException;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
-import com.energyict.protocols.impl.channels.inbound.EIWebConnectionProperties;
+import com.energyict.protocols.impl.channels.inbound.EIWebConnectionPropertiesToFixCaseSensitivyProblem;
 import com.energyict.protocols.mdc.services.impl.MessageSeeds;
 import com.energyict.protocols.util.LittleEndianInputStream;
 import com.energyict.protocols.util.LittleEndianOutputStream;
@@ -199,7 +199,7 @@ public class PacketBuilder {
         contentLength = EIWEB_BULK_HEADER_LENGTH + nrOfChannels * 2 + 4 + 1;
         if (this.ipAddress != null) {
             this.collectedData.add(
-                    this.getCollectedDataFactory().createCollectedAddressProperties(this.deviceIdentifier, this.ipAddress, EIWebConnectionProperties.Fields.IP_ADDRESS.javaName()));
+                    this.getCollectedDataFactory().createCollectedAddressProperties(this.deviceIdentifier, this.ipAddress, EIWebConnectionPropertiesToFixCaseSensitivyProblem.Fields.IP_ADDRESS.javaName()));
         }
         this.createData(utc, code, statebits, this.parseValues(this.getDecryptedData(value)));
     }
@@ -389,7 +389,7 @@ public class PacketBuilder {
                 this.getCollectedDataFactory().createCollectedAddressProperties(
                         this.deviceIdentifier,
                         this.ipAddress,
-                        EIWebConnectionProperties.Fields.IP_ADDRESS.javaName()));
+                        EIWebConnectionPropertiesToFixCaseSensitivyProblem.Fields.IP_ADDRESS.javaName()));
 
         // retrieve data
         data = this.getDecryptedData(in);

@@ -11,12 +11,12 @@ import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link PersistenceSupport} interface
- * to support the persistence of {@link EIWebConnectionProperties}.
+ * to support the persistence of {@link EIWebConnectionPropertiesToFixCaseSensitivyProblem}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-06 (15:46)
  */
-public class EIWebConnectionPropertiesPersistenceSupport implements PersistenceSupport<ConnectionType, EIWebConnectionProperties> {
+public class EIWebConnectionPropertiesPersistenceSupport implements PersistenceSupport<ConnectionType, EIWebConnectionPropertiesToFixCaseSensitivyProblem> {
 
     @Override
     public String componentName() {
@@ -30,12 +30,12 @@ public class EIWebConnectionPropertiesPersistenceSupport implements PersistenceS
 
     @Override
     public String domainFieldName() {
-        return EIWebConnectionProperties.Fields.CONNECTION_TYPE.javaName();
+        return EIWebConnectionPropertiesToFixCaseSensitivyProblem.Fields.CONNECTION_TYPE.javaName();
     }
 
     @Override
     public String domainColumnName() {
-        return EIWebConnectionProperties.Fields.CONNECTION_TYPE.databaseName();
+        return EIWebConnectionPropertiesToFixCaseSensitivyProblem.Fields.CONNECTION_TYPE.databaseName();
     }
 
     @Override
@@ -44,8 +44,8 @@ public class EIWebConnectionPropertiesPersistenceSupport implements PersistenceS
     }
 
     @Override
-    public Class<EIWebConnectionProperties> persistenceClass() {
-        return EIWebConnectionProperties.class;
+    public Class<EIWebConnectionPropertiesToFixCaseSensitivyProblem> persistenceClass() {
+        return EIWebConnectionPropertiesToFixCaseSensitivyProblem.class;
     }
 
     @Override
@@ -56,9 +56,9 @@ public class EIWebConnectionPropertiesPersistenceSupport implements PersistenceS
     @Override
     public void addCustomPropertyColumnsTo(Table table) {
         table
-            .column(EIWebConnectionProperties.Fields.IP_ADDRESS.databaseName())
+            .column(EIWebConnectionPropertiesToFixCaseSensitivyProblem.Fields.IP_ADDRESS.databaseName())
             .varChar()
-            .map(EIWebConnectionProperties.Fields.IP_ADDRESS.javaName())
+            .map(EIWebConnectionPropertiesToFixCaseSensitivyProblem.Fields.IP_ADDRESS.javaName())
             .add();
     }
 

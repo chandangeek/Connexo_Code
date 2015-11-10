@@ -23,7 +23,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-06 (16:25)
  */
-public class EIWebPlusCustomPropertySet implements CustomPropertySet<ConnectionType, EIWebConnectionProperties> {
+public class EIWebPlusCustomPropertySet implements CustomPropertySet<ConnectionType, EIWebConnectionPropertiesToFixCaseSensitivyProblem> {
 
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
@@ -74,7 +74,7 @@ public class EIWebPlusCustomPropertySet implements CustomPropertySet<ConnectionT
     }
 
     @Override
-    public PersistenceSupport<ConnectionType, EIWebConnectionProperties> getPersistenceSupport() {
+    public PersistenceSupport<ConnectionType, EIWebConnectionPropertiesToFixCaseSensitivyProblem> getPersistenceSupport() {
         return new EIWebConnectionPropertiesPersistenceSupport();
     }
 
@@ -86,7 +86,7 @@ public class EIWebPlusCustomPropertySet implements CustomPropertySet<ConnectionT
     private PropertySpec ipAddressPropertySpec() {
         return this.getPropertySpecService()
                 .basicPropertySpec(
-                        EIWebConnectionProperties.Fields.IP_ADDRESS.javaName(),
+                        EIWebConnectionPropertiesToFixCaseSensitivyProblem.Fields.IP_ADDRESS.javaName(),
                         true,
                         new StringFactory());
     }
