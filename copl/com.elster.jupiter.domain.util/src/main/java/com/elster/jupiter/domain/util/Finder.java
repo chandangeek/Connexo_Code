@@ -21,13 +21,13 @@ public interface Finder<T> {
      * @param pageSize the number of lines to return.
      * @return A Finder that will return the requested page when asked.
      */
-    public Finder<T> paged(int start, int pageSize);
+    Finder<T> paged(int start, int pageSize);
 
-    public Finder<T> sorted(String sortColumn, boolean ascending);
+    Finder<T> sorted(String sortColumn, boolean ascending);
 
-    public List<T> find();
+    List<T> find();
 
-    public default Finder<T> from(QueryParameters queryParameters) {
+    default Finder<T> from(QueryParameters queryParameters) {
         if (queryParameters.getStart().isPresent() && queryParameters.getLimit().isPresent()) {
             this.paged(queryParameters.getStart().get(), queryParameters.getLimit().get());
         }
@@ -51,7 +51,7 @@ public interface Finder<T> {
      * This method was added to Finder to allow reuse of this finder/query in other queries.
      * For the use of Subquery, see the documentation there
      */
-    public Subquery asSubQuery(String... fieldNames);
+    Subquery asSubQuery(String... fieldNames);
 
     /**
      * This method was added to Finder to allow reuse of this finder/query in other queries.
@@ -61,4 +61,7 @@ public interface Finder<T> {
 
     default Finder<T> maxPageSize(Thesaurus thesaurus, int maxPageSize) { return this; }
 
+    default int count() {
+        throw new UnsupportedOperationException("The method is not implemented on this Finder");
+    }
 }
