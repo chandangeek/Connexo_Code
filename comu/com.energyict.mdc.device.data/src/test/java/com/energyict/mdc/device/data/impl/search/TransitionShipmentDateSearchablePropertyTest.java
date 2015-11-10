@@ -13,7 +13,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TransitionShipmentDateSearchablePropertyTest extends AbstractTransitionSearchablePropertyTest {
+public class TransitionShipmentDateSearchablePropertyTest extends AbstractDateSearchablePropertyTest {
 
     @Before
     public void initializeMocks() {

@@ -13,15 +13,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class TransitionDeactivationDateSearchablePropertyTest extends AbstractDateSearchablePropertyTest {
+public class ChannelLastReadingSearchablePropertyTest extends AbstractDateSearchablePropertyTest {
 
     @Before
     public void initializeMocks() {
         super.initializeMocks();
 
         NlsMessageFormat propertyName = mock(NlsMessageFormat.class);
-        when(propertyName.format(anyVararg())).thenReturn(PropertyTranslationKeys.TRANSITION_DEACTIVATION.getDefaultFormat());
-        when(this.thesaurus.getFormat(PropertyTranslationKeys.TRANSITION_DEACTIVATION)).thenReturn(propertyName);
+        when(propertyName.format(anyVararg())).thenReturn(PropertyTranslationKeys.CHANNEL_LAST_READING.getDefaultFormat());
+        when(thesaurus.getFormat(PropertyTranslationKeys.CHANNEL_LAST_READING)).thenReturn(propertyName);
     }
 
     @Test
@@ -32,10 +32,10 @@ public class TransitionDeactivationDateSearchablePropertyTest extends AbstractDa
         property.getDisplayName();
 
         // Asserts
-        verify(this.thesaurus).getFormat(PropertyTranslationKeys.TRANSITION_DEACTIVATION);
+        verify(this.thesaurus).getFormat(PropertyTranslationKeys.CHANNEL_LAST_READING);
     }
 
     protected SearchableProperty getTestInstance() {
-        return new TransitionDeactivationDateSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain, this.parentGroup);
+        return new ChannelLastReadingSearchableProperty(this.propertySpecService, this.thesaurus).init(this.domain, this.parentGroup);
     }
 }

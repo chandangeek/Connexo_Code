@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
-public abstract class AbstractTransitionSearchablePropertyTest {
+public abstract class AbstractDateSearchablePropertyTest {
 
     @Mock
     DeviceSearchDomain domain;
