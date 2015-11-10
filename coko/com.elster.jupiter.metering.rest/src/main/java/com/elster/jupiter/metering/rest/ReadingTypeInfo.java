@@ -13,6 +13,7 @@ public class ReadingTypeInfo {
     public String mRID;
     public String aliasName;
     public String name;
+    public boolean active;
     public String macroPeriod;
     public String aggregate;
     public String measuringPeriod;
@@ -44,6 +45,7 @@ public class ReadingTypeInfo {
         this.mRID = readingType.getMRID();
         this.aliasName = readingType.getAliasName();
         this.name = readingType.getName();
+        this.active = readingType.getActive();
         this.macroPeriod = readingType.getMacroPeriod().getDescription();
         this.aggregate = readingType.getAggregate().getDescription();
         this.measuringPeriod = readingType.getMeasuringPeriod().getDescription();
