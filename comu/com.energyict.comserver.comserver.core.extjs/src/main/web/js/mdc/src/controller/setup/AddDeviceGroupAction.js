@@ -73,10 +73,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 }
             },
             '#add-devicegroup-browse button[action=search]': {
-                click: {
-                    fn: me.service.applyFilters,
-                    scope: me.service
-                }
+                click: me.applyFilters
             },
             '#add-devicegroup-browse button[action=clearFilters]': {
                 click: {
@@ -125,7 +122,9 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                             devices.getProxy().setExtraParam('id', deviceGroupId);
                             devices.load(function (records) {
                                 mainView.setLoading(false);
+                                Ext.suspendLayouts();
                                 widget.down('static-group-devices-grid').setDevices(records);
+                                Ext.resumeLayouts(true);
                             });
                         } else {
                             mainView.setLoading(false);
@@ -300,7 +299,8 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         if (!isDynamic) {
             staticGrid = step2.down('static-group-devices-grid');
             selectionGroupType = {};
-            staticGrid.getSelectionModel().deselectAll();
+            staticGrid.setDevices([]);
+            staticGrid.getSelectionModel().deselectAll(true);
             staticGrid.getStore().data.clear();
             selectionGroupType[staticGrid.radioGroupName] = staticGrid.allInputValue;
             staticGrid.getSelectionGroupType().setValue(selectionGroupType);
@@ -445,5 +445,14 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 Ext.resumeLayouts(true);
             }
         });
+    },
+
+    applyFilters: function () {
+        var me = this,
+            wizard = me.getAddDeviceGroupWizard(),
+            staticGrid = wizard.down('static-group-devices-grid');
+
+        staticGrid.getSelectionModel().deselectAll(true); // fix the ExtJS error: "getById called for ID that is not present in local cache"
+        me.service.applyFilters.apply(me.service, arguments);
     }
 });
