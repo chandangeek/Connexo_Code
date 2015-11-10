@@ -48,6 +48,10 @@ mail.user=
 mail.password=
 mail.from=
 
+com.elster.jupiter.url.rewrite.host=
+com.elster.jupiter.url.rewrite.port=
+com.elster.jupiter.url.rewrite.scheme=
+
 # Property to set the appserver and comserver name that will start up.
 # Please set to appropriate value if the hostname of the machine cannot be used
 #com.elster.jupiter.server.name=
