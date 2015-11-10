@@ -289,7 +289,6 @@ public class ReadingTypeResource {
     }
 
     @PUT
-    @Path("/")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_READINGTYPE})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response updateReadingTypesByList(ReadingTypeBulkEditInfo readingTypeBulkEditInfo, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
