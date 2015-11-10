@@ -105,6 +105,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
         }
 
         Ext.apply(options.params, params);
+        me.down('button[action=clearAll]').setDisabled(!((options.params.filter && Ext.decode(options.params.filter).length)));
     },
 
     checkGrouping: function (params) {
