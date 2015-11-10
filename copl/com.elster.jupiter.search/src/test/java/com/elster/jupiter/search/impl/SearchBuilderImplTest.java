@@ -76,6 +76,7 @@ public class SearchBuilderImplTest {
         when(this.idSearchProperty.getConstraints()).thenReturn(Collections.<SearchableProperty>emptyList());
         when(this.idSearchProperty.getGroup()).thenReturn(Optional.<SearchablePropertyGroup>empty());
         when(this.idSearchProperty.getSpecification()).thenReturn(idPropertySpec);
+        when(this.idSearchProperty.getName()).thenReturn(ID_PROPERTY_NAME);
         when(this.idSearchProperty.hasName(ID_PROPERTY_NAME)).thenReturn(true);
         PropertySpec namePropertySpec = mock(PropertySpec.class);
         when(namePropertySpec.getName()).thenReturn(NAME_PROPERTY_NAME);
@@ -86,6 +87,7 @@ public class SearchBuilderImplTest {
         when(this.nameSearchProperty.getConstraints()).thenReturn(Collections.<SearchableProperty>emptyList());
         when(this.nameSearchProperty.getGroup()).thenReturn(Optional.<SearchablePropertyGroup>empty());
         when(this.nameSearchProperty.getSpecification()).thenReturn(namePropertySpec);
+        when(this.nameSearchProperty.getName()).thenReturn(NAME_PROPERTY_NAME);
         when(this.nameSearchProperty.hasName(NAME_PROPERTY_NAME)).thenReturn(true);
         when(this.searchDomain.getId()).thenReturn(Example.class.getName());
         when(this.searchDomain.supports(Example.class)).thenReturn(true);
@@ -99,6 +101,7 @@ public class SearchBuilderImplTest {
         when(this.referenceSearchProperty.getConstraints()).thenReturn(Collections.emptyList());
         when(this.referenceSearchProperty.getGroup()).thenReturn(Optional.<SearchablePropertyGroup>empty());
         when(this.referenceSearchProperty.getSpecification()).thenReturn(refPropertySpec);
+        when(this.referenceSearchProperty.getName()).thenReturn(REF_PROPERTY_NAME);
         when(this.referenceSearchProperty.hasName(REF_PROPERTY_NAME)).thenReturn(true);
         when(this.searchDomain.getProperties()).thenReturn(Arrays.asList(this.idSearchProperty, this.nameSearchProperty, this.referenceSearchProperty));
     }

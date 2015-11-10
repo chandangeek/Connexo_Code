@@ -40,6 +40,14 @@ public final class SearchablePropertyValue {
         this.valueBean.operator.appendCriteria(this.property, criterionBuilder, getValues());
     }
 
+    public SearchableProperty getProperty() {
+        return property;
+    }
+
+    public ValueBean getValueBean() {
+        return valueBean;
+    }
+
     /**
      * Serializable representation of searchable property value
      */

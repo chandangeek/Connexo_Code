@@ -3,6 +3,7 @@ package com.elster.jupiter.search;
 import com.elster.jupiter.domain.util.Finder;
 
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Models a set of possible values for searching purposes.
@@ -74,6 +75,7 @@ public interface SearchDomain {
      */
     public List<SearchableProperty> getPropertiesWithConstrictions(List<SearchablePropertyConstriction> constrictions);
 
+    List<SearchablePropertyValue> getPropertiesValues(Function<SearchableProperty, SearchablePropertyValue> mapper);
     /**
      * Creates a Finder for instances of this SearchDomain
      * for the specified {@link SearchablePropertyCondition}s.
