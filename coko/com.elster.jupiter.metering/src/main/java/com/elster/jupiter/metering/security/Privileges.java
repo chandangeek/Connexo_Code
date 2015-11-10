@@ -16,7 +16,9 @@ public enum Privileges implements TranslationKey {
 	BROWSE_ANY(Constants.BROWSE_ANY, "Browse Any Usage Point"),
 	ADMIN_ANY(Constants.ADMIN_ANY, "Administrate Any Usage Point"),
 	BROWSE_OWN(Constants.BROWSE_OWN, "Browse Own Usage Point"),
-	ADMIN_OWN(Constants.ADMIN_OWN, "Administrate Own Usage Point");
+	ADMIN_OWN(Constants.ADMIN_OWN, "Administrate Own Usage Point"),
+	VIEW_READINGTYPE(Constants.VIEW_READINGTYPE, "View Reading Types"),
+	ADMINISTRATE_READINGTYPE(Constants.ADMINISTRATE_READINGTYPE, "Administrate Reading Types");
 
 	private final String key;
 	private final String description;
@@ -51,5 +53,7 @@ public enum Privileges implements TranslationKey {
 		String ADMIN_ANY = "MTR_ADMIN_ANYUSAGEPOINT";
 		String BROWSE_OWN = "MTR_BROWSE_OWNUSAGEPOINT";
 		String ADMIN_OWN = "MTR_ADMIN_OWN";
+		String VIEW_READINGTYPE = "privilege.view.readingType";
+		String ADMINISTRATE_READINGTYPE = "privilege.administrate.readingType";
 	}
 }

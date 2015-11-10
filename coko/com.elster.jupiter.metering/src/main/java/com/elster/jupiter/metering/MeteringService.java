@@ -30,7 +30,11 @@ public interface MeteringService {
 
     Optional<ReadingType> getReadingType(String mRid);
 
-    List<ReadingType> getReadingTypes(List<String> mRids);
+    List<ReadingType> findReadingTypes(List<String> mRids);
+
+    Finder<ReadingType> findReadingTypes(ReadingTypeFilter filter);
+
+    Optional<ReadingType> findAndLockReadingTypeByIdAndVersion(String mRID, long version);
 
     Optional<ServiceLocation> findServiceLocation(String mRid);
 

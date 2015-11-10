@@ -29,6 +29,7 @@ import com.elster.jupiter.metering.UsagePointAccountability;
 import com.elster.jupiter.metering.UsagePointConnectedKind;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.UsagePointFilter;
+import com.elster.jupiter.metering.ReadingTypeFilter;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
 import com.elster.jupiter.metering.security.Privileges;
@@ -149,8 +150,18 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     }
 
     @Override
-    public List<ReadingType> getReadingTypes(List<String> mRids) {
+    public List<ReadingType> findReadingTypes(List<String> mRids) {
        return dataModel.mapper(ReadingType.class).select(Where.where("mRID").in(mRids));
+    }
+
+    @Override
+    public Finder<ReadingType> findReadingTypes(ReadingTypeFilter filter){
+        return DefaultFinder.of(ReadingType.class,filter.getCondition(),dataModel);
+    }
+
+    @Override
+    public Optional<ReadingType> findAndLockReadingTypeByIdAndVersion(String mRID, long version){
+        return dataModel.mapper(ReadingType.class).lockObjectIfVersion(version, mRID);
     }
 
     @Override
