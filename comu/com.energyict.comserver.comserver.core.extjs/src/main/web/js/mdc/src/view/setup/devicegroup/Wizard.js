@@ -111,13 +111,13 @@ Ext.define('Mdc.view.setup.devicegroup.Wizard', {
         if (!updatedRecord.get('dynamic')) {
             staticGrid = me.down('static-group-devices-grid');
             if (staticGrid.isAllSelected()) {
-                updatedRecord.set('devices', null);
+                updatedRecord.set('devices', !me.service.getSearchResultsStore().filters.getCount() ? [] : null);
             } else if (staticGrid.devices) {
                 updatedRecord.set('devices', staticGrid.devices);
             } else {
                 devices = [];
                 Ext.Array.each(staticGrid.getSelectionModel().getSelection(), function (device) {
-                    devices.push(device.get('mRID'));
+                    devices.push(device.get('id'));
                 });
                 updatedRecord.set('devices', devices);
             }

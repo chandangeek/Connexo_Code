@@ -49,16 +49,16 @@ Ext.define('Mdc.view.setup.devicegroup.StaticGroupDevicesGrid', {
 
     setDevices: function (devices) {
         var me = this,
-            mRIDs = [],
+            ids = [],
             selectionGroupType = {};
 
         me.un('selectionchange', me.onSelectionChange, me);
         selectionGroupType[me.radioGroupName] = me.allInputValue;
         me.getSelectionGroupType().setValue(selectionGroupType);
         Ext.Array.each(devices, function (device) {
-            mRIDs.push(device.get('mRID'));
+            ids.push(device.get('id'));
         });
-        me.devices = mRIDs;
+        me.devices = ids;
         me.getSelectionCounter().setText(me.counterTextFn(me.devices.length));
         me.getUncheckAllButton().setDisabled(me.devices.length === 0);
         me.on('select', me.onSelect, me);
@@ -74,7 +74,7 @@ Ext.define('Mdc.view.setup.devicegroup.StaticGroupDevicesGrid', {
     onSelect: function (selectionModel, record) {
         var me = this;
 
-        Ext.Array.include(me.devices, record.get('mRID'));
+        Ext.Array.include(me.devices, record.get('id'));
         Ext.suspendLayouts();
         me.getSelectionCounter().setText(me.counterTextFn(me.devices.length));
         me.getUncheckAllButton().setDisabled(me.devices.length === 0);
@@ -84,7 +84,7 @@ Ext.define('Mdc.view.setup.devicegroup.StaticGroupDevicesGrid', {
     onBeforeDeselect: function (selectionModel, record) {
         var me = this;
 
-        Ext.Array.remove(me.devices, record.get('mRID'));
+        Ext.Array.remove(me.devices, record.get('id'));
         Ext.suspendLayouts();
         me.getSelectionCounter().setText(me.counterTextFn(me.devices.length));
         me.getUncheckAllButton().setDisabled(me.devices.length === 0);
@@ -97,7 +97,7 @@ Ext.define('Mdc.view.setup.devicegroup.StaticGroupDevicesGrid', {
             toSelect = [];
 
         Ext.Array.each(records, function (record) {
-            if (Ext.Array.contains(me.devices, record.get('mRID'))) {
+            if (Ext.Array.contains(me.devices, record.get('id'))) {
                 toSelect.push(record);
             }
         });
