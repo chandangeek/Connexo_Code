@@ -85,16 +85,7 @@ Ext.define('Bpm.view.task.OpenTask', {
                                                 queryMode: 'local',
                                                 name: 'assignee',
                                                 required: true
-                                            }/*,
-                                             {
-                                             text: Uni.I18n.translate('task.task.assignee.save', 'BPM', 'Save'),
-                                             xtype: 'button',
-                                             ui: 'action',
-                                             itemId: 'btn-assignee-user-save',
-                                             action: 'saveAssigneeUser',
-                                             margin: '0 0 0 80',
-                                             taskRecord: me.taskRecord
-                                             }*/
+                                            }
                                         ]
                                     },
                                     {
@@ -233,40 +224,11 @@ Ext.define('Bpm.view.task.OpenTask', {
                                     {
                                         xtype: 'grouped-property-form'
                                     },
-
-                                    /*   {
-                                           xtype: 'container',
-                                           margin: 10,
-                                           padding: 10,
-                                           border: 1,
-
-                                           height: 320,
-                                           layout: {
-                                               type: 'vbox',
-                                               align: 'stretch'
-                                           },
-                                           items: [
-                                               {
-                                                   xtype: 'container',
-                                                   itemId: 'formContent',
-                                                   height: 300
-                                               }
-                                           ]
-                                       },*/
                                     {
                                         xtype: 'container',
                                         margin: '10 0 0 265',
                                         layout: 'hbox',
                                         items: [
-                                        /*    {
-                                                text: Uni.I18n.translate('task.action.claim', 'BPM', 'Claim'),
-                                                xtype: 'button',
-                                                hidden: true,
-                                                ui: 'action',
-                                                itemId: 'btn-claim',
-                                                action: 'claimTask',
-                                                taskRecord: me.taskRecord
-                                            },*/
                                             {
                                                 text: Uni.I18n.translate('task.action.save', 'BPM', 'Save'),
                                                 xtype: 'button',

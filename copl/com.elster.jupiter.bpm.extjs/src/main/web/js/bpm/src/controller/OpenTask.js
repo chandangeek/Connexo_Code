@@ -53,10 +53,6 @@ Ext.define('Bpm.controller.OpenTask', {
             selector: 'bpm-task-open-task #task-execution-form'
         },
         {
-            ref: 'btnClaim',
-            selector: 'bpm-task-open-task #btn-claim'
-        },
-        {
             ref: 'btnRelease',
             selector: 'bpm-task-open-task #btn-release'
         },
@@ -73,8 +69,6 @@ Ext.define('Bpm.controller.OpenTask', {
             selector: 'bpm-task-open-task #btn-complete'
         }
     ],
-    listener: null,
-    loadingObject: null,
 
     init: function () {
         this.control({
@@ -83,9 +77,6 @@ Ext.define('Bpm.controller.OpenTask', {
             },
             'bpm-task-open-task #btn-task-save': {
                 click: this.saveTask
-            },
-            'bpm-task-open-task #btn-claim': {
-                click: this.chooseAction
             },
             'bpm-task-open-task #btn-release': {
                 click: this.chooseAction
@@ -103,22 +94,7 @@ Ext.define('Bpm.controller.OpenTask', {
                 change: this.updatePriority
             }
         });
-        /*var me = this;
-        listener = function dolisten(event) {
 
-            me.getFormContainer().setLoading(false);
-            var task = me.getModel('Bpm.model.task.Task');
-            task.load(me.getOpenTaskPage().taskRecord.get('id'), {
-                success: function (taskRecord) {
-                    me.refreshButtons(taskRecord);
-                }
-            });
-        }
-        if (window.addEventListener) {
-            addEventListener("message", listener, false)
-        } else {
-            attachEvent("onmessage", listener)
-        }*/
     },
 
     showOpenTask: function (taskId) {
@@ -161,17 +137,11 @@ Ext.define('Bpm.controller.OpenTask', {
                 topTitle = openTaskView.down('#detail-top-title');
                 topTitle.setTitle(Ext.String.format(Uni.I18n.translate('bpm.task.openTaskTitle', 'BPM', "'{0}' task"), taskRecord.get('name')));
 
-                //openTaskForm.loadRecord(taskRecord);
                 me.getApplication().fireEvent('changecontentevent', openTaskView);
-
-
                 me.loadAssigneeForm(taskRecord);
                 me.loadEditTaskForm(taskRecord);
                 me.loadAboutTaskForm(taskRecord);
                 me.loadJbpmForm(taskRecord);
-                //    me.loadBpmForm(taskRecord);
-
-
             },
             failure: function (record, operation) {
             }
@@ -313,7 +283,6 @@ Ext.define('Bpm.controller.OpenTask', {
         var me = this,
             status = taskRecord.get('status');
 
-        //me.getBtnClaim().setVisible(status == "Ready");
         me.getBtnRelease().setVisible((status == "Reserved") || (status == "InProgress"));
         me.getBtnStart().setVisible((status == "Reserved"));
         me.getBtnSave().setVisible(status == "InProgress");
@@ -337,7 +306,7 @@ Ext.define('Bpm.controller.OpenTask', {
         openTaskRecord.set('action', action);
         openTaskRecord.endEdit();
 
-        // remove abocve code
+
         var task = me.getModel('Bpm.model.task.Task');
         task.load(openTaskRecord.get('id'), {
             success: function (taskRecord) {
@@ -385,121 +354,5 @@ Ext.define('Bpm.controller.OpenTask', {
             }
         })*/
     }
-    /*
 
-    loadBpmForm: function (taskRecord) {
-        var me = this,
-            flowUrl;
-
-        if (!me.getFormContainer()) {
-            return;
-        }
-
-        me.getFormContainer().setLoading();
-        var rowIndex = Uni.store.Apps.findExact('name', 'Flow');
-        if (rowIndex != -1) {
-            flowUrl = Uni.store.Apps.getAt(rowIndex).get('url');
-            Ext.Ajax.request({
-                url: flowUrl + '/rest/task/' + taskRecord.get('id') + '/showTaskForm',
-                method: 'GET',
-                success: function (operation) {
-                    try {
-                        var xmlDoc = me.getXMLDoc(operation.responseText);
-
-                        if (!xmlDoc) {
-                            return;
-                        }
-                        var status = xmlDoc.getElementsByTagName("status");
-
-                        if (status && status.length > 0 && status[0].childNodes.length > 0) {
-                            status = status[0].childNodes[0].nodeValue;
-
-                            var openTaskPage = me.getOpenTaskPage(),
-                                formContent = me.getFormContent();
-
-                            if (status == 'SUCCESS') {
-                                var formURL = xmlDoc.getElementsByTagName("formUrl");
-                                if (formURL && formURL.length > 0 && formURL[0].childNodes.length > 0) {
-                                    openTaskPage.formURL = formURL[0].childNodes[0].nodeValue;
-                                    var html = "<iframe id='iframeId' src='" + openTaskPage.formURL + "' frameborder='0' style='width:100%; height:100%'></iframe>";
-
-                                    formContent.getEl().dom.innerHTML = html;
-
-                                    document.getElementById("iframeId").addEventListener('load', function () {
-                                        me.getFormContainer().setLoading(false);
-                                    });
-                                    //me.resizeReportPanel(formContent);
-                                    me.refreshButtons(taskRecord);
-
-                                }
-                            }
-
-                        }
-
-                    } catch (err) {
-                        me.getFormContainer().setLoading(false);
-                    }
-                }
-            })
-
-        }
-    },
-
-    getXMLDoc: function (xml) {
-        if (!xml) return;
-
-        var xmlDoc;
-        if (window.DOMParser) {
-            var parser = new DOMParser();
-            xmlDoc = parser.parseFromString(xml, "text/xml");
-        } else { // Internet Explorer
-            xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
-            xmlDoc.async = false;
-            xmlDoc.loadXML(xml);
-        }
-        return xmlDoc;
-    },
-
-    resizeReportPanel: function (component) {
-
-        if (!component)
-            return;
-
-        var options = {};
-        options.element = component.getEl().dom;
-        options.height = component.getHeight() - 38;
-        options.width = component.getWidth() - 3;
-        options.showTitle = false;
-        if (options.showTitle)
-            options.height -= 30;
-    },
-
-    refreshButtons: function (taskRecord) {
-        var me = this,
-            status = taskRecord.get('status');
-
-        me.getBtnClaim().setVisible(status == "Ready");
-        me.getBtnRelease().setVisible((status == "Reserved") || (status == "InProgress"));
-        me.getBtnStart().setVisible((status == "Reserved"));
-        me.getBtnSave().setVisible(status == "InProgress");
-        me.getBtnComplete().setVisible(status == "InProgress");
-        me.getBtnTaskActions().setVisible(false);
-    },
-
-    chooseAction: function (button, item) {
-        var me = this,
-            action = button.action,
-            taskRecord = button.taskRecord;
-
-        var rowIndex = Uni.store.Apps.findExact('name', 'Flow');
-        if (rowIndex != -1) {
-            flowUrl = Uni.store.Apps.getAt(rowIndex).get('url');
-            var frame = document.getElementById('iframeId').contentWindow;
-
-            me.getFormContainer().setLoading();
-            var request = '{"action":"' + action + '","taskId":"' + taskRecord.get('id') + '"}';
-            frame.postMessage(request, me.getOpenTaskPage().formURL);
-        }
-    }
-*/
 });
