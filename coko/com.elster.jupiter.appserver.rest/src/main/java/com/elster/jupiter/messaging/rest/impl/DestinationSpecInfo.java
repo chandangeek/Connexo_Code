@@ -16,7 +16,7 @@ public class DestinationSpecInfo {
     public DestinationType type;
     public boolean active;
     public boolean buffered;
-    public long retryDelayInSeconds;
+    public int retryDelayInSeconds;
     public int numberOfRetries;
     public long version;
     public Long numberOfMessages;
@@ -28,7 +28,7 @@ public class DestinationSpecInfo {
         info.name = destinationSpec.getName();
         info.type = DestinationType.typeOf(destinationSpec);
         info.buffered = destinationSpec.isBuffered();
-        info.retryDelayInSeconds = destinationSpec.retryDelay().getSeconds();
+        info.retryDelayInSeconds = (int) destinationSpec.retryDelay().getSeconds();
         info.numberOfRetries = destinationSpec.numberOfRetries();
         info.active = destinationSpec.isActive();
         info.version = destinationSpec.getVersion();
