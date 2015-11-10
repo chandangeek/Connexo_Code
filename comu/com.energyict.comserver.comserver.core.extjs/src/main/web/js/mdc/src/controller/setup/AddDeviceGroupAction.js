@@ -219,16 +219,15 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             wizard = me.getAddDeviceGroupWizard(),
             record = Ext.clone(wizard.getRecord()),
             valid = true,
-            isDynamic,
-            devices;
+            isDynamic;
 
         wizard.updateRecord(record);
         isDynamic = record.get('dynamic');
-        devices = record.get('devices');
 
-        if (!isDynamic) {
-            valid = !devices || !!devices.length;
+        if (isDynamic) {
+            valid = !!me.countNumberOfSearchCriteria();
             me.getStep2FormErrorMessage().setVisible(!valid);
+            wizard.down('#selection-criteria-error').setVisible(!valid);
         }
 
         return valid;
@@ -256,6 +255,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                 break;
             case 2:
                 me.getStep2FormErrorMessage().hide();
+                wizard.down('#selection-criteria-error').hide();
                 nextBtn.show();
                 backBtn.show();
                 backBtn.enable();

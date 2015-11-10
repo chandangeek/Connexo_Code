@@ -60,7 +60,6 @@ Ext.define('Mdc.view.setup.devicegroup.Step2', {
                 {
                     itemId: 'step2-adddevicegroup-errors',
                     xtype: 'uni-form-error-message',
-                    text: Uni.I18n.translate('devicegroup.noDevicesSelected', 'MDC', 'Please select at least one device.'),
                     hidden: true
                 },
                 {
@@ -129,6 +128,13 @@ Ext.define('Mdc.view.setup.devicegroup.Step2', {
                             }
                         ]
                     }
+                },
+                {
+                    xtype: 'component',
+                    itemId: 'selection-criteria-error',
+                    cls: 'x-form-invalid-under',
+                    html: Uni.I18n.translate('devicegroup.noCriteriasSelected', 'MDC', 'Please select at least one criteria'),
+                    hidden: true
                 }
             ]
         };
