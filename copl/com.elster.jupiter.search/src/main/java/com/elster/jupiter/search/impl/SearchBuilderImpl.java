@@ -62,6 +62,11 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
         return (Finder<T>) this.searchDomain.finderFor(Collections.unmodifiableList(this.conditions));
     }
 
+    @Override
+    public List<SearchablePropertyCondition> getConditions() {
+        return Collections.unmodifiableList(conditions);
+    }
+
     private void validateNoIncompleteBuilders() {
         if (!this.incompleteBuilders.isEmpty()) {
             throw new IllegalStateException("At least one criterion remains unspecified, please call one of the CriterionBuilder methods");

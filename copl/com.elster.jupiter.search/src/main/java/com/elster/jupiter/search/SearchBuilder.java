@@ -82,6 +82,12 @@ public interface SearchBuilder<T> {
     public Finder<T> toFinder();
 
     /**
+     * Gets the list of {@link SearchablePropertyCondition}s built by the builder
+     * @return The list of SearchablePropertyConditions
+     */
+    List<SearchablePropertyCondition> getConditions();
+
+    /**
      * Supports building criteria that must
      * hold for instances returned by the search
      * that is under construction.
