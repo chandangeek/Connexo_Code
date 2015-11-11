@@ -29,10 +29,10 @@ public enum Privileges implements TranslationKey {
     VIEW_CUSTOM_PROPERTIES_3(Constants.VIEW_CUSTOM_PROPERTIES_3, "View level 3"),
     VIEW_CUSTOM_PROPERTIES_4(Constants.VIEW_CUSTOM_PROPERTIES_4, "View level 4"),
 
-    EDIT_CUSTOM_PROPERTIES_1(Constants.EDIT_CUSTOM_PROPERTIES_1, "EDIT level 1"),
-    EDIT_CUSTOM_PROPERTIES_2(Constants.EDIT_CUSTOM_PROPERTIES_2, "EDIT level 2"),
-    EDIT_CUSTOM_PROPERTIES_3(Constants.EDIT_CUSTOM_PROPERTIES_3, "EDIT level 3"),
-    EDIT_CUSTOM_PROPERTIES_4(Constants.EDIT_CUSTOM_PROPERTIES_4, "EDIT level 4");
+    EDIT_CUSTOM_PROPERTIES_1(Constants.EDIT_CUSTOM_PROPERTIES_1, "Edit level 1"),
+    EDIT_CUSTOM_PROPERTIES_2(Constants.EDIT_CUSTOM_PROPERTIES_2, "Edit level 2"),
+    EDIT_CUSTOM_PROPERTIES_3(Constants.EDIT_CUSTOM_PROPERTIES_3, "Edit level 3"),
+    EDIT_CUSTOM_PROPERTIES_4(Constants.EDIT_CUSTOM_PROPERTIES_4, "Edit level 4");
 
     private final String key;
     private final String description;
