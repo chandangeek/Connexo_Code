@@ -197,6 +197,7 @@ public class DeviceSearchDomainTest {
         verify(this.dataModel).getInstance(LogbookNameSearchableProperty.class);
         verify(this.dataModel).getInstance(LogbookObisCodeSearchableProperty.class);
         verify(this.dataModel).getInstance(LogbookLastReadingSearchableProperty.class);
+        verify(this.dataModel).getInstance(LogbookLastEventTimestampSearchableProperty.class);
         verify(this.dataModel).getInstance(LoadProfileNameSearchableProperty.class);
         verify(this.dataModel).getInstance(LoadProfileLastReadingSearchableProperty.class);
         verify(this.dataModel).getInstance(ComTaskNameSearchableProperty.class);
@@ -508,6 +509,12 @@ public class DeviceSearchDomainTest {
                 eq(LogbookLastReadingSearchableProperty.PROPERTY_NAME),
                 eq(false),
                 Matchers.<StringFactory>anyObject())).thenReturn(lastReadingSpec);
+        PropertySpec lastEventSpec = mock(PropertySpec.class);
+        when(lastEventSpec.getName()).thenReturn(LogbookLastEventTimestampSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.basicPropertySpec(
+                eq(LogbookLastEventTimestampSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                Matchers.<StringFactory>anyObject())).thenReturn(lastEventSpec);
     }
 
 
