@@ -47,7 +47,7 @@ public class SubsystemServiceImpl implements SubsystemService, PrivilegesProvide
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
         resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
-                "deployment.info", "deployment.info.description",
+                Privileges.RESOURCE_DEPLOYMENT_INFO.getKey(), Privileges.RESOURCE_DEPLOYMENT_INFO_DESCRIPTION.getKey(),
                 Arrays.asList(Privileges.Constants.VIEW_DEPLOYMENT_INFORMATION)));
         return resources;
     }
