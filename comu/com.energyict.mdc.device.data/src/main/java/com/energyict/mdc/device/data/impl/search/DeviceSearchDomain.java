@@ -162,6 +162,7 @@ public class DeviceSearchDomain implements SearchDomain {
         Predicate<SearchableProperty> uniqueName = p -> uniqueNames.add(p.getName());
         fixedProperties.stream().filter(uniqueName).forEach(properties::add);
         getProtocolDialectDynamicProperties(constrictions).stream().filter(uniqueName).forEach(properties::add);
+        getGeneralAttributesDynamicProperties(constrictions).stream().filter(uniqueName).forEach(properties::add);
         return properties;
     }
 
@@ -186,6 +187,31 @@ public class DeviceSearchDomain implements SearchDomain {
                 for (PropertySpec propertySpec : protocolDialect.getProtocolDialect().getPropertySpecs()) {
                     dynamicProperties.add(injector.getInstance(ProtocolDialectDynamicSearchableProperty.class)
                             .init(this, propertiesGroup, propertySpec, protocolDialect, relationTableName));
+                }
+            }
+            return dynamicProperties;
+        }
+        return Collections.emptyList();
+    }
+
+    private List<SearchableProperty> getGeneralAttributesDynamicProperties(Collection<SearchablePropertyConstriction> constrictions) {
+        Optional<SearchablePropertyConstriction> deviceTypeConstriction = constrictions
+                .stream()
+                .filter(p -> DeviceTypeSearchableProperty.PROPERTY_NAME.equals(p.getConstrainingProperty().getName()))
+                .findFirst();
+        if (deviceTypeConstriction.isPresent()) {
+            DataModel injector = this.deviceDataModelService.dataModel();
+            GeneralAttributesDynamicSearchableGroup propertiesGroup = injector.getInstance(GeneralAttributesDynamicSearchableGroup.class);
+            List<SearchableProperty> dynamicProperties = new ArrayList<>();
+            Set<Long> uniquePluggableClasses = new HashSet<>();
+            for (Object value : deviceTypeConstriction.get().getConstrainingValues()) {
+                DeviceProtocolPluggableClass pluggableClass = ((DeviceType) value).getDeviceProtocolPluggableClass();
+                if (!uniquePluggableClasses.add(pluggableClass.getId())) {
+                    continue;
+                }
+                for (PropertySpec propertySpec : pluggableClass.getDeviceProtocol().getPropertySpecs()) {
+                    dynamicProperties.add(injector.getInstance(GeneralAttributeDynamicSearchableProperty.class)
+                            .init(this, propertiesGroup, propertySpec, pluggableClass));
                 }
             }
             return dynamicProperties;
