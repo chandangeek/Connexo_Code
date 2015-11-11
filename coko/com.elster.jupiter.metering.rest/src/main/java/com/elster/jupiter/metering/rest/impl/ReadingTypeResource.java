@@ -181,6 +181,9 @@ public class ReadingTypeResource {
     public Response createReadingType(CreateReadingTypeInfo createReadingTypeInfo) {
         List<String> mRIDs = new ArrayList<>();
         if (!Checks.is(createReadingTypeInfo.mRID).emptyOrOnlyWhiteSpace()) {
+            if (meteringService.getReadingType(createReadingTypeInfo.mRID).isPresent()) {
+                throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.READINGTYPE_ALREADY_EXISTS, createReadingTypeInfo.mRID);
+            }
             mRIDs.add(createReadingTypeInfo.mRID);
         } else {
             long countVariations = createReadingTypeInfo.countVariations();
