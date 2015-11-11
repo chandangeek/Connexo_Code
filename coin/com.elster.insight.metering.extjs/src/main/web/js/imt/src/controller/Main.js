@@ -32,7 +32,8 @@ Ext.define('Imt.controller.Main', {
         'Imt.metrologyconfiguration.controller.View',
         'Imt.metrologyconfiguration.controller.Edit',
         'Imt.metrologyconfiguration.controller.ViewList',
-        'Imt.controller.History'
+        'Imt.controller.History',
+        'Imt.controller.Search'
     ],
 
     refs: [
