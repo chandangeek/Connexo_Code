@@ -3,18 +3,18 @@ Ext.define('Imt.controller.History', {
 
     routeConfig: {
         usagepoints: {
-            title: Uni.I18n.translate('general.label.usagepoints', 'INS', 'Usage points'),
+            title: Uni.I18n.translate('general.label.usagepoints', 'IMT', 'Usage points'),
             route: 'usagepoints',
             disabled: true,
             items: {
             	add: {
-                	title: Uni.I18n.translate('general.label.usagepoint.add', 'INS', 'Add usage point'),
+                	title: Uni.I18n.translate('general.label.usagepoint.add', 'IMT', 'Add usage point'),
                     route: 'add',
                     controller: 'Imt.usagepointmanagement.controller.Edit',
                     action: 'createUsagePoint'
             	},
            		view: {
-           			title: Uni.I18n.translate('general.label.usagepoint.view', 'INS', 'View usage point'),
+           			title: Uni.I18n.translate('general.label.usagepoint.view', 'IMT', 'View usage point'),
            			route: '{mRID}',
            			controller: 'Imt.usagepointmanagement.controller.View',
            			action: 'showUsagePoint',
@@ -28,13 +28,13 @@ Ext.define('Imt.controller.History', {
                     },
            			items: {
            			    channels: {
-                            title: Uni.I18n.translate('general.label.usagepoint.channels', 'INS', 'Channels'),
+                            title: Uni.I18n.translate('general.label.usagepoint.channels', 'IMT', 'Channels'),
                             route: 'channels',
                             controller: 'Imt.channeldata.controller.View',
                             action: 'showUsagePointChannels',
                             items: {
                                 channel: {
-                                    title: Uni.I18n.translate('general.label.usagepoint.channel', 'INS', 'Channel'),
+                                    title: Uni.I18n.translate('general.label.usagepoint.channel', 'IMT', 'Channel'),
                                     route: '{channelId}',
                                     controller: 'Imt.channeldata.controller.View',
                                     action: 'showUsagePointChannelData',
@@ -50,13 +50,13 @@ Ext.define('Imt.controller.History', {
                             }
            			    },
            			    registers: {
-                            title: Uni.I18n.translate('general.label.usagepoint.registers', 'INS', 'Registers'),
+                            title: Uni.I18n.translate('general.label.usagepoint.registers', 'IMT', 'Registers'),
                             route: 'registers',
                             controller: 'Imt.registerdata.controller.View',
                             action: 'showUsagePointRegisters',
                             items: {
                             	register: {
-                                    title: Uni.I18n.translate('general.label.usagepoint.register', 'INS', 'Register'),
+                                    title: Uni.I18n.translate('general.label.usagepoint.register', 'IMT', 'Register'),
                                     route: '{registerId}',
                                     controller: 'Imt.registerdata.controller.View',
                                     action: 'showUsagePointRegisterData',
@@ -74,13 +74,13 @@ Ext.define('Imt.controller.History', {
            			}
            		},
    				edit: {
-                	title: Uni.I18n.translate('general.label.usagepoint.edit', 'INS', 'Edit usage point'),
+                	title: Uni.I18n.translate('general.label.usagepoint.edit', 'IMT', 'Edit usage point'),
                     route: '{mRID}/edit',
                     controller: 'Imt.usagepointmanagement.controller.Edit',
                     action: 'editUsagePoint'               					
    				},
                 device: {
-                    title: Uni.I18n.translate('general.label.device.view', 'INS', 'View device'),
+                    title: Uni.I18n.translate('general.label.device.view', 'IMT', 'View device'),
                     route: 'device/{mRID}',
                     controller: 'Imt.devicemanagement.controller.Device',
                     action: 'showDevice'
@@ -88,24 +88,24 @@ Ext.define('Imt.controller.History', {
             }
         },
         administration: {
-            title: Uni.I18n.translate('general.label.metrologyconfiguration', 'INS', 'Metrology configuration'),
+            title: Uni.I18n.translate('general.label.metrologyconfiguration', 'IMT', 'Metrology configuration'),
             route: 'administration',
             disabled: true,
             items: {
                 metrologyconfiguration: {
-                    title: Uni.I18n.translate('general.label.metrologyconfiguration.list', 'INS', 'Metrology configurations'),
+                    title: Uni.I18n.translate('general.label.metrologyconfiguration.list', 'IMT', 'Metrology configurations'),
                     route: 'metrologyconfiguration',
                     controller: 'Imt.metrologyconfiguration.controller.ViewList',
                     action: 'showMetrologyConfigurationList',
                     items: {
                         add: {
-                            title: Uni.I18n.translate('general.label.metrologyconfiguration.add', 'INS', 'Add metrology configuration'),
+                            title: Uni.I18n.translate('general.label.metrologyconfiguration.add', 'IMT', 'Add metrology configuration'),
                             route: 'add',
                             controller: 'Imt.metrologyconfiguration.controller.Edit',
                             action: 'createMetrologyConfiguration'
                         },
                         view: {
-                            title: Uni.I18n.translate('general.label.metrologyconfiguration.view', 'INS', 'View metrology configuration'),
+                            title: Uni.I18n.translate('general.label.metrologyconfiguration.view', 'IMT', 'View metrology configuration'),
                             route: '{mcid}/view',
                             controller: 'Imt.metrologyconfiguration.controller.View',
                             action: 'showMetrologyConfiguration',
@@ -119,19 +119,13 @@ Ext.define('Imt.controller.History', {
                             },
                         },
                         edit: {
-                            title: Uni.I18n.translate('general.label.metrologyconfiguration.edit', 'INS', 'Edit metrology configuration'),
+                            title: Uni.I18n.translate('general.label.metrologyconfiguration.edit', 'IMT', 'Edit metrology configuration'),
                             route: '{mcid}/edit',
                             controller: 'Imt.metrologyconfiguration.controller.Edit',
                             action: 'editMetrologyConfiguration'                                
                         },
-//                        remove: {
-//                            title: Uni.I18n.translate('general.label.metrologyconfiguration.remove', 'INS', 'Remove metrology configuration'),
-//                            route: '{mcid}/remove',
-//                            controller: 'Imt.metrologyconfiguration.controller.Edit',
-//                            action: 'removeMetrologyConfiguration'                                  
-//                        },
                         manage: {
-                            title: Uni.I18n.translate('general.label.metrologyconfiguration.valruleset.manage', 'INS', 'Manage metrology configuration validation rule sets'),
+                            title: Uni.I18n.translate('general.label.metrologyconfiguration.valruleset.manage', 'IMT', 'Manage metrology configuration validation rule sets'),
                             route: '{mcid}/manage',
                             controller: 'Imt.metrologyconfiguration.controller.Edit',
                             action: 'manageValidationRuleSets',
