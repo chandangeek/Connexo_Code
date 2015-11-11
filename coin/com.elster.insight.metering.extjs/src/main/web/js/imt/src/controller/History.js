@@ -88,7 +88,7 @@ Ext.define('Imt.controller.History', {
             }
         },
         administration: {
-            title: Uni.I18n.translate('general.label.metrologyconfiguration', 'IMT', 'Metrology configuration'),
+            title: Uni.I18n.translate('general.label.administration', 'IMT', 'Administration'),
             route: 'administration',
             disabled: true,
             items: {
