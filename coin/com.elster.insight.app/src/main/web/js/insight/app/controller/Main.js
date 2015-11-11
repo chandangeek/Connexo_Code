@@ -41,7 +41,7 @@ Ext.define('InsightApp.controller.Main', {
 
     initMenu: function () {
         var menuItem = Ext.create('Uni.model.MenuItem', {
-            text: Uni.I18n.translate('general.usagepoints', 'INS', 'Usage Points'),
+            text: Uni.I18n.translate('general.label.usagepoints', 'INS', 'Usage points'),
             href: 'usagepoints',
             portal: 'usagepoints',
             glyph: 'devices'
@@ -50,11 +50,11 @@ Ext.define('InsightApp.controller.Main', {
         Uni.store.MenuItems.add(menuItem);
 
         var portalItem1 = Ext.create('Uni.model.PortalItem', {
-            title: Uni.I18n.translate('general.administration', 'IMT', 'Administration'),
+            title: Uni.I18n.translate('general.label.administration', 'INS', 'Administration'),
             portal: 'usagepoints',
             items: [
                 {
-                    text: Uni.I18n.translate('general.usagePointAdd', 'IMT', 'Add Usage Point'),
+                    text: Uni.I18n.translate('general.label.usagepoint.add', 'INS', 'Add usage point'),
                     href: '#/usagepoints/add',
                     itemId: 'add-usagepoints'
                 },
@@ -66,11 +66,11 @@ Ext.define('InsightApp.controller.Main', {
         );
         
         var portalItem2 = Ext.create('Uni.model.PortalItem', {
-            title: Uni.I18n.translate('general.metrologyconfiguration', 'IMT', 'Metrology configuration'),
+            title: Uni.I18n.translate('general.label.metrologyconfiguration', 'INS', 'Metrology configuration'),
             portal: 'administration',
             items: [
                 {
-                    text: Uni.I18n.translate('general.metrologyConfigurations', 'INS', 'Metrology Configurations'),
+                    text: Uni.I18n.translate('general.label.metrologyconfiguration', 'INS', 'Metrology configuration'),
                     href: '#/administration/metrologyconfiguration',
                     itemId: 'overview-metrologyconfiguration'
                 },

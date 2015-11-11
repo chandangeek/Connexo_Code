@@ -3,18 +3,18 @@ Ext.define('InsightApp.controller.History', {
 
     routeConfig: {
         usagepoints: {
-            title: Uni.I18n.translate('general.usagepoints', 'INS', 'Usage Points'),
+            title: Uni.I18n.translate('general.label.usagepoints', 'INS', 'Usage points'),
             route: 'usagepoints',
             disabled: true,
             items: {
             	add: {
-                	title: Uni.I18n.translate('general.usagePointAdd', 'INS', 'Add Usage Point'),
+                	title: Uni.I18n.translate('general.label.usagepoint.add', 'INS', 'Add usage point'),
                     route: 'add',
                     controller: 'Imt.usagepointmanagement.controller.Edit',
                     action: 'createUsagePoint'
             	},
            		view: {
-           			title: Uni.I18n.translate('general.usagePointView', 'INS', 'View Usage Point'),
+           			title: Uni.I18n.translate('general.label.usagepoint.view', 'INS', 'View usage point'),
            			route: '{mRID}',
            			controller: 'Imt.usagepointmanagement.controller.View',
            			action: 'showUsagePoint',
@@ -28,13 +28,13 @@ Ext.define('InsightApp.controller.History', {
                     },
            			items: {
            			    channels: {
-                            title: Uni.I18n.translate('general.usagePointChannels', 'INS', 'Channels'),
+                            title: Uni.I18n.translate('general.label.usagepoint.channels', 'INS', 'Channels'),
                             route: 'channels',
                             controller: 'Imt.channeldata.controller.View',
                             action: 'showUsagePointChannels',
                             items: {
                                 channel: {
-                                    title: Uni.I18n.translate('general.usagePointChannel', 'INS', 'Channel'),
+                                    title: Uni.I18n.translate('general.label.usagepoint.channel', 'INS', 'Channel'),
                                     route: '{channelId}',
                                     controller: 'Imt.channeldata.controller.View',
                                     action: 'showUsagePointChannelData',
@@ -50,13 +50,13 @@ Ext.define('InsightApp.controller.History', {
                             }
            			    },
            			    registers: {
-                            title: Uni.I18n.translate('general.usagePointRegisters', 'INS', 'Registers'),
+                            title: Uni.I18n.translate('general.label.usagepoint.registers', 'INS', 'Registers'),
                             route: 'registers',
                             controller: 'Imt.registerdata.controller.View',
                             action: 'showUsagePointRegisters',
                             items: {
                             	register: {
-                                    title: Uni.I18n.translate('general.usagePointRegister', 'INS', 'Register'),
+                                    title: Uni.I18n.translate('general.label.usagepoint.register', 'INS', 'Register'),
                                     route: '{registerId}',
                                     controller: 'Imt.registerdata.controller.View',
                                     action: 'showUsagePointRegisterData',
@@ -74,13 +74,13 @@ Ext.define('InsightApp.controller.History', {
            			}
            		},
    				edit: {
-                	title: Uni.I18n.translate('general.usagePointEdit', 'INS', 'Edit Usage Point'),
+                	title: Uni.I18n.translate('general.label.usagepoint.edit', 'INS', 'Edit usage point'),
                     route: '{mRID}/edit',
                     controller: 'Imt.usagepointmanagement.controller.Edit',
                     action: 'editUsagePoint'               					
    				},
                 device: {
-                    title: Uni.I18n.translate('general.device.view', 'INS', 'View Device'),
+                    title: Uni.I18n.translate('general.label.device.view', 'INS', 'View device'),
                     route: 'device/{mRID}',
                     controller: 'Imt.devicemanagement.controller.Device',
                     action: 'showDevice'
@@ -88,24 +88,24 @@ Ext.define('InsightApp.controller.History', {
             }
         },
         administration: {
-            title: Uni.I18n.translate('general.metrologyConfiguration', 'INS', 'Metrology Configuration'),
+            title: Uni.I18n.translate('general.label.metrologyconfiguration', 'INS', 'Metrology configuration'),
             route: 'administration',
             disabled: true,
             items: {
                 metrologyconfiguration: {
-                    title: Uni.I18n.translate('general.metrologyConfigurations', 'INS', 'Metrology Configurations'),
+                    title: Uni.I18n.translate('general.label.metrologyconfiguration.list', 'INS', 'Metrology configurations'),
                     route: 'metrologyconfiguration',
                     controller: 'Imt.metrologyconfiguration.controller.ViewList',
                     action: 'showMetrologyConfigurationList',
                     items: {
                         add: {
-                            title: Uni.I18n.translate('general.metrologyConfigurationAdd', 'INS', 'Add Metrology Configuration'),
+                            title: Uni.I18n.translate('general.label.metrologyconfiguration.add', 'INS', 'Add metrology configuration'),
                             route: 'add',
                             controller: 'Imt.metrologyconfiguration.controller.Edit',
                             action: 'createMetrologyConfiguration'
                         },
                         view: {
-                            title: Uni.I18n.translate('general.metrologyConfigurationView', 'INS', 'View Metrology Configuration'),
+                            title: Uni.I18n.translate('general.label.metrologyconfiguration.view', 'INS', 'View metrology configuration'),
                             route: '{mcid}/view',
                             controller: 'Imt.metrologyconfiguration.controller.View',
                             action: 'showMetrologyConfiguration',
@@ -119,19 +119,19 @@ Ext.define('InsightApp.controller.History', {
                             },
                         },
                         edit: {
-                            title: Uni.I18n.translate('general.metrologyConfigurationEdit', 'INS', 'Edit Metrology Configuration'),
+                            title: Uni.I18n.translate('general.label.metrologyconfiguration.edit', 'INS', 'Edit metrology configuration'),
                             route: '{mcid}/edit',
                             controller: 'Imt.metrologyconfiguration.controller.Edit',
                             action: 'editMetrologyConfiguration'                                
                         },
-                        remove: {
-                            title: Uni.I18n.translate('general.metrologyConfigurationEdit', 'INS', 'Edit Metrology Configuration'),
-                            route: '{mcid}/delete',
-                            controller: 'Imt.metrologyconfiguration.controller.Edit',
-                            action: 'deleteMetrologyConfiguration'                                  
-                        },
+//                        remove: {
+//                            title: Uni.I18n.translate('general.label.metrologyconfiguration.remove', 'INS', 'Remove metrology configuration'),
+//                            route: '{mcid}/remove',
+//                            controller: 'Imt.metrologyconfiguration.controller.Edit',
+//                            action: 'removeMetrologyConfiguration'                                  
+//                        },
                         manage: {
-                            title: Uni.I18n.translate('general.metrologyConfigurationRuleSetEdit', 'INS', 'Manage Validation Rule Sets for Metrology Configuration'),
+                            title: Uni.I18n.translate('general.label.metrologyconfiguration.valruleset.manage', 'INS', 'Manage metrology configuration validation rule sets'),
                             route: '{mcid}/manage',
                             controller: 'Imt.metrologyconfiguration.controller.Edit',
                             action: 'manageValidationRuleSets',
