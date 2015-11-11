@@ -67,7 +67,7 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
                         cls: 'x-form-display-field',
                         autoEl: {
                             tag: 'a',
-                            href: router.getRoute('metrologyconfiguration/view').buildUrl({mcid: record.get('metrologyConfiguration').id}),
+                            href: router.getRoute('administration/metrologyconfiguration/view').buildUrl({mcid: record.get('metrologyConfiguration').id}),
                             html: record.get('metrologyConfiguration').name
                         }
                     });

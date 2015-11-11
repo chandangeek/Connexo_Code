@@ -47,7 +47,7 @@ Ext.define('Imt.controller.Main', {
 
     initMenu: function () {
         var menuItem = Ext.create('Uni.model.MenuItem', {
-            text: Uni.I18n.translate('general.label.usagepoints', 'INS', 'Usage points'),
+            text: Uni.I18n.translate('general.label.usagepoints', 'IMT', 'Usage points'),
             href: 'usagepoints',
             portal: 'usagepoints',
             glyph: 'devices'
@@ -56,11 +56,11 @@ Ext.define('Imt.controller.Main', {
         Uni.store.MenuItems.add(menuItem);
 
         var portalItem1 = Ext.create('Uni.model.PortalItem', {
-            title: Uni.I18n.translate('general.label.administration', 'INS', 'Administration'),
+            title: Uni.I18n.translate('general.label.administration', 'IMT', 'Administration'),
             portal: 'usagepoints',
             items: [
                 {
-                    text: Uni.I18n.translate('general.label.usagepoint.add', 'INS', 'Add usage point'),
+                    text: Uni.I18n.translate('general.label.usagepoint.add', 'IMT', 'Add usage point'),
                     href: '#/usagepoints/add',
                     itemId: 'add-usagepoints'
                 },
@@ -76,7 +76,7 @@ Ext.define('Imt.controller.Main', {
             portal: 'administration',
             items: [
                 {
-                    text: Uni.I18n.translate('general.label.metrologyconfiguration', 'INS', 'Metrology configuration'),
+                    text: Uni.I18n.translate('general.label.metrologyconfiguration', 'IMT', 'Metrology configuration'),
                     href: '#/administration/metrologyconfiguration',
                     itemId: 'overview-metrologyconfiguration'
                 },
