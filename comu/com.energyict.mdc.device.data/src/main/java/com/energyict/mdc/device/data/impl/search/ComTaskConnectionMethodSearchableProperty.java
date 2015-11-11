@@ -53,4 +53,9 @@ public class ComTaskConnectionMethodSearchableProperty extends ConnectionMethodS
     public Optional<SearchablePropertyGroup> getGroup() {
         return Optional.of(this.parentGroup);
     }
+
+    @Override
+    public boolean affectsAvailableDomainProperties() {
+        return false;
+    }
 }

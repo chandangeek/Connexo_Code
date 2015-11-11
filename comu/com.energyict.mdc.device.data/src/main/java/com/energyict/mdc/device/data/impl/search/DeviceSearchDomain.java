@@ -7,11 +7,9 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
+import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.search.SearchablePropertyValue;
-import com.elster.jupiter.util.streams.DecoratedStream;
-import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.search.sqlbuilder.DeviceSearchSqlBuilder;
@@ -36,8 +34,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toList;
 
 /**
  * Provides an implementation for the {@link SearchDomain} interface
@@ -163,6 +159,7 @@ public class DeviceSearchDomain implements SearchDomain {
         fixedProperties.stream().filter(uniqueName).forEach(properties::add);
         getProtocolDialectDynamicProperties(constrictions).stream().filter(uniqueName).forEach(properties::add);
         getGeneralAttributesDynamicProperties(constrictions).stream().filter(uniqueName).forEach(properties::add);
+        getConnectionDynamicProperties(constrictions).stream().filter(uniqueName).forEach(properties::add);
         return properties;
     }
 
@@ -173,7 +170,7 @@ public class DeviceSearchDomain implements SearchDomain {
                 .findFirst();
         if (protocolDialectConstriction.isPresent()) {
             DataModel injector = this.deviceDataModelService.dataModel();
-            ProtocolDialectDynamicSearchableGroup propertiesGroup = injector.getInstance(ProtocolDialectDynamicSearchableGroup.class);
+            SearchablePropertyGroup propertiesGroup = injector.getInstance(ProtocolDialectDynamicSearchableGroup.class);
             List<SearchableProperty> dynamicProperties = new ArrayList<>();
             Set<String> uniqueDeviceProtocolDialects = new HashSet<>();
             for (Object value : protocolDialectConstriction.get().getConstrainingValues()) {
@@ -201,7 +198,7 @@ public class DeviceSearchDomain implements SearchDomain {
                 .findFirst();
         if (deviceTypeConstriction.isPresent()) {
             DataModel injector = this.deviceDataModelService.dataModel();
-            GeneralAttributesDynamicSearchableGroup propertiesGroup = injector.getInstance(GeneralAttributesDynamicSearchableGroup.class);
+            SearchablePropertyGroup propertiesGroup = injector.getInstance(GeneralAttributesDynamicSearchableGroup.class);
             List<SearchableProperty> dynamicProperties = new ArrayList<>();
             Set<Long> uniquePluggableClasses = new HashSet<>();
             for (Object value : deviceTypeConstriction.get().getConstrainingValues()) {
@@ -219,20 +216,29 @@ public class DeviceSearchDomain implements SearchDomain {
         return Collections.emptyList();
     }
 
-    private Collection<? extends SearchableProperty> connectionTypeProperties() {
-        return this.connectionTypeProperties(this.protocolPluggableService.findAllConnectionTypePluggableClasses());
-    }
-
-    private Collection<? extends SearchableProperty> connectionTypeProperties(List<ConnectionTypePluggableClass> pluggableClasses) {
-        return pluggableClasses
+    private List<SearchableProperty> getConnectionDynamicProperties(Collection<SearchablePropertyConstriction> constrictions) {
+        Optional<SearchablePropertyConstriction> connectionMethodConstriction = constrictions
                 .stream()
-                .map(this::toGroup)
-                .flatMap(g -> g.getProperties().stream())
-                .collect(toList());
-    }
-
-    private ConnectionTypeSearchablePropertyGroup toGroup(ConnectionTypePluggableClass pluggableClass) {
-        return new ConnectionTypeSearchablePropertyGroup(this, pluggableClass);
+                .filter(p -> ConnectionMethodSearchableProperty.PROPERTY_NAME.equals(p.getConstrainingProperty().getName()))
+                .findFirst();
+        if (connectionMethodConstriction.isPresent()) {
+            DataModel injector = this.deviceDataModelService.dataModel();
+            SearchablePropertyGroup propertiesGroup = injector.getInstance(ConnectionDynamicSearchableGroup.class);
+            List<SearchableProperty> dynamicProperties = new ArrayList<>();
+            Set<Long> uniquePluggableClasses = new HashSet<>();
+            for (Object value : connectionMethodConstriction.get().getConstrainingValues()) {
+                ConnectionTypePluggableClass pluggableClass = (ConnectionTypePluggableClass) value;
+                if (!uniquePluggableClasses.add(pluggableClass.getId())) {
+                    continue;
+                }
+                for (PropertySpec propertySpec : pluggableClass.getPropertySpecs()) {
+                    dynamicProperties.add(injector.getInstance(ConnectionDynamicSearchableProperty.class)
+                            .init(this, propertiesGroup, propertySpec, pluggableClass));
+                }
+            }
+            return dynamicProperties;
+        }
+        return Collections.emptyList();
     }
 
     @Override
@@ -283,143 +289,4 @@ public class DeviceSearchDomain implements SearchDomain {
     public String displayName() {
         return deviceDataModelService.thesaurus().getFormat(PropertyTranslationKeys.DEVICE_DOMAIN).format();
     }
-
-
-    private interface SortableConstriction extends Comparable<SortableConstriction> {
-        String getPropertyName();
-
-        SearchablePropertyConstriction getConstriction();
-
-    }
-
-    /**
-     * Provides {@link ConnectionTypePluggableClass} for {@link SearchablePropertyConstriction}s.
-     */
-    private interface ConnectionTypePluggableClassProvider {
-        List<ConnectionTypePluggableClass> getPluggableClasses();
-    }
-
-    private abstract static class AbstractSortableConstriction implements SortableConstriction {
-
-        private final SearchablePropertyConstriction constriction;
-
-        protected AbstractSortableConstriction(SearchablePropertyConstriction deviceTypeConstriction) {
-            this.constriction = deviceTypeConstriction;
-        }
-
-        private static SortableConstriction from(SearchablePropertyConstriction constriction) {
-            if (constriction.getConstrainingProperty().hasName(DeviceTypeSearchableProperty.PROPERTY_NAME)) {
-                return new DeviceTypeConstriction(constriction);
-            } else {
-                return new DeviceConfigurationConstriction(constriction);
-            }
-        }
-
-        @Override
-        public String getPropertyName() {
-            return this.constriction.getConstrainingProperty().getName();
-        }
-
-        @Override
-        public SearchablePropertyConstriction getConstriction() {
-            return constriction;
-        }
-
-    }
-
-    private static class DeviceTypeConstriction extends AbstractSortableConstriction {
-        protected DeviceTypeConstriction(SearchablePropertyConstriction deviceTypeConstriction) {
-            super(deviceTypeConstriction);
-        }
-
-        @Override
-        public int compareTo(SortableConstriction that) {
-            if (this.getPropertyName().equals(that.getPropertyName())) {
-                /* Not expecting to get here as we validate that no constrictions are defined
-                 * for the same property but hey, I am a defensive programmer. */
-                Integer thisSize = this.getConstriction().getConstrainingValues().size();
-                Integer thatSize = that.getConstriction().getConstrainingValues().size();
-                return thisSize.compareTo(thatSize);
-            } else {
-                // Must be a DeviceConfigurationConstriction, delegate to it to implement the logic only once
-                return that.compareTo(this);
-            }
-        }
-    }
-
-    private static class DeviceConfigurationConstriction extends AbstractSortableConstriction {
-        protected DeviceConfigurationConstriction(SearchablePropertyConstriction deviceTypeConstriction) {
-            super(deviceTypeConstriction);
-        }
-
-        @Override
-        public int compareTo(SortableConstriction that) {
-            if (this.getPropertyName().equals(that.getPropertyName())) {
-                /* Not expecting to get here as we validate that no constrictions are defined
-                 * for the same property but hey, I am a defensive programmer. */
-                Integer thisSize = this.getConstriction().getConstrainingValues().size();
-                Integer thatSize = that.getConstriction().getConstrainingValues().size();
-                return thisSize.compareTo(thatSize);
-            } else {
-                /* Must be a DeviceTypeConstriction,
-                 * this one always has precedence unless it has no constrictions. */
-                if (!this.getConstriction().getConstrainingValues().isEmpty()) {
-                    return -1;
-                } else {
-                    return 1;
-                }
-            }
-        }
-    }
-
-    private static abstract class AbstractConnectionTypePluggableClassProvider implements ConnectionTypePluggableClassProvider {
-        static ConnectionTypePluggableClassProvider from(SearchablePropertyConstriction constriction, ProtocolPluggableService protocolPluggableService) {
-            if (constriction.getConstrainingProperty().hasName(DeviceTypeSearchableProperty.PROPERTY_NAME)) {
-                return new DeviceTypeConnectionTypePluggableClassProvider(constriction.getConstrainingValues(), protocolPluggableService);
-            } else {
-                return new DeviceConfigurationConnectionTypePluggableClassProvider(constriction.getConstrainingValues());
-            }
-        }
-    }
-
-    private static class DeviceTypeConnectionTypePluggableClassProvider extends AbstractConnectionTypePluggableClassProvider {
-        private final ProtocolPluggableService protocolPluggableService;
-        private final List<DeviceType> deviceTypes;
-
-        private DeviceTypeConnectionTypePluggableClassProvider(List<Object> deviceTypes, ProtocolPluggableService protocolPluggableService) {
-            super();
-            this.deviceTypes = deviceTypes.stream().map(DeviceType.class::cast).collect(toList());
-            this.protocolPluggableService = protocolPluggableService;
-        }
-
-        @Override
-        public List<ConnectionTypePluggableClass> getPluggableClasses() {
-            return this.deviceTypes
-                    .stream()
-                    .map(DeviceType::getDeviceProtocolPluggableClass)
-                    .map(DeviceProtocolPluggableClass::getDeviceProtocol)
-                    .flatMap(p -> p.getSupportedConnectionTypes().stream())
-                    .flatMap(ct -> this.protocolPluggableService.findConnectionTypePluggableClassByClassName(ct.getClass().getName()).stream())
-                    .collect(toList());
-        }
-    }
-
-    private static class DeviceConfigurationConnectionTypePluggableClassProvider extends AbstractConnectionTypePluggableClassProvider {
-        private final List<DeviceConfiguration> deviceConfigurations;
-
-        private DeviceConfigurationConnectionTypePluggableClassProvider(List<Object> deviceConfigurations) {
-            super();
-            this.deviceConfigurations = deviceConfigurations.stream().map(DeviceConfiguration.class::cast).collect(toList());
-        }
-
-        @Override
-        public List<ConnectionTypePluggableClass> getPluggableClasses() {
-            return DecoratedStream.decorate(this.deviceConfigurations.stream())
-                    .flatMap(config -> config.getPartialConnectionTasks().stream())
-                    .map(PartialConnectionTask::getPluggableClass)
-                    .distinct(ConnectionTypePluggableClass::getId)
-                    .collect(toList());
-        }
-    }
-
 }

@@ -260,6 +260,7 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
 
     @Override
     public JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass) {
+        this.joins.add(Joins.ConnectionTask);
         this.joins.add(new ConnectionTypePropertyJoinType(connectionTypePluggableClass));
         return this;
     }

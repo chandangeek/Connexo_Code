@@ -2,9 +2,6 @@ package com.energyict.mdc.device.data.impl.search;
 
 
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.search.SearchDomain;
-import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 
 import javax.inject.Inject;
@@ -28,10 +25,6 @@ public class GeneralAttributesDynamicSearchableGroup implements SearchableProper
     @Override
     public String getDisplayName() {
         return this.thesaurus.getFormat(PropertyTranslationKeys.GENERAL_ATTRIBUTES_DYNAMIC_PROP).format();
-    }
-
-    public SearchableProperty getDynamicSearchableProperty(SearchDomain searchDomain, PropertySpec propertySpec) {
-        return new GeneralAttributeDynamicSearchableProperty().init(searchDomain, this, propertySpec);
     }
 }
 

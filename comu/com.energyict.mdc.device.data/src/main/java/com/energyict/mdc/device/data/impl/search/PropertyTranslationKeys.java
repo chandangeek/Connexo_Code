@@ -67,6 +67,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     TRANSITION_DEACTIVATION("device.transition.deactivation", "Deactivation date"),
     TRANSITION_DECOMMISSIONING("device.transition.decommissioning", "Decommissioning date"),
     GENERAL_ATTRIBUTES_DYNAMIC_PROP("deviceType.attr.dynamic", "General attributes dynamic properties"),
+    CONNECTION_DYNAMIC_PROP("device.connection.method.dynamic", "Connection dynamic attributes"),
     ;
 
     private String key;

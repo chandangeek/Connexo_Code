@@ -16,14 +16,10 @@ public class ConnectionTypePropertyJoinType implements JoinType {
     @Override
     public void appendTo(SqlBuilder sqlBuilder) {
         sqlBuilder.append(" join ");
-        sqlBuilder.append(TableSpecs.DDC_CONNECTIONTASK.name());
-        sqlBuilder.append(" ct on ct.device = dev.id and ct.connectiontypepluggableclass =");
-        sqlBuilder.addLong(this.pluggableClass.getId());
-        sqlBuilder.append(" join ");
         sqlBuilder.append(this.pluggableClass.findRelationType().getDynamicAttributeTableName());
         sqlBuilder.append(" props on props.");
         sqlBuilder.append(ConnectionTypePropertyRelationAttributeTypeNames.CONNECTION_TASK_ATTRIBUTE_NAME);
-        sqlBuilder.append(" = ct.id");
+        sqlBuilder.append(" = ct.id AND props.TODATE is NULL");
     }
 
     @Override

@@ -43,6 +43,7 @@ public class GeneralAttributeDynamicSearchableProperty extends AbstractDynamicSe
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
         SqlBuilder builder = new SqlBuilder();
+        builder.openBracket();
         builder.append(JoinClauseBuilder.Aliases.DEVICE + ".ID IN (");
         builder.add(selectDeviceProperties(condition, now));
         builder.closeBracket();
@@ -52,6 +53,7 @@ public class GeneralAttributeDynamicSearchableProperty extends AbstractDynamicSe
         builder.append(getPropertySpec().getName());
         builder.append("' AND " + JoinClauseBuilder.Aliases.DEVICE + ".DEVICECONFIGID IN (");
         builder.add(selectDeviceConfigurationProperties(condition, now));
+        builder.closeBracket();
         builder.closeBracket();
         return builder;
     }
