@@ -1,4 +1,4 @@
-Ext.define('Mdc.store.DevicesOfDeviceGroup', {
+Ext.define('Mdc.store.DevicesOfDeviceGroupWithoutPagination', {
     extend: 'Ext.data.Store',
     requires: [
         'Mdc.model.Device'
@@ -13,6 +13,9 @@ Ext.define('Mdc.store.DevicesOfDeviceGroup', {
         reader: {
             type: 'json',
             root: 'devices'
-        }
+        },
+        pageParam: false,
+        startParam: false,
+        limitParam: false
     }
 });

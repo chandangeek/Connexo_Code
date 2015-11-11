@@ -12,7 +12,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
 
     stores: [
         'Mdc.store.DeviceGroups',
-        'Mdc.store.DevicesOfDeviceGroup',
+        'Mdc.store.DevicesOfDeviceGroupWithoutPagination',
         'Mdc.store.StaticGroupDevices',
         'Mdc.store.DynamicGroupDevices'
     ],
@@ -118,7 +118,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
                         me.prepareStep2(null, {dynamic: isDynamic});
                         Ext.resumeLayouts(true);
                         if (!isDynamic) {
-                            devices = me.getStore('Mdc.store.DevicesOfDeviceGroup');
+                            devices = me.getStore('Mdc.store.DevicesOfDeviceGroupWithoutPagination');
                             devices.getProxy().setExtraParam('id', deviceGroupId);
                             devices.load(function (records) {
                                 mainView.setLoading(false);
