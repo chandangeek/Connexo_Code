@@ -6,7 +6,11 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public enum Privileges implements TranslationKey {
+    //Resources
+    RESOURCE_DEPLOYMENT_INFO("deployment.info", "Deployment information"),
+    RESOURCE_DEPLOYMENT_INFO_DESCRIPTION("deployment.info.description", "Manage deployment information"),
 
+    //Privileges
     VIEW_DEPLOYMENT_INFORMATION(Constants.VIEW_DEPLOYMENT_INFORMATION, "View");
 
     private final String key;
