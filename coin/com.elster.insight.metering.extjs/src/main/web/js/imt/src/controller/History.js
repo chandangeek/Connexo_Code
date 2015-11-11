@@ -143,7 +143,7 @@ Ext.define('Imt.controller.History', {
             }
         },
         search: {
-            title: Uni.I18n.translate('general.search','IMT','Search'),
+            title: Uni.I18n.translate('general.label.search','IMT','Search'),
             route: 'search',
             controller: 'Imt.controller.Search',
             action: 'showOverview'
