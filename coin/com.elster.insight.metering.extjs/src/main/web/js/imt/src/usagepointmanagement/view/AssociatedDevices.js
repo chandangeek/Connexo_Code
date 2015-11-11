@@ -2,7 +2,7 @@ Ext.define('Imt.usagepointmanagement.view.AssociatedDevices', {
     extend: 'Ext.form.Panel',
     alias: 'widget.associated-devices',
     itemId: 'associated-devices',
-    title: Uni.I18n.translate('usagePointManagement.associateddevices', 'IMT', 'Associated devices'),
+    title: Uni.I18n.translate('usagepoint.associateddevices', 'IMT', 'Associated devices'),
     router: null,
     ui: 'tile',
 
@@ -13,7 +13,7 @@ Ext.define('Imt.usagepointmanagement.view.AssociatedDevices', {
                 labelAlign: 'right',
                 xtype: 'fieldcontainer',
                 labelWidth: 125,
-                fieldLabel: Uni.I18n.translate('usagePointManagement.linkedDevices', 'IMT', 'Linked device'),
+                fieldLabel: Uni.I18n.translate('usagepoint.linkedDevices', 'IMT', 'Linked device'),
                 layout: {
                     type: 'vbox'
                 },
@@ -30,7 +30,7 @@ Ext.define('Imt.usagepointmanagement.view.AssociatedDevices', {
                 labelAlign: 'right',
                 xtype: 'fieldcontainer',
                 labelWidth: 125,
-                fieldLabel: Uni.I18n.translate('usagePointManagement.history', 'IMT', 'history'),
+                fieldLabel: Uni.I18n.translate('usagepoint.history', 'IMT', 'history'),
                 layout: {
                     type: 'vbox'
                 },

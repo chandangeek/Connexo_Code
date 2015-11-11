@@ -49,10 +49,10 @@ Ext.define('Imt.channeldata.view.Setup', {
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
                         itemId: 'ctr-no-usagepoint-channel-config',
-                        title: Uni.I18n.translate('usagepointchannelconfiguration.empty.title', 'IMT', 'No channels found'),
+                        title: Uni.I18n.translate('channeldata.channel.list.empty', 'IMT', 'No channels found'),
                         reasons: [
-                            Uni.I18n.translate('usagepointchannelconfiguration.empty.list.item1', 'IMT', 'No device is associated with usage point.'),
-                            Uni.I18n.translate('usagepointchannelconfiguration.empty.list.item2', 'IMT', 'No channels have been defined yet.')
+                            Uni.I18n.translate('channeldata.device.usagepoint.notlinked', 'IMT', 'No device is associated with usage point.'),
+                            Uni.I18n.translate('channeldata.channel.list.undefined', 'IMT', 'No channels have been defined yet.')
                         ]
                     },
                     previewComponent: {

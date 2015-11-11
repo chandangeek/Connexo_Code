@@ -82,7 +82,7 @@ Ext.define('Imt.usagepointmanagement.view.Setup', {
                     },
                    {
                         xtype: 'panel',
-                        title: Uni.I18n.translate('usagePointManagement.attributes', 'IMT', 'Usage Point Attributes'),
+                        title: Uni.I18n.translate('usagepoint.attributes', 'IMT', 'Usage Point Attributes'),
                         ui: 'tile',
                         itemId: 'usage-point-attributes-panel',
                         router: me.router

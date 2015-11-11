@@ -25,7 +25,7 @@ Ext.define('Imt.channeldata.view.DataGrid', {
 
         me.columns = [
             {
-                header: Uni.I18n.translate('channels.endOfInterval', 'IMT', 'End of interval'),
+                header: Uni.I18n.translate('channeldata.label.endOfInterval', 'IMT', 'End of interval'),
                 dataIndex: 'interval_end',
                 renderer: function (value) {
                     if(!Ext.isEmpty(value)) {
@@ -36,7 +36,7 @@ Ext.define('Imt.channeldata.view.DataGrid', {
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('channels.channels.value', 'IMT', 'Value') + ' (' + measurementType + ')',
+                header: Uni.I18n.translate('channeldata.label.channel.value', 'IMT', 'Value') + ' (' + measurementType + ')',
                 dataIndex: 'value',
                 //align: 'right',
                 flex: 1
@@ -56,13 +56,13 @@ Ext.define('Imt.channeldata.view.DataGrid', {
                     {
                         xtype: 'button',
                         itemId: 'save-changes-button',
-                        text: Uni.I18n.translate('general.saveChanges', 'IMT', 'Save changes'),
+                        text: Uni.I18n.translate('general.label.saveChanges', 'IMT', 'Save changes'),
                         hidden: true
                     },
                     {
                         xtype: 'button',
                         itemId: 'undo-button',
-                        text: Uni.I18n.translate('general.undo', 'IMT', 'Undo'),
+                        text: Uni.I18n.translate('general.label.undo', 'IMT', 'Undo'),
                         hidden: true
                     }
                 ]

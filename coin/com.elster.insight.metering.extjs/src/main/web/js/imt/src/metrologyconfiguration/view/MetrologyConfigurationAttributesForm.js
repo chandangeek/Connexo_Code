@@ -22,17 +22,17 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm
                     {
                         name: 'name',
                         itemId: 'fld-up-name',
-                        fieldLabel: Uni.I18n.translate('metrologyconfiguration.generalAttributes.name', 'IMT', 'Name'),
+                        fieldLabel: Uni.I18n.translate('general.label.name', 'IMT', 'Name'),
                     },
                     {
                         name: 'version',
                         itemId: 'fld-up-version',
-                        fieldLabel: Uni.I18n.translate('metrologyconfiguration.generalAttributes.aliasName', 'IMT', 'Version'),
+                        fieldLabel: Uni.I18n.translate('general.label.version', 'IMT', 'Version'),
                     },
                     {
                         name: 'created',
                         itemId: 'fld-up-created',
-                        fieldLabel: Uni.I18n.translate('metrologyconfiguration.generalAttributes.created', 'IMT', 'Created'),
+                        fieldLabel: Uni.I18n.translate('general.label.created', 'IMT', 'Created'),
                         renderer: function(value){
                             if(!Ext.isEmpty(value)) {
                                 return Uni.DateTime.formatDateTimeLong(new Date(value));
@@ -43,7 +43,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm
                     {
                         name: 'updated',
                         itemId: 'fld-up-updated',
-                        fieldLabel: Uni.I18n.translate('metrologyconfiguration.generalAttributes.lastUpdate', 'IMT', 'Last update'),
+                        fieldLabel: Uni.I18n.translate('general.label.lastUpdate', 'IMT', 'Last update'),
                         renderer: function(value){
                             if(!Ext.isEmpty(value)) {
                                 return Uni.DateTime.formatDateTimeLong(new Date(value));
@@ -57,7 +57,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm
                         fieldLabel: '&nbsp',
                         items: [
                             {
-                                text: Uni.I18n.translate('general.cancel', 'IMT', 'Back'),
+                                text: Uni.I18n.translate('general.button.cancel', 'IMT', 'Back'),
                                 xtype: 'button',
                                 ui: 'action',
                                 itemId: 'backLink',

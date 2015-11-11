@@ -19,7 +19,7 @@ Ext.define('Imt.channeldata.view.ChannelTopFilter', {
                 dataIndexTo: 'intervalEnd',
                 defaultFromDate: me.filterDefault.fromDate,
                 defaultDuration: me.filterDefault.duration,
-                text: Uni.I18n.translate('channels.topfilter.startedDate', 'IMT', 'Start date'),
+                text: Uni.I18n.translate('general.label.startdate', 'IMT', 'Start date'),
                 durationStore: me.filterDefault.durationStore,
                 loadStore: false
             }

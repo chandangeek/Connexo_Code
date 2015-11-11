@@ -135,14 +135,14 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
                 } else {
                     me.getController('Uni.controller.history.Router').getRoute('administration/metrologyconfiguration').forward();
                 }
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.general.remove.confirm.msg', 'CFG', 'Metrology configuration removed'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyconfiguration.general.remove.confirm.msg', 'CFG', 'Metrology configuration removed'));
             },
             failure: function (record, operation) {
                 if (operation.response.status === 409) {
                     return
                 }
                 var json = Ext.decode(operation.response.responseText, true);
-                var errorText = Uni.I18n.translate('communicationtasks.error.unknown', 'IMT', 'Unknown error occurred');
+                var errorText = Uni.I18n.translate('general.error.unknown', 'IMT', 'Unknown error occurred');
                 if (json && json.errors) {
                     errorText = json.errors[0].msg;
                 }
@@ -152,14 +152,14 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
                         itemId: 'remove-error-messagebox',
                         buttons: [
                             {
-                                text: Uni.I18n.translate('general.retry','IMT','Retry'),
+                                text: Uni.I18n.translate('general.button.retry','IMT','Retry'),
                                 ui: 'remove',
                                 handler: function (button, event) {
                                     me.removeOperation(record);
                                 }
                             },
                             {
-                                text: Uni.I18n.translate('general.cancel','IMT','Cancel'),
+                                text: Uni.I18n.translate('general.button.cancel','IMT','Cancel'),
                                 action: 'cancel',
                                 ui: 'link',
                                 href: '#/administration/metrologyconfiguration',
@@ -170,7 +170,7 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
                         ]
                     }).show({
                         ui: 'notification-error',
-                        title: Uni.I18n.translate('metrologyconfiguration.general.remove.error.msg', 'CFG', 'Remove operation failed'),
+                        title: Uni.I18n.translate('general.error.remove.msg', 'IMT', 'Remove operation failed'),
                         msg: errorText,
                         modal: false,
                         icon: Ext.MessageBox.ERROR

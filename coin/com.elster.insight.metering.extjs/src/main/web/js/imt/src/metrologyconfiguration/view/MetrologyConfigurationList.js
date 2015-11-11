@@ -18,7 +18,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationList', {
         var me = this;
         me.columns = [
         {
-            header: Uni.I18n.translate('metrologyconfigurations.name', 'IMT', 'Name'),
+            header: Uni.I18n.translate('general.label.name', 'IMT', 'Name'),
             flex: 1,
             dataIndex: 'name', 
             renderer: function (value, b, record) {
@@ -26,7 +26,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationList', {
             }
         },
         {
-            header: Uni.I18n.translate('metrologyconfigurations.createdDate', 'IMT', 'Created date'),
+            header: Uni.I18n.translate('general.label.createdDate', 'IMT', 'Created date'),
             flex: 1,
             dataIndex: 'created',
             renderer: function(value){
@@ -37,7 +37,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationList', {
             }
         },
         {
-            header: Uni.I18n.translate('metrologyconfigurations.updatedDate', 'IMT', 'Updated date'),
+            header: Uni.I18n.translate('general.label.updatedDate', 'IMT', 'Updated date'),
             flex: 1,
             dataIndex: 'updated',
             renderer: function(value){
@@ -64,7 +64,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationList', {
                   displayMsg: '{2} metrology configuration(s)',
                   items: [
                           {
-                        	  text: Uni.I18n.translate('metrologyconfigurations.addMetrologyConfiguration', 'IMT', 'Add metrology configuration'),
+                        	  text: Uni.I18n.translate('metrologyconfiguration.button.add', 'IMT', 'Add metrology configuration'),
                         	  itemId: 'createMetrologyConfiguration',
                         	  xtype: 'button',
                         	  action: 'createMetrologyConfiguration',

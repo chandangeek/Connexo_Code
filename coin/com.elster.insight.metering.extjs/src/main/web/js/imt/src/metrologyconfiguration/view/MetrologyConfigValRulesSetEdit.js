@@ -11,7 +11,6 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit', {
             itemId: 'metrologyConfigValRulesSetEditForm',
             ui: 'large',
             width: '100%',
- //           title: Uni.I18n.translate('metrologyConfiguration.add.title', 'IMT', 'Manage metrology configuration validation rules set'),
             defaults: {
                 labelWidth: 250,
                 validateOnChange: false,
@@ -28,7 +27,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit', {
                     xtype: 'textfield',
                     itemId: 'metrology-configuration-name',
                     name: 'name',
-                    fieldLabel: Uni.I18n.translate('metrologyConfiguration.formFieldLabel.name', 'IMT', 'Metrology Configuration Name'),
+                    fieldLabel: Uni.I18n.translate('metrologyconfiguration.label.name', 'IMT', 'Metrology Configuration Name'),
                     allowBlank: true,
                     margin: '20 10 50 50',
                     readOnly: true,
@@ -39,7 +38,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit', {
                     xtype: 'textfield',
                     itemId: 'metrology-configuration-mcid',
                     name: 'mcid',
-                    fieldLabel: Uni.I18n.translate('metrologyConfiguration.formFieldLabel.name', 'IMT', 'mcid'),
+                    fieldLabel: Uni.I18n.translate('metrologyconfiguration.label.mcid', 'IMT', 'mcid'),
                     allowBlank: true,
                     hidden: true,
                     readOnly: true,
@@ -55,7 +54,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit', {
 	                 items: [
 	                    {
                             xtype: 'panel',
-                            title: Uni.I18n.translate('validationTasks.general.assignedruleset', 'CFG', 'Linked Validation Rule sets'),
+                            title: Uni.I18n.translate('metrologyconfiguration.label.linkedvalrulesets', 'IMT', 'Linked Validation Rule sets'),
                             required: true,
                             border: '5 5 5 5',
                             frame: true,
@@ -79,7 +78,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit', {
                         },
 		                {
 		                    xtype: 'panel',
-		                    title: Uni.I18n.translate('validationTasks.general.assignableruleset', 'CFG', 'Actions'),
+		                    title: Uni.I18n.translate('general.label.actions', 'IMT', 'Actions'),
 		                    required: true,
 			                border: '5 5 5 5',
 	                        margin: '0 10 0 10',
@@ -90,7 +89,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit', {
 		                    layout: 'vbox',
 		                    items: [
 		                        {
-		                            text: Uni.I18n.translate('general.add', 'IMT', 'Remove >>>'),
+		                            text: Uni.I18n.translate('metrologyconfiguration.button.remove.valrulesets', 'IMT', 'Remove >>>'),
 		                            xtype: 'button',
 		                            width: 100,
 		                            margin: '0 5 5 5',
@@ -99,7 +98,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit', {
 		                            itemId: 'removeRulesSetButton',
 		                        },
 		                        {
-		                            text: Uni.I18n.translate('general.add', 'IMT', '<<< Add'),
+		                            text: Uni.I18n.translate('metrologyconfiguration.button.add.valrulesets', 'IMT', '<<< Add'),
 		                            xtype: 'button',
 		                            width: 100,
 		                            margin: '0 5 10 5',
@@ -108,7 +107,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit', {
 		                            itemId: 'addRulesSetButton',
 		                        },
 		                        {
-		                            text: Uni.I18n.translate('general.add', 'IMT', 'Save'),
+		                            text: Uni.I18n.translate('general.button.save', 'IMT', 'Save'),
 		                            xtype: 'button',
 		                            width: 100,
 		                            margin: '10 5 5 5',
@@ -117,7 +116,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit', {
 		                            itemId: 'createEditButton'
 		                        },
 		                        {
-		                            text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
+		                            text: Uni.I18n.translate('general.button.cancel', 'IMT', 'Cancel'),
 		                            xtype: 'button',
 		                            width: 100,
 		                            margin: '0 5 5 5',
@@ -129,7 +128,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit', {
 		                },
 		                {
                             xtype: 'panel',
-                            title: Uni.I18n.translate('validationTasks.general.assignableruleset', 'CFG', 'Linkable Validation Rule sets'),
+                            title: Uni.I18n.translate('metrologyconfiguration.label.linkablevalrulesets', 'IMT', 'Linkable Validation Rule sets'),
                             required: true,
                             border: '5 5 5 5',
                             frame: true,

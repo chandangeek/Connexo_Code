@@ -15,7 +15,7 @@ Ext.define('Imt.registerdata.view.RegisterTopFilter', {
  //           defaultFromDate: moment().startOf('day').subtract(1,'years').toDate(),
             defaultFromDate: moment().startOf('day').subtract(1,'months').toDate(),
             defaultDuration: '1months',
-            text: Uni.I18n.translate('communications.widget.topfilter.startedDate', 'IMT', 'Start date'),
+            text: Uni.I18n.translate('general.label.startdate', 'IMT', 'Start date'),
             durationStore: me.filterDefault.durationStore,
             loadStore: false
         }];

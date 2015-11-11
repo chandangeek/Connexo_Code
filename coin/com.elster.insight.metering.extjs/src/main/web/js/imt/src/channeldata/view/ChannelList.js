@@ -7,11 +7,11 @@ Ext.define('Imt.channeldata.view.ChannelList', {
     store: 'Imt.channeldata.store.Channel',
     overflowY: 'auto',
     itemId: 'channelList',
-    title: Uni.I18n.translate('channels.channelList', 'IMT', 'Channels'),
+    title: Uni.I18n.translate('general.label.channel.list', 'IMT', 'Channels'),
     
     columns: [
         {
-            header: Uni.I18n.translate('channels.title.channel', 'IMT', 'Channel'),
+            header: Uni.I18n.translate('general.label.channel', 'IMT', 'Channel'),
             flex: 1,
             dataIndex: 'readingTypeFullAliasName',
             renderer: function (value, b, record) {
@@ -22,7 +22,7 @@ Ext.define('Imt.channeldata.view.ChannelList', {
             }
         },
         {
-            header: Uni.I18n.translate('usagepoint.interval', 'IMT', 'Interval'),            
+            header: Uni.I18n.translate('general.label.interval', 'IMT', 'Interval'),            
             flex: 1,
             dataIndex: 'interval',
             renderer: function (value) {

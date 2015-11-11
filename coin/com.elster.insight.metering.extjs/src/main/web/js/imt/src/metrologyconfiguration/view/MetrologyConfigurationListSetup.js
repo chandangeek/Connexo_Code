@@ -16,7 +16,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationListSetup', {
                 xtype: 'panel',
                 ui: 'large',
                 itemId: 'metrologyConfigurationListSetupPanel',
-                title: Uni.I18n.translate('metrologyConfiguration.metrologyConfigurationList', 'IMT', 'Metrology configurations'),
+                title: Uni.I18n.translate('metrologyconfiguration.label.metrologyconfiguration.list', 'IMT', 'Metrology configurations'),
                 layout: {
                     type: 'fit',
                     align: 'stretch'
@@ -37,9 +37,9 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationListSetup', {
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
                         itemId: 'ctr-no-metrology-configurations',
-                        title: Uni.I18n.translate('metrologyConfigurationList.empty.title', 'IMT', 'No metrology configurations found'),
+                        title: Uni.I18n.translate('metrologyconfiguration.list.empty', 'IMT', 'No metrology configurations found'),
                         reasons: [
-                            Uni.I18n.translate('metrologyConfigurationList.empty.list.item1', 'IMT', 'No metrology configurations have been defined yet.')
+                            Uni.I18n.translate('metrologyconfiguration.list.undefined', 'IMT', 'No metrology configurations have been defined yet.')
                         ]
                     },
                     previewComponent: {

@@ -34,7 +34,7 @@ Ext.define('Imt.registerdata.view.RegisterDataSetup', {
                 xtype: 'panel',
                 ui: 'large',
                 itemId: 'registerDataSetupPanel',
-                title: Uni.I18n.translate('registers.registerDataList', 'IMT', 'Register Readings'),
+                title: Uni.I18n.translate('registerdata.label.register.readings', 'IMT', 'Register Readings'),
                 layout: {
                     type: 'fit',
                     align: 'stretch'
@@ -57,9 +57,9 @@ Ext.define('Imt.registerdata.view.RegisterDataSetup', {
                     emptyComponent: {
                         xtype: 'no-items-found-panel',
                         itemId: 'ctr-no-device-register-config',
-                        title: Uni.I18n.translate('deviceregisterconfiguration.empty.title', 'IMT', 'No registers found'),
+                        title: Uni.I18n.translate('registerdata.label.register.list.empty', 'IMT', 'No registers found'),
                         reasons: [
-                            Uni.I18n.translate('deviceregisterconfiguration.empty.list.item1', 'IMT', 'No registers have been defined yet.')
+                            Uni.I18n.translate('registerdata.label.register.list.undefined', 'IMT', 'No registers have been defined yet.')
                         ]
                     },
                     previewComponent: {

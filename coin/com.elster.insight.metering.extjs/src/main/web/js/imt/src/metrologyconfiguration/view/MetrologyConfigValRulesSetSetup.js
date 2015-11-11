@@ -4,7 +4,6 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetSetup', {
     itemId: 'metrologyConfigValRulesSetSetup',
     requires: [
         'Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetSideMenu',
-//        'Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm',
         'Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit',
     ],
     router: null,
@@ -56,9 +55,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetSetup', {
                     },
                     items: [
                         {
-                            //xtype: 'panel',
                             xtype: 'metrologyConfigValRulesSetEdit',
-                 //           title: Uni.I18n.translate('metrologyConfiguration.attributes', 'IMT', 'Metrology Configuration Validation Rules Set'),
                             ui: 'tile',
                             itemId: 'metrologyConfigValRulesSetEdit',
                             router: me.router,

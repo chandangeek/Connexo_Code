@@ -55,7 +55,7 @@ Ext.define('Imt.metrologyconfiguration.view.Setup', {
                 items: [
                     {
                         xtype: 'panel',
-                        title: Uni.I18n.translate('metrologyConfiguration.attributes', 'IMT', 'Metrology Configuration Attributes'),
+                        title: Uni.I18n.translate('metrologyconfiguration.label.attributes', 'IMT', 'Metrology Configuration Attributes'),
                         ui: 'tile',
                         itemId: 'metrology-configuration-attributes-panel',
                         router: me.router,

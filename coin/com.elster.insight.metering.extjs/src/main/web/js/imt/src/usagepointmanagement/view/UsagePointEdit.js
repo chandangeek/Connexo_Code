@@ -79,7 +79,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
             itemId: 'usagePointEditForm',
             ui: 'large',
             width: '100%',
-            title: Uni.I18n.translate('usagePoint.add.title', 'IMT', 'Add usage point'),
+            title: Uni.I18n.translate('usagepoint.label.add', 'IMT', 'Add usage point'),
             defaults: {
                 labelWidth: 250,
                 validateOnChange: false,
@@ -95,7 +95,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                 {
                     xtype: 'textfield',
                     name: 'mRID',
-                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.mRID', 'IMT', 'mRID'),
+                    fieldLabel: Uni.I18n.translate('general.label.mRID', 'IMT', 'mRID'),
                     required: true,
                     allowBlank: false,
                     maxLength: 75,
@@ -104,7 +104,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                 {
                     xtype: 'textfield',
                     name: 'name',
-                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.name', 'IMT', 'Name'),
+                    fieldLabel: Uni.I18n.translate('general.label.name', 'IMT', 'Name'),
                     allowBlank: true,
                     maxLength: 75,
                     required: false,
@@ -113,7 +113,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                 {
                     xtype: 'textfield',
                     name: 'aliasName',
-                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.aliasName', 'IMT', 'Alias Name'),
+                    fieldLabel: Uni.I18n.translate('general.label.aliasName', 'IMT', 'Alias name'),
                     allowBlank: true,
                     maxLength: 75,
                     required: false,
@@ -122,7 +122,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                 {
                     xtype: 'textfield',
                     name: 'description',
-                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.description', 'IMT', 'Description'),
+                    fieldLabel: Uni.I18n.translate('general.label.description', 'IMT', 'Description'),
                     allowBlank: true,
                     maxLength: 75,
                     required: false,
@@ -132,25 +132,25 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                     xtype: 'checkbox',
                     name: 'isSdp',
                     value: true,
-                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.isSdp', 'IMT', 'SDP'),
+                    fieldLabel: Uni.I18n.translate('general.label.sdp', 'IMT', 'SDP'),
                     width: 600
                 },
                 {
                     xtype: 'checkbox',
                     name: 'isVirtual',
-                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.isVirtual', 'IMT', 'Virtual'),
+                    fieldLabel: Uni.I18n.translate('general.label.virtual', 'IMT', 'Virtual'),
                     width: 600
                 },
                 {
                     xtype: 'checkbox',
                     name: 'checkBilling',
-                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.checkBilling', 'IMT', 'Check Billing'),
+                    fieldLabel: Uni.I18n.translate('general.label.checkBilling', 'IMT', 'Check billing'),
                     width: 600
                 },        
                 {
                 	xtype: 'combobox',
                     name: 'amiBillingReady',
-                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.amiBillingReady', 'IMT', 'AMI Billing Ready'),
+                    fieldLabel: Uni.I18n.translate('general.label.amiBillingReady', 'IMT', 'AMI billing ready'),
                     store: amiBillingReadyKinds,
                     value: 'UNKNOWN',
                     queryMode: 'local',
@@ -165,7 +165,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                 {
                     xtype: 'textfield',
                     name: 'outageRegion',
-                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.outageRegion', 'IMT', 'Outage Region'),
+                    fieldLabel: Uni.I18n.translate('general.label.outageRegion', 'IMT', 'Outage region'),
                     allowBlank: true,
                     maxLength: 75,
                     required: false,
@@ -174,7 +174,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                 {
                     xtype: 'textfield',
                     name: 'readCycle',
-                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.readCycle', 'IMT', 'Read Cycle'),
+                    fieldLabel: Uni.I18n.translate('general.label.readCycle', 'IMT', 'Read cycle'),
                     allowBlank: true,
                     maxLength: 75,
                     required: false,
@@ -183,7 +183,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                 {
                     xtype: 'textfield',
                     name: 'readRoute',
-                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.readRoute', 'IMT', 'Read Route'),
+                    fieldLabel: Uni.I18n.translate('general.label.readRoute', 'IMT', 'Read route'),
                     allowBlank: true,
                     maxLength: 75,
                     required: false,
@@ -192,7 +192,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                 {
                     xtype: 'textfield',
                     name: 'servicePriority',
-                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.servicePriority', 'IMT', 'Service Priority'),
+                    fieldLabel: Uni.I18n.translate('general.label.servicePriority', 'IMT', 'Service priority'),
                     allowBlank: true,
                     maxLength: 75,
                     required: false,
@@ -201,7 +201,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                 {
                     xtype: 'textfield',
                     name: 'serviceDeliveryRemark',
-                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.serviceDeliveryRemark', 'IMT', 'Service Delivery Remark'),
+                    fieldLabel: Uni.I18n.translate('general.label.serviceDeliveryRemark', 'IMT', 'Service delivery remark'),
                     allowBlank: true,
                     maxLength: 75,
                     required: false,
@@ -210,7 +210,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                 {
                 	xtype: 'combobox',
                     name: 'connectionState',
-                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.connectionState', 'IMT', 'Connection State'),
+                    fieldLabel: Uni.I18n.translate('general.label.connectionState', 'IMT', 'Connection state'),
                     store: connectionStates,
                     value: 'UNKNOWN',
                     queryMode: 'local',
@@ -225,7 +225,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                 {
                     xtype: 'combobox',
                     name: 'metrologyConfiguration',
-                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.metrologyConfiguration', 'IMT', 'Metrology Configuration'),
+                    fieldLabel: Uni.I18n.translate('usagepoint.label.metrologyconfiguration', 'IMT', 'Metrology configuration'),
                     store: 'Imt.metrologyconfiguration.store.MetrologyConfigurationSelect',
                     displayField: 'name',
                     valueField: 'id',
@@ -240,7 +240,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                 {
                 	xtype: 'combobox',
                     name: 'serviceCategory',
-                    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.serviceType', 'IMT', 'Service category'),
+                    fieldLabel: Uni.I18n.translate('general.label.serviceCategory', 'IMT', 'Service category'),
                     store: serviceTypes,
                     queryMode: 'local',
                     editable: false,
@@ -261,7 +261,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                 },
                 {
                 	xtype: 'panel',
-                	title: Uni.I18n.translate('usagePoint.formFieldLabel.technicalInformation', 'IMT', 'Technical information'),
+                	title: Uni.I18n.translate('usagepoint.technical.information', 'IMT', 'Technical information'),
                 	layout: 'form',
                 	ui: 'large',
                 	itemId: 'form-technical-information',
@@ -273,7 +273,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
 						    name: 'grounded',
 						    labelWidth: 250,
 						    value: true,
-						    fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.grounded', 'IMT', 'Grounded')
+						    fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded')
 						},
                         {
                             xtype: 'numberfield',
@@ -281,14 +281,14 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                             allowNegative: false,
                             minValue: 0,
                             labelWidth: 250,
-                            fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.nominalVoltage', 'IMT', 'Nominal Voltage (V)'),
+                            fieldLabel: Uni.I18n.translate('general.label.nominalVoltage', 'IMT', 'Nominal voltage (V)'),
                             allowBlank: true,
                             required: false
                         },
                         {
 	                    	xtype: 'combobox',
 	                        name: 'phaseCode',
-	                        fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.phaseCode', 'IMT', 'Phase Code'),
+	                        fieldLabel: Uni.I18n.translate('general.label.phaseCode', 'IMT', 'Phase code'),
 	                        store: phaseCodes,
 	                        value: 'UNKNOWN',
 	                        queryMode: 'local',
@@ -305,7 +305,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                             labelWidth: 250,
                             allowNegative: false,
                             minValue: 0,
-                            fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.ratedCurrent', 'IMT', 'Rated Current (A)'),
+                            fieldLabel: Uni.I18n.translate('general.label.ratedCurrent', 'IMT', 'Rated current (A)'),
                             allowBlank: true,
                             required: false
                         },
@@ -315,7 +315,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                             labelWidth: 250,
                             allowNegative: false,
                             minValue: 0,
-                            fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.ratedPower', 'IMT', 'Rated Power (kW)'),
+                            fieldLabel: Uni.I18n.translate('general.label.ratedPower', 'IMT', 'Rated power (kW)'),
                             allowBlank: true,
                             required: false
                         },
@@ -328,7 +328,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                         	    	name: 'estimatedLoadValue',
                         	    	labelWidth: 250,
                                     minValue: 0,
-                        	    	fieldLabel: Uni.I18n.translate('usagePoint.formFieldLabel.estimatedLoad', 'IMT', 'Estimated Load'),
+                        	    	fieldLabel: Uni.I18n.translate('general.label.estimatedLoad', 'IMT', 'Estimated load'),
                         	    	allowBlank: true,
                         	    	required: false,
                         	    	width: 500
@@ -354,14 +354,14 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                     fieldLabel: '&nbsp',
                     items: [
                         {
-                            text: Uni.I18n.translate('general.add', 'IMT', 'Add'),
+                            text: Uni.I18n.translate('general.button.add', 'IMT', 'Add'),
                             xtype: 'button',
                             ui: 'action',
                             action: 'saveModel',
                             itemId: 'createEditButton'
                         },
                         {
-                            text: Uni.I18n.translate('general.cancel', 'IMT', 'Cancel'),
+                            text: Uni.I18n.translate('general.button.cancel', 'IMT', 'Cancel'),
                             xtype: 'button',
                             ui: 'link',
                             itemId: 'cancelLink',
@@ -380,16 +380,16 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
     setEdit: function (edit, returnLink) {
         if (edit) {
             this.edit = edit;
-            this.down('form').setTitle(Uni.I18n.translate('usagePoint.edit.title', 'IMT', 'Edit usage point'));
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.save', 'IMT', 'Save'));
+            this.down('form').setTitle(Uni.I18n.translate('usagepoint.label.edit', 'IMT', 'Edit usage point'));
+            this.down('#createEditButton').setText(Uni.I18n.translate('general.button.save', 'IMT', 'Save'));
             this.down('textfield[name="mRID"]').setDisabled(true);
             this.down('combobox[name="serviceCategory"]').setDisabled(true);
             this.down('checkbox[name="isSdp"]').setDisabled(true);
             this.down('checkbox[name="isVirtual"]').setDisabled(true);
         } else {
             this.edit = edit;
-            this.down('form').setTitle(Uni.I18n.translate('usagePoint.add.title', 'IMT', 'Add usage point'));
-            this.down('#createEditButton').setText(Uni.I18n.translate('general.add', 'IMT', 'Add'));
+            this.down('form').setTitle(Uni.I18n.translate('usagepoint.label.add', 'IMT', 'Add usage point'));
+            this.down('#createEditButton').setText(Uni.I18n.translate('general.button.add', 'IMT', 'Add'));
             this.down('textfield[name="mRID"]').setDisabled(false);
             this.down('combobox[name="serviceCategory"]').setDisabled(false);
             this.down('checkbox[name="isSdp"]').setDisabled(false);

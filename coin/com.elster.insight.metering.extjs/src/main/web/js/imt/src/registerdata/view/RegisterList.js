@@ -12,7 +12,7 @@ Ext.define('Imt.registerdata.view.RegisterList', {
     scroll: false,
  //   overflowY: 'auto',
     itemId: 'registerList',
-    title: Uni.I18n.translate('registers.registerList', 'IMT', 'Registers'),
+    title: Uni.I18n.translate('registerdata.label.register.list', 'IMT', 'Registers'),
     viewConfig: {
         style: { overflow: 'auto', overflowX: 'hidden' },
         enableTextSelection: true
@@ -22,7 +22,7 @@ Ext.define('Imt.registerdata.view.RegisterList', {
         var me = this;
         me.columns = [
         {
-            header: Uni.I18n.translate('registers.title.registers', 'IMT', 'Registers'),
+            header: Uni.I18n.translate('registerdata.label.registers', 'IMT', 'Registers'),
             flex: 1,
             dataIndex: 'readingTypeFullAliasName', 
             renderer: function (value, b, record) {
@@ -33,7 +33,7 @@ Ext.define('Imt.registerdata.view.RegisterList', {
             }
         },
         {
-            header: Uni.I18n.translate('registers.title.registers', 'IMT', 'Last reading timestamp'),
+            header: Uni.I18n.translate('registerdata.label.lastreading.timestamp', 'IMT', 'Last reading timestamp'),
             flex: 1,
             dataIndex: 'lastValueTimestamp', 
             renderer: function(value){
@@ -44,7 +44,7 @@ Ext.define('Imt.registerdata.view.RegisterList', {
             }
         },
         {
-            header: Uni.I18n.translate('registers.title.registers', 'IMT', 'Last reading value'),
+            header: Uni.I18n.translate('registerdata.label.lastreading.value', 'IMT', 'Last reading value'),
             flex: 1,
             dataIndex: 'lastReadingValue'
         }

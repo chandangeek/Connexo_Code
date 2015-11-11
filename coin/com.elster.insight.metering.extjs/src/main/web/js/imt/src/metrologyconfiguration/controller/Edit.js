@@ -81,7 +81,7 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
 
         switch (button.action) {
         	case 'cancelButton':
-        		route = '#/administration/metrologyconfiguration';
+        		route = 'administration/metrologyconfiguration';
         		break;
         	case 'saveModel':
         		me.saveModel(button);
@@ -162,10 +162,10 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
 
         switch (action) {
             case 'create':
-                messageText = Uni.I18n.translate('metrologyConfiguration.acknowledge.createSuccess', 'IMT', 'Metrology Configuration added');
+                messageText = Uni.I18n.translate('metrologyconfiguration.acknowledge.add.success', 'IMT', 'Metrology Configuration added');
                 break;
             case 'update':
-                messageText = Uni.I18n.translate('metrologyConfiguration.acknowledge.updateSuccess', 'IMT', 'Metrology Configuration saved');
+                messageText = Uni.I18n.translate('metrologyconfiguration.acknowledge.save.success', 'IMT', 'Metrology Configuration saved');
                 break;
         }
         this.getApplication().fireEvent('acknowledge', messageText);
@@ -324,10 +324,10 @@ Ext.define('Imt.metrologyconfiguration.controller.Edit', {
 
         switch (action) {
             case 'create':
-                messageText = Uni.I18n.translate('metrologyConfiguration.acknowledge.createSuccess', 'IMT', 'Validation rule sets added to metrology configuration');
+                messageText = Uni.I18n.translate('metrologyconfiguration.acknowledge.valrulesets.add.success', 'IMT', 'Validation rule sets added to metrology configuration');
                 break;
             case 'update':
-                messageText = Uni.I18n.translate('metrologyConfiguration.acknowledge.updateSuccess', 'IMT', 'Validation rule sets updated to metrology configuration');
+                messageText = Uni.I18n.translate('metrologyconfiguration.acknowledge.valrulesets.update.success', 'IMT', 'Validation rule sets updated to metrology configuration');
                 break;
         }
         this.getApplication().fireEvent('acknowledge', messageText);

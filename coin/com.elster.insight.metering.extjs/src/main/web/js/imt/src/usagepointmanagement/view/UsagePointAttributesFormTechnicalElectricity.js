@@ -21,7 +21,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointAttributesFormTechnicalElect
             {xtype: 'usagePointAttributesFormMain'},
             {
                 xtype: 'fieldcontainer',
-                fieldLabel: Uni.I18n.translate('usagePointManagement.technicalAttributes', 'IMT', 'Technical information'),
+                fieldLabel: Uni.I18n.translate('usagepoint.technical.information', 'IMT', 'Technical information'),
                 itemId: 'usagePointTechnicalAttributes',
                 labelAlign: 'top',
                 layout: 'vbox',
@@ -34,15 +34,15 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointAttributesFormTechnicalElect
                     {
                         name: 'grounded',
                         itemId: 'fld-up-grounded',
-                        fieldLabel: Uni.I18n.translate('usagePointManagement.technicalAttributes.grounded', 'IMT', 'Grounded'),
+                        fieldLabel: Uni.I18n.translate('general.label.grounded', 'IMT', 'Grounded'),
                         renderer: function (value) {
-                            return value ? Uni.I18n.translate('usagePointManagement.yes', 'IMT', 'Yes') : Uni.I18n.translate('usagePointManagement.no', 'IMT', 'No');
+                            return value ? Uni.I18n.translate('general.label.yes', 'IMT', 'Yes') : Uni.I18n.translate('general.label.no', 'IMT', 'No');
                         }
                     },
                     {
                         name: 'nominalServiceVoltage',
                         itemId: 'fld-up-service-voltage',
-                        fieldLabel: Uni.I18n.translate('usagePointManagement.technicalAttributes.voltage', 'IMT', 'Nominal voltage'),
+                        fieldLabel: Uni.I18n.translate('general.label.voltage', 'IMT', 'Nominal voltage'),
                         renderer: function (data) {
                             return me.renderValue(data);
                         }
@@ -50,7 +50,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointAttributesFormTechnicalElect
                     {
                         name: 'phaseCode',
                         itemId: 'fld-up-phase',
-                        fieldLabel: Uni.I18n.translate('usagePointManagement.technicalAttributes.phaseCode', 'IMT', 'Phase code'),
+                        fieldLabel: Uni.I18n.translate('general.label.phaseCode', 'IMT', 'Phase code'),
                         renderer: function (value) {
                             return value ? value : '-';
                         }
@@ -58,7 +58,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointAttributesFormTechnicalElect
                     {
                         name: 'ratedCurrent',
                         itemId: 'fld-up-rated-current',
-                        fieldLabel: Uni.I18n.translate('usagePointManagement.technicalAttributes.ratedCurrent', 'IMT', 'Rated current'),
+                        fieldLabel: Uni.I18n.translate('general.label.ratedCurrent', 'IMT', 'Rated current'),
                         renderer: function (data) {
                             return me.renderValue(data);
                         }
@@ -66,7 +66,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointAttributesFormTechnicalElect
                     {
                         name: 'ratedPower',
                         itemId: 'fld-up-rated-power',
-                        fieldLabel: Uni.I18n.translate('usagePointManagement.technicalAttributes.ratedPower', 'IMT', 'Rated power'),
+                        fieldLabel: Uni.I18n.translate('general.label.ratedPower', 'IMT', 'Rated power'),
                         renderer: function (data) {
                             return me.renderValue(data);
                         }
@@ -74,7 +74,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointAttributesFormTechnicalElect
                     {
                         name: 'estimatedLoad',
                         itemId: 'fld-up-estimated-load',
-                        fieldLabel: Uni.I18n.translate('usagePointManagement.technicalAttributes.estimatedLoad', 'IMT', 'Estimated load'),
+                        fieldLabel: Uni.I18n.translate('general.label.estimatedLoad', 'IMT', 'Estimated load'),
                         renderer: function (data) {
                             return me.renderValue(data);
                         }

@@ -10,7 +10,6 @@ Ext.define('Imt.registerdata.view.RegisterDataList', {
     store: 'Imt.registerdata.store.RegisterData',
     overflowY: 'auto',
     itemId: 'registerDataList',
-//    title: Uni.I18n.translate('registers.registerDataList', 'IMT', 'Readings'),
     viewConfig: {
         style: { overflow: 'auto', overflowX: 'hidden' },
         enableTextSelection: true
@@ -20,7 +19,7 @@ Ext.define('Imt.registerdata.view.RegisterDataList', {
         var me = this;
         me.columns = [
         {
-            header: Uni.I18n.translate('registers.title.registers', 'IMT', 'Reading timestamp'),
+            header: Uni.I18n.translate('general.label.reading.timestamp', 'IMT', 'Reading timestamp'),
             flex: 1,
             dataIndex: 'readingTime', 
             renderer: function(value){
@@ -31,12 +30,12 @@ Ext.define('Imt.registerdata.view.RegisterDataList', {
             }
         },
         {
-            header: Uni.I18n.translate('registers.title.registers', 'IMT', 'Reading Value'),
+            header: Uni.I18n.translate('general.label.reading.value', 'IMT', 'Reading value'),
             flex: 1,
             dataIndex: 'value'
         },
         {
-            header: Uni.I18n.translate('registers.title.registers', 'IMT', 'Delta Value'),
+            header: Uni.I18n.translate('general.label.delta.value', 'IMT', 'Delta Value'),
             flex: 1,
             dataIndex: 'deltaValue'
         }

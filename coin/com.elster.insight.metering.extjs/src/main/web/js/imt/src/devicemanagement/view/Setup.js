@@ -55,7 +55,7 @@ Ext.define('Imt.devicemanagement.view.Setup', {
                 items: [
                     {
                         xtype: 'panel',
-                        title: Uni.I18n.translate('deviceManagement.deviceGeneralAttributes', 'IMT', 'Device Attributes'),
+                        title: Uni.I18n.translate('devicemanagement.label.device.attributes', 'IMT', 'Device Attributes'),
                         ui: 'tile',
                         itemId: 'device-attributes-panel',
                         router: me.router
