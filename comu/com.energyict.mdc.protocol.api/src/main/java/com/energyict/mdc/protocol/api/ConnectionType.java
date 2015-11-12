@@ -1,12 +1,11 @@
 package com.energyict.mdc.protocol.api;
 
-import com.energyict.mdc.io.ComChannel;
-import com.energyict.mdc.pluggable.Pluggable;
-import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.io.ComChannel;
+import com.energyict.mdc.pluggable.Pluggable;
+import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 
 import java.util.Collections;
 import java.util.List;
@@ -55,7 +54,7 @@ public interface ConnectionType extends Pluggable {
 
     /**
      * Returns the {@link CustomPropertySet} that provides the storage area
-     * for the propeties of this ConnectionType or an empty Optional
+     * for the properties of this ConnectionType or an empty Optional
      * if this ConnectionType does not have any properties.
      * In that case, {@link #getPropertySpecs()} should return
      * an empty collection as well for consistency.
