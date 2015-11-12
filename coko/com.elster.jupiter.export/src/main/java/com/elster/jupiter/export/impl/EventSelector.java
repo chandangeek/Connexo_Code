@@ -25,6 +25,7 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -62,17 +63,26 @@ class EventSelector implements DataSelector {
 
     @Override
     public Stream<ExportData> selectData(DataExportOccurrence occurrence) {
-        Range<Instant> range = determineRange(occurrence);
-        if (!range.hasUpperBound() || clock.instant().isBefore(range.upperEndpoint())) {
+        try {
+            Range<Instant> range = determineRange(occurrence);
+            if (!range.hasUpperBound() || clock.instant().isBefore(range.upperEndpoint())) {
+                try (TransactionContext context = transactionService.getContext()) {
+                    MessageSeeds.EXPORT_PERIOD_COVERS_FUTURE.log(logger, thesaurus, selector.getExportPeriod().getName());
+                    context.commit();
+                }
+            }
+            Stream<ExportData> exportDataStream = getExportDataStream(range);
+            ((IDataExportOccurrence) occurrence).summarize(buildSummary());
+
+            return exportDataStream;
+        } finally {
             try (TransactionContext context = transactionService.getContext()) {
-                MessageSeeds.EXPORT_PERIOD_COVERS_FUTURE.log(logger, thesaurus, selector.getExportPeriod().getName());
-                context.commit();
+                if (events.getValue() == 0) {
+                    MessageSeeds.NO_DATA_TOEXPORT.log(logger, thesaurus);
+                    context.commit();
+                }
             }
         }
-        Stream<ExportData> exportDataStream = getExportDataStream(range);
-        ((IDataExportOccurrence) occurrence).summarize(buildSummary());
-
-        return exportDataStream;
     }
 
     private String buildSummary() {
@@ -84,11 +94,13 @@ class EventSelector implements DataSelector {
     }
 
     private Stream<ExportData> getExportDataStream(Range<Instant> range) {
-        return selector.getEndDeviceGroup()
+        Stream<ExportData> stream = selector.getEndDeviceGroup()
                 .getMembers(range)
                 .stream()
                 .map(EndDeviceMembership::getEndDevice)
                 .map(endDevice -> buildEventData(endDevice, range));
+        List<ExportData> result = stream.collect(Collectors.toList());
+        return result.stream();
     }
 
     private MeterEventData buildEventData(EndDevice endDevice, Range<Instant> range) {

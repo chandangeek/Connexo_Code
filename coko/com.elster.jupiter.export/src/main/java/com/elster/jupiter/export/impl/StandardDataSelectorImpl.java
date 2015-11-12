@@ -63,11 +63,11 @@ class StandardDataSelectorImpl implements IStandardDataSelector {
     private boolean exportOnlyIfComplete;
     private ValidatedDataOption validatedDataOption;
     @Valid
-    @Size(min=1, groups = {StandardDataSelector.class}, message = "{" + MessageSeeds.Keys.MUST_SELECT_AT_LEAST_ONE_READING_TYPE + "}")
+    @Size(min = 1, groups = {StandardDataSelector.class}, message = "{" + MessageSeeds.Keys.MUST_SELECT_AT_LEAST_ONE_READING_TYPE + "}")
     private List<ReadingTypeInDataSelector> readingTypes = new ArrayList<>();
     private List<ReadingTypeDataExportItemImpl> exportItems = new ArrayList<>();
     @Valid
-    @Size(min=1, groups = {com.elster.jupiter.export.EventDataSelector.class}, message = "{" + MessageSeeds.Keys.MUST_SELECT_AT_LEAST_ONE_EVENT_TYPE + "}")
+    @Size(min = 1, groups = {com.elster.jupiter.export.EventDataSelector.class}, message = "{" + MessageSeeds.Keys.MUST_SELECT_AT_LEAST_ONE_EVENT_TYPE + "}")
     private List<EndDeviceEventTypeFilter> eventTypeFilters = new ArrayList<>();
 
     private long version;
@@ -122,7 +122,8 @@ class StandardDataSelectorImpl implements IStandardDataSelector {
         return EventSelector.from(dataModel, this, logger);
     }
 
-    Set<IReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence) {
+    @Override
+    public Set<IReadingTypeDataExportItem> getActiveItems(DataExportOccurrence occurrence) {
         return decorate(getEndDeviceGroup()
                 .getMembers(occurrence.getDefaultSelectorOccurrence()
                         .map(DefaultSelectorOccurrence::getExportedDataInterval)

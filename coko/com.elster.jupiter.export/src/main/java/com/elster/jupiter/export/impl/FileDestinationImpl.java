@@ -68,11 +68,11 @@ class FileDestinationImpl extends AbstractDataExportDestination implements FileD
                 Files.copy(source, target);
             } catch (Exception e) {
                 throw new DestinationFailedException(
-                        thesaurus, MessageSeeds.FILE_DESTINATION_FAILED, e, target.toAbsolutePath().toString(), e.getMessage());
+                        thesaurus, MessageSeeds.FILE_DESTINATION_FAILED, e, target.toAbsolutePath().toString(), e.toString() + " " + e.getMessage());
             }
             try (TransactionContext context = getTransactionService().getContext()) {
                     MessageSeeds.DATA_EXPORTED_TO.log(logger, thesaurus, target.toAbsolutePath().toString());
-                    context.commit();
+                context.commit();
             }
         }
 

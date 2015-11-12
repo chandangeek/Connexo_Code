@@ -486,12 +486,12 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
         resources.add(userService.createModuleResourceWithPrivileges(getModuleName(),
-                "dataExportTask.dataExportTasks", "dataExportTask.dataExportTasks.description",
-                Arrays.asList(Privileges.ADMINISTRATE_DATA_EXPORT_TASK,
-                        Privileges.VIEW_DATA_EXPORT_TASK,
-                        Privileges.UPDATE_DATA_EXPORT_TASK,
-                        Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK,
-                        Privileges.RUN_DATA_EXPORT_TASK)));
+                Privileges.RESOURCE_DATA_EXPORT.getKey(), Privileges.RESOURCE_DATA_EXPORT_DESCRIPTION.getKey(),
+                Arrays.asList(Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK,
+                        Privileges.Constants.VIEW_DATA_EXPORT_TASK,
+                        Privileges.Constants.UPDATE_DATA_EXPORT_TASK,
+                        Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK,
+                        Privileges.Constants.RUN_DATA_EXPORT_TASK)));
         return resources;
     }
 
@@ -512,6 +512,7 @@ public class DataExportServiceImpl implements IDataExportService, InstallService
         return Stream.of(
                 Stream.of(TranslationKeys.values()),
                 Stream.of(DataExportStatus.values()),
+                Stream.of(Privileges.values()),
                 Stream.of(standardDataSelectorKey, standardEventDataSelectorKey))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());

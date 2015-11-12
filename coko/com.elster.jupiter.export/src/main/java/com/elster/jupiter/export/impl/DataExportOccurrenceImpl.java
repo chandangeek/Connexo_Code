@@ -25,7 +25,7 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
 
     private Reference<TaskOccurrence> taskOccurrence = ValueReference.absent();
     private Reference<IExportTask> readingTask = ValueReference.absent();
-    private Interval exportedDataInterval = Interval.forever();
+    private Interval exportedDataInterval;
     private Interval.EndpointBehavior exportedDataBoundaryType;
     private DataExportStatus status = DataExportStatus.BUSY;
     private String failureReason;

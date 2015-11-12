@@ -6,6 +6,7 @@ import com.elster.jupiter.orm.HasAuditInfo;
 import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.List;
+import java.util.Optional;
 
 interface IExportTask extends ExportTask, HasAuditInfo {
     PropertySpec getPropertySpec(String name);
@@ -23,4 +24,6 @@ interface IExportTask extends ExportTask, HasAuditInfo {
     boolean hasDefaultSelector();
 
     Destination getCompositeDestination();
+
+    Optional<IStandardDataSelector> getReadingTypeDataSelector();
 }
