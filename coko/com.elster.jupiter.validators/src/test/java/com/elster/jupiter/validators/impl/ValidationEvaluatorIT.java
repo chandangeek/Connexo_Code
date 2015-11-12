@@ -32,6 +32,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.TimeService;
@@ -54,6 +55,12 @@ import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -67,14 +74,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import static com.elster.jupiter.validation.ValidationResult.NOT_VALIDATED;
-import static com.elster.jupiter.validation.ValidationResult.SUSPECT;
-import static com.elster.jupiter.validation.ValidationResult.VALID;
+import static com.elster.jupiter.validation.ValidationResult.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
@@ -124,6 +124,7 @@ public class ValidationEvaluatorIT {
                     new IdsModule(),
                     new FiniteStateMachineModule(),
                     new MeteringGroupsModule(),
+                    new SearchModule(),
                     new TaskModule(),
                     new MeteringModule("0.0.2.4.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.2.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"),
                     new PartyModule(),

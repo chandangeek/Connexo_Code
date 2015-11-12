@@ -30,6 +30,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.TimeService;
@@ -52,6 +53,12 @@ import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -63,27 +70,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static com.elster.jupiter.validation.ValidationResult.SUSPECT;
 import static com.elster.jupiter.validation.ValidationResult.VALID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static com.elster.jupiter.validation.ValidationResult.SUSPECT;
-import static com.elster.jupiter.validation.ValidationResult.VALID;
-import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Tests integration of all internal components involved in validation.
@@ -129,6 +119,7 @@ public class RegisterValidationEvaluatorIT {
                 new FiniteStateMachineModule(),
                 new MeteringModule("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"),
                 new MeteringGroupsModule(),
+                new SearchModule(),
                 new TaskModule(),
                 new PartyModule(),
                 new EventsModule(),
