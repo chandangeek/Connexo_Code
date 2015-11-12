@@ -2,7 +2,7 @@ package com.energyict.protocols.impl.channels.serial.optical.dlms;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.protocols.impl.channels.serial.SioSerialConnectionProperties;
 
 import java.math.BigDecimal;
@@ -53,8 +53,8 @@ public class LegacyOpticalDlmsConnectionProperties extends SioSerialConnectionPr
     private BigDecimal dataLinkLayerType;
 
     @Override
-    public void copyFrom(ConnectionType connectionType, CustomPropertySetValues propertyValues) {
-        super.copyFrom(connectionType, propertyValues);
+    public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues) {
+        super.copyFrom(connectionProvider, propertyValues);
         this.addressingMode = (BigDecimal) propertyValues.getProperty(Field.ADDRESSING_MODE.javaName());
         this.serverMacAddress = (BigDecimal) propertyValues.getProperty(Field.SERVER_MAC_ADDRESS.javaName());
         this.serverLowerMacAddress = (BigDecimal) propertyValues.getProperty(Field.SERVER_LOWER_MAC_ADDRESS.javaName());

@@ -9,7 +9,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 
 import javax.validation.constraints.Size;
@@ -21,18 +21,18 @@ import javax.validation.constraints.Size;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-06 (11:36)
  */
-public class OutboundProximusConnectionProperties implements PersistentDomainExtension<ConnectionType> {
+public class OutboundProximusConnectionProperties implements PersistentDomainExtension<ConnectionProvider> {
 
     public enum Fields {
-        CONNECTION_TYPE {
+        CONNECTION_PROVIDER {
             @Override
             public String javaName() {
-                return "connectionType";
+                return "connectionProvider";
             }
 
             @Override
             public String databaseName() {
-                return "CONNECTIONTYPE";
+                return "CONNECTIONPROVIDER";
             }
 
             @Override
@@ -116,7 +116,7 @@ public class OutboundProximusConnectionProperties implements PersistentDomainExt
     }
 
     @SuppressWarnings("unused")
-    private Reference<ConnectionType> connectionType = Reference.empty();
+    private Reference<ConnectionProvider> connectionProvider = Reference.empty();
     @SuppressWarnings("unused")
     private Interval interval;
     @NotEmpty
@@ -136,8 +136,8 @@ public class OutboundProximusConnectionProperties implements PersistentDomainExt
     private String serviceCode;
 
     @Override
-    public void copyFrom(ConnectionType connectionType, CustomPropertySetValues propertyValues) {
-        this.connectionType.set(connectionType);
+    public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues) {
+        this.connectionProvider.set(connectionProvider);
         this.phoneNumber = (String) propertyValues.getProperty(DeviceProtocolProperty.PHONE_NUMBER.javaFieldName());
         this.connectionUrl = (String) propertyValues.getProperty(Fields.CONNECTION_URL.javaName());
         this.source = (String) propertyValues.getProperty(Fields.SOURCE.javaName());

@@ -9,7 +9,7 @@ import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecBuilder;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
 import com.energyict.protocols.impl.channels.serial.optical.serialio.SioOpticalConnectionType;
 
@@ -31,7 +31,7 @@ import static com.energyict.protocols.impl.channels.serial.optical.dlms.LegacyOp
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-10 (13:44)
  */
-public class LegacyOpticalDlmsCustomPropertySet implements CustomPropertySet<ConnectionType, LegacyOpticalDlmsConnectionProperties> {
+public class LegacyOpticalDlmsCustomPropertySet implements CustomPropertySet<ConnectionProvider, LegacyOpticalDlmsConnectionProperties> {
 
     private final Thesaurus thesaurus;
     private final SioOpticalConnectionType actualConnectionType;
@@ -50,12 +50,12 @@ public class LegacyOpticalDlmsCustomPropertySet implements CustomPropertySet<Con
     }
 
     @Override
-    public Class<ConnectionType> getDomainClass() {
-        return ConnectionType.class;
+    public Class<ConnectionProvider> getDomainClass() {
+        return ConnectionProvider.class;
     }
 
     @Override
-    public PersistenceSupport<ConnectionType, LegacyOpticalDlmsConnectionProperties> getPersistenceSupport() {
+    public PersistenceSupport<ConnectionProvider, LegacyOpticalDlmsConnectionProperties> getPersistenceSupport() {
         return new LegacyOpticalDlmsConnectionPropertiesPersistenceSupport();
     }
 

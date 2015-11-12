@@ -3,7 +3,7 @@ package com.energyict.protocols.impl.channels.serial.optical.dlms;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.protocols.impl.channels.serial.SioSerialConnectionProperties;
 
@@ -19,7 +19,7 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-10 (13:37)
  */
-public class LegacyOpticalDlmsConnectionPropertiesPersistenceSupport implements PersistenceSupport<ConnectionType, LegacyOpticalDlmsConnectionProperties> {
+public class LegacyOpticalDlmsConnectionPropertiesPersistenceSupport implements PersistenceSupport<ConnectionProvider, LegacyOpticalDlmsConnectionProperties> {
 
     @Override
     public String componentName() {
@@ -33,12 +33,12 @@ public class LegacyOpticalDlmsConnectionPropertiesPersistenceSupport implements 
 
     @Override
     public String domainFieldName() {
-        return LegacyOpticalDlmsConnectionProperties.FieldNames.CONNECTION_TYPE.javaName();
+        return LegacyOpticalDlmsConnectionProperties.FieldNames.CONNECTION_PROVIDER.javaName();
     }
 
     @Override
     public String domainColumnName() {
-        return LegacyOpticalDlmsConnectionProperties.FieldNames.CONNECTION_TYPE.databaseName();
+        return LegacyOpticalDlmsConnectionProperties.FieldNames.CONNECTION_PROVIDER.databaseName();
     }
 
     @Override

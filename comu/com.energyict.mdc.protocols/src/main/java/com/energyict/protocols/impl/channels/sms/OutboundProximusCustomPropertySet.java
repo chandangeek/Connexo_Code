@@ -7,7 +7,7 @@ import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
 
 import java.util.EnumSet;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-06 (12:03)
  */
-public class OutboundProximusCustomPropertySet implements CustomPropertySet<ConnectionType, OutboundProximusConnectionProperties> {
+public class OutboundProximusCustomPropertySet implements CustomPropertySet<ConnectionProvider, OutboundProximusConnectionProperties> {
 
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
@@ -39,12 +39,12 @@ public class OutboundProximusCustomPropertySet implements CustomPropertySet<Conn
     }
 
     @Override
-    public Class<ConnectionType> getDomainClass() {
-        return ConnectionType.class;
+    public Class<ConnectionProvider> getDomainClass() {
+        return ConnectionProvider.class;
     }
 
     @Override
-    public PersistenceSupport<ConnectionType, OutboundProximusConnectionProperties> getPersistenceSupport() {
+    public PersistenceSupport<ConnectionProvider, OutboundProximusConnectionProperties> getPersistenceSupport() {
         return new OutboundProximusConnectionPropertiesPersistenceSupport();
     }
 
@@ -71,7 +71,7 @@ public class OutboundProximusCustomPropertySet implements CustomPropertySet<Conn
     @Override
     public List<PropertySpec> getPropertySpecs() {
         EnumSet<OutboundProximusConnectionProperties.Fields> fields = EnumSet.allOf(OutboundProximusConnectionProperties.Fields.class);
-        fields.remove(OutboundProximusConnectionProperties.Fields.CONNECTION_TYPE);
+        fields.remove(OutboundProximusConnectionProperties.Fields.CONNECTION_PROVIDER);
         return fields.stream()
                 .map(prop -> prop.propertySpec(this.propertySpecService))
                 .collect(Collectors.toList());

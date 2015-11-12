@@ -8,7 +8,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.StringFactory;
-import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
 import com.energyict.protocols.impl.channels.ip.OutboundIpConnectionType;
 
@@ -24,7 +24,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-06 (12:03)
  */
-public class CTRInboundDialHomeIdCustomPropertySet implements CustomPropertySet<ConnectionType, CTRInboundDialHomeIdConnectionProperties> {
+public class CTRInboundDialHomeIdCustomPropertySet implements CustomPropertySet<ConnectionProvider, CTRInboundDialHomeIdConnectionProperties> {
 
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
@@ -50,8 +50,8 @@ public class CTRInboundDialHomeIdCustomPropertySet implements CustomPropertySet<
     }
 
     @Override
-    public Class<ConnectionType> getDomainClass() {
-        return ConnectionType.class;
+    public Class<ConnectionProvider> getDomainClass() {
+        return ConnectionProvider.class;
     }
 
     @Override
@@ -75,7 +75,7 @@ public class CTRInboundDialHomeIdCustomPropertySet implements CustomPropertySet<
     }
 
     @Override
-    public PersistenceSupport<ConnectionType, CTRInboundDialHomeIdConnectionProperties> getPersistenceSupport() {
+    public PersistenceSupport<ConnectionProvider, CTRInboundDialHomeIdConnectionProperties> getPersistenceSupport() {
         return new CTRInboundDialHomeIdConnectionPropertiesPersistenceSupport();
     }
 

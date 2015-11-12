@@ -7,7 +7,7 @@ import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
 
 import java.util.EnumSet;
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-04 (17:26)
  */
-public class InboundProximusCustomPropertySet implements CustomPropertySet<ConnectionType, InboundProximusConnectionProperties> {
+public class InboundProximusCustomPropertySet implements CustomPropertySet<ConnectionProvider, InboundProximusConnectionProperties> {
 
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
@@ -39,12 +39,12 @@ public class InboundProximusCustomPropertySet implements CustomPropertySet<Conne
     }
 
     @Override
-    public Class<ConnectionType> getDomainClass() {
-        return ConnectionType.class;
+    public Class<ConnectionProvider> getDomainClass() {
+        return ConnectionProvider.class;
     }
 
     @Override
-    public PersistenceSupport<ConnectionType, InboundProximusConnectionProperties> getPersistenceSupport() {
+    public PersistenceSupport<ConnectionProvider, InboundProximusConnectionProperties> getPersistenceSupport() {
         return new InboundProximusConnectionPropertiesPersistenceSupport();
     }
 
@@ -71,7 +71,7 @@ public class InboundProximusCustomPropertySet implements CustomPropertySet<Conne
     @Override
     public List<PropertySpec> getPropertySpecs() {
         EnumSet<InboundProximusConnectionProperties.Fields> fields = EnumSet.allOf(InboundProximusConnectionProperties.Fields.class);
-        fields.remove(InboundProximusConnectionProperties.Fields.CONNECTION_TYPE);
+        fields.remove(InboundProximusConnectionProperties.Fields.CONNECTION_PROVIDER);
         return fields.stream()
                 .map(prop -> prop.propertySpec(this.propertySpecService))
                 .collect(Collectors.toList());

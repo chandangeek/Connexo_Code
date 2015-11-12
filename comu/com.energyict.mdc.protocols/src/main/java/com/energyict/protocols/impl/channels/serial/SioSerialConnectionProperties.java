@@ -1,17 +1,16 @@
 package com.energyict.protocols.impl.channels.serial;
 
+import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.io.BaudrateValue;
 import com.energyict.mdc.io.FlowControl;
 import com.energyict.mdc.io.NrOfDataBits;
 import com.energyict.mdc.io.NrOfStopBits;
 import com.energyict.mdc.io.Parities;
 import com.energyict.mdc.io.SerialPortConfiguration;
-import com.energyict.mdc.protocol.api.ConnectionType;
-
-import com.elster.jupiter.cps.CustomPropertySetValues;
-import com.elster.jupiter.cps.PersistentDomainExtension;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 
 /**
  * Provides an implementation for the {@link PersistentDomainExtension} interface
@@ -29,10 +28,10 @@ import com.elster.jupiter.util.time.Interval;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-04 (13:12)
  */
-public class SioSerialConnectionProperties implements PersistentDomainExtension<ConnectionType> {
+public class SioSerialConnectionProperties implements PersistentDomainExtension<ConnectionProvider> {
 
     public enum FieldNames {
-        CONNECTION_TYPE("connectionType", "CONNECTIONTYPE"),
+        CONNECTION_PROVIDER("connectionProvider", "CONNECTIONPROVIDER"),
         PARITY("parity", "PARITIES"),
         FLOW_CONTROL("flowControl", "FLOWCONTROL"),
         NUMBER_OF_STOP_BITS("numberOfStopBits", "NRSTOPBITS"),
@@ -57,7 +56,7 @@ public class SioSerialConnectionProperties implements PersistentDomainExtension<
     }
 
     @SuppressWarnings("unused")
-    private Reference<ConnectionType> connectionType = Reference.empty();
+    private Reference<ConnectionProvider> connectionProvider = Reference.empty();
     @SuppressWarnings("unused")
     private Interval interval;
     private Parities parity;
@@ -67,8 +66,8 @@ public class SioSerialConnectionProperties implements PersistentDomainExtension<
     private BaudrateValue baudrate;
 
     @Override
-    public void copyFrom(ConnectionType connectionType, CustomPropertySetValues propertyValues) {
-        this.connectionType.set(connectionType);
+    public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues) {
+        this.connectionProvider.set(connectionProvider);
         this.parity = (Parities) propertyValues.getProperty(SerialPortConfiguration.PARITY_NAME);
         this.flowControl = (FlowControl) propertyValues.getProperty(SerialPortConfiguration.FLOW_CONTROL_NAME);
         this.numberOfStopBits = (NrOfStopBits) propertyValues.getProperty(SerialPortConfiguration.NR_OF_STOP_BITS_NAME);

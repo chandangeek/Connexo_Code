@@ -8,6 +8,7 @@ import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.protocols.impl.channels.ip.OutboundIpConnectionProperties;
@@ -53,7 +54,7 @@ public class OutboundUdpConnectionType extends OutboundIpConnectionType {
     }
 
     @Override
-    public Optional<CustomPropertySet<ConnectionType, ? extends PersistentDomainExtension<ConnectionType>>> getCustomPropertySet() {
+    public Optional<CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>>> getCustomPropertySet() {
         return Optional.of(new OutboundUdpCustomPropertySet(this.getThesaurus(), this.getPropertySpecService()));
     }
 

@@ -6,7 +6,7 @@ import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 
 import javax.validation.constraints.Size;
 
@@ -17,18 +17,18 @@ import javax.validation.constraints.Size;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-06 (15:43)
  */
-public class EIWebConnectionProperties implements PersistentDomainExtension<ConnectionType> {
+public class EIWebConnectionProperties implements PersistentDomainExtension<ConnectionProvider> {
 
     public enum Fields {
-        CONNECTION_TYPE {
+        CONNECTION_PROVIDER {
             @Override
             public String javaName() {
-                return "connectionType";
+                return "connectionProvider";
             }
 
             @Override
             public String databaseName() {
-                return "CONNECTIONTYPE";
+                return "CONNECTIONPROVIDER";
             }
         },
         IP_ADDRESS {
@@ -61,7 +61,7 @@ public class EIWebConnectionProperties implements PersistentDomainExtension<Conn
     }
 
     @SuppressWarnings("unused")
-    private Reference<ConnectionType> connectionType = Reference.empty();
+    private Reference<ConnectionProvider> connectionProvider = Reference.empty();
     @SuppressWarnings("unused")
     private Interval interval;
     @NotEmpty
@@ -72,8 +72,8 @@ public class EIWebConnectionProperties implements PersistentDomainExtension<Conn
     private String macAddress;
 
     @Override
-    public void copyFrom(ConnectionType connectionType, CustomPropertySetValues propertyValues) {
-        this.connectionType.set(connectionType);
+    public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues) {
+        this.connectionProvider.set(connectionProvider);
         this.ipAddress = (String) propertyValues.getProperty(Fields.IP_ADDRESS.javaName());
         this.macAddress = (String) propertyValues.getProperty(Fields.MAC_ADDRESS.javaName());
     }

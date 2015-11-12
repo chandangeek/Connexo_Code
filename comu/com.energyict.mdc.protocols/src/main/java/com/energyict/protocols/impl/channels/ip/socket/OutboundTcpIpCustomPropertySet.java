@@ -6,7 +6,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
 import com.energyict.protocols.impl.channels.ip.OutboundIpConnectionProperties;
 import com.energyict.protocols.impl.channels.ip.OutboundIpConnectionPropertiesPersistenceSupport;
@@ -33,7 +33,7 @@ public class OutboundTcpIpCustomPropertySet extends OutboundIpCustomPropertySet 
     }
 
     @Override
-    public PersistenceSupport<ConnectionType, OutboundIpConnectionProperties> getPersistenceSupport() {
+    public PersistenceSupport<ConnectionProvider, OutboundIpConnectionProperties> getPersistenceSupport() {
         return new OutboundIpConnectionPropertiesPersistenceSupport();
     }
 

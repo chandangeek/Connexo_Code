@@ -8,7 +8,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.StringFactory;
-import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
 
 import java.util.Arrays;
@@ -23,7 +23,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-06 (16:19)
  */
-public class EIWebCustomPropertySet implements CustomPropertySet<ConnectionType, EIWebConnectionProperties> {
+public class EIWebCustomPropertySet implements CustomPropertySet<ConnectionProvider, EIWebConnectionProperties> {
 
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
@@ -49,8 +49,8 @@ public class EIWebCustomPropertySet implements CustomPropertySet<ConnectionType,
     }
 
     @Override
-    public Class<ConnectionType> getDomainClass() {
-        return ConnectionType.class;
+    public Class<ConnectionProvider> getDomainClass() {
+        return ConnectionProvider.class;
     }
 
     @Override
@@ -74,7 +74,7 @@ public class EIWebCustomPropertySet implements CustomPropertySet<ConnectionType,
     }
 
     @Override
-    public PersistenceSupport<ConnectionType, EIWebConnectionProperties> getPersistenceSupport() {
+    public PersistenceSupport<ConnectionProvider, EIWebConnectionProperties> getPersistenceSupport() {
         return new EIWebConnectionPropertiesPersistenceSupport();
     }
 

@@ -7,7 +7,7 @@ import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.io.SerialComponentService;
-import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.protocols.impl.channels.CustomPropertySetTranslationKeys;
 
 import java.util.EnumSet;
@@ -29,7 +29,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-04 (13:09)
  */
-public class SioSerialCustomPropertySet implements CustomPropertySet<ConnectionType, SioSerialConnectionProperties> {
+public class SioSerialCustomPropertySet implements CustomPropertySet<ConnectionProvider, SioSerialConnectionProperties> {
 
     private final Thesaurus thesaurus;
     private final SerialComponentService serialComponentService;
@@ -46,12 +46,12 @@ public class SioSerialCustomPropertySet implements CustomPropertySet<ConnectionT
     }
 
     @Override
-    public Class<ConnectionType> getDomainClass() {
-        return ConnectionType.class;
+    public Class<ConnectionProvider> getDomainClass() {
+        return ConnectionProvider.class;
     }
 
     @Override
-    public PersistenceSupport<ConnectionType, SioSerialConnectionProperties> getPersistenceSupport() {
+    public PersistenceSupport<ConnectionProvider, SioSerialConnectionProperties> getPersistenceSupport() {
         return new SioSerialConnectionPropertiesPersistenceSupport();
     }
 

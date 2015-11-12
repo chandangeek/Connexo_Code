@@ -2,7 +2,7 @@ package com.energyict.protocols.impl.channels.inbound;
 
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 
 import com.google.inject.Module;
@@ -16,7 +16,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-06 (15:46)
  */
-public class EIWebConnectionPropertiesPersistenceSupport implements PersistenceSupport<ConnectionType, EIWebConnectionProperties> {
+public class EIWebConnectionPropertiesPersistenceSupport implements PersistenceSupport<ConnectionProvider, EIWebConnectionProperties> {
 
     @Override
     public String componentName() {
@@ -30,12 +30,12 @@ public class EIWebConnectionPropertiesPersistenceSupport implements PersistenceS
 
     @Override
     public String domainFieldName() {
-        return EIWebConnectionProperties.Fields.CONNECTION_TYPE.javaName();
+        return EIWebConnectionProperties.Fields.CONNECTION_PROVIDER.javaName();
     }
 
     @Override
     public String domainColumnName() {
-        return EIWebConnectionProperties.Fields.CONNECTION_TYPE.databaseName();
+        return EIWebConnectionProperties.Fields.CONNECTION_PROVIDER.databaseName();
     }
 
     @Override

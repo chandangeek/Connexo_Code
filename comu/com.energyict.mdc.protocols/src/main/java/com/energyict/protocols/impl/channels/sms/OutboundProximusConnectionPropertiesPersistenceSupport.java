@@ -2,7 +2,7 @@ package com.energyict.protocols.impl.channels.sms;
 
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 
 import com.google.inject.Module;
@@ -17,7 +17,7 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-06 (12:01)
  */
-public class OutboundProximusConnectionPropertiesPersistenceSupport implements PersistenceSupport<ConnectionType, OutboundProximusConnectionProperties> {
+public class OutboundProximusConnectionPropertiesPersistenceSupport implements PersistenceSupport<ConnectionProvider, OutboundProximusConnectionProperties> {
 
     @Override
     public String componentName() {
@@ -31,12 +31,12 @@ public class OutboundProximusConnectionPropertiesPersistenceSupport implements P
 
     @Override
     public String domainFieldName() {
-        return OutboundProximusConnectionProperties.Fields.CONNECTION_TYPE.javaName();
+        return OutboundProximusConnectionProperties.Fields.CONNECTION_PROVIDER.javaName();
     }
 
     @Override
     public String domainColumnName() {
-        return OutboundProximusConnectionProperties.Fields.CONNECTION_TYPE.databaseName();
+        return OutboundProximusConnectionProperties.Fields.CONNECTION_PROVIDER.databaseName();
     }
 
     @Override

@@ -1,11 +1,11 @@
 package com.energyict.protocols.impl.channels.serial;
 
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
-
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+
 import com.google.inject.Module;
 
 import java.util.Optional;
@@ -18,7 +18,7 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-05 (09:46)
  */
-public class SioSerialConnectionPropertiesPersistenceSupport implements PersistenceSupport<ConnectionType, SioSerialConnectionProperties> {
+public class SioSerialConnectionPropertiesPersistenceSupport implements PersistenceSupport<ConnectionProvider, SioSerialConnectionProperties> {
 
     @Override
     public String componentName() {
@@ -32,12 +32,12 @@ public class SioSerialConnectionPropertiesPersistenceSupport implements Persiste
 
     @Override
     public String domainFieldName() {
-        return SioSerialConnectionProperties.FieldNames.CONNECTION_TYPE.javaName();
+        return SioSerialConnectionProperties.FieldNames.CONNECTION_PROVIDER.javaName();
     }
 
     @Override
     public String domainColumnName() {
-        return SioSerialConnectionProperties.FieldNames.CONNECTION_TYPE.databaseName();
+        return SioSerialConnectionProperties.FieldNames.CONNECTION_PROVIDER.databaseName();
     }
 
     @Override

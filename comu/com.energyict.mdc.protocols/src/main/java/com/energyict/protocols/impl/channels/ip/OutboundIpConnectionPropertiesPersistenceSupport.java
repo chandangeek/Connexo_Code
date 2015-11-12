@@ -3,7 +3,7 @@ package com.energyict.protocols.impl.channels.ip;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 
 import com.google.inject.Module;
@@ -18,7 +18,7 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-06 (13:04)
  */
-public class OutboundIpConnectionPropertiesPersistenceSupport implements PersistenceSupport<ConnectionType, OutboundIpConnectionProperties> {
+public class OutboundIpConnectionPropertiesPersistenceSupport implements PersistenceSupport<ConnectionProvider, OutboundIpConnectionProperties> {
 
     @Override
     public String componentName() {
@@ -32,12 +32,12 @@ public class OutboundIpConnectionPropertiesPersistenceSupport implements Persist
 
     @Override
     public String domainFieldName() {
-        return OutboundIpConnectionProperties.Fields.CONNECTION_TYPE.javaName();
+        return OutboundIpConnectionProperties.Fields.CONNECTION_PROVIDER.javaName();
     }
 
     @Override
     public String domainColumnName() {
-        return OutboundIpConnectionProperties.Fields.CONNECTION_TYPE.databaseName();
+        return OutboundIpConnectionProperties.Fields.CONNECTION_PROVIDER.databaseName();
     }
 
     @Override

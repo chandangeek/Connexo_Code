@@ -10,7 +10,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.dynamic.TimeDurationValueFactory;
-import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -22,7 +22,7 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-06 (12:03)
  */
-public abstract class OutboundIpCustomPropertySet implements CustomPropertySet<ConnectionType, OutboundIpConnectionProperties> {
+public abstract class OutboundIpCustomPropertySet implements CustomPropertySet<ConnectionProvider, OutboundIpConnectionProperties> {
 
     private final Thesaurus thesaurus;
     private final TranslationKey translationKey;
@@ -50,8 +50,8 @@ public abstract class OutboundIpCustomPropertySet implements CustomPropertySet<C
     }
 
     @Override
-    public Class<ConnectionType> getDomainClass() {
-        return ConnectionType.class;
+    public Class<ConnectionProvider> getDomainClass() {
+        return ConnectionProvider.class;
     }
 
     @Override

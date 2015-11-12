@@ -9,7 +9,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Size;
@@ -22,18 +22,18 @@ import java.math.BigDecimal;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-06 (12:53)
  */
-public class OutboundIpConnectionProperties implements PersistentDomainExtension<ConnectionType>, PersistenceAware {
+public class OutboundIpConnectionProperties implements PersistentDomainExtension<ConnectionProvider>, PersistenceAware {
 
     public enum Fields {
-        CONNECTION_TYPE {
+        CONNECTION_PROVIDER {
             @Override
             public String javaName() {
-                return "connectionType";
+                return "connectionProvider";
             }
 
             @Override
             public String databaseName() {
-                return "CONNECTIONTYPE";
+                return "CONNECTIONPROVIDER";
             }
         },
         HOST {
@@ -132,7 +132,7 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
     }
 
     @SuppressWarnings("unused")
-    private Reference<ConnectionType> connectionType = Reference.empty();
+    private Reference<ConnectionProvider> connectionProvider = Reference.empty();
     @SuppressWarnings("unused")
     private Interval interval;
     @NotEmpty
@@ -157,8 +157,8 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
     }
 
     @Override
-    public void copyFrom(ConnectionType connectionType, CustomPropertySetValues propertyValues) {
-        this.connectionType.set(connectionType);
+    public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues) {
+        this.connectionProvider.set(connectionProvider);
         this.copyHost(propertyValues);
         this.copyPort(propertyValues);
         this.copyConnectionTimeout(propertyValues);
