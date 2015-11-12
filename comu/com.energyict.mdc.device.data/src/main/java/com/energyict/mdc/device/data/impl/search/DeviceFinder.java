@@ -133,7 +133,7 @@ public class DeviceFinder implements Finder<Device> {
 
         @Override
         public SqlBuilder addPaging(SqlBuilder sqlBuilder) {
-            return sqlBuilder.asPageBuilder(this.from, this.to + 1);
+            return sqlBuilder.asPageBuilder(this.from + 1, this.to + 1);
         }
     }
 }
