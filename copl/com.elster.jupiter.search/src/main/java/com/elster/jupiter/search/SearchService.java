@@ -1,5 +1,6 @@
 package com.elster.jupiter.search;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,6 +49,17 @@ public interface SearchService {
      * @see SearchDomain#getId()
      */
     public Optional<SearchDomain> findDomain(String id);
+
+    /**
+     * Finds the registered {@link SearchDomain}
+     * with the specified identifier. Blocks and waits until such search domain is registered,
+     * or until the timeout has passed.
+     *
+     * @param id The identifier
+     * @param timeout The timeout
+     * @return The SearchDomain
+     */
+    Optional<SearchDomain> pollSearchDomain(String id, Duration timeout);
 
     /**
      * Starts the building process of a search for instances of the specified domain class.
