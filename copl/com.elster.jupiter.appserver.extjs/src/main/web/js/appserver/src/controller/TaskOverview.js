@@ -53,5 +53,12 @@ Ext.define('Apr.controller.TaskOverview', {
         var me = this;
         this.getTaskPreview().setTitle(record.get('task'));
         this.getTaskPreview().down('form').loadRecord(record);
+        if(record.get('queueStatus')=== 'Busy'){
+            this.getTaskPreview().down('#durationField').show();
+            this.getTaskPreview().down('#nextRunField').show();
+        } else {
+            this.getTaskPreview().down('#durationField').hide();
+            this.getTaskPreview().down('#nextRunField').hide();
+        }
     }
 });

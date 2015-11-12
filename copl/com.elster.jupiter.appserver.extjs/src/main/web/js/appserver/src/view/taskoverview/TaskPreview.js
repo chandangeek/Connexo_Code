@@ -68,10 +68,12 @@ Ext.define('Apr.view.taskoverview.TaskPreview', {
                                         },
                                         {
                                             fieldLabel: Uni.I18n.translate('general.duration', 'APR', 'Duration'),
+                                            itemId: 'durationField',
                                             name: 'duration'
                                         },
                                         {
                                             fieldLabel: Uni.I18n.translate('general.nextRun', 'APR', 'Next run'),
+                                            itemId: 'nextRunField',
                                             name: 'nextRun'
                                         }
                                     ]
@@ -99,11 +101,25 @@ Ext.define('Apr.view.taskoverview.TaskPreview', {
                                     items: [
                                         {
                                             fieldLabel: Uni.I18n.translate('general.status', 'APR', 'Status'),
-                                            name: 'trigger'
+                                            name: 'lastRunStatusString',
+                                            renderer: function(value){
+                                                if(!value){
+                                                    return '-';
+                                                } else {
+                                                    return value;
+                                                }
+                                            }
                                         },
                                         {
                                             fieldLabel: Uni.I18n.translate('general.duration', 'APR', 'Duration'),
-                                            name: 'duration'
+                                            name: 'lastRunDuration',
+                                            renderer: function(value){
+                                                if(!value){
+                                                    return '-';
+                                                } else {
+                                                    return value;
+                                                }
+                                            }
                                         }
                                     ]
                                 }
