@@ -54,14 +54,14 @@ public interface ConnectionType extends Pluggable {
 
     /**
      * Returns the {@link CustomPropertySet} that provides the storage area
-     * for the properties of this ConnectionType or an empty Optional
-     * if this ConnectionType does not have any properties.
+     * for the properties of a {@link ConnectionProvider} of this type
+     * or an empty Optional if this ConnectionType does not have any properties.
      * In that case, {@link #getPropertySpecs()} should return
      * an empty collection as well for consistency.
      *
      * @return The CustomPropertySet
      */
-    Optional<CustomPropertySet<ConnectionType, ? extends PersistentDomainExtension<ConnectionType>>> getCustomPropertySet();
+    Optional<CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>>> getCustomPropertySet();
 
     @Override
     default List<PropertySpec> getPropertySpecs() {
