@@ -21,7 +21,7 @@ public class PropertyTypeInfo {
         this.taskContentInfo = taskContentInfo;
         try {
             if(field.getString("type").equals("InputText")){
-                simplePropertyType = "TEXT";
+                simplePropertyType = passwordOrSimple(field);
                 checkAndCreateComboBox(field);
             }
             if(field.getString("type").equals("InputTextArea")){
@@ -108,6 +108,26 @@ public class PropertyTypeInfo {
             }
             predefinedPropertyValuesInfo = new PredefinedPropertyValuesInfo(combo);
         }
+    }
+
+    private String passwordOrSimple(JSONObject field){
+        JSONArray arr = null;
+        try {
+            arr = field.getJSONArray("properties");
+            if (arr != null){
+                for(int i = 0; i < arr.length(); i++) {
+                    JSONObject prop = arr.getJSONObject(i);
+                    if(prop.getString("name").equals("hideContent")){
+                        if(prop.getString("value").equals("true")){
+                            return "PASSWORD";
+                        }
+                    }
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return "TEXT";
     }
 
 }

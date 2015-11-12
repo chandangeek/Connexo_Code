@@ -23,9 +23,11 @@ public class TaskContentInfos {
 
     void addAll(JSONObject obj) {
         JSONArray contentProperties = null;
+        JSONObject content = null;
         try {
             status = obj.getString("taskStatus");
             contentProperties = obj.getJSONArray("fields");
+            content = obj.getJSONObject("content");
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -34,7 +36,7 @@ public class TaskContentInfos {
             for(int i = 0; i < contentProperties.length(); i++) {
                 try {
                     JSONObject prop = contentProperties.getJSONObject(i);
-                    TaskContentInfo result = new TaskContentInfo(prop);
+                    TaskContentInfo result = new TaskContentInfo(prop, content);
                     properties.add(result);
                 } catch (JSONException e) {
                     throw new RuntimeException(e);

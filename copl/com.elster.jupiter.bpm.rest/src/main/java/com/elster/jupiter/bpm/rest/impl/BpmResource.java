@@ -76,7 +76,7 @@ public class BpmResource {
 
     @GET
     @Path("/deployments")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.VIEW_BPM)
     public DeploymentInfos getAllDeployments(@Context UriInfo uriInfo) {
         return getAllDeployments();
@@ -84,7 +84,7 @@ public class BpmResource {
 
     @GET
     @Path("/startup")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.VIEW_BPM)
     public StartupInfo getStartup(@Context UriInfo uriInfo) {
         StartupInfo startupInfo = new StartupInfo();
@@ -96,7 +96,7 @@ public class BpmResource {
 
     @GET
     @Path("/instances")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.VIEW_BPM)
     public ProcessInstanceInfos getAllInstances(@Context UriInfo uriInfo) {
         String jsonContent;
@@ -125,7 +125,7 @@ public class BpmResource {
 
     @GET
     @Path("/deployment/{deploymentId}/instance/{id}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.VIEW_BPM)
     public ProcessInstanceInfo getInstance(@Context UriInfo uriInfo, @PathParam("deploymentId") String deploymentId, @PathParam("id") long instanceId) {
         JSONObject obj = null;
@@ -146,7 +146,7 @@ public class BpmResource {
 
     @GET
     @Path("/deployment/{deploymentId}/instance/{id}/nodes")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.VIEW_BPM)
     public NodeInfos getNodes(@Context UriInfo uriInfo, @PathParam("deploymentId") String deploymentId, @PathParam("id") long instanceId) {
         JSONArray arr = null;
@@ -168,7 +168,7 @@ public class BpmResource {
 
     @GET
     @Path("/deployment/{deploymentId}/instance/{id}/variables")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.VIEW_BPM)
     public VariableInfos getVariables(@Context UriInfo uriInfo, @PathParam("deploymentId") String deploymentId, @PathParam("id") long instanceId) {
         JSONArray arr = null;
@@ -204,17 +204,17 @@ public class BpmResource {
 
     @GET
     @Path("/tasks")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_TASK, Privileges.Constants.ASSIGN_TASK, Privileges.Constants.EXECUTE_TASK})
     public TaskInfos getTask(@Context UriInfo uriInfo, @BeanParam JsonQueryFilter filterX) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters(false));
         String jsonContent;
         int total = -1;
         JSONArray arr = null;
-        try{
+        try {
             String rest = "/rest/tasks";
-            String req  = getQueryParam(queryParameters);
-            if(!req.equals("")){
+            String req = getQueryParam(queryParameters);
+            if (!req.equals("")) {
                 rest += req;
             }
             jsonContent = bpmService.getBpmServer().doGet(rest);
@@ -229,7 +229,7 @@ public class BpmResource {
             // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
         }
         TaskInfos infos = new TaskInfos(arr);
-        if(total > 0) {
+        if (total > 0) {
             infos.total = total;
         }
         return infos;
@@ -237,12 +237,12 @@ public class BpmResource {
 
     @GET
     @Path("/tasks/{id}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_TASK, Privileges.Constants.ASSIGN_TASK, Privileges.Constants.EXECUTE_TASK})
-    public TaskInfo getTask(@PathParam("id")long id) {
+    public TaskInfo getTask(@PathParam("id") long id) {
         String jsonContent;
-        TaskInfo taskInfo= new TaskInfo();
-        try{
+        TaskInfo taskInfo = new TaskInfo();
+        try {
             String rest = "/rest/tasks/";
             rest += String.valueOf(id);
             jsonContent = bpmService.getBpmServer().doGet(rest);
@@ -259,19 +259,19 @@ public class BpmResource {
 
     @GET
     @Path("/processes")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_TASK, Privileges.Constants.ASSIGN_TASK, Privileges.Constants.EXECUTE_TASK})
     public ProcessDefinitionInfos getProcesses(@Context UriInfo uriInfo) {
         String jsonContent;
         JSONArray arr = null;
-        try{
+        try {
             jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes");
             if (!"".equals(jsonContent)) {
                 JSONObject jsnobject = new JSONObject(jsonContent);
                 arr = jsnobject.getJSONArray("processDefinitionList");
             }
 
-        }catch (JSONException e) {
+        } catch (JSONException e) {
             // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
         } catch (RuntimeException e) {
             // TODO: for now, an empty grid will be shown; in the future, we may display a more specific error message
@@ -281,9 +281,9 @@ public class BpmResource {
 
     @GET
     @Path("/assignees/users")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_TASK, Privileges.Constants.ASSIGN_TASK, Privileges.Constants.EXECUTE_TASK})
-    public Response getUsers(@BeanParam StandardParametersBean params){
+    public Response getUsers(@BeanParam StandardParametersBean params) {
         String searchText = params.getFirst(LIKE);
         Condition condition = Condition.TRUE;
         if (searchText != null && !searchText.isEmpty()) {
@@ -298,18 +298,18 @@ public class BpmResource {
 
     @POST
     @Path("tasks/{id}/assign")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ASSIGN_TASK)
-    public Response assignUser(@Context UriInfo uriInfo,@PathParam("id") long id,@Context SecurityContext securityContext){
+    public Response assignUser(@Context UriInfo uriInfo, @PathParam("id") long id, @Context SecurityContext securityContext) {
         String userName = getQueryValue(uriInfo, "username");
         String rest = "/rest/tasks/";
         rest += String.valueOf(id);
-        if(userName != null && !userName.isEmpty()) {
+        if (userName != null && !userName.isEmpty()) {
             rest += "/assign?username=" + userName;
             rest += "&currentuser=" + securityContext.getUserPrincipal().getName();
             try {
                 bpmService.getBpmServer().doPost(rest);
-            }catch (RuntimeException e){
+            } catch (RuntimeException e) {
             }
             return Response.ok().build();
         }
@@ -319,7 +319,7 @@ public class BpmResource {
 
     @GET
     @Path("/assignees")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_TASK, Privileges.Constants.ASSIGN_TASK, Privileges.Constants.EXECUTE_TASK})
     public PagedInfoListCustomized getAllAssignees(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext) {
         if (Boolean.parseBoolean(params.getFirst(ME))) {
@@ -331,7 +331,7 @@ public class BpmResource {
         Condition conditionUser = where("authenticationName").likeIgnoreCase(dbSearchText);
         Query<User> queryUser = userService.getUserQuery();
         AssigneeFilterListInfo assigneeFilterListInfo;
-        if(params.getStart() == 0 && (searchText == null || searchText.isEmpty())) {
+        if (params.getStart() == 0 && (searchText == null || searchText.isEmpty())) {
             assigneeFilterListInfo = AssigneeFilterListInfo.defaults((User) securityContext.getUserPrincipal(), thesaurus, false);
             List<User> listUsers = queryUser.select(conditionUser, params.getFrom(), params.getTo(), Order.ascending("authname"));
             assigneeFilterListInfo.addData(listUsers);
@@ -344,25 +344,25 @@ public class BpmResource {
 
     @POST
     @Path("tasks/{id}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ASSIGN_TASK)
-    public Response assignUser(@Context UriInfo uriInfo,@PathParam("id") long id) {
+    public Response assignUser(@Context UriInfo uriInfo, @PathParam("id") long id) {
         String priority = getQueryValue(uriInfo, "priority");
         String date = getQueryValue(uriInfo, "duedate");
         String rest = "/rest/tasks/";
         rest += String.valueOf(id) + "/set";
-        if(priority != null || date != null) {
-            if(priority !=null) {
+        if (priority != null || date != null) {
+            if (priority != null) {
                 rest += "?priority=" + priority;
-                if(date !=null) {
+                if (date != null) {
                     rest += "&duedate=" + date;
                 }
-            }else{
+            } else {
                 rest += "?duedate=" + date;
             }
             try {
                 bpmService.getBpmServer().doPost(rest);
-            } catch (RuntimeException e){
+            } catch (RuntimeException e) {
 
             }
             return Response.ok().build();
@@ -372,10 +372,10 @@ public class BpmResource {
 
     @PUT
     @Path("/process/activate/{id}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public ProcessDefinitionInfo createProcess(ProcessDefinitionInfo info) {
         try (TransactionContext context = transactionService.getContext()) {
-            BpmProcessDefinition bpmProcessDefinition = bpmService.findOrCreateBpmProcessDefinition(info.name, "Device", info.version, info.active );
+            BpmProcessDefinition bpmProcessDefinition = bpmService.findOrCreateBpmProcessDefinition(info.name, "Device", info.version, info.active);
             bpmProcessDefinition.save();
             context.commit();
             return new ProcessDefinitionInfo(bpmProcessDefinition);
@@ -384,8 +384,8 @@ public class BpmResource {
 
     @GET
     @Path("/allprocesses")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public PagedInfoList getBpmProcessDefinition(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters){
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getBpmProcessDefinition(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
         try (TransactionContext context = transactionService.getContext()) {
             List<BpmProcessDefinition> connexoProcesses = bpmService.getBpmProcessDefinitions();
             String jsonContent;
@@ -409,15 +409,15 @@ public class BpmResource {
                         found = true;
                     }
                 }
-                if(!found && !bpmProcessDefinition.processes.isEmpty()){
+                if (!found && !bpmProcessDefinition.processes.isEmpty()) {
                     eachConnexo.setStatus("UNDEPLOYED");
                     eachConnexo.save();
                 }
             }
-            List<ProcessDefinitionInfo> list =bpmProcessDefinition.processes.stream()
+            List<ProcessDefinitionInfo> list = bpmProcessDefinition.processes.stream()
                     .sorted((s1, s2) -> s1.name.toLowerCase().compareTo(s2.name.toLowerCase()))
                     .collect(Collectors.toList());
-            list.stream().forEach(s -> s.id  = s.id + s.version);
+            list.stream().forEach(s -> s.id = s.id + s.version);
             context.commit();
             return PagedInfoList.fromCompleteList("processes", list, queryParameters);
         }
@@ -425,16 +425,16 @@ public class BpmResource {
 
     @GET
     @Path("/runningprocesses")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public RunningProcessInfos getRunningProcesses(@Context UriInfo uriInfo){
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public RunningProcessInfos getRunningProcesses(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters(false));
         String jsonContent;
         int total = -1;
         JSONArray arr = null;
         try {
             String rest = "/rest/tasks/runningprocesses";
-            String req  = getQueryParam(queryParameters);
-            if(!req.equals("")){
+            String req = getQueryParam(queryParameters);
+            if (!req.equals("")) {
                 rest += req;
             }
             jsonContent = bpmService.getBpmServer().doGet(rest);
@@ -444,11 +444,11 @@ public class BpmResource {
                 arr = obj.getJSONArray("processInstances");
             }
 
-        }catch (JSONException e) {
+        } catch (JSONException e) {
         } catch (RuntimeException e) {
         }
         RunningProcessInfos runningProcessInfos = new RunningProcessInfos(arr);
-        if(total > 0){
+        if (total > 0) {
             runningProcessInfos.total = total;
         }
         return runningProcessInfos;
@@ -456,16 +456,16 @@ public class BpmResource {
 
     @GET
     @Path("/historyprocesses")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public ProcessHistoryInfos getProcessHistory(@Context UriInfo uriInfo){
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public ProcessHistoryInfos getProcessHistory(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters(false));
         String jsonContent;
         int total = -1;
         JSONArray arr = null;
         try {
             String rest = "/rest/tasks/process/history";
-            String req  = getQueryParam(queryParameters);
-            if(!req.equals("")){
+            String req = getQueryParam(queryParameters);
+            if (!req.equals("")) {
                 rest += req;
             }
             jsonContent = bpmService.getBpmServer().doGet(rest);
@@ -475,11 +475,11 @@ public class BpmResource {
                 arr = obj.getJSONArray("processHistories");
             }
 
-        }catch (JSONException e) {
+        } catch (JSONException e) {
         } catch (RuntimeException e) {
         }
         ProcessHistoryInfos processHistoryInfos = new ProcessHistoryInfos(arr);
-        if(total > 0){
+        if (total > 0) {
             processHistoryInfos.total = total;
         }
         return processHistoryInfos;
@@ -491,39 +491,19 @@ public class BpmResource {
 //    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 //    public String getBulkTest(@Context UriInfo uriInfo,@PathParam("id")long id){
 //        String returned = "{\n" +
-//                "  \"status\": \"InProgress\",\n" +
+//                "  \"status\": \"Reserved\",\n" +
 //                "  \"properties\": [\n" +
 //                "    {\n" +
-//                "      \"key\": \"DeviceDataFileImporterFactory.delimiter\",\n" +
-//                "      \"name\": \"Delimiter\",\n" +
+//                "      \"key\": \"InputText98998303\",\n" +
+//                "      \"name\": \"Input\",\n" +
+//                "      \"isReadOnly\": true,\n" +
+//                "      \"propertyTypeInfo\": {\n" +
+//                "        \"simplePropertyType\": \"TEXT\"\n" +
+//                "      },\n" +
 //                "      \"propertyValueInfo\": {\n" +
-//                "        \"defaultValue\": \";\",\n" +
+//                "        \"defaultValue\": \"1234567\",\n" +
 //                "        \"propertyHasValue\": false\n" +
-//                "      },\n" +
-//                "      \"propertyTypeInfo\": {\n" +
-//                "        \"simplePropertyType\": \"TEXT\",\n" +
-//                "        \"predefinedPropertyValuesInfo\": {\n" +
-//                "          \"possibleValues\": [\n" +
-//                "            \";\",\n" +
-//                "            \",\"\n" +
-//                "          ],\n" +
-//                "          \"selectionMode\": \"COMBOBOX\",\n" +
-//                "          \"exhaustive\": true\n" +
-//                "        }\n" +
-//                "      },\n" +
-//                "      \"required\": true\n" +
-//                "    },\n" +
-//                "    {\n" +
-//                "      \"key\": \"DeviceDataFileImporterFactory.numberFormat\",\n" +
-//                "      \"name\": \"Number format\",\n" +
-//                "      \"propertyTypeInfo\": {\n" +
-//                "        \"simplePropertyType\": \"DATE\",\n" +
-//                "        \"predefinedPropertyValuesInfo\": {\n" +
-//                "          \"selectionMode\": \"DATE\",\n" +
-//                "          \"exhaustive\": true\n" +
-//                "        }\n" +
-//                "      },\n" +
-//                "      \"required\": true\n" +
+//                "      }\n" +
 //                "    }\n" +
 //                "  ]\n" +
 //                "}";
@@ -536,41 +516,41 @@ public class BpmResource {
 //
 //    }
 
-    private String getQueryParam(QueryParameters queryParam){
+    private String getQueryParam(QueryParameters queryParam) {
         String req = "";
         int i = 0;
         Iterator<String> it = queryParam.keySet().iterator();
-        while(it.hasNext()){
-            String theKey = (String)it.next();
-            if(i > 0 ){
+        while (it.hasNext()) {
+            String theKey = (String) it.next();
+            if (i > 0) {
                 req += "&";
-            }else{
+            } else {
                 req += "?";
             }
-            req += theKey+"="+queryParam.getFirst(theKey);
+            req += theKey + "=" + queryParam.getFirst(theKey);
             i++;
         }
         return req;
     }
 
-    private String getQueryValue(UriInfo uriInfo,String key){
+    private String getQueryValue(UriInfo uriInfo, String key) {
         return uriInfo.getQueryParameters().getFirst(key);
     }
 
     @GET
     @Path("taskcontent/{id}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    public TaskContentInfos getTaskContent(@Context UriInfo uriInfo,@PathParam("id")long id){
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public TaskContentInfos getTaskContent(@Context UriInfo uriInfo, @PathParam("id") long id) {
         String jsonContent;
         JSONObject obj = null;
         try {
-            String rest = "/rest/tasks/"+id+"/content";
+            String rest = "/rest/tasks/" + id + "/content";
             jsonContent = bpmService.getBpmServer().doGet(rest);
             if (!"".equals(jsonContent)) {
                 obj = new JSONObject(jsonContent);
             }
 
-        }catch (JSONException e) {
+        } catch (JSONException e) {
         } catch (RuntimeException e) {
         }
         TaskContentInfos taskContentInfos = new TaskContentInfos(obj);
@@ -578,4 +558,11 @@ public class BpmResource {
         return taskContentInfos;
     }
 
+    @POST
+    @Path("taskcontentpost/{id}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public TaskContentInfos postTaskContent(TaskContentInfos taskContentInfos, @PathParam("id") long id) {
+        return null;
+
+    }
 }

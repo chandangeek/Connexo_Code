@@ -4,7 +4,7 @@ package com.elster.jupiter.bpm.rest;
 public class PropertyValueInfo {
 
     public String defaultValue;
-//    public String value;
+    public String value;
     public boolean propertyHasValue;
 
     public PropertyValueInfo(){
@@ -20,6 +20,10 @@ public class PropertyValueInfo {
 //                value = keys[1].replace("}","");
             }
         }
+    }
+
+    public PropertyValueInfo(String defaultValue){
+        this.defaultValue = defaultValue;
     }
 
 }

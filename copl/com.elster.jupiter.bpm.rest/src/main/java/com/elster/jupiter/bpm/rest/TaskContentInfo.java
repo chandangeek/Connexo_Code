@@ -1,15 +1,23 @@
 package com.elster.jupiter.bpm.rest;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.ByteArrayInputStream;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class TaskContentInfo {
 
     public String key;
     public String name;
     public boolean required;
+    public boolean isReadOnly;
     public PropertyTypeInfo propertyTypeInfo;
     public PropertyValueInfo propertyValueInfo;
 
@@ -17,7 +25,7 @@ public class TaskContentInfo {
 
     }
 
-    public TaskContentInfo(JSONObject field){
+    public TaskContentInfo(JSONObject field,JSONObject content){
         try {
             key = field.getString("type") + field.getString("id");
             JSONArray arr = field.getJSONArray("properties");
@@ -32,6 +40,24 @@ public class TaskContentInfo {
                             required = true;
                         }else{
                             required = false;
+                        }
+                    }
+                    if(prop.getString("name").equals("readonly")){
+                        if(prop.getString("value").equals("true")){
+                            isReadOnly = true;
+                        }else{
+                            isReadOnly = false;
+                        }
+                    }
+                    if(prop.getString("name").equals("inputBinding")){
+                        if(!prop.getString("value").equals("")) {
+                            Iterator<?> keys = content.keys();
+                            while( keys.hasNext() ) {
+                                String key = (String)keys.next();
+                                if(key.equals(prop.getString("value"))){
+                                    propertyValueInfo = new PropertyValueInfo(content.getString(key));
+                                }
+                            }
                         }
                     }
                 }
@@ -55,6 +81,4 @@ public class TaskContentInfo {
         }
         return name.replace("quot","");
     }
-
-
 }
