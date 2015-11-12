@@ -59,9 +59,9 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationList', {
                   xtype: 'pagingtoolbartop',
                   store: me.store,
                   dock: 'top',
-                  isFullTotalCount: true,
-                  noBottomPaging: true,
-                  displayMsg: '{2} metrology configuration(s)',
+                  displayMsg: Uni.I18n.translate('metrologyconfiguration.pagingtoolbartop.displayMsg', 'IMT', '{0} - {1} of {2} metrology configurations'),
+                  displayMoreMsg: Uni.I18n.translate('metrologyconfiguration.pagingtoolbartop.displayMoreMsg', 'IMT', '{0} - {1} of more than {2} metrologyconfigurations'),
+                  emptyMsg: Uni.I18n.translate('metrologyconfiguration.pagingtoolbartop.emptyMsg', 'IMT', 'There are no metrology configurations to display'),
                   items: [
                           {
                         	  text: Uni.I18n.translate('metrologyconfiguration.button.add', 'IMT', 'Add metrology configuration'),
@@ -70,6 +70,12 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationList', {
                         	  action: 'createMetrologyConfiguration',
                           }
                   ]
+              },
+              {
+                  xtype: 'pagingtoolbarbottom',
+                  store: me.store,
+                  dock: 'bottom',
+                  itemsPerPageMsg: Uni.I18n.translate('metrologyconfiguration.label.itemsperpage', 'IMT', 'Metrology configuration per page'),
               }
           ];
         me.callParent(arguments);
