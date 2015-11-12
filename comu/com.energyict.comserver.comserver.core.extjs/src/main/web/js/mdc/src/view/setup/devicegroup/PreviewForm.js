@@ -31,19 +31,6 @@ Ext.define('Mdc.view.setup.devicegroup.PreviewForm', {
                                     return Uni.I18n.translate('general.static', 'MDC', 'Static')
                                 }
                             }
-                },
-                {
-                            xtype: 'fieldcontainer',
-                            columnWidth: 0.5,
-                            fieldLabel: Uni.I18n.translate('deviceGroup.searchCriteria', 'MDC', 'Search criteria'),
-                            labelAlign: 'right',
-                            layout: {
-                                type: 'vbox'
-                            },
-                            itemId: 'searchCriteriaContainer',
-                            items: [
-
-                            ]
                 }
 
       ]
