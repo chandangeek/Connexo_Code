@@ -163,11 +163,11 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                         if (record.get('comPortType') != 'SERVLET') {
                             switch (record.get('direction')) {
                                 case 'Inbound':
-                                    form.down('displayfield[name=outboundComPortPoolIds]').hide();
+                                    form.down('displayfield[name=outboundComPortPoolIdsDisplay]').hide();
                                     form.down('displayfield[name=inboundComPortPools]').show();
                                     break;
                                 case 'Outbound':
-                                    form.down('displayfield[name=outboundComPortPoolIds]').show();
+                                    form.down('displayfield[name=outboundComPortPoolIdsDisplay]').show();
                                     form.down('displayfield[name=inboundComPortPools]').hide();
                                     break;
                             }
