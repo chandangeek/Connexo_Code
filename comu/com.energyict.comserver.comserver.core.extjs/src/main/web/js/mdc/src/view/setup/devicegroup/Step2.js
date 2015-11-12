@@ -75,6 +75,7 @@ Ext.define('Mdc.view.setup.devicegroup.Step2', {
                             // Sticky criteria.
                             xtype: 'uni-search-internal-criteriapanel',
                             itemId: 'search-criteria-sticky',
+                            layout: 'column',
                             //hidden: true,
                             lbar: {
                                 xtype: 'label',
@@ -100,6 +101,7 @@ Ext.define('Mdc.view.setup.devicegroup.Step2', {
                             // Removable criteria.
                             xtype: 'uni-search-internal-criteriapanel',
                             itemId: 'search-criteria-removable',
+                            layout: 'column',
                             //hidden: true,
                             lbar: {
                                 xtype: 'label',
