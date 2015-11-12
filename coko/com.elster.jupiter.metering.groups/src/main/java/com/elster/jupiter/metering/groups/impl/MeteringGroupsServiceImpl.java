@@ -219,6 +219,11 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     public Query<EndDeviceGroup> getEndDeviceGroupQuery() {
         return queryService.wrap(dataModel.query(EndDeviceGroup.class));
     }
+    
+    @Override
+    public Query<UsagePointGroup> getUsagePointGroupQuery() {
+        return queryService.wrap(dataModel.query(UsagePointGroup.class));
+    }
 
     @Override
     public Query<EndDeviceGroup> getQueryEndDeviceGroupQuery() {
