@@ -122,7 +122,6 @@ public abstract class AbstractComTaskExecutionInTopologyTest extends Persistence
         PartialScheduledConnectionTask partialScheduledConnectionTask = createPartialScheduledConnectionTask(frequency);
         OutboundComPortPool outboundPool = createOutboundIpComPortPool("MyOutboundPool");
         ScheduledConnectionTaskImpl myConnectionTask = createAsapWithNoPropertiesWithoutViolations("MyConnectionTask", device, partialScheduledConnectionTask, outboundPool);
-        myConnectionTask.save();
         return myConnectionTask;
     }
 
