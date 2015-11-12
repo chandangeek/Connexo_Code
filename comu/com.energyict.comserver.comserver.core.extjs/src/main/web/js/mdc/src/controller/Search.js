@@ -58,7 +58,6 @@ Ext.define('Mdc.controller.Search', {
         }
     ],
 
-    filterObjectParam: 'filter',
     lastRequest: undefined,
 
     init: function () {
@@ -118,16 +117,23 @@ Ext.define('Mdc.controller.Search', {
 
         searchDomains.load({callback: function(records) {
             var value = router.queryParams.searchDomain,
-                selector = me.getObjectSelector();
+                selector = me.getObjectSelector(),
+                isStateChange = false;
+
+            if (me.service.getState()) {
+                me.service.initState();
+                isStateChange = true;
+            }
 
             if (value && !Ext.isEmpty(records) && searchDomains.getById(value) !== null) {
-                selector.setValue(value);
+                selector.setValue(value, isStateChange);
             } else if (selector && !Ext.isEmpty(records)) {
-                selector.setValue(records[0].get('id'));
+                selector.setValue(records[0].get('id'), isStateChange);
             }
         }});
 
         var grid = me.getResultsGrid();
+
         grid.down('pagingtoolbartop').insert(3, {
             xtype: 'button',
             text: 'Bulk actions',
