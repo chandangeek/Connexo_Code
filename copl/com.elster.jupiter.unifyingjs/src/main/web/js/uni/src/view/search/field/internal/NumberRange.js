@@ -9,6 +9,7 @@ Ext.define('Uni.view.search.field.internal.NumberRange', {
         margin: '0 0 5 0'
     },
     border: false,
+    itemsDefaultConfig: {},
 
     setValue: function(value) {
         this.items.each(function(item, index) {
@@ -51,12 +52,14 @@ Ext.define('Uni.view.search.field.internal.NumberRange', {
             {
                 xtype: 'uni-search-internal-numberfield',
                 itemId: 'from',
-                listeners: listeners
+                listeners: listeners,
+                itemsDefaultConfig: me.itemsDefaultConfig
             },
             {
                 xtype: 'uni-search-internal-numberfield',
                 itemId: 'to',
-                listeners: listeners
+                listeners: listeners,
+                itemsDefaultConfig: me.itemsDefaultConfig
             }
         ];
 

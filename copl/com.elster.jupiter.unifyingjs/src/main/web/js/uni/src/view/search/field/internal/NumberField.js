@@ -3,6 +3,7 @@ Ext.define('Uni.view.search.field.internal.NumberField', {
     xtype: 'uni-search-internal-numberfield',
     width: '455',
     layout: 'fit',
+    itemsDefaultConfig: {},
 
     setValue: function(value) {
         this.down('#filter-input').setValue(value);
@@ -30,7 +31,7 @@ Ext.define('Uni.view.search.field.internal.NumberField', {
         );
 
         me.items = [
-            {
+            Ext.apply({
                 xtype: 'numberfield',
                 itemId: 'filter-input',
                 width: 180,
@@ -41,7 +42,7 @@ Ext.define('Uni.view.search.field.internal.NumberField', {
                         scope: me
                     }
                 }
-            }
+            }, me.itemsDefaultConfig)
         ];
 
         me.callParent(arguments);
