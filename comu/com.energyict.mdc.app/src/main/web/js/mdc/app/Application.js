@@ -2,6 +2,9 @@ Ext.define('MdcApp.Application', {
     extend: 'Ext.app.Application',
 
     requires:[
+        'Sam.privileges.DeploymentInfo',
+        'Sam.privileges.DataPurge',
+        'Sam.privileges.License',
         'Cfg.privileges.Validation',
         'Mdc.privileges.MasterData',
         'Mdc.privileges.DeviceGroup',
@@ -18,7 +21,8 @@ Ext.define('MdcApp.Application', {
         'Dlc.privileges.DeviceLifeCycle',
         'Fim.privileges.DataImport',
         'Fwc.privileges.FirmwareCampaign',
-        'Bpm.privileges.BpmManagement'
+        'Bpm.privileges.BpmManagement',
+        'Dbp.privileges.DeviceProcesses'
     ],
     controllers: [
         'MdcApp.controller.Main'
