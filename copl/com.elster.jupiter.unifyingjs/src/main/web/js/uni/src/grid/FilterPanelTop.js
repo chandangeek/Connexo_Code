@@ -90,7 +90,8 @@ Ext.define('Uni.grid.FilterPanelTop', {
                     xtype: 'button',
                     text: Uni.I18n.translate('general.clearAll', 'UNI', 'Clear all'),
                     action: 'clearAll',
-                    itemId: 'filter-clear-all'
+                    itemId: 'filter-clear-all',
+                    disabled: true
                 }
             ]
         }
@@ -298,6 +299,7 @@ Ext.define('Uni.grid.FilterPanelTop', {
         }
 
         Ext.apply(options.params, params);
+        me.down('button[action=clearAll]').setDisabled(!((options.params.filter && Ext.decode(options.params.filter).length)));
     },
 
     createFiltersObject: function (params) {

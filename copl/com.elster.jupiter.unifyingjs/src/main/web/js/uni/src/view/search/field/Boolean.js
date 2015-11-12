@@ -4,6 +4,13 @@ Ext.define('Uni.view.search.field.Boolean', {
     text: Uni.I18n.translate('view.search.field.yesno.label', 'UNI', 'Text'),
     minWidth: 70,
 
+    getValue: function () {
+        return this.value ? [Ext.create('Uni.model.search.Value', {
+            operator: '==',
+            criteria: this.value
+        })] : null;
+    },
+
     initComponent: function () {
         var me = this;
         me.items = [
@@ -28,6 +35,6 @@ Ext.define('Uni.view.search.field.Boolean', {
         };
 
         this.callParent(arguments);
+        me.setValue(1);
     }
-
 });

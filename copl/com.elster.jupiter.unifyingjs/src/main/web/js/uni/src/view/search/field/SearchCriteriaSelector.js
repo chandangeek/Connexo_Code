@@ -153,8 +153,7 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
                 }
             });
 
-            groups = store.getGroups();
-            _.sortBy(groups, function (item) {
+            groups = _.sortBy(store.getGroups(), function (item) {
                 var group = item.children[0].get('group');
 
                 return group.displayValue || group;

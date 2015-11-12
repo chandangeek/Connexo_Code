@@ -30,14 +30,10 @@ Ext.define('Uni.view.search.field.internal.DateRange', {
         });
     },
 
-    initComponent: function () {
+    createCriteriaLine: function () {
         var me = this;
 
-        me.addEvents(
-            "change"
-        );
-
-        me.items = [
+        return [
             {
                 xtype: 'uni-search-internal-datetimefield',
                 itemId: 'from',
@@ -64,7 +60,17 @@ Ext.define('Uni.view.search.field.internal.DateRange', {
                     }
                 }
             }
-        ];
+        ]
+    },
+
+    initComponent: function () {
+        var me = this;
+
+        me.addEvents(
+            "change"
+        );
+
+        me.items = me.createCriteriaLine();
 
         me.callParent(arguments);
     }

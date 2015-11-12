@@ -53,9 +53,7 @@ Ext.define('Uni.util.QueryString', {
     },
 
     getQueryString: function () {
-        var token = Ext.util.History.getToken() || document.location.href.split('?')[1],
-            queryStringIndex = token.indexOf('?');
-        return queryStringIndex < 0 ? '' : token.substring(queryStringIndex + 1);
+        return document.location.href.split('?')[1] || '';
     },
 
     getQueryStringValues: function (recursive) {

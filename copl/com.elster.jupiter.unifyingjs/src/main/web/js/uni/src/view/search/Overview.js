@@ -20,7 +20,10 @@ Ext.define('Uni.view.search.Overview', {
         'Uni.view.search.field.Numeric',
         'Uni.view.search.field.Selection',
         'Uni.view.search.field.Simple',
-        'Uni.view.search.field.TimeDuration'
+        'Uni.view.search.field.TimeDuration',
+        'Uni.view.search.field.Date',
+        'Uni.view.search.field.Clock',
+        'Uni.view.search.field.TimeOfDay'
     ],
 
     padding: '16 16 16 16',
@@ -92,6 +95,7 @@ Ext.define('Uni.view.search.Overview', {
                                 // Sticky criteria.
                                 xtype: 'uni-search-internal-criteriapanel',
                                 itemId: 'search-criteria-sticky',
+                                layout: 'column',
                                 //hidden: true,
                                 lbar: {
                                     xtype: 'label',
@@ -106,6 +110,7 @@ Ext.define('Uni.view.search.Overview', {
                                 // Removable criteria.
                                 xtype: 'uni-search-internal-criteriapanel',
                                 itemId: 'search-criteria-removable',
+                                layout: 'column',
                                 //hidden: true,
                                 lbar: {
                                     xtype: 'label',
@@ -153,6 +158,7 @@ Ext.define('Uni.view.search.Overview', {
                                     },
                                     {
                                         xtype: 'button',
+                                        itemId: 'mRID-sorting-button',
                                         ui: 'tag',
                                         iconCls: 'x-btn-sort-item-desc',
                                         text: Uni.I18n.translate('general.mRID', 'UNI', 'mRID'),

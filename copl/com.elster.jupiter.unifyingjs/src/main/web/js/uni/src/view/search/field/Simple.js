@@ -14,6 +14,10 @@ Ext.define('Uni.view.search.field.Simple', {
         this.setValue(this.down('uni-search-internal-criterialine').getValue());
     },
 
+    onInputReset: function () {
+        this.setText(this.emptyText);
+    },
+
     initComponent: function () {
         var me = this;
 
@@ -29,6 +33,10 @@ Ext.define('Uni.view.search.field.Simple', {
             listeners: {
                 change: {
                     fn: me.onInputChange,
+                    scope: me
+                },
+                reset: {
+                    fn: me.onInputReset,
                     scope: me
                 }
             }

@@ -44,7 +44,10 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
                 listeners: {
                     change: function() {
                         me.fireEvent('change', me.getValue())
-                    }
+                    },
+                    reset: function() {
+                        me.fireEvent('reset')
+                    },
                 }
             });
 

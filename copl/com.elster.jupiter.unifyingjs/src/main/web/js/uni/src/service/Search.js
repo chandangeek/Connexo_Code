@@ -67,7 +67,10 @@ Ext.define('Uni.service.Search', {
         'Instant':      'uni-search-criteria-datetime',
         'TimeDuration': 'uni-search-criteria-timeduration',
         'BigDecimal':   'uni-search-criteria-numeric',
-        'Selection':    'uni-search-criteria-selection'
+        'Selection':    'uni-search-criteria-selection',
+        'Date':         'uni-search-criteria-date',
+        'Clock':        'uni-search-criteria-clock',
+        'TimeOfDay':    'uni-search-criteria-timeofday',
     },
 
     fieldMap: {
