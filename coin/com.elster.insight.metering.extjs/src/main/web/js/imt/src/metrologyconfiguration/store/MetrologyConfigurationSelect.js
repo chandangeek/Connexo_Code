@@ -9,7 +9,10 @@ Ext.define('Imt.metrologyconfiguration.store.MetrologyConfigurationSelect', {
         reader: {
             type: 'json',
             root: 'metrologyconfigurations'
-        }
+        },
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined
     },
     listeners: {
         load: function(store, records) {            
