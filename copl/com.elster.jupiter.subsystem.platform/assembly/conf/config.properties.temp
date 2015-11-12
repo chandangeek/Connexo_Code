@@ -48,6 +48,7 @@ mail.user=
 mail.password=
 mail.from=
 
+# COPL-1446: Comment com.elster.jupiter.url.rewrite.host/port/scheme properties from config.properties file during installation
 #com.elster.jupiter.url.rewrite.host=
 #com.elster.jupiter.url.rewrite.port=
 #com.elster.jupiter.url.rewrite.scheme=
