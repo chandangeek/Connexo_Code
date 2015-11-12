@@ -1,5 +1,10 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.util.Holder;
+import com.elster.jupiter.util.HolderBuilder;
+import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.common.ComServerRuntimeException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -54,12 +59,6 @@ import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.exceptions.ConnectionSetupException;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.util.Holder;
-import com.elster.jupiter.util.HolderBuilder;
-import com.elster.jupiter.util.time.StopWatch;
 
 import java.text.MessageFormat;
 import java.time.Clock;
@@ -660,11 +659,6 @@ public final class ExecutionContext implements JournalEntryFactory {
 
         public void setProperties(List<ConnectionTaskProperty> properties) {
             this.properties = properties;
-        }
-
-        @Override
-        public boolean hasDirtyProperties() {
-            return getConnectionTask().hasDirtyProperties();
         }
 
         @Override
