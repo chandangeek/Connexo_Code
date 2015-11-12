@@ -3,21 +3,7 @@ package com.elster.jupiter.bpm.rest.impl;
 import com.elster.jupiter.bpm.BpmProcessDefinition;
 import com.elster.jupiter.bpm.BpmServer;
 import com.elster.jupiter.bpm.BpmService;
-import com.elster.jupiter.bpm.rest.AssigneeFilterListInfo;
-import com.elster.jupiter.bpm.rest.DeploymentInfo;
-import com.elster.jupiter.bpm.rest.DeploymentInfos;
-import com.elster.jupiter.bpm.rest.NodeInfos;
-import com.elster.jupiter.bpm.rest.PagedInfoListCustomized;
-import com.elster.jupiter.bpm.rest.ProcessDefinitionInfo;
-import com.elster.jupiter.bpm.rest.ProcessDefinitionInfos;
-import com.elster.jupiter.bpm.rest.ProcessHistoryInfos;
-import com.elster.jupiter.bpm.rest.ProcessInstanceInfo;
-import com.elster.jupiter.bpm.rest.ProcessInstanceInfos;
-import com.elster.jupiter.bpm.rest.RunningProcessInfos;
-import com.elster.jupiter.bpm.rest.StartupInfo;
-import com.elster.jupiter.bpm.rest.TaskInfo;
-import com.elster.jupiter.bpm.rest.TaskInfos;
-import com.elster.jupiter.bpm.rest.VariableInfos;
+import com.elster.jupiter.bpm.rest.*;
 import com.elster.jupiter.bpm.rest.resource.StandardParametersBean;
 import com.elster.jupiter.bpm.security.Privileges;
 import com.elster.jupiter.domain.util.Query;
@@ -500,6 +486,56 @@ public class BpmResource {
     }
 
 
+//    @GET
+//    @Path("taskcontent/{id}")
+//    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+//    public String getBulkTest(@Context UriInfo uriInfo,@PathParam("id")long id){
+//        String returned = "{\n" +
+//                "  \"status\": \"InProgress\",\n" +
+//                "  \"properties\": [\n" +
+//                "    {\n" +
+//                "      \"key\": \"DeviceDataFileImporterFactory.delimiter\",\n" +
+//                "      \"name\": \"Delimiter\",\n" +
+//                "      \"propertyValueInfo\": {\n" +
+//                "        \"defaultValue\": \";\",\n" +
+//                "        \"propertyHasValue\": false\n" +
+//                "      },\n" +
+//                "      \"propertyTypeInfo\": {\n" +
+//                "        \"simplePropertyType\": \"TEXT\",\n" +
+//                "        \"predefinedPropertyValuesInfo\": {\n" +
+//                "          \"possibleValues\": [\n" +
+//                "            \";\",\n" +
+//                "            \",\"\n" +
+//                "          ],\n" +
+//                "          \"selectionMode\": \"COMBOBOX\",\n" +
+//                "          \"exhaustive\": true\n" +
+//                "        }\n" +
+//                "      },\n" +
+//                "      \"required\": true\n" +
+//                "    },\n" +
+//                "    {\n" +
+//                "      \"key\": \"DeviceDataFileImporterFactory.numberFormat\",\n" +
+//                "      \"name\": \"Number format\",\n" +
+//                "      \"propertyTypeInfo\": {\n" +
+//                "        \"simplePropertyType\": \"DATE\",\n" +
+//                "        \"predefinedPropertyValuesInfo\": {\n" +
+//                "          \"selectionMode\": \"DATE\",\n" +
+//                "          \"exhaustive\": true\n" +
+//                "        }\n" +
+//                "      },\n" +
+//                "      \"required\": true\n" +
+//                "    }\n" +
+//                "  ]\n" +
+//                "}";
+//        try {
+//            JSONObject jsonObject = new JSONObject(returned);
+//            return jsonObject.toString();
+//        } catch (JSONException e) {
+//        }
+//        return null;
+//
+//    }
+
     private String getQueryParam(QueryParameters queryParam){
         String req = "";
         int i = 0;
@@ -521,5 +557,25 @@ public class BpmResource {
         return uriInfo.getQueryParameters().getFirst(key);
     }
 
+    @GET
+    @Path("taskcontent/{id}")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    public TaskContentInfos getTaskContent(@Context UriInfo uriInfo,@PathParam("id")long id){
+        String jsonContent;
+        JSONObject obj = null;
+        try {
+            String rest = "/rest/tasks/"+id+"/content";
+            jsonContent = bpmService.getBpmServer().doGet(rest);
+            if (!"".equals(jsonContent)) {
+                obj = new JSONObject(jsonContent);
+            }
+
+        }catch (JSONException e) {
+        } catch (RuntimeException e) {
+        }
+        TaskContentInfos taskContentInfos = new TaskContentInfos(obj);
+
+        return taskContentInfos;
+    }
 
 }
