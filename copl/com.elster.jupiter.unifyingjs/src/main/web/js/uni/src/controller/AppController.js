@@ -4,7 +4,10 @@
 Ext.define('Uni.controller.AppController', {
     extend: 'Ext.app.Controller',
 
-    requires: [],
+    requires: [
+        'Ext.state.Manager',
+        'Ext.state.LocalStorageProvider'
+    ],
 
     refs: [
         {
