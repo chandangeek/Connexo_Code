@@ -51,8 +51,9 @@ Ext.define('Mdc.view.setup.deviceloadprofiles.DataGrid', {
             }
         ];
         Ext.Array.each(me.channels, function (channel) {
-            var channelHeader = !Ext.isEmpty(channel.calculatedReadingType) ? channel.calculatedReadingType.measuringPeriod + ' ' + channel.calculatedReadingType.aliasName +
-                ' (' + channel.calculatedReadingType.unit + ')' : channel.readingType.measuringPeriod + ' ' + channel.readingType.aliasName + ' (' + channel.readingType.unit + ')';
+            var channelHeader = !Ext.isEmpty(channel.calculatedReadingType) ? (channel.calculatedReadingType.measuringPeriod == 'NotApplicable'
+                ? channel.calculatedReadingType.macroPeriod : channel.calculatedReadingType.measuringPeriod) + ' ' + channel.calculatedReadingType.aliasName +
+                ' (' + channel.calculatedReadingType.unit + ')' : (channel.readingType.measuringPeriod == 'NotApplicable' ? channel.readingType.macroPeriod : channel.readingType.measuringPeriod) + ' ' + channel.readingType.aliasName + ' (' + channel.readingType.unit + ')';
 
             me.columns.push({
                 header: channelHeader,
