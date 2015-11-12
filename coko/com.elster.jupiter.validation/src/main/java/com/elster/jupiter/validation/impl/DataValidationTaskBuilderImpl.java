@@ -1,14 +1,14 @@
 package com.elster.jupiter.validation.impl;
 
+import java.time.Instant;
+
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskBuilder;
 import com.elster.jupiter.validation.ValidationService;
-
-import java.time.Instant;
-
 
 public class DataValidationTaskBuilderImpl implements DataValidationTaskBuilder {
 
@@ -17,17 +17,16 @@ public class DataValidationTaskBuilderImpl implements DataValidationTaskBuilder 
     private String name;
     private ScheduleExpression scheduleExpression;
     private Instant nextExecution;
-    private boolean scheduleImmediately ;
+    private boolean scheduleImmediately;
     private EndDeviceGroup endDeviceGroup;
+    private UsagePointGroup usagePointGroup;
     private ValidationService dataValidationService;
 
-
-    public DataValidationTaskBuilderImpl(DataModel dataModel,ValidationService dataValidationService){
+    public DataValidationTaskBuilderImpl(DataModel dataModel, ValidationService dataValidationService) {
         this.dataModel = dataModel;
         this.dataValidationService = dataValidationService;
         this.scheduleImmediately = false;
     }
-
 
     @Override
     public DataValidationTaskBuilder setName(String name) {
@@ -38,6 +37,12 @@ public class DataValidationTaskBuilderImpl implements DataValidationTaskBuilder 
     @Override
     public DataValidationTaskBuilder setEndDeviceGroup(EndDeviceGroup endDeviceGroup) {
         this.endDeviceGroup = endDeviceGroup;
+        return this;
+    }
+
+    @Override
+    public DataValidationTaskBuilder setUsagePointGroup(UsagePointGroup usagePointGroup) {
+        this.usagePointGroup = usagePointGroup;
         return this;
     }
 
@@ -62,10 +67,11 @@ public class DataValidationTaskBuilderImpl implements DataValidationTaskBuilder 
 
     @Override
     public DataValidationTask build() {
-        DataValidationTaskImpl task = DataValidationTaskImpl.from(dataModel, name, nextExecution,dataValidationService);
+        DataValidationTaskImpl task = DataValidationTaskImpl.from(dataModel, name, nextExecution, dataValidationService);
         task.setScheduleImmediately(scheduleImmediately);
         task.setScheduleExpression(scheduleExpression);
         task.setEndDeviceGroup(endDeviceGroup);
+        task.setUsagePointGroup(usagePointGroup);
         return task;
     }
 }

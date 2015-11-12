@@ -1,8 +1,20 @@
 package com.elster.jupiter.validation.impl;
 
+import static com.elster.jupiter.util.conditions.Where.where;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+
+import javax.inject.Inject;
+import javax.validation.constraints.Size;
+
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
@@ -25,17 +37,8 @@ import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskStatus;
 import com.elster.jupiter.validation.ValidationService;
 
-import javax.inject.Inject;
-import javax.validation.constraints.Size;
-import java.time.Instant;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-
-import static com.elster.jupiter.util.conditions.Where.where;
-
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_VALIDATION_TASK + "}")
+@HasValidGroup(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRES_EXACTLY_ONE_GROUP + "}")
 public final class DataValidationTaskImpl implements DataValidationTask {
 
     private long id;
@@ -55,8 +58,9 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private transient Instant nextExecution;
     private ValidationService dataValidationService;
 
-    @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
     private Reference<EndDeviceGroup> endDeviceGroup = ValueReference.absent();
+
+    private Reference<UsagePointGroup> usagePointGroup = ValueReference.absent();
 
     private Reference<RecurrentTask> recurrentTask = ValueReference.absent();
 
@@ -67,19 +71,18 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private ScheduleExpression scheduleExpression;
 
     @Inject
-    DataValidationTaskImpl(DataModel dataModel, TaskService taskService,ValidationService dataValidationService,Thesaurus thesaurus)
-    {
+    DataValidationTaskImpl(DataModel dataModel, TaskService taskService, ValidationService dataValidationService, Thesaurus thesaurus) {
         this.taskService = taskService;
         this.dataModel = dataModel;
         this.dataValidationService = dataValidationService;
         this.thesaurus = thesaurus;
     }
 
-    static DataValidationTaskImpl from(DataModel model,String name, Instant nextExecution,ValidationService dataValidationService ) {
-        return model.getInstance(DataValidationTaskImpl.class).init(name, nextExecution,dataValidationService);
+    static DataValidationTaskImpl from(DataModel model, String name, Instant nextExecution, ValidationService dataValidationService) {
+        return model.getInstance(DataValidationTaskImpl.class).init(name, nextExecution, dataValidationService);
     }
 
-    DataValidationTaskImpl init(String name, Instant nextExecution,ValidationService dataValidationService) {
+    DataValidationTaskImpl init(String name, Instant nextExecution, ValidationService dataValidationService) {
         this.nextExecution = nextExecution;
         this.name = name.trim();
         this.dataValidationService = dataValidationService;
@@ -142,8 +145,6 @@ public final class DataValidationTaskImpl implements DataValidationTask {
         }
     }
 
-
-
     private boolean hasUnfinishedOccurrences() {
         return hasBusyOccurrence() || hasQueuedMessages();
     }
@@ -165,7 +166,6 @@ public final class DataValidationTaskImpl implements DataValidationTask {
                         .orElse(true);
     }
 
-
     @Override
     public String getName() {
         return name;
@@ -177,8 +177,13 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     }
 
     @Override
-    public EndDeviceGroup getEndDeviceGroup() {
-        return endDeviceGroup.get();
+    public Optional<EndDeviceGroup> getEndDeviceGroup() {
+        return endDeviceGroup.getOptional();
+    }
+
+    @Override
+    public Optional<UsagePointGroup> getUsagePointGroup() {
+        return usagePointGroup.getOptional();
     }
 
     @Override
@@ -187,9 +192,14 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     }
 
     @Override
+    public void setUsagePointGroup(UsagePointGroup usagePointGroup) {
+        this.usagePointGroup.set(usagePointGroup);
+    }
+
+    @Override
     public Optional<DataValidationOccurrence> getLastOccurrence() {
-        return dataModel.query(DataValidationOccurrence.class, TaskOccurrence.class).select(Operator.EQUAL.compare("dataValidationTask", this), new Order[]{Order.descending("taskocc")},
-                false, new String[]{}, 1, 1).stream().findAny();
+        return dataModel.query(DataValidationOccurrence.class, TaskOccurrence.class).select(Operator.EQUAL.compare("dataValidationTask", this), new Order[] {Order.descending("taskocc")},
+                false, new String[] {}, 1, 1).stream().findAny();
     }
 
     @Override
@@ -251,20 +261,18 @@ public final class DataValidationTaskImpl implements DataValidationTask {
 
     @Override
     public void triggerNow() {
-        if(recurrentTask.isPresent()) {
+        if (recurrentTask.isPresent()) {
             recurrentTask.get().triggerNow();
-        }
-        else{
+        } else {
             persistRecurrentTask();
         }
     }
 
     private void update() {
         if (recurrentTaskDirty) {
-            if(recurrentTask.isPresent()) {
+            if (recurrentTask.isPresent()) {
                 recurrentTask.get().save();
-            }
-            else{
+            } else {
                 persistRecurrentTask();
             }
         }
@@ -332,7 +340,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
         save();
     }
 
-    void setRecurrentTask(RecurrentTask task){
+    void setRecurrentTask(RecurrentTask task) {
         this.recurrentTask.set(task);
     }
 }

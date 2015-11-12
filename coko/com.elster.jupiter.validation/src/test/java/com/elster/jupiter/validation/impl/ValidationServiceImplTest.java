@@ -753,7 +753,7 @@ public class ValidationServiceImplTest {
         DataValidationTask task = validationService.newTaskBuilder().setName(NAME).setEndDeviceGroup(endDeviceGroup).build();
         verify(dataModel, never()).persist(task);
         assertThat(task.getName()).isEqualTo(NAME);
-        assertThat(task.getEndDeviceGroup()).isEqualTo(endDeviceGroup);
+        assertThat(task.getEndDeviceGroup().get()).isEqualTo(endDeviceGroup);
     }
 
     @Test
