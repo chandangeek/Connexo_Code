@@ -7,7 +7,6 @@ import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.time.TemporalExpression;
@@ -21,7 +20,6 @@ import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider;
 import com.energyict.mdc.device.data.impl.OracleIntegrationPersistence;
-import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -332,16 +330,11 @@ public class CommunicationTaskServiceImplOracleSpecificIT {
     }
 
     private SearchablePropertyValue buildSearchablePropertyCondition(String property, SearchablePropertyOperator operator, List<String> values) {
-        DeviceSearchDomain deviceSearchDomain = oracleIntegrationPersistence.getDeviceSearchDomain();
-        Optional<SearchableProperty> searchableProperty = deviceSearchDomain.getProperties().stream().filter(p -> property.equals(p.getName())).findFirst();
-        if (searchableProperty.isPresent()) {
-            SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
-            valueBean.operator = operator;
-            valueBean.values = values;
-            SearchablePropertyValue searchablePropertyValue = new SearchablePropertyValue(searchableProperty.get());
-            searchablePropertyValue.setValueBean(valueBean);
-            return searchablePropertyValue;
-        }
-        throw new IllegalArgumentException("Searchable property with name '" + property + "' is not found");
+        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
+        valueBean.propertyName = property;
+        valueBean.operator = operator;
+        valueBean.values = values;
+        SearchablePropertyValue searchablePropertyValue = new SearchablePropertyValue(null, valueBean);
+        return searchablePropertyValue;
     }
 }

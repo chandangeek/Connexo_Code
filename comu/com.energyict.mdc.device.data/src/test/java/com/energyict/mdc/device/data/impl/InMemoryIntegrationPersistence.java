@@ -55,12 +55,19 @@ import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.SqlBuilder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.config.impl.DeviceConfigurationFinder;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
 import com.energyict.mdc.device.config.impl.DeviceTypeFinder;
+import com.energyict.mdc.device.config.impl.FiniteStateFinder;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.impl.events.TestProtocolWithRequiredStringAndOptionalNumericDialectProperties;
 import com.energyict.mdc.device.data.impl.finders.ConnectionTaskFinder;
+import com.energyict.mdc.device.data.impl.finders.ConnectionTypeFinder;
+import com.energyict.mdc.device.data.impl.finders.DeviceGroupFinder;
+import com.energyict.mdc.device.data.impl.finders.LogBookFinder;
 import com.energyict.mdc.device.data.impl.finders.ProtocolDialectPropertiesFinder;
+import com.energyict.mdc.device.data.impl.finders.SecuritySetFinder;
+import com.energyict.mdc.device.data.impl.finders.ServiceCategoryFinder;
 import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.energyict.mdc.device.data.impl.tasks.InboundIpConnectionTypeImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundNoParamsConnectionTypeImpl;
@@ -96,7 +103,9 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
 import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.model.impl.ComScheduleFinder;
 import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.tasks.impl.TaskFinder;
 import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -168,9 +177,9 @@ public class InMemoryIntegrationPersistence {
     private IssueService issueService;
     private Thesaurus thesaurus;
     private BatchService batchService;
-    private SearchService searchService;
     private DeviceSearchDomain deviceSearchDomain;
     private DataCollectionKpiService dataCollectionKpiService;
+    private FiniteStateMachineService finiteStateMachineService;
 
     public InMemoryIntegrationPersistence() {
         super();
@@ -286,6 +295,7 @@ public class InMemoryIntegrationPersistence {
             injector.getInstance(SearchService.class).register(deviceSearchDomain);
             this.meteringGroupsService.addEndDeviceQueryProvider(injector.getInstance(DeviceEndDeviceQueryProvider.class));
             this.dataCollectionKpiService = injector.getInstance(DataCollectionKpiService.class);
+            this.finiteStateMachineService = injector.getInstance(FiniteStateMachineService.class);
             initializeFactoryProviders();
             createOracleAliases(dataModel.getConnection(true));
             initializePrivileges();
@@ -302,8 +312,17 @@ public class InMemoryIntegrationPersistence {
         getPropertySpecService().addFactoryProvider(() -> {
             List<CanFindByLongPrimaryKey<? extends HasId>> finders = new ArrayList<>();
             finders.add(new ConnectionTaskFinder(dataModel));
+            finders.add(new SecuritySetFinder(deviceConfigurationService));
             finders.add(new ProtocolDialectPropertiesFinder(dataModel));
             finders.add(new DeviceTypeFinder(this.deviceConfigurationService));
+            finders.add(new LogBookFinder(dataModel));
+            finders.add(new ConnectionTypeFinder(protocolPluggableService));
+            finders.add(new ComScheduleFinder(schedulingService));
+            finders.add(new ServiceCategoryFinder(meteringService));
+            finders.add(new TaskFinder(taskService));
+            finders.add(new DeviceConfigurationFinder(deviceConfigurationService));
+            finders.add(new FiniteStateFinder(finiteStateMachineService));
+            finders.add(new DeviceGroupFinder(meteringGroupsService));
             return finders;
         });
     }
