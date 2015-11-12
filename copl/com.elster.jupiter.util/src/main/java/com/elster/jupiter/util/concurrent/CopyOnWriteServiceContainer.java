@@ -1,5 +1,7 @@
 package com.elster.jupiter.util.concurrent;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Duration;
 import java.util.Collections;
 import java.util.List;
@@ -12,6 +14,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
+@ProviderType
 public class CopyOnWriteServiceContainer<S> implements OptionalServiceContainer<S> {
 
     private final List<S> services = new CopyOnWriteArrayList<>();
@@ -95,5 +98,10 @@ public class CopyOnWriteServiceContainer<S> implements OptionalServiceContainer<
         return services.stream()
                 .filter(matcher)
                 .findFirst();
+    }
+
+    @Override
+    public List<S> getServices() {
+        return services;
     }
 }
