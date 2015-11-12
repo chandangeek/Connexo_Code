@@ -37,20 +37,18 @@ Ext.define('Apr.controller.TaskOverview', {
             store = Ext.create('Apr.store.Tasks'),
             view;
 
-       // store.load(function () {
             view = Ext.widget('task-overview-setup',
                 {
                     store: store
                 });
             me.getApplication().fireEvent('changecontentevent', view);
-
-      //  });
         view.down('preview-container').updateOnChange(!store.getCount());
 
     },
 
     showPreview: function(records,record){
         var me = this;
+        Ext.suspendLayouts();
         this.getTaskPreview().setTitle(record.get('task'));
         this.getTaskPreview().down('form').loadRecord(record);
         if(record.get('queueStatus')=== 'Busy'){
@@ -60,5 +58,6 @@ Ext.define('Apr.controller.TaskOverview', {
             this.getTaskPreview().down('#durationField').hide();
             this.getTaskPreview().down('#nextRunField').hide();
         }
+        Ext.resumeLayouts();
     }
 });
