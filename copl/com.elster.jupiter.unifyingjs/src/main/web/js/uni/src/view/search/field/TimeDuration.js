@@ -2,6 +2,12 @@ Ext.define('Uni.view.search.field.TimeDuration', {
     extend: 'Uni.view.search.field.Numeric',
     xtype: 'uni-search-criteria-timeduration',
 
+    itemsDefaultConfig: {
+        minValue: 0,
+        autoStripChars: true,
+        allowExponential: false
+    },
+
     getValue: function () {
         var me = this,
             value = this.superclass.getValue.apply(me);

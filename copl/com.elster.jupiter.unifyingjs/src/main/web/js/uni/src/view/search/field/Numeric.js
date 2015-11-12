@@ -9,6 +9,7 @@ Ext.define('Uni.view.search.field.Numeric', {
     ],
     items: [],
     menuConfig: {},
+    itemsDefaultConfig: {},
 
     getValue: function() {
         var value = [];
@@ -66,6 +67,7 @@ Ext.define('Uni.view.search.field.Numeric', {
 
         return Ext.apply({
             xtype: 'uni-search-internal-criterialine',
+            itemsDefaultConfig: me.itemsDefaultConfig,
             width: '455',
             operator: '==',
             removable: false,

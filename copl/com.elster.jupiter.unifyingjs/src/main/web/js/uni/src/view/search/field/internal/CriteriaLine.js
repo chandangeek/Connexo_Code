@@ -31,6 +31,7 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
         '<=': 'uni-search-internal-numberfield',
         'BETWEEN': 'uni-search-internal-numberrange'
     },
+    itemsDefaultConfig: {},
 
     onOperatorChange: function(operator, value, oldValue) {
         var me = this,
@@ -41,6 +42,7 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
             me.items.removeAll();
             me.add({
                 xtype: xtype,
+                itemsDefaultConfig: me.itemsDefaultConfig,
                 listeners: {
                     change: function() {
                         me.fireEvent('change', me.getValue())
