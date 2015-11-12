@@ -118,17 +118,16 @@ Ext.define('Mdc.controller.Search', {
         searchDomains.load({callback: function(records) {
             var value = router.queryParams.searchDomain,
                 selector = me.getObjectSelector(),
-                isStateChange = false;
+                state = me.service.getState();
 
-            if (me.service.getState()) {
+            if (state && state.domain) {
                 me.service.initState();
-                isStateChange = true;
             }
 
             if (value && !Ext.isEmpty(records) && searchDomains.getById(value) !== null) {
-                selector.setValue(value, isStateChange);
+                selector.setValue(value, state && state.domain);
             } else if (selector && !Ext.isEmpty(records)) {
-                selector.setValue(records[0].get('id'), isStateChange);
+                selector.setValue(records[0].get('id'), state && state.domain);
             }
         }});
 
