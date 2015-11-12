@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -180,6 +181,19 @@ public class ComServerDAOImpl implements ComServerDAO {
         }
     }
 
+    private Optional<ConnectionTask> refreshConnectionTask(ConnectionTask connectionTask) {
+        Optional<ConnectionTask> reloaded =  getConnectionTaskService().findConnectionTask(connectionTask.getId());
+        if (reloaded.isPresent()){
+            if (reloaded.get().getVersion() == connectionTask.getVersion() ) {
+                reloaded = Optional.of(connectionTask);
+            }
+            if (reloaded.get().isObsolete()) {
+                reloaded =  Optional.empty();
+            }
+        }
+        return reloaded;
+     }
+
     private ComJobFactory getComJobFactoryFor(OutboundComPort comPort) {
         // Zero is not allowed, i.e. rejected by the OutboundComPortImpl validation methods
         if (comPort.getNumberOfSimultaneousConnections() == 1) {
@@ -209,13 +223,20 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComServer comServer) {
-        return getConnectionTaskService().attemptLockConnectionTask(connectionTask, comServer);
+    public ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, final ComServer comServer) {
+        Optional reloaded = refreshConnectionTask(connectionTask);
+        if (reloaded.isPresent()){
+            return getConnectionTaskService().attemptLockConnectionTask((ScheduledConnectionTask) reloaded.get(), comServer);
+        }
+        return null;
     }
 
     @Override
     public void unlock(ScheduledConnectionTask connectionTask) {
-        getConnectionTaskService().unlockConnectionTask(connectionTask);
+        Optional reloaded = refreshConnectionTask(connectionTask);
+        if (reloaded.isPresent()) {
+            getConnectionTaskService().unlockConnectionTask((ScheduledConnectionTask) reloaded.get());
+        }
     }
 
     @Override
@@ -260,8 +281,11 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void updateIpAddress(String ipAddress, ConnectionTask connectionTask, String connectionTaskPropertyName) {
-        connectionTask.setProperty(connectionTaskPropertyName, ipAddress);
-        connectionTask.save();
+        Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
+        if (reloaded.isPresent()) {
+            reloaded.get().setProperty(connectionTaskPropertyName, ipAddress);
+            reloaded.get().save();
+        }
     }
 
     @Override
@@ -351,20 +375,31 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void executionStarted(final ConnectionTask connectionTask, final ComServer comServer) {
-        this.executeTransaction(() -> {
-            connectionTask.executionStarted(comServer);
-            return null;
-        });
+        final Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
+        if (reloaded.isPresent()) {
+            this.executeTransaction(() -> {
+                reloaded.get().executionStarted(comServer);
+                return null;
+            });
+        }
+
+
     }
 
     @Override
     public void executionCompleted(final ConnectionTask connectionTask) {
-        connectionTask.executionCompleted();
+        final Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
+        if (reloaded.isPresent()) {
+            reloaded.get().executionCompleted();
+        }
     }
 
     @Override
     public void executionFailed(final ConnectionTask connectionTask) {
-        connectionTask.executionFailed();
+        final Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
+        if (reloaded.isPresent()) {
+            reloaded.get().executionFailed();
+        }
     }
 
     @Override
@@ -427,7 +462,11 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public ComSession createComSession(final ComSessionBuilder builder, final ComSession.SuccessIndicator successIndicator) {
         /* We should already be in a transaction so don't wrap it again */
-        return builder.endSession(now(), successIndicator).create();
+        Optional<ConnectionTask> reloaded = getConnectionTaskService().findConnectionTask(builder.getConnectionTask().getId());
+        if (reloaded.isPresent()) {
+            return builder.withConnectionTask(reloaded.get()).endSession(now(), successIndicator).create();
+        }
+        return null;
     }
 
     @Override

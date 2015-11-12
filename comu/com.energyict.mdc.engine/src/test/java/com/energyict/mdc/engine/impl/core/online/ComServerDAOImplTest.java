@@ -172,6 +172,8 @@ public class ComServerDAOImplTest {
     @Test
     public void testConnectionTaskExecutionCompleted() throws SQLException, BusinessException {
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
+        when(connectionTask.getId()).thenReturn(10L);
+        when(connectionTaskService.findConnectionTask(anyLong())).thenReturn(Optional.of(connectionTask));
 
         // Business method
         this.comServerDAO.executionCompleted(connectionTask);
@@ -266,7 +268,9 @@ public class ComServerDAOImplTest {
     public void testUpdateIpAddress() throws SQLException, BusinessException {
         TypedProperties properties = mock(TypedProperties.class);
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
+        when(connectionTask.getId()).thenReturn(10L);
         when(connectionTask.getTypedProperties()).thenReturn(properties);
+        when(connectionTaskService.findConnectionTask(anyLong())).thenReturn(Optional.of(connectionTask));
 
         // Business method
         this.comServerDAO.updateIpAddress(IP_ADDRESS, connectionTask, IP_ADDRESS_PROPERTY_NAME);
