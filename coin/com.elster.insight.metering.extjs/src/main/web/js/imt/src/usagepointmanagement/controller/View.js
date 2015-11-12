@@ -61,7 +61,16 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
                 var associatedMetrologyConfiguration = me.getAssociatedMetrologyConfiguration();
                 
                 associatedMetrologyConfiguration.down('#associatedMetrologyConfiguration').removeAll();
-                associatedMetrologyConfiguration.down('#associatedMetrologyConfiguration').add(
+
+                if (  record.get('metrologyConfiguration') === null ||  record.get('metrologyConfiguration') === "" ) {
+                	associatedMetrologyConfiguration.down('#associatedMetrologyConfiguration').add(
+                            {
+                                xtype: 'component',
+                                cls: 'x-form-display-field',
+                                html: '-'
+                            });
+                } else {
+                	associatedMetrologyConfiguration.down('#associatedMetrologyConfiguration').add(
                     {
                         xtype: 'component',
                         cls: 'x-form-display-field',
@@ -71,7 +80,7 @@ Ext.define('Imt.usagepointmanagement.controller.View', {
                             html: record.get('metrologyConfiguration').name
                         }
                     });
-   
+                }
                 
                 var store = me.getStore('Imt.usagepointmanagement.store.MeterActivations'),
                 		associatedDevices = me.getAssociatedDevices();
