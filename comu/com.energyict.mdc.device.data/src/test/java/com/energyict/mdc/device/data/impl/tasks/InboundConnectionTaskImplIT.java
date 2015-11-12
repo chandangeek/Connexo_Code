@@ -1,9 +1,10 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
-import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.DuplicateConnectionTaskException;
 import com.energyict.mdc.device.data.exceptions.PartialConnectionTaskNotPartOfDeviceConfigurationException;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
@@ -15,17 +16,14 @@ import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OnlineComServer;
 
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.google.common.collect.Range;
 
+import javax.validation.ConstraintViolationException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.*;
-
-import javax.validation.ConstraintViolationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
@@ -190,12 +188,12 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     @Ignore
     // Todo: Wait for ComTaskExecution to be moved to this bundle and then create one that explicitly uses the InboundConnectionTaskImpl
-    public void testCannotDeleteDefaultTaskThatIsInUse() {
+    public void testCannotObsoleteDefaultTaskThatIsInUse() {
         InboundConnectionTaskImpl connectionTask = createSimpleInboundConnectionTask();
         inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(connectionTask);
 
         // Business method
-        connectionTask.delete();
+        connectionTask.makeObsolete();
 
         // Asserts: see expected exception rule
     }
@@ -213,7 +211,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         //when(this.comTaskExecutionFactory.findAllByConnectionTask(connectionTask)).thenReturn(comTaskExecutions);
 
         // Business method
-        connectionTask.delete();
+        connectionTask.makeObsolete();
 
         // Asserts
         verify(obsoleteComTask).connectionTaskRemoved();

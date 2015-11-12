@@ -4,7 +4,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import java.time.Clock;import com.energyict.mdc.device.config.PartialInboundConnectionTask;
+import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.data.ConnectionTaskFields;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -14,6 +14,7 @@ import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.inject.Inject;
+import java.time.Clock;
 
 /**
  * Provides an implementation for the {@link InboundConnectionTask} interface.
@@ -53,15 +54,15 @@ public class InboundConnectionTaskImpl extends ConnectionTaskImpl<PartialInbound
 
     public abstract static class AbstractInboundConnectionTaskBuilder implements Device.InboundConnectionTaskBuilder {
 
-        protected final InboundConnectionTaskImpl inboundConnectionTask;
+        private final InboundConnectionTaskImpl inboundConnectionTask;
 
         public AbstractInboundConnectionTaskBuilder(InboundConnectionTaskImpl inboundConnectionTask) {
             this.inboundConnectionTask = inboundConnectionTask;
         }
 
-//        protected InboundConnectionTaskImpl getInboundConnectionTask() {
-//            return inboundConnectionTask;
-//        }
+        protected InboundConnectionTaskImpl getInboundConnectionTask() {
+            return inboundConnectionTask;
+        }
 
         @Override
         public Device.InboundConnectionTaskBuilder setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus status) {

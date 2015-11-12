@@ -1,5 +1,15 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -12,7 +22,16 @@ import com.energyict.mdc.device.data.exceptions.IncompatiblePartialConnectionTas
 import com.energyict.mdc.device.data.exceptions.NestedRelationTransactionException;
 import com.energyict.mdc.device.data.exceptions.PartialConnectionTaskNotPartOfDeviceConfigurationException;
 import com.energyict.mdc.device.data.exceptions.RelationIsAlreadyObsoleteException;
-import com.energyict.mdc.device.data.impl.*;
+import com.energyict.mdc.device.data.impl.CreateEventType;
+import com.energyict.mdc.device.data.impl.EventType;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
+import com.energyict.mdc.device.data.impl.PropertyCache;
+import com.energyict.mdc.device.data.impl.PropertyFactory;
+import com.energyict.mdc.device.data.impl.RelationTransactionExecutor;
+import com.energyict.mdc.device.data.impl.ServerComTaskExecution;
+import com.energyict.mdc.device.data.impl.SimpleRelationTransactionExecutor;
+import com.energyict.mdc.device.data.impl.UpdateEventType;
+import com.energyict.mdc.device.data.impl.ValidPluggableClassId;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
@@ -32,15 +51,6 @@ import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 
@@ -70,9 +80,8 @@ import static com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelatio
 @XmlRootElement
 @HasValidProperties(groups = {Save.Create.class, Save.Update.class})
 @ComPortPoolIsCompatibleWithConnectionType(groups = {Save.Create.class, Save.Update.class})
-@ConnectionTaskIsNotObsolete(groups = {Save.Update.class})
+@NotObsolete(groups = {Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_IS_OBSOLETE_AND_CANNOT_UPDATE + "}")
 public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPPT extends ComPortPool>
-    extends PersistentIdObject<ConnectionTask>
     implements
         ServerConnectionTask<CPPT, PCTT>,
         ConnectionTaskPropertyProvider,
@@ -91,6 +100,8 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
                     INBOUND_DISCRIMINATOR, InboundConnectionTaskImpl.class,
                     SCHEDULED_DISCRIMINATOR, ScheduledConnectionTaskImpl.class);
 
+    @SuppressWarnings("unused")
+    private long id;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_DEVICE_REQUIRED + "}")
     private Reference<Device> device = ValueReference.absent();
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_REQUIRED + "}")
@@ -103,7 +114,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private transient PropertyCache<ConnectionType, ConnectionTaskProperty> cache;
     @ValidPluggableClassId(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED + "}")
     private long pluggableClassId;
-    // @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_PLUGGABLE_CLASS_REQUIRED + "}")
     private ConnectionTypePluggableClass pluggableClass;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CONNECTION_TASK_COMPORT_POOL_REQUIRED + "}")
     private Reference<CPPT> comPortPool = ValueReference.absent();
@@ -123,6 +133,9 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private Instant modTime;
 
     private final Clock clock;
+    private DataModel dataModel;
+    private EventService eventService;
+    private Thesaurus thesaurus;
     private final ServerConnectionTaskService connectionTaskService;
     private final ServerCommunicationTaskService communicationTaskService;
     private final ProtocolPluggableService protocolPluggableService;
@@ -131,7 +144,10 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private boolean doNotTouchParentDevice = true;
 
     protected ConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, ProtocolPluggableService protocolPluggableService) {
-        super(ConnectionTask.class, dataModel, eventService, thesaurus);
+        super();
+        this.dataModel = dataModel;
+        this.eventService = eventService;
+        this.thesaurus = thesaurus;
         this.cache = new PropertyCache<>(this);
         this.clock = clock;
         this.connectionTaskService = connectionTaskService;
@@ -155,6 +171,10 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
+    public long getId() {
+        return id;
+    }
+
     public boolean hasDirtyProperties() {
         return cache.isDirty();
     }
@@ -162,6 +182,14 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     @Override
     public void lock() {
         this.getDataMapper().lock(this.getId());
+    }
+
+    private DataMapper<ConnectionTask> getDataMapper() {
+        return this.dataModel.mapper(ConnectionTask.class);
+    }
+
+    protected DataModel getDataModel() {
+        return dataModel;
     }
 
     @Override
@@ -176,7 +204,11 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private void validatePartialConnectionTaskType(PCTT partialConnectionTask) {
         Class<PCTT> partialConnectionTaskType = this.getPartialConnectionTaskType();
         if (!partialConnectionTaskType.isAssignableFrom(partialConnectionTask.getClass())) {
-            throw new IncompatiblePartialConnectionTaskException(partialConnectionTask, partialConnectionTaskType, this.getThesaurus(), MessageSeeds.CONNECTION_TASK_INCOMPATIBLE_PARTIAL);
+            throw new IncompatiblePartialConnectionTaskException(
+                    partialConnectionTask,
+                    partialConnectionTaskType,
+                    thesaurus,
+                    MessageSeeds.CONNECTION_TASK_INCOMPATIBLE_PARTIAL);
         }
     }
 
@@ -186,7 +218,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
             ConnectionTask connectionTaskWithSamePartialConnectionTaskDeviceCombination = result.get();
             if (this.getId() != connectionTaskWithSamePartialConnectionTaskDeviceCombination.getId()) {
                 throw new DuplicateConnectionTaskException(
-                        device, partialConnectionTask, connectionTaskWithSamePartialConnectionTaskDeviceCombination, this.getThesaurus(),
+                        device, partialConnectionTask, connectionTaskWithSamePartialConnectionTaskDeviceCombination, thesaurus,
                         MessageSeeds.DUPLICATE_CONNECTION_TASK);
             }
         }
@@ -201,7 +233,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
      */
     private void validateSameConfiguration(PCTT partialConnectionTask, Device device) {
         if (!is(this.getDeviceConfigurationId(device)).equalTo(partialConnectionTask.getConfiguration().getId())) {
-            throw new PartialConnectionTaskNotPartOfDeviceConfigurationException(partialConnectionTask, device, this.getThesaurus(), MessageSeeds.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_NOT_IN_CONFIGURATION);
+            throw new PartialConnectionTaskNotPartOfDeviceConfigurationException(partialConnectionTask, device, thesaurus, MessageSeeds.CONNECTION_TASK_PARTIAL_CONNECTION_TASK_NOT_IN_CONFIGURATION);
         }
     }
 
@@ -209,35 +241,13 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         return device.getDeviceConfiguration().getId();
     }
 
-    @Override
-    protected CreateEventType createEventType() {
-        return CreateEventType.CONNECTIONTASK;
+    public void notifyCreated() {
+        this.eventService.postEvent(CreateEventType.CONNECTIONTASK.topic(), this);
     }
 
-    @Override
-    protected UpdateEventType updateEventType() {
-        return UpdateEventType.CONNECTIONTASK;
+    public void notifyUpdated() {
+        this.eventService.postEvent(UpdateEventType.CONNECTIONTASK.topic(), this);
     }
-
-    @Override
-    protected DeleteEventType deleteEventType() {
-        return DeleteEventType.CONNECTIONTASK;
-    }
-
-    @Override
-    /**
-     * Delete not supported as ORM does not allow to delete a 'child' of device
-     */
-    public void delete() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Deletes this object using the mapper.
-     */
-    protected void doDelete(){
-        //not supported
-    };
 
     /**
      * Notifies all ComTaskExecution (including obsoletes) which refer to this ConnectionTask
@@ -247,11 +257,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         for (ComTaskExecution comTaskExecution : this.findDependentComTaskExecutions()) {
             ((ServerComTaskExecution)comTaskExecution).connectionTaskRemoved();
         }
-    }
-
-    @Override
-    public void save() {
-        throw new UnsupportedOperationException();
     }
 
     public void saveAllProperties() {
@@ -265,7 +270,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
                                 this,
                                 clock.instant(),
                                 this.findRelationType(),
-                                this.getThesaurus()));
+                                thesaurus));
             }
         }
     }
@@ -276,11 +281,11 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
             try {
                 relation.makeObsolete();
             } catch (BusinessException e) {
-                throw new NestedRelationTransactionException(e, this.findRelationType().getName(), this.getThesaurus(), MessageSeeds.UNEXPECTED_RELATION_TRANSACTION_ERROR);
+                throw new NestedRelationTransactionException(e, this.findRelationType().getName(), thesaurus, MessageSeeds.UNEXPECTED_RELATION_TRANSACTION_ERROR);
             }
             // Cannot collapse catch blocks because of the constructor
             catch (SQLException e) {
-                throw new NestedRelationTransactionException(this.getThesaurus(), e, this.findRelationType().getName(), MessageSeeds.UNEXPECTED_RELATION_TRANSACTION_ERROR);
+                throw new NestedRelationTransactionException(thesaurus, e, this.findRelationType().getName(), MessageSeeds.UNEXPECTED_RELATION_TRANSACTION_ERROR);
             }
         }
     }
@@ -296,29 +301,53 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     @Override
+    public void save () {
+        if (this.id > 0) {
+            this.validateAndUpdate();
+            this.notifyUpdated();
+        }
+        else {
+            this.validateAndCreate();
+            this.notifyCreated();
+        }
+    }
+
+    /**
+     * Validates and saves this object for the first time.
+     */
+    private void validateAndCreate() {
+        Save.CREATE.save(this.dataModel, this);
+    }
+
+    /**
+     * Validates and updates the changes made to this object.
+     */
+    private void validateAndUpdate() {
+        Save.UPDATE.save(this.dataModel, this);
+    }
+
+    @Override
     public void makeObsolete() {
-        Save.UPDATE.validate(getDataModel(), this, Save.Update.class);
+        Save.UPDATE.validate(this.dataModel, this, Save.Update.class);
         this.reloadComServerAndObsoleteDate();
         this.validateMakeObsolete();
         this.obsoleteDate = this.clock.instant();
-        this.getDataModel().update(this);
+        this.dataModel.update(this);
         this.makeDependentsObsolete();
         this.unRegisterConnectionTaskFromComTasks();
         this.notifyUpdated();
     }
 
-    @Override
     public void update() {
-        Save.UPDATE.save(getDataModel(), this, Save.Create.class, Save.Update.class);
+        Save.UPDATE.save(this.dataModel, this, Save.Create.class, Save.Update.class);
         if (!doNotTouchParentDevice) {
-            getDataModel().touch(device.get());
+            this.dataModel.touch(device.get());
         }
         this.notifyUpdated();
     }
 
-    @Override
     protected void update(String... fieldNames) {
-        this.getDataModel().update(this, fieldNames);
+        this.dataModel.update(this, fieldNames);
         this.notifyUpdated();
     }
 
@@ -346,20 +375,19 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
             try {
                 relation.makeObsolete();
             } catch (BusinessException | SQLException e) {
-                throw new RelationIsAlreadyObsoleteException(relation.getRelationType().getName(), this.getThesaurus(), MessageSeeds.CODING_RELATION_IS_ALREADY_OBSOLETE);
+                throw new RelationIsAlreadyObsoleteException(relation.getRelationType().getName(), thesaurus, MessageSeeds.CODING_RELATION_IS_ALREADY_OBSOLETE);
             }
         }
     }
 
     private void validateMakeObsolete() {
         if (this.comServer.isPresent()) {
-            throw new ConnectionTaskIsExecutingAndCannotBecomeObsoleteException(this, this.getExecutingComServer(), this.getThesaurus(), MessageSeeds.CONNECTION_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE);
+            throw new ConnectionTaskIsExecutingAndCannotBecomeObsoleteException(this, this.getExecutingComServer(), thesaurus, MessageSeeds.CONNECTION_TASK_IS_EXECUTING_AND_CANNOT_OBSOLETE);
         }
     }
 
     protected abstract Class<PCTT> getPartialConnectionTaskType();
 
-    @Override
     protected void validateDelete() {
         if (this.isDefault()) {
             this.validateNoDependentComTaskExecutions();
@@ -369,7 +397,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     private void validateNoDependentComTaskExecutions() {
         List<ComTaskExecution> dependents = this.findDependentComTaskExecutions();
         if (!dependents.isEmpty()) {
-            throw new CannotDeleteUsedDefaultConnectionTaskException(this, this.getThesaurus(), MessageSeeds.DEFAULT_CONNECTION_TASK_IS_INUSE_AND_CANNOT_DELETE);
+            throw new CannotDeleteUsedDefaultConnectionTaskException(this, thesaurus, MessageSeeds.DEFAULT_CONNECTION_TASK_IS_INUSE_AND_CANNOT_DELETE);
         }
     }
 
@@ -393,7 +421,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     public void executionCompleted() {
         this.doNotTouchParentDevice();
         this.doExecutionCompleted();
-        this.update(ConnectionTaskFields.COM_SERVER.fieldName(),ConnectionTaskFields.LAST_SUCCESSFUL_COMMUNICATION_END.fieldName());
+        this.update(ConnectionTaskFields.COM_SERVER.fieldName(), ConnectionTaskFields.LAST_SUCCESSFUL_COMMUNICATION_END.fieldName());
     }
 
     protected void doExecutionCompleted() {
@@ -412,10 +440,6 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
 
     private void setDevice(Device device) {
         this.device.set(device);
-    }
-
-    public long getPluggableClassId() {
-        return pluggableClassId;
     }
 
     public ConnectionTypePluggableClass getPluggableClass() {
@@ -723,7 +747,11 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.postEvent(EventType.CONNECTIONTASK_SETASDEFAULT);
     }
 
-    // To be used by the ConnectionTaskServiceImpl only that now has the responsibility to switch defaults
+    private void postEvent(EventType eventType) {
+        this.eventService.postEvent(eventType.topic(), this);
+    }
+
+    // Only to be used by the ConnectionTaskServiceImpl that now has the responsibility to switch defaults.
     void clearDefault() {
         this.isDefault = false;
         this.update();
@@ -822,14 +850,14 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     public void revalidatePropertiesAndAdjustStatus() {
         if (this.getId() > 0 && this.isActive()) {
             try {
-                Save.UPDATE.save(this.getDataModel(), this);
+                Save.UPDATE.save(this.dataModel, this);
             }
             catch (ConstraintViolationException e) {
                 /* Assumption: no changes on this ConnectionTask
                  * therefore: exception relates to missing required properties
                  * so set the status to Incomplete and apply change. */
                 this.setStatus(ConnectionTaskLifecycleStatus.INCOMPLETE);
-                this.getDataModel().update(this, ConnectionTaskFields.STATUS.fieldName());
+                this.dataModel.update(this, ConnectionTaskFields.STATUS.fieldName());
             }
         }
     }
@@ -897,7 +925,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
      */
     boolean isValidConnectionTask() {
         try {
-            Save.CREATE.validate(this.getDataModel(), this, Save.Update.class);
+            Save.CREATE.validate(this.dataModel, this, Save.Update.class);
         } catch (Exception e) {
             return false;
         }
@@ -910,10 +938,10 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
     }
 
     /**
-     * Sometimes it is necessary do not touch the parent device during an update process,
-     * because otherwise we will receive optimistic lock exception (for example when topology handler updates all com task executions)
+     * Sometimes it is necessary to avoid touching the parent device during an update process,
+     * when touching would introduce an optimistic lock exception (for example when topology handler updates all com task executions).
      */
-    public void doNotTouchParentDevice() {
+    void doNotTouchParentDevice() {
         this.doNotTouchParentDevice = true;
     }
 
@@ -924,7 +952,7 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
      */
     protected interface ConnectionTaskPropertyValidator {
 
-        public void validate(List<ConnectionTaskProperty> properties);
+        void validate(List<ConnectionTaskProperty> properties);
 
     }
 
