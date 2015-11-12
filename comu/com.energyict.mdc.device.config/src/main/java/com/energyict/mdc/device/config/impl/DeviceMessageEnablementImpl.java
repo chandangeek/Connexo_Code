@@ -155,6 +155,11 @@ public class DeviceMessageEnablementImpl extends PersistentIdObject<DeviceMessag
     }
 
     @Override
+    public DeviceConfiguration getDeviceConfiguration() {
+        return deviceConfiguration.get();
+    }
+
+    @Override
     public DeviceMessageEnablement cloneForDeviceConfig(DeviceConfiguration deviceConfiguration) {
         DeviceMessageEnablementBuilder deviceMessageEnablement = deviceConfiguration.createDeviceMessageEnablement(getDeviceMessageId());
         getUserActions().forEach(deviceMessageEnablement::addUserAction);

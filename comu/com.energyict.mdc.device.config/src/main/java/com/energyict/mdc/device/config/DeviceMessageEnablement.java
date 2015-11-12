@@ -56,4 +56,6 @@ public interface DeviceMessageEnablement extends HasId {
      */
     boolean removeDeviceMessageUserAction(DeviceMessageUserAction deviceMessageUserAction);
 
+    public DeviceConfiguration getDeviceConfiguration();
+
 }
