@@ -51,6 +51,6 @@ public class LoadProfileIdentifierForAlreadyKnownLoadProfile implements LoadProf
 
     @Override
     public DeviceIdentifier<?> getDeviceIdentifier() {
-        return new DeviceIdentifierForAlreadyKnownDeviceBySerialNumber(this.loadProfile.getDevice());
+        return new DeviceIdentifierForAlreadyKnownDeviceByMrID(this.loadProfile.getDevice());
     }
 }

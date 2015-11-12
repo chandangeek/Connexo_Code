@@ -37,6 +37,6 @@ public class LogBookIdentifierForAlreadyKnowLogBook implements LogBookIdentifier
 
     @Override
     public DeviceIdentifier<?> getDeviceIdentifier() {
-        return new DeviceIdentifierForAlreadyKnownDeviceBySerialNumber(getLogBook().getDevice());
+        return new DeviceIdentifierForAlreadyKnownDeviceByMrID(getLogBook().getDevice());
     }
 }
