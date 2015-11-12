@@ -88,7 +88,7 @@ public class DataExportTaskResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DATA_EXPORT_TASK, Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK})
+    @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK})
     public DataExportTaskInfos getDataExportTasks(@Context UriInfo uriInfo) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
         List<? extends ExportTask> list = queryTasks(params);
@@ -108,7 +108,7 @@ public class DataExportTaskResource {
     @GET
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DATA_EXPORT_TASK, Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK})
+    @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK})
     public DataExportTaskInfo getDataExportTask(@PathParam("id") long id) {
         return new DataExportTaskInfo(fetchDataExportTask(id), thesaurus, timeService, propertyUtils);
     }
@@ -116,7 +116,7 @@ public class DataExportTaskResource {
     @PUT
     @Path("/{id}/trigger")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DATA_EXPORT_TASK, Privileges.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.RUN_DATA_EXPORT_TASK})
+    @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK})
     public Response triggerDataExportTask(@PathParam("id") long id, DataExportTaskInfo info) {
         info.id = id;
         transactionService.execute(VoidTransaction.of(() -> dataExportService.findAndLockExportTask(info.id, info.version)
@@ -131,7 +131,7 @@ public class DataExportTaskResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_DATA_EXPORT_TASK)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK)
     public Response addExportTask(DataExportTaskInfo info) {
         DataExportTaskBuilder builder = dataExportService.newBuilder()
                 .setName(info.name)
@@ -207,7 +207,7 @@ public class DataExportTaskResource {
     @DELETE
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_DATA_EXPORT_TASK)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK)
     public Response removeDataExportTask(@PathParam("id") long id, DataExportTaskInfo info) {
         String taskName = info.name;
         try (TransactionContext context = transactionService.getContext()) {
@@ -229,7 +229,7 @@ public class DataExportTaskResource {
     @PUT
     @Path("/{id}/")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.UPDATE_DATA_EXPORT_TASK, Privileges.UPDATE_SCHEDULE_DATA_EXPORT_TASK})
+    @RolesAllowed({Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK})
     public Response updateExportTask(@PathParam("id") long id, DataExportTaskInfo info) {
         try (TransactionContext context = transactionService.getContext()) {
             info.id = id;
@@ -270,6 +270,8 @@ public class DataExportTaskResource {
                     updateEvents(info, task);
                 }
             }
+
+            task.setDataFormatter(info.dataProcessor.name);
 
             updateProperties(info, task);
             updateDestinations(info, task);
@@ -405,6 +407,7 @@ public class DataExportTaskResource {
         List<PropertySpec> propertiesSpecsForDataProcessor = dataExportService.getPropertiesSpecsForFormatter(info.dataProcessor.name);
         propertiesSpecsForDataProcessor.stream()
                 .forEach(spec -> {
+                    task.removeProperty(spec);
                     Object value = propertyUtils.findPropertyValue(spec, info.dataProcessor.properties);
                     task.setProperty(spec.getName(), value);
                 });
