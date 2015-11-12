@@ -6,7 +6,6 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -59,7 +58,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -656,7 +654,6 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     @Override
     public Optional<SqlBuilder> getValidationResults(long endDeviceGroupId, Optional<Integer> start, Optional<Integer> limit) {
         SqlBuilder sqlBuilder = new SqlBuilder();
-        Query<EndDevice> query = meteringService.getEndDeviceQuery();
 
         Optional<EndDeviceGroup> found = meteringGroupsService.findEndDeviceGroup(endDeviceGroupId);
         if (found.isPresent()) {
@@ -665,10 +662,11 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
                 sqlBuilder.append("SELECT MED.amrid FROM (");
 
                 if (deviceGroup instanceof QueryEndDeviceGroup) {
-                    Condition condition = meteringGroupsService.pollEndDeviceQueryProvider(deviceGroup.getQueryProviderName(), Duration.ofMinutes(1)).get().getQueryCondition(((QueryEndDeviceGroup) deviceGroup).getCondition());
-                    sqlBuilder.add(query.asSubquery(condition, "amrid").toFragment());
+                    QueryEndDeviceGroup queryEndDeviceGroup = (QueryEndDeviceGroup) deviceGroup;
+                    sqlBuilder.add(queryEndDeviceGroup.getEndDeviceQueryProvider().toFragment(queryEndDeviceGroup.toFragment(), "amrId"));
                 } else {
-                    sqlBuilder.add(((EnumeratedEndDeviceGroup) deviceGroup).getAmrIdSubQuery().toFragment());
+                    EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = (EnumeratedEndDeviceGroup) deviceGroup;
+                    sqlBuilder.add(enumeratedEndDeviceGroup.getAmrIdSubQuery().toFragment());
                 }
 
                 sqlBuilder.append(") MED  " +
