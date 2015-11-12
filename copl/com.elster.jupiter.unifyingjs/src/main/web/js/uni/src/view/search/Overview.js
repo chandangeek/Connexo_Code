@@ -95,6 +95,7 @@ Ext.define('Uni.view.search.Overview', {
                                 // Sticky criteria.
                                 xtype: 'uni-search-internal-criteriapanel',
                                 itemId: 'search-criteria-sticky',
+                                layout: 'column',
                                 //hidden: true,
                                 lbar: {
                                     xtype: 'label',
@@ -109,6 +110,7 @@ Ext.define('Uni.view.search.Overview', {
                                 // Removable criteria.
                                 xtype: 'uni-search-internal-criteriapanel',
                                 itemId: 'search-criteria-removable',
+                                layout: 'column',
                                 //hidden: true,
                                 lbar: {
                                     xtype: 'label',
