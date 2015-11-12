@@ -23,9 +23,15 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
         {ref: 'deviceAttributesEditForm', selector: '#device-attributes-edit-form'},
         {ref: 'deviceAttributesEditPage', selector: '#device-attributes-edit'},
         {ref: 'usagePointEmptyStoreField', selector: '#usagePointEmptyStoreField'},
-        {ref: 'editCustomAttributePropertyForm', selector: '#device-custom-attributes-edit-id #device-custom-attributes-property-form'},
+        {
+            ref: 'editCustomAttributePropertyForm',
+            selector: '#device-custom-attributes-edit-id #device-custom-attributes-property-form'
+        },
         {ref: 'deviceCustomAttributesEditView', selector: '#device-custom-attributes-edit-id'},
-        {ref: 'restoreToDefaultBtn', selector: '#device-custom-attributes-edit-id  #device-custom-attributes-restore-default-btn'}
+        {
+            ref: 'restoreToDefaultBtn',
+            selector: '#device-custom-attributes-edit-id  #device-custom-attributes-restore-default-btn'
+        }
 
     ],
 
@@ -52,7 +58,7 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
         });
     },
 
-    saveCustomAttributes: function() {
+    saveCustomAttributes: function () {
         var me = this,
             form = me.getEditCustomAttributePropertyForm(),
             editView = me.getDeviceCustomAttributesEditView();
@@ -61,12 +67,13 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
 
         form.updateRecord();
         form.getRecord().save({
-            callback: function (model, operation, success) {
+            backUrl: me.getLandingUrl(),
+            success: function () {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceAttributes.saved', 'MDC', 'Device attributes saved'));
+                me.goToAttributesLanding();
+            },
+            callback: function () {
                 editView.setLoading(false);
-                if (success) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('customAttributeSet.saved', 'MDC', 'Custom attribute saved'));
-                    me.goToAttributesLanding();
-                }
             }
         });
     },
@@ -98,9 +105,9 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
         editForm.getForm().clearInvalid();
 
         updatedRecord.save({
-            backUrl: me.getController('Uni.controller.history.Router').getRoute('devices/device/attributes').buildUrl(),
+            backUrl: me.getLandingUrl(),
             success: function () {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceAttributes.saved', 'MDC', 'Device attributes saved.'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceAttributes.saved', 'MDC', 'Device attributes saved'));
                 me.goToAttributesLanding();
             },
             failure: function (record, operation) {
@@ -150,6 +157,10 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
         this.getController('Uni.controller.history.Router').getRoute('devices/device/attributes').forward();
     },
 
+    getLandingUrl: function () {
+        return this.getController('Uni.controller.history.Router').getRoute('devices/device/attributes').buildUrl();
+    },
+
     showDeviceAttributesView: function (mRID) {
         this.uploadAttributes('deviceAttributesSetup', mRID, true);
     },
@@ -178,7 +189,6 @@ Ext.define('Mdc.controller.setup.DeviceAttributes', {
                         me.getApplication().fireEvent('loadCustomAttributeSetOnDevice', record);
                         widget.down('#custom-attribute-set-edit-panel').setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
                         widget.down('#device-custom-attributes-property-form').loadRecord(record);
-                        console.log(record);
                     },
                     callback: function () {
                         viewport.setLoading(false);

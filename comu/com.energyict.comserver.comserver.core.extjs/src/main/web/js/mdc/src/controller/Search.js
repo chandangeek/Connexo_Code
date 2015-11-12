@@ -62,16 +62,19 @@ Ext.define('Mdc.controller.Search', {
     lastRequest: undefined,
 
     init: function () {
-        var me = this;
-        var searchResults = Ext.getStore('Uni.store.search.Results');
+        var me = this,
+            searchResults = Ext.getStore('Uni.store.search.Results'),
+            router = me.getController('Uni.controller.history.Router');
 
         me.service = Ext.create('Mdc.service.Search', {
-            router: me.getController('Uni.controller.history.Router')
+            router: router
         });
 
         me.control({
             'search-object-selector': {
                 change: function (field, value) {
+                    Uni.util.History.setParsePath(false);
+                    router.getRoute('search').forward(null, Ext.apply(router.queryParams, {searchDomain: value}));
                     me.service.setDomain(value);
                 }
             },
@@ -98,10 +101,8 @@ Ext.define('Mdc.controller.Search', {
 
         searchResults.on('load', function (store, items) {
             var grid = me.getResultsGrid();
-            if (grid) {
-                var btn = grid.down('#search-bulk-actions-button');
-                btn.setDisabled(!(me.service.searchDomain && me.service.searchDomain.getId() === "com.energyict.mdc.device.data.Device" && items && items.length));
-            }
+            var btn = grid.down('#search-bulk-actions-button');
+            btn.setDisabled(!(me.service.searchDomain && me.service.searchDomain.getId() === "com.energyict.mdc.device.data.Device" && items && items.length));
         });
     },
 
@@ -119,8 +120,8 @@ Ext.define('Mdc.controller.Search', {
             var value = router.queryParams.searchDomain,
                 selector = me.getObjectSelector();
 
-            if (value && !Ext.isEmpty(records) && searchDomains.findRecord('displayValue', value) !== null) {
-                selector.setValue(searchDomains.findRecord('displayValue', value).get('id'));
+            if (value && !Ext.isEmpty(records) && searchDomains.getById(value) !== null) {
+                selector.setValue(value);
             } else if (selector && !Ext.isEmpty(records)) {
                 selector.setValue(records[0].get('id'));
             }

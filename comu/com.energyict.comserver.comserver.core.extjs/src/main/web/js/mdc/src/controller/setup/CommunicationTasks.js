@@ -61,14 +61,6 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
                 click: me.activateCommunicationTask
             }
         });
-
-        me.listen({
-            store: {
-                '#CommunicationTaskConfigsOfDeviceConfiguration': {
-                    load: me.checkCommunicationTasksCount
-                }
-            }
-        });
     },
 
     setupMenuItems: function (record) {
@@ -134,61 +126,39 @@ Ext.define('Mdc.controller.setup.CommunicationTasks', {
         me.clearPreLoader();
     },
 
-    checkCommunicationTasksCount: function () {
-        var me = this,
-            grid = me.getCommunicationTaskGridPanel();
-        if (!Ext.isEmpty(grid)) {
-            var numberOfCommunicationTasksContainer = grid.down('#communicationTasksCount'),
-                gridView = grid.getView(),
-                selectionModel = gridView.getSelectionModel(),
-                communicationTasksCount = me.getCommunicationTaskConfigsOfDeviceConfigurationStore().getCount(),
-                infoMsg = Uni.I18n.translatePlural('communicationtasks.commtaskconfigurations', communicationTasksCount, 'MDC',
-                    'No communication task configurations',
-                    '1 communication task configuration',
-                    '{0} communication task configurations'
-                ),
-                widget = Ext.widget('container', {
-                    html: Ext.String.htmlEncode(infoMsg)
-                });
-            Ext.suspendLayouts();
-            numberOfCommunicationTasksContainer.removeAll(true);
-            numberOfCommunicationTasksContainer.add(widget);
-            Ext.resumeLayouts();
-            if (communicationTasksCount > 0) {
-                selectionModel.deselectAll(false);
-                selectionModel.select(0);
-            }
-        }
-    },
-
     showCommunicationTasks: function (deviceTypeId, deviceConfigurationId) {
-        var me = this;
-        this.deviceTypeId = deviceTypeId;
-        this.deviceConfigurationId = deviceConfigurationId;
-        var widget = Ext.widget('communicationTaskSetup', {
-            deviceTypeId: deviceTypeId,
-            deviceConfigurationId: deviceConfigurationId
-        });
+        var me = this,
+            widget;
+        me.deviceTypeId = deviceTypeId;
+        me.deviceConfigurationId = deviceConfigurationId;
 
-        me.getCommunicationTaskConfigsOfDeviceConfigurationStore().getProxy().extraParams = ({
-            deviceType: deviceTypeId,
-            deviceConfig: deviceConfigurationId
-        });
+        var proxy = me.getCommunicationTaskConfigsOfDeviceConfigurationStore().getProxy();
+        proxy.setExtraParam("deviceType",deviceTypeId);
+        proxy.setExtraParam("deviceConfig",deviceConfigurationId);
 
-        Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
-            success: function (deviceType) {
-                me.getApplication().fireEvent('loadDeviceType', deviceType);
-                var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
-                model.getProxy().setExtraParam('deviceType', deviceTypeId);
-                model.load(deviceConfigurationId, {
-                    success: function (deviceConfig) {
-                        me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
-                        widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
-                        me.getApplication().fireEvent('changecontentevent', widget);
+        me.getCommunicationTaskConfigsOfDeviceConfigurationStore().load({
+            callback: function () {
+                widget = Ext.widget('communicationTaskSetup', {
+                    deviceTypeId: deviceTypeId,
+                    deviceConfigurationId: deviceConfigurationId
+                });
+                Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
+                    success: function (deviceType) {
+                        me.getApplication().fireEvent('loadDeviceType', deviceType);
+                        var model = Ext.ModelManager.getModel('Mdc.model.DeviceConfiguration');
+                        model.getProxy().setExtraParam('deviceType', deviceTypeId);
+                        model.load(deviceConfigurationId, {
+                            success: function (deviceConfig) {
+                                me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
+                                widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
+                                me.getApplication().fireEvent('changecontentevent', widget);
+                            }
+                        });
                     }
                 });
             }
         });
+
     },
 
     showAddCommunicationTaskView: function (deviceTypeId, deviceConfigurationId) {

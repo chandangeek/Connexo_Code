@@ -36,7 +36,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.EditCustomAttributes', {
                 items: [
                     {
                         xtype: 'property-form',
-                        itemId: '#device-register-configuration-property-form',
+                        itemId: 'device-register-configuration-property-form',
                         width: '100%'
                     }
                 ],

@@ -22,10 +22,12 @@ Ext.define('Mdc.view.setup.ruledeviceconfiguration.RuleDeviceConfigurationBrowse
                         xtype: 'preview-container',
                         grid: {
                             xtype: 'rule-device-configuration-grid',
+                            itemId: 'rule-device-config-grid',
                             ruleSetId: me.ruleSetId
                         },
                         emptyComponent: {
                             xtype: 'no-items-found-panel',
+                            itemId: 'rule-device-config-grid-no-items-panel',
                             title: Uni.I18n.translate('validation.empty.deviceconfiguration.title', 'MDC', 'No device configurations found'),
                             reasons: [
                                 Uni.I18n.translate('validation.empty.deviceconfiguration.list.item1', 'MDC', 'No device configurations have been added yet.')
