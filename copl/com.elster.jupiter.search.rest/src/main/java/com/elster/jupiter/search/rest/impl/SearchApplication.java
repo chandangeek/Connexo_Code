@@ -52,7 +52,6 @@ public class SearchApplication extends Application implements MessageSeedProvide
         return Collections.unmodifiableSet(hashSet);
     }
 
-
     @Reference
     public void setSearchService(SearchService searchService) {
         this.searchService = searchService;

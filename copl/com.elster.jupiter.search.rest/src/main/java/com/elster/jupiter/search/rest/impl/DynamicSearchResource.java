@@ -61,8 +61,10 @@ public class DynamicSearchResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    public Response getSearchDomains(@BeanParam JsonQueryParameters jsonQueryParameters, @Context UriInfo uriInfo) {
-        List<SearchDomainInfo> list = searchService.getDomains().stream().map(sd -> new SearchDomainInfo(sd, uriInfo)).sorted((a,b) -> a.displayValue.compareTo(b.displayValue)).collect(toList());
+    public Response getSearchDomains(@BeanParam JsonQueryParameters jsonQueryParameters, @BeanParam UriInfo uriInfo) {
+        List<SearchDomainInfo> list = searchService.getDomains().stream()
+                .map(sd -> new SearchDomainInfo(sd, uriInfo))
+                .sorted((a,b) -> a.displayValue.compareTo(b.displayValue)).collect(toList());
         PagedInfoList pagedInfoList = PagedInfoList.fromCompleteList("domains", list, jsonQueryParameters);
         return Response.ok().entity(pagedInfoList).build();
     }
@@ -74,7 +76,7 @@ public class DynamicSearchResource {
     public Response getSearchablePropertiesForDomain(@PathParam("domain") String domainId,
                                                      @BeanParam JsonQueryFilter jsonQueryFilter,
                                                      @BeanParam JsonQueryParameters jsonQueryParameters,
-                                                     @Context UriInfo uriInfo) throws InvalidValueException {
+                                                     @BeanParam UriInfo uriInfo) throws InvalidValueException {
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
         List propertyList;
         if (jsonQueryFilter.hasFilters()) {
