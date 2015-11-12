@@ -45,7 +45,7 @@ public class FirmwareComTaskResource {
     @Path("/{comTaskId}/retry")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.OPERATE_DEVICE_COMMUNICATION})
+    @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
     public Response retryFirmwareComTask(@PathParam("mrid") String mrid, @PathParam("comTaskId") Long comTaskId, DeviceFirmwareActionInfo info) {
         String actionName = thesaurus.getFormat(MessageSeeds.FIRMWARE_COMMUNICATION_TASK_NAME).format();
         Device device = resourceHelper.getLockedDevice(mrid, info.version)

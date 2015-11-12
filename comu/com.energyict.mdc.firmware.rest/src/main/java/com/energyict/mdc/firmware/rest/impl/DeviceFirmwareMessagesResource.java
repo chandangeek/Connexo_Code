@@ -89,7 +89,7 @@ public class DeviceFirmwareMessagesResource {
     @GET
     @Path("/firmwaremessagespecs/{uploadOption}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.VIEW_DEVICE})
+    @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE})
     public Response getMessageAttributes(@PathParam("mrid") String mrid, @PathParam("uploadOption") String uploadOption, @QueryParam("firmwareType") String firmwareType) {
         Device device = resourceHelper.findDeviceByMridOrThrowException(mrid);
         DeviceMessageSpec firmwareMessageSpec = resourceHelper.findFirmwareMessageSpecOrThrowException(device.getDeviceType(), uploadOption);
@@ -100,7 +100,7 @@ public class DeviceFirmwareMessagesResource {
     @Path("/firmwaremessages")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.OPERATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
+    @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response uploadFirmwareToDevice(@PathParam("mrid") String mrid, FirmwareMessageInfo info) {
         Device device = resourceHelper.findDeviceByMridOrThrowException(mrid);
         checkFirmwareUpgradeOption(device.getDeviceType(), info.uploadOption);
@@ -125,7 +125,7 @@ public class DeviceFirmwareMessagesResource {
     @Path("/firmwaremessages/{messageId}/activate")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.OPERATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
+    @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response activateFirmwareOnDevice(@PathParam("mrid") String mrid, @PathParam("messageId") Long messageId, FirmwareMessageInfo info) {
         Device device = resourceHelper.getLockedDevice(mrid, info.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(mrid)
@@ -190,7 +190,7 @@ public class DeviceFirmwareMessagesResource {
     @DELETE
     @Path("/firmwaremessages/{msgId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.OPERATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.ADMINISTRATE_DEVICE_DATA})
+    @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response cancelFirmwareUpload(@PathParam("mrid") String mrid, @PathParam("msgId") long msgId, DeviceFirmwareVersionInfos info) {
         Device device = resourceHelper.getLockedDevice(mrid, info.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(mrid)
@@ -214,7 +214,7 @@ public class DeviceFirmwareMessagesResource {
     @GET
     @Path("/firmwaresactions")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.VIEW_DEVICE})
+    @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE})
     public Response getDynamicActions(@PathParam("mrid") String mrid, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMridOrThrowException(mrid);
         List<DeviceFirmwareActionInfo> deviceFirmwareActions = new ArrayList<>();
@@ -246,7 +246,7 @@ public class DeviceFirmwareMessagesResource {
     @PUT
     @Path("/status/run")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.VIEW_DEVICE})
+    @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE})
     public Response runFirmwareVersionCheck(@PathParam("mrid") String mrid, @BeanParam JsonQueryParameters queryParameters, DeviceFirmwareActionInfo info) {
         String actionName = thesaurus.getFormat(MessageSeeds.FIRMWARE_ACTION_CHECK_VERSION).format();
         Device device = resourceHelper.getLockedDevice(mrid, info.version)
@@ -263,7 +263,7 @@ public class DeviceFirmwareMessagesResource {
     @PUT
     @Path("/status/runnow")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.VIEW_DEVICE})
+    @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE})
     public Response runFirmwareVersionCheckNow(@PathParam("mrid") String mrid, @BeanParam JsonQueryParameters queryParameters, DeviceFirmwareActionInfo info) {
         String actionName = thesaurus.getFormat(MessageSeeds.FIRMWARE_ACTION_CHECK_VERSION_NOW).format();
         Device device = resourceHelper.getLockedDevice(mrid, info.version)

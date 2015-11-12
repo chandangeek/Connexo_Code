@@ -41,7 +41,7 @@ public class FirmwareCampaignResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.VIEW_FIRMWARE_CAMPAIGN})
+    @RolesAllowed({Privileges.Constants.VIEW_FIRMWARE_CAMPAIGN})
     public Response getFirmwareCampaigns(@BeanParam JsonQueryParameters queryParameters){
         List<FirmwareCampaignInfo> firmwareCampaigns = firmwareService.getFirmwareCampaigns()
                 .from(queryParameters)
@@ -54,7 +54,7 @@ public class FirmwareCampaignResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.VIEW_FIRMWARE_CAMPAIGN})
+    @RolesAllowed({Privileges.Constants.VIEW_FIRMWARE_CAMPAIGN})
     public Response getFirmwareCampaignById(@PathParam("id") long firmwareCampaignId){
         FirmwareCampaign firmwareCampaign = resourceHelper.findFirmwareCampaignOrThrowException(firmwareCampaignId);
         return Response.ok(campaignInfoFactory.from(firmwareCampaign)).build();
@@ -63,7 +63,7 @@ public class FirmwareCampaignResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_FIRMWARE_CAMPAIGN})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN})
     public Response addFirmwareCampaign(FirmwareCampaignInfo info){
         FirmwareCampaign firmwareCampaign = campaignInfoFactory.create(info);
         firmwareCampaign.save();
@@ -73,7 +73,7 @@ public class FirmwareCampaignResource {
     @PUT
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_FIRMWARE_CAMPAIGN})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN})
     public Response editFirmwareCampaign(@PathParam("id") long firmwareCampaignId, FirmwareCampaignInfo info){
         info.id = firmwareCampaignId;
         FirmwareCampaign firmwareCampaign = resourceHelper.lockFirmwareCampaign(info);
@@ -90,7 +90,7 @@ public class FirmwareCampaignResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.ADMINISTRATE_FIRMWARE_CAMPAIGN})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN})
     public Response deleteFirmwareCampaign(@PathParam("id") long firmwareCampaignId, FirmwareCampaignInfo info){
         info.id = firmwareCampaignId;
         FirmwareCampaign firmwareCampaign = resourceHelper.lockFirmwareCampaign(info);
@@ -101,7 +101,7 @@ public class FirmwareCampaignResource {
     @GET
     @Path("/{id}/devices")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.VIEW_FIRMWARE_CAMPAIGN})
+    @RolesAllowed({Privileges.Constants.VIEW_FIRMWARE_CAMPAIGN})
     public Response getDevicesForFirmwareCampaign(@PathParam("id") long firmwareCampaignId, @BeanParam JsonQueryParameters queryParameters){
         FirmwareCampaign firmwareCampaign = resourceHelper.findFirmwareCampaignOrThrowException(firmwareCampaignId);
         List<DeviceInFirmwareCampaign> devices = firmwareService.getDevicesForFirmwareCampaign(firmwareCampaign).from(queryParameters).find();
