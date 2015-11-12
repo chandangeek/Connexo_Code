@@ -1,558 +1,461 @@
 Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
     extend: 'Ext.app.Controller',
-    views: [
-        'Mdc.view.setup.devicegroup.Step1',
-        'Mdc.view.setup.devicegroup.Step2',
-        'Mdc.view.setup.devicegroup.Browse',
-        'Mdc.view.setup.devicegroup.Navigation',
-        'Mdc.view.setup.devicegroup.Wizard',
-        'Mdc.view.setup.devicegroup.Edit'
-    ],
+
     requires: [
-        'Uni.view.window.Wizard',
-        'Mdc.view.setup.devicesearch.DevicesSideFilter'
+        'Uni.util.Filters',
+        'Mdc.service.DeviceGroupSearch'
+    ],
+
+    views: [
+        'Mdc.view.setup.devicegroup.Browse'
     ],
 
     stores: [
-        'Mdc.store.DevicesBuffered',
-        'DeviceGroups',
-        'Mdc.model.DeviceType',
-        'Mdc.store.DevicesOfDeviceGroupWithoutPaging'
+        'Mdc.store.DeviceGroups',
+        'Mdc.store.DevicesOfDeviceGroupWithoutPagination',
+        'Mdc.store.StaticGroupDevices',
+        'Mdc.store.DynamicGroupDevices'
+    ],
+
+    models: [
+        'Mdc.model.DeviceGroup'
     ],
 
     refs: [
         {
-            ref: 'backButton',
-            selector: 'adddevicegroup-wizard #backButton'
-        },
-        {
-            ref: 'nextButton',
-            selector: 'adddevicegroup-wizard #nextButton'
-        },
-        {
-            ref: 'confirmButton',
-            selector: 'adddevicegroup-wizard #confirmButton'
-        },
-        {
-            ref: 'finishButton',
-            selector: 'adddevicegroup-wizard #finishButton'
-        },
-        {
-            ref: 'wizardCancelButton',
-            selector: 'adddevicegroup-wizard #wizardCancelButton'
-        },
-        {
             ref: 'navigationMenu',
-            selector: '#devicegroupaddnavigation'
+            selector: '#add-devicegroup-browse #devicegroupaddnavigation'
         },
         {
             ref: 'addDeviceGroupWizard',
-            selector: '#adddevicegroupwizard'
+            selector: '#add-devicegroup-browse #adddevicegroupwizard'
         },
         {
             ref: 'nameTextField',
-            selector: '#deviceGroupNameTextField'
-        },
-        {
-            ref: 'dynamicRadioButton',
-            selector: 'devicegroup-wizard-step1 #dynamicDeviceGroup'
-        },
-        {
-            ref: 'step1Form',
-            selector: 'devicegroup-wizard-step1 form'
+            selector: '#add-devicegroup-browse #deviceGroupNameTextField'
         },
         {
             ref: 'step1FormErrorMessage',
-            selector: '#step1-adddevicegroup-errors'
+            selector: '#add-devicegroup-browse #step1-adddevicegroup-errors'
         },
         {
             ref: 'step2FormErrorMessage',
-            selector: '#step2-adddevicegroup-errors'
-        },
-        {
-            ref: 'staticGrid',
-            selector: 'mdc-search-results #static-grid'
-        },
-        {
-            ref: 'dynamicGrid',
-            selector: 'mdc-search-results #dynamic-grid'
-        },
-        {
-            ref: 'staticGridContainer',
-            selector: 'mdc-search-results #static-grid-container'
-        },
-        {
-            ref: 'dynamicGridContainer',
-            selector: 'mdc-search-results #dynamic-grid-container'
-        },
-        {
-            ref: 'dynamicGridFilter',
-            selector: 'devicegroup-wizard-step2 mdc-view-setup-devicesearch-devicestopfilter'
-        },
-        {
-            ref: 'staticGridFilter',
-            selector: 'devicegroup-wizard-step2 mdc-view-setup-devicesearch-buffereddevicestopfilter'
-        },
-        {
-            ref: 'editPage',
-            selector: 'device-group-edit'
+            selector: '#add-devicegroup-browse #step2-adddevicegroup-errors'
         }
     ],
 
-    stepTwo: 'deviceGroupWizardStep2',
-
-    addDeviceGroupWidget: null,
-    dynamic: false,
-    router: null,
+    filterObjectParam: 'filter',
+    lastRequest: undefined,
+    searchFieldsOnLoadListener: null,
 
     init: function () {
-        this.control({
-            'adddevicegroup-wizard #backButton': {
-                click: this.backClick
+        var me = this;
+
+        me.service = Ext.create('Mdc.service.DeviceGroupSearch', {
+            router: me.getController('Uni.controller.history.Router')
+        });
+
+        me.control({
+            '#add-devicegroup-browse #staticDynamicRadioButton': {
+                change: me.prepareStep2
             },
-            'adddevicegroup-wizard #nextButton': {
-                click: this.nextClick
+            '#add-devicegroup-browse adddevicegroup-wizard button[navigationBtn=true]': {
+                click: me.moveTo
             },
-            'adddevicegroup-wizard #confirmButton': {
-                click: this.confirmClick
+            '#add-devicegroup-browse devicegroup-add-navigation': {
+                movetostep: me.moveTo
             },
-            'adddevicegroup-wizard #finishButton': {
-                click: this.finishClick
+            '#add-devicegroup-browse search-criteria-selector menu menucheckitem': {
+                checkchange: function (field, checked) {
+                    checked
+                        ? me.service.addProperty(field.criteria)
+                        : me.service.removeProperty(field.criteria);
+                }
             },
-            'adddevicegroup-wizard #wizardCancelButton': {
-                click: this.cancelClick
+            '#add-devicegroup-browse button[action=search]': {
+                click: me.applyFilters
             },
-            'device-group-edit #edit-device-group-action': {
-                click: this.editDeviceGroup
+            '#add-devicegroup-browse button[action=clearFilters]': {
+                click: {
+                    fn: me.service.clearFilters,
+                    scope: me.service
+                }
             }
         });
     },
 
-    backClick: function () {
-        var layout = this.getAddDeviceGroupWizard().getLayout(),
-            currentCmp = layout.getActiveItem();
-        this.getNavigationMenu().movePrevStep();
-        this.changeContent(layout.getPrev(), currentCmp);
-    },
-
-    nextClick: function () {
-        var layout = this.getAddDeviceGroupWizard().getLayout(),
-            nameField = this.getNameTextField(),
-            step1ErrorMsg = this.getStep1FormErrorMessage();
-        if (layout.getNext().name === this.stepTwo && nameField.getValue() === '') {
-            Ext.suspendLayouts();
-            step1ErrorMsg.show();
-            nameField.markInvalid(Uni.I18n.translate('general.fieldIsRequired', 'MDC', 'This field is required'));
-            Ext.resumeLayouts(true);
-        } else if (layout.getNext().name === this.stepTwo && nameField.getValue() !== '' && this.nameExistsAlready()) {
-            Ext.suspendLayouts();
-            step1ErrorMsg.show();
-            nameField.markInvalid(Uni.I18n.translate('devicegroup.duplicatename', 'MDC', 'A device group with this name already exists.'));
-            Ext.resumeLayouts(true);
-        } else {
-            if (layout.getNext().name === this.stepTwo) {
-                if (this.getDynamicRadioButton().checked) {
-                    this.getStaticGridFilter().setVisible(false);
-                    this.getStaticGridContainer().setVisible(false);
-                    this.getDynamicGridFilter().setVisible(true);
-                    this.getDynamicGridContainer().setVisible(true);
-                } else {
-                    this.getDynamicGridFilter().setVisible(false);
-                    this.getDynamicGridContainer().setVisible(false);
-                    this.getStaticGridFilter().setVisible(true);
-                    this.getStaticGridContainer().setVisible(true);
-                }
-            }
-            Ext.suspendLayouts();
-            step1ErrorMsg.hide();
-            nameField.clearInvalid();
-            Ext.resumeLayouts(true);
-            this.getNavigationMenu().moveNextStep();
-            this.changeContent(layout.getNext(), layout.getActiveItem());
-            if (layout.getActiveItem().name == this.stepTwo) {
-                this.getApplication().getController('Mdc.controller.setup.DevicesAddGroupController').applyFilters();
-            }
-        }
-        this.getStep2FormErrorMessage().setVisible(false);
-    },
-
-    nameExistsAlready: function () {
-        var store = this.getDeviceGroupsStore();
-        var newName = this.getNameTextField().getValue();
-        store.clearFilter();
-        store.filter([
-            {
-                filterFn: function (item) {
-                    return item.get("name").toLowerCase() === newName.toLowerCase();
-                }
-            }
-        ]);
-        var length = store.data.length;
-        store.clearFilter();
-        return length > 0;
-    },
-
-    confirmClick: function () {
-
-    },
-
-    finishClick: function () {
-        if (this.getDynamicRadioButton().checked) {
-            this.addDeviceGroupAndReturnToList();
-        } else {
-            var numberOfDevices = this.getStaticGrid().getSelectionModel().getSelection().length;
-            if ((numberOfDevices == 0) && (!(this.getStaticGrid().allChosenByDefault))) {
-                this.getStep2FormErrorMessage().setVisible(true);
-            } else {
-                this.addDeviceGroupAndReturnToList();
-            }
-        }
-    },
-
-    addDeviceGroupAndReturnToList: function () {
-        this.addDeviceGroupWidget = null;
-        this.addDeviceGroup();
-        this.getDeviceGroupsStore().load();
-    },
-
-    addDeviceGroup: function () {
+    showWizard: function () {
         var me = this,
-            record = Ext.create('Mdc.model.DeviceGroup'),
-            preloader = Ext.create('Ext.LoadMask', {
-                msg: Uni.I18n.translate('general.loading', 'MDC', 'Loading...'),
-                target: this.getAddDeviceGroupWizard()
+            router = me.getController('Uni.controller.history.Router'),
+            mainView = Ext.ComponentQuery.query('#contentPanel')[0],
+            deviceGroupModelName = 'Mdc.model.DeviceGroup',
+            deviceGroupId = router.arguments.deviceGroupId,
+            widget = Ext.widget('add-devicegroup-browse', {
+                itemId: 'add-devicegroup-browse',
+                router: router,
+                service: me.service,
+                isEdit: Ext.isDefined(deviceGroupId),
+                returnLink: router.queryParams.fromDetails === 'true'
+                    ? router.getRoute('devices/devicegroups/view').buildUrl()
+                    : router.getRoute('devices/devicegroups').buildUrl()
             });
 
-        preloader.show();
+        me.service.getSearchDomainsStore().load();
+        me.getApplication().fireEvent('changecontentevent', widget);
+        if (Ext.isDefined(deviceGroupId)) {
+            mainView.setLoading();
+            me.getModel(deviceGroupModelName).load(deviceGroupId, {
+                success: function (record) {
+                    var isDynamic,
+                        devices;
 
-        if (record) {
-            record.set('name', this.getNameTextField().getValue());
-            var isDynamic = this.getDynamicRadioButton().checked;
-            record.set('dynamic', isDynamic);
-            record.set('filter', me.getFilterObjectFromQueryString());
-            record.set('devices', []);
-            if (!isDynamic) {
-                var grid = this.getStaticGrid();
-                var devicesList = [];
-                if (grid.isAllSelected()) {
-                    devicesList = null;
-                } else {
-                    var selection = this.getStaticGrid().getSelectionModel().getSelection();
-                    var numberOfDevices = this.getStaticGrid().getSelectionModel().getSelection().length;
-                    for (var i = 0; i < numberOfDevices; i++) {
-                        devicesList.push(this.getStaticGrid().getSelectionModel().getSelection()[i].data.id);
-                    }
-                }
-                record.set('devices', devicesList);
-            }
-            record.save({
-                success: function () {
-                    me.getController('Uni.controller.history.Router').getRoute('devices/devicegroups').forward();
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceGroup.add.success.msg', 'MDC', 'Device group added'));
-                },
-                failure: function (response) {
-                    if (response.status == 400) {
-                        var result = Ext.decode(response.responseText, true),
-                            errorTitle = Uni.I18n.translate('deviceGroup.add.fail.msg', 'MDC', 'Failed to add'),
-                            errorText = Uni.I18n.translate('deviceGroup.add.fail.info', 'MDC',
-                                'Device group could not be added. There was a problem accessing the database');
-
-                        if (result !== null) {
-                            errorTitle = result.error;
-                            errorText = result.message;
+                    if (widget.rendered) {
+                        isDynamic = record.get('dynamic');
+                        me.getApplication().fireEvent('loadDeviceGroup', record);
+                        Ext.suspendLayouts();
+                        widget.down('devicegroup-add-navigation').setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
+                        widget.down('adddevicegroup-wizard').loadRecord(record);
+                        me.prepareStep2(null, {dynamic: isDynamic});
+                        Ext.resumeLayouts(true);
+                        if (!isDynamic) {
+                            devices = me.getStore('Mdc.store.DevicesOfDeviceGroupWithoutPagination');
+                            devices.getProxy().setExtraParam('id', deviceGroupId);
+                            devices.load(function (records) {
+                                mainView.setLoading(false);
+                                Ext.suspendLayouts();
+                                widget.down('static-group-devices-grid').setDevices(records);
+                                Ext.resumeLayouts(true);
+                            });
+                        } else {
+                            mainView.setLoading(false);
                         }
-                        self.getApplication().getController('Uni.controller.Error').showError(errorTitle, errorText);
                     }
                 },
-                callback: function () {
-                    preloader.destroy();
+                failure: function () {
+                    mainView.setLoading(false);
                 }
             });
+        } else {
+            widget.down('adddevicegroup-wizard').loadRecord(Ext.create(deviceGroupModelName));
         }
     },
 
-    cancelClick: function () {
-        this.addDeviceGroupWidget = null;
-        var router = this.getController('Uni.controller.history.Router');
-        router.getRoute('devices/devicegroups').forward();
-    },
+    moveTo: function (button) {
+        var me = this,
+            wizardLayout = me.getAddDeviceGroupWizard().getLayout(),
+            currentStep = wizardLayout.getActiveItem().navigationIndex,
+            direction,
+            nextStep;
 
-    showAddDeviceGroupAction: function () {
-        this.addDeviceGroupWidget = Ext.widget('add-devicegroup-browse');
-        if (this.router) {
-            this.router = undefined;
+        if (button.action === 'step-next' || button.action === 'confirm-action') {
+            direction = 1;
+            nextStep = currentStep + direction;
+        } else {
+            direction = -1;
+            if (button.action === 'step-back') {
+                nextStep = currentStep + direction;
+            } else {
+                nextStep = button;
+            }
         }
-        this.getApplication().fireEvent('changecontentevent', this.addDeviceGroupWidget);
+
+        Ext.suspendLayouts();
+
+        if (direction > 0) {
+            if (!me.validateCurrentStep(currentStep)) {
+                Ext.resumeLayouts(true);
+                return
+            }
+        }
+
+        me.prepareNextStep(nextStep);
+        wizardLayout.setActiveItem(nextStep - 1);
+        me.getNavigationMenu().moveToStep(nextStep);
+
+        Ext.resumeLayouts(true);
     },
 
-    changeContent: function (nextCmp, currentCmp) {
-        var layout = this.getAddDeviceGroupWizard().getLayout();
-        layout.setActiveItem(nextCmp);
-        this.updateButtonsState(nextCmp);
+    validateCurrentStep: function (stepNumber) {
+        var me = this,
+            valid = true;
+
+        switch (stepNumber) {
+            case 1:
+                valid = me.validateStep1();
+                break;
+            case 2:
+                valid = me.validateStep2();
+                break;
+        }
+
+        return valid;
     },
 
-    updateButtonsState: function (activePage) {
+    validateStep1: function () {
+        var me = this,
+            valid = true,
+            group = me.getAddDeviceGroupWizard().getRecord(),
+            step1ErrorMsg = me.getStep1FormErrorMessage(),
+            nameField = me.getNameTextField(),
+            name = nameField.getValue();
+
+        if (!nameField.validate()) {
+            valid = false;
+            step1ErrorMsg.show();
+        } else if (name !== group.get('name') && me.getStore('Mdc.store.DeviceGroups').find('name', name) >= 0) { // todo: postponed from the previous functionality, should be replaced
+            valid = false;
+            nameField.markInvalid(Uni.I18n.translate('general.name.shouldBeUnique', 'MDC', 'Name should be unique'));
+            step1ErrorMsg.show();
+        } else {
+            step1ErrorMsg.hide();
+        }
+
+        return valid;
+    },
+
+    validateStep2: function () {
         var me = this,
             wizard = me.getAddDeviceGroupWizard(),
-            backBtn = wizard.down('#backButton'),
-            nextBtn = wizard.down('#nextButton'),
-            finishBtn = wizard.down('#finishButton'),
-            cancelBtn = wizard.down('#wizardCancelButton');
+            record = Ext.clone(wizard.getRecord()),
+            valid = true,
+            isDynamic;
 
-        switch (activePage.name) {
-            case 'deviceGroupWizardStep1' :
-                backBtn.show();
+        wizard.updateRecord(record);
+        isDynamic = record.get('dynamic');
+
+        if (isDynamic) {
+            valid = !!me.countNumberOfSearchCriteria();
+            me.getStep2FormErrorMessage().setVisible(!valid);
+            wizard.down('#selection-criteria-error').setVisible(!valid);
+        }
+
+        return valid;
+    },
+
+    prepareNextStep: function (stepNumber) {
+        var me = this,
+            wizard = me.getAddDeviceGroupWizard(),
+            navigationMenu = me.getNavigationMenu(),
+            buttons = wizard.getDockedComponent('device-group-wizard-buttons'),
+            nextBtn = buttons.down('[action=step-next]'),
+            backBtn = buttons.down('[action=step-back]'),
+            confirmBtn = buttons.down('[action=confirm-action]'),
+            finishBtn = buttons.down('[action=finish]'),
+            cancelBtn = buttons.down('[action=cancel]');
+
+        switch (stepNumber) {
+            case 1:
                 nextBtn.show();
-                nextBtn.setDisabled(false);
-                backBtn.setDisabled(true);
+                backBtn.show();
+                backBtn.disable();
+                confirmBtn.hide();
                 finishBtn.hide();
                 cancelBtn.show();
                 break;
-            case 'deviceGroupWizardStep2' :
-                backBtn.show();
+            case 2:
+                me.getStep2FormErrorMessage().hide();
+                wizard.down('#selection-criteria-error').hide();
                 nextBtn.show();
-                nextBtn.setDisabled(true);
-                backBtn.setDisabled(false);
-                finishBtn.show();
+                backBtn.show();
+                backBtn.enable();
+                confirmBtn.hide();
+                finishBtn.hide();
                 cancelBtn.show();
+                break;
+            case 3:
+                navigationMenu.jumpBack = false;
+                nextBtn.hide();
+                backBtn.hide();
+                confirmBtn.hide();
+                finishBtn.hide();
+                cancelBtn.hide();
+                me.prepareStep3(wizard, navigationMenu, [confirmBtn, backBtn, cancelBtn]);
+                break;
+            case 4:
+                navigationMenu.jumpBack = false;
+                nextBtn.hide();
+                backBtn.hide();
+                confirmBtn.hide();
+                finishBtn.hide();
+                cancelBtn.hide();
+                me.prepareStep4(wizard, finishBtn);
                 break;
         }
     },
 
-    showEditDeviceGroup: function (deviceGroupId) {
+    prepareStep2: function (field, newValue) {
         var me = this,
-            deviceGroupModel = me.getModel('Mdc.model.DeviceGroup'),
-            router = me.getController('Uni.controller.history.Router'),
-            cancelLink,
-            view,
+            wizard = me.getAddDeviceGroupWizard(),
+            step2 = wizard.down('device-group-wizard-step2'),
+            deviceDomain = 'com.energyict.mdc.device.data.Device',
+            domainsStore = me.service.getSearchDomainsStore(),
+            isDynamic = newValue.dynamic,
+            staticGrid,
+            selectionGroupType;
+
+        step2.getLayout().setActiveItem(isDynamic ? 1 : 0);
+        me.service.setSearchResultsStore(me.getStore(isDynamic ? 'Mdc.store.DynamicGroupDevices' : 'Mdc.store.StaticGroupDevices'));
+        me.setColumnPicker(isDynamic);
+        if (!isDynamic) {
+            me.service.excludedCriteria = undefined;
+            staticGrid = step2.down('static-group-devices-grid');
+            selectionGroupType = {};
+            staticGrid.setDevices([]);
+            staticGrid.getSelectionModel().deselectAll(true); // fix the ExtJS error: "getById called for ID that is not present in local cache"
+            staticGrid.getStore().data.clear();
+            selectionGroupType[staticGrid.radioGroupName] = staticGrid.allInputValue;
+            staticGrid.getSelectionGroupType().setValue(selectionGroupType);
+        } else {
+            me.service.excludedCriteria = 'deviceGroup';
+        }
+        if (domainsStore.isLoading()) {
+            domainsStore.on('load', function () {
+                me.service.setDomain(deviceDomain);
+            }, me, {single: true});
+        } else {
+            me.service.setDomain(deviceDomain);
+        }
+    },
+
+    setColumnPicker: function (isDynamic) {
+        var me = this,
+            grid = me.getAddDeviceGroupWizard().down(isDynamic
+                ? 'dynamic-group-devices-grid'
+                : 'static-group-devices-grid'),
+            destroyListener = function () {
+                if (me.searchFieldsOnLoadListener) {
+                    me.searchFieldsOnLoadListener.destroy();
+                }
+            };
+
+        destroyListener();
+        me.searchFieldsOnLoadListener = me.service.getSearchFieldsStore().on('load', function (store, items) {
+            grid.getStore().model.setFields(items.map(function (field) {
+                return me.service.createFieldDefinitionFromModel(field)
+            }));
+
+            grid.down('uni-search-column-picker').setColumns(items.map(function (field) {
+                return me.service.createColumnDefinitionFromModel(field)
+            }));
+        }, grid, {
+            destroyable: true
+        });
+        grid.on('destroy', destroyListener);
+    },
+
+    prepareStep3: function (wizard, navigationMenu, buttons) {
+        var me = this,
+            step3 = wizard.down('device-group-wizard-step3'),
+            progressbar = step3.down('progressbar'),
+            record = Ext.clone(wizard.getRecord()),
+            deviceGroupName,
             isDynamic,
-            store,
-            staticDevices,
-            deviceTypesProcessed = false,
-            extraQueryStringPart = '';
+            devices,
+            confirmationTitle,
+            confirmationMessage,
+            showConfirmationMsg = function (numberOfDevices, numberOfSearchCriteria) {
+                if (isDynamic) {
+                    confirmationMessage = Uni.I18n.translate('devicegroup.wizard.dynamic.confirmationMessage.criteriaNumber', 'MDC', 'Number of specified search criteria: {0}', [numberOfSearchCriteria])
+                        + '<br>'
+                        + Uni.I18n.translate('devicegroup.wizard.dynamic.confirmationMessage.devicesNumber', 'MDC', 'Current number of devices: {0}', [numberOfDevices]);
+                } else {
+                    confirmationMessage = Uni.I18n.translate('devicegroup.wizard.static.confirmationMessage', 'MDC', 'Number of devices: {0}', [numberOfDevices]);
+                }
+                Ext.suspendLayouts();
+                progressbar.hide();
+                Ext.Array.each(buttons, function (button) {
+                    button.show();
+                });
+                navigationMenu.jumpBack = true;
+                step3.update('<h3>' + confirmationTitle + '</h3><br>' + confirmationMessage);
+                Ext.resumeLayouts(true);
+            };
 
-        if (Ext.isEmpty(Ext.ComponentQuery.query('device-group-edit')[0])) {
-            me.fromDeviceGroupDetails = router.queryParams.fromDetails === 'true';
-            if (me.fromDeviceGroupDetails) {
-                cancelLink = '#/devices/devicegroups/' + encodeURIComponent(deviceGroupId);
-            } else {
-                cancelLink = '#/devices/devicegroups';
-            }
-            view = Ext.widget('device-group-edit', {
-                returnLink: cancelLink
-            });
+        wizard.updateRecord(record);
+        deviceGroupName = record.get('name');
+        isDynamic = record.get('dynamic');
+        devices = record.get('devices');
+
+        if (wizard.isEdit) {
+            confirmationTitle = Uni.I18n.translate('devicegroup.wizard.edit.confirmationTitle', 'MDC', "Save device group '{0}'?", [deviceGroupName]);
         } else {
-            view = Ext.ComponentQuery.query('device-group-edit')[0];
-            view.down('#static-grid-container').selectByDefault = true;
+            confirmationTitle = isDynamic
+                ? Uni.I18n.translate('devicegroup.wizard.add.dynamic.confirmationTitle', 'MDC', "Add dynamic device group '{0}'?", [deviceGroupName])
+                : Uni.I18n.translate('devicegroup.wizard.add.static.confirmationTitle', 'MDC', "Add static device group '{0}'?", [deviceGroupName]);
         }
-        deviceGroupModel.load(deviceGroupId, {
+
+        if (!isDynamic && devices) {
+            showConfirmationMsg(devices.length);
+        } else {
+            Ext.suspendLayouts();
+            step3.update(Uni.I18n.translate('devicegroup.wizard.progress.countingDevices', 'MDC', 'Counting of number of devices. Please wait...'));
+            progressbar.show();
+            progressbar.wait({
+                interval: 50,
+                increment: 20
+            });
+            Ext.resumeLayouts(true);
+            record.getNumberOfSearchResults(function (options, success, response) {
+                var responseResult,
+                    numberOfSearchCriteria;
+
+                if (success && response && response.responseText) {
+                    responseResult = Ext.decode(response.responseText, true);
+                    if (responseResult) {
+                        if (isDynamic) {
+                            numberOfSearchCriteria = me.countNumberOfSearchCriteria();
+                        }
+                        showConfirmationMsg(responseResult.numberOfSearchResults, numberOfSearchCriteria);
+                    }
+                }
+            });
+        }
+    },
+
+    countNumberOfSearchCriteria: function () {
+        var me = this;
+
+        return me.service.getSearchResultsStore().filters.getCount();
+    },
+
+    prepareStep4: function (wizard, finishBtn) {
+        var step4 = wizard.down('device-group-wizard-step4'),
+            progressbar = step4.down('progressbar');
+
+        Ext.suspendLayouts();
+        step4.update(wizard.isEdit
+            ? Uni.I18n.translate('devicegroup.wizard.progress.modificationGroup', 'MDC', 'Device group modification. Please wait...')
+            : Uni.I18n.translate('devicegroup.wizard.progress.creationGroup', 'MDC', 'Device group creation. Please wait...'));
+        progressbar.show();
+        progressbar.wait({
+            interval: 50,
+            increment: 20
+        });
+        Ext.resumeLayouts(true);
+
+        wizard.updateRecord();
+        wizard.getRecord().save({
+            backUrl: finishBtn.href,
             success: function (record) {
-                me.deviceGroup = record;
-                me.dynamic = record.get('dynamic');
-                me.deviceGroupName = record.get('name');
-                if (!me.router) {
-                    Ext.Array.each(record.raw.criteria, function (criteria) {
-                        switch (criteria.criteriaName) {
-                            case 'serialNumber':
-                                router.filter.set('serialNumber', criteria.criteriaValues[0]);
-                                extraQueryStringPart = extraQueryStringPart.concat('&serialNumber=', criteria.criteriaValues[0]);
-                                break;
-                            case 'mRID':
-                                router.filter.set('mRID', criteria.criteriaValues[0]);
-                                extraQueryStringPart = extraQueryStringPart.concat('&mRID=', criteria.criteriaValues[0]);
-                                break;
-                            case 'deviceConfiguration.deviceType.name':
-                                if (deviceTypesProcessed) {
-                                    break;
-                                }
-                                deviceTypesProcessed = true;
-                                router.filter.set('deviceTypes', record.get('deviceTypeIds'));
-                                if (Ext.isArray(record.get('deviceTypeIds'))) {
-                                    Ext.Array.each(record.get('deviceTypeIds'), function (eachDeviceTypeId) {
-                                        extraQueryStringPart = extraQueryStringPart.concat('&deviceTypes=', eachDeviceTypeId);
-                                    });
-                                } else {
-                                    extraQueryStringPart = extraQueryStringPart.concat('&deviceTypes=', record.get('deviceTypeIds'));
-                                }
-                                if (record.get('deviceTypeIds').length === 1 && !Ext.isEmpty(record.get('deviceConfigurationIds'))) {
-                                    router.filter.set('deviceConfigurations', record.get('deviceConfigurationIds'));
-                                    if (Ext.isArray(record.get('deviceConfigurationIds'))) {
-                                        Ext.Array.each(record.get('deviceConfigurationIds'), function (eachDeviceCfgId) {
-                                            extraQueryStringPart = extraQueryStringPart.concat('&deviceConfigurations=', eachDeviceCfgId);
-                                        });
-                                    } else {
-                                        extraQueryStringPart = extraQueryStringPart.concat('&deviceConfigurations=', record.get('deviceConfigurationIds'));
-                                    }
-                                }
-                                break;
-                        }
-                    });
-                    me.router = router;
+                var deviceGroupName = record.get('name');
 
-                    me.getApplication().fireEvent('changecontentevent', view);
-
-                    if (me.dynamic) {
-                        me.getStaticGridContainer().setVisible(false);
-                        me.getDynamicGridContainer().setVisible(true);
-                        if (extraQueryStringPart.length > 0) {
-                            view.setDynamicFilter(me.getQueryObjectFromQueryString(extraQueryStringPart));
-                        }
-                    } else {
-                        view.setLoading();
-                        Ext.suspendLayouts();
-                        me.getDynamicGridContainer().setVisible(false);
-                        me.getStaticGridContainer().setVisible(true);
-                        Ext.resumeLayouts(true);
-                        view.down('#static-grid-container').selectByDefault = false;
-                        staticDevices = me.getStore('Mdc.store.DevicesOfDeviceGroupWithoutPaging');
-                        staticDevices.getProxy().setUrl(deviceGroupId);
-                        staticDevices.load(function (existingRecords) {
-                            var staticGrid = me.getStaticGrid();
-                            if (staticGrid) {
-                                store = staticGrid.getStore();
-                                staticGrid.un('selectionchange', staticGrid.onSelectionChange);
-                                staticGrid.getUncheckAllButton().on('click', function () {
-                                    staticDevices.loadData([], false);
-                                    staticGrid.getSelectionCounter().setText(staticGrid.counterTextFn(staticDevices.getCount()));
-                                });
-                                staticGrid.onSelectionChangeInGroup(existingRecords);
-                                staticGrid.on('select', function (selectionModel, record) {
-                                    staticDevices.add(record);
-                                    staticGrid.onSelectionChangeInGroup(staticDevices.getRange());
-                                });
-                                staticGrid.on('deselect', function (selectionModel, record) {
-                                    staticDevices.remove(record);
-                                    staticGrid.onSelectionChangeInGroup(staticDevices.getRange());
-                                });
-                                store.setFilterModel(router.filter);
-
-                                store.on('prefetch', function (store, records) {
-                                    if (!staticGrid.isDestroyed) {
-                                        staticGrid.suspendEvent('select');
-                                        staticGrid.getSelectionModel().select(Ext.Array.filter(existingRecords, function (existingItem) {
-                                            return !!Ext.Array.findBy(records, function (item) {
-                                                return existingItem.getId() === item.getId();
-                                            });
-                                        }), true);
-                                        staticGrid.resumeEvent('select');
-                                    } else {
-                                        store.un('prefetch', this);
-                                    }
-                                });
-                                store.data.clear();
-                                view.setLoading(false);
-                                store.loadPage(1);
-                            }
-                        });
-                    }
-                    Ext.suspendLayouts();
-                    view.down('#device-group-edit-panel').setTitle(
-                        Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [me.deviceGroupName])
-                    );
-                    me.getNameTextField().setValue(record.get('name'));
-                    isDynamic = record.get('dynamic')
-                        ? Uni.I18n.translate('general.dynamic', 'MDC', 'Dynamic')
-                        : Uni.I18n.translate('general.static', 'MDC', 'Static');
-                    view.down('#device-group-type').setValue(isDynamic);
-                    if (me.dynamic) {
-                        view.showDynamicFilter();
-                    } else {
-                        view.showStaticFilter();
-                        view.setSelectedRadioBtnFromStaticFilter();
-                    }
-                    Ext.resumeLayouts(true);
-                    me.getApplication().fireEvent('loadDeviceGroup', record);
-                }
+                Ext.suspendLayouts();
+                finishBtn.show();
+                progressbar.hide();
+                step4.update(wizard.isEdit
+                    ? Uni.I18n.translate('devicegroup.wizard.save.success', 'MDC', "Device group '{0}' has been saved.", [deviceGroupName])
+                    : Uni.I18n.translate('devicegroup.wizard.add.success', 'MDC', "Device group '{0}' has been created.", [deviceGroupName]));
+                Ext.resumeLayouts(true);
             }
         });
     },
 
-    editDeviceGroup: function () {
+    applyFilters: function () {
         var me = this,
-            page = me.getEditPage(),
-            router = me.getController('Uni.controller.history.Router'),
-            step1ErrorMsg = me.getStep1FormErrorMessage(),
-            nameField = me.getNameTextField(),
-            nameValue = nameField.getValue(),
-            record = me.deviceGroup,
-            backUrl = me.fromDeviceGroupDetails
-                ? router.getRoute('devices/devicegroups/view').buildUrl()
-                : router.getRoute('devices/devicegroups').buildUrl(),
-            selection;
+            wizard = me.getAddDeviceGroupWizard(),
+            staticGrid = wizard.down('static-group-devices-grid');
 
-        if (!me.dynamic) {
-            selection = me.getStaticGrid().getSelectionModel().getSelection();
-        }
-        if (nameValue === '') {
-            Ext.suspendLayouts();
-            step1ErrorMsg.show();
-            nameField.markInvalid(Uni.I18n.translate('general.fieldIsRequired', 'MDC', 'This field is required'));
-            Ext.resumeLayouts(true);
-        } else if (nameValue !== me.deviceGroupName && me.nameExistsAlready()) {
-            Ext.suspendLayouts();
-            step1ErrorMsg.show();
-            nameField.markInvalid(Uni.I18n.translate('general.name.shouldBeUnique', 'MDC', 'Name should be unique'));
-            Ext.resumeLayouts(true);
-        } else if (!me.dynamic && (selection.length == 0) && !me.getStaticGrid().allChosenByDefault) {
-            me.getStep2FormErrorMessage().setVisible(true);
-        } else {
-            page.setLoading(true);
-            record.criteriaStore.removeAll();
-            record.set('name', nameValue);
-            record.set('dynamic', me.dynamic);
-            record.set('filter', me.getFilterObjectFromQueryString());
-            record.set('devices', []);
-            if (!me.dynamic) {
-                var devicesList = [];
-                if (me.getStaticGrid().isAllSelected()) {
-                    devicesList = null;
-                } else {
-                    Ext.Array.each(me.getStore('Mdc.store.DevicesOfDeviceGroupWithoutPaging').getRange(), function (item) {
-                        devicesList.push(item.get('id'));
-                    });
-                }
-                record.set('devices', devicesList);
-            }
-            record.save({
-                backUrl: backUrl,
-                success: function () {
-                    window.location.href = backUrl;
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceGroup.edit.success.msg', 'MDC', 'Device group saved'));
-                },
-                callback: function () {
-                    page.setLoading(false);
-                }
-            });
-        }
-    },
-
-    getFilterObjectFromQueryString: function() {
-        var filterObject = Uni.util.QueryString.getQueryStringValues(false);
-        this.adaptFilterObject(filterObject);
-        return filterObject;
-    },
-
-    getQueryObjectFromQueryString: function(queryString) {
-        var queryObject = Ext.Object.fromQueryString(queryString, false);
-        this.adaptFilterObject(queryObject);
-        return queryObject;
-    },
-
-    adaptFilterObject: function(filterObject) {
-        // Assure that properties that are expected to be an int array, are indeed int arrays
-        var props = ['deviceTypes', 'deviceConfigurations'];
-        Ext.Array.each(props, function(prop) {
-            if (filterObject.hasOwnProperty(prop)) {
-                if (Ext.isArray(filterObject[prop])) {
-                    for (i = 0; i < filterObject[prop].length; i++) {
-                        filterObject[prop][i] = parseInt(filterObject[prop][i]);
-                    }
-                } else {
-                    var theOneValue = filterObject[prop];
-                    filterObject[prop] = [];
-                    filterObject[prop][0] = !Ext.isNumber(theOneValue) ? parseInt(theOneValue) : theOneValue;
-                }
-            }
-        });
+        staticGrid.getSelectionModel().deselectAll(true); // fix the ExtJS error: "getById called for ID that is not present in local cache"
+        me.service.applyFilters.apply(me.service, arguments);
     }
 });

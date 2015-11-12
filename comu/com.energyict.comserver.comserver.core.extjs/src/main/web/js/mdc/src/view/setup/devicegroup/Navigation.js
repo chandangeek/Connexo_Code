@@ -1,23 +1,36 @@
 Ext.define('Mdc.view.setup.devicegroup.Navigation', {
     extend: 'Uni.view.menu.NavigationMenu',
     alias: 'widget.devicegroup-add-navigation',
-    width: 256,
     jumpForward: false,
     jumpBack: true,
     ui: 'medium',
     padding: '0 0 0 0',
-    margin: '0 0 0 0',
+    isEdit: false,
 
-    title: Uni.I18n.translate('devicegroup.wizardMenu', 'MDC', 'Add device group'),
+    initComponent: function () {
+        var me = this;
 
-    items: [
-        {
-            itemId: 'General',
-            text: Uni.I18n.translate('devicegroup.add.general', 'MDC', 'General')
-        },
-        {
-            itemId: 'DeviceGroup',
-            text: Uni.I18n.translate('general.deviceGroup', 'MDC', 'Device group')
-        }
-    ]
+        me.items = [
+            {
+                itemId: 'General',
+                text: me.isEdit
+                    ? Uni.I18n.translate('general.setGroupName', 'MDC', 'Set group name')
+                    : Uni.I18n.translate('general.generalAttributes', 'MDC', 'General attributes')
+            },
+            {
+                itemId: 'DeviceGroup',
+                text: Uni.I18n.translate('general.selectDevices', 'MDC', 'Select devices')
+            },
+            {
+                itemId: 'Confirmation',
+                text: Uni.I18n.translate('general.confirmation', 'MDC', 'Confirmation')
+            },
+            {
+                itemId: 'Status',
+                text: Uni.I18n.translate('general.status', 'MDC', 'Status')
+            }
+        ];
+
+        me.callParent(arguments);
+    }
 });

@@ -1047,7 +1047,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             route: 'add',
                             controller: 'Mdc.controller.setup.AddDeviceGroupAction',
                             privileges: Mdc.privileges.DeviceGroup.view,
-                            action: 'showAddDeviceGroupAction'
+                            action: 'showWizard'
                         },
                         view: {
                             title: Uni.I18n.translate('general.overview','MDC','Overview'),
@@ -1069,8 +1069,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     route: 'edit',
                                     controller: 'Mdc.controller.setup.AddDeviceGroupAction',
                                     privileges: Mdc.privileges.DeviceGroup.view,
-                                    action: 'showEditDeviceGroup',
-                                    filter: 'Mdc.model.DeviceFilter'
+                                    action: 'showWizard'
                                 }
                             }
                         }
