@@ -1,10 +1,10 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.protocol.api.ConnectionType;
-
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
+
 import com.google.inject.Module;
 
 import java.util.Optional;
@@ -15,7 +15,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-05 (13:24)
  */
-public class IpConnectionPersistenceSupport implements PersistenceSupport<ConnectionType, IpConnectionPropertyValues> {
+public class IpConnectionPersistenceSupport implements PersistenceSupport<ConnectionProvider, IpConnectionPropertyValues> {
 
     @Override
     public String componentName() {

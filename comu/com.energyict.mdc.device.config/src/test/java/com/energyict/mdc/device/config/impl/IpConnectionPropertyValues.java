@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.protocol.api.ConnectionType;
-
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 
 /**
  * Insert your comments here.
@@ -13,18 +12,18 @@ import com.elster.jupiter.util.time.Interval;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-05 (13:27)
  */
-public class IpConnectionPropertyValues implements PersistentDomainExtension<ConnectionType> {
+public class IpConnectionPropertyValues implements PersistentDomainExtension<ConnectionProvider> {
 
     @SuppressWarnings("unused")
-    private Reference<ConnectionType> connectionType = Reference.empty();
+    private Reference<ConnectionProvider> connectionProvider = Reference.empty();
     @SuppressWarnings("unused")
     private Interval interval;
     private String ipAddress;
     private int port;
 
     @Override
-    public void copyFrom(ConnectionType connectionType, CustomPropertySetValues propertyValues) {
-        this.connectionType.set(connectionType);
+    public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues) {
+        this.connectionProvider.set(connectionProvider);
         this.ipAddress = (String) propertyValues.getProperty(IpConnectionProperties.IP_ADDRESS.propertyName());
         Integer port = (Integer) propertyValues.getProperty(IpConnectionProperties.PORT.propertyName());
         if (port != null) {
