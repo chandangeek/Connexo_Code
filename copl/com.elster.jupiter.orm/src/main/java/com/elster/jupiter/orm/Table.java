@@ -146,19 +146,18 @@ public interface Table<T> {
     List<? extends TableConstraint> getConstraints();
 
     boolean isAutoInstall();
-
     void doNotAutoInstall();
 
     TableConstraint getPrimaryKeyConstraint();
+    List<? extends Column> getPrimaryKeyColumns();
+
     List<? extends ForeignKeyConstraint> getForeignKeyConstraints();
 
     String getComponentName();
 
-    List<? extends Column> getPrimaryKeyColumns();
+    Table<T> alsoReferredToAs(Class<? super T> alternativeApi);
     Table<T> map(Class<? extends T> implementer);
-
     Table<T> map(Map<String, Class<? extends T>> implementers);
-
     boolean maps(Class<?> implementer);
 
     void partitionOn(Column column);

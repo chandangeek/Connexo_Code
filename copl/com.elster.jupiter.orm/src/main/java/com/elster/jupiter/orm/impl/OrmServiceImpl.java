@@ -16,6 +16,7 @@ import com.elster.jupiter.orm.schema.SchemaInfoProvider;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.json.JsonService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -214,7 +215,7 @@ public class OrmServiceImpl implements OrmService, InstallService {
                 .values()
                 .stream()
                 .flatMap(dataModel -> dataModel.getTables().stream())
-                .filter(table -> table.getApi().equals(apiClass))
+                .filter(table -> table.supportsApi(apiClass))
                 .findAny()
                 .orElseThrow(() -> new IllegalArgumentException("No table found that persists the api class " + apiClass.getName()));
     }
