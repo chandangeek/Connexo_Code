@@ -28,6 +28,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
@@ -74,6 +75,11 @@ import com.energyict.mdc.tasks.impl.TasksModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.mockito.Matchers;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.event.EventAdmin;
+import org.osgi.service.log.LogService;
+
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.sql.SQLException;
@@ -81,17 +87,11 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.Properties;
-import org.mockito.Matchers;
-import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-import org.osgi.service.log.LogService;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Insert your comments here.
@@ -146,6 +146,7 @@ public class InMemoryIntegrationPersistence {
                 new FiniteStateMachineModule(),
                 new MeteringModule(),
                 new MeteringGroupsModule(),
+                new SearchModule(),
                 new DataVaultModule(),
                 new IssuesModule(),
                 new MdcReadingTypeUtilServiceModule(),
