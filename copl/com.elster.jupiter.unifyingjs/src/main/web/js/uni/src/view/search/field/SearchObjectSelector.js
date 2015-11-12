@@ -11,7 +11,7 @@ Ext.define('Uni.view.search.field.SearchObjectSelector', {
     arrowAlign: 'right',
     menuAlign: 'tl-bl',
 
-    setValue: function(value) {
+    setValue: function(value, suspendEvent) {
         this.value = value;
         this.menu.items.each(function(item) {
             item.setVisible(true);
@@ -21,7 +21,10 @@ Ext.define('Uni.view.search.field.SearchObjectSelector', {
         if (item) {
             item.setVisible(false);
             this.setText(item.text);
-            this.fireEvent('change', this, item.value);
+
+            if (Ext.isDefined(suspendEvent) && !suspendEvent) {
+                this.fireEvent('change', this, item.value);
+            }
         }
     },
 

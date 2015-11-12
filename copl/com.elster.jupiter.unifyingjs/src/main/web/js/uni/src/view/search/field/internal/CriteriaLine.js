@@ -66,7 +66,8 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
     },
 
     setValue: function (value) {
-
+        this.down('#filter-operator').setValue(value.get('operator'));
+        this.getField().setValue(value.get('criteria'));
     },
 
     reset: function() {

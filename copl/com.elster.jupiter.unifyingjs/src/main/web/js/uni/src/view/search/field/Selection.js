@@ -55,8 +55,9 @@ Ext.define('Uni.view.search.field.Selection', {
     xtype: 'uni-search-criteria-selection',
 
     updateButtonText: function () {
-        return this.selection.length
-            ? this.setText(this.emptyText + '&nbsp;(' + this.selection.length + ')')
+        //this.setValue(value);
+        return this.value
+            ? this.setText(this.emptyText + '&nbsp;(' + this.value[0].get('criteria').length + ')')
             : this.setText(this.emptyText);
     },
 
@@ -67,8 +68,9 @@ Ext.define('Uni.view.search.field.Selection', {
     },
 
     populateValue: function(value) {
+        //var value = value[0];
         this.setValue(value);
-        this.setText(this.emptyText + '&nbsp;(' + value.length + ')');
+        //this.setText(this.emptyText + '&nbsp;(' + value.length + ')');
     },
 
     onChange: function () {
@@ -257,12 +259,14 @@ Ext.define('Uni.view.search.field.Selection', {
                 },
                 onStoreLoad: function (store) {
                     this.superclass.onStoreLoad.apply(this);
-                    _.map(me.value, function(id) {
-                        var record = store.getById(id);
-                        if (record) {
-                            selection.add(record);
-                        }
-                    });
+                    if (me.value && me.value[0]) {
+                        _.map(me.value[0].get('criteria'), function(id) {
+                            var record = store.getById(id);
+                            if (record) {
+                                selection.add(record);
+                            }
+                        });
+                    }
                     this.select(selection.getRange(), true, true);
                     this.updateHeaderState();
                 },

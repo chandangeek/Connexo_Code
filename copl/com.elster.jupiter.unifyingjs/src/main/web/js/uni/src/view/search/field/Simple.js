@@ -10,10 +10,6 @@ Ext.define('Uni.view.search.field.Simple', {
         this.callParent(arguments);
     },
 
-    populateValue: function(value) {
-        this.down('uni-search-internal-criterialine').setValue(value);
-    },
-
     onInputChange: function() {
         this.setValue(this.down('uni-search-internal-criterialine').getValue());
     },

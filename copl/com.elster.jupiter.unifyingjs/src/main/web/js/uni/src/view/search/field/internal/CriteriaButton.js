@@ -12,7 +12,9 @@ Ext.define('Uni.view.search.field.internal.CriteriaButton', {
     },
 
     populateValue: function(value) {
-        throw 'this function should be overriden';
+        this.menu.items.each(function(item, index) {
+            item.setValue(value[index]);
+        });
     },
 
     setValue: function(value) {

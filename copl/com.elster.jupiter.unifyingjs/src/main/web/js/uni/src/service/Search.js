@@ -1,6 +1,8 @@
 Ext.define('Uni.service.Search', {
+
     mixins: {
-        observable: 'Ext.util.Observable'
+        observable: 'Ext.util.Observable',
+        stateful: 'Ext.state.Stateful'
     },
 
     requires: [
@@ -8,7 +10,10 @@ Ext.define('Uni.service.Search', {
         'Uni.store.search.Results',
         'Uni.store.search.Properties',
         'Uni.store.search.Fields',
-        'Uni.store.search.PropertyValues'
+        'Uni.store.search.PropertyValues',
+        'Ext.state.Manager',
+        'Ext.state.LocalStorageProvider',
+        'Uni.model.search.Value'
     ],
 
     config: {
@@ -23,6 +28,8 @@ Ext.define('Uni.service.Search', {
 
     constructor: function (config) {
         var me = this;
+
+        Ext.state.Manager.setProvider(new Ext.state.LocalStorageProvider());
 
         me.setSearchDomainsStore(Ext.getStore(me.getSearchDomainsStore() || 'ext-empty-store'));
         me.setSearchResultsStore(Ext.getStore(me.getSearchResultsStore() || 'ext-empty-store'));
@@ -42,6 +49,9 @@ Ext.define('Uni.service.Search', {
             'reset'
         );
     },
+
+    stateful: true,
+    stateId: 'search',
 
     /**
      * search domain
@@ -83,14 +93,6 @@ Ext.define('Uni.service.Search', {
         return this.searchDomain;
     },
 
-    updateState: function() {
-        //if (router.queryParams.searchDomain !== searchDomain.get('displayValue')) {
-        //    Uni.util.History.suspendEventsForNextCall();
-        //    Uni.util.History.setParsePath(false); //todo: this is probably a bug un unifying, so this line shouldn't be here
-        //    router.getRoute().forward(null, {searchDomain: searchDomain.get('displayValue')});
-        //}
-    },
-
     initStoreListeners: function() {
         var me = this;
 
@@ -122,18 +124,25 @@ Ext.define('Uni.service.Search', {
 
     /**
      * @param domain string or Domain model
+     * @param callback
      */
-    setDomain: function(domain) {
+    setDomain: function(domain, callback) {
         var me = this,
             searchResults = me.getSearchResultsStore(),
             searchProperties = me.getSearchPropertiesStore(),
-            searchFields = me.getSearchFieldsStore();
+            searchFields = me.getSearchFieldsStore(),
+            domains = me.getSearchDomainsStore();
 
+        //domains.load(function())
         if (Ext.isString(domain)) {
-            domain = me.getSearchDomainsStore().findRecord('id', domain, 0, true, true);
+            domain = domains.findRecord('id', domain, 0, true, true);
         }
 
-        if (domain !== null && Ext.isDefined(domain) && Ext.getClassName(domain) == "Uni.model.search.Domain") {
+        if (domain !== null
+            && Ext.isDefined(domain)
+            && Ext.getClassName(domain) == "Uni.model.search.Domain"
+            && domain !== me.getDomain()) {
+            //todo: how to set domain from state && manually at same time?
             me.searchDomain = domain;
 
             searchProperties.removeAll();
@@ -147,6 +156,7 @@ Ext.define('Uni.service.Search', {
             searchProperties.load(function(){
                 me.init();
                 searchFields.load();
+                callback ? callback() : null;
             });
         }
     },
@@ -175,7 +185,7 @@ Ext.define('Uni.service.Search', {
         me.filters.removeAll();
 
         me.initCriteria();
-        me.restoreState();
+        me.saveState();
 
         Ext.resumeLayouts(true);
     },
@@ -251,34 +261,45 @@ Ext.define('Uni.service.Search', {
         return filters;
     },
 
-    restoreState: function () {
+    getState: function() {
+        return {
+            domain: this.getDomain() ? this.getDomain().getId() : null,
+            filters: this.getFilters().map(function(item){return _.pick(item, 'property', 'value')})
+        }
+    },
+
+    applyState: function (state) {
         var me = this,
-            router = me.getRouter(),
             propertiesStore = me.getSearchPropertiesStore();
 
-        if (router.queryParams[me.filterObjectParam]) {
-            Ext.suspendLayouts();
-            var filter = JSON.parse(router.queryParams[me.filterObjectParam]);
-            filter.map(function(item) {
-                var property = propertiesStore.findRecord('name', item.property);
-                if (property && property.get('visibility') === 'removable') {
-                    me.addProperty(property);
-                }
-                var filter = me.filters.getByKey(item.property);
-                if (filter) {
-                    filter.populateValue(item.value);
-                }
-            });
+        propertiesStore.addFilter(state.filters, false);
 
-            Ext.resumeLayouts(true);
-        }
+        me.setDomain(state.domain, function() {
+            if (state.filters && state.filters.length) {
+                Ext.suspendLayouts();
+
+                state.filters.map(function(item) {
+                    var property = propertiesStore.getById(item.property);
+                    if (property && property.get('visibility') === 'removable') {
+                        me.addProperty(property);
+                    }
+                    var filter = me.filters.getByKey(item.property);
+                    if (filter && item.value) {
+                        var value = Ext.isArray(item.value) ? item.value : [item.value];
+                        filter.populateValue(value.map(function(rawValue) { return Ext.create('Uni.model.search.Value', rawValue)}));
+                    }
+                });
+
+                Ext.resumeLayouts(true);
+            }
+        });
     },
 
     createColumnDefinitionFromModel: function (field) {
         var propertyName = field.get('propertyName'),
             type = this.columnMap[field.get('type')],
             displayValue = field.get('displayValue'),
-            defaultColumns = this.defaultColumns[this.searchDomain.get('id')];
+            defaultColumns = this.defaultColumns[this.getDomain().get('id')];
 
         if (!type) {
             type = 'gridcolumn';
@@ -328,7 +349,7 @@ Ext.define('Uni.service.Search', {
                 property: property,
                 listeners: {
                     'change': {
-                        fn: me.updateConstraints,
+                        fn: me.onCriteriaChange,
                         scope: me
                     }
                 }
@@ -395,7 +416,7 @@ Ext.define('Uni.service.Search', {
         return widget;
     },
 
-    updateConstraints: function (widget, value) {
+    onCriteriaChange: function (widget, value) {
         var me = this, store;
 
         if (widget.property.get('affectsAvailableDomainProperties')) {
@@ -439,6 +460,7 @@ Ext.define('Uni.service.Search', {
             });
         }
 
+        me.saveState();
         me.fireEvent('change', widget, value);
     }
 });

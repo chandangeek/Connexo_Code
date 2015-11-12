@@ -9,6 +9,13 @@ Ext.define('Uni.view.search.field.internal.DateRange', {
         margin: '0 0 5 0'
     },
     border: false,
+
+    setValue: function(value) {
+        this.items.each(function(item, index) {
+            item.setValue(value[index]);
+        });
+    },
+
     getValue: function() {
         var value = [];
         this.items.each(function(item){

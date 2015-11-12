@@ -9,6 +9,13 @@ Ext.define('Uni.view.search.field.internal.NumberRange', {
         margin: '0 0 5 0'
     },
     border: false,
+
+    setValue: function(value) {
+        this.items.each(function(item, index) {
+            item.setValue(value[index]);
+        });
+    },
+
     onChange: function () {
         this.fireEvent('change', this, this.getValue());
     },

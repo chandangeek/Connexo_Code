@@ -4,6 +4,10 @@ Ext.define('Uni.view.search.field.internal.NumberField', {
     width: '455',
     layout: 'fit',
 
+    setValue: function(value) {
+        this.down('#filter-input').setValue(value);
+    },
+
     getValue: function() {
         return this.down('#filter-input').getValue();
     },

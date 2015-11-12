@@ -80,13 +80,13 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
 
     onCriteriaAdd: function(filters, filter, property) {
         if (!property.get('sticky')) {
-            this.setChecked(property, true);
+            this.setChecked(property, true, true);
         }
     },
 
     onCriteriaRemove: function(filters, filter, property) {
         if (!property.get('sticky')) {
-            this.setChecked(property, false);
+            this.setChecked(property, false, true);
         }
     },
 
@@ -184,12 +184,15 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
         me.setLoading(false);
     },
 
-    setValue: function(value) {
+    setValue: function(value, suspendEvent) {
         var item = this.menu.items.findBy(function(item){return item.value == value});
         if (item) {
             item.setActive();
             this.setText(item.text);
-            this.fireEvent('change', this);
+
+            if (Ext.isDefined(suspendEvent) && !suspendEvent) {
+                this.fireEvent('change', this);
+            }
         }
     }
 });
