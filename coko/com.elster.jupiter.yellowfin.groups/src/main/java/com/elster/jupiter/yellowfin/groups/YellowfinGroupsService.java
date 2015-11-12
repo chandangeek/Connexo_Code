@@ -1,18 +1,18 @@
 package com.elster.jupiter.yellowfin.groups;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.tasks.RecurrentTask;
-import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.yellowfin.groups.impl.DynamicDeviceGroupImpl;
 
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface YellowfinGroupsService {
     String COMPONENTNAME = "YFG";
     String ADHOC_SEARCH_LIFE_CYCLE_QUEUE_DEST = "AdHocSearch";
     String ADHOC_SEARCH_LIFE_CYCLE_QUEUE_TASK = "AdHoc Search";
-    String ADHOC_SEARCH_LIFE_CYCLE_QUEUE_DEST_DISPLAYNAME = "Conneco Facts search";
+    String ADHOC_SEARCH_LIFE_CYCLE_QUEUE_DEST_DISPLAYNAME = "Connexo Facts search";
 
     Thesaurus thesaurus();
 
