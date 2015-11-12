@@ -12,6 +12,9 @@ Ext.define('Uni.view.search.field.internal.Input', {
     onChange: function(elm, value) {
         this.down('#filter-clear').setVisible(!!value);
         this.fireEvent('change', this, value);
+        if (Ext.isEmpty(value)) {
+            this.fireEvent('reset');
+        }
     },
 
     setValue: function (value) {
