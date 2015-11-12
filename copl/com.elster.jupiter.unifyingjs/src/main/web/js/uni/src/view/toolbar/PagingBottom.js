@@ -225,7 +225,7 @@ Ext.define('Uni.view.toolbar.PagingBottom', {
         obj[me.pageSizeParam] = me.store.pageSize;
         obj[me.pageStartParam] = start;
 
-        return Uni.util.QueryString.buildHrefWithQueryString(obj);
+        return Uni.util.QueryString.buildHrefWithQueryString(obj, false);
     },
 
     getPageStartValue: function (pageOffset) {
