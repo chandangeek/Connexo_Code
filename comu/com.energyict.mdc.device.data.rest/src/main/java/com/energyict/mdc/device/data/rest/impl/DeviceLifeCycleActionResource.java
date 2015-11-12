@@ -70,7 +70,7 @@ public class DeviceLifeCycleActionResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.VIEW_DEVICE})
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
     public Response getAvailableActionsForCurrentDevice(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         List<IdWithNameInfo> availableActions = deviceLifeCycleService.getExecutableActions(device)
@@ -84,7 +84,7 @@ public class DeviceLifeCycleActionResource {
     @GET
     @Path("/{actionId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.VIEW_DEVICE})
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
     public Response getPropertiesForAction(@PathParam("mRID") String mrid, @PathParam("actionId") long actionId, @BeanParam JsonQueryParameters queryParameters){
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         ExecutableAction requestedAction = getExecuteActionByIdOrThrowException(actionId, device);
@@ -95,7 +95,7 @@ public class DeviceLifeCycleActionResource {
     @PUT
     @Path("/{actionId}")
     @Produces(MediaType.APPLICATION_JSON)
-    @RolesAllowed({Privileges.VIEW_DEVICE})
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
     public Response executeAction(
             @PathParam("mRID") String mrid,
             @PathParam("actionId") long actionId,

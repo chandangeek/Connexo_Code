@@ -4,6 +4,7 @@ import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -65,7 +66,7 @@ public class DeviceValidationResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,Privileges.VIEW_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response getValidationRuleSetsForDevice(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         List<DeviceValidationRuleSetInfo> result = new ArrayList<>();
@@ -91,7 +92,7 @@ public class DeviceValidationResource {
     @Path("/{validationRuleSetId}/status")
     @PUT
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     @DeviceStatesRestricted({DefaultState.DECOMMISSIONED})
     public Response setValidationRuleSetStatusOnDevice(@PathParam("mRID") String mRID, @PathParam("validationRuleSetId") long validationRuleSetId, DeviceValidationRuleSetInfo info) {
         info.device.mRID = mRID;
@@ -118,7 +119,7 @@ public class DeviceValidationResource {
     @Path("/validationstatus")
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,Privileges.VIEW_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response getValidationFeatureStatus(@PathParam("mRID") String mRID) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
 
@@ -129,11 +130,9 @@ public class DeviceValidationResource {
     @Path("/validationmonitoring/configurationview")
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response getValidationMonitoringConfigurationView(@PathParam("mRID") String mRID,
-                                            @QueryParam("intervalRegisterStart") Long intervalStart,
-                                            @QueryParam("intervalRegisterEnd") Long intervalEnd,
-                                            @QueryParam("intervalLoadProfile") ValidationLoadProfilePeriodsInfo intervalLoadProfile) {
+                                                             @QueryParam("filter") JsonQueryFilter filter) {
 
         List<DataValidationStatus> lpStatuses = new ArrayList<>();
 
@@ -144,18 +143,22 @@ public class DeviceValidationResource {
                         deviceValidation.isValidationActive(),
                         deviceValidation.getLastChecked(),
                         device.hasData());
+        if(filter.hasProperty("intervalRegisterStart")
+                && filter.hasProperty("intervalRegisterEnd")) {
+            ValidationInfoParser parser = new ValidationInfoParser();
+            List<ValidationLoadProfilePeriodInfo> loadProfilePeriodInfos = filter.getPropertyList("intervalLoadProfile", parser::parseFromNode);
+            loadProfilePeriodInfos.stream().forEach(lpPeriod -> {
 
-        intervalLoadProfile.getLoadProfilePeriodInfos().stream().forEach(lpPeriod -> {
-
-            Range<Instant> intervalLP = Range.openClosed(Instant.ofEpochMilli(lpPeriod.startInterval), Instant.ofEpochMilli(lpPeriod.endInterval));
-            lpStatuses.addAll(device.getLoadProfiles().stream()
-                    .filter(loadProfile -> lpPeriod.id.equals(loadProfile.getId()))
-                    .flatMap(l -> l.getChannels().stream())
-                    .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, Collections.emptyList(), intervalLP).stream())
-                    .filter(s -> (s.getReadingQualities().stream().anyMatch(q -> q.getType().qualityIndex().orElse(QualityCodeIndex.DATAVALID).equals(QualityCodeIndex.SUSPECT))))
-                    .collect(Collectors.toList()));
-        });
-        Range<Instant> intervalReg = Range.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd));
+                Range<Instant> intervalLP = Range.openClosed(Instant.ofEpochMilli(lpPeriod.startInterval), Instant.ofEpochMilli(lpPeriod.endInterval));
+                lpStatuses.addAll(device.getLoadProfiles().stream()
+                        .filter(loadProfile -> lpPeriod.id.equals(loadProfile.getId()))
+                        .flatMap(l -> l.getChannels().stream())
+                        .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, Collections.emptyList(), intervalLP).stream())
+                        .filter(s -> (s.getReadingQualities().stream().anyMatch(q -> q.getType().qualityIndex().orElse(QualityCodeIndex.DATAVALID).equals(QualityCodeIndex.SUSPECT))))
+                        .collect(Collectors.toList()));
+            });
+        }
+        Range<Instant> intervalReg = Range.openClosed(Instant.ofEpochMilli(filter.getLong("intervalRegisterStart")), Instant.ofEpochMilli(filter.getLong("intervalRegisterEnd")));
 
         List<DataValidationStatus> rgStatuses = device.getRegisters().stream()
                 .flatMap(r -> device.forValidation().getValidationStatus(r, Collections.emptyList(), intervalReg).stream())
@@ -177,11 +180,9 @@ public class DeviceValidationResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response getValidationMonitoringDataView(@PathParam("mRID") String mRID,
-                                                       @QueryParam("intervalRegisterStart") Long intervalStart,
-                                                       @QueryParam("intervalRegisterEnd") Long intervalEnd,
-                                                       @QueryParam("intervalLoadProfile") ValidationLoadProfilePeriodsInfo intervalLoadProfile) {
+                                                    @QueryParam("filter") JsonQueryFilter filter) {
 
         Map<LoadProfile, List<DataValidationStatus>> loadProfileStatus = new HashMap<>();
 
@@ -193,25 +194,28 @@ public class DeviceValidationResource {
                         deviceValidation.isValidationActive(),
                         deviceValidation.getLastChecked(),
                         device.hasData());
+        if(filter.hasProperty("intervalRegisterStart")
+                && filter.hasProperty("intervalRegisterEnd")) {
+            ValidationInfoParser parser = new ValidationInfoParser();
+            List<ValidationLoadProfilePeriodInfo> loadProfilePeriodInfos = filter.getPropertyList("intervalLoadProfile", parser::parseFromNode);
+            loadProfilePeriodInfos.stream().forEach(lpPeriod -> {
 
-        intervalLoadProfile.getLoadProfilePeriodInfos().stream().forEach(lpPeriod -> {
+                Range<Instant> intervalLP = Range.openClosed(Instant.ofEpochMilli(lpPeriod.startInterval), Instant.ofEpochMilli(lpPeriod.endInterval));
 
-            Range<Instant> intervalLP = Range.openClosed(Instant.ofEpochMilli(lpPeriod.startInterval), Instant.ofEpochMilli(lpPeriod.endInterval));
-
-            loadProfileStatus.putAll(device.getLoadProfiles().stream()
-                    .filter(loadProfile -> lpPeriod.id.equals(loadProfile.getId()))
-                    .collect(Collectors.toMap(
-                            l -> l,
-                            lp ->
-                                    lp.getChannels().stream()
-                                            .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, Collections.emptyList(), intervalLP).stream())
-                                            .filter(s -> (s.getReadingQualities().stream().anyMatch(q -> q.getType().qualityIndex().orElse(QualityCodeIndex.DATAVALID).equals(QualityCodeIndex.SUSPECT))))
-                                            .collect(Collectors.toList())
-                    )).entrySet().stream().filter(m -> (((List<DataValidationStatus>) m.getValue()).size()) > 0L)
-                    .collect(Collectors.toMap(m -> (LoadProfile) (m.getKey()), m -> (List<DataValidationStatus>) (m.getValue()))));
-        });
-
-        Range<Instant> intervalReg = Range.openClosed(Instant.ofEpochMilli(intervalStart), Instant.ofEpochMilli(intervalEnd));
+                loadProfileStatus.putAll(device.getLoadProfiles().stream()
+                        .filter(loadProfile -> lpPeriod.id.equals(loadProfile.getId()))
+                        .collect(Collectors.toMap(
+                                l -> l,
+                                lp ->
+                                        lp.getChannels().stream()
+                                                .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, Collections.emptyList(), intervalLP).stream())
+                                                .filter(s -> (s.getReadingQualities().stream().anyMatch(q -> q.getType().qualityIndex().orElse(QualityCodeIndex.DATAVALID).equals(QualityCodeIndex.SUSPECT))))
+                                                .collect(Collectors.toList())
+                        )).entrySet().stream().filter(m -> (((List<DataValidationStatus>) m.getValue()).size()) > 0L)
+                        .collect(Collectors.toMap(m -> (LoadProfile) (m.getKey()), m -> (List<DataValidationStatus>) (m.getValue()))));
+            });
+        }
+        Range<Instant> intervalReg = Range.openClosed(Instant.ofEpochMilli(filter.getLong("intervalRegisterStart")), Instant.ofEpochMilli(filter.getLong("intervalRegisterEnd")));
 
         Map<NumericalRegister, List<DataValidationStatus>> registerStatus = device.getRegisters().stream()
                 .collect(Collectors.toMap(
@@ -232,7 +236,7 @@ public class DeviceValidationResource {
     @Path("/validationmonitoring/register")
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     public Response getValidationMonitoringRegister(@PathParam("mRID") String mrid) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
         ZonedDateTime end = ZonedDateTime.ofInstant(clock.instant(), clock.getZone()).truncatedTo(ChronoUnit.DAYS).plusDays(1);
@@ -316,7 +320,7 @@ public class DeviceValidationResource {
     @Path("/validationstatus")
     @PUT
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
     @DeviceStatesRestricted({DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED})
     public Response setValidationFeatureStatus(@PathParam("mRID") String mRID, DeviceValidationStatusInfo info) {
         info.device.mRID = mRID;
@@ -344,7 +348,7 @@ public class DeviceValidationResource {
     @Path("/validate")
     @PUT
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(com.elster.jupiter.validation.security.Privileges.VALIDATE_MANUAL)
+    @RolesAllowed(com.elster.jupiter.validation.security.Privileges.Constants.VALIDATE_MANUAL)
     @DeviceStatesRestricted({DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED})
     public Response validateDeviceData(@PathParam("mRID") String mRID, DeviceInfo info) {
         info.mRID = mRID;
