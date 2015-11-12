@@ -6,6 +6,9 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,7 +16,7 @@ import java.util.List;
 import java.util.function.Function;
 
 /**
- * Converters user's input data (in JSON format) to {@link SearchablePropertyValue} instance. <br />
+ * Converts user's input data (in JSON format) to {@link SearchablePropertyValue} instance. <br />
  * JSON format: <br />
  * <code>
  * { <br/>
@@ -26,8 +29,8 @@ import java.util.function.Function;
  * In version 10.1 we assume that the 'value' can contain only one object, see ({@link #convert(SearchableProperty, JsonQueryFilter)}).
  */
 public class SearchablePropertyValueConverter implements Function<JsonNode, SearchablePropertyValue.ValueBean> {
-    static String OPERATOR_FIELD = "operator";
-    static String CRITERIA_FIELD = "criteria";
+    public static String OPERATOR_FIELD = "operator";
+    public static String CRITERIA_FIELD = "criteria";
 
     public static SearchablePropertyValue convert(SearchableProperty property, JsonQueryFilter filter) {
         SearchablePropertyValue propertyValue = new SearchablePropertyValue(property);
@@ -37,6 +40,29 @@ public class SearchablePropertyValueConverter implements Function<JsonNode, Sear
                 .findFirst()
                 .orElse(new SearchablePropertyValue.ValueBean()));
         return propertyValue;
+    }
+
+    public static String convert(List<SearchablePropertyValue> searchablePropertyValues) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ArrayNode root = objectMapper.createArrayNode();
+        for (SearchablePropertyValue value : searchablePropertyValues) {
+            ObjectNode propertyNode = root.addObject();
+            propertyNode.put("property", value.getValueBean().propertyName);
+            ArrayNode valuesNode = objectMapper.createArrayNode();
+            propertyNode.put("value", valuesNode);
+            ObjectNode valueNode = valuesNode.addObject();
+            valueNode.put(OPERATOR_FIELD, value.getValueBean().operator.code());
+            if (value.getProperty().getSelectionMode() == SearchableProperty.SelectionMode.MULTI || value.getValueBean().values.size() > 1) {
+                ArrayNode criteriaNode = objectMapper.createArrayNode();
+                value.getValueBean().values.stream().forEach(criteriaNode::add);
+                valueNode.put(CRITERIA_FIELD, criteriaNode);
+            } else if (value.getValueBean().values.size() == 1) {
+                valueNode.put(CRITERIA_FIELD, value.getValueBean().values.get(0));
+            } else {
+                //not a case
+            }
+        }
+        return root.toString();
     }
 
     @Override
