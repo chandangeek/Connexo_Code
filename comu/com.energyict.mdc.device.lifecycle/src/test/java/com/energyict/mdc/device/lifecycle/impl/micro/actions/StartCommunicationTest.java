@@ -24,9 +24,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link StartCommunication} component.
@@ -88,7 +86,8 @@ public class StartCommunicationTest {
         ManuallyScheduledComTaskExecution comTaskExecution3= mock(ManuallyScheduledComTaskExecution.class);
         when(this.device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement1, comTaskEnablement2, comTaskEnablement3 ));
-        when(device.newManuallyScheduledComTaskExecution(any(ComTaskEnablement.class), any(TemporalExpression.class))).thenReturn(comTaskExecutionBuilder);
+        when(device.newAdHocComTaskExecution(any(ComTaskEnablement.class))).thenReturn(comTaskExecutionBuilder);
+        when(comTaskExecutionBuilder.scheduleNow()).thenReturn(comTaskExecutionBuilder);
         when(comTaskExecutionBuilder.add()).thenReturn(comTaskExecution3);
         when(comTaskExecution1.getComTasks()).thenReturn(Collections.singletonList(comTask1));
         when(comTaskExecution2.getComTasks()).thenReturn(Collections.singletonList(comTask2));
@@ -105,9 +104,7 @@ public class StartCommunicationTest {
         microAction.execute(this.device, Instant.now(), Collections.emptyList());
 
         // Asserts
-        verify(comTaskExecution1).scheduleNow();
-        verify(comTaskExecution2).scheduleNow();
-        verify(comTaskExecution3).scheduleNow();
+        verify(comTaskExecutionBuilder, timeout(3)).scheduleNow();
     }
 
     private StartCommunication getTestInstance() {
