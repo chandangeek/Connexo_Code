@@ -29,6 +29,7 @@ import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -146,6 +147,7 @@ public class DirectoryForAppServerlIT {
                     new TimeModule(),
                     new TaskModule(),
                     new MeteringGroupsModule(),
+                    new SearchModule(),
                     new AppServiceModule(),
                     new BasicPropertiesModule(),
                     new MailModule(),
