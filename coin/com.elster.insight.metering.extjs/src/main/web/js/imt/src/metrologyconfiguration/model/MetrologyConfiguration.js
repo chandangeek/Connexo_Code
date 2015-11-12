@@ -28,4 +28,5 @@ Ext.define('Imt.metrologyconfiguration.model.MetrologyConfiguration', {
  //           root: 'metrologyconfigurations'
         },
     }
+
 });

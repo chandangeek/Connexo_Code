@@ -76,7 +76,8 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationList', {
                   store: me.store,
                   dock: 'bottom',
                   itemsPerPageMsg: Uni.I18n.translate('metrologyconfiguration.label.itemsperpage', 'IMT', 'Metrology configuration per page'),
-              }
+              },
+              
           ];
         me.callParent(arguments);
     }
