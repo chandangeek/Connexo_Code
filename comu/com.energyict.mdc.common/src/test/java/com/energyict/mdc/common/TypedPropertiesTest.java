@@ -788,4 +788,11 @@ public class TypedPropertiesTest {
         assertThat(properties.get(booleanPropertyName)).isEqualTo("1");
     }
 
+    @Test
+    public void nullTest() {
+        TypedProperties typedProperties = TypedProperties.empty();
+        typedProperties.setProperty(PROP1_NAME, null);
+        assertThat(typedProperties.toStringProperties().getProperty(PROP1_NAME)).isNull();
+    }
+
 }

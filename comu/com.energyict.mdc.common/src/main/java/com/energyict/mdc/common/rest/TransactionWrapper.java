@@ -2,24 +2,12 @@ package com.energyict.mdc.common.rest;
 
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
-import javax.inject.Inject;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.StreamingOutput;
-
 import org.glassfish.jersey.server.monitoring.ApplicationEvent;
 import org.glassfish.jersey.server.monitoring.ApplicationEventListener;
 import org.glassfish.jersey.server.monitoring.RequestEvent;
 import org.glassfish.jersey.server.monitoring.RequestEventListener;
 
-import java.lang.annotation.Annotation;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Stream;
+import javax.inject.Inject;
 
 /**
  * This listener automatically closes DB connection after EVERY REST call
@@ -49,21 +37,21 @@ public class TransactionWrapper implements ApplicationEventListener {
 
         @Override
         public void onEvent(final RequestEvent event) {
-            switch (event.getType()) {
-                case REQUEST_MATCHED:
-                    if (!event.getUriInfo().getMatchedResourceMethod().getInvocable().getHandlingMethod().isAnnotationPresent(Untransactional.class)) {
+            if (event.getUriInfo().getMatchedResourceMethod() != null && !event.getUriInfo().getMatchedResourceMethod().getInvocable().getHandlingMethod().isAnnotationPresent(Untransactional.class)) {
+                switch (event.getType()) {
+                    case REQUEST_MATCHED:
                         contextThreadLocal.set(transactionService.getContext());
-                    }
-                    break;
-                case FINISHED:
-                    TransactionContext context = contextThreadLocal.get();
-                    if (context!=null) { // context will be null if METHOD was never started, e.g. in case of 404
-                        if (event.isSuccess()) {
-                            context.commit();
+                        break;
+                    case FINISHED:
+                        TransactionContext context = contextThreadLocal.get();
+                        if (context != null) { // context will be null if METHOD was never started, e.g. in case of 404
+                            if (event.isSuccess()) {
+                                context.commit();
+                            }
+                            context.close(); // will rollback if called without commit()
                         }
-                        context.close(); // will rollback if called without commit()
-                    }
-                    break;
+                        break;
+                }
             }
         }
     }
