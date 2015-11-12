@@ -1,17 +1,16 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.inject.Inject;
 import java.time.Instant;
@@ -19,46 +18,50 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class ConnectionMethodSearchableProperty extends AbstractSearchableDeviceProperty {
+public class LogbookLastEventTimestampSearchableProperty extends AbstractSearchableDeviceProperty {
 
-    static final String PROPERTY_NAME = "device.connection.method";
+    static final String PROPERTY_NAME = "device.logbook.last.event";
 
-    private DeviceSearchDomain domain;
-    private final ProtocolPluggableService protocolPluggableService;
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
 
+    private DeviceSearchDomain domain;
+    private SearchablePropertyGroup propertyGroup;
+
     @Inject
-    public ConnectionMethodSearchableProperty(ProtocolPluggableService protocolPluggableService, PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        super();
-        this.protocolPluggableService = protocolPluggableService;
+    public LogbookLastEventTimestampSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
     }
 
-    @Override
-    protected boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof ConnectionTypePluggableClass;
-    }
-
-    @Override
-    protected String toDisplayAfterValidation(Object value) {
-        return ((ConnectionTypePluggableClass) value).getName();
-    }
-
-    @Override
-    public void appendJoinClauses(JoinClauseBuilder builder) {
-        builder.addConnectionTask();
-    }
-
-    ConnectionMethodSearchableProperty init(DeviceSearchDomain domain) {
+    LogbookLastEventTimestampSearchableProperty init(DeviceSearchDomain domain, SearchablePropertyGroup parent) {
         this.domain = domain;
+        this.propertyGroup = parent;
         return this;
     }
 
     @Override
+    protected boolean valueCompatibleForDisplay(Object value) {
+        return false;
+    }
+
+    @Override
+    protected String toDisplayAfterValidation(Object value) {
+        return null;
+    }
+
+    @Override
+    public void appendJoinClauses(JoinClauseBuilder builder) {
+    }
+
+    @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
-        return this.toSqlFragment("ct.CONNECTIONTYPEPLUGGABLECLASS", condition, now);
+        SqlBuilder builder = new SqlBuilder();
+        builder.append(JoinClauseBuilder.Aliases.DEVICE + ".id IN (" +
+                "select DEVICEID from DDC_LOGBOOK where ");
+        builder.add(toSqlFragment("DDC_LOGBOOK.LASTLOGBOOK", condition, now));
+        builder.closeBracket();
+        return builder;
     }
 
     @Override
@@ -68,26 +71,21 @@ public class ConnectionMethodSearchableProperty extends AbstractSearchableDevice
 
     @Override
     public boolean affectsAvailableDomainProperties() {
-        return true;
+        return false;
     }
 
     @Override
     public Optional<SearchablePropertyGroup> getGroup() {
-        return Optional.empty();
-    }
-
-    @Override
-    public String getName() {
-        return PROPERTY_NAME;
+        return Optional.of(this.propertyGroup);
     }
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.referencePropertySpec(
-                getName(),
+        return this.propertySpecService.basicPropertySpec(
+                PROPERTY_NAME,
                 false,
-                FactoryIds.CONNECTION_TYPE,
-                this.protocolPluggableService.findAllConnectionTypePluggableClasses());
+                new InstantFactory()
+        );
     }
 
     @Override
@@ -97,12 +95,12 @@ public class ConnectionMethodSearchableProperty extends AbstractSearchableDevice
 
     @Override
     public SelectionMode getSelectionMode() {
-        return SelectionMode.MULTI;
+        return SelectionMode.SINGLE;
     }
 
     @Override
     public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.CONNECTION_METHOD).format();
+        return this.thesaurus.getFormat(PropertyTranslationKeys.LOGBOOK_LAST_EVENT).format();
     }
 
     @Override

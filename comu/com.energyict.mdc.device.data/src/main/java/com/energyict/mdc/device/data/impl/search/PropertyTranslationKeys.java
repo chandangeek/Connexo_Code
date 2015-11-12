@@ -48,6 +48,8 @@ public enum PropertyTranslationKeys implements TranslationKey {
     LOGBOOK("device.logbook", "Logbook"),
     LOGBOOK_NAME("device.logbook.name", "Name"),
     LOGBOOK_OBISCODE("device.logbook.obiscode", "OBIS code"),
+    LOGBOOK_LAST_READING("device.logbook.last.reading", "Last reading"),
+    LOGBOOK_LAST_EVENT("device.logbook.last.event", "Last event timestamp"),
     LOADPROFILE("device.loadprofile", "Load profile"),
     LOADPROFILE_NAME("device.loadprofile.name", "Name"),
     LOADPROFILE_LAST_READING("device.loadprofile.last.reading", "Last reading"),
@@ -64,6 +66,8 @@ public enum PropertyTranslationKeys implements TranslationKey {
     TRANSITION_INSTALLATION("device.transition.installation", "Installation date"),
     TRANSITION_DEACTIVATION("device.transition.deactivation", "Deactivation date"),
     TRANSITION_DECOMMISSIONING("device.transition.decommissioning", "Decommissioning date"),
+    GENERAL_ATTRIBUTES_DYNAMIC_PROP("deviceType.attr.dynamic", "General attributes dynamic properties"),
+    CONNECTION_DYNAMIC_PROP("device.connection.method.dynamic", "Connection dynamic attributes"),
     ;
 
     private String key;

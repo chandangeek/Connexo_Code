@@ -6,14 +6,14 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 
 import javax.inject.Inject;
 
-public class ProtocolDialectDynamicSearchableGroup implements SearchablePropertyGroup {
+public class ConnectionDynamicSearchableGroup implements SearchablePropertyGroup {
 
-    static final String GROUP_NAME = ProtocolDialectSearchableProperty.PROPERTY_NAME + ".dynamic";
+    static final String GROUP_NAME = ConnectionMethodSearchableProperty.PROPERTY_NAME + ".dynamic";
 
     private final Thesaurus thesaurus;
 
     @Inject
-    public ProtocolDialectDynamicSearchableGroup(Thesaurus thesaurus) {
+    public ConnectionDynamicSearchableGroup(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
     }
 
@@ -24,7 +24,7 @@ public class ProtocolDialectDynamicSearchableGroup implements SearchableProperty
 
     @Override
     public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.PROTOCOL_DIALECT_DYNAMIC_PROP).format();
+        return this.thesaurus.getFormat(PropertyTranslationKeys.CONNECTION_DYNAMIC_PROP).format();
     }
 }
 
