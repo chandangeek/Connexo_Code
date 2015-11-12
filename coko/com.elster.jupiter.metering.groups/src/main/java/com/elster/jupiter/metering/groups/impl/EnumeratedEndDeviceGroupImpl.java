@@ -185,36 +185,35 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
                 getMemberships().remove(membership);
             }
         }
-        save();
+        update();
+    }
+
+    void save() {
+        factory().persist(this);
+        for (EntryImpl entry : doGetEntries()) {
+            entry.setEndDeviceGroup(this);
+        }
+        ArrayList<Entry> result = new ArrayList<>();
+        for (EntryImpl entry : doGetEntries()) {
+            result.add(entry);
+        }
+        entryFactory().persist(result);
     }
 
     @Override
-    public void save() {
-        if (id == 0) {
-            factory().persist(this);
-            for (EntryImpl entry : doGetEntries()) {
-                entry.setEndDeviceGroup(this);
+    public void update() {
+        factory().update(this);
+        List<Entry> existingEntries = entryFactory().find("endDeviceGroup", this);
+        DiffList<Entry> entryDiff = ArrayDiffList.fromOriginal(existingEntries);
+        entryDiff.clear();
+        for (EndDeviceMembership membership : memberships) {
+            for (Range<Instant> range : membership.getRanges().asRanges()) {
+                entryDiff.add(EntryImpl.from(dataModel, this, membership.getEndDevice(), range));
             }
-            ArrayList<Entry> result = new ArrayList<>();
-            for (EntryImpl entry : doGetEntries()) {
-                result.add(entry);
-            }
-            entryFactory().persist(result);
-        } else {
-            factory().update(this);
-            List<Entry> existingEntries = entryFactory().find("endDeviceGroup", this);
-            DiffList<Entry> entryDiff = ArrayDiffList.fromOriginal(existingEntries);
-            entryDiff.clear();
-            for (EndDeviceMembership membership : memberships) {
-                for (Range<Instant> range : membership.getRanges().asRanges()) {
-                    entryDiff.add(EntryImpl.from(dataModel, this, membership.getEndDevice(), range));
-                }
-            }
-            entryFactory().remove(FluentIterable.from(entryDiff.getRemovals()).toList());
-            entryFactory().update(FluentIterable.from(entryDiff.getRemaining()).toList());
-            entryFactory().persist(FluentIterable.from(entryDiff.getAdditions()).toList());
         }
-
+        entryFactory().remove(FluentIterable.from(entryDiff.getRemovals()).toList());
+        entryFactory().update(FluentIterable.from(entryDiff.getRemaining()).toList());
+        entryFactory().persist(FluentIterable.from(entryDiff.getAdditions()).toList());
     }
 
     private DataMapper<EnumeratedEndDeviceGroup> factory() {

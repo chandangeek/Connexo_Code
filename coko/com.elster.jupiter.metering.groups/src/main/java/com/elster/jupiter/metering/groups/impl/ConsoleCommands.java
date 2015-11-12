@@ -1,24 +1,6 @@
 package com.elster.jupiter.metering.groups.impl;
 
 
-import static com.elster.jupiter.util.streams.Functions.asStream;
-
-
-
-import java.time.Clock;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-import java.util.stream.LongStream;
-
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
-
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
@@ -33,6 +15,21 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
 import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
+
+import java.time.Clock;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
+
+import static com.elster.jupiter.util.streams.Functions.asStream;
 
 @Component(name = "com.elster.jupiter.metering.groups.console", service = ConsoleCommands.class, property = {"osgi.command.scope=metering", "osgi.command.function=createEnumeratedEndDeviceGroup", "osgi.command.function=updateEnumeratedEndDeviceGroup", "osgi.command.function=createEnumeratedUsagePointGroup", "osgi.command.function=updateEnumeratedUsagePointGroup", "osgi.command.function=endDeviceGroups"}, immediate = true)
 public class ConsoleCommands {
@@ -106,7 +103,7 @@ public class ConsoleCommands {
                 .forEach(device -> enumeratedEndDeviceGroup.add(device, Interval.sinceEpoch().toClosedRange()));
         threadPrincipalService.set(() -> "console");
         try {
-            transactionService.execute(VoidTransaction.of(enumeratedEndDeviceGroup::save));
+            transactionService.execute(VoidTransaction.of(enumeratedEndDeviceGroup::update));
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

@@ -1,6 +1,9 @@
 package com.elster.jupiter.metering.groups;
 
-import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.search.SearchDomain;
+import com.elster.jupiter.search.SearchablePropertyCondition;
+import com.elster.jupiter.search.SearchablePropertyValue;
+import com.elster.jupiter.util.sql.SqlFragment;
 
 import java.util.List;
 
@@ -8,9 +11,16 @@ public interface QueryEndDeviceGroup extends EndDeviceGroup {
 
     String TYPE_IDENTIFIER = "QEG";
 
-    public Condition getCondition();
+    SearchDomain getSearchDomain();
 
-    public List<SearchCriteria> getSearchCriteria();
+    EndDeviceQueryProvider getEndDeviceQueryProvider();
 
-    void setCondition(Condition condition);
+    SqlFragment toFragment();
+
+    List<SearchablePropertyValue> getSearchablePropertyValues();
+
+    void setConditions(List<SearchablePropertyValue> conditions);
+
+    List<SearchablePropertyCondition> getSearchablePropertyConditions();
+
 }

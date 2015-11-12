@@ -1,6 +1,7 @@
 package com.elster.jupiter.metering.groups.impl;
 
-import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedUsagePointGroup;
@@ -22,7 +23,8 @@ import java.util.Map;
 import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
-import static com.elster.jupiter.orm.Table.*;
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 
 public enum TableSpecs {
     MTG_UP_GROUP {
@@ -51,7 +53,7 @@ public enum TableSpecs {
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             table.primaryKey("MTG_PK_ENUM_UP_GROUP_ENTRY").on(groupColumn, usagePointColumn, intervalColumns.get(0)).add();
             table.foreignKey("MTG_FK_UPGE_UPG").references(MTG_UP_GROUP.name()).onDelete(CASCADE).map("usagePointGroup").on(groupColumn).add();
-            table.foreignKey("MTG_FK_UPGE_UP").references(MeteringService.COMPONENTNAME, "MTR_USAGEPOINT").onDelete(RESTRICT).map("usagePoint").on(usagePointColumn).add();
+            table.foreignKey("MTG_FK_UPGE_UP").references(UsagePoint.class).onDelete(RESTRICT).map("usagePoint").on(usagePointColumn).add();
         }
     },
     MTG_QUERY_UP_GROUP_OP {
@@ -84,6 +86,7 @@ public enum TableSpecs {
             table.addDiscriminatorColumn("GROUPTYPE", "char(3)");
             table.column("QUERYPROVIDERNAME").varChar(NAME_LENGTH).map("queryProviderName").add();
             table.column("LABEL").varChar(NAME_LENGTH).map("label").add();
+            table.column("SEARCHDOMAIN").varChar(NAME_LENGTH).map(QueryEndDeviceGroupImpl.Fields.SEARCH_DOMAIN.fieldName()).add();
             table.addAuditColumns();
             table.primaryKey("MTG_PK_ENUM_ED_GROUP").on(idColumn).add();
             table.unique("MTG_U_ENUM_ED_GROUP").on(mRIDColumn).add();
@@ -99,26 +102,50 @@ public enum TableSpecs {
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             table.primaryKey("MTG_PK_ENUM_ED_GROUP_ENTRY").on(groupColumn, endDeviceColumn, intervalColumns.get(0)).add();
             table.foreignKey("MTG_FK_EDGE_EDG").references(MTG_ED_GROUP.name()).onDelete(CASCADE).map("endDeviceGroup").on(groupColumn).add();
-            table.foreignKey("MTG_FK_EDGE_ED").references(MeteringService.COMPONENTNAME, "MTR_ENDDEVICE").onDelete(RESTRICT).map("endDevice").on(endDeviceColumn).add();
+            table.foreignKey("MTG_FK_EDGE_ED").references(EndDevice.class).onDelete(RESTRICT).map("endDevice").on(endDeviceColumn).add();
         }
     },
-    MTG_QUERY_ED_GROUP_OP {
+    MTG_QUERY_EDG_CONDITION {
         @Override
         void addTo(DataModel dataModel) {
-            Table<EndDeviceQueryBuilderOperation> table = dataModel.addTable(name(), EndDeviceQueryBuilderOperation.class);
-            table.map(initEndDeviceQueryBuilderOperations());
-            Column groupColumn = table.column("GROUP_ID").type("number").notNull().conversion(NUMBER2LONG).map("groupId").add();
-            Column positionColumn = table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
-            table.addDiscriminatorColumn("OPERATORTYPE", "char(3)");
-            table.column("OPERATOR").number().conversion(NUMBER2ENUM).map("operator").add();
-            table.column("FIELDNAME").varChar(NAME_LENGTH).map("fieldName").add();
-            table.column("BINDVALUES").varChar(SHORT_DESCRIPTION_LENGTH).conversion(CHAR2JSON).map("values").add();
+            Table<QueryEndDeviceGroupCondition> table = dataModel.addTable(name(), QueryEndDeviceGroupCondition.class);
+            table.map(QueryEndDeviceGroupCondition.class);
+            Column groupColumn = table.column("ENDDEVICEGROUP").number().notNull().add();
+            Column searchablePropertyColumn = table.column("PROPERTY").varChar(Table.NAME_LENGTH).notNull().map(QueryEndDeviceGroupCondition.Fields.SEARCHABLE_PROPERTY.fieldName()).add();
+            table.column("OPERATOR").number().notNull().conversion(NUMBER2ENUM).map(QueryEndDeviceGroupCondition.Fields.OPERATOR.fieldName()).add();
 
-            table.primaryKey("MTG_PK_QEDGOP").on(groupColumn, positionColumn).add();
-            table.foreignKey("MTG_FK_QEDG_QEDGOP").references(MTG_ED_GROUP.name()).onDelete(CASCADE).map("group").reverseMap("operations").reverseMapOrder("position").on(groupColumn).add();
+            table.primaryKey("MTG_PK_QUERY_EDG_CONDITION").on(groupColumn, searchablePropertyColumn).add();
+            table.foreignKey("MTG_FK_QUERY_EDG_COND2GROUP")
+                    .on(groupColumn)
+                    .references(MTG_ED_GROUP.name())
+                    .map(QueryEndDeviceGroupCondition.Fields.GROUP.fieldName())
+                    .reverseMap(QueryEndDeviceGroupImpl.Fields.CONDITIONS.fieldName()).composition()
+                    .onDelete(CASCADE)
+                    .add();
         }
-    };
+    },
+    MTG_QUERY_EDG_CONDITION_VALUE {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<QueryEndDeviceGroupConditionValue> table = dataModel.addTable(name(), QueryEndDeviceGroupConditionValue.class);
+            table.map(QueryEndDeviceGroupConditionValue.class);
+            Column groupColumn = table.column("ENDDEVICEGROUP").number().notNull().add();
+            Column searchablePropertyColumn = table.column("PROPERTY").varChar(Table.NAME_LENGTH).notNull().add();
+            Column positionColumn = table.column("POSITION").number().notNull().conversion(NUMBER2INT).map(QueryEndDeviceGroupConditionValue.Fields.POSITION.fieldName()).add();
+            table.column("VALUE").varChar(Table.SHORT_DESCRIPTION_LENGTH).notNull().map(QueryEndDeviceGroupConditionValue.Fields.VALUE.fieldName()).add();
 
+                    table.primaryKey("MTG_PK_QUERY_EDG_COND_VALUE").on(groupColumn, searchablePropertyColumn, positionColumn).add();
+            table.foreignKey("MTG_FK_QUERY_EDG_VALUE2COND")
+                    .on(groupColumn, searchablePropertyColumn)
+                    .references(MTG_QUERY_EDG_CONDITION.name())
+                    .map(QueryEndDeviceGroupConditionValue.Fields.DEVICE_GROUP_CONDITION.fieldName())
+                    .reverseMap(QueryEndDeviceGroupCondition.Fields.CONDITION_VALUES.fieldName()).composition()
+                    .reverseMapOrder(QueryEndDeviceGroupConditionValue.Fields.POSITION.fieldName())
+                    .onDelete(CASCADE)
+                    .add();
+        }
+    }
+    ;
    
     abstract void addTo(DataModel component);
 
@@ -134,19 +161,4 @@ public enum TableSpecs {
 
         return map;
     }
-
-    private static Map<String, Class<? extends EndDeviceQueryBuilderOperation>> initEndDeviceQueryBuilderOperations() {
-        Map<String, Class<? extends EndDeviceQueryBuilderOperation>> map = new HashMap<>();
-
-        map.put(OpenBracketOperation.TYPE_IDENTIFIER, OpenBracketOperation.class);
-        map.put(CloseBracketOperation.TYPE_IDENTIFIER, CloseBracketOperation.class);
-        map.put(NotOperation.TYPE_IDENTIFIER, NotOperation.class);
-        map.put(AndOperation.TYPE_IDENTIFIER, AndOperation.class);
-        map.put(OrOperation.TYPE_IDENTIFIER, OrOperation.class);
-        map.put(SimpleConditionOperation.TYPE_IDENTIFIER, SimpleConditionOperation.class);
-
-        return map;
-    }
-
-
 }

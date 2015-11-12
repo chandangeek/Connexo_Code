@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.groups.impl;
 
-import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EndDeviceGroupEventData;
@@ -15,28 +14,29 @@ import java.util.Map;
 
 public abstract class AbstractEndDeviceGroup extends AbstractGroup implements EndDeviceGroup {
 
-    protected final DataModel dataModel;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
+    @NotNull
     private String queryProviderName;
+
     private String label;
-    public final EventService eventService;
+
+    protected final DataModel dataModel;
+    private final EventService eventService;
 
     protected AbstractEndDeviceGroup(EventService eventService, DataModel dataModel) {
         this.eventService = eventService;
         this.dataModel = dataModel;
     }
 
-    @Override
-    public String getQueryProviderName() {
+    String getQueryProviderName() {
         return queryProviderName;
+    }
+
+    void setQueryProviderName(String queryProviderName) {
+        this.queryProviderName = queryProviderName;
     }
 
     public boolean isDynamic() {
         return this instanceof QueryEndDeviceGroup;
-    }
-
-    public void setQueryProviderName(String queryProviderName) {
-        this.queryProviderName = queryProviderName;
     }
 
     public void setLabel(String label) {
@@ -58,6 +58,7 @@ public abstract class AbstractEndDeviceGroup extends AbstractGroup implements En
     }
 
     // ORM inheritance map
-    static final Map<String, Class<? extends EndDeviceGroup>> IMPLEMENTERS = ImmutableMap.<String, Class<? extends EndDeviceGroup>>of(QueryEndDeviceGroup.TYPE_IDENTIFIER, QueryEndDeviceGroupImpl.class, EnumeratedEndDeviceGroup.TYPE_IDENTIFIER, EnumeratedEndDeviceGroupImpl.class);
-
+    static final Map<String, Class<? extends EndDeviceGroup>> IMPLEMENTERS = ImmutableMap.of(
+            QueryEndDeviceGroup.TYPE_IDENTIFIER, QueryEndDeviceGroupImpl.class,
+            EnumeratedEndDeviceGroup.TYPE_IDENTIFIER, EnumeratedEndDeviceGroupImpl.class);
 }

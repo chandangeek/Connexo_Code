@@ -20,8 +20,8 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -54,8 +54,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class EnumeratedEndDeviceGroupImplIT {
 
-    //    private static final String UP_MRID = "15-451785-45 ";
     private static final String ED_MRID = " ( ";
+
     private Injector injector;
 
     @Mock
@@ -86,6 +86,7 @@ public class EnumeratedEndDeviceGroupImplIT {
                 new IdsModule(),
                 new MeteringModule(),
                 new MeteringGroupsModule(),
+                new SearchModule(),
                 new PartyModule(),
                 new EventsModule(),
                 new DomainUtilModule(),
@@ -112,7 +113,7 @@ public class EnumeratedEndDeviceGroupImplIT {
 
     @Test
     public void testPersistence() {
-        EndDevice endDevice = null;
+        EndDevice endDevice;
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             MeteringService meteringService = injector.getInstance(MeteringService.class);
             endDevice = meteringService.findAmrSystem(1).get().newMeter("1").setMRID(ED_MRID).create();
@@ -121,12 +122,11 @@ public class EnumeratedEndDeviceGroupImplIT {
 
         MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(endDevice)
+            meteringGroupsService.createEnumeratedEndDeviceGroup(endDevice)
                     .at(Instant.EPOCH)
                     .setName("Mine")
                     .setMRID("mine")
                     .create();
-
             ctx.commit();
         }
 
@@ -207,7 +207,7 @@ public class EnumeratedEndDeviceGroupImplIT {
                     .at(Instant.EPOCH)
                     .create();
             enumeratedEndDeviceGroup.endMembership(endDevice, Instant.ofEpochMilli(86400L));
-            enumeratedEndDeviceGroup.save();
+            enumeratedEndDeviceGroup.update();
             ctx.commit();
         }
 
@@ -231,14 +231,13 @@ public class EnumeratedEndDeviceGroupImplIT {
 
         MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
         EnumeratedEndDeviceGroup expectedGroup;
-        EnumeratedEndDeviceGroup unexpectedGroup;
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
             expectedGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(endDevice)
                     .setName("First")
                     .setMRID("first")
                     .at(Instant.EPOCH)
                     .create();
-            unexpectedGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(otherDevice)
+            meteringGroupsService.createEnumeratedEndDeviceGroup(otherDevice)
                     .setName("Second")
                     .setMRID("second")
                     .at(Instant.EPOCH)
@@ -277,7 +276,7 @@ public class EnumeratedEndDeviceGroupImplIT {
                 list[i] = endDevice;
             }
 
-            EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup(list)
+            meteringGroupsService.createEnumeratedEndDeviceGroup(list)
                     .at(Instant.EPOCH)
                     .setName("Mine")
                     .setMRID("mine")
@@ -329,7 +328,7 @@ public class EnumeratedEndDeviceGroupImplIT {
                     .at(Instant.now())
                     .create();
             enumeratedEndDeviceGroup.endMembership(endDevices.get(23), Instant.now());
-            enumeratedEndDeviceGroup.save();
+            enumeratedEndDeviceGroup.update();
             ctx.commit();
         }
 

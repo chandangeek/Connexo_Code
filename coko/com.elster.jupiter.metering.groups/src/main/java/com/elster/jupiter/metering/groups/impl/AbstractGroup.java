@@ -10,6 +10,8 @@ public class AbstractGroup {
     private String description;
     private String aliasName;
     private String type;
+
+    //audit columns
     private long version;
     private Instant createTime;
     private Instant modTime;

@@ -1,7 +1,8 @@
 package com.elster.jupiter.metering.groups;
 
 import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.search.SearchDomain;
+import com.elster.jupiter.search.SearchablePropertyValue;
 
 import java.time.Instant;
 
@@ -9,7 +10,7 @@ public interface EndDeviceGroupBuilder {
 
     EnumeratedEndDeviceGroupBuilder containing(EndDevice... moreDevices);
 
-    QueryEndDeviceGroupBuilder withCondition(Condition condition);
+    QueryEndDeviceGroupBuilder withConditions(SearchablePropertyValue... conditions);
 
     interface EnumeratedEndDeviceGroupBuilder {
         EnumeratedEndDeviceGroup create();
@@ -28,7 +29,9 @@ public interface EndDeviceGroupBuilder {
     interface QueryEndDeviceGroupBuilder {
         QueryEndDeviceGroup create();
 
-        QueryEndDeviceGroupBuilder withCondition(Condition condition);
+        QueryEndDeviceGroupBuilder withConditions(SearchablePropertyValue... conditions);
+        QueryEndDeviceGroupBuilder setQueryProviderName(String queryProviderName);
+        QueryEndDeviceGroupBuilder setSearchDomain(SearchDomain searchDomain);
 
         QueryEndDeviceGroupBuilder setName(String name);
         QueryEndDeviceGroupBuilder setMRID(String mRID);
@@ -36,7 +39,6 @@ public interface EndDeviceGroupBuilder {
         QueryEndDeviceGroupBuilder setAliasName(String aliasName);
         QueryEndDeviceGroupBuilder setType(String type);
         QueryEndDeviceGroupBuilder setLabel(String label);
-        QueryEndDeviceGroupBuilder setQueryProviderName(String queryProviderName);
     }
 }
 

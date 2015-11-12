@@ -1,25 +1,5 @@
 package com.elster.jupiter.metering.groups.impl;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-
-import java.time.Duration;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
-
-import javax.inject.Inject;
-
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
@@ -36,16 +16,38 @@ import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryUsagePointGroup;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.util.concurrent.CopyOnWriteServiceContainer;
 import com.elster.jupiter.util.concurrent.OptionalServiceContainer;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.google.inject.AbstractModule;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+
+import javax.inject.Inject;
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(
         name = "com.elster.jupiter.metering",
@@ -60,6 +62,8 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     private volatile MeteringService meteringService;
     private volatile QueryService queryService;
     private volatile EventService eventService;
+    private volatile SearchService searchService;
+    private volatile Thesaurus thesaurus;
 
     private final OptionalServiceContainer<EndDeviceQueryProvider> endDeviceQueryProviders = new CopyOnWriteServiceContainer<>();
 
@@ -67,11 +71,13 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     }
 
     @Inject
-    public MeteringGroupsServiceImpl(OrmService ormService, MeteringService meteringService, QueryService queryService, EventService eventService) {
+    public MeteringGroupsServiceImpl(OrmService ormService, MeteringService meteringService, QueryService queryService, EventService eventService, SearchService searchService, NlsService nlsService) {
         setOrmService(ormService);
         setMeteringService(meteringService);
         setQueryService(queryService);
         setEventService(eventService);
+        setSearchService(searchService);
+        setNlsService(nlsService);
         activate();
         if (!dataModel.isInstalled()) {
             install();
@@ -110,6 +116,8 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
                     bind(DataModel.class).toInstance(dataModel);
                     bind(EventService.class).toInstance(eventService);
                     bind(QueryService.class).toInstance(queryService);
+                    bind(SearchService.class).toInstance(searchService);
+                    bind(Thesaurus.class).toInstance(thesaurus);
                 }
             });
         } catch (Exception e) {
@@ -171,8 +179,8 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     }
 
     @Override
-    public EndDeviceGroupBuilder.QueryEndDeviceGroupBuilder createQueryEndDeviceGroup(Condition condition) {
-        return getBuilder().withCondition(condition);
+    public EndDeviceGroupBuilder.QueryEndDeviceGroupBuilder createQueryEndDeviceGroup(SearchablePropertyValue... conditions) {
+        return getBuilder().withConditions(conditions);
     }
 
     @Override
@@ -265,6 +273,16 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
     @Reference
     public void setQueryService(QueryService queryService) {
         this.queryService = queryService;
+    }
+
+    @Reference
+    public void setSearchService(SearchService searchService) {
+        this.searchService = searchService;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(COMPONENTNAME, Layer.DOMAIN);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)

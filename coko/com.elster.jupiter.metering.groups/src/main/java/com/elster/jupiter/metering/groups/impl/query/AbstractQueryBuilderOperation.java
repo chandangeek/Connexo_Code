@@ -1,9 +1,8 @@
 package com.elster.jupiter.metering.groups.impl.query;
 
-import com.elster.jupiter.metering.groups.impl.EndDeviceQueryBuilderOperation;
 import com.elster.jupiter.metering.groups.impl.UsagePointQueryBuilderOperation;
 
-public abstract class AbstractQueryBuilderOperation implements UsagePointQueryBuilderOperation, EndDeviceQueryBuilderOperation {
+public abstract class AbstractQueryBuilderOperation implements UsagePointQueryBuilderOperation {
 
     private int position;
     private long groupId;

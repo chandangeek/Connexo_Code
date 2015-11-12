@@ -35,13 +35,9 @@ public interface EndDeviceGroup extends HasId {
 
     void setAliasName(String aliasName);
 
-    void setQueryProviderName(String queryProviderName);
-    
-    String getQueryProviderName();
-
     boolean isDynamic();
 
-    void save();
+    void update();
 
     void delete();
 

@@ -4,7 +4,8 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.groups.EndDeviceGroupBuilder;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.search.SearchDomain;
+import com.elster.jupiter.search.SearchablePropertyValue;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -30,8 +31,8 @@ class EndDeviceGroupBuilderImpl implements EndDeviceGroupBuilder {
     }
 
     @Override
-    public QueryEndDeviceGroupBuilder withCondition(Condition condition) {
-        return new QueryEndDeviceGroupBuilderImpl().withCondition(condition);
+    public QueryEndDeviceGroupBuilder withConditions(SearchablePropertyValue... conditions) {
+        return new QueryEndDeviceGroupBuilderImpl().withConditions(conditions);
     }
 
     private class EnumeratedEndDeviceGroupBuilderImpl implements EnumeratedEndDeviceGroupBuilder {
@@ -121,8 +122,10 @@ class EndDeviceGroupBuilderImpl implements EndDeviceGroupBuilder {
         }
 
         @Override
-        public QueryEndDeviceGroupBuilder withCondition(Condition condition) {
-            underConstruction.setCondition(condition);
+        public QueryEndDeviceGroupBuilder withConditions(SearchablePropertyValue... conditions) {
+            for(SearchablePropertyValue condition : conditions) {
+                underConstruction.addQueryEndDeviceGroupCondition(condition);
+            }
             return this;
         }
 
@@ -165,6 +168,12 @@ class EndDeviceGroupBuilderImpl implements EndDeviceGroupBuilder {
         @Override
         public QueryEndDeviceGroupBuilder setQueryProviderName(String queryProviderName) {
             underConstruction.setQueryProviderName(queryProviderName);
+            return this;
+        }
+
+        @Override
+        public QueryEndDeviceGroupBuilder setSearchDomain(SearchDomain searchDomain) {
+            underConstruction.setSearchDomain(searchDomain);
             return this;
         }
     }

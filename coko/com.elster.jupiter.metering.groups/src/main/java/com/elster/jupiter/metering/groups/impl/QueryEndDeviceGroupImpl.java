@@ -7,46 +7,76 @@ import com.elster.jupiter.metering.groups.EndDeviceQueryProvider;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.NoSuchQueryProvider;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.metering.groups.SearchCriteria;
-import com.elster.jupiter.metering.groups.impl.query.QueryBuilder;
-import com.elster.jupiter.metering.groups.impl.query.SimpleConditionOperation;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.search.SearchBuilder;
+import com.elster.jupiter.search.SearchDomain;
+import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.SearchablePropertyCondition;
+import com.elster.jupiter.search.SearchablePropertyValue;
+import com.elster.jupiter.util.sql.SqlFragment;
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
+
+import javax.inject.Inject;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import javax.inject.Inject;
 
 public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements QueryEndDeviceGroup {
 
-    private List<EndDeviceQueryBuilderOperation> operations;
-    private transient QueryBuilder queryBuilder;
+    enum Fields {
+        SEARCH_DOMAIN("searchDomain"),
+        CONDITIONS("conditions");
+
+        private final String javaFieldName;
+
+        Fields(String javaFieldName) {
+            this.javaFieldName = javaFieldName;
+        }
+
+        String fieldName() {
+            return javaFieldName;
+        }
+    }
+
+    @NotNull
+    private String searchDomain;
+
+    @Valid
+    private List<QueryEndDeviceGroupCondition> conditions = new ArrayList<>();
 
     private final MeteringGroupsService meteringGroupService;
+    private final SearchService searchService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    public QueryEndDeviceGroupImpl(DataModel dataModel, MeteringGroupsService meteringGroupService, EventService eventService) {
+    public QueryEndDeviceGroupImpl(DataModel dataModel, MeteringGroupsService meteringGroupService, EventService eventService, SearchService searchService, Thesaurus thesaurus) {
         super(eventService, dataModel);
         this.meteringGroupService = meteringGroupService;
+        this.searchService = searchService;
+        this.thesaurus = thesaurus;
     }
 
     @Override
     public List<EndDevice> getMembers(Instant instant) {
-        return getEndDeviceQueryProvider().findEndDevices(instant, getCondition());
-    }
-    
-    @Override
-    public List<EndDevice> getMembers(Instant instant, int start, int limit) {
-        return getEndDeviceQueryProvider().findEndDevices(instant, getCondition(), start, limit);
+        return getEndDeviceQueryProvider().findEndDevices(instant, getSearchablePropertyConditions());
     }
 
-    private EndDeviceQueryProvider getEndDeviceQueryProvider() {
+    @Override
+    public List<EndDevice> getMembers(Instant instant, int start, int limit) {
+        return getEndDeviceQueryProvider().findEndDevices(instant, getSearchablePropertyConditions(), start, limit);
+    }
+
+    @Override
+    public EndDeviceQueryProvider getEndDeviceQueryProvider() {
         try {
             return meteringGroupService.pollEndDeviceQueryProvider(getQueryProviderName(), Duration.ofMinutes(1)).orElseThrow(() -> new NoSuchQueryProvider(getQueryProviderName()));
         } catch (InterruptedException e) {
@@ -70,72 +100,88 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
         return getMembers(instant).contains(endDevice);
     }
 
-    @Override
-    public void setCondition(Condition condition) {
-        queryBuilder = QueryBuilder.parse(condition);
-        operations = convert(queryBuilder.getOperations());
-    }
-
-    @Override
-    public void save() {
-        if (id == 0) {
-            groupFactory().persist(this);
-        } else {
-            groupFactory().update(this);
-            operationFactory().remove(readOperations());
-        }
-        for (EndDeviceQueryBuilderOperation operation : getOperations()) {
-            operation.setGroupId(id);
-            operationFactory().persist(operation);
-        }
-    }
-
-    private DataMapper<EndDeviceQueryBuilderOperation> operationFactory() {
-        return dataModel.mapper(EndDeviceQueryBuilderOperation.class);
-    }
-
     private DataMapper<QueryEndDeviceGroup> groupFactory() {
         return dataModel.mapper(QueryEndDeviceGroup.class);
     }
 
-    public Condition getCondition() {
-        if (queryBuilder == null) {
-            queryBuilder = QueryBuilder.using(getOperations());
-        }
-        return queryBuilder.toCondition();
+    void save() {
+        groupFactory().persist(this);
     }
 
-    private List<EndDeviceQueryBuilderOperation> getOperations() {
-        if (operations == null) {
-            operations = readOperations();
-        }
-        return operations;
+    @Override
+    public void update() {
+        groupFactory().update(this);
     }
 
-    private List<EndDeviceQueryBuilderOperation> readOperations() {
-        return operationFactory().find("groupId", id);
+    @Override
+    public List<SearchablePropertyCondition> getSearchablePropertyConditions() {
+        return getSearchBuilder().getConditions();
     }
 
-    private List<EndDeviceQueryBuilderOperation> convert(List<QueryBuilderOperation> builderOperations) {
-        List<EndDeviceQueryBuilderOperation> operations = new ArrayList<>();
-        for (QueryBuilderOperation builderOperation : builderOperations) {
-            operations.add((EndDeviceQueryBuilderOperation) builderOperation);
-        }
-        return operations;
+    @Override
+    public SqlFragment toFragment() {
+        return getSearchBuilder().toFinder().asFragment("id");
     }
 
-    public List<SearchCriteria> getSearchCriteria() {
-        List<SearchCriteria> result = new ArrayList<>();
-        List<EndDeviceQueryBuilderOperation> operations = getOperations();
-        for (EndDeviceQueryBuilderOperation operation : operations) {
-            if (operation instanceof SimpleConditionOperation) {
-                SimpleConditionOperation condition = (SimpleConditionOperation) operation;
-                String fieldName = condition.getFieldName();
-                SearchCriteria searchCriteriaInfo = new SearchCriteria(fieldName, Arrays.asList(condition.getValues()));
-                result.add(searchCriteriaInfo);
+    @Override
+    public List<SearchablePropertyValue> getSearchablePropertyValues() {
+        return findSearchDomainOrThrowException().getPropertiesValues(this::mapper);
+    }
+
+    private SearchBuilder<?> getSearchBuilder() {
+        SearchDomain searchDomain = findSearchDomainOrThrowException();
+        SearchBuilder<?> searchBuilder = this.searchService.search(searchDomain);
+        searchDomain.getPropertiesValues(this::mapper).forEach(value -> {
+            try {
+                value.addAsCondition(searchBuilder);
+            } catch (InvalidValueException e) {
+                throw new InvalidQueryDeviceGroupException(thesaurus, MessageSeeds.INVALID_SEARCH_CRITERIA, e);
             }
-        }
-        return result;
+        });
+        return searchBuilder;
     }
 
+    private SearchDomain findSearchDomainOrThrowException() {
+        return this.searchService.pollSearchDomain(this.searchDomain, Duration.ofMinutes(1))
+                .orElseThrow(() -> new InvalidQueryDeviceGroupException(thesaurus, MessageSeeds.SEARCH_DOMAIN_NOT_FOUND, this.searchDomain));
+    }
+
+    private SearchablePropertyValue mapper(SearchableProperty searchableProperty) {
+        return this.conditions.stream()
+                .filter(condition -> condition.getSearchableProperty().equals(searchableProperty.getName()))
+                .findFirst()
+                .map(condition -> {
+                    SearchablePropertyValue searchablePropertyValue = new SearchablePropertyValue(searchableProperty);
+                    searchablePropertyValue.setValueBean(condition.toValueBean());
+                    return searchablePropertyValue;
+                }).orElse(null);
+    }
+
+    public void addQueryEndDeviceGroupCondition(SearchablePropertyValue searchablePropertyValue) {
+        conditions.add(new QueryEndDeviceGroupCondition().init(
+                        this,
+                        searchablePropertyValue.getValueBean().propertyName,
+                        searchablePropertyValue.getValueBean().operator,
+                        searchablePropertyValue.getValueBean().values)
+        );
+    }
+
+    @Override
+    public void setConditions(List<SearchablePropertyValue> conditions) {
+        this.conditions.clear();
+        conditions.forEach(this::addQueryEndDeviceGroupCondition);
+    }
+
+    public void setSearchDomain(SearchDomain searchDomain) {
+        this.searchDomain = searchDomain.getId();
+    }
+
+    @Override
+    public SearchDomain getSearchDomain() {
+        return this.searchService.pollSearchDomain(this.searchDomain, Duration.ofMinutes(1)).get();
+    }
+
+    List<QueryEndDeviceGroupCondition> getConditions() {
+        return conditions;
+    }
 }

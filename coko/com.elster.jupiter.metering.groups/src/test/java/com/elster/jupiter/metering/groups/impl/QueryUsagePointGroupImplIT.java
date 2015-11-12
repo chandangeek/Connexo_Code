@@ -19,8 +19,8 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
@@ -50,7 +50,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class QueryUsagePointGroupImplIT {
 
-//    private static final String UP_MRID = "15-451785-45 ";
     private static final String UP_MRID = " ( ";
     private Injector injector;
 
@@ -61,9 +60,7 @@ public class QueryUsagePointGroupImplIT {
     @Mock
     private EventAdmin eventAdmin;
 
-
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-
 
     private class MockModule extends AbstractModule {
 
@@ -86,6 +83,7 @@ public class QueryUsagePointGroupImplIT {
                     new FiniteStateMachineModule(),
                     new MeteringModule(),
                     new MeteringGroupsModule(),
+                    new SearchModule(),
                     new PartyModule(),
                     new EventsModule(),
                     new DomainUtilModule(),
