@@ -15,7 +15,7 @@ Ext.define('Uni.form.field.Obis', {
 
     afterSubTpl:
         '<div class="x-form-display-field"><i>' +
-        Uni.I18n.translate('obis.info', 'UNI', 'Provide the values for the 6 attributes of the Obis code, separated by a "."') +
+        Uni.I18n.translate('obis.info', 'UNI', 'Provide the values for the 6 attributes of the OBIS code, separated by a "."') +
         '</i></div>'
     ,
     maskRe: /[\dx.]+/,
