@@ -71,13 +71,13 @@ public abstract class PersistentIdObject<D> {
         this.notifyDeleted();
     }
 
-    private void notifyCreated() {
+    public void notifyCreated() {
         this.eventService.postEvent(this.createEventType().topic(), this);
     }
 
     protected abstract CreateEventType createEventType();
 
-    private void notifyUpdated() {
+    public void notifyUpdated() {
         this.eventService.postEvent(this.updateEventType().topic(), this);
     }
 
@@ -87,7 +87,7 @@ public abstract class PersistentIdObject<D> {
 
     protected abstract UpdateEventType updateEventType();
 
-    private void notifyDeleted() {
+    public void notifyDeleted() {
         this.eventService.postEvent(this.deleteEventType().topic(), this);
     }
 
@@ -110,7 +110,7 @@ public abstract class PersistentIdObject<D> {
     /**
      * Updates the changes made to this object without running validation.
      */
-    protected void update() {
+    public void update() {
         this.getDataModel().update(this);
     }
 
