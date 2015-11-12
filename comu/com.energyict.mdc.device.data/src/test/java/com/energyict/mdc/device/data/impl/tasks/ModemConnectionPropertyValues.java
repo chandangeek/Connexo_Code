@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.protocol.api.ConnectionType;
-
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 
 /**
  * Insert your comments here.
@@ -13,17 +12,17 @@ import com.elster.jupiter.util.time.Interval;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-05 (13:27)
  */
-public class ModemConnectionPropertyValues implements PersistentDomainExtension<ConnectionType> {
+public class ModemConnectionPropertyValues implements PersistentDomainExtension<ConnectionProvider> {
 
     @SuppressWarnings("unused")
-    private Reference<ConnectionType> connectionType = Reference.empty();
+    private Reference<ConnectionProvider> connectionProvider = Reference.empty();
     @SuppressWarnings("unused")
     private Interval interval;
     private String phoneNumber;
 
     @Override
-    public void copyFrom(ConnectionType connectionType, CustomPropertySetValues propertyValues) {
-        this.connectionType.set(connectionType);
+    public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues) {
+        this.connectionProvider.set(connectionProvider);
         this.phoneNumber = (String) propertyValues.getProperty(IpConnectionProperties.IP_ADDRESS.propertyName());
     }
 

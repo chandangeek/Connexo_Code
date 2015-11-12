@@ -1,13 +1,12 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.ConnectionType;
-
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -21,7 +20,7 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-05 (13:16)
  */
-public class ModemConnectionCustomPropertySet implements CustomPropertySet<ConnectionType, ModemConnectionPropertyValues> {
+public class ModemConnectionCustomPropertySet implements CustomPropertySet<ConnectionProvider, ModemConnectionPropertyValues> {
 
     private final PropertySpecService propertySpecService;
 
@@ -36,12 +35,12 @@ public class ModemConnectionCustomPropertySet implements CustomPropertySet<Conne
     }
 
     @Override
-    public Class<ConnectionType> getDomainClass() {
-        return ConnectionType.class;
+    public Class<ConnectionProvider> getDomainClass() {
+        return ConnectionProvider.class;
     }
 
     @Override
-    public PersistenceSupport<ConnectionType, ModemConnectionPropertyValues> getPersistenceSupport() {
+    public PersistenceSupport<ConnectionProvider, ModemConnectionPropertyValues> getPersistenceSupport() {
         return new ModemConnectionPersistenceSupport();
     }
 

@@ -442,6 +442,11 @@ public abstract class ConnectionTaskImpl<PCTT extends PartialConnectionTask, CPP
         this.device.set(device);
     }
 
+    @Override
+    public ConnectionType getType() {
+        return this.getPluggableClass().getConnectionType();
+    }
+
     public ConnectionTypePluggableClass getPluggableClass() {
         if (this.pluggableClass == null) {
             this.loadPluggableClass();

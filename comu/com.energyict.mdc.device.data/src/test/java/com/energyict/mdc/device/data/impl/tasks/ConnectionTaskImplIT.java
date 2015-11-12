@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.transaction.VoidTransaction;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
@@ -30,11 +34,6 @@ import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.transaction.VoidTransaction;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -390,10 +389,10 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
     protected void setIpConnectionProperties(Device.ScheduledConnectionTaskBuilder connectionTaskBuilder, String ipAddress, BigDecimal port) {
         if (ipAddress != null) {
-            connectionTaskBuilder.setProperty(IpConnectionType.IP_ADDRESS_PROPERTY_NAME, ipAddress);
+            connectionTaskBuilder.setProperty(IpConnectionProperties.IP_ADDRESS.propertyName(), ipAddress);
         }
         if (port != null) {
-            connectionTaskBuilder.setProperty(IpConnectionType.PORT_PROPERTY_NAME, port);
+            connectionTaskBuilder.setProperty(IpConnectionProperties.PORT.propertyName(), port);
         }
     }
 

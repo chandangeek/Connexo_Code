@@ -1,14 +1,14 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
-
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.PersistentDomainExtension;
 
 import java.util.EnumSet;
 import java.util.List;
@@ -25,7 +25,7 @@ public class ModemNoParamsConnectionTypeImpl implements ConnectionType {
     private static final int HASH_CODE = 91153; // Random prime number
 
     @Override
-    public Optional<CustomPropertySet<ConnectionType, ? extends PersistentDomainExtension<ConnectionType>>> getCustomPropertySet() {
+    public Optional<CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>>> getCustomPropertySet() {
         return Optional.empty();
     }
 

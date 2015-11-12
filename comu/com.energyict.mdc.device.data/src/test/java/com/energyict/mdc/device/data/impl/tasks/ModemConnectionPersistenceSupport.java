@@ -1,9 +1,9 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.energyict.mdc.protocol.api.ConnectionType;
-
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Table;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
+
 import com.google.inject.Module;
 
 import java.util.Optional;
@@ -14,7 +14,7 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-05 (13:24)
  */
-public class ModemConnectionPersistenceSupport implements PersistenceSupport<ConnectionType, ModemConnectionPropertyValues> {
+public class ModemConnectionPersistenceSupport implements PersistenceSupport<ConnectionProvider, ModemConnectionPropertyValues> {
 
     @Override
     public String componentName() {

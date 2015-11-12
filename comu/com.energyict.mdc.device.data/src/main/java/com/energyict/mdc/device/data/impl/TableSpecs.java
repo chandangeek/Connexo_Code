@@ -43,6 +43,7 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.pluggable.PluggableClass;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
@@ -174,7 +175,7 @@ public enum TableSpecs {
     DDC_CONNECTIONTASK {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<ConnectionTask> table = dataModel.addTable(name(), ConnectionTask.class);
+            Table<ConnectionTask> table = dataModel.addTable(name(), ConnectionTask.class).alsoReferredToAs(ConnectionProvider.class);
             table.map(ConnectionTaskImpl.IMPLEMENTERS);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
