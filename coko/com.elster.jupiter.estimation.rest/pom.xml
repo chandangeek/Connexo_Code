@@ -138,6 +138,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools.rest</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>search</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
