@@ -62,7 +62,7 @@ public class DeviceLifeCycleActionResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLE})
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
     public PagedInfoList getActionsForDeviceLifecycle(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @BeanParam JsonQueryParameters queryParams) {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
         List<AuthorizedActionInfo> transitions = deviceLifeCycle.getAuthorizedActions()
@@ -76,7 +76,7 @@ public class DeviceLifeCycleActionResource {
     @GET
     @Path("/{actionId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLE})
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
     public Response getAuthorizedActionById(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("actionId") Long actionId, @BeanParam JsonQueryParameters queryParams) {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
         AuthorizedAction action = resourceHelper.findAuthorizedActionByIdOrThrowException(deviceLifeCycle, actionId);
@@ -86,7 +86,7 @@ public class DeviceLifeCycleActionResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLE})
+    @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
     public Response addActionsForDeviceLifecycle(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, AuthorizedActionInfo newAction) {
         validateInfo(newAction);
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
@@ -99,7 +99,7 @@ public class DeviceLifeCycleActionResource {
     @PUT
     @Path("/{actionId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLE})
+    @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
     public Response editAuthorizedAction(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, AuthorizedActionInfo info) {
         validateInfo(info);
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
@@ -122,7 +122,7 @@ public class DeviceLifeCycleActionResource {
     @DELETE
     @Path("/{actionId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLE})
+    @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
     public Response deleteAuthorizedAction(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId,
                                            @PathParam("actionId") Long actionId,
                                            @BeanParam JsonQueryParameters queryParams,
@@ -139,7 +139,7 @@ public class DeviceLifeCycleActionResource {
     @Path("/microactions")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLE})
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
     public Response getAvailableMicroActionsForTransition(
             @PathParam("deviceLifeCycleId") Long deviceLifeCycleId,
             @QueryParam("fromState") long fromStateId,
@@ -170,7 +170,7 @@ public class DeviceLifeCycleActionResource {
     @Path("/microchecks")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLE})
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
     public Response getAvailableMicroChecksForTransition(
             @PathParam("deviceLifeCycleId") Long deviceLifeCycleId,
             @QueryParam("fromState") long fromStateId,

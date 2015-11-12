@@ -55,7 +55,7 @@ public class DeviceLifeCycleStateResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLE})
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
     public PagedInfoList getStatesForDeviceLifecycle(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @BeanParam JsonQueryParameters queryParams) {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
         List<DeviceLifeCycleStateInfo> states = (List<DeviceLifeCycleStateInfo>) deviceLifeCycle.getFiniteStateMachine().getStates()
@@ -69,7 +69,7 @@ public class DeviceLifeCycleStateResource {
     @GET
     @Path("/{stateId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.VIEW_DEVICE_LIFE_CYCLE})
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
     public Response getStateById(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("stateId") Long stateId, @BeanParam JsonQueryParameters queryParams) {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
         State state = resourceHelper.findStateByIdOrThrowException(deviceLifeCycle, stateId);
@@ -80,7 +80,7 @@ public class DeviceLifeCycleStateResource {
     @POST
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLE})
+    @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
     public Response addDeviceLifeCycleState(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, DeviceLifeCycleStateInfo stateInfo) {
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
         FiniteStateMachineUpdater fsmUpdater = deviceLifeCycle.getFiniteStateMachine().startUpdate();
@@ -94,7 +94,7 @@ public class DeviceLifeCycleStateResource {
     @Path("/{stateId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLE})
+    @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
     public Response editDeviceLifeCycleState(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("stateId") Long stateId, DeviceLifeCycleStateInfo info) {
         info.id = stateId;
         State stateForEdit = resourceHelper.lockStateOrThrowException(info);
@@ -141,7 +141,7 @@ public class DeviceLifeCycleStateResource {
     @Path("/{stateId}/status")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLE})
+    @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
     public Response setInitialDeviceLifeCycleState(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("stateId") Long stateId, DeviceLifeCycleStateInfo info) {
         info.id = stateId;
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
@@ -156,7 +156,7 @@ public class DeviceLifeCycleStateResource {
     @DELETE
     @Path("/{stateId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.CONFIGURE_DEVICE_LIFE_CYCLE})
+    @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
     public Response deleteDeviceLifeCycleState(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @PathParam("stateId") Long stateId, DeviceLifeCycleStateInfo info) {
         State stateForDeletion = resourceHelper.lockStateOrThrowException(info);
         DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
