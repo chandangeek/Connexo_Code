@@ -216,8 +216,8 @@ public class SchedulingServiceImpl implements ServerSchedulingService, InstallSe
     @Override
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(SchedulingService.COMPONENT_NAME, "sharedCommunicationSchedule.sharedCommunicationSchedules", "sharedCommunicationSchedule.sharedCommunicationSchedules.description",
-                Arrays.asList(Privileges.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE, Privileges.VIEW_SHARED_COMMUNICATION_SCHEDULE)));
+        resources.add(userService.createModuleResourceWithPrivileges(SchedulingService.COMPONENT_NAME, Privileges.RESOURCE_SCHEDULES.getKey(), Privileges.RESOURCE_SCHEDULES_DESCRIPTION.getKey(),
+                Arrays.asList(Privileges.Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE, Privileges.Constants.VIEW_SHARED_COMMUNICATION_SCHEDULE)));
         return resources;
     }
 
