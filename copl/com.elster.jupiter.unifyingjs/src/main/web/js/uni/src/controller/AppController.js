@@ -78,6 +78,7 @@ Ext.define('Uni.controller.AppController', {
 
         var me = this;
         me.initCrossroads();
+        Ext.state.Manager.setProvider(new Ext.state.LocalStorageProvider());
 
         me.getController('Uni.controller.Navigation');
         me.getApplication().fireEvent('onnavigationtitlechanged', me.applicationTitle);

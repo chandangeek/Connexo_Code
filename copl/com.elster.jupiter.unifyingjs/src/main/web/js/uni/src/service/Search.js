@@ -29,8 +29,6 @@ Ext.define('Uni.service.Search', {
     constructor: function (config) {
         var me = this;
 
-        Ext.state.Manager.setProvider(new Ext.state.LocalStorageProvider());
-
         me.setSearchDomainsStore(Ext.getStore(me.getSearchDomainsStore() || 'ext-empty-store'));
         me.setSearchResultsStore(Ext.getStore(me.getSearchResultsStore() || 'ext-empty-store'));
         me.setSearchPropertiesStore(Ext.getStore(me.getSearchPropertiesStore() || 'ext-empty-store'));
