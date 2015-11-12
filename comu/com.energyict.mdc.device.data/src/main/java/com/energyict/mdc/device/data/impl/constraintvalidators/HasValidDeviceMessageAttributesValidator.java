@@ -1,10 +1,11 @@
 package com.energyict.mdc.device.data.impl.constraintvalidators;
 
-import com.elster.jupiter.properties.InvalidValueException;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.device.data.impl.DeviceMessageImpl;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
+
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
@@ -52,9 +53,9 @@ public class HasValidDeviceMessageAttributesValidator implements ConstraintValid
             } catch (InvalidValueException e) {
                 context
                     .buildConstraintViolationWithTemplate(MessageFormat.format(e.getDefaultPattern(), e.getArguments()))
-                        .addPropertyNode("properties")
+                        .addPropertyNode(DeviceMessageImpl.Fields.DEVICEMESSAGEATTRIBUTES.fieldName())
                         .addPropertyNode(deviceMessageAttribute.getName()).addConstraintViolation()
-                        .disableDefaultConstraintViolation();
+                    .disableDefaultConstraintViolation();
                 this.valid = false;
             }
         });
