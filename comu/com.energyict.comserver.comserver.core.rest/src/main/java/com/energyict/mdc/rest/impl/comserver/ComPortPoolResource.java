@@ -66,7 +66,7 @@ public class ComPortPoolResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
     public ComPortPoolInfo<?> getComPortPool(@PathParam("id") long id) {
         return engineConfigurationService
                 .findComPortPool(id)
@@ -80,7 +80,7 @@ public class ComPortPoolResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
     public PagedInfoList getAllComPortPools(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
         List<ComPortPoolInfo<?>> comPortPoolInfos = new ArrayList<>();
         List<ComPortPool> comPortPools = new ArrayList<>();
@@ -137,7 +137,7 @@ public class ComPortPoolResource {
     @DELETE
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
-    @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response deleteComPortPool(@PathParam("id") long id, ComPortPoolInfo info) {
         resourceHelper.lockComPortPoolOrThrowException(info).makeObsolete();
@@ -147,7 +147,7 @@ public class ComPortPoolResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public Response createComPortPool(ComPortPoolInfo<ComPortPool> comPortPoolInfo, @Context UriInfo uriInfo) {
         ComPortPool comPortPool = comPortPoolInfo.createNew(engineConfigurationService, protocolPluggableService);
         if (comPortPool instanceof OutboundComPortPool) { // TODO Polymorphism is in place here: get rid of these checks!
@@ -162,7 +162,7 @@ public class ComPortPoolResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public ComPortPoolInfo<?> updateComPortPool(@PathParam("id") long id, ComPortPoolInfo<ComPortPool> info, @Context UriInfo uriInfo) {
         ComPortPool comPortPool = resourceHelper.lockComPortPoolOrThrowException(info);
         info.writeTo(comPortPool, protocolPluggableService);

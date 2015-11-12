@@ -43,7 +43,7 @@ public class ComServerFieldResource extends FieldResource {
     @GET
     @Path("/logLevel")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
     public Object getLogLevelValues() {
         return asJsonArrayObjectWithTranslation("logLevels", "logLevel", new LogLevelAdapter().getClientSideValues());
     }
@@ -51,7 +51,7 @@ public class ComServerFieldResource extends FieldResource {
     @GET
     @Path("/timeUnit")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
     public Object getTimeUnits() {
         int[] timeDurations = new int[] {
                 TimeDuration.TimeUnit.MILLISECONDS.getCode(),
@@ -83,7 +83,7 @@ public class ComServerFieldResource extends FieldResource {
     @GET
     @Path("/comPortType")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
     public Object getComPortTypes() {
         return asJsonArrayObjectWithTranslation("comPortTypes", "comPortType", new ComPortTypeAdapter().getClientSideValues());
     }
@@ -91,7 +91,7 @@ public class ComServerFieldResource extends FieldResource {
     @GET
     @Path("/parity")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
     public Object getParities() {
         return asJsonArrayObjectWithTranslation("parities", "parity", new ParitiesAdapter().getClientSideValues());
     }
@@ -99,7 +99,7 @@ public class ComServerFieldResource extends FieldResource {
     @GET
     @Path("/flowControl")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
     public Object getFlowControls() {
         return asJsonArrayObjectWithTranslation("flowControls", "flowControl", new FlowControlAdapter().getClientSideValues());
     }
@@ -107,7 +107,7 @@ public class ComServerFieldResource extends FieldResource {
     @GET
     @Path("/nrOfDataBits")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
     public Object getNrOfDataBits() {
         return asJsonArrayObjectWithTranslation("nrOfDataBits", "nrOfDataBits", new NrOfDataBitsAdapter().getClientSideValues());
     }
@@ -115,7 +115,7 @@ public class ComServerFieldResource extends FieldResource {
     @GET
     @Path("/nrOfStopBits")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
     public Object getNrOfStopBits() {
         return asJsonArrayObjectWithTranslation("nrOfStopBits", "nrOfStopBits", new NrOfStopBitsAdapter().getClientSideValues());
     }
@@ -123,7 +123,7 @@ public class ComServerFieldResource extends FieldResource {
     @GET
     @Path("/baudRate")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
     public Object getBaudRate() {
         return asJsonArrayObjectWithTranslation("baudRates", "baudRate", new BaudrateAdapter().getClientSideValues());
     }

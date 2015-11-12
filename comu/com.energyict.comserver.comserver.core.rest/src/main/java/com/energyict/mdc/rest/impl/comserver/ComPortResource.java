@@ -34,7 +34,7 @@ public class ComPortResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
     public PagedInfoList getComPorts(@BeanParam JsonQueryFilter comPortFilter, @BeanParam JsonQueryParameters queryParameters) {
         List<ComPortInfo> comPortInfos = new ArrayList<>();
         if (comPortFilter.hasFilters()) {
@@ -65,7 +65,7 @@ public class ComPortResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
     public ComPortInfo getComPort(@PathParam("id") long id) {
         Optional<? extends ComPort> comPort = engineConfigurationService.findComPort(id);
         if (!comPort.isPresent()) {

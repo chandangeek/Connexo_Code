@@ -38,7 +38,7 @@ public class ComServerComPortResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
     public PagedInfoList getComPorts(@PathParam("comServerId") long comServerId, @BeanParam JsonQueryParameters queryParameters) {
         ComServer comServer = resourceHelper.findComServerOrThrowException(comServerId);
         List<ComPort> comPorts = ListPager.of(comServer.getComPorts(), (o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()))
@@ -55,7 +55,7 @@ public class ComServerComPortResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
     public ComPortInfo getComPort(@PathParam("comServerId") long comServerId, @PathParam("id") long id) {
         ComPort comPort = resourceHelper.findComPortOrThrowException(id);
         return ComPortInfoFactory.asInfo(comPort, engineConfigurationService);
@@ -64,7 +64,7 @@ public class ComServerComPortResource {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public ComPortInfo createOutboundComPort(@PathParam("comServerId") long comServerId, ComPortInfo comPortInfo) {
         ComServer comServer = resourceHelper.findComServerOrThrowException(comServerId);
         ComPort newComPort = comPortInfo.createNew(comServer, engineConfigurationService);
@@ -75,7 +75,7 @@ public class ComServerComPortResource {
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     public ComPortInfo updateOutboundComPort(@PathParam("comServerId") long comServerId, @PathParam("id") long id, ComPortInfo info) {
         info.id = id;
         ComPort comPort = resourceHelper.lockComPortOrThrowException(info);
@@ -86,7 +86,7 @@ public class ComServerComPortResource {
 
     @DELETE
     @Path("/{id}")
-    @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response removeComPort(@PathParam("comServerId") long comServerId, @PathParam("id") long id, ComPortInfo info) {
         info.id = id;

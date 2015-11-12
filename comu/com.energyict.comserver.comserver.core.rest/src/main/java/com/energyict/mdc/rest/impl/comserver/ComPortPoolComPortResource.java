@@ -43,7 +43,7 @@ public class ComPortPoolComPortResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
     public PagedInfoList getComPorts(@PathParam("comPortPoolId") long comPortPoolId, @BeanParam JsonQueryParameters queryParameters) {
         ComPortPool comPortPool = resourceHelper.findComPortPoolOrThrowException(comPortPoolId);
         List<ComPort> comPorts = new ArrayList<>(comPortPool.getComPorts());
@@ -66,7 +66,7 @@ public class ComPortPoolComPortResource {
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @RolesAllowed({Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.VIEW_COMMUNICATION_ADMINISTRATION})
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
     public ComPortInfo getComPort(@PathParam("comPortPoolId") long comPortPoolId, @PathParam("id") long id) {
         ComPortPool comPortPool = resourceHelper.findComPortPoolOrThrowException(comPortPoolId);
         ComPort comPort = resourceHelper.findComPortOrThrowException(id, comPortPool);
@@ -75,7 +75,7 @@ public class ComPortPoolComPortResource {
 
     @DELETE
     @Path("/{id}")
-    @RolesAllowed(Privileges.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
+    @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response removeComPort(@PathParam("comPortPoolId") long comPortPoolId, @PathParam("id") long id, ComPortPoolInfo info) {
         ComPortPool comPortPool = resourceHelper.getLockedComPortPool(info.id, info.version)
