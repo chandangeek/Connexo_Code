@@ -3,8 +3,6 @@ package com.energyict.mdc.device.data.impl.tasks;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
-import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteConnectionTaskException;
-import com.energyict.mdc.device.data.exceptions.ConnectionTaskIsAlreadyObsoleteException;
 import com.energyict.mdc.device.data.exceptions.PartialConnectionTaskNotPartOfDeviceConfigurationException;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -18,10 +16,9 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.google.common.collect.Range;
 
-import java.util.List;
-
-import org.assertj.core.api.Condition;
 import org.junit.*;
+
+import javax.validation.ConstraintViolationException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.*;
@@ -51,13 +48,9 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         ConnectionInitiationTaskImpl secondInitiationTask = (ConnectionInitiationTaskImpl) device.getConnectionInitiationTaskBuilder(partialConnectionInitiationTask2)
                 .setComPortPool(outboundTcpipComPortPool)
                 .add();
-        device.save();
 
 
         this.setIpConnectionProperties(secondInitiationTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
-
-        // Business method
-        secondInitiationTask.save();
 
         // Asserts
         assertThat(firstInitiationTask).isNotNull();
@@ -86,11 +79,11 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         ConnectionInitiationTaskImpl connectionInitiationTask = (ConnectionInitiationTaskImpl) device.getConnectionInitiationTaskBuilder(partialConnectionInitiationTask)
                 .setComPortPool(outboundTcpipComPortPool)
                 .add();
-        device.save();
+
         this.setIpConnectionProperties(connectionInitiationTask, IP_ADDRESS_PROPERTY_VALUE, null);
 
         // Business method
-        connectionInitiationTask.save();
+        device.save();
 
         // Asserts
         assertThat(connectionInitiationTask).isNotNull();
@@ -111,11 +104,10 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
                 .setComPortPool(outboundTcpipComPortPool)
                 .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
                 .add();
-        device.save();
         this.setIpConnectionProperties(connectionInitiationTask, null, PORT_PROPERTY_VALUE);
 
         // Business method
-        connectionInitiationTask.save();
+        connectionInitiationTask.update();
 
         // Asserts: see ExpectedConstraintViolation rule
     }
@@ -125,11 +117,9 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
     }
 
     private ConnectionInitiationTaskImpl createSimpleConnectionInitiationTask(PartialConnectionInitiationTask partialConnectionInitiationTask) {
-        ConnectionInitiationTaskImpl connectionInitiationTask = (ConnectionInitiationTaskImpl) device.getConnectionInitiationTaskBuilder(partialConnectionInitiationTask)
+        return (ConnectionInitiationTaskImpl) device.getConnectionInitiationTaskBuilder(partialConnectionInitiationTask)
                 .setComPortPool(outboundTcpipComPortPool)
                 .add();
-        device.save();
-        return connectionInitiationTask;
     }
 
     @Test
@@ -144,7 +134,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         connectionInitiationTask.setProperty("doesNotExist", "don't care");
 
         // Business method
-        connectionInitiationTask.save();
+        device.save();
 
         // Asserts: see ExpectedConstraintViolation rule
     }
@@ -155,10 +145,9 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
     public void testCreateWithIpWithModemComPortPool() {
         partialConnectionInitiationTask.setConnectionTypePluggableClass(modemNoParamsConnectionTypePluggableClass);
         partialConnectionInitiationTask.save();
-        ConnectionInitiationTaskImpl connectionInitiationTask = createSimpleConnectionInitiationTask();
 
         // Business method
-        connectionInitiationTask.save();
+        createSimpleConnectionInitiationTask();
 
         // Expected BusinessException because the ComPortType of the ComPortPool is not supported by the ConnectionType
     }
@@ -177,10 +166,8 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         when(partialConnectionInitiationTask.getConfiguration()).thenReturn(deviceConfiguration2);
         when(partialConnectionInitiationTask.getPluggableClass()).thenReturn(outboundNoParamsConnectionTypePluggableClass);
 
-        ConnectionInitiationTaskImpl connectionInitiationTask = createSimpleConnectionInitiationTask(partialConnectionInitiationTask);
-
         // Business method
-        connectionInitiationTask.save();
+        createSimpleConnectionInitiationTask(partialConnectionInitiationTask);
 
         // Asserts: see expected exception rule
     }
@@ -192,11 +179,11 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         partialConnectionInitiationTask.save();
         ConnectionInitiationTaskImpl connectionInitiationTask = createSimpleConnectionInitiationTask();
         this.setIpConnectionProperties(connectionInitiationTask, IP_ADDRESS_PROPERTY_VALUE, null);
-        connectionInitiationTask.save();
+        device.save();
 
         // Business method
         connectionInitiationTask.setProperty(IpConnectionType.PORT_PROPERTY_NAME, PORT_PROPERTY_VALUE);
-        connectionInitiationTask.save();
+        device.save();
 
         // Asserts
         ConnectionInitiationTask updated = inMemoryPersistence.getConnectionTaskService().findConnectionInitiationTask(connectionInitiationTask.getId()).get();
@@ -211,10 +198,10 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testMakeObsoleteWithoutProperties() {
         ConnectionInitiationTaskImpl connectionInitiationTask = createSimpleConnectionInitiationTask();
-        connectionInitiationTask.save();
+        device.save();
 
         // Business method
-        connectionInitiationTask.makeObsolete();
+        device.removeConnectionTask(connectionInitiationTask);
 
         // Asserts
         assertTrue(connectionInitiationTask.isObsolete());
@@ -225,11 +212,12 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testIsObsoleteAfterReload() {
         ConnectionInitiationTaskImpl connectionInitiationTask = createSimpleConnectionInitiationTask();
-        connectionInitiationTask.save();
+
         long id = connectionInitiationTask.getId();
 
         // Business methods
-        connectionInitiationTask.makeObsolete();
+        device.removeConnectionTask(connectionInitiationTask);
+
         ConnectionInitiationTask reloaded = inMemoryPersistence.getConnectionTaskService().findConnectionInitiationTask(id).get();
 
         // Asserts
@@ -245,10 +233,10 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         partialConnectionInitiationTask.save();
         ConnectionInitiationTaskImpl connectionTask = createSimpleConnectionInitiationTask();
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
-        connectionTask.save();
+        device.save();
 
         // Business method
-        connectionTask.makeObsolete();
+        device.removeConnectionTask(connectionTask);
 
         // Asserts
         assertTrue(connectionTask.isObsolete());
@@ -258,115 +246,118 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), true)).hasSize(1);
     }
 
-    @Test
-    @Transactional
-    public void testReallyDeleteWithoutParams() {
-        ConnectionInitiationTaskImpl connectionInitiationTask = createSimpleConnectionInitiationTask();
-        connectionInitiationTask.save();
-        long id = connectionInitiationTask.getId();
+//    @Test
+//    @Transactional
+//    public void testReallyDeleteWithoutParams() {
+//        ConnectionInitiationTaskImpl connectionInitiationTask = createSimpleConnectionInitiationTask();
+//
+//        long id = connectionInitiationTask.getId();
+//
+//        // Business method
+//        connectionInitiationTask.delete();
+//
+//        // Asserts
+//        assertThat(inMemoryPersistence.getConnectionTaskService().findConnectionInitiationTask(id).isPresent()).isFalse();
+//    }
 
-        // Business method
-        connectionInitiationTask.delete();
+//    @Test
+//    @Transactional
+//    public void testReallyDeleteWithParams() {
+//        partialConnectionInitiationTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
+//        partialConnectionInitiationTask.save();
+//        ConnectionInitiationTaskImpl connectionInitiationTask = createSimpleConnectionInitiationTask();
+//        this.setIpConnectionProperties(connectionInitiationTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
+//        connectionInitiationTask.save();
+//        long id = connectionInitiationTask.getId();
+//
+//        // Business method
+//        connectionInitiationTask.delete();
+//
+//        // Asserts
+//        assertThat(inMemoryPersistence.getConnectionTaskService().findConnectionInitiationTask(id).isPresent()).isFalse();
+//        RelationAttributeType connectionMethodAttributeType = outboundIpConnectionTypePluggableClass.getDefaultAttributeType();
+//        assertThat(connectionInitiationTask.getRelations(connectionMethodAttributeType, Range.all(), false)).isEmpty();
+//        assertThat(connectionInitiationTask.getRelations(connectionMethodAttributeType, Range.all(), true)).isNotEmpty();    // The relations should have been made obsolete
+//    }
 
-        // Asserts
-        assertThat(inMemoryPersistence.getConnectionTaskService().findConnectionInitiationTask(id).isPresent()).isFalse();
-    }
+//    @Test
+//    @Transactional
+//    public void testDeletedAndSetComTaskToNoConnectionTask() {
+//        ConnectionInitiationTaskImpl connectionInitiationTask = createSimpleConnectionInitiationTask();
+//        long id = connectionInitiationTask.getId();
+//
+//        ScheduledComTaskExecution comTaskExecution = createComTaskExecution();
+//        ScheduledComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
+//        comTaskExecutionUpdater.connectionTask(connectionInitiationTask);
+//        comTaskExecutionUpdater.update();
+//
+//        // Business method
+//        connectionInitiationTask.delete;
+//
+//        // Asserts
+//        ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
+//        assertThat(reloadedComTaskExecution.getConnectionTask()).isEmpty();
+//        assertThat(inMemoryPersistence.getConnectionTaskService().findConnectionInitiationTask(id).isPresent()).isFalse();
+//    }
 
-    @Test
-    @Transactional
-    public void testReallyDeleteWithParams() {
-        partialConnectionInitiationTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
-        partialConnectionInitiationTask.save();
-        ConnectionInitiationTaskImpl connectionInitiationTask = createSimpleConnectionInitiationTask();
-        this.setIpConnectionProperties(connectionInitiationTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
-        connectionInitiationTask.save();
-        long id = connectionInitiationTask.getId();
-
-        // Business method
-        connectionInitiationTask.delete();
-
-        // Asserts
-        assertThat(inMemoryPersistence.getConnectionTaskService().findConnectionInitiationTask(id).isPresent()).isFalse();
-        RelationAttributeType connectionMethodAttributeType = outboundIpConnectionTypePluggableClass.getDefaultAttributeType();
-        assertThat(connectionInitiationTask.getRelations(connectionMethodAttributeType, Range.all(), false)).isEmpty();
-        assertThat(connectionInitiationTask.getRelations(connectionMethodAttributeType, Range.all(), true)).isNotEmpty();    // The relations should have been made obsolete
-    }
-
-    @Test
-    @Transactional
-    public void testDeletedAndSetComTaskToNoConnectionTask() {
-        ConnectionInitiationTaskImpl connectionInitiationTask = createSimpleConnectionInitiationTask();
-        connectionInitiationTask.save();
-        long id = connectionInitiationTask.getId();
-
-        ScheduledComTaskExecution comTaskExecution = createComTaskExecution();
-        ScheduledComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
-        comTaskExecutionUpdater.connectionTask(connectionInitiationTask);
-        comTaskExecutionUpdater.update();
-
-        // Business method
-        connectionInitiationTask.delete();
-
-        // Asserts
-        ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
-        assertThat(reloadedComTaskExecution.getConnectionTask()).isEmpty();
-        assertThat(inMemoryPersistence.getConnectionTaskService().findConnectionInitiationTask(id).isPresent()).isFalse();
-    }
-
-    @Test
-    @Transactional
-    public void testReallyDeleteWithObsoleteComTasks() {
-        partialConnectionInitiationTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
-        partialConnectionInitiationTask.save();
-        ConnectionInitiationTaskImpl connectionTask = createSimpleConnectionInitiationTask();
-        this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
-        connectionTask.save();
-        long id = connectionTask.getId();
-
-        ScheduledComTaskExecution comTaskExecution = createComTaskExecution();
-        ScheduledComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
-        comTaskExecutionUpdater.connectionTask(connectionTask);
-        ComTaskExecution update = comTaskExecutionUpdater.update();
-        device.removeComTaskExecution(update);
-        device.save();
-
-        // Business method
-        connectionTask.delete();
-
-        List<ComTaskExecution> allComTaskExecutionsIncludingObsoleteForDevice = inMemoryPersistence.getCommunicationTaskService().findAllComTaskExecutionsIncludingObsoleteForDevice(device);
-        // Asserts
-        assertThat(allComTaskExecutionsIncludingObsoleteForDevice).are(new Condition<ComTaskExecution>() {
-            @Override
-            public boolean matches(ComTaskExecution comTaskExecution) {
-                return !comTaskExecution.getConnectionTask().isPresent();
-            }
-        });
-        assertThat(inMemoryPersistence.getConnectionTaskService().findConnectionInitiationTask(id).isPresent()).isFalse();
-        RelationAttributeType connectionMethodAttributeType = outboundIpConnectionTypePluggableClass.getDefaultAttributeType();
-        assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), false)).isEmpty();
-        assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), true)).isNotEmpty();    // The relations should have been made obsolete
-    }
+//    @Test
+//    @Transactional
+//    public void testReallyDeleteWithObsoleteComTasks() {
+//        partialConnectionInitiationTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
+//        partialConnectionInitiationTask.save();
+//        ConnectionInitiationTaskImpl connectionTask = createSimpleConnectionInitiationTask();
+//        this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
+//        connectionTask.save();
+//        long id = connectionTask.getId();
+//
+//        ScheduledComTaskExecution comTaskExecution = createComTaskExecution();
+//        ScheduledComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
+//        comTaskExecutionUpdater.connectionTask(connectionTask);
+//        ComTaskExecution update = comTaskExecutionUpdater.update();
+//        device.removeComTaskExecution(update);
+//        device.save();
+//
+//        // Business method
+//        connectionTask.delete();
+//
+//        List<ComTaskExecution> allComTaskExecutionsIncludingObsoleteForDevice = inMemoryPersistence.getCommunicationTaskService().findAllComTaskExecutionsIncludingObsoleteForDevice(device);
+//        // Asserts
+//        assertThat(allComTaskExecutionsIncludingObsoleteForDevice).are(new Condition<ComTaskExecution>() {
+//            @Override
+//            public boolean matches(ComTaskExecution comTaskExecution) {
+//                return !comTaskExecution.getConnectionTask().isPresent();
+//            }
+//        });
+//        assertThat(inMemoryPersistence.getConnectionTaskService().findConnectionInitiationTask(id).isPresent()).isFalse();
+//        RelationAttributeType connectionMethodAttributeType = outboundIpConnectionTypePluggableClass.getDefaultAttributeType();
+//        assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), false)).isEmpty();
+//        assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), true)).isNotEmpty();    // The relations should have been made obsolete
+//    }
 
     @Test
     @Transactional
     public void testMakeObsolete() {
+        RelationAttributeType connectionMethodAttributeType = outboundIpConnectionTypePluggableClass.getDefaultAttributeType();
+
         partialConnectionInitiationTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialConnectionInitiationTask.save();
+
         ConnectionInitiationTaskImpl connectionTask = createSimpleConnectionInitiationTask();
         this.setIpConnectionProperties(connectionTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
-        connectionTask.save();
+        device.save();
+        assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), true)).hasSize(1);
 
         // Asserts
         assertNull("ObsoleteDate should be null", connectionTask.getObsoleteDate());
         assertFalse("Should not be obsolete", connectionTask.isObsolete());
 
         // Business method
-        connectionTask.makeObsolete();
+        device.removeConnectionTask(connectionTask);
 
         // Asserts
         assertNotNull("ObsoleteDate should be set", connectionTask.getObsoleteDate());
         assertTrue("Should be obsolete", connectionTask.isObsolete());
-        RelationAttributeType connectionMethodAttributeType = outboundIpConnectionTypePluggableClass.getDefaultAttributeType();
+
         assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), false)).isEmpty();
         assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), true)).hasSize(1);
     }
@@ -375,7 +366,6 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
     @Transactional
     public void testMakeObsoleteWithActiveComTasks() {
         ConnectionInitiationTaskImpl connectionTask = createSimpleConnectionInitiationTask();
-        connectionTask.save();
 
         ScheduledComTaskExecution comTaskExecution = createComTaskExecution();
         ScheduledComTaskExecutionUpdater comTaskExecutionUpdater = comTaskExecution.getDevice().getComTaskExecutionUpdater(comTaskExecution);
@@ -383,39 +373,38 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         comTaskExecutionUpdater.update();
 
         // Business method
-        connectionTask.makeObsolete();
+        device.removeConnectionTask(connectionTask);
 
-        ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(device);
+        ComTaskExecution reloadedComTaskExecution = getReloadedComTaskExecution(comTaskExecution);
 
         // Asserts
         assertThat(reloadedComTaskExecution.getConnectionTask()).isEmpty();
     }
 
-    @Test(expected = CannotUpdateObsoleteConnectionTaskException.class)
+    @Test(expected = ConstraintViolationException.class)
     @Transactional
     public void testUpdateAfterMakeObsolete() {
         ConnectionInitiationTaskImpl connectionTask = createSimpleConnectionInitiationTask();
-        connectionTask.save();
 
-        connectionTask.makeObsolete();
+        device.removeConnectionTask(connectionTask);
 
         // Business method
         connectionTask.setComPortPool(outboundTcpipComPortPool2);
-        connectionTask.save();
+        device.save();
+      //  connectionTask.save();
 
         // Asserts: see expected exception rule
     }
 
-    @Test(expected = ConnectionTaskIsAlreadyObsoleteException.class)
+    @Test(expected = ConstraintViolationException.class)
     @Transactional
     public void testMakeObsoleteTwice() {
         ConnectionInitiationTaskImpl connectionInitiationTask = createSimpleConnectionInitiationTask();
-        connectionInitiationTask.save();
 
-        connectionInitiationTask.makeObsolete();
+        device.removeConnectionTask(connectionInitiationTask);
 
         // Business method
-        connectionInitiationTask.makeObsolete();
+        device.removeConnectionTask(connectionInitiationTask);
 
         // Asserts: see expected exception rule
     }
@@ -426,14 +415,12 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         partialConnectionInitiationTask.save();
         ConnectionInitiationTaskImpl connectionInitiationTask = createSimpleConnectionInitiationTask();
         this.setIpConnectionProperties(connectionInitiationTask, IP_ADDRESS_PROPERTY_VALUE, PORT_PROPERTY_VALUE);
-        connectionInitiationTask.save();
+
         return connectionInitiationTask;
     }
 
     private ConnectionInitiationTaskImpl createWithoutPropertiesAndNoViolations() {
-        ConnectionInitiationTaskImpl connectionInitiationTask = createSimpleConnectionInitiationTask();
-        connectionInitiationTask.save();
-        return connectionInitiationTask;
+        return createSimpleConnectionInitiationTask();
     }
 
 }

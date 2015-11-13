@@ -22,6 +22,8 @@ public interface ComSessionBuilder extends BuildsStatistics<ComSessionBuilder> {
 
     ConnectionTask getConnectionTask();
 
+    ComSessionBuilder withConnectionTask(ConnectionTask connectionTask);
+
     ComSessionBuilder connectDuration(Duration duration);
 
     ComSessionBuilder talkDuration(Duration duration);
@@ -52,7 +54,7 @@ public interface ComSessionBuilder extends BuildsStatistics<ComSessionBuilder> {
 
     EndedComSessionBuilder endSession(Instant stopTime, ComSession.SuccessIndicator successIndicator);
 
-    public interface EndedComSessionBuilder {
+    interface EndedComSessionBuilder {
         ComSession create();
     }
 

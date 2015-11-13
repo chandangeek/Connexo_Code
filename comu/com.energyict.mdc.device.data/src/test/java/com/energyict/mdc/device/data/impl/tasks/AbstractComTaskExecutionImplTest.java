@@ -116,12 +116,10 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         partialConnectionTask.setName(name);
         partialConnectionTask.save();
 
-        ScheduledConnectionTaskImpl scheduledConnectionTask = (ScheduledConnectionTaskImpl) device.getScheduledConnectionTaskBuilder(partialConnectionTask)
+        return (ScheduledConnectionTaskImpl) device.getScheduledConnectionTaskBuilder(partialConnectionTask)
                 .setComPortPool(outboundTcpipComPortPool)
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .add();
-        device.save();
-        return scheduledConnectionTask;
     }
 
     protected PartialScheduledConnectionTask createPartialScheduledConnectionTask() {
@@ -152,9 +150,7 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
     protected ScheduledConnectionTaskImpl createASAPConnectionStandardTask(Device device, TimeDuration frequency) {
         PartialScheduledConnectionTask partialScheduledConnectionTask = createPartialScheduledConnectionTask(frequency);
         OutboundComPortPool outboundPool = createOutboundIpComPortPool("MyOutboundPool");
-        ScheduledConnectionTaskImpl myConnectionTask = createAsapWithNoPropertiesWithoutViolations("MyConnectionTask", device, partialScheduledConnectionTask, outboundPool);
-        myConnectionTask.save();
-        return myConnectionTask;
+        return createAsapWithNoPropertiesWithoutViolations("MyConnectionTask", device, partialScheduledConnectionTask, outboundPool);
     }
 
     protected ScheduledConnectionTaskImpl createMinimizeOneDayConnectionStandardTask(Device device) {
@@ -162,14 +158,11 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         OutboundComPortPool outboundPool = createOutboundIpComPortPool("MyOutboundPool");
         partialOutboundConnectionTask.setName("Minimize");
         partialOutboundConnectionTask.save();
-        ScheduledConnectionTaskImpl scheduledConnectionTask = (ScheduledConnectionTaskImpl) device.getScheduledConnectionTaskBuilder(partialOutboundConnectionTask)
+        return (ScheduledConnectionTaskImpl) device.getScheduledConnectionTaskBuilder(partialOutboundConnectionTask)
                 .setComPortPool(outboundPool)
                 .setConnectionStrategy(ConnectionStrategy.MINIMIZE_CONNECTIONS)
                 .setNextExecutionSpecsFrom(new TemporalExpression(TimeDuration.days(1)))
                 .add();
-        device.save();
-
-        return scheduledConnectionTask;
     }
 
     protected ComSchedule createComSchedule(ComTask comTask) {
@@ -204,8 +197,7 @@ public abstract class AbstractComTaskExecutionImplTest extends PersistenceIntegr
         final OnlineComServer onlineComServer = onlineComServerBuilder.create();
         OutboundComPort.OutboundComPortBuilder outboundComPortBuilder = onlineComServer.newOutboundComPort("ComPort", 1);
         outboundComPortBuilder.comPortType(ComPortType.TCP);
-        OutboundComPort outboundComPort = outboundComPortBuilder.add();
-        return outboundComPort;
+        return outboundComPortBuilder.add();
     }
 
     protected Instant createFixedTimeStamp(int years, int months, int days, int hours, int minutes, int seconds, int millis) {

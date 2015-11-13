@@ -62,6 +62,12 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
             return parentBuilder();
         }
 
+        @Override
+        public ComSessionBuilder withConnectionTask(ConnectionTask connectionTask) {
+            parentBuilder().withConnectionTask(connectionTask);
+            return parentBuilder();
+        }
+
         private ComSessionBuilderImpl parentBuilder() {
             return ComSessionBuilderImpl.this;
         }
@@ -314,4 +320,8 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
         return state.findFor(comTaskExecution);
     }
 
+    @Override
+    public ComSessionBuilder withConnectionTask(ConnectionTask connectionTask) {
+        return state.withConnectionTask(connectionTask);
+    }
 }

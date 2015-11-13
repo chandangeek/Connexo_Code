@@ -193,9 +193,7 @@ public class DeviceImplDoSomethingWithEventsTest {
     }
 
     private Device createSimpleDeviceWithName(String name) {
-        Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, MRID);
-        device.save();
-        return device;
+        return inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, name, MRID);
     }
 
     private Device getReloadedDevice(Device device) {

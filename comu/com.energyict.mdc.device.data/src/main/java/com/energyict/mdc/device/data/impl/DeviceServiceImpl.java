@@ -169,13 +169,14 @@ public class DeviceServiceImpl implements ServerDeviceService {
 
     @Override
     public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID) {
-        return this.deviceDataModelService.dataModel().getInstance(DeviceImpl.class).initialize(deviceConfiguration, name, mRID);
+        Device device = this.deviceDataModelService.dataModel().getInstance(DeviceImpl.class).initialize(deviceConfiguration, name, mRID);
+        device.save(); // always returns a persisted device
+        return device;
     }
 
     @Override
     public Device newDevice(DeviceConfiguration deviceConfiguration, String name, String mRID, String batch) {
         Device device = newDevice(deviceConfiguration, name, mRID);
-        device.save();
         this.deviceDataModelService.batchService().findOrCreateBatch(batch).addDevice(device);
         return device;
     }
