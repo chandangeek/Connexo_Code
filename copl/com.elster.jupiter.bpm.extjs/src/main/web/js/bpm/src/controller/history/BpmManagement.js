@@ -49,6 +49,14 @@ Ext.define('Bpm.controller.history.BpmManagement', {
 
                                 return this;
                             }
+                        },
+                        bulkaction: {
+                            title: Uni.I18n.translate('bpm.task..bulkAction', 'BPM', 'Bulk action'),
+                            route: 'bulkaction',
+                            controller: 'Bpm.controller.TaskBulk',
+                            privileges: Mdc.privileges.Device.viewOrAdministrateOrOperateDeviceCommunication,
+                            action: 'showOverview'//,
+                            //filter: 'Dsh.model.Filter'
                         }
                     }					
                 }

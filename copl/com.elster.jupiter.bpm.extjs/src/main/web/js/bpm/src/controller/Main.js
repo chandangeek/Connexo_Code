@@ -6,6 +6,7 @@ Ext.define('Bpm.controller.Main', {
         'Uni.controller.Navigation',
         'Uni.store.MenuItems',
         'Bpm.controller.Task',
+        'Bpm.controller.TaskBulk',
         'Bpm.controller.Process',
         'Bpm.controller.history.BpmManagement',
         'Bpm.privileges.BpmManagement'

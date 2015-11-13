@@ -13,7 +13,8 @@ Ext.define('Bpm.controller.Task', {
         'Bpm.store.task.TasksFilterDueDates',
         'Bpm.store.task.TasksFilterProcesses',
         'Bpm.store.task.TasksFilterStatuses',
-        'Bpm.store.task.TasksFilterUsers'
+        'Bpm.store.task.TasksFilterUsers',
+        'Bpm.store.task.TasksUsers'
     ],
     refs: [
         {
@@ -33,6 +34,9 @@ Ext.define('Bpm.controller.Task', {
             },
             'bpm-task-action-menu': {
                 click: this.chooseAction
+            },
+            'bpm-tasks-grid #btn-tasks-bulk-action': {
+                click: this.forwardToBulk
             }
         });
         this.application.getController('Bpm.controller.FilterSortTasks');
@@ -165,6 +169,13 @@ Ext.define('Bpm.controller.Task', {
         route.params.process = queryString.process;
 
         route && route.forward(router.arguments);
+    },
+
+    forwardToBulk: function () {
+        var router = this.getController('Uni.controller.history.Router');
+        //alert();
+
+        router.getRoute('workspace/taksmanagementtasks/bulkaction').forward(router.arguments);
     }
 
 });
