@@ -104,4 +104,9 @@ public class VersionedDomainExtensionForTestingPurposes implements PersistentDom
         propertySetValues.setProperty(FieldNames.CONTRACT_NUMBER.javaName(), this.getContractNumber());
     }
 
+    @Override
+    public void validateDelete() {
+        // Nothing to validate
+    }
+
 }

@@ -26,6 +26,7 @@ import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.util.time.Interval;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -429,6 +430,12 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                 .filter(activeSet -> activeSet.getCustomPropertySet().getId().equals(customPropertySet.getId()))
                 .findAny()
                 .orElseThrow(() -> new IllegalArgumentException("Custom property set " + customPropertySet.getId() + " is not active or not active any longer"));
+    }
+
+    @Override
+    public <D, T extends PersistentDomainExtension<D>> void removeValuesFor(CustomPropertySet<D, T> customPropertySet, D businessObject) {
+        ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
+        activeCustomPropertySet.deleteExtensions(businessObject);
     }
 
     private class TableBuilder {

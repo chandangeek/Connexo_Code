@@ -99,4 +99,9 @@ public class DomainExtensionForTestingPurposes implements PersistentDomainExtens
         propertySetValues.setProperty(FieldNames.CONTRACT_NUMBER.javaName(), this.getContractNumber());
     }
 
+    @Override
+    public void validateDelete() {
+        // Nothing to validate
+    }
+
 }

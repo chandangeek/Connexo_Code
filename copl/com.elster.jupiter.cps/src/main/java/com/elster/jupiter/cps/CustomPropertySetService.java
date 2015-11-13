@@ -137,7 +137,7 @@ public interface CustomPropertySetService {
 
     /**
      * Gets the values for the {@link CustomPropertySet} that were saved for
-     * the specified businesObject object.
+     * the specified businesObject object at the specified point in time.
      * <p>
      * Note that this will throw an UnsupportedOperationException
      * when the CustomPropertySet is <strong>NOT</strong> versioned because in that case
@@ -146,6 +146,7 @@ public interface CustomPropertySetService {
      *
      * @param customPropertySet The CustomPropertySet
      * @param businesObject The businesObject object
+     * @param effectiveTimestamp The point in time
      * @param <D> The businesObject class
      * @param <T> The class that holds persistent values for this CustomPropertySet
      * @return The CustomPropertySetValues
@@ -155,7 +156,7 @@ public interface CustomPropertySetService {
     <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp);
 
     /**
-     * Sets the values for the {@link CustomPropertySet} that were saved for
+     * Sets the values for the {@link CustomPropertySet} against
      * the specified businesObject object.
      * <p>
      * Note that previous values are not lost but retained for historical purposes.
@@ -168,6 +169,7 @@ public interface CustomPropertySetService {
      *
      * @param customPropertySet The CustomPropertySet
      * @param businesObject The businesObject object
+     * @param effectiveTimestamp The point in time from which the new values are effective onwards
      * @param values The CustomPropertySetValues
      * @param <D> The businesObject class
      * @param <T> The class that holds persistent values for this CustomPropertySet
@@ -197,7 +199,7 @@ public interface CustomPropertySetService {
 
     /**
      * Gets the values for the {@link CustomPropertySet} that were saved for
-     * the specified businesObject object.
+     * the specified businesObject object at the specified point in time.
      * <p>
      * Note that this will throw an UnsupportedOperationException
      * when the CustomPropertySet is <strong>NOT</strong> versioned because in that case
@@ -206,6 +208,7 @@ public interface CustomPropertySetService {
      *
      * @param customPropertySet The CustomPropertySet
      * @param businesObject The businesObject object
+     * @param effectiveTimestamp The point in time
      * @param <D> The businesObject class
      * @param <T> The class that holds persistent values for this CustomPropertySet
      * @return The CustomPropertySetValues
@@ -213,5 +216,18 @@ public interface CustomPropertySetService {
      * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
      */
     <D, T extends PersistentDomainExtension<D>> Optional<T> getValuesEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp);
+
+    /**
+     * Removes all the values for the {@link CustomPropertySet} that
+     * were saved for the specified businesObject object before.
+     *
+     * @param customPropertySet The CustomPropertySet
+     * @param businesObject The businesObject object
+     * @param <D> The businesObject class
+     * @param <T> The class that holds persistent values for this CustomPropertySet
+     * @see #setValuesFor(CustomPropertySet, Object, CustomPropertySetValues)
+     * @see #setValuesFor(CustomPropertySet, Object, CustomPropertySetValues, Instant)
+     */
+    <D, T extends PersistentDomainExtension<D>> void removeValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject);
 
 }

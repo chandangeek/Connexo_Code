@@ -45,4 +45,10 @@ public interface PersistentDomainExtension<T> {
      */
     void copyTo(CustomPropertySetValues propertySetValues);
 
+    /**
+     * Notifies this PersistentDomainExtension that is about to be deleted and
+     * provides a means to veto deletion when a business constraint is violated.
+     */
+    void validateDelete();
+
 }

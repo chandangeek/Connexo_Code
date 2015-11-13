@@ -6,9 +6,11 @@ import com.elster.jupiter.cps.HardCodedFieldNames;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Interval;
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -42,6 +44,10 @@ class ActiveCustomPropertySet {
         return customPropertySet;
     }
 
+    private DataMapper getMapper() {
+        return this.customPropertySetDataModel.mapper(this.customPropertySet.getPersistenceSupport().persistenceClass());
+    }
+
     @SuppressWarnings("unchecked")
     <T extends PersistentDomainExtension<D>, D> Optional<T> getValuesEntityFor(D businessObject) {
         Condition condition =    where(this.customPropertySet.getPersistenceSupport().domainFieldName()).isEqualTo(businessObject)
@@ -58,11 +64,15 @@ class ActiveCustomPropertySet {
     }
 
     @SuppressWarnings("unchecked")
+    <T extends PersistentDomainExtension<D>, D> List<T> getAllValuesEntityFor(D businessObject) {
+        Condition condition =    where(this.customPropertySet.getPersistenceSupport().domainFieldName()).isEqualTo(businessObject)
+                            .and(where(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName()).isEqualTo(this.registeredCustomPropertySet));
+        return this.getMapper().select(condition);
+    }
+
+    @SuppressWarnings("unchecked")
     <T extends PersistentDomainExtension<D>, D> Optional<T> getValuesEntityFor(Condition condition, Supplier<String> errorMessageSupplier) {
-        List<T> extensions =
-                this.customPropertySetDataModel
-                    .mapper(this.customPropertySet.getPersistenceSupport().persistenceClass())
-                    .select(condition);
+        List<T> extensions = this.getMapper().select(condition);
         if (extensions.isEmpty()) {
             return Optional.empty();
         }
@@ -123,6 +133,21 @@ class ActiveCustomPropertySet {
             this.customPropertySetDataModel.update(businessObject, HardCodedFieldNames.INTERVAL.javaName());
         }
         this.createExtension(businessObject, values, effectiveTimestamp);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends PersistentDomainExtension<D>, D> void deleteExtensions(D businessObject) {
+        if (this.customPropertySet.isVersioned()) {
+            this.getMapper().remove(this.getAllValuesEntityFor(businessObject));
+        }
+        else {
+            this.getValuesEntityFor(businessObject).ifPresent(this::delete);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends PersistentDomainExtension<D>, D> void delete(T extension) {
+        this.getMapper().remove(extension);
     }
 
 }
