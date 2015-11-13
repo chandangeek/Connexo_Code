@@ -65,9 +65,9 @@ public enum MessageSeeds implements MessageSeed {
     CONCURRENT_RUN_BODY(246, "ConcurrentRunMessage", "{0} has changed since the page was last updated."),
     DEVICE_SEARCH_DOMAIN_NOT_REGISTERED(247, "DeviceSearchDomainNotRegistered", "Device search domain is not registered"),
     AT_LEAST_ONE_SEARCH_CRITERIA(248, "AtLeastOneCriteria" , "At least one search criterion has to be provided"),
-    NO_SUCH_CUSTOMPROPERTYSET(247, "noSuchCPS", "No custom property set with ID {0}"),
-    NO_SUCH_REQUIRED_PROPERTY(248, "noSuchProperty", "No custom property required value"),
-    SEARCHABLE_PROPERTY_INVALID_VALUE(249, "SearchablePropertyInvalidValue", "Invalid value"),
+    NO_SUCH_CUSTOMPROPERTYSET(249, "noSuchCPS", "No custom property set with ID {0}"),
+    NO_SUCH_REQUIRED_PROPERTY(250, "noSuchProperty", "No custom property required value"),
+    SEARCHABLE_PROPERTY_INVALID_VALUE(251, "SearchablePropertyInvalidValue", "Invalid value"),
     ;
     private final int number;
     private final String key;
