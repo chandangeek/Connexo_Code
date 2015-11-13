@@ -246,7 +246,7 @@ Ext.define('Uni.service.Search', {
 
     clearFilters: function () {
         this.init();
-        this.getSearchResultsStore().load();
+        this.applyFilters();
     },
 
     getFilters: function() {
