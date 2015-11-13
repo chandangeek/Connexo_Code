@@ -37,7 +37,7 @@ public class QueryEndDeviceGroupCondition {
     @IsPresent
     private Reference<QueryEndDeviceGroup> endDeviceGroup = ValueReference.absent();
     @NotNull
-    @Size(min = 1, max = Table.NAME_LENGTH)
+    @Size(min = 1, max = Table.SHORT_DESCRIPTION_LENGTH)
     private String searchableProperty;
     @NotNull
     private SearchablePropertyOperator operator;

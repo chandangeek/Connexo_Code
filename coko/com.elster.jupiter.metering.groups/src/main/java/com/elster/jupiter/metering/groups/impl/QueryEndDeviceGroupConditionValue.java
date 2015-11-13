@@ -27,7 +27,7 @@ public class QueryEndDeviceGroupConditionValue {
     @IsPresent
     private Reference<QueryEndDeviceGroupCondition> deviceGroupCondition = ValueReference.absent();
     @NotNull
-    @Size(min = 1, max = Table.DESCRIPTION_LENGTH)
+    @Size(min = 1, max = Table.SHORT_DESCRIPTION_LENGTH)
     private String value;
 
     @SuppressWarnings("unused")

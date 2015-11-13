@@ -111,7 +111,7 @@ public enum TableSpecs {
             Table<QueryEndDeviceGroupCondition> table = dataModel.addTable(name(), QueryEndDeviceGroupCondition.class);
             table.map(QueryEndDeviceGroupCondition.class);
             Column groupColumn = table.column("ENDDEVICEGROUP").number().notNull().add();
-            Column searchablePropertyColumn = table.column("PROPERTY").varChar(Table.NAME_LENGTH).notNull().map(QueryEndDeviceGroupCondition.Fields.SEARCHABLE_PROPERTY.fieldName()).add();
+            Column searchablePropertyColumn = table.column("PROPERTY").varChar(Table.SHORT_DESCRIPTION_LENGTH).notNull().map(QueryEndDeviceGroupCondition.Fields.SEARCHABLE_PROPERTY.fieldName()).add();
             table.column("OPERATOR").number().notNull().conversion(NUMBER2ENUM).map(QueryEndDeviceGroupCondition.Fields.OPERATOR.fieldName()).add();
 
             table.primaryKey("MTG_PK_QUERY_EDG_CONDITION").on(groupColumn, searchablePropertyColumn).add();
@@ -130,7 +130,7 @@ public enum TableSpecs {
             Table<QueryEndDeviceGroupConditionValue> table = dataModel.addTable(name(), QueryEndDeviceGroupConditionValue.class);
             table.map(QueryEndDeviceGroupConditionValue.class);
             Column groupColumn = table.column("ENDDEVICEGROUP").number().notNull().add();
-            Column searchablePropertyColumn = table.column("PROPERTY").varChar(Table.NAME_LENGTH).notNull().add();
+            Column searchablePropertyColumn = table.column("PROPERTY").varChar(Table.SHORT_DESCRIPTION_LENGTH).notNull().add();
             Column positionColumn = table.column("POSITION").number().notNull().conversion(NUMBER2INT).map(QueryEndDeviceGroupConditionValue.Fields.POSITION.fieldName()).add();
             table.column("VALUE").varChar(Table.SHORT_DESCRIPTION_LENGTH).notNull().map(QueryEndDeviceGroupConditionValue.Fields.VALUE.fieldName()).add();
 
