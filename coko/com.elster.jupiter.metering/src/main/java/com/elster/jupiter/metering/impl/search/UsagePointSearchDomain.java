@@ -16,6 +16,8 @@ import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.util.conditions.Condition;
+import com.fasterxml.jackson.databind.deser.impl.PropertyValue;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -105,7 +107,11 @@ public class UsagePointSearchDomain implements SearchDomain {
 
     @Override
     public List<SearchablePropertyValue> getPropertiesValues(Function<SearchableProperty, SearchablePropertyValue> mapper) {
-        return getProperties().stream().map(mapper::apply).collect(Collectors.toList());
+        return getProperties()
+                .stream()
+                .map(mapper::apply)
+                .filter(propertyValue -> propertyValue != null && propertyValue.getValueBean() != null && propertyValue.getValueBean().values != null)
+                .collect(Collectors.toList());
     }
 
     @Override
