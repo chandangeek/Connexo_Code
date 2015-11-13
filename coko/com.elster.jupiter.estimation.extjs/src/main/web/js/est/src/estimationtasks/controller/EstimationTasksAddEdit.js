@@ -159,10 +159,10 @@ Ext.define('Est.estimationtasks.controller.EstimationTasksAddEdit', {
             newEstimationTask.save({
                 backUrl: previousPath
                     ? '#' + previousPath
-                    : me.getController('Uni.controller.history.Router').getRoute('administration/estimationtasks/estimationtask').buildUrl({taskId: newEstimationTask.getId()}),
+                    : me.getController('Uni.controller.history.Router').getRoute('administration/estimationtasks/estimationtask').buildUrl({taskId: newEstimationTask.getId() ? newEstimationTask.getId() : 0}),
                 success: function () {
                     if (button.action === 'editTask' && me.fromDetails) {
-                        me.getController('Uni.controller.history.Router').getRoute('administration/estimationtasks/estimationtask').forward({taskId: newEstimationTask.getId()});
+                        me.getController('Uni.controller.history.Router').getRoute('administration/estimationtasks/estimationtask').forward({taskId: newEstimationTask.getId() ? newEstimationTask.getId() : 0});
                     } else {
                         me.getController('Uni.controller.history.Router').getRoute('administration/estimationtasks').forward();
                     }
