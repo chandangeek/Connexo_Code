@@ -1,22 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.dynamic.relation.RelationService;
-import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.issues.impl.IssuesModule;
-import com.energyict.mdc.pluggable.PluggableService;
-import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
-import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
-import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
-import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
-import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
@@ -40,6 +25,22 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.UtilModule;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.dynamic.relation.RelationService;
+import com.energyict.mdc.issues.IssueService;
+import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.pluggable.PluggableService;
+import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
+import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -84,6 +85,7 @@ public class InMemoryPersistence {
     private PropertySpecService propertySpecService;
     private PluggableService pluggableService;
     private RelationService relationService;
+    private CustomPropertySetService customPropertySetService;
     private DeviceCacheMarshallingService deviceCacheMarshallingService;
     private DataVaultService dataVaultService;
     private LicenseService licenseService;
@@ -119,6 +121,7 @@ public class InMemoryPersistence {
             this.dataVaultService = injector.getInstance(DataVaultService.class);
             this.pluggableService = injector.getInstance(PluggableService.class);
             this.relationService = injector.getInstance(RelationService.class);
+            this.customPropertySetService = injector.getInstance(CustomPropertySetService.class);
             this.issueService = injector.getInstance(IssueService.class);
             this.dataModel = this.createNewProtocolPluggableService();
             for (DataModelInitializer initializer : dataModelInitializers) {
@@ -172,6 +175,7 @@ public class InMemoryPersistence {
                         this.propertySpecService,
                         this.pluggableService,
                         this.relationService,
+                        this.customPropertySetService,
                         this.licenseService,
                         this.dataVaultService);
         this.protocolPluggableService.addInboundDeviceProtocolService(this.inboundDeviceProtocolService);

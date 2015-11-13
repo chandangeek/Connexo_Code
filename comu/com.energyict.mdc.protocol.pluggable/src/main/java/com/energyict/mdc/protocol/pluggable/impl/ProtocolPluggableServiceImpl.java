@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.events.EventService;
@@ -132,6 +133,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     private volatile PropertySpecService propertySpecService;
     private volatile PluggableService pluggableService;
     private volatile RelationService relationService;
+    private volatile CustomPropertySetService customPropertySetService;
     private volatile List<DeviceProtocolService> deviceProtocolServices = new CopyOnWriteArrayList<>();
     private volatile List<InboundDeviceProtocolService> inboundDeviceProtocolServices = new CopyOnWriteArrayList<>();
     private volatile List<ConnectionTypeService> connectionTypeServices = new CopyOnWriteArrayList<>();
@@ -169,6 +171,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
             PropertySpecService propertySpecService,
             PluggableService pluggableService,
             RelationService relationService,
+            CustomPropertySetService customPropertySetService,
             LicenseService licenseService,
             DataVaultService dataVaultService) {
         this();
@@ -180,6 +183,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.setIssueService(issueService);
         this.setPropertySpecService(propertySpecService);
         this.setRelationService(relationService);
+        this.setCustomPropertySetService(customPropertySetService);
         this.setPluggableService(pluggableService);
         this.setUserService(userService);
         this.setLicenseService(licenseService);
@@ -733,6 +737,11 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
         this.relationService = relationService;
     }
 
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
+    }
+
     public List<ConnectionTypeService> getConnectionTypeServices() {
         return connectionTypeServices;
     }
@@ -887,6 +896,7 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(PluggableService.class).toInstance(pluggableService);
                 bind(RelationService.class).toInstance(relationService);
+                bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(IssueService.class).toInstance(issueService);
                 bind(LicenseService.class).toInstance(licenseService);
                 bind(UserService.class).toInstance(userService);

@@ -1,5 +1,15 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.issues.IssueService;
@@ -22,16 +32,6 @@ import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.api.services.NotAppropriateDeviceCacheMarshallingTargetException;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListener;
 import com.energyict.mdc.protocol.pluggable.ProtocolDeploymentListenerRegistration;
-
-import com.elster.jupiter.datavault.DataVaultService;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.exception.MessageSeed;
 
 import java.util.Optional;
 
@@ -77,6 +77,8 @@ public class ProtocolPluggableServiceImplTest {
     private PluggableService pluggableService;
     @Mock
     private RelationService relationService;
+    @Mock
+    private CustomPropertySetService customPropertySetService;
     @Mock
     private LicenseService licenseService;
     @Mock
@@ -759,7 +761,7 @@ public class ProtocolPluggableServiceImplTest {
     }
 
     private ProtocolPluggableServiceImpl newTestInstance() {
-        return new ProtocolPluggableServiceImpl(this.ormService, this.threadPrincipalService, this.eventService, this.nlsService, this.issueService, this.userService, this.meteringService, this.propertySpecService, this.pluggableService, this.relationService, this.licenseService, this.dataVaultService);
+        return new ProtocolPluggableServiceImpl(this.ormService, this.threadPrincipalService, this.eventService, this.nlsService, this.issueService, this.userService, this.meteringService, this.propertySpecService, this.pluggableService, this.relationService, this.customPropertySetService, this.licenseService, this.dataVaultService);
     }
 
 }

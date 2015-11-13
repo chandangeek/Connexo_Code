@@ -1,14 +1,12 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.mocks.MockOutboundConnectionType;
 
-import com.elster.jupiter.transaction.TransactionService;
-
-import java.util.Arrays;
 import java.util.Collections;
 
 import org.junit.*;
@@ -46,19 +44,18 @@ public class ConnectionTypePluggableClassRegistrarTest {
         String expectedPluggableClassName = MockOutboundConnectionType.class.getSimpleName();
         when(pluggableClassDefinition.getName()).thenReturn(expectedPluggableClassName);
         when(pluggableClassDefinition.getProtocolTypeClass()).thenReturn(MockOutboundConnectionType.class);
-        when(this.connectionTypeService.getExistingConnectionTypePluggableClasses()).thenReturn(Arrays.asList(pluggableClassDefinition));
+        when(this.connectionTypeService.getExistingConnectionTypePluggableClasses()).thenReturn(Collections.singletonList(pluggableClassDefinition));
         // Make sure the ConnectionTypePluggableClass does not exist yet
         when(this.protocolPluggableService.findConnectionTypePluggableClassByClassName(expectedConnectionTypeClassName)).thenReturn(Collections.emptyList());
         ConnectionTypePluggableClass expectedCreated = mock(ConnectionTypePluggableClass.class);
         when(this.protocolPluggableService.newConnectionTypePluggableClass(anyString(), anyString())).thenReturn(expectedCreated);
 
         // Business method
-        registrar.registerAll(Arrays.asList(this.connectionTypeService));
+        registrar.registerAll(Collections.singletonList(this.connectionTypeService));
 
         // Asserts
         verify(this.connectionTypeService).getExistingConnectionTypePluggableClasses();
         verify(this.protocolPluggableService).newConnectionTypePluggableClass(expectedPluggableClassName, expectedConnectionTypeClassName);
-        verify(expectedCreated).save();
     }
 
     @Test
@@ -69,13 +66,13 @@ public class ConnectionTypePluggableClassRegistrarTest {
         String expectedPluggableClassName = MockOutboundConnectionType.class.getSimpleName();
         when(pluggableClassDefinition.getName()).thenReturn(expectedPluggableClassName);
         when(pluggableClassDefinition.getProtocolTypeClass()).thenReturn(MockOutboundConnectionType.class);
-        when(this.connectionTypeService.getExistingConnectionTypePluggableClasses()).thenReturn(Arrays.asList(pluggableClassDefinition));
+        when(this.connectionTypeService.getExistingConnectionTypePluggableClasses()).thenReturn(Collections.singletonList(pluggableClassDefinition));
         // Mock that the ConnectionTypePluggableClass already exists
         ConnectionTypePluggableClass connectionTypePluggableClass = mock(ConnectionTypePluggableClass.class);
-        when(this.protocolPluggableService.findConnectionTypePluggableClassByClassName(expectedConnectionTypeClassName)).thenReturn(Arrays.asList(connectionTypePluggableClass));
+        when(this.protocolPluggableService.findConnectionTypePluggableClassByClassName(expectedConnectionTypeClassName)).thenReturn(Collections.singletonList(connectionTypePluggableClass));
 
         // Business method
-        registrar.registerAll(Arrays.asList(this.connectionTypeService));
+        registrar.registerAll(Collections.singletonList(this.connectionTypeService));
 
         // Asserts
         verify(this.connectionTypeService).getExistingConnectionTypePluggableClasses();
