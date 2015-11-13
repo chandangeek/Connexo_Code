@@ -1,11 +1,12 @@
 package com.energyict.mdc.protocol.pluggable;
 
+import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.pluggable.PluggableClass;
-import com.energyict.mdc.pluggable.PluggableClassWithRelationSupport;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.ConnectionType;
 
-import com.elster.jupiter.properties.PropertySpec;
-
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,7 +17,9 @@ import java.util.Optional;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-05-30 (14:10)
  */
-public interface ConnectionTypePluggableClass extends PluggableClassWithRelationSupport {
+public interface ConnectionTypePluggableClass extends PluggableClass {
+
+    List<PropertySpec> getPropertySpecs();
 
     /**
      * Returns the {@link PropertySpec} with the specified name
@@ -56,6 +59,32 @@ public interface ConnectionTypePluggableClass extends PluggableClassWithRelation
      */
     boolean isInstance(ConnectionType connectionType);
 
-    List<PropertySpec> getPropertySpecs();
+    /**
+     * Gets all the properties that were saved against
+     * the specified {@link ConnectionProvider} and that
+     * are effective on the specified point in time.
+     *
+     * @param connectionProvider The ConnectionProvider
+     * @param effectiveTimestamp The point in time
+     */
+    CustomPropertySetValues getPropertiesFor(ConnectionProvider connectionProvider, Instant effectiveTimestamp);
+
+    /**
+     * Sets all the properties for the specified {@link ConnectionProvider}.
+     *
+     * @param connectionProvider The ConnectionProvider
+     * @param value The property values
+     * @param effectiveTimestamp The point in time from which the new values are effective onwards
+     */
+    void setPropertiesFor(ConnectionProvider connectionProvider, CustomPropertySetValues value, Instant effectiveTimestamp);
+
+    /**
+     * Removes all the properties that were saved against
+     * the specified {@link ConnectionProvider} before.
+     *
+     * @param connectionProvider The ConnectionProvider
+     * @see #setPropertiesFor(ConnectionProvider, CustomPropertySetValues, Instant)
+     */
+    void removePropertiesFor(ConnectionProvider connectionProvider);
 
 }

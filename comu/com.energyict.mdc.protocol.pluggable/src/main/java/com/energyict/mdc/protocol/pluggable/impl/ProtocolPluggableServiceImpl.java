@@ -1,5 +1,24 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
+import com.elster.jupiter.datavault.DataVaultService;
+import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
@@ -69,25 +88,6 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupport
 import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationSupport;
 import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationTypeSupport;
 
-import com.elster.jupiter.datavault.DataVaultService;
-import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.license.License;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.MessageSeedProvider;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.callback.InstallService;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import com.google.inject.Singleton;
@@ -501,11 +501,12 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
     @Override
     public ConnectionTypePluggableClass newConnectionTypePluggableClass(String name, String javaClassName, TypedProperties properties) {
         ConnectionTypePluggableClass connectionTypePluggableClass = this.newConnectionTypePluggableClass(name, javaClassName);
-        for (PropertySpec propertySpec : connectionTypePluggableClass.getConnectionType().getPropertySpecs()) {
-            if (properties.hasValueFor(propertySpec.getName())) {
-                connectionTypePluggableClass.setProperty(propertySpec, properties.getProperty(propertySpec.getName()));
-            }
-        }
+        connectionTypePluggableClass
+                .getConnectionType()
+                .getPropertySpecs()
+                .stream()
+                .filter(propertySpec -> properties.hasValueFor(propertySpec.getName()))
+                .forEach(propertySpec -> connectionTypePluggableClass.setProperty(propertySpec, properties.getProperty(propertySpec.getName())));
         connectionTypePluggableClass.save();
         return connectionTypePluggableClass;
     }

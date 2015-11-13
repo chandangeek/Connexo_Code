@@ -1,40 +1,25 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
-import com.energyict.mdc.common.ApplicationException;
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.energyict.mdc.common.FactoryIds;
-import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.JupiterReferenceFactory;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.relation.ConstraintShadow;
-import com.energyict.mdc.dynamic.relation.Relation;
-import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-import com.energyict.mdc.dynamic.relation.RelationAttributeTypeShadow;
-import com.energyict.mdc.dynamic.relation.RelationParticipant;
-import com.energyict.mdc.dynamic.relation.RelationService;
-import com.energyict.mdc.dynamic.relation.RelationType;
-import com.energyict.mdc.dynamic.relation.RelationTypeShadow;
-import com.energyict.mdc.pluggable.PluggableClass;
-import com.energyict.mdc.pluggable.PluggableClassType;
-import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.ValueFactory;
-import com.google.common.collect.Range;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.pluggable.PluggableClass;
+import com.energyict.mdc.pluggable.PluggableClassType;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
+import com.energyict.mdc.protocol.api.ConnectionType;
+import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.inject.Inject;
-import java.text.MessageFormat;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import static com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelationAttributeTypeNames.CONNECTION_TASK_ATTRIBUTE_NAME;
 
 /**
  * Provides an implementation for the {@link ConnectionTypePluggableClass} interface.
@@ -44,18 +29,13 @@ import static com.energyict.mdc.protocol.pluggable.ConnectionTypePropertyRelatio
  */
 public final class ConnectionTypePluggableClassImpl extends PluggableClassWrapper<ConnectionType> implements ConnectionTypePluggableClass {
 
-    private DataModel dataModel;
-    private RelationService relationService;
-    private PropertySpecService propertySpecService;
+    private final CustomPropertySetService customPropertySetService;
     private final ProtocolPluggableService protocolPluggableService;
-    private RelationType relationType;  // Cache
 
     @Inject
-    public ConnectionTypePluggableClassImpl(EventService eventService, Thesaurus thesaurus, DataModel dataModel, RelationService relationService, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService) {
+    public ConnectionTypePluggableClassImpl(EventService eventService, Thesaurus thesaurus, CustomPropertySetService customPropertySetService, ProtocolPluggableService protocolPluggableService) {
         super(eventService, thesaurus);
-        this.dataModel = dataModel;
-        this.relationService = relationService;
-        this.propertySpecService = propertySpecService;
+        this.customPropertySetService = customPropertySetService;
         this.protocolPluggableService = protocolPluggableService;
     }
 
@@ -89,13 +69,13 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
 
     @Override
     public void save() {
-        this.findOrCreateRelationType(true);
+        this.registerCustomPropertySet();
         super.save();
     }
 
     @Override
     public void delete() {
-        this.deleteRelationType();
+        this.newInstance().getCustomPropertySet().ifPresent(this::unregister);
         super.delete();
     }
 
@@ -127,207 +107,16 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
         return PluggableClassType.ConnectionType;
     }
 
-    @Override
-    public RelationAttributeType getDefaultAttributeType () {
-        if (!this.connectionTypeHasProperties()) {
-            return null;
-        }
-        else {
-            return this.findRelationType().getAttributeType(CONNECTION_TASK_ATTRIBUTE_NAME);
-        }
+    private void registerCustomPropertySet() {
+        this.newInstance().getCustomPropertySet().ifPresent(this::register);
     }
 
-    @Override
-    public Relation getRelation (RelationParticipant relationParticipant, Instant date) {
-        if (!this.connectionTypeHasProperties()) {
-            return null;
-        }
-        else {
-            List<Relation> relations = relationParticipant.getRelations(this.findRelationType().getAttributeType(CONNECTION_TASK_ATTRIBUTE_NAME), date, false);
-            if (relations.isEmpty()) {
-                return null;
-            }
-            else if (relations.size() > 1) {
-                throw new ApplicationException(MessageFormat.format("More than one default relation for the same date {0,date,yyy-MM-dd HH:mm:ss", date));
-            }
-            else {
-                return relations.get(0);
-            }
-        }
+    private void register(CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>> customPropertySet) {
+        this.customPropertySetService.addSystemCustomPropertySet(customPropertySet);
     }
 
-    @Override
-    public List<Relation> getRelations (RelationParticipant relationParticipant, Range<Instant> period) {
-        if (!this.connectionTypeHasProperties()) {
-            return new ArrayList<>(0);
-        }
-        else {
-            return relationParticipant.getRelations(this.findRelationType().getAttributeType(CONNECTION_TASK_ATTRIBUTE_NAME), period, false);
-        }
-    }
-
-    @Override
-    public RelationType findRelationType () {
-        if (this.relationType == null) {
-            this.relationType = this.doFindRelationType();
-        }
-        return this.relationType;
-    }
-
-    private RelationType doFindRelationType () {
-        if (this.connectionTypeHasProperties()) {
-            String relationTypeName = this.relationTypeNameFor(this.newInstance());
-            return this.findRelationType(relationTypeName).orElseThrow(() -> new ApplicationException("Creation of relation type for connection type " + this.getJavaClassName() + " failed before."));
-        }
-        else {
-            return null;
-        }
-    }
-
-    private boolean connectionTypeHasProperties () {
-        return !this.getPropertySpecs().isEmpty();
-    }
-
-    @Override
-    public RelationType findOrCreateRelationType(boolean activate) {
-        if (this.connectionTypeHasProperties()) {
-            ConnectionType connectionType = this.newInstance();
-            String relationTypeName = this.relationTypeNameFor(connectionType);
-            Optional<RelationType> relationType = this.findRelationType(relationTypeName);
-            if (!relationType.isPresent()) {
-                RelationType newRelationType = this.createRelationType(connectionType);
-                if (activate) {
-                    this.activate(newRelationType);
-                }
-                relationType = Optional.of(newRelationType);
-            }
-            if (relationType.isPresent()) {
-                this.registerRelationType(relationType.get());
-            }
-            return relationType.orElse(null);
-        }
-        else {
-            return null;
-        }
-    }
-
-    private Optional<RelationType> findRelationType (String relationTypeName) {
-        return this.relationService.findRelationType(relationTypeName);
-    }
-
-    /**
-     * Registers the fact that this ConnectionTypePluggableClass
-     * uses the {@link RelationType} to hold attribute values.
-     *
-     * @param relationType The RelationType
-     */
-    private void registerRelationType(RelationType relationType) {
-        PluggableClassRelationAttributeTypeRegistry typeRegistry = this.getPluggableClassRelationAttributeTypeRegistry();
-        RelationAttributeType attributeType = relationType.getAttributeType(CONNECTION_TASK_ATTRIBUTE_NAME);
-        if (!typeRegistry.isRegistered(this, attributeType)) {
-            typeRegistry.register(this, attributeType);
-        }
-    }
-
-    @Override
-    public void deleteRelationType () {
-        RelationType relationType;
-        try {
-            relationType = this.findRelationType();
-        }
-        catch (ApplicationException e) {
-            /* Creation of relation type failed before, no need to unRegister and delete the relation type. */
-            relationType = null;
-        }
-        if (relationType != null) {
-            this.unregisterRelationType();
-            if (!this.isUsedByAnotherPluggableClass(relationType)) {
-                relationType.delete();
-            }
-        }
-    }
-
-    private boolean isUsedByAnotherPluggableClass (RelationType relationType) {
-        PluggableClassRelationAttributeTypeRegistry registry = this.getPluggableClassRelationAttributeTypeRegistry();
-        return registry.isDefaultAttribute(relationType.getAttributeType(CONNECTION_TASK_ATTRIBUTE_NAME));
-    }
-
-    /**
-     * Undo the registration of the fact that this ConnectionTypePluggableClass
-     * uses the {@link RelationType} to hold attribute values.
-     */
-    private void unregisterRelationType () {
-        if (this.connectionTypeHasProperties()) {
-            RelationType relationType = this.findRelationType();
-            this.getPluggableClassRelationAttributeTypeRegistry().unRegister(this, relationType.getAttributeType(CONNECTION_TASK_ATTRIBUTE_NAME));
-        }
-    }
-
-    private RelationType createRelationType (ConnectionType connectionType) {
-        RelationTypeShadow relationTypeShadow = new RelationTypeShadow();
-        relationTypeShadow.setSystem(true);
-        relationTypeShadow.setName(this.relationTypeNameFor(connectionType));
-        relationTypeShadow.setHasTimeResolution(true);
-        RelationAttributeTypeShadow defaultAttribute = this.defaultAttributeTypeShadow();
-        relationTypeShadow.setLockAttributeTypeShadow(defaultAttribute);
-        relationTypeShadow.add(defaultAttribute);
-        for (PropertySpec propertySpec : connectionType.getPropertySpecs()) {
-            relationTypeShadow.add(this.relationAttributeTypeShadowFor(propertySpec));
-        }
-        relationTypeShadow.add(this.constraintShadowFor(connectionType, defaultAttribute));
-        return this.relationService.createRelationType(relationTypeShadow, propertySpecService);
-    }
-
-    private ConstraintShadow constraintShadowFor (ConnectionType connectionType, RelationAttributeTypeShadow defaultAttributeTypeShadow) {
-        ConstraintShadow shadow = new ConstraintShadow();
-        shadow.add(defaultAttributeTypeShadow);
-        shadow.setName("Unique " + connectionType.getClass().getSimpleName());
-        shadow.setRejectViolations(false);
-        return shadow;
-    }
-
-    private RelationAttributeTypeShadow defaultAttributeTypeShadow () {
-        RelationAttributeTypeShadow shadow = new RelationAttributeTypeShadow();
-        shadow.setName(CONNECTION_TASK_ATTRIBUTE_NAME);
-        shadow.setRequired(true);
-        shadow.setIsDefault(true);
-        shadow.setObjectFactoryId(FactoryIds.CONNECTION_TASK.id());
-        shadow.setValueFactoryClass(JupiterReferenceFactory.class);
-        return shadow;
-    }
-
-    private RelationAttributeTypeShadow relationAttributeTypeShadowFor (PropertySpec propertySpec) {
-        RelationAttributeTypeShadow shadow = new RelationAttributeTypeShadow();
-        shadow.setName(this.relationAttributeTypeNameFor(propertySpec.getName()));
-        shadow.setIsDefault(false);
-        shadow.setRequired(false);  // None of the attributes are required since they can be inherited from different levels
-        ValueFactory valueFactory = propertySpec.getValueFactory();
-        Class<? extends ValueFactory> valueFactoryClass = valueFactory.getClass();
-        shadow.setValueFactoryClass(valueFactoryClass);
-        if (valueFactory.isReference()) {
-            if (valueFactory instanceof JupiterReferenceFactory) {
-                JupiterReferenceFactory jupiterReferenceFactory = (JupiterReferenceFactory) valueFactory;
-                CanFindByLongPrimaryKey finder = jupiterReferenceFactory.getFinder();
-                shadow.setObjectFactoryId(finder.factoryId().id());
-            }
-            else {
-                // Must be a legacy reference factory
-                throw new RuntimeException("Unsupported legacy reference factory: " + valueFactory.getValueType().getName());
-            }
-        }
-        return shadow;
-    }
-
-    private String relationTypeNameFor (ConnectionType connectionType) {
-        return RelationUtils.createConformRelationTypeName(connectionType.getClass().getSimpleName());
-    }
-
-    private String relationAttributeTypeNameFor (String name) {
-        return RelationUtils.createConformRelationAttributeName(name);
-    }
-
-    private void activate (RelationType relationType) {
-        relationType.activate();
+    private void unregister(CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>> customPropertySet) {
+        this.customPropertySetService.removeSystemCustomPropertySet(customPropertySet);
     }
 
     @Override
@@ -350,8 +139,26 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
         return this.getJavaClassName().getClass().equals(connectionType.getClass().getName());
     }
 
-    private PluggableClassRelationAttributeTypeRegistry getPluggableClassRelationAttributeTypeRegistry() {
-        return new PluggableClassRelationAttributeTypeRegistry(this.dataModel.mapper(PluggableClassRelationAttributeTypeUsage.class));
+    @Override
+    public CustomPropertySetValues getPropertiesFor(ConnectionProvider connectionProvider, Instant effectiveTimestamp) {
+        return this.newInstance()
+                .getCustomPropertySet()
+                .map(propertySet -> this.customPropertySetService.getValuesFor(propertySet, connectionProvider, effectiveTimestamp))
+                .orElseGet(() -> CustomPropertySetValues.emptyFrom(effectiveTimestamp));
+    }
+
+    @Override
+    public void setPropertiesFor(ConnectionProvider connectionProvider, CustomPropertySetValues values, Instant effectiveTimestamp) {
+        this.newInstance()
+                .getCustomPropertySet()
+                .ifPresent(propertySet -> this.customPropertySetService.setValuesFor(propertySet, connectionProvider, values, effectiveTimestamp));
+    }
+
+    @Override
+    public void removePropertiesFor(ConnectionProvider connectionProvider) {
+        this.newInstance()
+                .getCustomPropertySet()
+                .ifPresent(propertySet -> this.customPropertySetService.removeValuesFor(propertySet, connectionProvider));
     }
 
 }

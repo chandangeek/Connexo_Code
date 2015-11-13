@@ -1,12 +1,11 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.dynamic.NoFinderComponentFoundException;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-
-import com.elster.jupiter.transaction.TransactionService;
 
 import java.util.Iterator;
 import java.util.List;
@@ -67,12 +66,9 @@ public class ConnectionTypePluggableClassRegistrar extends PluggableClassRegistr
     }
 
     private ConnectionTypePluggableClass doCreateConnectionType(PluggableClassDefinition definition) {
-        ConnectionTypePluggableClass connectionTypePluggableClass =
-                this.protocolPluggableService.newConnectionTypePluggableClass(
-                        definition.getName(),
-                        definition.getProtocolTypeClass().getName());
-        connectionTypePluggableClass.save();
-        return connectionTypePluggableClass;
+        return this.protocolPluggableService.newConnectionTypePluggableClass(
+                definition.getName(),
+                definition.getProtocolTypeClass().getName());
     }
 
     private boolean connectionTypeDoesNotExist(PluggableClassDefinition definition) {
