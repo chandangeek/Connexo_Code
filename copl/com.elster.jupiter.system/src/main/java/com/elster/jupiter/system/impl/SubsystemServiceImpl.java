@@ -3,13 +3,18 @@ package com.elster.jupiter.system.impl;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.system.Component;
+import com.elster.jupiter.system.ComponentStatus;
+import com.elster.jupiter.system.RuntimeComponent;
 import com.elster.jupiter.system.Subsystem;
 import com.elster.jupiter.system.SubsystemService;
 import com.elster.jupiter.system.security.Privileges;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
-import org.osgi.service.component.annotations.Component;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Reference;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,14 +23,11 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Component(name = "com.elster.jupiter.system.impl", service = {SubsystemService.class, PrivilegesProvider.class, TranslationKeyProvider.class},
+@org.osgi.service.component.annotations.Component(name = "com.elster.jupiter.system.impl", service = {SubsystemService.class, PrivilegesProvider.class, TranslationKeyProvider.class},
         property = {"name=" + SubsystemService.COMPONENTNAME},immediate = true)
 public class SubsystemServiceImpl implements SubsystemService, PrivilegesProvider, TranslationKeyProvider {
     private List<Subsystem> subsystems = new ArrayList<>();
     private volatile UserService userService;
-
-    public SubsystemServiceImpl() {
-    }
 
     @Override
     public List<Subsystem> getSubsystems() {
@@ -35,6 +37,44 @@ public class SubsystemServiceImpl implements SubsystemService, PrivilegesProvide
     @Override
     public void registerSubsystem(Subsystem subsystem) {
         this.subsystems.add(subsystem);
+    }
+
+    @Override
+    public List<RuntimeComponent> getComponents(BundleContext bundleContext) {
+        SubsystemServiceUtils utils = new SubsystemServiceUtils();
+        List<RuntimeComponent> runtimeComponents = new ArrayList<>();
+        for (Subsystem subsystem: this.getSubsystems()) {
+            for (Bundle bundle: bundleContext.getBundles()) {
+                for (Component component: subsystem.getComponents()) {
+                    if (component.getVersion() != null && (bundle.getHeaders().get("Bundle-SymbolicName").equals(component.getName())
+                            || bundle.getHeaders().get("Bundle-SymbolicName").equals(component.getArtifactId()))
+                            && bundle.getHeaders().get("Bundle-Version").equals(utils.getVersion(component.getVersion()))) {
+                        RuntimeComponent runtimeComponent = new RuntimeComponent(bundle.getBundleId(), bundle.getHeaders().get("Bundle-Name"), this.bundleStateToComponentStatus(bundle.getState()), component);
+                        runtimeComponents.add(runtimeComponent);
+                    }
+                }
+            }
+        }
+        return runtimeComponents;
+    }
+
+    private ComponentStatus bundleStateToComponentStatus(int state) {
+        switch (state) {
+            case 1:
+                return ComponentStatus.UNINSTALLED;
+            case 2:
+                return ComponentStatus.INSTALLED;
+            case 4:
+                return ComponentStatus.RESOLVED;
+            case 8:
+                return ComponentStatus.STARTING;
+            case 16:
+                return ComponentStatus.STOPPING;
+            case 32:
+                return ComponentStatus.ACTIVE;
+            default:
+                return null;
+        }
     }
 
     @Override
@@ -67,5 +107,10 @@ public class SubsystemServiceImpl implements SubsystemService, PrivilegesProvide
                 Arrays.stream(Privileges.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
+    }
+
+    @Reference
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 }
