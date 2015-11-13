@@ -9,13 +9,17 @@ Ext.define('Mdc.store.DevicesOfDeviceGroupWithoutPagination', {
 
     proxy: {
         type: 'rest',
-        url: '../../api/ddr/devicegroups/{id}/devices',
+        urlTpl: '../../api/ddr/devicegroups/{deviceGroupId}/devices',
         reader: {
             type: 'json',
             root: 'devices'
         },
         pageParam: false,
         startParam: false,
-        limitParam: false
+        limitParam: false,
+
+        setUrl: function (deviceGroupId) {
+            this.url = this.urlTpl.replace('{deviceGroupId}', deviceGroupId);
+        }
     }
 });

@@ -32,7 +32,7 @@ Ext.define('Mdc.view.setup.devicegroup.Wizard', {
             {
                 xtype: 'device-group-wizard-step2',
                 itemId: 'devicegroup-wizard-step2',
-                title: Uni.I18n.translate('devicegroup.wizard.step2title', 'MDC', 'Step 2 of 3: Select devices'),
+                title: Uni.I18n.translate('devicegroup.wizard.step2title', 'MDC', 'Step 2 of 4: Select devices'),
                 navigationIndex: 2,
                 service: me.service
             },
