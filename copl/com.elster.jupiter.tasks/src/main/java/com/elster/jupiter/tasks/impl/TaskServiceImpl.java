@@ -169,7 +169,7 @@ public class TaskServiceImpl implements TaskService, InstallService, Translation
 
     @Override
     public TaskFinder getTaskFinder(RecurrentTaskFilterSpecification filterSpecification) {
-        Condition condition = Condition.TRUE;
+        Condition condition = Where.where("nextExecution").isNotNull();
         /*if (!filterSpecification.applications.isEmpty()) {
             Condition appCondition = Condition.FALSE;
             for (String app : filterSpecification.applications) {
