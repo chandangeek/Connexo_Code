@@ -195,6 +195,11 @@ Ext.define('Mdc.model.ComServerComPort', {
         },
         {
             name: 'outboundComPortPoolIds',
+            type: 'auto',
+            defaultValue: null
+        },
+        {
+            name: 'outboundComPortPoolIdsDisplay',
             type: 'string',
             useNull: true,
             defaultValue: null,
