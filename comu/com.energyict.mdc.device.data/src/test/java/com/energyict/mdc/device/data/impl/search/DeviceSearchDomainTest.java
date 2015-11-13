@@ -203,6 +203,7 @@ public class DeviceSearchDomainTest {
         verify(this.dataModel).getInstance(ComTaskNameSearchableProperty.class);
         verify(this.dataModel).getInstance(ComTaskSecuritySettingSearchableProperty.class);
         verify(this.dataModel).getInstance(ComTaskConnectionMethodSearchableProperty.class);
+        verify(this.dataModel).getInstance(ComTaskUrgencySearchableProperty.class);
         verify(this.dataModel).getInstance(ComTaskNextCommunicationSearchableProperty.class);
         verify(this.dataModel).getInstance(ComTaskLastCommunicationSearchableProperty.class);
         verify(this.dataModel).getInstance(ConnectionNameSearchableProperty.class);
@@ -555,6 +556,10 @@ public class DeviceSearchDomainTest {
                 eq(FactoryIds.SECURITY_SET),
                 anyList())).thenReturn(securitySetSpec);
         /** {@link #mockConnectionMethodPropertySpec()} */
+        PropertySpec urgencyPropertySpec = mock(PropertySpec.class);
+        when(urgencyPropertySpec.getName()).thenReturn(ComTaskUrgencySearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.longPropertySpec(ComTaskUrgencySearchableProperty.PROPERTY_NAME, false, 0L))
+                .thenReturn(urgencyPropertySpec);
     }
 
     private void mockConnections() {
