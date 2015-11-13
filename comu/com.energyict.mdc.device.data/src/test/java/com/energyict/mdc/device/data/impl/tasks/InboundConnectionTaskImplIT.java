@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.common.BusinessException;
@@ -12,11 +14,9 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OnlineComServer;
-
-import com.google.common.collect.Range;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 
 import javax.validation.ConstraintViolationException;
 import java.sql.SQLException;
@@ -26,7 +26,6 @@ import java.util.List;
 import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -160,15 +159,15 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         InboundConnectionTask inboundConnectionTask = createSimpleInboundConnectionTask();
 
         // Asserts
-        assertNull("ObsoleteDate should be null", inboundConnectionTask.getObsoleteDate());
-        assertFalse("Should not be obsolete", inboundConnectionTask.isObsolete());
+        assertThat(inboundConnectionTask.getObsoleteDate()).isNull();
+        assertThat(inboundConnectionTask.isObsolete()).isFalse();
 
         // Business method
         device.removeConnectionTask(inboundConnectionTask);
 
         // Asserts
-        assertNotNull("ObsoleteDate should be set", inboundConnectionTask.getObsoleteDate());
-        assertTrue("Should be obsolete", inboundConnectionTask.isObsolete());
+        assertThat(inboundConnectionTask.getObsoleteDate()).isNotNull();
+        assertThat(inboundConnectionTask.isObsolete()).isTrue();
     }
 
     @Test(expected = ConstraintViolationException.class)
@@ -574,7 +573,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         device.removeConnectionTask(connectionTask);
 
         // Asserts
-        assertTrue(inMemoryPersistence.getConnectionTaskService().findConnectionTask(id).get().isObsolete());
+        assertThat(inMemoryPersistence.getConnectionTaskService().findConnectionTask(id).get().isObsolete()).isTrue();
     }
 
 
@@ -588,10 +587,12 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         device.removeConnectionTask(connectionTask);
 
         // Asserts
-        assertTrue(inMemoryPersistence.getConnectionTaskService().findConnectionTask(id).get().isObsolete());
-        RelationAttributeType connectionMethodAttributeType = inboundIpConnectionTypePluggableClass.getDefaultAttributeType();
-        assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), false)).isEmpty();
-        assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), true)).isNotEmpty();    // The relations should have been made obsolete
+        assertThat(inMemoryPersistence.getConnectionTaskService().findConnectionTask(id).get().isObsolete()).isTrue();
+        CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>> customPropertySet = inboundIpConnectionTypePluggableClass.getConnectionType()
+                .getCustomPropertySet()
+                .get();
+        assertThat(inMemoryPersistence.getCustomPropertySetService().getValuesFor(customPropertySet, connectionTask).isEmpty()).isTrue();
+        // Todo: assert that old values were journalled properly but need support from CustomPropertySetService first
     }
 
     @Test
@@ -603,8 +604,8 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         device.removeConnectionTask(connectionTask);
 
         // Asserts
-        assertTrue(connectionTask.isObsolete());
-        assertNotNull(connectionTask.getObsoleteDate());
+        assertThat(connectionTask.isObsolete()).isTrue();
+        assertThat(connectionTask.getObsoleteDate()).isNotNull();
     }
 
     @Test
@@ -616,11 +617,13 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         device.removeConnectionTask(connectionTask);
 
         // Asserts
-        assertTrue(connectionTask.isObsolete());
-        assertNotNull(connectionTask.getObsoleteDate());
-        RelationAttributeType connectionMethodAttributeType = inboundIpConnectionTypePluggableClass.getDefaultAttributeType();
-        assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), false)).isEmpty();
-        assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), true)).hasSize(1);
+        assertThat(connectionTask.isObsolete()).isTrue();
+        assertThat(connectionTask.getObsoleteDate()).isNotNull();
+        CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>> customPropertySet = inboundIpConnectionTypePluggableClass.getConnectionType()
+                .getCustomPropertySet()
+                .get();
+        assertThat(inMemoryPersistence.getCustomPropertySetService().getValuesFor(customPropertySet, connectionTask).isEmpty()).isTrue();
+        // Todo: assert that old values were journalled properly but need support from CustomPropertySetService first
     }
 
     @Test

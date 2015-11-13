@@ -1,7 +1,14 @@
 
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.orm.OptimisticLockException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.SqlBuilder;
@@ -23,18 +30,16 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskProperty;
 import com.energyict.mdc.device.data.tasks.EarliestNextExecutionTimeStampAndPriority;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-import com.energyict.mdc.engine.config.*;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionException;
+import com.energyict.mdc.protocol.api.ConnectionProvider;
 
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
-import com.google.common.collect.Range;
 import org.joda.time.DateTimeConstants;
 
+import javax.validation.ConstraintViolationException;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Arrays;
@@ -46,9 +51,6 @@ import java.util.TimeZone;
 
 import org.junit.*;
 
-import javax.validation.ConstraintViolationException;
-
-import static junit.framework.Assert.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -972,7 +974,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         device.removeConnectionTask(connectionTask);
 
         // Asserts
-        assertTrue(inMemoryPersistence.getConnectionTaskService().findScheduledConnectionTask(id).get().isObsolete());
+        assertThat(inMemoryPersistence.getConnectionTaskService().findScheduledConnectionTask(id).get().isObsolete()).isTrue();
     }
 
     @Test
@@ -985,10 +987,12 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         device.removeConnectionTask(connectionTask);
 
         // Asserts
-        assertTrue(inMemoryPersistence.getConnectionTaskService().findScheduledConnectionTask(id).get().isObsolete());
-        RelationAttributeType connectionMethodAttributeType = outboundIpConnectionTypePluggableClass.getDefaultAttributeType();
-        assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), false)).isEmpty();
-        assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), true)).isNotEmpty();    // The relations should have been made obsolete
+        assertThat(inMemoryPersistence.getConnectionTaskService().findScheduledConnectionTask(id).get().isObsolete()).isTrue();
+        CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>> customPropertySet = inboundIpConnectionTypePluggableClass.getConnectionType()
+                .getCustomPropertySet()
+                .get();
+        assertThat(inMemoryPersistence.getCustomPropertySetService().getValuesFor(customPropertySet, connectionTask).isEmpty()).isTrue();
+        // Todo: assert that old values were journalled properly but need support from CustomPropertySetService first
     }
 
     @Test(expected = ConnectionTaskIsExecutingAndCannotBecomeObsoleteException.class)
@@ -1018,19 +1022,21 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testMakeObsoleteAlsoMakesRelationsObsolete() {
-        RelationAttributeType connectionMethodAttributeType = outboundIpConnectionTypePluggableClass.getDefaultAttributeType();
-
         ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) this.createOutboundWithIpPropertiesWithoutViolations("testMakeObsoleteAlsoMakesRelationsObsolete");
 
-        assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), false)).hasSize(1);
+        CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>> customPropertySet = outboundIpConnectionTypePluggableClass.getConnectionType()
+                .getCustomPropertySet()
+                .get();
+        assertThat(inMemoryPersistence.getCustomPropertySetService().getValuesFor(customPropertySet, connectionTask).isEmpty()).isTrue();
+
         // Business method
         device.removeConnectionTask(connectionTask);
 
         // Asserts
         assertThat(connectionTask.isObsolete()).isTrue();
         assertThat(connectionTask.getObsoleteDate()).isNotNull();
-        assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), false)).isEmpty();
-        assertThat(connectionTask.getRelations(connectionMethodAttributeType, Range.all(), true)).hasSize(1);
+        assertThat(inMemoryPersistence.getCustomPropertySetService().getValuesFor(customPropertySet, connectionTask).isEmpty()).isTrue();
+        // Todo: assert that old values were journalled properly but need support from CustomPropertySetService first
     }
 
     @Test

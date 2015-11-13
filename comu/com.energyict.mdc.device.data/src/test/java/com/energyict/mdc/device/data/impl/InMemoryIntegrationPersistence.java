@@ -140,7 +140,7 @@ public class InMemoryIntegrationPersistence {
     private NlsService nlsService;
     private static final Clock clock = mock(Clock.class);
     private JsonService jsonService;
-    private RelationService relationService;
+    private CustomPropertySetService customPropertySetService;
     private EngineConfigurationService engineConfigurationService;
     private MasterDataService masterDataService;
     private DeviceConfigurationService deviceConfigurationService;
@@ -259,7 +259,7 @@ public class InMemoryIntegrationPersistence {
             this.estimationService = injector.getInstance(EstimationService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.engineConfigurationService = injector.getInstance(EngineConfigurationService.class);
-            this.relationService = injector.getInstance(RelationService.class);
+            this.customPropertySetService = injector.getInstance(CustomPropertySetService.class);
             this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             this.protocolPluggableService.addLicensedProtocolService(this.licensedProtocolService);
             this.protocolPluggableService.addConnectionTypeService(this.connectionTypeService);
@@ -354,8 +354,8 @@ public class InMemoryIntegrationPersistence {
         return transactionService;
     }
 
-    public RelationService getRelationService() {
-        return relationService;
+    public CustomPropertySetService getCustomPropertySetService() {
+        return this.customPropertySetService;
     }
 
     public ProtocolPluggableService getProtocolPluggableService() {
