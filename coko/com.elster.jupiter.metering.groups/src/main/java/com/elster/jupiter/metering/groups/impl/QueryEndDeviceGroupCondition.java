@@ -56,9 +56,10 @@ public class QueryEndDeviceGroupCondition {
     }
 
     private void initConditionValues(List<String> conditionValues) {
-        conditionValues.stream()
+        List<QueryEndDeviceGroupConditionValue> values = conditionValues.stream()
                 .map(v -> new QueryEndDeviceGroupConditionValue().init(this, v))
-                .forEach(this.conditionValues::add);
+                .collect(Collectors.toList());
+        this.conditionValues.addAll(values);
     }
 
     public SearchablePropertyValue.ValueBean toValueBean() {

@@ -9,7 +9,6 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.NoSuchQueryProvider;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.search.SearchBuilder;
@@ -99,10 +98,6 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
     @Override
     public boolean isMember(EndDevice endDevice, Instant instant) {
         return getMembers(instant).contains(endDevice);
-    }
-
-    private DataMapper<QueryEndDeviceGroup> groupFactory() {
-        return dataModel.mapper(QueryEndDeviceGroup.class);
     }
 
     void save() {
