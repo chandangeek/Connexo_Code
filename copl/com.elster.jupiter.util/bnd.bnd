@@ -7,6 +7,7 @@ Export-Package: com.elster.jupiter.util.conditions,\
 	com.elster.jupiter.util.comparators,\
 	com.elster.jupiter.util.concurrent,\
 	com.elster.jupiter.util.cron,\
+	com.elster.jupiter.util.cron.parser,\
 	com.elster.jupiter.util.exception,\
 	com.elster.jupiter.util.geo,\
 	com.elster.jupiter.util.logging,\
