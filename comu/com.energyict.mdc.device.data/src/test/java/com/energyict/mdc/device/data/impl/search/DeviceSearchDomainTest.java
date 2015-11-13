@@ -203,6 +203,8 @@ public class DeviceSearchDomainTest {
         verify(this.dataModel).getInstance(ComTaskNameSearchableProperty.class);
         verify(this.dataModel).getInstance(ComTaskSecuritySettingSearchableProperty.class);
         verify(this.dataModel).getInstance(ComTaskConnectionMethodSearchableProperty.class);
+        verify(this.dataModel).getInstance(ComTaskNextCommunicationSearchableProperty.class);
+        verify(this.dataModel).getInstance(ComTaskLastCommunicationSearchableProperty.class);
         verify(this.dataModel).getInstance(ConnectionNameSearchableProperty.class);
         verify(this.dataModel).getInstance(ConnectionDirectionSearchableProperty.class);
         verify(this.dataModel).getInstance(ConnectionCommunicationPortPoolSearchableProperty.class);
