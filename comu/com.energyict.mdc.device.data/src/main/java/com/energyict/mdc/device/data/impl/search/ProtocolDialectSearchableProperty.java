@@ -71,9 +71,6 @@ public class ProtocolDialectSearchableProperty extends AbstractSearchableDeviceP
 
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
-        if (!(condition instanceof Contains)) {
-            throw new IllegalAccessError("Condition must be IN or NOT IN");
-        }
         SqlBuilder sqlBuilder = new SqlBuilder();
         sqlBuilder.openBracket();
         sqlBuilder.add(this.toSqlFragment(JoinClauseBuilder.Aliases.DEVICE_TYPE + ".DEVICEPROTOCOLPLUGGABLEID", condition, now));

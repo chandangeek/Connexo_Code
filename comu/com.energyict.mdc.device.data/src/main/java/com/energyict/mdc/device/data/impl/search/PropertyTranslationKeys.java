@@ -58,6 +58,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     COMTASK_SECURITY_SETTING("device.comtask.security", "Security settings"),
     COMTASK_LAST_COMMUNICATION("device.comtask.last.communication", "Last communication start"),
     COMTASK_NEXT_COMMUNICATION("device.comtask.next.communication", "Next communication"),
+    COMTASK_SCHEDULE_TYPE("device.comtask.schedule.type", "Schedule type"),
     COMTASK_SCHEDULE_NAME("device.comtask.schedule.name", "Schedule name"),
     COMTASK_PLANNED_DATE("device.comtask.planned.date", "Planned date"),
     COMTASK_URGENCY("device.comtask.urgency", "Urgency"),
@@ -73,6 +74,10 @@ public enum PropertyTranslationKeys implements TranslationKey {
     TRANSITION_DECOMMISSIONING("device.transition.decommissioning", "Decommissioning date"),
     GENERAL_ATTRIBUTES_DYNAMIC_PROP("deviceType.attr.dynamic", "General attributes dynamic properties"),
     CONNECTION_DYNAMIC_PROP("device.connection.method.dynamic", "Connection dynamic attributes"),
+
+    COMTASK_SCHEDULE_TYPE_ON_REQUEST("device.comtask.schedule.type.ScheduleTypeKey.ON_REQUEST", "On request"),
+    COMTASK_SCHEDULE_TYPE_INDIVIDUAL("device.comtask.schedule.type.ScheduleTypeKey.INDIVIDUAL", "Individual"),
+    COMTASK_SCHEDULE_TYPE_SHARED("device.comtask.schedule.type.ScheduleTypeKey.SHARED", "Shared"),
     ;
 
     private String key;
