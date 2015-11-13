@@ -1,4 +1,4 @@
-package com.elster.jupiter.metering.impl.search.enddevice;
+package com.elster.jupiter.metering.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;

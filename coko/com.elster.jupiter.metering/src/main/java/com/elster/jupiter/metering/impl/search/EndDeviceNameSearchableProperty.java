@@ -1,12 +1,9 @@
-package com.elster.jupiter.metering.impl.search.enddevice;
+package com.elster.jupiter.metering.impl.search;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
-import com.elster.jupiter.metering.impl.search.SearchableUsagePointProperty;
-import com.elster.jupiter.metering.impl.search.UsagePointSearchDomain;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -14,8 +11,6 @@ import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
-import com.elster.jupiter.search.SearchableProperty.SelectionMode;
-import com.elster.jupiter.search.SearchableProperty.Visibility;
 import com.elster.jupiter.util.conditions.Condition;
 
 public class EndDeviceNameSearchableProperty implements SearchableUsagePointProperty {

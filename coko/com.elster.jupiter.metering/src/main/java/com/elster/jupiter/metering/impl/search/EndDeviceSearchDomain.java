@@ -1,4 +1,4 @@
-package com.elster.jupiter.metering.impl.search.enddevice;
+package com.elster.jupiter.metering.impl.search;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,7 +16,6 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.impl.ServerMeteringService;
-import com.elster.jupiter.metering.impl.search.SearchableEndDeviceProperty;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -33,7 +32,7 @@ import com.elster.jupiter.util.conditions.Condition;
  * that supports {@link EndDevice}s.
  *
  */
-@Component(name="com.elster.jupiter.metering.search", service = SearchDomain.class, immediate = true)
+@Component(name="com.elster.jupiter.metering.search.enddevice", service = SearchDomain.class, immediate = true)
 public class EndDeviceSearchDomain implements SearchDomain {
 
     private volatile PropertySpecService propertySpecService;

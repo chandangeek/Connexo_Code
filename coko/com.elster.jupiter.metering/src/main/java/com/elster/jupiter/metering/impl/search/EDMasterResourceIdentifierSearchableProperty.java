@@ -1,10 +1,9 @@
-package com.elster.jupiter.metering.impl.search.enddevice;
+package com.elster.jupiter.metering.impl.search;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import com.elster.jupiter.metering.impl.search.SearchableEndDeviceProperty;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
