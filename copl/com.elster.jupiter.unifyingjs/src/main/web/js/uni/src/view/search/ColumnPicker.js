@@ -54,6 +54,7 @@ Ext.define('Uni.view.search.ColumnPicker', {
                     itemId: 'column-picker-done-button',
                     handler: function() {
                         me.grid.reconfigure(null, _.pluck(me.menu.down('#columns-selected').items.getRange(), 'column'));
+                        me.menu.hide();
                     }
                 },
                 {
