@@ -27,6 +27,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
@@ -184,9 +185,19 @@ public class FavoritesServiceImplTest {
             user = userService.createUser("user", "user descr");
             user1 = userService.createUser("user1", "user1 descr");
 
-            endDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup().setName("QEDG").create();
+            SearchDomain searchDomain = mock(SearchDomain.class);
+            when(searchDomain.getId()).thenReturn(Device.class.getName());
+            endDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup()
+                    .setName("QEDG")
+                    .setSearchDomain(searchDomain)
+                    .setQueryProviderName("QueryProviderName")
+                    .create();
 
-            endDeviceGroup1 = meteringGroupsService.createQueryEndDeviceGroup().setName("QEDG1").create();
+            endDeviceGroup1 = meteringGroupsService.createQueryEndDeviceGroup()
+                    .setName("QEDG1")
+                    .setSearchDomain(searchDomain)
+                    .setQueryProviderName("QueryProviderName")
+                    .create();
 
             DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
             when(deviceProtocolPluggableClass.getId()).thenReturn(1L);
