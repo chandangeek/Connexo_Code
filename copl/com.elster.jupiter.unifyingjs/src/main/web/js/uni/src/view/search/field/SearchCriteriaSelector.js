@@ -126,7 +126,7 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
                 disabled: true,
                 tooltip: {
                     title: Uni.I18n.translate('search.criteriaselector.disabled.title', 'UNI', 'Enable {0}', [criteria.get('displayValue')]),
-                    text: Uni.I18n.translate('search.criteriaselector.disabled.title', 'UNI',
+                    text: Uni.I18n.translate('search.criteriaselector.disabled.body', 'UNI',
                         '{0} become available as soon as a search value has been specified for {1}',
                         [criteria.get('displayValue'), criteria.get('constraints').join(', ')]),
                     maxWidth: 150

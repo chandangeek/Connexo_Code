@@ -142,7 +142,7 @@ Ext.define('Uni.service.Search', {
         if (domain !== null
             && Ext.isDefined(domain)
             && Ext.getClassName(domain) == "Uni.model.search.Domain"
-            && domain !== me.getDomain()) {
+        ) {
             //todo: how to set domain from state && manually at same time?
             me.searchDomain = domain;
 
@@ -246,7 +246,7 @@ Ext.define('Uni.service.Search', {
 
     clearFilters: function () {
         this.init();
-        this.getSearchResultsStore().load();
+        this.applyFilters();
     },
 
     getFilters: function() {
@@ -455,7 +455,10 @@ Ext.define('Uni.service.Search', {
                 } else {
                     item.setDisabled(true);
                     if (item.store) {
-                        item.getStore().clearFilter();
+                        item.getStore().clearFilter(true);
+                    }
+                    if (!item.property.get('sticky')) {
+                        me.removeProperty(item.property);
                     }
                 }
             });
