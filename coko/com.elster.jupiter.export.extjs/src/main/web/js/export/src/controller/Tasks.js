@@ -1001,6 +1001,9 @@ Ext.define('Dxp.controller.Tasks', {
 
         if (record.getDataProcessor() && record.getDataProcessor().properties().count()) {
             propertyForm.loadRecord(record.getDataProcessor());
+            propertyForm.show();
+        } else {
+            propertyForm.hide();
         }
         if ((record.getDataSelector()) && (record.getDataSelector().properties()) && (record.getDataSelector().properties().count())) {
             selectorPropertyForm.show();
@@ -1171,6 +1174,7 @@ Ext.define('Dxp.controller.Tasks', {
                             if (record.get('status') === 'Busy') {
                                 view.down('#run').hide();
                             }
+                            debugger;
                             if (rec.properties() && rec.properties().count()) {
                                 view.down('grouped-property-form').loadRecord(rec);
                             }
@@ -1715,7 +1719,7 @@ Ext.define('Dxp.controller.Tasks', {
                 name: form.down('#file-formatter-combo').getValue()
             });
             record.setDataProcessor(processorModel);
-            if (propertyForm.getRecord()) {
+            if (propertyForm.getRecord() && propertyForm.isVisible()) {
                 record.getDataProcessor().propertiesStore = propertyForm.getRecord().properties();
             }
 
