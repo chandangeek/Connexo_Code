@@ -52,6 +52,16 @@ public abstract class PersistentIdObject<T> {
         this.notifyUpdated();
     }
 
+    /**
+     * Updates the changes made to specified fields on this object without running validation.
+     *
+     * @param fieldNames The name of the fields that have changed and need updating
+     */
+    protected void update(String... fieldNames) {
+        this.dataModel.update(this, fieldNames);
+        this.notifyUpdated();
+    }
+
     void save() {
         if (id > 0) {
             update();
