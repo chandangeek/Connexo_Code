@@ -16,13 +16,33 @@ Ext.define('Mdc.model.RegisterConfiguration', {
         {name: 'timeOfUse', type:'number', useNull: true},
         {name: 'registerType', type:'number', useNull: true},
         {name: 'readingType', persist:false},
+        {
+            name: 'registerTypeName',
+            type: 'string',
+            persist: false,
+            mapping: 'readingType.fullAliasName'
+        },
         {name: 'asText', type:'boolean'}
     ],
     associations: [
-        {name: 'readingType', type: 'hasOne', model: 'Mdc.model.ReadingType', associationKey: 'readingType',
-            getterName: 'getReadingType', setterName: 'setReadingType', foreignKey: 'readingType'},
-        {name: 'unitOfMeasure', type: 'hasOne', model: 'Mdc.model.UnitOfMeasure', associationKey: 'unitOfMeasure',
-            getterName: 'getUnitOfMeasure', setterName: 'setUnitOfMeasure', foreignKey: 'unitOfMeasure'}
+        {
+            name: 'readingType',
+            type: 'hasOne',
+            model: 'Mdc.model.ReadingType',
+            associationKey: 'readingType',
+            getterName: 'getReadingType',
+            setterName: 'setReadingType',
+            foreignKey: 'readingType'
+        },
+        {
+            name: 'unitOfMeasure',
+            type: 'hasOne',
+            model: 'Mdc.model.UnitOfMeasure',
+            associationKey: 'unitOfMeasure',
+            getterName: 'getUnitOfMeasure',
+            setterName: 'setUnitOfMeasure',
+            foreignKey: 'unitOfMeasure'
+        }
     ],
     proxy: {
         type: 'rest',

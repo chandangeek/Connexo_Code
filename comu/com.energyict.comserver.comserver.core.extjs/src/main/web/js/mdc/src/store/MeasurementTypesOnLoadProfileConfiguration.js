@@ -8,10 +8,14 @@ Ext.define('Mdc.store.MeasurementTypesOnLoadProfileConfiguration', {
 
     proxy: {
         type: 'rest',
-        url: '/api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/loadprofileconfigurations/{loadProfileConfiguration}/measurementTypes',
+        //url: '/api/dtc/devicetypes/{deviceType}/deviceconfigurations/{deviceConfig}/loadprofileconfigurations/{loadProfileConfiguration}/measurementTypes',
+        url: 'http://localhost:3000/measurementTypes',
+        pageParam: false,
+        limitParam: false,
+        startParam: false,
         reader: {
-            type: 'json',
-            root: 'data'
+            type: 'json'
+            //,root: 'data'
         }
     }
 });

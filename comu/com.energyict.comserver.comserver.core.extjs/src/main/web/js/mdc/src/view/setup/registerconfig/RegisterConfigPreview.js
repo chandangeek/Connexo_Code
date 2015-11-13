@@ -53,17 +53,14 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
                         },
                         items: [
                             {
-                                xtype: 'reading-type-displayfield',
-                                name: 'readingType'
+                                xtype: 'displayfield',
+                                fieldLabel: Uni.I18n.translate('registerConfig.registerType', 'MDC', 'Register type'),
+                                name: 'registerTypeName'
                             },
                             {
                                 xtype: 'obis-displayfield',
                                 name: 'overruledObisCode',
                                 fieldLabel: Uni.I18n.translate('registerConfig.obisCode', 'MDC', 'OBIS code')
-                            },
-                            {
-                                name: 'timeOfUse',
-                                fieldLabel: Uni.I18n.translate('registerConfig.timeOfUse', 'MDC', 'Time of use')
                             }
                         ]
                     },
@@ -78,19 +75,37 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
                             xtype: 'displayfield',
                             labelWidth: 150
                         },
-                        itemId: 'registerConfigNumberPanel',
                         items: [
                             {
-                                name: 'overflow',
-                                fieldLabel: Uni.I18n.translate('registerConfig.overflowValue', 'MDC', 'Overflow value')
+                                name: 'asText',
+                                fieldLabel: Uni.I18n.translate('registerConfig.storeValueAs', 'MDC', 'Store value as'),
+                                renderer: function (value) {
+                                    return value
+                                        ? Uni.I18n.translate('registerConfig.text', 'MDC', 'Text')
+                                        : Uni.I18n.translate('registerConfig.number', 'MDC', 'Number')
+                                }
                             },
                             {
-                                name: 'numberOfDigits',
-                                fieldLabel: Uni.I18n.translate('registerConfig.numberOfDigits', 'MDC', 'Number of digits')
+                                name: 'overflow',
+                                fieldLabel: Uni.I18n.translate('registerConfig.overflowValue', 'MDC', 'Overflow value'),
+                                itemId: 'mdc-register-config-preview-overflow'
                             },
                             {
                                 name: 'numberOfFractionDigits',
-                                fieldLabel: Uni.I18n.translate('registerConfig.numberOfFractionDigits', 'MDC', 'Number of fraction digits')
+                                fieldLabel: Uni.I18n.translate('registerConfig.numberOfFractionDigits', 'MDC', 'Number of fraction digits'),
+                                itemId: 'mdc-register-config-preview-fractionDigits'
+                            },
+                            {
+                                xtype: 'reading-type-displayfield',
+                                fieldLabel: Uni.I18n.translate('general.collectedReadingType', 'MDC', 'Collected reading type'),
+                                name: 'readingType'
+                            },
+                            {
+                                xtype: 'reading-type-displayfield',
+                                fieldLabel: Uni.I18n.translate('general.calculatedReadingType', 'MDC', 'Calculated reading type'),
+                                name: 'readingType',
+                                itemId: 'mdc-register-config-preview-calculated',
+                                hidden: true
                             }
                         ]
                     }

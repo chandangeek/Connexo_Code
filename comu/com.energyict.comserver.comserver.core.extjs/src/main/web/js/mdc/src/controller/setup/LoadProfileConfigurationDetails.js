@@ -10,13 +10,13 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         'Mdc.store.Intervals'
     ],
     views: [
-        'setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailSetup',
-        'setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailInfo',
-        'setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailDockedItems',
-        'setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailChannelGrid',
-        'setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailChannelPreview',
-        'setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailForm',
-        'setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailRulesGrid',
+        'Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailSetup',
+        'Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailInfo',
+        'Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailDockedItems',
+        'Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailChannelGrid',
+        'Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailChannelPreview',
+        'Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailForm',
+        'Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailRulesGrid',
         'Cfg.view.validation.RulePreview'
     ],
 
@@ -29,7 +29,8 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
     ],
 
     models: [
-        'Mdc.model.LoadProfileConfiguration'
+        'Mdc.model.LoadProfileConfiguration',
+        'Mdc.model.ReadingType'
     ],
 
     refs: [
@@ -42,11 +43,24 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         {ref: 'loadProfileConfigurationChannelDetailsForm', selector: '#loadProfileConfigurationChannelDetailsForm'},
         {ref: 'loadProfileDetailChannelPreview', selector: '#loadProfileConfigurationDetailChannelPreview'},
         {ref: 'channelForm', selector: '#loadProfileConfigurationDetailChannelFormId'},
-        {ref: 'channelsGrid', selector: '#loadProfileConfigurationDetailChannelGrid'}
+        {ref: 'channelsGrid', selector: '#loadProfileConfigurationDetailChannelGrid'},
+        {
+            ref: 'registerTypeCombo',
+            selector: '#loadProfileConfigurationDetailChannelFormId #mdc-channel-config-registerTypeComboBox'
+        },
+        {
+            ref: 'overruledObisCodeField',
+            selector: '#loadProfileConfigurationDetailChannelFormId #mdc-channel-config-editOverruledObisCodeField'
+        },
+        {
+            ref: 'restoreObisCodeBtn',
+            selector: '#loadProfileConfigurationDetailChannelFormId #mdc-channel-config-restore-obiscode-btn'
+        }
     ],
 
     deviceTypeId: null,
     deviceConfigurationId: null,
+    registerTypesObisCode: null, // The OBIS code of the selected register type
 
     init: function () {
         this.control({
@@ -56,9 +70,9 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             'loadProfileConfigurationDetailSetup loadProfileConfigurationDetailChannelGrid': {
                 itemclick: this.loadGridItemDetail
             },
-            'loadProfileConfigurationDetailForm reading-type-combo': {
-                change: this.onReadingTypeChange
-            },
+            //'loadProfileConfigurationDetailForm reading-type-combo': {
+            //    change: this.onReadingTypeChange
+            //},
             'loadProfileConfigurationDetailForm button[name=loadprofilechannelaction]': {
                 click: this.onSubmit
             },
@@ -76,6 +90,15 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             },
             'loadProfileConfigurationDetailSetup validation-rule-actionmenu': {
                 click: this.chooseRuleAction
+            },
+            'loadProfileConfigurationDetailForm #mdc-channel-config-multiplierRadioGroup': {
+                change: this.onMultiplierChange
+            },
+            'loadProfileConfigurationDetailForm #mdc-channel-config-editOverruledObisCodeField': {
+                change: this.onOverruledObisCodeChange
+            },
+            'loadProfileConfigurationDetailForm #mdc-channel-config-restore-obiscode-btn': {
+                click: this.onRestoreObisCodeBtnClicked
             }
         });
 
@@ -194,46 +217,46 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         return associatedMeasurementType;
     },
 
-    onReadingTypeChange: function (combo) {
-        var readingType = combo.valueModels[0];
-        if (readingType) {
-            var form = this.getChannelForm(),
-                measurementType = this.getAssociatedMeasurementType(readingType);
-
-            Ext.Ajax.request({
-                url: '/api/mtr/readingtypes/' + readingType.get('mRID') + '/calculated',
-                method: 'GET',
-                success: function (response) {
-                    var resp = Ext.JSON.decode(response.responseText);
-                    if (!Ext.isEmpty(resp.readingTypes)) {
-                        var calculatedReadingType = resp.readingTypes[0],
-                            calculatedReadingTypeDisplayField = form.down('reading-type-displayfield[name=calculatedReadingType]'),
-                            calculatedReadingTypeDisplayFieldEl = calculatedReadingTypeDisplayField.el.down('[role=textbox]');
-
-                        calculatedReadingTypeDisplayField.setValue(calculatedReadingType);
-                        calculatedReadingTypeDisplayField.show();
-
-                        Ext.DomHelper.append(calculatedReadingTypeDisplayFieldEl, {
-                            tag: 'span',
-                            html: Uni.I18n.translate('channelConfig.bulkQuantityReadingTypeDescription', 'MDC', 'Selected reading type is bulk quantity reading type. Calculated reading type will hold a delta between two neighbour interval readings.'),
-                            style: {
-                                position: 'absolute',
-                                top: '2em',
-                                left: '0',
-                                width: '1000px',
-                                lineHeight: '1em',
-                                color: '#999'
-                            }
-                        });
-                    }
-                }
-            });
-
-            if (measurementType) {
-                form.down('[name=obiscode]').setValue(measurementType.get('obisCode'));
-            }
-        }
-    },
+    //onReadingTypeChange: function (combo) {
+    //    var readingType = combo.valueModels[0];
+    //    if (readingType) {
+    //        var form = this.getChannelForm(),
+    //            measurementType = this.getAssociatedMeasurementType(readingType);
+    //
+    //        Ext.Ajax.request({
+    //            url: '/api/mtr/readingtypes/' + readingType.get('mRID') + '/calculated',
+    //            method: 'GET',
+    //            success: function (response) {
+    //                var resp = Ext.JSON.decode(response.responseText);
+    //                if (!Ext.isEmpty(resp.readingTypes)) {
+    //                    var calculatedReadingType = resp.readingTypes[0],
+    //                        calculatedReadingTypeDisplayField = form.down('reading-type-displayfield[name=calculatedReadingType]'),
+    //                        calculatedReadingTypeDisplayFieldEl = calculatedReadingTypeDisplayField.el.down('[role=textbox]');
+    //
+    //                    calculatedReadingTypeDisplayField.setValue(calculatedReadingType);
+    //                    calculatedReadingTypeDisplayField.show();
+    //
+    //                    Ext.DomHelper.append(calculatedReadingTypeDisplayFieldEl, {
+    //                        tag: 'span',
+    //                        html: Uni.I18n.translate('channelConfig.bulkQuantityReadingTypeDescription', 'MDC', 'Selected reading type is bulk quantity reading type. Calculated reading type will hold a delta between two neighbour interval readings.'),
+    //                        style: {
+    //                            position: 'absolute',
+    //                            top: '2em',
+    //                            left: '0',
+    //                            width: '1000px',
+    //                            lineHeight: '1em',
+    //                            color: '#999'
+    //                        }
+    //                    });
+    //                }
+    //            }
+    //        });
+    //
+    //        if (measurementType) {
+    //            form.down('[name=obiscode]').setValue(measurementType.get('obisCode'));
+    //        }
+    //    }
+    //},
 
     retrySubmit: function (btn) {
         var formPanel = this.getChannelForm();
@@ -472,29 +495,24 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                         msg: Uni.I18n.translate('general.loading', 'MDC', 'Loading...'),
                                         target: widget
                                     }),
-                                    readingTypeCombo = widget.down('reading-type-combo'),
                                     title = Uni.I18n.translate('loadprofiles.loadporfileaddChannelConfiguration', 'MDC', 'Add channel configuration');
                                 me.getApplication().fireEvent('changecontentevent', widget);
                                 preloader.show();
                                 widget.down('form').setTitle(title);
-                                me.availableMeasurementTypesStore.getProxy().pageParam = false;
-                                me.availableMeasurementTypesStore.getProxy().limitParam = false;
-                                me.availableMeasurementTypesStore.getProxy().startParam = false;
-
                                 me.availableMeasurementTypesStore.load({
                                     callback: function () {
-                                        var readingTypesStore = Ext.create('Ext.data.Store', {model: 'Mdc.model.ReadingType'});
+                                        var registerTypesStore = Ext.create('Ext.data.Store', {model: 'Mdc.model.MeasurementType'});
                                         this.each(function (record) {
-                                            readingTypesStore.add(record.get('readingType'));
+                                            registerTypesStore.add(record);
                                         });
-                                        readingTypeCombo.bindStore(readingTypesStore);
+                                        me.getRegisterTypeCombo().bindStore(registerTypesStore, true);
                                         preloader.destroy();
                                     }
                                 });
 
                                 me.deviceTypeName = deviceType.get('name');
                                 me.deviceConfigName = deviceConfig.get('name');
-
+                                me.getRegisterTypeCombo().on('change', me.onRegisterTypeChange, me);
                             }
                         });
                     }
@@ -545,7 +563,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                                 target: widget
                                             }),
                                             title = Uni.I18n.translate('loadprofiles.loadprofileEditChannelConfiguration', 'MDC', 'Edit channel configuration'),
-                                            readingTypeCombo = widget.down('reading-type-combo'),
                                             overruledObisField = widget.down('textfield[name=overruledObisCode]'),
                                             overflowValueField = widget.down('textfield[name=overflowValue]');
 
@@ -556,20 +573,20 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                         widget.down('form').setTitle(title);
                                         widget.down('form').record = channel;
                                         if (channel.isLinkedByActiveDeviceConfiguration) {
-                                            readingTypeCombo.hide();
+                                            me.getRegisterTypeCombo().hide();
                                             readingTypeDisplayField.setValue(channel.measurementType.readingType);
                                             readingTypeDisplayField.show();
                                         }
 
                                         me.availableMeasurementTypesStore.load({
                                             callback: function () {
-                                                var readingTypesStore = Ext.create('Ext.data.Store', {model: 'Mdc.model.ReadingType'});
+                                                var registerTypesStore = Ext.create('Ext.data.Store', {model: 'Mdc.model.MeasurementType'});
                                                 this.add(channel.measurementType);
                                                 this.each(function (record) {
-                                                    readingTypesStore.add(record.get('readingType'));
+                                                    registerTypesStore.add(record.get('readingType'));
                                                 });
-                                                readingTypeCombo.bindStore(readingTypesStore);
-                                                readingTypeCombo.setValue(channel.measurementType.readingType.mRID);
+                                                me.getRegisterTypeCombo().bindStore(registerTypesStore, true);
+                                                me.getRegisterTypeCombo().setValue(channel.measurementType.id);
                                                 preloader.destroy();
                                             }
                                         });
@@ -581,6 +598,9 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                         me.deviceTypeName = deviceType.get('name');
                                         me.deviceConfigName = deviceConfig.get('name');
 
+                                        widget.down('#mdc-channel-config-multiplierRadioGroup').setDisabled(deviceConfig.get('active'));
+                                        me.registerTypesObisCode = channel.measurementType.obisCode;
+                                        me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), me.registerTypesObisCode);
                                     }
                                 });
                             }
@@ -607,5 +627,90 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
     chooseRuleAction: function (menu, item) {
         var record = menu.record || this.getPage().down('#loadProfileConfigurationDetailRulesGrid').getSelectionModel().getLastSelected();
         location.href = '#/administration/validation/rulesets/' + encodeURIComponent(record.get('ruleSet').id) + '/rules/' + encodeURIComponent(record.getId());
+    },
+
+    onRegisterTypeChange: function (field, value, options) {
+        var me = this,
+            view = me.getChannelForm();
+        if (field.name === 'registerType') {
+            var registerType = field.getStore().findRecord('id', value);
+            if (registerType != null) {
+                me.updateReadingTypeFields(registerType);
+                me.registerTypesObisCode = registerType.get('obisCode');
+                me.getOverruledObisCodeField().setValue(me.registerTypesObisCode);
+                me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), me.registerTypesObisCode);
+            }
+        }
+    },
+
+    onMultiplierChange: function(radioGroup) {
+        this.updateReadingTypeFields(
+            this.getRegisterTypeCombo().getStore().findRecord('id', this.getRegisterTypeCombo().getValue())
+        );
+    },
+
+    updateReadingTypeFields: function(selectedRegisterType) {
+        var me = this,
+            form = me.getChannelForm(),
+            multiplierRadioGroup = form.down('#mdc-channel-config-multiplierRadioGroup'),
+            collectedReadingTypeField = form.down('#mdc-channel-config-collected-readingType-field'),
+            calculatedReadingTypeField = form.down('#mdc-channel-config-calculated-readingType-field'),
+            calculatedReadingTypeCombo = form.down('#mdc-channel-config-calculated-readingType-combo'),
+            useMultiplier = multiplierRadioGroup.getValue().useMultiplier,
+            isCumulative = selectedRegisterType.get('isCumulative'),
+            calculatedReadingType = selectedRegisterType.get('calculatedReadingType'),
+            multipliedReadingTypes = selectedRegisterType.get('multipliedCalculatedReadingType');
+
+        collectedReadingTypeField.setValue(selectedRegisterType.get('readingType'));
+        collectedReadingTypeField.setVisible(selectedRegisterType);
+        if (useMultiplier) {
+            if (!multipliedReadingTypes || multipliedReadingTypes.length === 0) { // should never be the case
+                calculatedReadingTypeField.setVisible(false);
+                calculatedReadingTypeCombo.setVisible(false);
+            } else {
+                if (multipliedReadingTypes.length === 1) {
+                    calculatedReadingTypeField.setValue(multipliedReadingTypes[0]);
+                } else {
+                    var readingTypesStore = Ext.create('Ext.data.Store', {model: 'Mdc.model.ReadingType'});
+                    Ext.Array.forEach(multipliedReadingTypes, function(item) {
+                        readingTypesStore.add(item);
+                    });
+                    calculatedReadingTypeCombo.bindStore(readingTypesStore, true);
+                    calculatedReadingTypeCombo.setValue(readingTypesStore.getAt(0));
+                }
+                calculatedReadingTypeField.setVisible(multipliedReadingTypes.length === 1);
+                calculatedReadingTypeCombo.setVisible(multipliedReadingTypes.length > 1);
+            }
+        } else if (!isCumulative) {
+            calculatedReadingTypeField.setVisible(false);
+            calculatedReadingTypeCombo.setVisible(false);
+            if (calculatedReadingType) {
+                collectedReadingTypeField.setValue(calculatedReadingType);
+            }
+        } else if (isCumulative) {
+            calculatedReadingTypeField.setVisible(true);
+            calculatedReadingTypeCombo.setVisible(false);
+            if (calculatedReadingType) {
+                calculatedReadingTypeField.setValue(calculatedReadingType);
+            }
+        }
+    },
+
+    onOverruledObisCodeChange: function(overruledObisCodeField, newValue) {
+        var me = this;
+        me.getRestoreObisCodeBtn().setDisabled(newValue === me.registerTypesObisCode);
+        me.getRestoreObisCodeBtn().setTooltip(
+            newValue === me.registerTypesObisCode
+                ? null
+                : Uni.I18n.translate('general.obisCode.reset.tooltip', 'MDC', 'Reset to {0}, the OBIS code of the register type', me.registerTypesObisCode)
+        );
+    },
+
+    onRestoreObisCodeBtnClicked: function() {
+        var me = this;
+        //me.getChannelForm().down('#editObisCodeField').setValue(me.registerTypesObisCode);
+        me.getOverruledObisCodeField().setValue(me.registerTypesObisCode);
+        me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), me.registerTypesObisCode);
     }
+
 });
