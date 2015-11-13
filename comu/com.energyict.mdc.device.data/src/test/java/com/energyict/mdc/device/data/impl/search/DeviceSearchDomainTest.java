@@ -206,6 +206,7 @@ public class DeviceSearchDomainTest {
         verify(this.dataModel).getInstance(ComTaskUrgencySearchableProperty.class);
         verify(this.dataModel).getInstance(ComTaskNextCommunicationSearchableProperty.class);
         verify(this.dataModel).getInstance(ComTaskLastCommunicationSearchableProperty.class);
+        verify(this.dataModel).getInstance(ComTaskScheduleNameSearchableProperty.class);
         verify(this.dataModel).getInstance(ComTaskPlannedDateSearchableProperty.class);
         verify(this.dataModel).getInstance(ConnectionNameSearchableProperty.class);
         verify(this.dataModel).getInstance(ConnectionDirectionSearchableProperty.class);
@@ -561,6 +562,13 @@ public class DeviceSearchDomainTest {
         when(urgencyPropertySpec.getName()).thenReturn(ComTaskUrgencySearchableProperty.PROPERTY_NAME);
         when(this.propertySpecService.longPropertySpec(ComTaskUrgencySearchableProperty.PROPERTY_NAME, false, 0L))
                 .thenReturn(urgencyPropertySpec);
+        PropertySpec comScheduleSpec = mock(PropertySpec.class);
+        when(comScheduleSpec.getName()).thenReturn(ComTaskScheduleNameSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.referencePropertySpec(
+                eq(ComTaskScheduleNameSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                eq(FactoryIds.COMSCHEDULE),
+                anyList())).thenReturn(comScheduleSpec);
     }
 
     private void mockConnections() {

@@ -29,7 +29,7 @@ public class ComTaskLastCommunicationSearchableProperty extends AbstractDateSear
         SqlBuilder sqlBuilder = new SqlBuilder();
         sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE + ".ID IN ");
         sqlBuilder.openBracket();
-        sqlBuilder.append("select DEVICE from DDC_COMTASKEXEC where ");
+        sqlBuilder.append("select DEVICE from DDC_COMTASKEXEC where OBSOLETE_DATE IS NULL AND ");
         sqlBuilder.add(toSqlFragment("DDC_COMTASKEXEC.LASTEXECUTIONTIMESTAMP", condition, now));
         sqlBuilder.closeBracket();
         return sqlBuilder;
