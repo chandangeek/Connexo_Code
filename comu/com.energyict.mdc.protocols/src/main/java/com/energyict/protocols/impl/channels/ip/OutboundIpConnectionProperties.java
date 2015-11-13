@@ -202,7 +202,7 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
         propertySetValues.setProperty(Fields.PORT.javaName(), this.port);
         this.copyNullablePropertyTo(propertySetValues, Fields.CONNECTION_TIMEOUT, this.connectionTimeout);
         this.copyNullablePropertyTo(propertySetValues, Fields.BUFFER_SIZE, this.bufferSize);
-        this.copyPostDialProperties(propertySetValues);
+        this.copyPostDialPropertiesTo(propertySetValues);
     }
 
     private void copyNullablePropertyTo(CustomPropertySetValues propertySetValues, Fields field, Object value) {
@@ -215,6 +215,11 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
         this.copyNullablePropertyTo(propertySetValues, Fields.POST_DIAL_DELAY_MILLIS, this.postDialDelayMillis);
         this.copyNullablePropertyTo(propertySetValues, Fields.POST_DIAL_COMMAND_ATTEMPTS, this.postDialCommandAttempts);
         this.copyNullablePropertyTo(propertySetValues, Fields.POST_DIAL_COMMAND, this.postDialCommand);
+    }
+
+    @Override
+    public void validateDelete() {
+        // Nothing to validate
     }
 
 }

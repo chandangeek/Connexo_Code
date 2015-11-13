@@ -154,4 +154,9 @@ public class OutboundProximusConnectionProperties implements PersistentDomainExt
         propertySetValues.setProperty(Fields.SERVICE_CODE.javaName(), this.serviceCode);
     }
 
+    @Override
+    public void validateDelete() {
+        // Nothing to validate
+    }
+
 }

@@ -72,4 +72,9 @@ public class CTRInboundDialHomeIdConnectionProperties implements PersistentDomai
         propertySetValues.setProperty(Fields.DIAL_HOME_ID.javaName(), this.dialHomeId);
     }
 
+    @Override
+    public void validateDelete() {
+        // Nothing to validate
+    }
+
 }

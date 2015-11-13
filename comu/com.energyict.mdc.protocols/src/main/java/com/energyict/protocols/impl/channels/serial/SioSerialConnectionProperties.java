@@ -84,4 +84,9 @@ public class SioSerialConnectionProperties implements PersistentDomainExtension<
         propertySetValues.setProperty(SerialPortConfiguration.BAUDRATE_NAME, this.baudrate);
     }
 
+    @Override
+    public void validateDelete() {
+        // Nothing to validate
+    }
+
 }

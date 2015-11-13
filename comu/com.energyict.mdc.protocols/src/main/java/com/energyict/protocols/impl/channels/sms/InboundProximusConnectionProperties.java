@@ -106,4 +106,9 @@ public class InboundProximusConnectionProperties implements PersistentDomainExte
         propertySetValues.setProperty(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName(), this.callHomeId);
     }
 
+    @Override
+    public void validateDelete() {
+        // Nothing to validate
+    }
+
 }

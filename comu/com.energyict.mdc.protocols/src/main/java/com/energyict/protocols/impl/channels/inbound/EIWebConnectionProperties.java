@@ -84,4 +84,9 @@ public class EIWebConnectionProperties implements PersistentDomainExtension<Conn
         propertySetValues.setProperty(Fields.MAC_ADDRESS.javaName(), this.macAddress);
     }
 
+    @Override
+    public void validateDelete() {
+        // Nothing to validate
+    }
+
 }
