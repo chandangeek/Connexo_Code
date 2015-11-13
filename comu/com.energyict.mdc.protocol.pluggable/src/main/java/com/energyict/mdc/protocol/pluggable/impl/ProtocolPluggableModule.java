@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.license.LicenseService;
@@ -9,12 +10,8 @@ import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.pluggable.PluggableService;
-import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
-import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
-import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
-import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
 
@@ -32,6 +29,7 @@ public class ProtocolPluggableModule extends AbstractModule {
         requireBinding(EventService.class);
         requireBinding(PluggableService.class);
         requireBinding(RelationService.class);
+        requireBinding(CustomPropertySetService.class);
         requireBinding(LicenseService.class);
         requireBinding(IssueService.class);
         requireBinding(DataVaultService.class);

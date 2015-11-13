@@ -119,9 +119,7 @@ public class InMemoryPersistence {
             this.eventService = injector.getInstance(EventService.class);
             this.nlsService = injector.getInstance(NlsService.class);
             this.dataVaultService = injector.getInstance(DataVaultService.class);
-            this.pluggableService = injector.getInstance(PluggableService.class);
             this.relationService = injector.getInstance(RelationService.class);
-            this.customPropertySetService = injector.getInstance(CustomPropertySetService.class);
             this.issueService = injector.getInstance(IssueService.class);
             this.dataModel = this.createNewProtocolPluggableService();
             for (DataModelInitializer initializer : dataModelInitializers) {
@@ -148,7 +146,7 @@ public class InMemoryPersistence {
         when(this.principal.getName()).thenReturn(testName);
         this.propertySpecService = mock(PropertySpecService.class);
         this.pluggableService = mock(PluggableService.class);
-        this.relationService = mock(RelationService.class);
+        this.customPropertySetService = mock(CustomPropertySetService.class);
         this.deviceProtocolService = mock(DeviceProtocolService.class);
         this.deviceProtocolMessageService = mock(DeviceProtocolMessageService.class);
         this.deviceProtocolSecurityService = mock(DeviceProtocolSecurityService.class);
@@ -227,6 +225,7 @@ public class InMemoryPersistence {
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
             bind(LicenseService.class).toInstance(licenseService);
+            bind(CustomPropertySetService.class).toInstance(customPropertySetService);
             bind(DeviceProtocolMessageService.class).toInstance(deviceProtocolMessageService);
             bind(ConnectionTypeService.class).toInstance(connectionTypeService);
             bind(DeviceProtocolSecurityService.class).toInstance(deviceProtocolSecurityService);

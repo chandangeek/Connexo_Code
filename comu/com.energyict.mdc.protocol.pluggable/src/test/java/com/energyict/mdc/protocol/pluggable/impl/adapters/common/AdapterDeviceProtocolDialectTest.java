@@ -1,17 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.io.impl.MdcIOModule;
-import com.energyict.mdc.issues.impl.IssuesModule;
-import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
-import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
-import com.energyict.mdc.protocol.pluggable.mocks.MockMeterProtocol;
-
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -39,6 +29,17 @@ import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
 import com.elster.jupiter.util.streams.Predicates;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
+import com.energyict.mdc.io.impl.MdcIOModule;
+import com.energyict.mdc.issues.impl.IssuesModule;
+import com.energyict.mdc.pluggable.impl.PluggableModule;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
+import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
+import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableServiceImpl;
+import com.energyict.mdc.protocol.pluggable.mocks.MockMeterProtocol;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
@@ -241,6 +242,7 @@ public class AdapterDeviceProtocolDialectTest {
     private class MockModule extends AbstractModule {
         @Override
         protected void configure() {
+            bind(CustomPropertySetService.class).toInstance(mock(CustomPropertySetService.class));
             bind(TimeService.class).toInstance(mock(TimeService.class));
             bind(EventAdmin.class).toInstance(eventAdmin);
             bind(BundleContext.class).toInstance(bundleContext);
