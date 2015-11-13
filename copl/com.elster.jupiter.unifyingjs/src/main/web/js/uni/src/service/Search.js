@@ -455,7 +455,10 @@ Ext.define('Uni.service.Search', {
                 } else {
                     item.setDisabled(true);
                     if (item.store) {
-                        item.getStore().clearFilter();
+                        item.getStore().clearFilter(true);
+                    }
+                    if (!item.property.get('sticky')) {
+                        me.removeProperty(item.property);
                     }
                 }
             });
