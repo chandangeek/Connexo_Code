@@ -166,6 +166,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
         ComTaskExecutionBuilder comTaskExecutionBuilder = mock(ComTaskExecutionBuilder.class);
         when(device.newAdHocComTaskExecution(comTaskEnablement)).thenReturn(comTaskExecutionBuilder);
+        when(comTaskExecutionBuilder.scheduleNow()).thenReturn(comTaskExecutionBuilder);
         ManuallyScheduledComTaskExecution comTaskExecution = mock(ManuallyScheduledComTaskExecution.class);
         when(comTaskExecutionBuilder.add()).thenReturn(comTaskExecution);
 
@@ -173,8 +174,8 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         info.device = getDeviceInfo();
         Response response = target("/devices/"+DEVICE_MRID+"/comtasks/111/run").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(comTaskExecutionBuilder, times(1)).scheduleNow();
         verify(comTaskExecutionBuilder, times(1)).add();
-        verify(comTaskExecution, times(1)).scheduleNow();
     }
 
     @Test
@@ -188,6 +189,7 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
         ComTaskExecutionBuilder comTaskExecutionBuilder = mock(ComTaskExecutionBuilder.class);
         when(device.newAdHocComTaskExecution(comTaskEnablement)).thenReturn(comTaskExecutionBuilder);
+        when(comTaskExecutionBuilder.runNow()).thenReturn(comTaskExecutionBuilder);
         ManuallyScheduledComTaskExecution comTaskExecution = mock(ManuallyScheduledComTaskExecution.class);
         when(comTaskExecutionBuilder.add()).thenReturn(comTaskExecution);
 
@@ -195,8 +197,8 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         info.device = getDeviceInfo();
         Response response = target("/devices/"+DEVICE_MRID+"/comtasks/111/runnow").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(comTaskExecutionBuilder, times(1)).runNow();
         verify(comTaskExecutionBuilder, times(1)).add();
-        verify(comTaskExecution, times(1)).runNow();
     }
 
     @Test

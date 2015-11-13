@@ -100,7 +100,6 @@ public class DeviceScheduleResource {
                         }
                         builder.add();
                     }
-                    device.save();
                 } else {
                     boolean comTaskExecutionExists = false;
                     for (ComTaskExecution comTaskExecution : device.getComTaskExecutions()) {
@@ -110,9 +109,7 @@ public class DeviceScheduleResource {
                         }
                     }
                     if (!comTaskExecutionExists) {
-                        ManuallyScheduledComTaskExecution comTaskExecution = device.newAdHocComTaskExecution(comTaskEnablement).add();
-                        device.save();
-                        comTaskExecution.scheduleNow();
+                        device.newAdHocComTaskExecution(comTaskEnablement).scheduleNow().add();
                     }
                 }
             }
@@ -149,8 +146,4 @@ public class DeviceScheduleResource {
         return Response.ok().build();
     }
 
-    private Optional<ComTaskExecution> findComTaskExecution(Device device, long comTaskExecId) {
-        List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions();
-        return comTaskExecutions.stream().filter(cte->cte.getId()==comTaskExecId).findFirst();
-    }
 }

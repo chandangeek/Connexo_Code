@@ -50,7 +50,6 @@ public class DeviceSharedScheduleResource {
                             throw new AlreadyLocalizedException(cve.getConstraintViolations().iterator().next().getMessage());
                         }
         });
-        device.save();
         return Response.status(Response.Status.OK).build();
     }
 
