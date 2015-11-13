@@ -70,7 +70,7 @@ public class CommunicationTaskServiceImplTest extends PersistenceIntegrationTest
             return (QueryEndDeviceGroup) endDeviceGroup.get();
         } else {
             QueryEndDeviceGroup queryEndDeviceGroup = inMemoryPersistence.getMeteringGroupsService().createQueryEndDeviceGroup()
-                    .setMRID("dynamic")
+                    .setName("dynamic")
                     .setSearchDomain(inMemoryPersistence.getDeviceSearchDomain())
                     .setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPROVIDER)
                     .withConditions(buildSearchablePropertyCondition("mRID", SearchablePropertyOperator.EQUAL, Collections.singletonList("SPE*")))

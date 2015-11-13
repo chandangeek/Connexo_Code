@@ -53,14 +53,15 @@ public class DeviceGroupTest extends PersistenceIntegrationTest {
         Device device3 = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, DEVICE_NAME3, ED_MRID3);
         device3.save();
         EndDeviceGroupBuilder.QueryEndDeviceGroupBuilder builder = inMemoryPersistence.getMeteringGroupsService().createQueryEndDeviceGroup();
-        builder.setMRID(QUERY_EDG_NAME);
+
+        builder.setName(QUERY_EDG_NAME);
         builder.setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPROVIDER);
         builder.setSearchDomain(inMemoryPersistence.getDeviceSearchDomain());
         builder.withConditions(buildSearchablePropertyCondition("mRID", SearchablePropertyOperator.EQUAL, Collections.singletonList("mrid*")));
         builder.create();
 
         //Business method
-        Optional<EndDeviceGroup> found = inMemoryPersistence.getMeteringGroupsService().findEndDeviceGroup(QUERY_EDG_NAME);
+        Optional<EndDeviceGroup> found = inMemoryPersistence.getMeteringGroupsService().findEndDeviceGroupByName(QUERY_EDG_NAME);
 
         //Asserts
         assertThat(found).isPresent();
@@ -114,6 +115,7 @@ public class DeviceGroupTest extends PersistenceIntegrationTest {
         QueryEndDeviceGroup queryEndDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup()
                 .setMRID("mine")
                 .setName("mine")
+                .setSearchDomain(inMemoryPersistence.getDeviceSearchDomain())
                 .setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPROVIDER)
                 .create();
 
