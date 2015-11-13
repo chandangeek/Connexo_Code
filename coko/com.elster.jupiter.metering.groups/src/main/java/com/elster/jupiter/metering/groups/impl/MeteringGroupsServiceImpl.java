@@ -38,6 +38,7 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
@@ -118,6 +119,7 @@ public class MeteringGroupsServiceImpl implements MeteringGroupsService, Install
                     bind(QueryService.class).toInstance(queryService);
                     bind(SearchService.class).toInstance(searchService);
                     bind(Thesaurus.class).toInstance(thesaurus);
+                    bind(MessageInterpolator.class).toInstance(thesaurus);
                 }
             });
         } catch (Exception e) {

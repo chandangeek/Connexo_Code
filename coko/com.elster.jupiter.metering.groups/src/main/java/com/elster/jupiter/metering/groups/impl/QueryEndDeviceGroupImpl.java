@@ -1,5 +1,6 @@
 package com.elster.jupiter.metering.groups.impl;
 
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.groups.EndDeviceMembership;
@@ -105,12 +106,12 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
     }
 
     void save() {
-        groupFactory().persist(this);
+        Save.CREATE.save(dataModel, this);
     }
 
     @Override
     public void update() {
-        groupFactory().update(this);
+        Save.UPDATE.save(dataModel, this);
     }
 
     @Override
