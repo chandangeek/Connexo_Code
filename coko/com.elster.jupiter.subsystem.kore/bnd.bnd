@@ -1,6 +1,5 @@
 -classpath: target/classes
 -dsannotations: *
 Private-Package: com.elster.jupiter.subsystem.kore.impl
-Export-Package: com.elster.jupiter.subsystem.kore
-
+Embed-Dependency:*;type=pom
 

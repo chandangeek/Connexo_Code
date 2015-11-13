@@ -39,6 +39,42 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+            <groupId>com.elster.jupiter.subsystem</groupId>
+            <artifactId>platform</artifactId>
+            <version>1.1.0-SNAPSHOT</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>kore.bom</artifactId>
+            <version>1.1.0-SNAPSHOT</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>platform.bom</artifactId>
+            <version>1.1.0-SNAPSHOT</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter.subsystem</groupId>
+            <artifactId>third-party</artifactId>
+            <version>1.1.0-SNAPSHOT</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>third-party.bom</artifactId>
+            <version>1.1.0-SNAPSHOT</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>drools-integration</artifactId>
+            <version>1.1.0-SNAPSHOT</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>appserver.rest</artifactId>
         </dependency>
