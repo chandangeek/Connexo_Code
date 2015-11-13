@@ -287,7 +287,10 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         var me = this,
             wizard = me.getAddDeviceGroupWizard(),
             step2 = wizard.down('device-group-wizard-step2'),
-            deviceDomain = 'com.energyict.mdc.device.data.Device',
+            defaultState = {
+                domain: 'com.energyict.mdc.device.data.Device',
+                filters: []
+            },
             domainsStore = me.service.getSearchDomainsStore(),
             isDynamic = newValue.dynamic,
             staticGrid,
@@ -308,12 +311,13 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         } else {
             me.service.excludedCriteria = 'deviceGroup';
         }
+
         if (domainsStore.isLoading()) {
             domainsStore.on('load', function () {
-                me.service.setDomain(deviceDomain);
+                me.service.applyState(defaultState);
             }, me, {single: true});
         } else {
-            me.service.setDomain(deviceDomain);
+            me.service.applyState(defaultState);
         }
     },
 

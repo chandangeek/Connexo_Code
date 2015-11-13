@@ -1,6 +1,9 @@
 Ext.define('Mdc.service.DeviceGroupSearch', {
     extend: 'Mdc.service.Search',
 
+    stateful: false,
+    stateId: 'deviceGroup',
+
     addProperty: function (property) {
         var me = this,
             excludedCriteria,
