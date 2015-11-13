@@ -96,9 +96,9 @@ Ext.define('Imt.controller.Search', {
         });
 
         searchResults.on('load', function (store, items) {
-            var grid = me.getResultsGrid();
-            var btn = grid.down('#search-bulk-actions-button');
-            btn.setDisabled(!(me.service.searchDomain && me.service.searchDomain.getId() === "com.energyict.mdc.device.data.Device" && items && items.length));
+//            var grid = me.getResultsGrid();
+//            var btn = grid.down('#search-bulk-actions-button');
+//            btn.setDisabled(!(me.service.searchDomain && me.service.searchDomain.getId() === "com.energyict.mdc.device.data.Device" && items && items.length));
         });
     },
 

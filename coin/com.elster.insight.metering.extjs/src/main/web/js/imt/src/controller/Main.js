@@ -43,9 +43,14 @@ Ext.define('Imt.controller.Main', {
         }
     ],
     init: function () {
+        this.initHistorians();
         this.initMenu();
     },
 
+    initHistorians: function() {
+        this.getController('Imt.controller.History');
+    },
+    
     initMenu: function () {
         var menuItem = Ext.create('Uni.model.MenuItem', {
             text: Uni.I18n.translate('general.label.usagepoints', 'IMT', 'Usage points'),
