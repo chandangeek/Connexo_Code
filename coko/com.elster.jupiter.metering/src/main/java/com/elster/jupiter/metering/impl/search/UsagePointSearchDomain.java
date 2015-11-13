@@ -102,7 +102,11 @@ public class UsagePointSearchDomain implements SearchDomain {
 
     @Override
     public List<SearchablePropertyValue> getPropertiesValues(Function<SearchableProperty, SearchablePropertyValue> mapper) {
-        return getProperties().stream().map(mapper::apply).collect(Collectors.toList());
+        return getProperties()
+                .stream()
+                .map(mapper::apply)
+                .filter(propertyValue -> propertyValue != null && propertyValue.getValueBean() != null && propertyValue.getValueBean().values != null)
+                .collect(Collectors.toList());
     }
 
     @Override
