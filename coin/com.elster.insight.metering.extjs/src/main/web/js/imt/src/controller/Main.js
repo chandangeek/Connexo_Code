@@ -45,6 +45,7 @@ Ext.define('Imt.controller.Main', {
     init: function () {
         this.initHistorians();
         this.initMenu();
+        this.callParent();
     },
 
     initHistorians: function() {
