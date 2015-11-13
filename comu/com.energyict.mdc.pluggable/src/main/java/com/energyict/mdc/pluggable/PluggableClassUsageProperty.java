@@ -1,6 +1,7 @@
 package com.energyict.mdc.pluggable;
 
 import com.elster.jupiter.properties.HasDynamicProperties;
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -22,21 +23,21 @@ public interface PluggableClassUsageProperty<T extends HasDynamicProperties> {
      *
      * @return The PluggableClass
      */
-    public PluggableClass getPluggableClass ();
+    PluggableClass getPluggableClass();
 
     /**
      * Gets the name of the property for which a value is held.
      *
      * @return The name of the property
      */
-    public String getName ();
+    String getName();
 
     /**
      * Gets the value of the property.
      *
      * @return The value
      */
-    public Object getValue ();
+    Object getValue();
 
     /**
      * Tests if this PluggableClassUsageProperty was inherited from
@@ -49,13 +50,13 @@ public interface PluggableClassUsageProperty<T extends HasDynamicProperties> {
      *
      * @return A flag that indicates if the property was inherited
      */
-    public boolean isInherited ();
+    boolean isInherited();
 
     /**
      * Gets the time Interval during which this PluggableClassUsageProperty was active.
      *
      * @return The activity period
      */
-    public Range<Instant> getActivePeriod ();
+    Range<Instant> getActivePeriod();
 
 }
