@@ -1,5 +1,4 @@
 -classpath: target/classes
 -dsannotations: *
 Private-Package: com.elster.jupiter.subsystem.mdc.impl
-Export-Package: com.elster.jupiter.subsystem.mdc
-
+Embed-Dependency:*;type=pom
