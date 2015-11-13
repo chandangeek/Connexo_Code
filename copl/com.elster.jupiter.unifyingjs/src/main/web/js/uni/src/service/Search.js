@@ -142,7 +142,7 @@ Ext.define('Uni.service.Search', {
         if (domain !== null
             && Ext.isDefined(domain)
             && Ext.getClassName(domain) == "Uni.model.search.Domain"
-            && domain !== me.getDomain()) {
+        ) {
             //todo: how to set domain from state && manually at same time?
             me.searchDomain = domain;
 
