@@ -3,7 +3,9 @@ Ext.define('Apr.view.taskoverview.TaskPreview', {
     frame: true,
     alias: 'widget.task-preview',
 
-    requires: [],
+    requires: [
+        'Uni.form.field.Duration'
+    ],
 
     items: [
         {
@@ -67,9 +69,10 @@ Ext.define('Apr.view.taskoverview.TaskPreview', {
                                             name: 'queueStatusString'
                                         },
                                         {
+                                            xtype: 'uni-form-field-duration',
                                             fieldLabel: Uni.I18n.translate('general.duration', 'APR', 'Duration'),
                                             itemId: 'durationField',
-                                            name: 'duration'
+                                            name: 'currentRunDuration'
                                         },
                                         {
                                             fieldLabel: Uni.I18n.translate('general.nextRun', 'APR', 'Next run'),
@@ -111,15 +114,9 @@ Ext.define('Apr.view.taskoverview.TaskPreview', {
                                             }
                                         },
                                         {
+                                            xtype: 'uni-form-field-duration',
                                             fieldLabel: Uni.I18n.translate('general.duration', 'APR', 'Duration'),
-                                            name: 'lastRunDuration',
-                                            renderer: function(value){
-                                                if(!value){
-                                                    return '-';
-                                                } else {
-                                                    return value;
-                                                }
-                                            }
+                                            name: 'lastRunDuration'
                                         }
                                     ]
                                 }

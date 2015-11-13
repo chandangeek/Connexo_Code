@@ -1,7 +1,7 @@
 Ext.define('Apr.model.Task', {
     extend: 'Ext.data.Model',
     fields: [
-        'name', 'application','queue','queueStatus','queueStatusDate','nextRun','trigger','lastRunDuration','lastRunStatus','lastRunDate',
+        'name', 'application','queue','queueStatus','queueStatusDate','nextRun','trigger','lastRunStatus','lastRunDate',
         {
             name: 'queueStatusString',
             convert: function (value, record) {
@@ -31,6 +31,29 @@ Ext.define('Apr.model.Task', {
                     return Uni.I18n.translate('general.notExecutedYet','APR','Not executed yet');
                 }
             }
+        },
+        {
+            name: 'lastRunDuration',
+            persist: false,
+            mapping: function (data) {
+                if (data.lastRunDuration) {
+                    return data.lastRunDuration;
+                } else {
+                    return '-';
+                }
+            }
+        },
+        {
+            name: 'currentRunDuration',
+            persist: false,
+            mapping: function (data) {
+                if (data.currentRunDuration) {
+                    return data.currentRunDuration;
+                } else {
+                    return '-';
+                }
+            }
         }
+
     ]
 });
