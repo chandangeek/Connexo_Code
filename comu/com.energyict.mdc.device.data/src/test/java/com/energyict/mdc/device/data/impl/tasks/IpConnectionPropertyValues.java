@@ -37,4 +37,9 @@ public class IpConnectionPropertyValues implements PersistentDomainExtension<Con
         propertySetValues.setProperty(IpConnectionProperties.PORT.propertyName(), this.port);
     }
 
+    @Override
+    public void validateDelete() {
+        // Nothing to validate
+    }
+
 }

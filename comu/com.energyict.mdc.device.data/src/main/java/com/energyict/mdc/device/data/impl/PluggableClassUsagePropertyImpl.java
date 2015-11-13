@@ -1,11 +1,10 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.properties.HasDynamicProperties;
 import com.energyict.mdc.dynamic.relation.Relation;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
 
-import com.elster.jupiter.properties.HasDynamicProperties;
-import com.elster.jupiter.util.time.Interval;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -21,7 +20,7 @@ public class PluggableClassUsagePropertyImpl<T extends HasDynamicProperties> imp
     private PluggableClass pluggableClass;
     private String name;
     private Object value;
-    private Interval activePeriod;
+    private Range<Instant> activePeriod;
     private boolean inherited;
 
     public PluggableClassUsagePropertyImpl (String name) {
@@ -36,7 +35,7 @@ public class PluggableClassUsagePropertyImpl<T extends HasDynamicProperties> imp
     protected PluggableClassUsagePropertyImpl (String name, Object value, Range<Instant> activePeriod, PluggableClass pluggableClass, boolean inherited) {
         this(name);
         this.value = value;
-        this.activePeriod = Interval.of(activePeriod);
+        this.activePeriod = activePeriod;
         this.pluggableClass = pluggableClass;
         this.inherited = inherited;
     }
@@ -67,10 +66,10 @@ public class PluggableClassUsagePropertyImpl<T extends HasDynamicProperties> imp
 
     @Override
     public Range<Instant> getActivePeriod() {
-        return this.activePeriod.toClosedOpenRange();
+        return this.activePeriod;
     }
 
-    public void setActivePeriod (Interval activePeriod) {
+    public void setActivePeriod (Range<Instant> activePeriod) {
         this.activePeriod = activePeriod;
     }
 
@@ -85,7 +84,7 @@ public class PluggableClassUsagePropertyImpl<T extends HasDynamicProperties> imp
         if (this.inherited) {
             builder.append(", inherited");
         }
-        if ((this.activePeriod.getStart() == null) && (this.activePeriod.getEnd() == null)) {
+        if ((!this.activePeriod.hasLowerBound()) && (!this.activePeriod.hasUpperBound())) {
             builder.append(", always active");
         }
         else {

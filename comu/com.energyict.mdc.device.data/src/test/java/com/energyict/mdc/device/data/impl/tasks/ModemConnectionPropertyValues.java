@@ -31,4 +31,9 @@ public class ModemConnectionPropertyValues implements PersistentDomainExtension<
         propertySetValues.setProperty(ModemConnectionProperties.PHONE_NUMBER.propertyName(), this.phoneNumber);
     }
 
+    @Override
+    public void validateDelete() {
+        // Nothing to validate
+    }
+
 }

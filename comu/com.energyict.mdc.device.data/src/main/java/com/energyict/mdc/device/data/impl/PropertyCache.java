@@ -1,9 +1,8 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.properties.HasDynamicProperties;
 import com.energyict.mdc.pluggable.PluggableClassUsageProperty;
 
-import com.elster.jupiter.properties.HasDynamicProperties;
-import com.elster.jupiter.util.Ranges;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -124,44 +123,9 @@ public class PropertyCache<T extends HasDynamicProperties, PT extends PluggableC
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Gets the properties that are active in the specified TimePeriod,
-     * loading them if necessary.
-     *
-     * @return The properties that are active on the specified Date
-     */
-    public List<PT> get (Range<Instant> period) {
-        if (this.isCached(period)) {
-            return this.filterByPeriod(period);
-        }
-        else {
-            this.clear();
-            this.addAll(this.factory.loadProperties(period), period);
-            return this.filterByPeriod(period);
-        }
-    }
-
-    private List<PT> filterByPeriod (Range<Instant> period) {
-        return this.properties
-                .values()
-                .stream()
-                .filter(property -> Ranges.does(period).overlap(property.getActivePeriod()))
-                .collect(Collectors.toList());
-    }
-
     private void addAll (List<PT> properties, Instant cacheHitDate) {
         if (properties.isEmpty()) {
             this.activeDate = cacheHitDate;
-        }
-        else {
-            this.addAll(properties);
-        }
-    }
-
-    private void addAll (List<PT> properties, Range<Instant> cacheHitPeriod) {
-        if (properties.isEmpty()) {
-            this.activePeriod = TreeRangeSet.create();
-            activePeriod.add(cacheHitPeriod);
         }
         else {
             this.addAll(properties);

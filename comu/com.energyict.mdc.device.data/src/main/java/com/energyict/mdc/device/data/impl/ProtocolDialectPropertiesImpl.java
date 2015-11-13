@@ -1,5 +1,14 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.IsPresent;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
@@ -22,15 +31,6 @@ import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectProperty;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectUsagePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.IsPresent;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.properties.PropertySpec;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -437,21 +437,6 @@ public class ProtocolDialectPropertiesImpl
         }
     }
 
-    @Override
-    public List<DeviceProtocolDialectProperty> loadProperties(Range<Instant> interval) {
-        List<DeviceProtocolDialectProperty> properties = new ArrayList<>();
-        RelationAttributeType defaultAttributeType = this.getDefaultAttributeType();
-        /* defaultAttributeType is null when the pluggable class has no properties.
-         * In that case, no relation type was created. */
-        if (defaultAttributeType != null) {
-            List<Relation> relations = this.getRelations(defaultAttributeType, interval, false);
-            for (Relation relation : relations) {
-                properties.addAll(this.toProperties(relation));
-            }
-        }
-        return properties;
-    }
-
     public DeviceProtocolDialectProperty getProperty(String propertyName) {
         for (DeviceProtocolDialectProperty property : this.getAllProperties()) {
             if (property.getName().equals(propertyName)) {
@@ -474,6 +459,7 @@ public class ProtocolDialectPropertiesImpl
     private DeviceProtocolDialectProperty newPropertyFor(Relation relation, RelationAttributeType attributeType) {
         return new DeviceProtocolDialectPropertyImpl(relation, attributeType.getName(), this.getPluggableClass());
     }
+
     @Override
     public void setProperty(String propertyName, Object value) {
         Instant now = this.clock.instant();
@@ -569,7 +555,7 @@ public class ProtocolDialectPropertiesImpl
     }
 
     private class AttributeNameMapper {
-        private boolean initialized = false;
+        private boolean notInitialized = true;
         private Map<String, String> propertySpecName2AttributeTypeName;
         private Map<String, String> attributeTypeName2PropertySpecName;
 
@@ -584,7 +570,7 @@ public class ProtocolDialectPropertiesImpl
         }
 
         private void ensureMappingInitialized() {
-            if (!this.initialized) {
+            if (this.notInitialized) {
                 this.propertySpecName2AttributeTypeName = new HashMap<>();
                 this.attributeTypeName2PropertySpecName = new HashMap<>();
                 getDeviceProtocolDialectUsagePluggableClass()
@@ -592,7 +578,7 @@ public class ProtocolDialectPropertiesImpl
                         .getPropertySpecs()
                         .stream()
                         .forEach(this::initializeMappingFor);
-                this.initialized = true;
+                this.notInitialized = false;
             }
         }
 
@@ -602,4 +588,5 @@ public class ProtocolDialectPropertiesImpl
             this.attributeTypeName2PropertySpecName.put(attributeTypeName, propertySpec.getName());
         }
     }
+
 }
