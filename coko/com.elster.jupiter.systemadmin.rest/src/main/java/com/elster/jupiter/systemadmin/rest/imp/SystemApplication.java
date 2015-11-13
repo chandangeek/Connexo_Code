@@ -6,15 +6,23 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.system.SubsystemService;
-import com.elster.jupiter.systemadmin.rest.imp.resource.FieldsResource;
+import com.elster.jupiter.system.BundleTypeTranslationKeys;
+import com.elster.jupiter.system.ComponentStatusTranslationKeys;
+import com.elster.jupiter.systemadmin.rest.imp.resource.ComponentResource;
+import com.elster.jupiter.systemadmin.rest.imp.resource.FieldResource;
 import com.elster.jupiter.systemadmin.rest.imp.resource.DataPurgeResource;
 import com.elster.jupiter.systemadmin.rest.imp.resource.LicenseResource;
 import com.elster.jupiter.systemadmin.rest.imp.resource.MessageSeeds;
 import com.elster.jupiter.systemadmin.rest.imp.resource.SystemInfoResource;
 import com.elster.jupiter.systemadmin.rest.imp.response.ApplicationInfoFactory;
+import com.elster.jupiter.systemadmin.rest.imp.response.BundleTypeInfoFactory;
+import com.elster.jupiter.systemadmin.rest.imp.response.ComponentInfoFactory;
+import com.elster.jupiter.systemadmin.rest.imp.response.ComponentStatusInfoFactory;
 import com.elster.jupiter.systemadmin.rest.imp.response.SystemInfoFactory;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -31,6 +39,7 @@ import org.osgi.service.component.annotations.Activate;
 
 import javax.validation.MessageInterpolator;
 import javax.ws.rs.core.Application;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -39,10 +48,10 @@ import java.util.Set;
 
 @Component(
         name = "com.elster.jupiter.systemadmin.rest",
-        service = {Application.class, MessageSeedProvider.class},
+        service = {Application.class, MessageSeedProvider.class, TranslationKeyProvider.class},
         immediate = true,
         property = {"alias=/sys", "app=SYS", "name=" + SystemApplication.COMPONENT_NAME})
-public class SystemApplication extends Application implements MessageSeedProvider {
+public class SystemApplication extends Application implements MessageSeedProvider, TranslationKeyProvider {
     public static final String COMPONENT_NAME = "SYS";
 
     private volatile TransactionService transactionService;
@@ -65,7 +74,8 @@ public class SystemApplication extends Application implements MessageSeedProvide
                 DataPurgeResource.class,
                 MultiPartFeature.class,
                 SystemInfoResource.class,
-                FieldsResource.class);
+                FieldResource.class,
+                ComponentResource.class);
     }
 
     @Activate
@@ -129,8 +139,21 @@ public class SystemApplication extends Application implements MessageSeedProvide
     }
 
     @Override
+    public String getComponentName() {
+        return COMPONENT_NAME;
+    }
+
+    @Override
     public Layer getLayer() {
         return Layer.REST;
+    }
+
+    @Override
+    public List<TranslationKey> getKeys() {
+        List<TranslationKey> keys = new ArrayList<>();
+        keys.addAll(Arrays.asList(BundleTypeTranslationKeys.values()));
+        keys.addAll(Arrays.asList(ComponentStatusTranslationKeys.values()));
+        return keys;
     }
 
     @Override
@@ -154,6 +177,9 @@ public class SystemApplication extends Application implements MessageSeedProvide
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(SystemInfoFactory.class).to(SystemInfoFactory.class);
             bind(ApplicationInfoFactory.class).to(ApplicationInfoFactory.class);
+            bind(ComponentInfoFactory.class).to(ComponentInfoFactory.class);
+            bind(BundleTypeInfoFactory.class).to(BundleTypeInfoFactory.class);
+            bind(ComponentStatusInfoFactory.class).to(ComponentStatusInfoFactory.class);
             bind(subsystemService).to(SubsystemService.class);
             bind(bundleContext).to(BundleContext.class);
             bind(lastStartedTime).to(Long.class).named("LAST_STARTED_TIME");
