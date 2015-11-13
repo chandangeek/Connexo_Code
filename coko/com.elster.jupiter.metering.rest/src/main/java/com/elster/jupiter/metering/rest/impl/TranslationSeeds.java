@@ -26,7 +26,17 @@ public enum TranslationSeeds implements TranslationKey {
     READ_ROUTE("readRoute", "Read route"),
     REMARK("serviceDeliveryRemark", "Service remark"),
     PRIORITY("servicePriority", "Service priority"),
-    ISSUES("openIssues", "Open issues");
+    ISSUES("openIssues", "Open issues"), 
+    
+    SERIALNUMBER("serialNumber", "Serial number"),
+    UTCNUMBER("utcNumber", "UTC number"),
+    EMAIL1("email1", "Email 1"),
+    EMAIL2("email2", "Email 2"),
+    AMRSYSTEMNAME("amrSystemName", "AMR system name"),
+    INSTALLEDDATE("installedDate", "Installed date"),
+    REMOVEDDATE("removedDate", "Removed date"),
+    RETIREDDATE("retiredDate", "Retired date")
+;
 
     private final String key;
     private final String defaultFormat;
