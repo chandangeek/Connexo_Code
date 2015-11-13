@@ -36,8 +36,10 @@ public final class SearchablePropertyValue {
     }
 
     public void addAsCondition(SearchBuilder searchBuilder) throws InvalidValueException {
+        if(this.valueBean.operator!=null) {
         SearchBuilder.CriterionBuilder criterionBuilder = searchBuilder.where(this.property);
         this.valueBean.operator.appendCriteria(this.property, criterionBuilder, getValues());
+        }
     }
 
     public SearchableProperty getProperty() {
