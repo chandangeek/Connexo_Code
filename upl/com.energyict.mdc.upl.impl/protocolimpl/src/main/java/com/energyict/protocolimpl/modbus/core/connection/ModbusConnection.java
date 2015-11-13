@@ -16,6 +16,7 @@ import com.energyict.dialer.connection.ConnectionRS485;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.core.HalfDuplexController;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -253,7 +254,7 @@ public class ModbusConnection extends ConnectionRS485 implements ProtocolConnect
                                 }
                                 catch (InterruptedException e) {
                                     Thread.currentThread().interrupt();
-                                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                                    throw ConnectionCommunicationException.communicationInterruptedException(e);
                                 }
                                 byte[] data = allDataArrayOutputStream.toByteArray();
                                 if (data.length <= 2) {

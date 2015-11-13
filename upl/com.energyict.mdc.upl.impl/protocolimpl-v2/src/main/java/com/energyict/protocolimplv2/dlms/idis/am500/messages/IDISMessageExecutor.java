@@ -29,6 +29,7 @@ import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocol.messaging.MessageTag;
 import com.energyict.protocol.messaging.MessageValue;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
@@ -484,7 +485,7 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
         try {
             return ProtocolTools.compress(codeTableDescription);
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
+            throw DataParseException.generalParseException(e);
         }
     }
 

@@ -12,7 +12,6 @@ import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
-import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
@@ -21,6 +20,7 @@ import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.webrtuz3.WebRTUZ3;
 import com.energyict.protocolimplv2.identifiers.RegisterIdentifierById;
@@ -151,7 +151,7 @@ public class WebRTUZ3RegisterFactory implements DeviceRegisterSupport {
             try {
                 meterProtocol.getPhysicalAddressFromSerialNumber(register.getSerialNumber());
                 validRegisters.add(register);
-            } catch (ComServerExecutionException e) {
+            } catch (ProtocolRuntimeException e) {
                 meterProtocol.getLogger().severe("Register " + register + " is not supported because MbusDevice '" + register.getSerialNumber() + "' is not installed on the physical device.");
             }
         }

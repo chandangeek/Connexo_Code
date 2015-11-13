@@ -23,6 +23,7 @@ import com.energyict.protocol.NoSuchRegisterException;
 import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.base.DLMSAttributeMapper;
 import com.energyict.protocolimpl.dlms.idis.registers.AlarmBitsRegister;
 import com.energyict.protocolimpl.dlms.idis.registers.SFSKActiveInitiatorMapper;
@@ -172,7 +173,7 @@ public class IDISRegisterFactory implements DeviceRegisterSupport {
                     return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());
                 }
             } else {
-                throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, AM500.getDlmsSession().getProperties().getRetries() + 1);
+                throw ConnectionCommunicationException.numberOfRetriesReached(e, AM500.getDlmsSession().getProperties().getRetries() + 1);
             }
         }
     }

@@ -8,7 +8,7 @@ package com.energyict.dlms;
 
 import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.ProtocolException;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
 
 /**
@@ -327,7 +327,7 @@ public final class DLMSConfig {
     private void checkEmptyObjectList(UniversalObject[] objectList, String msg) {
         if (objectList == null) {
             ProtocolException protocolException = new ProtocolException(msg);
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(protocolException);
+            throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
         }
     }
 

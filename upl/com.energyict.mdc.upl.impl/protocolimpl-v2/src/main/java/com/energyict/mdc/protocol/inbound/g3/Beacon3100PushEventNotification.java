@@ -9,6 +9,8 @@ import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.exceptions.DataEncryptionException;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
@@ -65,13 +67,13 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
         final String pskEncryptionKey = properties.getStringProperty(Beacon3100ConfigurationSupport.PSK_ENCRYPTION_KEY);
 
         if (pskEncryptionKey == null || pskEncryptionKey.isEmpty()) {
-            throw MdcManager.getComServerExceptionFactory().missingProperty(Beacon3100ConfigurationSupport.PSK_ENCRYPTION_KEY, this.getDeviceIdentifier());
+            throw DeviceConfigurationException.missingProperty(Beacon3100ConfigurationSupport.PSK_ENCRYPTION_KEY, this.getDeviceIdentifier().toString());
         }
 
         final byte[] pskEncryptionKeyBytes = parseKey(pskEncryptionKey);
 
         if (pskEncryptionKeyBytes == null) {
-            throw MdcManager.getComServerExceptionFactory().createInvalidPropertyFormatException(Beacon3100ConfigurationSupport.PSK_ENCRYPTION_KEY, "(hidden)", "Should be 32 hex characters");
+            throw DeviceConfigurationException.invalidPropertyFormat(Beacon3100ConfigurationSupport.PSK_ENCRYPTION_KEY, "(hidden)", "Should be 32 hex characters");
         }
 
         return OctetString.fromByteArray(aesWrap(pskBytes, pskEncryptionKeyBytes));
@@ -114,7 +116,7 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
             aesWrap.init(Cipher.WRAP_MODE, kek);
             return aesWrap.wrap(keyToWrap);
         } catch (GeneralSecurityException e) {
-            throw MdcManager.getComServerExceptionFactory().createDataEncryptionException(e);
+            throw DataEncryptionException.dataEncryptionException(e);
         }
     }
 }

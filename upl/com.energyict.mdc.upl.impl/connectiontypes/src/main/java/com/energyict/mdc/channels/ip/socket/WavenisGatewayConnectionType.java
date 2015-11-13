@@ -5,6 +5,7 @@ import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.*;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
+import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
 
 import javax.xml.bind.annotation.XmlRootElement;

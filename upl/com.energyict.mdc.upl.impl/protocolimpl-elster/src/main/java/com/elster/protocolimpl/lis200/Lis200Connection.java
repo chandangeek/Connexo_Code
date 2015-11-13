@@ -1,6 +1,7 @@
 package com.elster.protocolimpl.lis200;
 
 import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
@@ -90,7 +91,7 @@ public class Lis200Connection extends FlagIEC1107Connection {
                                 Thread.sleep(delayAfterCheck);
                             } catch (InterruptedException e) {
                                 Thread.currentThread().interrupt();
-                                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                                throw ConnectionCommunicationException.communicationInterruptedException(e);
                             }
                         }
                     }
@@ -185,7 +186,7 @@ public class Lis200Connection extends FlagIEC1107Connection {
                 Thread.sleep(30);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                throw ConnectionCommunicationException.communicationInterruptedException(e);
             }
         }
     }

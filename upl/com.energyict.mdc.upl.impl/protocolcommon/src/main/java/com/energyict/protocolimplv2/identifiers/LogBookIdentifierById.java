@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.identifiers;
 
-import com.energyict.cbo.NotFoundException;
+import com.energyict.protocol.exceptions.identifier.NotFoundException;
 import com.energyict.util.Collections;
 import com.energyict.mdc.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.meterdata.identifiers.LogBookIdentifierType;
@@ -46,7 +46,7 @@ public class LogBookIdentifierById implements LogBookIdentifier {
     public LogBook getLogBook() {
         LogBook logBook = getLogBookFactory().find(this.logBookId);
         if (logBook == null) {
-            throw new NotFoundException("LogBook with id " + this.logBookId + " not found");
+            throw NotFoundException.notFound(LogBook.class, this.toString());
         } else {
             return logBook;
         }

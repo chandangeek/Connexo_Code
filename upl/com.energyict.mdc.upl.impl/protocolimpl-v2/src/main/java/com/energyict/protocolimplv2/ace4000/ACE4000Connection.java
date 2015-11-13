@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.ace4000;
 
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.InboundFrameException;
 import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
@@ -66,10 +68,10 @@ public class ACE4000Connection {
             if (getCurrentSystemTime() - interMessageTimeout > 0) {
                 if (msg.toString().isEmpty()) {
                     if (inbound) {
-                        throw MdcManager.getComServerExceptionFactory().createInboundTimeOutException(String.format("Timeout: didn't receive an inbound frame after %d ms.",timeout));
+                        throw InboundFrameException.timeoutException(String.format("Timeout: didn't receive an inbound frame after %d ms.", timeout));
                     } else {
                         IOException cause = new IOException(String.format("Timeout: didn't receive an outbound frame after %d ms.",timeout));
-                        throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(cause, ace4000.getProperties().getRetries() + 1);
+                        throw ConnectionCommunicationException.numberOfRetriesReached(cause, ace4000.getProperties().getRetries() + 1);
                     }
                 } else {
                     return splitConcatenatedFrames(msg.toString());    //Return the received frames after waiting for a timeout
@@ -94,7 +96,7 @@ public class ACE4000Connection {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
     }
 

@@ -3,8 +3,6 @@ package com.energyict.mdc.protocol.inbound.g3;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ComChannelType;
-import com.energyict.mdc.exceptions.ComServerExceptionFactoryProvider;
-import com.energyict.mdc.exceptions.DefaultComServerExceptionFactoryProvider;
 import com.energyict.mdc.meterdata.*;
 import com.energyict.mdc.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.ports.InboundComPort;
@@ -70,8 +68,6 @@ public class PushEventNotificationTest extends TestCase {
         CollectedDataFactoryProvider.instance.set(collectedDataFactoryProvider);
         LogBookIdentifier any = any(LogBookIdentifier.class);
         when(collectedDataFactory.createCollectedLogBook(any)).thenReturn(new DeviceLogBook(any));
-
-        ComServerExceptionFactoryProvider.instance.set(new DefaultComServerExceptionFactoryProvider());
     }
 
     @Test

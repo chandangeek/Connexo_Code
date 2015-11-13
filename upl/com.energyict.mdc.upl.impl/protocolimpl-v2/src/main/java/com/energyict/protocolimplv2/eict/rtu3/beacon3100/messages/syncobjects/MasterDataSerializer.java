@@ -6,23 +6,42 @@ import com.energyict.cpo.PropertySpecPossibleValues;
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.cosem.Clock;
-import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.protocol.security.SecurityProperty;
 import com.energyict.mdc.protocol.security.SecurityPropertySet;
-import com.energyict.mdc.protocol.tasks.*;
-import com.energyict.mdc.tasks.*;
+import com.energyict.mdc.protocol.tasks.ClockTask;
+import com.energyict.mdc.protocol.tasks.LoadProfilesTask;
+import com.energyict.mdc.protocol.tasks.LogBooksTask;
+import com.energyict.mdc.protocol.tasks.ProtocolTask;
+import com.energyict.mdc.protocol.tasks.RegistersTask;
+import com.energyict.mdc.tasks.ComTaskEnablement;
+import com.energyict.mdc.tasks.DeviceProtocolDialect;
+import com.energyict.mdc.tasks.GatewayTcpDeviceProtocolDialect;
+import com.energyict.mdc.tasks.NextExecutionSpecs;
+import com.energyict.mdc.tasks.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.tasks.ServerComTask;
 import com.energyict.mdw.amr.RegisterGroup;
 import com.energyict.mdw.amr.RegisterMapping;
 import com.energyict.mdw.amr.RegisterSpec;
-import com.energyict.mdw.core.*;
+import com.energyict.mdw.core.Device;
+import com.energyict.mdw.core.DeviceConfiguration;
+import com.energyict.mdw.core.DeviceType;
+import com.energyict.mdw.core.LoadProfileSpec;
+import com.energyict.mdw.core.LoadProfileType;
+import com.energyict.mdw.core.LogBookSpec;
+import com.energyict.mdw.core.LogBookType;
+import com.energyict.mdw.core.MeteringWarehouse;
+import com.energyict.mdw.core.TimeZoneInUse;
 import com.energyict.mdwswing.decorators.mdc.NextExecutionSpecsShadowDecorator;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.exceptions.DataEncryptionException;
+import com.energyict.protocol.exceptions.DataParseException;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
@@ -36,7 +55,11 @@ import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.security.GeneralSecurityException;
 import java.security.Key;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 /**
@@ -122,7 +145,7 @@ public class MasterDataSerializer {
         final Beacon3100ProtocolConfiguration protocolConfiguration = getProtocolConfiguration(deviceConfiguration, masterDevice, deviceConfiguration.getDeviceType());
         final List<Beacon3100Schedulable> schedulables = getSchedulables(deviceConfiguration);
         if (schedulables.isEmpty()) {
-            throw MdcManager.getComServerExceptionFactory().createInvalidPropertyFormatException("Comtask enablements on device configuration with ID " + deviceConfiguration.getId(), "empty", "Device configuration should have at least one comtask enablement that reads out meter data");
+            throw DeviceConfigurationException.invalidPropertyFormat("Comtask enablements on device configuration with ID " + deviceConfiguration.getId(), "empty", "Device configuration should have at least one comtask enablement that reads out meter data");
         }
 
         final Beacon3100ClockSyncConfiguration clockSyncConfiguration = getClockSyncConfiguration(deviceConfiguration);
@@ -235,7 +258,7 @@ public class MasterDataSerializer {
         try {
             mapper.writeValue(writer, object);
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
+            throw DataParseException.generalParseException(e);
         }
         return writer.toString();
     }
@@ -255,7 +278,7 @@ public class MasterDataSerializer {
         } else if (nextExecutionSpecs.getTemporalExpression() != null) {
             return new NextExecutionSpecsShadowDecorator(nextExecutionSpecs.getShadow()).toString();
         } else if (nextExecutionSpecs.getDialCalendar() != null) {
-            throw MdcManager.getComServerExceptionFactory().createInvalidPropertyFormatException("Comtask schedule", "Read schedule with ID " + String.valueOf(nextExecutionSpecs.getDialCalendar().getId()), "A read schedule (dial calendar) is not supported by this message");
+            throw DeviceConfigurationException.invalidPropertyFormat("Comtask schedule", "Read schedule with ID " + String.valueOf(nextExecutionSpecs.getDialCalendar().getId()), "A read schedule (dial calendar) is not supported by this message");
         } else {
             return null;
         }
@@ -548,7 +571,7 @@ public class MasterDataSerializer {
             aesWrap.init(Cipher.WRAP_MODE, kek);
             return aesWrap.wrap(keyToWrap);
         } catch (GeneralSecurityException e) {
-            throw MdcManager.getComServerExceptionFactory().createDataEncryptionException(e);
+            throw DataEncryptionException.dataEncryptionException(e);
         }
     }
 
@@ -595,7 +618,7 @@ public class MasterDataSerializer {
         }
     }
 
-    private static ComServerExecutionException invalidFormatException(String propertyName, String propertyValue, String message) {
-        return MdcManager.getComServerExceptionFactory().createInvalidPropertyFormatException(propertyName, propertyValue, message);
+    private static ProtocolRuntimeException invalidFormatException(String propertyName, String propertyValue, String message) {
+        return DeviceConfigurationException.invalidPropertyFormat(propertyName, propertyValue, message);
     }
 }

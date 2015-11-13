@@ -8,6 +8,7 @@ import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.protocol.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.exceptions.CodingException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
@@ -170,7 +171,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
             case GROUP_3_DEMAND:
                 return (int) ((BcdEncodedField) parameters.getField(ReadParameterFields.numeratorChn3)).getValue();
             default:
-                throw MdcManager.getComServerExceptionFactory().createUnrecognizedEnumValueError(channelGroup);
+                throw CodingException.unrecognizedEnumValue(channelGroup);
         }
     }
 
@@ -186,7 +187,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
             case GROUP_3_DEMAND:
                 return (int) ((BcdEncodedField) parameters.getField(ReadParameterFields.denominatorChn3)).getValue();
             default:
-                throw MdcManager.getComServerExceptionFactory().createUnrecognizedEnumValueError(channelGroup);
+                throw CodingException.unrecognizedEnumValue(channelGroup);
         }
     }
 
@@ -205,7 +206,7 @@ public class RegisterFactory implements DeviceRegisterSupport {
             case GROUP_3_DEMAND:
                 return ((UnitField) parameters.getField(ReadParameterFields.unitChn2)).getEisUnit().getFlowUnit();
             default:
-                throw MdcManager.getComServerExceptionFactory().createUnrecognizedEnumValueError(channelGroup);
+                throw CodingException.unrecognizedEnumValue(channelGroup);
         }
     }
 

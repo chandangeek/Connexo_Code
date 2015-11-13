@@ -7,6 +7,7 @@ import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
 import com.energyict.mdc.channels.serial.*;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimplv2.MdcManager;
 
@@ -93,7 +94,7 @@ public class IEC1107HHUSignOn implements HHUSignOnV2 {
                 try {
                     meterType = new MeterType(receivedIdentificationString);
                 } catch (IOException e) {
-                    throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(e);
+                    throw ConnectionCommunicationException.protocolConnectFailed(e);
                 }
                 sendProtocolAckAndSwitchBaudrate(meterType, mode, protocol);
 
@@ -105,7 +106,7 @@ public class IEC1107HHUSignOn implements HHUSignOnV2 {
                     if (strIdentConfig.compareTo(receivedIdentificationString) != 0) {
                         sendBreak();
                         IOException ioException = new IOException("Wrong identification, " + receivedIdentificationString);
-                        throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(ioException);
+                        throw ConnectionCommunicationException.protocolConnectFailed(ioException);
                     }
                 }
 
@@ -113,9 +114,9 @@ public class IEC1107HHUSignOn implements HHUSignOnV2 {
             } catch (IOException e) {
                 if (attempt++ >= this.retries) {
                     if (e instanceof ConnectionException) {     //Something went wrong, unexpected response
-                        throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(e);
+                        throw ConnectionCommunicationException.protocolConnectFailed(e);
                     }                                           //Actual timeout
-                    throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, this.retries + 1);
+                    throw ConnectionCommunicationException.numberOfRetriesReached(e, this.retries + 1);
                 } else {
                     sendBreak();
                     delay(300);
@@ -283,7 +284,7 @@ public class IEC1107HHUSignOn implements HHUSignOnV2 {
             Thread.sleep(lDelay);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
     }
 

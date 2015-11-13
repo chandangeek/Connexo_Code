@@ -39,6 +39,7 @@ import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.identifiers.DeviceIdentifierById;
@@ -107,7 +108,7 @@ public abstract class AbstractMessageExecutor {
                 return offlineDeviceMessageAttribute.getDeviceMessageAttributeValue();
             }
         }
-        throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("DeviceMessage didn't contain a value found for MessageAttribute " + attributeName));
+        throw DataParseException.ioException(new ProtocolException("DeviceMessage didn't contain a value found for MessageAttribute " + attributeName));
     }
 
     protected int getMbusAddress(String serialNumber) {

@@ -8,6 +8,7 @@ import java.util.TimeZone;
 
 import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.meteridentification.MeterType;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.base.ProtocolConnection;
@@ -170,7 +171,7 @@ class Connection implements ProtocolConnection {
                 return doTry(request); 
             } catch(InterruptedException e){
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                throw ConnectionCommunicationException.communicationInterruptedException(e);
             } catch(Exception e) {
                 e.printStackTrace(); // ignore & try again
             }

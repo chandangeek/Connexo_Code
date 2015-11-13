@@ -13,10 +13,13 @@ import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ComChannelType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
-import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
-import com.energyict.mdc.meterdata.*;
+import com.energyict.mdc.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.meterdata.CollectedLogBook;
+import com.energyict.mdc.meterdata.CollectedMessageList;
+import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.DeviceProtocolCache;
 import com.energyict.mdc.protocol.SerialPortComChannel;
@@ -32,9 +35,12 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.DataEncryptionException;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.dlms.idis.AM540ObjectList;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.topology.IDISMeterTopology;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
@@ -176,19 +182,19 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     private void connectWithRetries() {
         int tries = 0;
         while (true) {
-            ComServerExecutionException exception;
+            ProtocolRuntimeException exception;
             try {
                 if (getDlmsSession().getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
                     getDlmsSession().getDlmsV2Connection().connectMAC();
                     getDlmsSession().createAssociation((int) getDlmsSessionProperties().getAARQTimeout());
                 }
                 return;
-            } catch (ComServerExecutionException e) {
+            } catch (ProtocolRuntimeException e) {
                 if (e.getCause() != null && e.getCause() instanceof DataAccessResultException) {
                     throw e;        //Throw real errors, e.g. unsupported security mechanism, wrong password...
-                } else if (MdcManager.getComServerExceptionFactory().isConnectionCommunicationException(e)) {
+                } else if (e instanceof ConnectionCommunicationException) {
                     throw e;
-                } else if (MdcManager.getComServerExceptionFactory().isDataEncryptionException(e)) {
+                } else if (e instanceof DataEncryptionException) {
                     throw e;
                 }
                 exception = e;
@@ -197,12 +203,12 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
             //Release and retry the AARQ in case of ACSE exception
             if (++tries > getDlmsSessionProperties().getAARQRetries()) {
                 getLogger().severe("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries.");
-                throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(exception);
+                throw ConnectionCommunicationException.protocolConnectFailed(exception);
             } else {
                 getLogger().info("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries. Sending RLRQ and retry ...");
                 try {
                     getDlmsSession().getAso().releaseAssociation();
-                } catch (ComServerExecutionException e) {
+                } catch (ProtocolRuntimeException e) {
                     // Absorb exception: in 99% of the cases we expect an exception here ...
                 }
                 getDlmsSession().getAso().setAssociationState(ApplicationServiceObject.ASSOCIATION_DISCONNECTED);
@@ -278,7 +284,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> list) {
         if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
             IOException cause = new IOException("When connected to the mirror logical device, execution of device commands is not allowed.");
-            throw MdcManager.getComServerExceptionFactory().notAllowedToExecuteCommand("send of device messages", cause);
+            throw DeviceConfigurationException.notAllowedToExecuteCommand("send of device messages", cause);
         } else {
             return getAM540Messaging().executePendingMessages(list);
         }
@@ -349,7 +355,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     public void setTime(Date timeToSet) {
         if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect()) {
             IOException cause = new IOException("When connected to the mirror logical device, writing of the clock is not allowed.");
-            throw MdcManager.getComServerExceptionFactory().notAllowedToExecuteCommand("date/time change", cause);
+            throw DeviceConfigurationException.notAllowedToExecuteCommand("date/time change", cause);
         } else {
             super.setTime(timeToSet);
         }

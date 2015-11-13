@@ -8,6 +8,7 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -180,7 +181,7 @@ public class WebRTUZ3MeterTopology extends AbstractMeterTopology {
     @Override
     public int getPhysicalAddress(String serialNumber) {
         if (serialNumber == null || serialNumber.isEmpty()) {
-            throw MdcManager.getComServerExceptionFactory().missingProperty("SerialNumber");
+            throw DeviceConfigurationException.missingProperty("SerialNumber");
         }
 
         if (serialNumber.equals(meterProtocol.getDlmsSession().getProperties().getSerialNumber())) {
@@ -199,7 +200,7 @@ public class WebRTUZ3MeterTopology extends AbstractMeterTopology {
             }
         }
 
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedPropertyValueException("SerialNumber", serialNumber);
+        throw DeviceConfigurationException.unsupportedPropertyValue("SerialNumber", serialNumber);
     }
 
     @Override

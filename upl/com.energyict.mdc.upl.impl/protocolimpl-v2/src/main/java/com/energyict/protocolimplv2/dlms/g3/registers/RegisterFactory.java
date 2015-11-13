@@ -12,6 +12,7 @@ import com.energyict.mdc.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.dlms.g3.registers.G3Mapping;
 import com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper;
 import com.energyict.protocolimplv2.MdcManager;
@@ -122,7 +123,7 @@ public class RegisterFactory {
                             result.add(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage()));
                         }
                     } else {
-                        throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, getDlmsSession().getProperties().getRetries() + 1);
+                        throw ConnectionCommunicationException.numberOfRetriesReached(e, getDlmsSession().getProperties().getRetries() + 1);
                     }
                 }
             }

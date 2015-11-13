@@ -19,7 +19,7 @@ import com.energyict.mdc.meterdata.CollectedLogBook;
 import com.energyict.mdc.meterdata.CollectedTopology;
 import com.energyict.mdc.ports.InboundComPort;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.ConnectionException;
+import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.mdc.protocol.DeviceProtocol;
 import com.energyict.mdc.protocol.inbound.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
@@ -31,9 +31,10 @@ import com.energyict.mdw.core.DeviceOfflineFlags;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.ConnectionSetupException;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer;
 import com.energyict.protocolimplv2.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
@@ -183,7 +184,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
             InboundComPort comPort = context.getComPort();         //Note that this is indeed the INBOUND comport, it is only used for logging purposes in the ComChannel
             tcpComChannel = new OutboundTcpIpConnectionType().connect(comPort, connectionTaskProperties);
         } catch (ConnectionException e) {
-            throw MdcManager.getComServerExceptionFactory().createConnectionSetupException(e);
+            throw ConnectionSetupException.connectionSetupFailed(e);
         }
     }
 
@@ -197,7 +198,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         try {
             g3NetworkManagement = dlmsSession.getCosemObjectFactory().getG3NetworkManagement();
         } catch (ProtocolException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+            throw ConnectionCommunicationException.unExpectedProtocolError(e);
         }
 
         try {
@@ -232,7 +233,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
             }
             g3NetworkManagement.provideKeyPairs(macKeyPairs);
         } catch (ProtocolException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+            throw ConnectionCommunicationException.unExpectedProtocolError(e);
         } catch (IOException e) {
             throw IOExceptionHandler.handle(e, dlmsSession);
         }

@@ -13,6 +13,7 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.mdw.core.MeteringWarehouse;
 import com.energyict.protocol.CacheMechanism;
 import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.exceptions.CodingException;
 import com.energyict.protocolimpl.base.ProtocolProperties;
 import com.energyict.protocolimpl.dlms.RtuDLMS;
 import com.energyict.protocolimpl.dlms.RtuDLMSCache;

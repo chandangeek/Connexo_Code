@@ -1,8 +1,8 @@
 package com.energyict.protocolimplv2.elster.garnet;
 
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.garnet.common.Connection;
 import com.energyict.protocolimplv2.elster.garnet.common.GPRSConnection;
 import com.energyict.protocolimplv2.elster.garnet.common.ReadingResponse;
@@ -84,7 +84,7 @@ public class RequestFactory {
                 responseData = (ConcentratorVersionResponseStructure) response.getData();
                 cachedData.put(FunctionCode.CONCENTRATOR_VERSION_RESPONSE.name(), responseData);
             } else {
-                throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(
+                throw CommunicationException.unexpectedResponse(
                         new UnexpectedResponseException("Expected ConcentratorVersionResponseStructure but was " + response.getData().getClass().getSimpleName())
                 );
             }
@@ -112,7 +112,7 @@ public class RequestFactory {
                 responseData = (ConcentratorStatusResponseStructure) response.getData();
                 cachedData.put(FunctionCode.CONCENTRATOR_STATUS_RESPONSE.name(), responseData);
             } else {
-                throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(
+                throw CommunicationException.unexpectedResponse(
                         new UnexpectedResponseException("Expected ConcentratorStatusResponseStructure but was " + response.getData().getClass().getSimpleName())
                 );
             }
@@ -140,7 +140,7 @@ public class RequestFactory {
                 responseData = (RadioParametersResponseStructure) response.getData();
                 cachedData.put(FunctionCode.RADIO_PARAMETERS_RESPONSE.name(), responseData);
             } else {
-                throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(
+                throw CommunicationException.unexpectedResponse(
                         new UnexpectedResponseException("Expected RadioParametersResponseStructure but was " + response.getData().getClass().getSimpleName())
                 );
             }
@@ -168,7 +168,7 @@ public class RequestFactory {
             byte[] sessionKey = ProtocolTools.concatByteArrays(firstPartOfSessionKey.getBytes(), secondPartOfSessionKey.getBytes());
             getConnection().setSessionKey(sessionKey);
         } else {
-            throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(
+            throw CommunicationException.unexpectedResponse(
                     new UnexpectedResponseException("Expected OpenSessionResponseStructure but was " + response.getData().getClass().getSimpleName())
             );
         }
@@ -211,7 +211,7 @@ public class RequestFactory {
                 responseData = (DiscoverRepeatersResponseStructure) response.getData();
                 cachedData.put(FunctionCode.DISCOVER_REPEATERS_RESPONSE.name() + part, responseData);
             } else {
-                throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(
+                throw CommunicationException.unexpectedResponse(
                         new UnexpectedResponseException("Expected DiscoverRepeatersResponseStructure but was " + response.getData().getClass().getSimpleName())
                 );
             }
@@ -241,7 +241,7 @@ public class RequestFactory {
                 responseData = (DiscoverMetersResponseStructure) response.getData();
                 cachedData.put(FunctionCode.DISCOVER_METERS_RESPONSE.name(), responseData);
             } else {
-                throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(
+                throw CommunicationException.unexpectedResponse(
                         new UnexpectedResponseException("Expected DiscoverMetersResponseStructure but was " + response.getData().getFunctionCode().name())
                 );
             }
@@ -282,7 +282,7 @@ public class RequestFactory {
                 responseData = (ReadingResponseStructure) response.getData();
                 cachedData.put(cacheKey, responseData);
             } else {
-                throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(
+                throw CommunicationException.unexpectedResponse(
                         new UnexpectedResponseException("Expected ReadingResponseStructure but was " + response.getData().getClass().getSimpleName())
                 );
             }
@@ -312,7 +312,7 @@ public class RequestFactory {
                 responseData = (LogBookEventResponseStructure) response.getData();
                 cachedData.put(FunctionCode.LOGBOOK_EVENT_RESPONSE.name() + logBookEventNr, responseData);
             } else {
-                throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(
+                throw CommunicationException.unexpectedResponse(
                         new UnexpectedResponseException("Expected LogBookEventResponseStructure but was " + response.getData().getClass().getSimpleName())
                 );
             }
@@ -341,7 +341,7 @@ public class RequestFactory {
         if (response.getData() instanceof ContactorResponseStructure) {
             return (ContactorResponseStructure) response.getData();
         } else {
-            throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(
+            throw CommunicationException.unexpectedResponse(
                     new UnexpectedResponseException("Expected ContactorResponseStructure but was " + response.getData().getClass().getSimpleName())
             );
         }

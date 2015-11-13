@@ -16,7 +16,7 @@ import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialPort;
 import com.energyict.mdc.ports.ComPort;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.ConnectionException;
+import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.mdc.tasks.ConnectionTaskProperty;
 import com.energyict.protocolimplv2.comchannels.WavenisStackUtils;
 

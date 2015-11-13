@@ -5,10 +5,11 @@ import com.energyict.dlms.cosem.DataAccessResultCode;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ExceptionResponseException;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.ProtocolException;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 
 import java.io.IOException;
 
@@ -30,10 +31,10 @@ public class IOExceptionHandler {
     /**
      * Throw the proper ComServer runtime exception
      */
-    public static ComServerExecutionException handle(IOException e, DlmsSession dlmsSession) {
+    public static ProtocolRuntimeException handle(IOException e, DlmsSession dlmsSession) {
     	if (isUnexpectedResponse(e, dlmsSession)) {
             //Unexpected problem or response, but we can still communicate with the device
-            return MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
+            return CommunicationException.unexpectedResponse(e);
         } else {
             //We can no longer communicate with the device
             return connectionCommunicationException(e, dlmsSession);
@@ -101,7 +102,7 @@ public class IOExceptionHandler {
     	return false;
     }
 
-    private static ComServerExecutionException connectionCommunicationException(IOException e, DlmsSession dlmsSession) {
-        return MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, dlmsSession.getProperties().getRetries() + 1);
+    private static ProtocolRuntimeException connectionCommunicationException(IOException e, DlmsSession dlmsSession) {
+        return ConnectionCommunicationException.numberOfRetriesReached(e, dlmsSession.getProperties().getRetries() + 1);
     }
 }

@@ -12,7 +12,7 @@ import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.ProtocolException;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
 /**
  * @author Koen
@@ -167,7 +167,7 @@ public class DLMSMeterConfig {
     private void checkEmptyObjectList(String msg) {
         if (IOL == null) {
             ProtocolException protocolException = new ProtocolException(msg);
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(protocolException);
+            throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
         }
     }
 
