@@ -12,6 +12,9 @@ import com.elster.jupiter.nls.TranslationKey;
  */
 public enum PropertyTranslationKeys implements TranslationKey {
 
+    ENDDEVICE_MRID("enddevice.mRID", "Device MRID"),
+    ENDDEVICE_NAME("enddevice.name", "Device Name"),
+    
     USAGEPOINT_MRID("usagepoint.mRID", "MRID"),
     USAGEPOINT_SERVICECATEGORY("usagepoint.serviceKind", "Service category"),
     USAGEPOINT_NAME("usagepoint.name", "Name"),
