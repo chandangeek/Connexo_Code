@@ -18,6 +18,7 @@ import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.PropertySpec;
@@ -31,9 +32,13 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.users.impl.UserModule;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.impl.ValidationModule;
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
+import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -41,6 +46,8 @@ import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
@@ -94,6 +101,9 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
 import java.security.Principal;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
@@ -109,6 +119,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -162,7 +173,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
         }
     }
 
-    public void initializeDatabase(boolean showSqlLogging) {
+    public void initializeDatabase(boolean showSqlLogging) throws SQLException {
         bootstrapModule = new InMemoryBootstrapModule();
         Injector injector = Guice.createInjector(
                 new MockModule(),
@@ -219,13 +230,28 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
             injector.getInstance(SchedulingService.class);
             injector.getInstance(DeviceLifeCycleConfigurationService.class);
             deviceConfigurationService = (DeviceConfigurationServiceImpl) injector.getInstance(DeviceConfigurationService.class);
+            ReferencePropertySpecFinderProvider deviceProtocolDialectFinderProvider = mock(ReferencePropertySpecFinderProvider.class);
+            CanFindByLongPrimaryKey<DeviceProtocolDialectTestImpl> deviceProtocolFinder = mock(CanFindByLongPrimaryKey.class);
+            when(deviceProtocolFinder.factoryId()).thenReturn(FactoryIds.DEVICE_PROTOCOL_DIALECT);
+            when(deviceProtocolFinder.findByPrimaryKey(anyLong())).thenReturn(Optional.empty());
+            when(deviceProtocolFinder.valueDomain()).thenReturn(DeviceProtocolDialectTestImpl.class);
+            when(deviceProtocolDialectFinderProvider.finders()).thenReturn(Collections.singletonList(deviceProtocolFinder));
+            injector.getInstance(PropertySpecService.class).addFactoryProvider(deviceProtocolDialectFinderProvider);
+            DataModel dataModel = deviceConfigurationService.getDataModel();
+            OracleAliasCreator.createOracleAliases(dataModel.getConnection(true));
             ctx.commit();
         }
     }
 
+    private static class DeviceProtocolDialectTestImpl implements HasId {
+        @Override
+        public long getId() {
+            return 0;
+        }
+    }
 
     @Before
-    public void setUp() {
+    public void setUp() throws SQLException {
         sharedData = new SharedData();
         when(principal.getName()).thenReturn("test");
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.of(this.license));
@@ -293,14 +319,115 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
         // Asserts: see expected constraint violation rule
     }
 
+    /**
+     * Provides an implementation for the {@link ValueFactory} interface
+     * for {@link #MY_PROPERTY} property.
+     * Cannot use mocking because the dynamic relation type service
+     * is using Class.forName(String) on the generated mock class
+     * and combined with guice injection that returns a ValueFactory
+     * that apparently does not have a requiresIndex method.
+     */
+    public static class MyPropertyValueFactory implements ValueFactory {
+        @Override
+        public Object fromStringValue(String stringValue) {
+            if ("15".equals(stringValue)) {
+                return 15;
+            }
+            else if (VERY_LARGE_STRING.equals(stringValue)) {
+                return stringValue;
+            }
+            else {
+                return null;
+            }
+        }
+
+        @Override
+        public String toStringValue(Object object) {
+            if (Integer.valueOf(15).equals(object)) {
+                return "15";
+            }
+            else if (VERY_LARGE_STRING.equals(object)) {
+                return VERY_LARGE_STRING;
+            }
+            else {
+                return null;
+            }
+        }
+
+        @Override
+        public Class getValueType() {
+            return null;
+        }
+
+        @Override
+        public boolean isReference() {
+            return false;
+        }
+
+        @Override
+        public String getDatabaseTypeName() {
+            return "varchar2(4000)";
+        }
+
+        @Override
+        public int getJdbcType() {
+            return Types.VARCHAR;
+        }
+
+        @Override
+        public Object valueFromDatabase(Object object) {
+            return null;
+        }
+
+        @Override
+        public Object valueToDatabase(Object object) {
+            return null;
+        }
+
+        @Override
+        public void bind(PreparedStatement statement, int offset, Object value) throws SQLException {
+
+        }
+
+        @Override
+        public void bind(SqlBuilder builder, Object value) {
+
+        }
+
+        @Override
+        public String getStructType() {
+            return null;
+        }
+
+        @Override
+        public int getObjectFactoryId() {
+            return 0;
+        }
+
+        @Override
+        public boolean isPersistent(Object value) {
+            return false;
+        }
+
+        @Override
+        public boolean requiresIndex() {
+            return false;
+        }
+
+        @Override
+        public String getIndexType() {
+            return null;
+        }
+    }
+
     public static class SharedData {
-        private static PropertySpec propertySpec;
         private static DeviceProtocolDialect protocolDialect;
+        private static PropertySpec propertySpec;
         private static ValueFactory valueFactory;
 
         private interface State {
-            PropertySpec getPropertySpec();
             DeviceProtocolDialect getProtocolDialect();
+            PropertySpec getPropertySpec();
             ValueFactory getValueFactory();
         }
 
@@ -324,7 +451,7 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                         return valueFactory;
                     }
                 };
-                valueFactory = mock(ValueFactory.class);
+                valueFactory = new MyPropertyValueFactory();
                 propertySpec = mock(PropertySpec.class);
                 when(propertySpec.getName()).thenReturn(MY_PROPERTY);
                 protocolDialect = mock(DeviceProtocolDialect.class);
@@ -333,10 +460,6 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
                 when(getProtocolDialect().getPropertySpec(MY_PROPERTY)).thenReturn(Optional.of(getPropertySpec()));
                 when(getPropertySpec().getValueFactory()).thenReturn(getValueFactory());
                 when(getProtocolDialect().getDeviceProtocolDialectName()).thenReturn(PROTOCOL_DIALECT);
-                when(getValueFactory().fromStringValue("15")).thenReturn(15);
-                when(getValueFactory().toStringValue(15)).thenReturn("15");
-                when(getValueFactory().fromStringValue(VERY_LARGE_STRING)).thenReturn(VERY_LARGE_STRING);
-                when(getValueFactory().toStringValue(VERY_LARGE_STRING)).thenReturn(VERY_LARGE_STRING);
             }
         }
 
@@ -540,4 +663,5 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
             return null;
         }
     }
+
 }
