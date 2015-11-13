@@ -288,7 +288,7 @@ Ext.define('Uni.grid.FilterPanel', {
     updateHistoryState: function () {
         var me = this,
             params = me.getFilterParams(true, true),
-            href = Uni.util.QueryString.buildHrefWithQueryString(params);
+            href = Uni.util.QueryString.buildHrefWithQueryString(params, false);
 
         if (location.href !== href) {
             Uni.util.History.suspendEventsForNextCall();
