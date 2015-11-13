@@ -107,19 +107,32 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
             me.getModel(deviceGroupModelName).load(deviceGroupId, {
                 success: function (record) {
                     var isDynamic,
-                        devices;
+                        devices,
+                        state;
 
                     if (widget.rendered) {
                         isDynamic = record.get('dynamic');
+                        state = {
+                            domain: 'com.energyict.mdc.device.data.Device',
+                            filters: isDynamic
+                                ? Ext.decode(record.get('filter'), true)
+                                : [{
+                                property: 'mRID',
+                                value: [{
+                                    criteria: '*',
+                                    operator: '=='
+                                }]
+                            }]
+                        };
                         me.getApplication().fireEvent('loadDeviceGroup', record);
                         Ext.suspendLayouts();
                         widget.down('devicegroup-add-navigation').setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [record.get('name')]));
                         widget.down('adddevicegroup-wizard').loadRecord(record);
-                        me.prepareStep2(null, {dynamic: isDynamic});
+                        me.prepareStep2(null, {dynamic: isDynamic}, null, state);
                         Ext.resumeLayouts(true);
                         if (!isDynamic) {
                             devices = me.getStore('Mdc.store.DevicesOfDeviceGroupWithoutPagination');
-                            devices.getProxy().setExtraParam('id', deviceGroupId);
+                            devices.getProxy().setUrl(deviceGroupId);
                             devices.load(function (records) {
                                 mainView.setLoading(false);
                                 Ext.suspendLayouts();
@@ -283,7 +296,7 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         }
     },
 
-    prepareStep2: function (field, newValue) {
+    prepareStep2: function (field, newValue, oldValue, state) {
         var me = this,
             wizard = me.getAddDeviceGroupWizard(),
             step2 = wizard.down('device-group-wizard-step2'),
@@ -314,10 +327,10 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
 
         if (domainsStore.isLoading()) {
             domainsStore.on('load', function () {
-                me.service.applyState(defaultState);
+                me.service.applyState(state || defaultState);
             }, me, {single: true});
         } else {
-            me.service.applyState(defaultState);
+            me.service.applyState(state || defaultState);
         }
     },
 
