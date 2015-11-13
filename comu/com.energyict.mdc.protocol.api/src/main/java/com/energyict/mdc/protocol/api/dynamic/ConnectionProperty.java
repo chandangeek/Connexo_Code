@@ -14,13 +14,13 @@ public interface ConnectionProperty {
      *
      * @return The name of the property
      */
-    public String getName ();
+    String getName();
 
     /**
      * Gets the value of the property.
      *
      * @return The value
      */
-    public Object getValue ();
+    Object getValue();
 
 }
