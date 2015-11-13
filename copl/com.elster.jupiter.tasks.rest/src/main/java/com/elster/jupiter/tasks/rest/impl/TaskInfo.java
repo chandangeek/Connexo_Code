@@ -48,6 +48,8 @@ public class TaskInfo {
             TaskOccurrence occurrence = lastOccurrence.get();
             if (occurrence.getStatus().equals(TaskStatus.BUSY)) {
                 setBusySince(recurrentTask, occurrence.getStartDate().get().toEpochMilli());
+            } else if (occurrence.getStatus().equals(TaskStatus.NOT_EXECUTED_YET)) {
+                setPlannedOn(recurrentTask, null);
             } else {
                 setPlannedOn(recurrentTask, occurrence);
             }
