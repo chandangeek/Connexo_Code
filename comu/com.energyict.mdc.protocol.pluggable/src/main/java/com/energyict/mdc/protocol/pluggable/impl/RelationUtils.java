@@ -36,7 +36,9 @@ public final class RelationUtils {
         if (hash.length() > maxLength) { // try to avoid this!
             return hash.substring(0, maxLength);
         }
-        return createHashedNameBasedOnLength("Sys" + name, maxLength, hash);
+        String hashedName = createHashedNameBasedOnLength("Sys" + name, maxLength, hash);
+        System.out.println("Calculated hash relation type name for " + name + " as " + hashedName);
+        return hashedName;
     }
 
     /**
