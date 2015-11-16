@@ -212,6 +212,7 @@ public class DeviceSearchDomainTest {
         verify(this.dataModel).getInstance(ConnectionNameSearchableProperty.class);
         verify(this.dataModel).getInstance(ConnectionDirectionSearchableProperty.class);
         verify(this.dataModel).getInstance(ConnectionCommunicationPortPoolSearchableProperty.class);
+        verify(this.dataModel).getInstance(ConnectionSimultaneousSearchableProperty.class);
         verify(this.dataModel).getInstance(TransitionShipmentDateSearchableProperty.class);
         verify(this.dataModel).getInstance(TransitionInstallationDateSearchableProperty.class);
         verify(this.dataModel).getInstance(TransitionDeactivationDateSearchableProperty.class);
@@ -607,6 +608,13 @@ public class DeviceSearchDomainTest {
                 eq(false),
                 eq(FactoryIds.CONNECTION_TASK),
                 anyList())).thenReturn(portPoolsSpec);
+        PropertySpec simultaneousSpec = mock(PropertySpec.class);
+        when(simultaneousSpec.getName()).thenReturn(ConnectionSimultaneousSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.booleanPropertySpec(
+                eq(ConnectionSimultaneousSearchableProperty.PROPERTY_NAME),
+                eq(ConnectionSimultaneousSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                anyBoolean())).thenReturn(simultaneousSpec);
     }
 
     private void mockTransitions(){

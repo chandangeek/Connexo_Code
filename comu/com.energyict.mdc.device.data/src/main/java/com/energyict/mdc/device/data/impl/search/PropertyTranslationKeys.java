@@ -67,6 +67,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     CONNECTION_NAME("device.connection.name", "Name"),
     CONNECTION_DIRECTION("device.connection.direction", "Direction"),
     CONNECTION_PORTPOOL("device.connection.portpool", "Communication port pool"),
+    CONNECTION_SIMULTANEOUS("device.connection.simultaneous", "Allow simultaneous connection"),
     TRANSITIONS("device.transition", "Transitions"),
     TRANSITION_SHIPMENT("device.transition.shipment", "Shipment date"),
     TRANSITION_INSTALLATION("device.transition.installation", "Installation date"),
