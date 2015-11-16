@@ -38,6 +38,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
+import javax.ws.rs.HEAD;
 import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,6 +53,7 @@ import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.startsWith;
 import static org.mockito.Mockito.anyBoolean;
+import static org.mockito.Mockito.anyVararg;
 import static org.mockito.Mockito.*;
 
 /**
@@ -200,12 +202,18 @@ public class DeviceSearchDomainTest {
         verify(this.dataModel).getInstance(ComTaskNameSearchableProperty.class);
         verify(this.dataModel).getInstance(ComTaskSecuritySettingSearchableProperty.class);
         verify(this.dataModel).getInstance(ComTaskConnectionMethodSearchableProperty.class);
+        verify(this.dataModel).getInstance(ComTaskUrgencySearchableProperty.class);
         verify(this.dataModel).getInstance(ComTaskNextCommunicationSearchableProperty.class);
         verify(this.dataModel).getInstance(ComTaskLastCommunicationSearchableProperty.class);
         verify(this.dataModel).getInstance(ComTaskStatusSearchableProperty.class);
+        verify(this.dataModel).getInstance(ComTaskScheduleTypeSearchableProperty.class);
+        verify(this.dataModel).getInstance(ComTaskScheduleNameSearchableProperty.class);
+        verify(this.dataModel).getInstance(ComTaskPlannedDateSearchableProperty.class);
         verify(this.dataModel).getInstance(ConnectionNameSearchableProperty.class);
         verify(this.dataModel).getInstance(ConnectionDirectionSearchableProperty.class);
         verify(this.dataModel).getInstance(ConnectionCommunicationPortPoolSearchableProperty.class);
+        verify(this.dataModel).getInstance(ConnectionSimultaneousSearchableProperty.class);
+        verify(this.dataModel).getInstance(ConnectionStatusSearchableProperty.class);
         verify(this.dataModel).getInstance(TransitionShipmentDateSearchableProperty.class);
         verify(this.dataModel).getInstance(TransitionInstallationDateSearchableProperty.class);
         verify(this.dataModel).getInstance(TransitionDeactivationDateSearchableProperty.class);
@@ -553,18 +561,35 @@ public class DeviceSearchDomainTest {
                 eq(FactoryIds.SECURITY_SET),
                 anyList())).thenReturn(securitySetSpec);
         /** {@link #mockConnectionMethodPropertySpec()} */
-        PropertySpec currentStatus = mock(PropertySpec.class);
-        when(currentStatus.getName()).thenReturn(ComTaskStatusSearchableProperty.PROPERTY_NAME);
+        PropertySpec currentStatusSpec = mock(PropertySpec.class);
+        when(currentStatusSpec.getName()).thenReturn(ComTaskStatusSearchableProperty.PROPERTY_NAME);
         when(this.propertySpecService.stringReferencePropertySpec(
                 eq(ComTaskStatusSearchableProperty.PROPERTY_NAME),
                 eq(false),
                 any(),
                 anyVararg()
-        )).thenReturn(currentStatus);
+        )).thenReturn(currentStatusSpec);
+        PropertySpec urgencyPropertySpec = mock(PropertySpec.class);
+        when(urgencyPropertySpec.getName()).thenReturn(ComTaskUrgencySearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.longPropertySpec(ComTaskUrgencySearchableProperty.PROPERTY_NAME, false, 0L))
+                .thenReturn(urgencyPropertySpec);
+        PropertySpec comScheduleSpec = mock(PropertySpec.class);
+        when(comScheduleSpec.getName()).thenReturn(ComTaskScheduleNameSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.referencePropertySpec(
+                eq(ComTaskScheduleNameSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                eq(FactoryIds.COMSCHEDULE),
+                anyList())).thenReturn(comScheduleSpec);
+        PropertySpec scheduleTypeSpec = mock(PropertySpec.class);
+        when(scheduleTypeSpec.getName()).thenReturn(ComTaskScheduleTypeSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.stringReferencePropertySpec(
+                eq(ComTaskScheduleTypeSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                Matchers.anyObject(),
+                Matchers.anyVararg())).thenReturn(scheduleTypeSpec);
     }
 
     private void mockConnections() {
-
         PropertySpec nameSpec = mock(PropertySpec.class);
         when(nameSpec.getName()).thenReturn(ConnectionNameSearchableProperty.PROPERTY_NAME);
         when(this.propertySpecService.basicPropertySpec(
@@ -591,6 +616,20 @@ public class DeviceSearchDomainTest {
                 eq(false),
                 eq(FactoryIds.CONNECTION_TASK),
                 anyList())).thenReturn(portPoolsSpec);
+        PropertySpec simultaneousSpec = mock(PropertySpec.class);
+        when(simultaneousSpec.getName()).thenReturn(ConnectionSimultaneousSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.booleanPropertySpec(
+                eq(ConnectionSimultaneousSearchableProperty.PROPERTY_NAME),
+                eq(ConnectionSimultaneousSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                anyBoolean())).thenReturn(simultaneousSpec);
+        PropertySpec statusSpec = mock(PropertySpec.class);
+        when(statusSpec.getName()).thenReturn(ConnectionStatusSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.stringReferencePropertySpec(
+                eq(ConnectionStatusSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                Matchers.anyObject(),
+                Matchers.anyVararg())).thenReturn(statusSpec);
     }
 
     private void mockTransitions(){

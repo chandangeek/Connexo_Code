@@ -22,6 +22,7 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.inject.Inject;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -70,9 +71,6 @@ public class ProtocolDialectSearchableProperty extends AbstractSearchableDeviceP
 
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
-        if (!(condition instanceof Contains)) {
-            throw new IllegalAccessError("Condition must be IN or NOT IN");
-        }
         SqlBuilder sqlBuilder = new SqlBuilder();
         sqlBuilder.openBracket();
         sqlBuilder.add(this.toSqlFragment(JoinClauseBuilder.Aliases.DEVICE_TYPE + ".DEVICEPROTOCOLPLUGGABLEID", condition, now));
@@ -80,17 +78,9 @@ public class ProtocolDialectSearchableProperty extends AbstractSearchableDeviceP
         return sqlBuilder;
     }
 
-    /**
-     * workaround because ProtocolDialect can not implement HasId and it is not a simple Java class,
-     * {@link AbstractSearchableDeviceProperty.ProxyAwareSqlFragment#bindSingleValue(PreparedStatement, Object, int)},
-     * as a result we unable to bind instances of this class into prepared statement
-     */
     @Override
-    public void visitContains(Contains contains) {
-        super.visitContains(contains.getOperator().contains(contains.getFieldName(), contains.getCollection()
-                .stream()
-                .map(obj -> ((ProtocolDialect) obj).getPluggableClass().getId())
-                .collect(Collectors.toList())));
+    public void bindSingleValue(PreparedStatement statement, Object value, int bindPosition) throws SQLException {
+        statement.setLong(bindPosition, ((ProtocolDialect) value).getPluggableClass().getId());
     }
 
     @Override
