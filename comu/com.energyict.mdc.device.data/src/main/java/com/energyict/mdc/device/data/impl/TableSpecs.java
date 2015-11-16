@@ -1,6 +1,19 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.elster.jupiter.estimation.EstimationRuleSet;
+import com.elster.jupiter.kpi.Kpi;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.tasks.RecurrentTask;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.LogBookSpec;
+import com.energyict.mdc.device.config.PartialConnectionTask;
+import com.energyict.mdc.device.config.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceEstimation;
@@ -26,20 +39,15 @@ import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.ComSessionJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionJournalEntry;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.pluggable.PluggableService;
+import com.energyict.mdc.engine.config.ComPort;
+import com.energyict.mdc.engine.config.ComPortPool;
+import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
-import com.energyict.mdc.scheduling.SchedulingService;
-import com.energyict.mdc.tasks.TaskService;
-
-import com.elster.jupiter.estimation.EstimationService;
-import com.elster.jupiter.kpi.KpiService;
-import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.Table;
+import com.energyict.mdc.scheduling.NextExecutionSpecs;
+import com.energyict.mdc.scheduling.model.ComSchedule;
+import com.energyict.mdc.tasks.ComTask;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
@@ -79,12 +87,12 @@ public enum TableSpecs {
             Column configuration = table.column("DEVICECONFIGID").number().notNull().add();
             table.foreignKey("FK_DDC_DEVICE_DEVICECONFIG").
                     on(configuration).
-                    references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICECONFIG").
+                    references(DeviceConfiguration.class).
                     map(DeviceFields.DEVICECONFIGURATION.fieldName()).
                     add();
             table.foreignKey("FK_DDC_DEVICE_DEVICETYPE").
                     on(deviceType).
-                    references(DeviceConfigurationService.COMPONENTNAME, "DTC_DEVICETYPE").
+                    references(DeviceType.class).
                     map(DeviceFields.DEVICETYPE.fieldName()).
                     add();
             table.unique("UK_DDC_DEVICE_MRID").on(mRID).add();
@@ -98,14 +106,16 @@ public enum TableSpecs {
             Table<DeviceProtocolProperty> table = dataModel.addTable(name(), DeviceProtocolProperty.class);
             table.map(DeviceProtocolPropertyImpl.class);
             Column deviceId = table.column("DEVICEID").number().notNull().conversion(NUMBER2LONG).add();
-            Column propertySpec = table.column("PROPERTYSPEC").map("propertySpec").varChar(256).notNull().add();
+            Column propertySpec = table.column("PROPERTYSPEC").map("propertySpec").varChar().notNull().add();
             table.column("INFOVALUE").varChar().map("propertyValue").add();
             table.addAuditColumns();
             table.primaryKey("PK_DDC_DEVICEPROTOCOLPROPERTY").on(deviceId, propertySpec).add();
             table.foreignKey("FK_DDC_DEVICEPROTPROP_DEVICE")
                     .on(deviceId)
                     .references(DDC_DEVICE.name())
-                    .map("device").reverseMap("deviceProperties").composition()
+                    .map("device")
+                    .reverseMap("deviceProperties")
+                    .composition()
                     .add();
         }
     },
@@ -119,17 +129,19 @@ public enum TableSpecs {
             table.addAuditColumns();
             Column deviceId = table.column("DEVICEID").number().notNull().add();
             table.column("LASTREADING").number().map("lastReading").conversion(ColumnConversion.NUMBER2INSTANT).add();
-            Column loadprofilespecid = table.column("LOADPROFILESPECID").number().add();
+            Column loadProfileSpec = table.column("LOADPROFILESPECID").number().add();
             table.primaryKey("PK_DDC_LOADPROFILE").on(id).add();
             table.foreignKey("FK_DDC_LOADPROFILE_LPSPEC")
-                    .on(loadprofilespecid)
-                    .references(DeviceConfigurationService.COMPONENTNAME, "DTC_LOADPROFILESPEC")
+                    .on(loadProfileSpec)
+                    .references(LoadProfileSpec.class)
                     .map("loadProfileSpec")
                     .add();
             table.foreignKey("FK_DDC_LOADPROFILE_DEVICE")
                     .on(deviceId)
                     .references(DDC_DEVICE.name())
-                    .map("device").reverseMap("loadProfiles").composition()
+                    .map("device")
+                    .reverseMap("loadProfiles")
+                    .composition()
                     .add();
 
         }
@@ -142,14 +154,14 @@ public enum TableSpecs {
             table.map(LogBookImpl.class);
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
-            Column logBookSpecId = table.column("LOGBOOKSPECID").number().notNull().add();
+            Column logBookSpec = table.column("LOGBOOKSPECID").number().notNull().add();
             Column deviceid = table.column("DEVICEID").number().notNull().add();
             table.column("LASTLOGBOOK").number().map(LogBookImpl.FieldNames.LATEST_EVENT_OCCURRENCE_IN_METER.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.column("LASTLOGBOOKCREATETIME").number().map(LogBookImpl.FieldNames.LATEST_EVENT_CREATED_IN_DB.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
             table.primaryKey("PK_DDC_LOGBOOK").on(id).add();
             table.foreignKey("FK_DDC_LOGBOOK_LOGBOOKSPEC")
-                    .on(logBookSpecId)
-                    .references(DeviceConfigurationService.COMPONENTNAME, "DTC_LOGBOOKSPEC")
+                    .on(logBookSpec)
+                    .references(LogBookSpec.class)
                     .map("logBookSpec")
                     .add();
             table.foreignKey("FK_DDC_LOGBOOK_DEVICE")
@@ -194,23 +206,24 @@ public enum TableSpecs {
             // InboundConnectionTaskImpl columns: none at this moment
             // ConnectionInitiationTaskImpl columns: none at this moment
             table.primaryKey("PK_DDC_CONNECTIONTASK").on(id).add();
-            table.foreignKey("FK_DDC_CONNECTIONTASK_DEVICE").
-                    on(device).
-                    references(DDC_DEVICE.name()).
-                    map(ConnectionTaskFields.DEVICE.fieldName()).
-                    add();
+            table.foreignKey("FK_DDC_CONNECTIONTASK_DEVICE")
+                    .on(device)
+                    .references(DDC_DEVICE.name())
+                    .map(ConnectionTaskFields.DEVICE.fieldName())
+                    .reverseMap("connectionTasks").composition()
+                    .add();
             table.foreignKey("FK_DDC_CONNECTIONTASK_CLASS").
                     on(connectionTypePluggableClass).
-                    references(PluggableService.COMPONENTNAME, "CPC_PLUGGABLECLASS").
+                    references(PluggableClass.class).
                     map("pluggableClass").add();
             table.foreignKey("FK_DDC_CONNECTIONTASK_CPP").
                     on(comPortPool).
-                    references(EngineConfigurationService.COMPONENT_NAME, "MDC_COMPORTPOOL").
+                    references(ComPortPool.class).
                     map(ConnectionTaskFields.COM_PORT_POOL.fieldName()).
                     add();
             table.foreignKey("FK_DDC_CONNECTIONTASK_COMSRVER").
                     on(comServer).
-                    references(EngineConfigurationService.COMPONENT_NAME, "MDC_COMSERVER").
+                    references(ComServer.class).
                     map(ConnectionTaskFields.COM_SERVER.fieldName()).
                     add();
             table.foreignKey("FK_DDC_CONNECTIONTASK_INITIATR").
@@ -220,12 +233,12 @@ public enum TableSpecs {
                     add();
             table.foreignKey("FK_DDC_CONNECTIONTASK_NEXTEXEC").
                     on(nextExecutionSpecs).
-                    references(SchedulingService.COMPONENT_NAME, "SCH_NEXTEXECUTIONSPEC").
+                    references(NextExecutionSpecs.class).
                     map(ConnectionTaskFields.NEXT_EXECUTION_SPECS.fieldName()).
                     add();
             table.foreignKey("FK_DDC_CONNECTIONTASK_PARTIAL").
                     on(partialConnectionTask).
-                    references(DeviceConfigurationService.COMPONENTNAME, "DTC_PARTIALCONNECTIONTASK").
+                    references(PartialConnectionTask.class).
                     map(ConnectionTaskFields.PARTIAL_CONNECTION_TASK.fieldName()).
                     add();
         }
@@ -245,7 +258,7 @@ public enum TableSpecs {
             table.primaryKey("PK_DDC_PROTOCOLDIALECTPROPS").on(id).add();
             table.foreignKey("FK_DDC_PROTDIALECTPROPS_PC")
                     .on(deviceProtocolId)
-                    .references(PluggableService.COMPONENTNAME, "CPC_PLUGGABLECLASS")
+                    .references(PluggableClass.class)
                     .map("deviceProtocolPluggableClass")
                     .add();
             table.foreignKey("FK_DDC_PROTDIALECTPROPS_DEV")
@@ -255,7 +268,7 @@ public enum TableSpecs {
                     .add();
             table.foreignKey("FK_DDC_PROTDIALECTPROPS_PDCP")
                     .on(configurationProperties)
-                    .references(DeviceConfigurationService.COMPONENTNAME, "DTC_DIALECTCONFIGPROPERTIES")
+                    .references(ProtocolDialectConfigurationProperties.class)
                     .map("configurationProperties")
                     .add();
         }
@@ -291,23 +304,23 @@ public enum TableSpecs {
             table.primaryKey("PK_DDC_COMTASKEXEC").on(id).add();
             table.foreignKey("FK_DDC_COMTASKEXEC_COMPORT")
                     .on(comPort)
-                    .references(EngineConfigurationService.COMPONENT_NAME, "MDC_COMPORT")
+                    .references(ComPort.class)
                     .map(ComTaskExecutionFields.COMPORT.fieldName())
                     .add();
             table.foreignKey("FK_DDC_COMTASKEXEC_COMTASK")
                     .on(comTask)
-                    .references(TaskService.COMPONENT_NAME, "CTS_COMTASK")
+                    .references(ComTask.class)
                     .map(ComTaskExecutionFields.COMTASK.fieldName())
                     .add();
             table.foreignKey("FK_DDC_COMTASKEXEC_COMSCHEDULE").
                     on(comSchedule).
-                    references(SchedulingService.COMPONENT_NAME, "SCH_COMSCHEDULE").
+                    references(ComSchedule.class).
                     onDelete(CASCADE).
                     map(ComTaskExecutionFields.COM_SCHEDULE.fieldName()).
                     add();
             table.foreignKey("FK_DDC_COMTASKEXEC_NEXTEXEC").
                     on(nextExecutionSpecs).
-                    references(SchedulingService.COMPONENT_NAME, "SCH_NEXTEXECUTIONSPEC").
+                    references(NextExecutionSpecs.class).
                     map(ComTaskExecutionFields.NEXTEXECUTIONSPEC.fieldName()).
                     add();
             table.foreignKey("FK_DDC_COMTASKEXEC_CONNECTTASK")
@@ -317,12 +330,13 @@ public enum TableSpecs {
                     .add();
             table.foreignKey("FK_DDC_COMTASKEXEC_DIALECT")
                     .on(protocolDialectConfigurationProperties)
-                    .references(DeviceConfigurationService.COMPONENTNAME, "DTC_DIALECTCONFIGPROPERTIES")
+                    .references(ProtocolDialectConfigurationProperties.class)
                     .map(ComTaskExecutionFields.PROTOCOLDIALECTCONFIGURATIONPROPERTIES.fieldName())
                     .add();
             table.foreignKey("FK_DDC_COMTASKEXEC_DEVICE")
                     .on(device).references(DDC_DEVICE.name())
                     .map(ComTaskExecutionFields.DEVICE.fieldName())
+                    .reverseMap("comTaskExecutions").composition()
                     .add();
             table.index("IX_DDCCOMTASKEXEC_NXTEXEC").on(nextExecutionTimestamp, priority, connectionTask, obsoleteDate, comPort).add();
         }
@@ -334,7 +348,6 @@ public enum TableSpecs {
             Table<ComSession> table = dataModel.addTable(name(), ComSession.class);
             table.map(ComSessionImpl.class);
             Column id = table.addAutoIdColumn();
-            table.addAuditColumns();
             Column connectionTask = table.column("CONNECTIONTASK").number().notNull().add();
             Column comport = table.column("COMPORT").number().notNull().add();
             Column comportPool = table.column("COMPORTPOOL").number().notNull().add();
@@ -355,13 +368,13 @@ public enum TableSpecs {
             table.column("STATUS").number().conversion(NUMBER2BOOLEAN).notNull().map(ComSessionImpl.Fields.STATUS.fieldName()).add();
             table.foreignKey("FK_DDC_COMSESSION_COMPORTPOOL").
                     on(comportPool).
-                    references(EngineConfigurationService.COMPONENT_NAME, "MDC_COMPORTPOOL").
+                    references(ComPortPool.class).
                     onDelete(CASCADE).
                     map(ComSessionImpl.Fields.COMPORT_POOL.fieldName()).
                     add();
             table.foreignKey("FK_DDC_COMSESSION_COMPORT").
                     on(comport).
-                    references(EngineConfigurationService.COMPONENT_NAME, "MDC_COMPORT").
+                    references(ComPort.class).
                     onDelete(CASCADE).
                     map(ComSessionImpl.Fields.COMPORT.fieldName()).
                     add();
@@ -425,7 +438,7 @@ public enum TableSpecs {
                     add();
             table.foreignKey("FK_DDC_COMTASKSESSION_COMTASK").
                     on(comTask).
-                    references(TaskService.COMPONENT_NAME, "CTS_COMTASK").
+                    references(ComTask.class).
                     onDelete(CASCADE).
                     map(ComTaskExecutionSessionImpl.Fields.COM_TASK.fieldName()).
                     add();
@@ -519,27 +532,27 @@ public enum TableSpecs {
             table.primaryKey("PK_DDC_DATA_COLLECTION_KPI").on(id).add();
             table.foreignKey("FK_DDC_ENDDEVICEGROUP").
                     on(endDeviceGroup).
-                    references(MeteringGroupsService.COMPONENTNAME, "MTG_ED_GROUP").
+                    references(EndDeviceGroup.class).
                     map(DataCollectionKpiImpl.Fields.END_DEVICE_GROUP.fieldName()).
                     add();
             table.foreignKey("FK_DDC_CONNECTIONKPI").
                     on(connectionKpi).
-                    references(KpiService.COMPONENT_NAME, "KPI_KPI").
+                    references(Kpi.class).
                     map(DataCollectionKpiImpl.Fields.CONNECTION_KPI.fieldName()).
                     add();
             table.foreignKey("FK_DDC_COMTASKEXECKPI").
                     on(comTaskExecKpi).
-                    references(KpiService.COMPONENT_NAME, "KPI_KPI").
+                    references(Kpi.class).
                     map(DataCollectionKpiImpl.Fields.COMMUNICATION_KPI.fieldName()).
                     add();
             table.foreignKey("FK_DDC_CONN_KPI_TASK").
                     on(connectionKpiTask).
-                    references(com.elster.jupiter.tasks.TaskService.COMPONENTNAME, "TSK_RECURRENT_TASK").
+                    references(RecurrentTask.class).
                     map(DataCollectionKpiImpl.Fields.CONNECTION_RECURRENT_TASK.fieldName()).
                     add();
             table.foreignKey("FK_DDC_COMM_KPI_TASK").
                     on(communicationKpiTask).
-                    references(com.elster.jupiter.tasks.TaskService.COMPONENTNAME, "TSK_RECURRENT_TASK").
+                    references(RecurrentTask.class).
                     map(DataCollectionKpiImpl.Fields.COMMUNICATION_RECURRENT_TASK.fieldName()).
                     add();
         }
@@ -624,7 +637,7 @@ public enum TableSpecs {
             table.primaryKey("PK_DDC_DEVICEESTRULESETACT").on(estimationActivationColumn, estimationRuleSetColumn).add();
             table.foreignKey("FK_DDC_ESTRSACTIVATION_RULESET")
                  .on(estimationRuleSetColumn)
-                 .references(EstimationService.COMPONENTNAME, "EST_ESTIMATIONRULESET")
+                 .references(EstimationRuleSet.class)
                  .map(DeviceEstimationRuleSetActivationImpl.Fields.ESTIMATIONRULESET.fieldName())
                  .add();
             table.foreignKey("FK_DDC_ESTRSACTIVATION_ESTACT")

@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl.tasks.report;
 
+import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.SearchablePropertyValue;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
@@ -8,6 +10,7 @@ import com.energyict.mdc.device.config.SecurityPropertySetBuilder;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider;
 import com.energyict.mdc.device.data.impl.OracleIntegrationPersistence;
+import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
@@ -25,22 +28,20 @@ import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.collect.BoundType;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import static com.elster.jupiter.util.conditions.Where.where;
 import static com.google.common.collect.Range.range;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -276,16 +277,15 @@ public class CommunicationTaskReportServiceImplOracleSpecificIT {
     private EnumeratedEndDeviceGroup findOrCreateEnumeratedEndDeviceGroup() {
         Optional<EndDeviceGroup> endDeviceGroup = oracleIntegrationPersistence.getMeteringGroupsService().findEndDeviceGroup("static");
         if (endDeviceGroup.isPresent()) {
-            return (EnumeratedEndDeviceGroup) endDeviceGroup.get();
-        }
-        else {
-            EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = oracleIntegrationPersistence.getMeteringGroupsService().createEnumeratedEndDeviceGroup().setName("myDevices").create();
+            return (EnumeratedEndDeviceGroup)endDeviceGroup.get();
+        } else {
+            EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = oracleIntegrationPersistence.getMeteringGroupsService().createEnumeratedEndDeviceGroup()
+                    .setName("myDevices")
+                    .setMRID("static")
+                    .create();
             Device device = oracleIntegrationPersistence.getDeviceService().newDevice(deviceConfiguration, "myDevice", "ZAFO007");
             device.save();
             device.addToGroup(enumeratedEndDeviceGroup, range(Instant.EPOCH, BoundType.CLOSED, Instant.now(), BoundType.OPEN));
-            enumeratedEndDeviceGroup.setMRID("static");
-            enumeratedEndDeviceGroup.setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPROVIDER);
-            enumeratedEndDeviceGroup.save();
             return enumeratedEndDeviceGroup;
         }
     }
@@ -294,17 +294,29 @@ public class CommunicationTaskReportServiceImplOracleSpecificIT {
     private QueryEndDeviceGroup findOrCreateQueryEndDeviceGroup() {
         Optional<EndDeviceGroup> endDeviceGroup = oracleIntegrationPersistence.getMeteringGroupsService().findEndDeviceGroup("dynamic");
         if (endDeviceGroup.isPresent()) {
-            return (QueryEndDeviceGroup) endDeviceGroup.get();
-        }
-        else {
-            Condition conditionDevice = Condition.TRUE.and(where("deviceConfiguration.deviceType.name").isEqualTo("myType"));
-            return oracleIntegrationPersistence
-                    .getMeteringGroupsService()
-                    .createQueryEndDeviceGroup(conditionDevice)
-                        .setMRID("dynamic")
-                        .setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPROVIDER)
-                        .create();
+            return (QueryEndDeviceGroup)endDeviceGroup.get();
+        } else {
+            QueryEndDeviceGroup queryEndDeviceGroup = oracleIntegrationPersistence.getMeteringGroupsService().createQueryEndDeviceGroup()
+                    .setMRID("dynamic")
+                    .setSearchDomain(oracleIntegrationPersistence.getDeviceSearchDomain())
+                    .setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPROVIDER)
+                    .withConditions(buildSearchablePropertyCondition("deviceType", SearchablePropertyOperator.EQUAL, Collections.singletonList("1")))
+                    .create();
+            return queryEndDeviceGroup;
         }
     }
 
+    private SearchablePropertyValue buildSearchablePropertyCondition(String property, SearchablePropertyOperator operator, List<String> values) {
+        DeviceSearchDomain deviceSearchDomain = oracleIntegrationPersistence.getDeviceSearchDomain();
+        Optional<SearchableProperty> searchableProperty = deviceSearchDomain.getProperties().stream().filter(p -> property.equals(p.getName())).findFirst();
+        if (searchableProperty.isPresent()) {
+            SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
+            valueBean.operator = operator;
+            valueBean.values = values;
+            SearchablePropertyValue searchablePropertyValue = new SearchablePropertyValue(searchableProperty.get());
+            searchablePropertyValue.setValueBean(valueBean);
+            return searchablePropertyValue;
+        }
+        throw new IllegalArgumentException("Searchable property with name '" + property + "' is not found");
+    }
 }

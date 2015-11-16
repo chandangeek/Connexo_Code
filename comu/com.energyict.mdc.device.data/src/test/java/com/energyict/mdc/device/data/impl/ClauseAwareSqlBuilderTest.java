@@ -1,7 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.elster.jupiter.util.sql.SqlBuilder;
-
 import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;

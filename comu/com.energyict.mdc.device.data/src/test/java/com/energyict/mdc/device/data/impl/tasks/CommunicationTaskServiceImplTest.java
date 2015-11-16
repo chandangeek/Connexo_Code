@@ -8,15 +8,18 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.SearchablePropertyOperator;
+import com.elster.jupiter.search.SearchablePropertyValue;
+import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.google.common.collect.BoundType;
+import org.junit.Test;
 
 import java.time.Instant;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-
-import static com.elster.jupiter.util.conditions.Where.where;
 import static com.google.common.collect.Range.range;
 
 /**
@@ -52,13 +55,11 @@ public class CommunicationTaskServiceImplTest extends PersistenceIntegrationTest
         } else {
             EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = inMemoryPersistence.getMeteringGroupsService().createEnumeratedEndDeviceGroup()
                     .setName("myDevices")
+                    .setMRID("static")
                     .create();
             Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "myDevice", "ZAFO007");
             device.save();
             device.addToGroup(enumeratedEndDeviceGroup, range(Instant.EPOCH, BoundType.CLOSED, Instant.now(), BoundType.OPEN));
-            enumeratedEndDeviceGroup.setMRID("static");
-            enumeratedEndDeviceGroup.setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPROVIDER);
-            enumeratedEndDeviceGroup.save();
             return enumeratedEndDeviceGroup;
         }
     }
@@ -69,12 +70,27 @@ public class CommunicationTaskServiceImplTest extends PersistenceIntegrationTest
         if (endDeviceGroup.isPresent()) {
             return (QueryEndDeviceGroup) endDeviceGroup.get();
         } else {
-            Condition conditionDevice = Condition.TRUE.and(where("deviceConfiguration.deviceType.name").isEqualTo("myType"));
-            QueryEndDeviceGroup queryEndDeviceGroup = inMemoryPersistence.getMeteringGroupsService().createQueryEndDeviceGroup(conditionDevice)
-                    .setMRID("dynamic")
+            QueryEndDeviceGroup queryEndDeviceGroup = inMemoryPersistence.getMeteringGroupsService().createQueryEndDeviceGroup()
+                    .setName("dynamic")
+                    .setSearchDomain(inMemoryPersistence.getDeviceSearchDomain())
                     .setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPROVIDER)
+                    .withConditions(buildSearchablePropertyCondition("mRID", SearchablePropertyOperator.EQUAL, Collections.singletonList("SPE*")))
                     .create();
             return queryEndDeviceGroup;
         }
+    }
+
+    private SearchablePropertyValue buildSearchablePropertyCondition(String property, SearchablePropertyOperator operator, List<String> values) {
+        DeviceSearchDomain deviceSearchDomain = inMemoryPersistence.getDeviceSearchDomain();
+        Optional<SearchableProperty> searchableProperty = deviceSearchDomain.getProperties().stream().filter(p -> property.equals(p.getName())).findFirst();
+        if (searchableProperty.isPresent()) {
+            SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
+            valueBean.operator = operator;
+            valueBean.values = values;
+            SearchablePropertyValue searchablePropertyValue = new SearchablePropertyValue(searchableProperty.get());
+            searchablePropertyValue.setValueBean(valueBean);
+            return searchablePropertyValue;
+        }
+        throw new IllegalArgumentException("Searchable property with name '" + property + "' is not found");
     }
 }

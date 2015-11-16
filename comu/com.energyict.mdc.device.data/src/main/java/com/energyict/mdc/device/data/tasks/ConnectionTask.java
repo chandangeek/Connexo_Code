@@ -1,8 +1,7 @@
 package com.energyict.mdc.device.data.tasks;
 
-import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -15,7 +14,6 @@ import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 
 import aQute.bnd.annotation.ProviderType;
-import com.elster.jupiter.util.HasName;
 
 import java.time.Instant;
 import java.util.List;

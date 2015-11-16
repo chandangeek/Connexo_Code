@@ -1,5 +1,16 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.search.SearchablePropertyValue;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
@@ -19,16 +30,6 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.scheduling.model.ComScheduleBuilder;
 import com.energyict.mdc.tasks.ComTask;
 
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
-import com.elster.jupiter.metering.groups.EndDeviceGroup;
-import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.collect.BoundType;
 
@@ -41,13 +42,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
-import static com.elster.jupiter.util.conditions.Where.where;
 import static com.google.common.collect.Range.range;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -302,8 +296,7 @@ public class CommunicationTaskServiceImplOracleSpecificIT {
             device.save();
             device.addToGroup(enumeratedEndDeviceGroup, range(Instant.EPOCH, BoundType.CLOSED, Instant.now(), BoundType.OPEN));
             enumeratedEndDeviceGroup.setMRID("static");
-            enumeratedEndDeviceGroup.setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPROVIDER);
-            enumeratedEndDeviceGroup.save();
+            enumeratedEndDeviceGroup.update();
             return enumeratedEndDeviceGroup;
         }
     }
@@ -314,14 +307,23 @@ public class CommunicationTaskServiceImplOracleSpecificIT {
         if (endDeviceGroup.isPresent()) {
             return (QueryEndDeviceGroup) endDeviceGroup.get();
         } else {
-            Condition conditionDevice = Condition.TRUE.and(where("deviceConfiguration.deviceType.name").isEqualTo("myType"));
-            return oracleIntegrationPersistence
-                    .getMeteringGroupsService()
-                    .createQueryEndDeviceGroup(conditionDevice)
-                        .setMRID("dynamic")
-                        .setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPROVIDER)
-                        .create();
+            QueryEndDeviceGroup queryEndDeviceGroup = oracleIntegrationPersistence.getMeteringGroupsService().createQueryEndDeviceGroup()
+                    .setMRID("dynamic")
+                    .setSearchDomain(oracleIntegrationPersistence.getDeviceSearchDomain())
+                    .setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPROVIDER)
+                    .withConditions(buildSearchablePropertyCondition("deviceType", Sea
+                            rchablePropertyOperator.EQUAL, Collections.singletonList("1")))
+                    .create();
+            return queryEndDeviceGroup;
         }
     }
 
+    private SearchablePropertyValue buildSearchablePropertyCondition(String property, SearchablePropertyOperator operator, List<String> values) {
+        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
+        valueBean.propertyName = property;
+        valueBean.operator = operator;
+        valueBean.values = values;
+        SearchablePropertyValue searchablePropertyValue = new SearchablePropertyValue(null, valueBean);
+        return searchablePropertyValue;
+    }
 }

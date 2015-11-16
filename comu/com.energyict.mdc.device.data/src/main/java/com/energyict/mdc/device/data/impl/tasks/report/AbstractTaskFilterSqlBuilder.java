@@ -138,7 +138,7 @@ public abstract class AbstractTaskFilterSqlBuilder {
                 this.append(baseEntityAliasName);
                 this.append(".device in (");
                 if (deviceGroup instanceof QueryEndDeviceGroup) {
-                    this.append(queryExecutor.asFragment(((QueryEndDeviceGroup)deviceGroup).getCondition(), "id"));
+                    this.append(((QueryEndDeviceGroup)deviceGroup).toFragment());
                 } else {
                     this.append(((EnumeratedEndDeviceGroup)deviceGroup).getAmrIdSubQuery().toFragment());
                 }

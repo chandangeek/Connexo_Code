@@ -83,7 +83,8 @@ public class ComSessionImpl implements ComSession {
     }
 
     private long id;
-    private DataModel dataModel;
+    private final DataModel dataModel;
+    private final ConnectionTaskService connectionTaskService;
     private Reference<ConnectionTask> connectionTask = ValueReference.absent();
     private Reference<ComPort> comPort = ValueReference.absent();
     private Reference<ComPortPool> comPortPool = ValueReference.absent();
@@ -104,17 +105,15 @@ public class ComSessionImpl implements ComSession {
     private int taskSuccessCount;
     private int taskFailureCount;
     private int taskNotExecutedCount;
-    private String userName;
-    private long version;
-    private Instant createTime;
-    private Instant modTime;
 
     private List<ComSessionJournalEntry> journalEntries = new ArrayList<>();
     private List<ComTaskExecutionSession> comTaskExecutionSessions = new ArrayList<>();
 
     @Inject
-    ComSessionImpl(DataModel dataModel) {
+    ComSessionImpl(DataModel dataModel, ConnectionTaskService connectionTaskService) {
+        super();
         this.dataModel = dataModel;
+        this.connectionTaskService = connectionTaskService;
     }
 
     @Override
@@ -367,7 +366,10 @@ public class ComSessionImpl implements ComSession {
         this.calculateStatus();
         if (this.id == 0) {
             this.dataModel.mapper(ComSession.class).persist(this);
-            HasLastComSession connectionTaskAsHasLastComSession = (HasLastComSession) this.connectionTask.get();
+            /* Session may have been started a long time ago
+             * so we will refresh the connection task to avoid
+             * optimistic locking issues. */
+            HasLastComSession connectionTaskAsHasLastComSession = (HasLastComSession) this.connectionTaskService.findConnectionTask(this.connectionTask.get().getId()).get();
             connectionTaskAsHasLastComSession.sessionCreated(this);
             this.comTaskExecutionSessions.forEach(this::notifyCreated);
         }
