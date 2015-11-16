@@ -26,6 +26,37 @@ Ext.define('Dbp.controller.History', {
             privileges: Dbp.privileges.DeviceProcesses.allPrivileges,
             filter: 'Dbp.deviceprocesses.model.HistoryProcessesFilter',
             action: 'showDeviceProcesses'
+        },
+		administration: {
+            title: Uni.I18n.translate('general.administration','DBP','Administration'),
+            route: 'administration',
+            disabled: true,
+            items: {                
+				managementprocesses:{
+					title: Uni.I18n.translate('bpm.process.title', 'DBP', 'Processes'),
+                    route: 'managementprocesses',
+                    controller: 'Dbp.processes.controller.Processes',
+                    action: 'showProcesses',
+                    privileges: Dbp.privileges.DeviceProcesses.viewProcesses,
+					items: {
+                        editProcess: {
+                            title: Uni.I18n.translate('bpm.editprocess.title', 'DBP', 'Edit process'),
+                            route: '{processId}/editProcess',
+                            controller: 'Dbp.processes.controller.Processes',
+                            privileges: Dbp.privileges.DeviceProcesses.administrateProcesses,
+                            action: 'editProcess',
+                            callback: function (route) {
+                                this.getApplication().on('editProcesses', function (record) {
+                                    route.setTitle(record.get('name'));
+                                    return true;
+                                }, {single: true});
+
+                                return this;
+                            }
+                        }
+                    }			
+				}
+            }
         }
     }
 

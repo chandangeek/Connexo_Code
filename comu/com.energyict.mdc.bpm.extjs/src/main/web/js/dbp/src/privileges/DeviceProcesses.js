@@ -15,6 +15,10 @@ Ext.define('Dbp.privileges.DeviceProcesses', {
     view: ['privilege.view.bpm'],
     administrate: ['privilege.administrate.bpm'],
 
+	allProcesses: ['privilege.view.bpm', 'privilege.administrate.bpm'],
+    viewProcesses: ['privilege.view.bpm', 'privilege.administrate.bpm'],
+    administrateProcesses: ['privilege.administrate.bpm'],
+	
     all: function () {
         return Ext.Array.merge(Dbp.privileges.DeviceProcesses.all);
     },
@@ -23,5 +27,14 @@ Ext.define('Dbp.privileges.DeviceProcesses', {
     },    
     canAdministrate: function () {
         return Uni.Auth.checkPrivileges(Dbp.privileges.DeviceProcesses.administrate);
+    },	
+	allBpmProcesses: function () {
+        return Ext.Array.merge(Dbp.privileges.DeviceProcesses.allProcesses);
+    },
+    canViewProcesses: function () {
+        return Uni.Auth.checkPrivileges(Dbp.privileges.DeviceProcesses.viewProcesses);
+    },
+    canAdministrateProcesses: function () {
+        return Uni.Auth.checkPrivileges(Dbp.privileges.DeviceProcesses.administrateProcesses);
     }
 });
