@@ -22,6 +22,7 @@ public class SearchCriterionInfoFactory {
         propertyInfo.exhaustive = possibleValues!=null && possibleValues.isExhaustive();
         propertyInfo.affectsAvailableDomainProperties = property.affectsAvailableDomainProperties();
         propertyInfo.type = property.getSpecification().getValueFactory().getValueType().getSimpleName();
+        propertyInfo.factoryName = property.getSpecification().getValueFactory().getClass().getName();
         if (property.getGroup().isPresent()) {
             propertyInfo.group=new IdWithDisplayValueInfo();
             propertyInfo.group.id = property.getGroup().get().getId();

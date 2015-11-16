@@ -13,6 +13,7 @@ public class PropertyInfo {
     public String displayValue; // The value to use as label in the UI
     public IdWithDisplayValueInfo group; // Identifies in which group this property should be listed; can be null;
     public String type; // Identifies the type of property: String, Integer, Date, ...
+    public String factoryName; // Identifies the type of factory: BooleanFactory, DateFactory, DateAndTimeFactory, ...
     public boolean exhaustive; // 'true' indicates UI can obtain an exhaustive list of values from which to select value(s)
     public boolean affectsAvailableDomainProperties; // true if using this property(with values) as filter will impact the available properties of a search domain
     @XmlJavaTypeAdapter(Link.JaxbAdapter.class)
