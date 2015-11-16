@@ -2,6 +2,7 @@ package com.energyict.mdc.device.topology.impl;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
+import com.elster.jupiter.search.impl.SearchModule;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.SqlBuilder;
@@ -212,6 +213,7 @@ public class InMemoryIntegrationPersistence {
                         ,"0.2.0.6.0.9.58.0.0.0.0.0.0.0.0.0.125.0"
                 ),
                 new MeteringGroupsModule(),
+                new SearchModule(),
                 new InMemoryMessagingModule(),
                 new OrmModule(),
                 new IssuesModule(),
