@@ -531,9 +531,8 @@ public class DashboardServiceImplTest {
     @Test
     public void testCommunicationTaskOverview_ComScheduleBreakdownWithComSchedulesButNoComTaskExecutions() {
         ComSchedule comSchedule = mock(ComSchedule.class);
-        List<ComSchedule> comSchedules = new ArrayList<>();
-        comSchedules.add(comSchedule);
-        when(this.schedulingService.findAllSchedules()).thenReturn(comSchedules);
+        Finder<ComSchedule> finder = mockFinder(Arrays.asList(comSchedule));
+        when(this.schedulingService.findAllSchedules()).thenReturn(finder);
         Map<TaskStatus, Long> statusCounters = new EnumMap<>(TaskStatus.class);
         for (TaskStatus taskStatus : TaskStatus.values()) {
             statusCounters.put(taskStatus, EXPECTED_STATUS_COUNT_VALUE);
