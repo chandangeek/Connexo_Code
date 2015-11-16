@@ -61,13 +61,13 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit', {
                             height: 200,
                             width: 300,
                             border: 10,
+                            autoScroll: true,
                             items: [
         		                {
                                     xtype: 'multiselect',                            
                                     itemId: 'metrology-config-linked-val-rules-set',
                                     name: 'linkedValidationRulesSets',
                                     width: 235,
-                                    heigh: 500,
                                     store: 'Imt.metrologyconfiguration.store.LinkedValidationRulesSet',
                                     queryMode: 'local',
                                     valueField: 'id',
@@ -135,6 +135,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigValRulesSetEdit', {
                             height: 200,
                             width: 300,
                             border: 10,
+                            autoScroll: true,
                             items: [
         		                {
                                     xtype: 'multiselect',
