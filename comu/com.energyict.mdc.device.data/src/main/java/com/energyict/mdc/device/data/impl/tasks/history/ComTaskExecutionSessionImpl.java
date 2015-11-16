@@ -83,10 +83,6 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
 
     private CompletionCode highestPriorityCompletionCode;
     private String highestPriorityErrorDescription;
-    private String userName;
-    private long version;
-    private Instant createTime;
-    private Instant modTime;
 
     @Inject
     ComTaskExecutionSessionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {

@@ -1,39 +1,8 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
-import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
-import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
-import com.energyict.mdc.device.data.impl.DeviceDataModule;
-import com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider;
-import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.device.data.impl.ServerDeviceService;
-import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
-import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
-import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
-import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
-import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.dynamic.relation.RelationService;
-import com.energyict.mdc.engine.config.impl.EngineModelModule;
-import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.impl.MasterDataModule;
-import com.energyict.mdc.metering.impl.MdcReadingTypeUtilServiceModule;
-import com.energyict.mdc.pluggable.impl.PluggableModule;
-import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
-import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
-import com.energyict.mdc.protocol.api.services.DeviceCacheMarshallingService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolMessageService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
-import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
-import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
-import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
-import com.energyict.mdc.protocol.pluggable.impl.ProtocolPluggableModule;
-import com.energyict.mdc.scheduling.SchedulingModule;
-import com.energyict.mdc.tasks.impl.TasksModule;
-
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
@@ -52,8 +21,8 @@ import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
 import com.elster.jupiter.metering.impl.MeteringModule;
 import com.elster.jupiter.nls.impl.NlsModule;
@@ -61,6 +30,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
@@ -73,18 +43,16 @@ import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
-import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
-import com.energyict.mdc.device.data.impl.DeviceEndDeviceQueryProvider;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
+import com.energyict.mdc.device.data.impl.ServerDeviceService;
 import com.energyict.mdc.device.data.impl.security.SecurityPropertyService;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
@@ -140,7 +108,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -153,30 +120,27 @@ import static org.mockito.Mockito.*;
 @RunWith(MockitoJUnitRunner.class)
 public class DataCollectionKpiImplTest {
 
-    private static final String DEVICE_TYPE_NAME = "DeviceTypeName";
+    @Rule
+    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
+    @Rule
+    public TestRule transactionalRule = new TransactionalRule(transactionService);
 
-    private static LicenseService licenseService;
     @Mock
     private static SecurityPropertyService securityPropertyService;
 
+    private static LicenseService licenseService;
     private static TransactionService transactionService;
     private static Clock clock = Clock.systemDefaultZone();
-
     private static Injector injector;
     private static InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
     private static TaskService taskService;
     private static KpiService kpiService;
     private static DeviceDataModelServiceImpl deviceDataModelService;
-    private static QueryEndDeviceGroup endDeviceGroup;
+    private static EndDeviceGroup endDeviceGroup;
     private static CronExpressionParser cronExpressionParser;
     private static MeteringGroupsService meteringGroupsService;
     private static MeteringService meteringService;
     private static ServerDeviceService deviceService;
-
-    @Rule
-    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
-    @Rule
-    public TestRule transactionalRule = new TransactionalRule(transactionService);
 
     private static class MockModule extends AbstractModule {
         @Override
@@ -252,9 +216,9 @@ public class DataCollectionKpiImplTest {
                 new TasksModule(),
                 new KpiModule(),
                 new MeteringGroupsModule(),
+                new SearchModule(),
                 new DeviceDataModule(),
-                new MockModule(),
-                new MeteringGroupsModule()
+                new MockModule()
         );
         transactionService = injector.getInstance(TransactionService.class);
         endDeviceGroup = transactionService.execute(() -> {
@@ -268,14 +232,7 @@ public class DataCollectionKpiImplTest {
             injector.getInstance(MasterDataService.class);
             deviceDataModelService = injector.getInstance(DeviceDataModelServiceImpl.class);
             deviceService = deviceDataModelService.deviceService();
-
-            DeviceEndDeviceQueryProvider endDeviceQueryProvider = new DeviceEndDeviceQueryProvider();
-            endDeviceQueryProvider.setMeteringService(meteringService);
-            endDeviceQueryProvider.setDeviceService(deviceService);
-            meteringGroupsService.addEndDeviceQueryProvider(endDeviceQueryProvider);
-
-            Condition conditionDevice = where("deviceConfiguration.deviceType.name").isEqualTo(DEVICE_TYPE_NAME);
-            return meteringGroupsService.createQueryEndDeviceGroup(conditionDevice).create();
+            return meteringGroupsService.createEnumeratedEndDeviceGroup().setName("static device group").create();
         });
 
     }
@@ -369,13 +326,7 @@ public class DataCollectionKpiImplTest {
         builder.frequency(Duration.ofHours(1)).calculateConnectionSetupKpi().expectingAsMaximum(BigDecimal.ONE);
         builder.displayPeriod(TimeDuration.days(1)).save();
 
-        DeviceEndDeviceQueryProvider endDeviceQueryProvider = new DeviceEndDeviceQueryProvider();
-        endDeviceQueryProvider.setMeteringService(meteringService);
-        endDeviceQueryProvider.setDeviceService(deviceService);
-        meteringGroupsService.addEndDeviceQueryProvider(endDeviceQueryProvider);
-
-        Condition conditionDevice = where("deviceConfiguration.deviceType.id").isEqualTo(97L);
-        QueryEndDeviceGroup otherEndDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup(conditionDevice).create();
+        EndDeviceGroup otherEndDeviceGroup = meteringGroupsService.createEnumeratedEndDeviceGroup().setName("Another static device group").create();
 
         // Business method
         java.util.Optional<DataCollectionKpi> found = deviceDataModelService.dataCollectionKpiService().findDataCollectionKpi(otherEndDeviceGroup);

@@ -984,8 +984,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
             sqlBuilder.append(whereOrAnd);
             sqlBuilder.append(" cte.device in (");
             if (deviceGroup instanceof QueryEndDeviceGroup) {
-                QueryExecutor<Device> queryExecutor = this.deviceFromDeviceGroupQueryExecutor();
-                sqlBuilder.add(queryExecutor.asFragment(((QueryEndDeviceGroup)deviceGroup).getCondition(), "id"));
+                sqlBuilder.add(((QueryEndDeviceGroup)deviceGroup).toFragment());
             } else {
                 sqlBuilder.add(((EnumeratedEndDeviceGroup) deviceGroup).getAmrIdSubQuery(getMdcAmrSystem().get()).toFragment());
             }

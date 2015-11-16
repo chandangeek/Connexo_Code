@@ -232,6 +232,7 @@ public class ComSessionCrudIT {
                     new FiniteStateMachineModule(),
                     new MeteringModule(),
                     new MeteringGroupsModule(),
+                    new SearchModule(),
                     new InMemoryMessagingModule(),
                     new EventsModule(),
                     new OrmModule(),

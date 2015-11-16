@@ -31,6 +31,7 @@ import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -122,6 +123,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private volatile SecurityPropertyService securityPropertyService;
     private volatile QueryService queryService;
     private volatile MeteringGroupsService meteringGroupsService;
+    private volatile TaskService mdcTaskService;
+    private volatile MasterDataService masterDataService;
 
     private ServerConnectionTaskService connectionTaskService;
     private ServerCommunicationTaskService communicationTaskService;
@@ -150,7 +153,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                                       MeteringService meteringService, ValidationService validationService, EstimationService estimationService,
                                       SchedulingService schedulingService, MessageService messageService,
                                       SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
-                                      QueryService queryService) {
+                                      QueryService queryService, TaskService mdcTaskService, MasterDataService masterDataService) {
         this();
         this.setOrmService(ormService);
         this.setEventService(eventService);
@@ -175,6 +178,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         this.setMeteringGroupsService(meteringGroupsService);
         this.setQueryService(queryService);
+        this.setMdcTaskService(mdcTaskService);
+        this.setMasterDataService(masterDataService);
         this.activate(bundleContext);
         if (!this.dataModel.isInstalled()) {
             this.install(true);
@@ -396,6 +401,16 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.taskService = taskService;
     }
 
+    @Reference
+    public void setMdcTaskService(TaskService taskService) {
+        this.mdcTaskService = taskService;
+    }
+
+    @Reference
+    public void setMasterDataService(MasterDataService masterDataService) {
+        this.masterDataService = masterDataService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -435,6 +450,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                 bind(DataCollectionKpiService.class).toInstance(dataCollectionKpiService);
                 bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                 bind(BatchService.class).toInstance(batchService);
+                bind(TaskService.class).toInstance(mdcTaskService);
+                bind(MasterDataService.class).toInstance(masterDataService);
             }
         };
     }
@@ -449,7 +466,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private void createRealServices() {
         this.connectionTaskService = new ConnectionTaskServiceImpl(this, eventService, meteringService, protocolPluggableService, clock);
         this.communicationTaskService = new CommunicationTaskServiceImpl(this, meteringService, clock);
-        this.deviceService = new DeviceServiceImpl(this, protocolPluggableService, queryService, thesaurus, meteringGroupsService);
+        this.deviceService = new DeviceServiceImpl(this, protocolPluggableService, queryService, thesaurus, meteringGroupsService, meteringService);
         this.loadProfileService = new LoadProfileServiceImpl(this);
         this.logBookService = new LogBookServiceImpl(this);
         this.dataCollectionKpiService = new DataCollectionKpiServiceImpl(this);
@@ -652,4 +669,5 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         );
 
     }
+
 }

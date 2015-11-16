@@ -1,5 +1,9 @@
 package com.energyict.mdc.device.data.impl.tasks.history;
 
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.Counter;
+import com.elster.jupiter.util.Counters;
+import com.elster.jupiter.util.LongCounter;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
@@ -10,11 +14,6 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.Counter;
-import com.elster.jupiter.util.Counters;
-import com.elster.jupiter.util.LongCounter;
 
 import java.lang.reflect.Proxy;
 import java.time.Duration;
@@ -59,12 +58,6 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
 
         public ComSessionBuilder addReceivedBytes(long numberOfBytes) {
             receivedBytes.add(numberOfBytes);
-            return parentBuilder();
-        }
-
-        @Override
-        public ComSessionBuilder withConnectionTask(ConnectionTask connectionTask) {
-            parentBuilder().withConnectionTask(connectionTask);
             return parentBuilder();
         }
 
@@ -320,8 +313,4 @@ public class ComSessionBuilderImpl implements ComSessionBuilder {
         return state.findFor(comTaskExecution);
     }
 
-    @Override
-    public ComSessionBuilder withConnectionTask(ConnectionTask connectionTask) {
-        return state.withConnectionTask(connectionTask);
-    }
 }
