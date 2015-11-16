@@ -13,6 +13,10 @@ Ext.define('Uni.view.search.field.SearchObjectSelector', {
 
     setValue: function(value, suspendEvent) {
         this.value = value;
+        if (!Ext.isDefined(suspendEvent)) {
+            suspendEvent = false;
+        }
+
         this.menu.items.each(function(item) {
             item.setVisible(true);
         });
@@ -22,7 +26,7 @@ Ext.define('Uni.view.search.field.SearchObjectSelector', {
             item.setVisible(false);
             this.setText(item.text);
 
-            if (Ext.isDefined(suspendEvent) && !suspendEvent) {
+            if (!suspendEvent) {
                 this.fireEvent('change', this, item.value);
             }
         }
