@@ -357,7 +357,7 @@ public class TableImpl<T> implements Table<T> {
             throw new IllegalStateException("Datamodel not registered");
         }
         if (maps(api)) {
-            return new DataMapperImpl<S>(api, (TableImpl<? super S>) this);
+            return new DataMapperImpl<>(api, (TableImpl<? super S>) this);
         } else {
             throw new IllegalArgumentException("Table " + getName() + " does not map " + api);
         }
@@ -645,7 +645,7 @@ public class TableImpl<T> implements Table<T> {
             throw new IllegalTableMappingException("Table : " + getName() + " : Implementer(s) already specified");
         }
         checkCompatibleImplementation(implementation);
-        this.mapperType = new SingleDataMapperType<T>(this, implementation);
+        this.mapperType = new SingleDataMapperType<>(this, implementation);
         return this;
     }
 
@@ -743,7 +743,8 @@ public class TableImpl<T> implements Table<T> {
 
     @Override
     public boolean maps(Class<?> clazz) {
-        return api.isAssignableFrom(clazz);
+        return api.isAssignableFrom(clazz)
+            || this.alternativeApis.stream().anyMatch(alternativeApi -> alternativeApi.isAssignableFrom(clazz));
     }
 
     public DomainMapper getDomainMapper() {
