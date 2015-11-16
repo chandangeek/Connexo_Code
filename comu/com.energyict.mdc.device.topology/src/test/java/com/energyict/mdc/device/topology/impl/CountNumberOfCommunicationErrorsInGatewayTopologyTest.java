@@ -174,6 +174,7 @@ public class CountNumberOfCommunicationErrorsInGatewayTopologyTest {
                 new IdsModule(),
                 new MeteringModule(),
                 new MeteringGroupsModule(),
+                new SearchModule(),
                 new InMemoryMessagingModule(),
                 new OrmModule(),
                 new MdcReadingTypeUtilServiceModule(),
