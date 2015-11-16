@@ -14,7 +14,6 @@ import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ValidatedDataOption;
 import com.elster.jupiter.fileimport.FileImportService;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
 import com.elster.jupiter.ftpclient.impl.FtpModule;
 import com.elster.jupiter.ids.impl.IdsModule;
@@ -38,6 +37,7 @@ import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.RecurrentTask;
@@ -198,6 +198,7 @@ public class DataExportServiceImplIT {
                     new TimeModule(),
                     new TaskModule(),
                     new MeteringGroupsModule(),
+                    new SearchModule(),
                     new AppServiceModule(),
                     new BasicPropertiesModule(),
                     new MailModule(),
