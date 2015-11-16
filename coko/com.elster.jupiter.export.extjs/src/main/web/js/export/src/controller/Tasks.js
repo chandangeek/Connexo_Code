@@ -1174,7 +1174,6 @@ Ext.define('Dxp.controller.Tasks', {
                             if (record.get('status') === 'Busy') {
                                 view.down('#run').hide();
                             }
-                            debugger;
                             if (rec.properties() && rec.properties().count()) {
                                 view.down('grouped-property-form').loadRecord(rec);
                             }
