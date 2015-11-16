@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.impl.core.devices;
 
 import com.energyict.mdc.engine.config.ComServer;
+import com.energyict.mdc.engine.impl.EngineServiceImpl;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
@@ -453,7 +454,7 @@ public class DeviceCommandExecutorImpl implements DeviceCommandExecutor, DeviceC
          * Need to do this so the Kore knows who did what in the database.
          */
         private void assignThreadUser() {
-            Optional<User> user = userService.findUser("batch executor");
+            Optional<User> user = userService.findUser(EngineServiceImpl.COMSERVER_USER);
             if (user.isPresent()) {
                 threadPrincipalService.set(user.get(), "ComServer", "Store", Locale.ENGLISH);
             }

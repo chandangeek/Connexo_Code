@@ -1,5 +1,6 @@
 package com.energyict.mdc.engine.impl.core;
 
+import com.energyict.mdc.engine.impl.EngineServiceImpl;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.config.OutboundComPort;
 
@@ -58,7 +59,7 @@ public class MultiThreadedScheduledJobExecutor extends ScheduledJobExecutor impl
     }
 
     private void setThreadPrinciple() {
-        Optional<User> user = userService.findUser("batch executor");
+        Optional<User> user = userService.findUser(EngineServiceImpl.COMSERVER_USER);
         user.ifPresent(u -> threadPrincipalService.set(u, "MultiThreadedComPort", "Executing", Locale.ENGLISH));
     }
 

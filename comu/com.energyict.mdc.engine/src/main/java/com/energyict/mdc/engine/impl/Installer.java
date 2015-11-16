@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.users.UserService;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,20 +19,32 @@ public class Installer {
 
     private final DataModel dataModel;
     private final EventService eventService;
+    private final UserService userService;
 
-    public Installer(DataModel dataModel, EventService eventService) {
+    public Installer(DataModel dataModel, EventService eventService, UserService userService) {
         super();
         this.dataModel = dataModel;
         this.eventService = eventService;
+        this.userService = userService;
     }
 
     public void install(boolean executeDdl) {
         try {
-            this.dataModel.install(executeDdl, true);
+            dataModel.install(executeDdl, true);
         } catch (Exception e) {
             logger.log(Level.SEVERE, e.getMessage(), e);
         }
-        this.createEventTypesIfNotExist();
+        createEventTypesIfNotExist();
+        createComServerUser();
+    }
+
+    private void createComServerUser() {
+        try {
+            userService.createUser(EngineServiceImpl.COMSERVER_USER, EngineServiceImpl.COMSERVER_USER);
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, e.getMessage(), e);
+        }
+
     }
 
     private void createEventTypesIfNotExist() {
