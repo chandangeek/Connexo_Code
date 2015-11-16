@@ -100,8 +100,8 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationModule;
-import com.energyict.mdc.device.data.CommunicationTaskService;
-import com.energyict.mdc.device.data.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
@@ -379,7 +379,7 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 this.relationService, this.protocolPluggableService, this.engineConfigurationService,
                                 this.deviceConfigurationService, this.meteringService,
                                 this.validationService, this.estimationService,
-                                this.schedulingService, this.mdcTaskService,
+                                this.schedulingService,
                                 injector.getInstance(MessageService.class),
                                 injector.getInstance(SecurityPropertyService.class),
                                 injector.getInstance(UserService.class),

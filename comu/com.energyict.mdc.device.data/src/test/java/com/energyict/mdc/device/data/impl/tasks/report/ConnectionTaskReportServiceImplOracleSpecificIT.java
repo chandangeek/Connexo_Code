@@ -1,5 +1,8 @@
 package com.energyict.mdc.device.data.impl.tasks.report;
 
+import com.elster.jupiter.search.SearchableProperty;
+import com.elster.jupiter.search.SearchablePropertyOperator;
+import com.elster.jupiter.search.SearchablePropertyValue;
 import com.energyict.mdc.device.config.DeviceCommunicationConfiguration;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
@@ -29,7 +32,9 @@ import com.google.common.collect.BoundType;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
@@ -520,8 +525,7 @@ public class ConnectionTaskReportServiceImplOracleSpecificIT {
             device.save();
             device.addToGroup(enumeratedEndDeviceGroup, range(Instant.EPOCH, BoundType.CLOSED, Instant.now(), BoundType.OPEN));
             enumeratedEndDeviceGroup.setMRID("static");
-            enumeratedEndDeviceGroup.setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPROVIDER);
-            enumeratedEndDeviceGroup.save();
+            enumeratedEndDeviceGroup.update();
             return enumeratedEndDeviceGroup;
         }
     }
@@ -533,14 +537,21 @@ public class ConnectionTaskReportServiceImplOracleSpecificIT {
             return (QueryEndDeviceGroup) endDeviceGroup.get();
         }
         else {
-            Condition conditionDevice = Condition.TRUE.and(where("deviceConfiguration.deviceType.name").isEqualTo("myType"));
             return oracleIntegrationPersistence
                     .getMeteringGroupsService()
-                    .createQueryEndDeviceGroup(conditionDevice)
+                    .createQueryEndDeviceGroup(createSearchablePropertyValue("deviceConfiguration.deviceType.name", Collections.singletonList("myType")))
                         .setMRID("dynamic")
                         .setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPROVIDER)
                         .create();
         }
+    }
+
+    private SearchablePropertyValue createSearchablePropertyValue(String searchableProperty, List<String> values) {
+        SearchablePropertyValue.ValueBean valueBean = new SearchablePropertyValue.ValueBean();
+        valueBean.propertyName = searchableProperty;
+        valueBean.operator = SearchablePropertyOperator.EQUAL;
+        valueBean.values = values;
+        return new SearchablePropertyValue(null, valueBean);
     }
 
 }
