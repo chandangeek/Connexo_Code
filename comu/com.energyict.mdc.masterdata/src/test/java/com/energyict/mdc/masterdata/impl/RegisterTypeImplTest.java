@@ -24,6 +24,7 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.masterdata.exceptions.CannotDeleteBecauseStillInUseException;
 import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
 import org.assertj.core.api.Assertions;
+import org.fest.assertions.core.Condition;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -34,9 +35,12 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.fest.assertions.api.Assertions.assertThat;
+
 
 /**
  * Tests the persistence aspects of the {@link RegisterTypeImpl} component
@@ -49,6 +53,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class RegisterTypeImplTest {
 
     private static final TimeDuration INTERVAL_15_MINUTES = new TimeDuration(15, TimeDuration.TimeUnit.MINUTES);
+    private static final String[] availableReadingTypes = new String[]{"0.0.2.0.0.2.0.0.0.0.0.0.0.0.0.0.0.0",
+            "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0",
+            "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0",
+            "0.0.0.1.1.2.12.0.0.0.0.0.0.0.0.3.72.0",
+            "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.111.0",
+            "0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0",
+            "0.0.0.1.19.2.12.0.0.0.0.0.0.0.0.3.72.0",
+            "11.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0"};
 
     @Rule
     public TestRule transactionalRule = new TransactionalRule(getTransactionService());
@@ -70,7 +82,8 @@ public class RegisterTypeImplTest {
     @BeforeClass
     public static void initialize() {
         inMemoryPersistence = new InMemoryPersistence();
-        inMemoryPersistence.initializeDatabase("mdc.masterdata.registertype", false, false, "0.0.2.0.0.2.0.0.0.0.0.0.0.0.0.0.0.0", "0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0", "0.0.0.1.19.1.12.0.0.0.0.0.0.0.0.3.72.0", "11.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+        inMemoryPersistence.initializeDatabase("mdc.masterdata.registertype", false, false,
+                availableReadingTypes);
     }
 
     @AfterClass
@@ -86,7 +99,7 @@ public class RegisterTypeImplTest {
     @Transactional
     public void testCreateWithoutViolations() {
         MeasurementType measurementType;
-        this.setupProductSpecsInExistingTransaction();
+        this.setupReadingTypesInExistingTransaction();
 
         // Business method
         measurementType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType1, obisCode1);
@@ -104,7 +117,7 @@ public class RegisterTypeImplTest {
     @Test
     @Transactional
     public void testFindAfterCreation() {
-        this.setupProductSpecsInExistingTransaction();
+        this.setupReadingTypesInExistingTransaction();
 
         RegisterType registerType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType1, obisCode1);
         registerType.setDescription("For testing purposes only");
@@ -124,7 +137,7 @@ public class RegisterTypeImplTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.REGISTER_TYPE_DUPLICATE_READING_TYPE + "}")
     public void testCreateWithDuplicateReadingType() {
-        this.setupProductSpecsInExistingTransaction();
+        this.setupReadingTypesInExistingTransaction();
 
         MeasurementType measurementType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType1, obisCode1);
         measurementType.save();
@@ -139,7 +152,7 @@ public class RegisterTypeImplTest {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.REGISTER_TYPE_OBIS_CODE_IS_REQUIRED + "}")
     public void testCreateWithoutObisCode() {
         String registerTypeName = "testCreateWithoutObisCode";
-        this.setupProductSpecsInExistingTransaction();
+        this.setupReadingTypesInExistingTransaction();
 
         // Business method
         MeasurementType measurementType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType1, null);
@@ -153,7 +166,7 @@ public class RegisterTypeImplTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.REGISTER_TYPE_READING_TYPE_IS_REQUIRED + "}")
     public void testCreateWithoutReadingType() {
-        setupProductSpecsInExistingTransaction();
+        setupReadingTypesInExistingTransaction();
         String registerTypeName = "testCreateWithoutProductSpec";
         MeasurementType measurementType;
         // Business method
@@ -168,7 +181,7 @@ public class RegisterTypeImplTest {
     @Transactional
     public void testUpdateObisCode() {
         MeasurementType measurementType;
-        this.setupProductSpecsInExistingTransaction();
+        this.setupReadingTypesInExistingTransaction();
 
         measurementType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType1, obisCode1);
         measurementType.setDescription("For testing purposes only");
@@ -189,7 +202,7 @@ public class RegisterTypeImplTest {
     public void testDelete() {
         String registerTypeName = "testDelete";
         MeasurementType measurementType;
-        this.setupProductSpecsInExistingTransaction();
+        this.setupReadingTypesInExistingTransaction();
 
         // Business method
         measurementType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType1, obisCode1);
@@ -209,7 +222,7 @@ public class RegisterTypeImplTest {
     public void testCannotDeleteWhenUsedByLoadProfileType() {
         String registerTypeName = "testCannotDeleteWhenUsedByLoadProfileType";
         RegisterType registerType;
-        this.setupProductSpecsInExistingTransaction();
+        this.setupReadingTypesInExistingTransaction();
 
         // Create the RegisterType
         registerType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType1, obisCode1);
@@ -250,8 +263,62 @@ public class RegisterTypeImplTest {
         registerType.save();
     }
 
-    private void setupProductSpecsInExistingTransaction() {
-        this.setupReadingTypesInExistingTransaction();
+    @Test
+    @Transactional
+    public void getPossibleMultiplyReadingTypesForSecondaryElectricityTest() {
+        createAllRegisterTypes();
+        MeasurementType measurementType = inMemoryPersistence.getMasterDataService()
+                .findMeasurementTypeByReadingType(
+                        inMemoryPersistence.getMeteringService().getReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get()).get();
+
+        List<MeasurementType> possibleMultiplyRegisterTypesFor = inMemoryPersistence.getMasterDataService().getPossibleMultiplyRegisterTypesFor(measurementType);
+        assertThat(possibleMultiplyRegisterTypesFor).hasSize(1);
+        assertThat(possibleMultiplyRegisterTypesFor.get(0).getReadingType().getMRID()).isEqualTo("0.0.0.1.1.2.12.0.0.0.0.0.0.0.0.3.72.0");
+    }
+
+    @Test
+    @Transactional
+    public void getPossibleMultiplyReadingTypesForPrimaryElectricityTest() {
+        createAllRegisterTypes();
+        MeasurementType measurementType = inMemoryPersistence.getMasterDataService()
+                .findMeasurementTypeByReadingType(
+                        inMemoryPersistence.getMeteringService().getReadingType("0.0.0.1.1.2.12.0.0.0.0.0.0.0.0.3.72.0").get()).get();
+
+        List<MeasurementType> possibleMultiplyRegisterTypesFor = inMemoryPersistence.getMasterDataService().getPossibleMultiplyRegisterTypesFor(measurementType);
+        assertThat(possibleMultiplyRegisterTypesFor).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void getPossibleMultiplyReadingTypesForCountersTest() {
+        createAllRegisterTypes();
+        MeasurementType measurementType = inMemoryPersistence.getMasterDataService()
+                .findMeasurementTypeByReadingType(
+                        inMemoryPersistence.getMeteringService().getReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.111.0").get()).get();
+
+        List<MeasurementType> possibleMultiplyRegisterTypesFor = inMemoryPersistence.getMasterDataService().getPossibleMultiplyRegisterTypesFor(measurementType);
+        assertThat(possibleMultiplyRegisterTypesFor).hasSize(2);
+        assertThat(possibleMultiplyRegisterTypesFor).haveExactly(1, new Condition<MeasurementType>() {
+            @Override
+            public boolean matches(MeasurementType measurementType) {
+                return measurementType.getReadingType().getMRID().equals("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0");
+            }
+        });
+        assertThat(possibleMultiplyRegisterTypesFor).haveExactly(1, new Condition<MeasurementType>() {
+            @Override
+            public boolean matches(MeasurementType measurementType) {
+                return measurementType.getReadingType().getMRID().equals("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.0.72.0");
+            }
+        });
+    }
+
+    private void createAllRegisterTypes() {
+        Stream.of(availableReadingTypes).forEach(code -> {
+            ReadingType readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
+            if(!readingType.isRegular()){
+                inMemoryPersistence.getMasterDataService().newRegisterType(readingType, ObisCode.fromString("1.2.3.4.5.6")).save();
+            }
+        });
     }
 
     private void setupReadingTypesInExistingTransaction() {

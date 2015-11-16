@@ -1,6 +1,9 @@
 package com.energyict.mdc.masterdata.impl;
 
+import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.nls.*;
+import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.ObisCode;
@@ -41,6 +44,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static com.elster.jupiter.util.conditions.Where.where;
+import static com.elster.jupiter.util.streams.Predicates.not;
 
 
 /**
@@ -146,7 +153,7 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     @Override
     public Finder<RegisterType> findAllRegisterTypes() {
         List<RegisterType> registerTypes = this.getDataModel().mapper(RegisterType.class).find(); // Must use in memory sorting because DB is already fixed structure: no change allowed
-        Collections.sort(registerTypes, (a,b)->a.getReadingType().getFullAliasName().toLowerCase().compareTo(b.getReadingType().getFullAliasName().toLowerCase()));
+        Collections.sort(registerTypes, (a, b) -> a.getReadingType().getFullAliasName().toLowerCase().compareTo(b.getReadingType().getFullAliasName().toLowerCase()));
         return com.energyict.mdc.common.services.ListPager.of(registerTypes);
     }
 
@@ -313,10 +320,10 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     @Override
     public Optional<ChannelType> findChannelTypeByTemplateRegisterAndInterval(RegisterType templateRegisterType, TimeDuration interval) {
         return getDataModel()
-                    .mapper(ChannelType.class)
-                    .getUnique(
-                            MeasurementTypeImpl.Fields.TEMPLATE_REGISTER_ID.fieldName(), templateRegisterType.getId(),
-                            MeasurementTypeImpl.Fields.INTERVAL.fieldName(), interval);
+                .mapper(ChannelType.class)
+                .getUnique(
+                        MeasurementTypeImpl.Fields.TEMPLATE_REGISTER_ID.fieldName(), templateRegisterType.getId(),
+                        MeasurementTypeImpl.Fields.INTERVAL.fieldName(), interval);
     }
 
     @Override
@@ -324,4 +331,28 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
         return getDataModel().mapper(ChannelType.class).find("templateRegisterId", templateRegisterType.getId());
     }
 
+    @Override
+    public List<? extends MeasurementType> getPossibleMultiplyRegisterTypesFor(MeasurementType measurementType) {
+        if (measurementType.getReadingType().getUnit().equals(ReadingTypeUnit.COUNT)) {
+            Condition condition = where("readingType.mRID").matches(getReadingTypeMatchForMultipliers(measurementType), "");
+            return this.getDataModel().query(MeasurementType.class, ReadingType.class)
+                    .select(condition).stream().filter(not(measurementType1 ->
+                            measurementType1.getReadingType().getMRID().equals(measurementType.getReadingType().getMRID()))).collect(Collectors.toList());
+        } else if (measurementType.getReadingType().getCommodity().equals(Commodity.ELECTRICITY_SECONDARY_METERED)) {
+            ReadingType primaryMeteredReadingType = mdcReadingTypeUtilService.getOrCreatePrimaryMeteredReadingType(measurementType.getReadingType());
+            Condition condition = where("readingType.mRID").isEqualTo(primaryMeteredReadingType.getMRID());
+            return this.getDataModel().query(MeasurementType.class, ReadingType.class)
+                    .select(condition);
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    /*
+     * Strip off the last three fields of the MRID and put the regex instead
+     */
+    private Object getReadingTypeMatchForMultipliers(MeasurementType measurementType) {
+        String regex = "\\.[0-9]+\\.[0-9]+\\.[0-9]+$";
+        return measurementType.getReadingType().getMRID().split(regex)[0] + regex;
+    }
 }
