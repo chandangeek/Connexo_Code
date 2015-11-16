@@ -31,6 +31,7 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
@@ -215,6 +216,7 @@ public class PartialOutboundConnectionTaskCrudIT {
                     new ValidationModule(),
                     new EstimationModule(),
                     new MeteringGroupsModule(),
+                    new SearchModule(),
                     new TaskModule(),
                     new IssuesModule(),
                     new BasicPropertiesModule(),
