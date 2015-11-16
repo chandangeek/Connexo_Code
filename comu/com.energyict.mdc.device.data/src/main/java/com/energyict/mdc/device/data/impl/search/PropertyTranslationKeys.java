@@ -68,6 +68,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     CONNECTION_DIRECTION("device.connection.direction", "Direction"),
     CONNECTION_PORTPOOL("device.connection.portpool", "Communication port pool"),
     CONNECTION_SIMULTANEOUS("device.connection.simultaneous", "Allow simultaneous connection"),
+    CONNECTION_STATUS("device.connection.status", "Status"),
     TRANSITIONS("device.transition", "Transitions"),
     TRANSITION_SHIPMENT("device.transition.shipment", "Shipment date"),
     TRANSITION_INSTALLATION("device.transition.installation", "Installation date"),
@@ -79,6 +80,10 @@ public enum PropertyTranslationKeys implements TranslationKey {
     COMTASK_SCHEDULE_TYPE_ON_REQUEST("device.comtask.schedule.type.ScheduleTypeKey.ON_REQUEST", "On request"),
     COMTASK_SCHEDULE_TYPE_INDIVIDUAL("device.comtask.schedule.type.ScheduleTypeKey.INDIVIDUAL", "Individual"),
     COMTASK_SCHEDULE_TYPE_SHARED("device.comtask.schedule.type.ScheduleTypeKey.SHARED", "Shared"),
+
+    CONNECTION_TASK_STATUS_INCOMPLETE("device.connection.status.INCOMPLETE", "Incomplete"),
+    CONNECTION_TASK_STATUS_ACTIVE("device.connection.status.ACTIVE", "Active"),
+    CONNECTION_TASK_STATUS_INACTIVE("device.connection.status.INACTIVE", "Inactive"),
     ;
 
     private String key;
