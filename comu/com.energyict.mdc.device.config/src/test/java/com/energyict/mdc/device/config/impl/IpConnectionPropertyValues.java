@@ -8,6 +8,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 
 import javax.validation.constraints.Size;
+import java.math.BigDecimal;
 
 /**
  * Insert your comments here.
@@ -25,22 +26,21 @@ public class IpConnectionPropertyValues implements PersistentDomainExtension<Con
     private Interval interval;
     @Size(max = 15)
     private String ipAddress;
-    private int port;
+    private BigDecimal port;
 
     @Override
     public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues) {
         this.connectionProvider.set(connectionProvider);
         this.ipAddress = (String) propertyValues.getProperty(IpConnectionProperties.IP_ADDRESS.propertyName());
-        Integer port = (Integer) propertyValues.getProperty(IpConnectionProperties.PORT.propertyName());
-        if (port != null) {
-            this.port = port;
-        }
+        this.port = (BigDecimal) propertyValues.getProperty(IpConnectionProperties.PORT.propertyName());
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues) {
         propertySetValues.setProperty(IpConnectionProperties.IP_ADDRESS.propertyName(), this.ipAddress);
-        propertySetValues.setProperty(IpConnectionProperties.PORT.propertyName(), this.port);
+        if (this.port != null) {
+            propertySetValues.setProperty(IpConnectionProperties.PORT.propertyName(), this.port);
+        }
     }
 
     @Override
