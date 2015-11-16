@@ -369,7 +369,7 @@ public class DeviceTypeResource {
                                                                     @PathParam("registerTypeId") long registerTypeId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         RegisterType registerType = resourceHelper.findRegisterTypeByIdOrThrowException(registerTypeId);
-        return new RegisterTypeOnDeviceTypeInfo(registerType, false, false, false, deviceType.getRegisterTypeTypeCustomPropertySet(registerType));
+        return new RegisterTypeOnDeviceTypeInfo(registerType, false, false, false, deviceType.getRegisterTypeTypeCustomPropertySet(registerType), masterDataService.getPossibleMultiplyRegisterTypesFor(registerType));
     }
 
     @PUT
@@ -484,7 +484,13 @@ public class DeviceTypeResource {
             boolean isLinkedByDeviceType = !deviceConfigurationService.findDeviceTypesUsingRegisterType(registerType).isEmpty();
             boolean isLinkedByActiveRegisterSpec = !deviceConfigurationService.findActiveRegisterSpecsByDeviceTypeAndRegisterType(deviceType, registerType).isEmpty();
             boolean isLinkedByInactiveRegisterSpec = !deviceConfigurationService.findInactiveRegisterSpecsByDeviceTypeAndRegisterType(deviceType, registerType).isEmpty();
-            RegisterTypeOnDeviceTypeInfo info = new RegisterTypeOnDeviceTypeInfo(registerType, isLinkedByDeviceType, isLinkedByActiveRegisterSpec, isLinkedByInactiveRegisterSpec, deviceType.getRegisterTypeTypeCustomPropertySet(registerType));
+            RegisterTypeOnDeviceTypeInfo info = new RegisterTypeOnDeviceTypeInfo(
+                    registerType,
+                    isLinkedByDeviceType,
+                    isLinkedByActiveRegisterSpec,
+                    isLinkedByInactiveRegisterSpec,
+                    deviceType.getRegisterTypeTypeCustomPropertySet(registerType),
+                    masterDataService.getPossibleMultiplyRegisterTypesFor(registerType));
             if (isLinkedByDeviceType){
                 info.parent = new VersionInfo<>(deviceType.getId(), deviceType.getVersion());
             }
