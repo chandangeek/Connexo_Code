@@ -16,6 +16,7 @@ import com.energyict.mdc.multisense.api.impl.utils.ResourceHelper;
 import com.energyict.mdc.multisense.api.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
+
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
