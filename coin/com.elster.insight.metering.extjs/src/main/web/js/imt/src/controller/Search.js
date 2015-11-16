@@ -124,7 +124,7 @@ Ext.define('Imt.controller.Search', {
             if (value && !Ext.isEmpty(records) && searchDomains.getById(value) !== null) {
                 selector.setValue(value, isStateChange);
             } else if (selector && !Ext.isEmpty(records)) {
-                selector.setValue(records[0].get('id'), isStateChange);
+                selector.setValue('com.elster.jupiter.metering.UsagePoint', isStateChange);
             }
         }});
 
