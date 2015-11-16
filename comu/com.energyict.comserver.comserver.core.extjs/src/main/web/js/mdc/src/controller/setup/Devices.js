@@ -246,7 +246,6 @@ Ext.define('Mdc.controller.setup.Devices', {
                 });
                 !!me.getDeviceCommunicationTopologyPanel() && me.getDeviceCommunicationTopologyPanel().setRecord(device);
                 !!me.getDeviceOpenIssuesPanel() && me.getDeviceOpenIssuesPanel().setDataCollectionIssues(device);
-                !!me.getDeviceDataValidationPanel() && me.getDeviceDataValidationPanel().setValidationResult();
 
                 !!me.getDeviceValidationResultFieldLink() && me.getDeviceValidationResultFieldLink().getEl().set({href: '#/devices/' + mRID + '/validationresults/data'});
 
