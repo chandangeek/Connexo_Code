@@ -23,8 +23,9 @@ public class ComTaskDefinedByUserImpl extends ComTaskImpl {
                                     Provider<ClockTaskImpl> clockTaskProvider,
                                     Provider<TopologyTaskImpl> topologyTaskProvider,
                                     Thesaurus thesaurus,
-                                    Provider<LoadProfilesTaskImpl> loadProfilesTaskProvider) {
-        super(logBooksTaskProvider, dataModel, statusInformationTaskProvider, messagesTaskProvider, basicCheckTaskProvider, registersTaskProvider, eventService, clockTaskProvider, topologyTaskProvider, thesaurus, loadProfilesTaskProvider);
+                                    Provider<LoadProfilesTaskImpl> loadProfilesTaskProvider,
+                                    Provider<FirmwareManagementTaskImpl> firmwareManagementTaskProvider) {
+        super(logBooksTaskProvider, dataModel, statusInformationTaskProvider, messagesTaskProvider, basicCheckTaskProvider, registersTaskProvider, eventService, clockTaskProvider, topologyTaskProvider, thesaurus, loadProfilesTaskProvider, firmwareManagementTaskProvider);
     }
 
     @Override

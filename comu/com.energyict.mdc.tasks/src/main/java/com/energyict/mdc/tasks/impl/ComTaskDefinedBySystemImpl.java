@@ -29,8 +29,9 @@ public class ComTaskDefinedBySystemImpl extends ComTaskImpl implements SystemCom
                                     Provider<RegistersTaskImpl> registersTaskProvider,
                                     Provider<StatusInformationTaskImpl> statusInformationTaskProvider,
                                     Provider<TopologyTaskImpl> topologyTaskProvider,
-                                    Provider<FirmwareManagementTaskImpl> firmwareUpgradeTaskProvider) {
-        super(logBooksTaskProvider, dataModel, statusInformationTaskProvider, messagesTaskProvider, basicCheckTaskProvider, registersTaskProvider, eventService, clockTaskProvider, topologyTaskProvider, thesaurus, loadProfilesTaskProvider);
+                                    Provider<FirmwareManagementTaskImpl> firmwareUpgradeTaskProvider,
+                                    Provider<FirmwareManagementTaskImpl> firmwareManagementTaskProvider) {
+        super(logBooksTaskProvider, dataModel, statusInformationTaskProvider, messagesTaskProvider, basicCheckTaskProvider, registersTaskProvider, eventService, clockTaskProvider, topologyTaskProvider, thesaurus, loadProfilesTaskProvider, firmwareManagementTaskProvider);
         this.firmwareUpgradeTaskProvider = firmwareUpgradeTaskProvider;
     }
 

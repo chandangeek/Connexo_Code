@@ -17,89 +17,96 @@ public interface ComTask extends HasId, HasName {
     /**
      * @return true if collected data can be stored, false otherwise
      */
-    public boolean storeData();
+    boolean storeData();
 
     /**
      * @return a List of {@link ProtocolTask ProtocolTasks} for this ComTask
      */
-    public List<ProtocolTask> getProtocolTasks();
+    List<ProtocolTask> getProtocolTasks();
 
     /**
      * Create a {@link BasicCheckTask} based on the given shadow for this {@link ComTask}
      *
      * @return the newly created {@link BasicCheckTask}
      */
-    public BasicCheckTask.BasicCheckTaskBuilder createBasicCheckTask();
+    BasicCheckTask.BasicCheckTaskBuilder createBasicCheckTask();
 
     /**
      * Create a {@link ClockTask} based on the given shadow for this {@link ComTask}
      *
      * @return the newly created {@link ClockTask}
      */
-    public ClockTask.ClockTaskBuilder createClockTask(ClockTaskType clockTaskType);
+    ClockTask.ClockTaskBuilder createClockTask(ClockTaskType clockTaskType);
 
     /**
      * Create a {@link LoadProfilesTask} based on the given shadow for this {@link ComTask}
      *
      * @return the newly created {@link LoadProfilesTask}
      */
-    public LoadProfilesTask.LoadProfilesTaskBuilder createLoadProfilesTask();
+    LoadProfilesTask.LoadProfilesTaskBuilder createLoadProfilesTask();
 
     /**
      * Create a {@link com.energyict.mdc.tasks.LogBooksTask} based on the given shadow for this {@link ComTask}
      *
      * @return the newly created {@link com.energyict.mdc.tasks.LogBooksTask}
      */
-    public LogBooksTask.LogBooksTaskBuilder createLogbooksTask();
+    LogBooksTask.LogBooksTaskBuilder createLogbooksTask();
 
     /**
      * Create a {@link MessagesTask} based on the given shadow for this {@link ComTask}
      *
      * @return the newly created {@link MessagesTask}
      */
-    public MessagesTask.MessagesTaskBuilder createMessagesTask();
+    MessagesTask.MessagesTaskBuilder createMessagesTask();
 
     /**
-     * Create a {@link RegistersTask} based on the given shadow for this {@link ComTask}
+     * Create a {@link RegistersTask} for this {@link ComTask}
      *
      * @return the newly created {@link RegistersTask}
      */
-    public RegistersTask.RegistersTaskBuilder createRegistersTask();
+    RegistersTask.RegistersTaskBuilder createRegistersTask();
 
     /**
-     * Create a {@link StatusInformationTask} based on the given shadow for this {@link ComTask}
+     * Create a {@link StatusInformationTask} for this {@link ComTask}
      *
      * @return the newly created {@link StatusInformationTask}
      */
-    public StatusInformationTask createStatusInformationTask() ;
+    StatusInformationTask createStatusInformationTask() ;
 
     /**
-     * Create a {@link TopologyTask} based on the given shadow for this {@link ComTask}
+     * Create a {@link FirmwareManagementTask} for this {@link ComTask}
+     *
+     * @return the newly created {@link FirmwareManagementTask}
+     */
+    FirmwareManagementTask createFirmwareManagementTask();
+
+    /**
+     * Create a {@link TopologyTask} for this {@link ComTask}
      *
      * @return the newly created {@link TopologyTask}
      */
-    public TopologyTask createTopologyTask(TopologyAction topologyAction);
+    TopologyTask createTopologyTask(TopologyAction topologyAction);
 
-    public void removeTask(ProtocolTask protocolTask);
+    void removeTask(ProtocolTask protocolTask);
 
     /**
      * Keeps track of the maximum number of consecutive failures a comTask can have before marking it as failed.
      *
      * @return the maximum number of consecutive failures that a ComTaskExecution using this ComTask can have
      */
-    public int getMaxNumberOfTries();
+    int getMaxNumberOfTries();
 
-    public void save();
+    void save();
 
-    public void delete();
+    void delete();
 
-    public void setName(String name);
+    void setName(String name);
 
-    public int getMaxNrOfTries();
+    int getMaxNrOfTries();
 
-    public void setMaxNrOfTries(int maxNrOfTries);
+    void setMaxNrOfTries(int maxNrOfTries);
 
-    public void setStoreData(boolean storeData);
+    void setStoreData(boolean storeData);
 
     /**
      * User ComTask should be maintained by the users

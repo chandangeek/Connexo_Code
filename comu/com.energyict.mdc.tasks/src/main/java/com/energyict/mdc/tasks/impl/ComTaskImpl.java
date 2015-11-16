@@ -13,17 +13,7 @@ import com.energyict.mdc.masterdata.LogBookType;
 import com.energyict.mdc.masterdata.RegisterGroup;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.tasks.TopologyAction;
-import com.energyict.mdc.tasks.BasicCheckTask;
-import com.energyict.mdc.tasks.ClockTask;
-import com.energyict.mdc.tasks.ClockTaskType;
-import com.energyict.mdc.tasks.ComTask;
-import com.energyict.mdc.tasks.LoadProfilesTask;
-import com.energyict.mdc.tasks.LogBooksTask;
-import com.energyict.mdc.tasks.MessagesTask;
-import com.energyict.mdc.tasks.ProtocolTask;
-import com.energyict.mdc.tasks.RegistersTask;
-import com.energyict.mdc.tasks.StatusInformationTask;
-import com.energyict.mdc.tasks.TopologyTask;
+import com.energyict.mdc.tasks.*;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Provider;
 
@@ -62,6 +52,7 @@ public abstract class ComTaskImpl implements ComTask {
     protected final Provider<RegistersTaskImpl> registersTaskProvider;
     protected final Provider<StatusInformationTaskImpl> statusInformationTaskProvider;
     protected final Provider<TopologyTaskImpl> topologyTaskProvider;
+    protected final Provider<FirmwareManagementTaskImpl> firmwareManagementTaskProvider;
 
     static final Map<String, Class<? extends ComTask>> IMPLEMENTERS =
             ImmutableMap.<String, Class<? extends ComTask>>of(
@@ -107,7 +98,18 @@ public abstract class ComTaskImpl implements ComTask {
     private int maxNrOfTries = 3;
 
     @Inject
-    public ComTaskImpl(Provider<LogBooksTaskImpl> logBooksTaskProvider, DataModel dataModel, Provider<StatusInformationTaskImpl> statusInformationTaskProvider, Provider<MessagesTaskImpl> messagesTaskProvider, Provider<BasicCheckTaskImpl> basicCheckTaskProvider, Provider<RegistersTaskImpl> registersTaskProvider, EventService eventService, Provider<ClockTaskImpl> clockTaskProvider, Provider<TopologyTaskImpl> topologyTaskProvider, Thesaurus thesaurus, Provider<LoadProfilesTaskImpl> loadProfilesTaskProvider) {
+    public ComTaskImpl(Provider<LogBooksTaskImpl> logBooksTaskProvider,
+                       DataModel dataModel,
+                       Provider<StatusInformationTaskImpl> statusInformationTaskProvider,
+                       Provider<MessagesTaskImpl> messagesTaskProvider,
+                       Provider<BasicCheckTaskImpl> basicCheckTaskProvider,
+                       Provider<RegistersTaskImpl> registersTaskProvider,
+                       EventService eventService,
+                       Provider<ClockTaskImpl> clockTaskProvider,
+                       Provider<TopologyTaskImpl> topologyTaskProvider,
+                       Thesaurus thesaurus,
+                       Provider<LoadProfilesTaskImpl> loadProfilesTaskProvider,
+                       Provider<FirmwareManagementTaskImpl> firmwareManagementTaskProvider) {
         this.logBooksTaskProvider = logBooksTaskProvider;
         this.dataModel = dataModel;
         this.statusInformationTaskProvider = statusInformationTaskProvider;
@@ -119,6 +121,7 @@ public abstract class ComTaskImpl implements ComTask {
         this.topologyTaskProvider = topologyTaskProvider;
         this.thesaurus = thesaurus;
         this.loadProfilesTaskProvider = loadProfilesTaskProvider;
+        this.firmwareManagementTaskProvider = firmwareManagementTaskProvider;
     }
 
     @Override
@@ -221,6 +224,14 @@ public abstract class ComTaskImpl implements ComTask {
         topologyTask.setTopologyAction(topologyAction);
         addProtocolTask(topologyTask);
         return topologyTask;
+    }
+
+    @Override
+    public FirmwareManagementTask createFirmwareManagementTask() {
+        FirmwareManagementTaskImpl firmwareManagementTask = firmwareManagementTaskProvider.get();
+        firmwareManagementTask.ownedBy(this);
+        addProtocolTask(firmwareManagementTask);
+        return firmwareManagementTask;
     }
 
     @Override
