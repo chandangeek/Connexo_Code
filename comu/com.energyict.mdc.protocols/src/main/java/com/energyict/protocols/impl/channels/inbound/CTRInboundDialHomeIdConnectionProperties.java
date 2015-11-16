@@ -2,6 +2,7 @@ package com.energyict.protocols.impl.channels.inbound;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
@@ -49,6 +50,8 @@ public class CTRInboundDialHomeIdConnectionProperties implements PersistentDomai
 
     }
 
+    @SuppressWarnings("unused")
+    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
     @SuppressWarnings("unused")
     private Reference<ConnectionProvider> connectionProvider = Reference.empty();
     @SuppressWarnings("unused")

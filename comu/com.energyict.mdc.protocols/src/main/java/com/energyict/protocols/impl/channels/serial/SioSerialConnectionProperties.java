@@ -2,6 +2,7 @@ package com.energyict.protocols.impl.channels.serial;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.io.BaudrateValue;
@@ -55,6 +56,8 @@ public class SioSerialConnectionProperties implements PersistentDomainExtension<
         }
     }
 
+    @SuppressWarnings("unused")
+    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
     @SuppressWarnings("unused")
     private Reference<ConnectionProvider> connectionProvider = Reference.empty();
     @SuppressWarnings("unused")

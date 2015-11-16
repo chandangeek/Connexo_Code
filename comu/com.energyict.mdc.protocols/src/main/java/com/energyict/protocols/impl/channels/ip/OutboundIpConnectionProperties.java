@@ -2,6 +2,7 @@ package com.energyict.protocols.impl.channels.ip;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
@@ -132,6 +133,8 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
     }
 
     @SuppressWarnings("unused")
+    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
+    @SuppressWarnings("unused")
     private Reference<ConnectionProvider> connectionProvider = Reference.empty();
     @SuppressWarnings("unused")
     private Interval interval;
@@ -149,6 +152,7 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
     private BigDecimal postDialDelayMillis;
     @DecimalMin(message = IpMessageSeeds.Keys.MUST_BE_POSITIVE, value = "0", inclusive = true, groups = {Save.Create.class, Save.Update.class})
     private BigDecimal postDialCommandAttempts;
+    @Size(max = Table.MAX_STRING_LENGTH)
     private String postDialCommand;
 
     @Override
