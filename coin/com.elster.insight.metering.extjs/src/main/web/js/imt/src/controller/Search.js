@@ -67,7 +67,7 @@ Ext.define('Imt.controller.Search', {
         });
 
         me.control({
-            'search-object-selector': {
+            'uni-view-search-overview search-object-selector': {
                 change: function (field, value) {
                     Uni.util.History.setParsePath(false);
                     router.getRoute('search').forward(null, Ext.apply(router.queryParams, {searchDomain: value}));
