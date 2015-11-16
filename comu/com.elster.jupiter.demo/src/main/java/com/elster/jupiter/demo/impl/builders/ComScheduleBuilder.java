@@ -45,18 +45,14 @@ public class ComScheduleBuilder extends NamedBuilder<ComSchedule, ComScheduleBui
     @Override
     public ComSchedule create(){
         Log.write(this);
-        Instant timeBefore = Instant.now().minusMillis(every.getMilliSeconds()).minus(1, ChronoUnit.DAYS);
-        com.energyict.mdc.scheduling.model.ComScheduleBuilder comScheduleBuilder = schedulingService.newComSchedule(getName(), new TemporalExpression(every), timeBefore);
+        LocalDateTime startOn = LocalDateTime.now();
+        startOn = startOn.withSecond(0).withMinute(0).withHour(0);
+        com.energyict.mdc.scheduling.model.ComScheduleBuilder comScheduleBuilder = schedulingService.newComSchedule(getName(), new TemporalExpression(every), startOn.toInstant(ZoneOffset.UTC));
         if (comTasks!= null){
             for (ComTask comTask : comTasks) {
                 comScheduleBuilder.addComTask(comTask);
             }
         }
-        ComSchedule comSchedule = comScheduleBuilder.build();
-        LocalDateTime startOn = LocalDateTime.now();
-        startOn = startOn.withSecond(0).withMinute(0).withHour(0);
-        comSchedule.setStartDate(startOn.toInstant(ZoneOffset.UTC));
-        comSchedule.update();
-        return comSchedule;
+        return comScheduleBuilder.build();
     }
 }

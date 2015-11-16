@@ -11,7 +11,6 @@ public class WebRTUNTASimultationToolPropertyPostBuilder implements Consumer<Dev
     public void accept(Device device) {
         device.setProtocolProperty("NTASimulationTool", true);
         device.setProtocolProperty("TimeZone", TimeZone.getTimeZone("Europe/Brussels"));
-        device.save();
     }
 
 }

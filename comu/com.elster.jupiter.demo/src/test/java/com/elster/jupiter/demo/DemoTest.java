@@ -56,6 +56,8 @@ import com.elster.jupiter.orm.impl.OrmServiceImpl;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
@@ -97,6 +99,7 @@ import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.DeviceServiceImpl;
+import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
 import com.energyict.mdc.device.data.importers.impl.attributes.connection.ConnectionAttributesImportFactory;
 import com.energyict.mdc.device.data.importers.impl.attributes.security.SecurityAttributesImportFactory;
@@ -295,6 +298,7 @@ public class DemoTest {
                 new NlsModule(),
                 new UserModule(),
                 new MeteringGroupsModule(),
+                new SearchModule(),
                 new KpiModule(),
                 new TaskModule(),
                 new com.elster.jupiter.issue.impl.module.IssueModule(),
@@ -349,7 +353,7 @@ public class DemoTest {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
 
         // Business method
-        demoService.createDemoData("DemoServ", "host", "2014-12-01");
+        demoService.createDemoData("DemoServ", "host", "2014-12-01", "2");
     }
 
     @Test
@@ -357,7 +361,7 @@ public class DemoTest {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
 
         // Business method
-        demoService.createDemoData("DemoServ", "host", "2014-12-01");
+        demoService.createDemoData("DemoServ", "host", "2014-12-01", "2");
         DeviceService deviceService = injector.getInstance(DeviceService.class);
         Optional<Device> spe010000010156 = deviceService.findByUniqueMrid("SPE010000010001");
         assertThat(spe010000010156.get().getDeviceProtocolProperties().getProperty("NTASimulationTool")).isEqualTo(true);
@@ -368,7 +372,7 @@ public class DemoTest {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
 
         // Business method
-        demoService.createDemoData("DemoServ", "host", "2014-12-01");
+        demoService.createDemoData("DemoServ", "host", "2014-12-01", "2");
 
         DeviceService deviceService = injector.getInstance(DeviceService.class);
         Optional<Device> spe010000010156 = deviceService.findByUniqueMrid("SPE010000010001");
@@ -630,8 +634,8 @@ public class DemoTest {
     @Test
     public void testExecuteCreateDemoDataTwice() {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
-            demoService.createDemoData("DemoServ", "host", "2014-12-01");
-            demoService.createDemoData("DemoServ", "host", "2014-12-01");
+            demoService.createDemoData("DemoServ", "host", "2014-12-01", "2");
+            demoService.createDemoData("DemoServ", "host", "2014-12-01", "2");
         // Calling the command 'createDemoData' twice shouldn't produce errors
     }
 
@@ -639,7 +643,7 @@ public class DemoTest {
     public void testStartDate() {
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
         try {
-            demoService.createDemoData("DemoServ", "host", "2020-12-01");
+            demoService.createDemoData("DemoServ", "host", "2020-12-01", "2");
         } catch (UnableToCreate e) {
             assertThat(e.getMessage()).contains("Incorrect start date parameter");
         }
@@ -652,7 +656,7 @@ public class DemoTest {
         DeviceLifeCycleConfigurationService  deviceLifeCycleConfigurationService = injector.getInstance(DeviceLifeCycleConfigurationService.class);
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
 
-        demoService.createDemoData("DemoServ", "host", "2015-01-01");
+        demoService.createDemoData("DemoServ", "host", "2015-01-01", "2");
         demoService.createDefaultDeviceLifeCycle("2015-01-01");
 
         Optional<DeviceLifeCycle> defaultDeviceLifeCycle = deviceLifeCycleConfigurationService.findDefaultDeviceLifeCycle();
@@ -675,7 +679,7 @@ public class DemoTest {
     public void testFirmwareManagementSetup(){
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
 
-        demoService.createDemoData("DemoServ", "host", "2015-01-01");
+        demoService.createDemoData("DemoServ", "host", "2015-01-01", "2");
 
         DeviceConfigurationService deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
         //All device types (except the excluded ones) shoud have 2 firmware versions
@@ -699,7 +703,7 @@ public class DemoTest {
         IssueCreationService issueCreationService = issueService.getIssueCreationService();
 
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
-        demoService.createDemoData("DemoServ", "host", "2015-01-01");
+        demoService.createDemoData("DemoServ", "host", "2015-01-01", "2");
 
         assertThat(issueCreationService.getCreationRuleQuery().select(Condition.TRUE)).hasSize(4);
     }
@@ -709,7 +713,7 @@ public class DemoTest {
 
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
 
-        demoService.createDemoData("DemoServ", "host", "2015-01-01");
+        demoService.createDemoData("DemoServ", "host", "2015-01-01", "2");
         demoService.createImporters();
 
         assertThat(fileImportService.getImportSchedules()).hasSize(9);
@@ -721,7 +725,7 @@ public class DemoTest {
 
         DemoServiceImpl demoService = injector.getInstance(DemoServiceImpl.class);
 
-        demoService.createDemoData("DemoServ", "host", "2015-01-01");
+        demoService.createDemoData("DemoServ", "host", "2015-01-01", "2");
         demoService.createDemoUser("MyDemoUser");
 
         Optional<Group> group = userService.getGroup("Demo Users");
@@ -749,6 +753,7 @@ public class DemoTest {
             createRequiredProtocols();
             createDefaultStuff();
             injector.getInstance(DemoServiceImpl.class);
+            prepareSearchDomain();
             ctx.commit();
         }
         tuneDeviceCountForSpeedTest();
@@ -854,4 +859,9 @@ public class DemoTest {
         }
     }
 
+    private void prepareSearchDomain() {
+        SearchService searchService = injector.getInstance(SearchService.class);
+        DeviceSearchDomain deviceSearchDomain = injector.getInstance(DeviceSearchDomain.class);
+        searchService.register(deviceSearchDomain);
+    }
 }
