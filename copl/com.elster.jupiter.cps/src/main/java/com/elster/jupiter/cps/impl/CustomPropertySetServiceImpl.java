@@ -40,13 +40,13 @@ import javax.validation.MessageInterpolator;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -240,19 +240,40 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     @Override
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addCustomPropertySet(CustomPropertySet customPropertySet) {
-        this.addCustomPropertySet(customPropertySet, false);
+        this.addCustomPropertySet(customPropertySet, false, false);
     }
 
     @Override
     public void addSystemCustomPropertySet(CustomPropertySet customPropertySet) {
-        this.addCustomPropertySet(customPropertySet, true);
+        this.addSystemCustomPropertySetIfNotAlreadyActive(customPropertySet);
     }
 
-    private void addCustomPropertySet(CustomPropertySet customPropertySet, boolean systemDefined) {
+    private void addSystemCustomPropertySetIfNotAlreadyActive(CustomPropertySet customPropertySet) {
+        if (!this.isActive(customPropertySet)) {
+            this.addCustomPropertySet(customPropertySet, true, true);
+        }
+    }
+
+    private boolean isActive(CustomPropertySet customPropertySet) {
+        return this.activePropertySets
+                    .stream()
+                    .anyMatch(this.equalCustomPropertySetIdPredicate(customPropertySet));
+    }
+
+    private Predicate<ActiveCustomPropertySet> equalCustomPropertySetIdPredicate(CustomPropertySet customPropertySet) {
+        return each -> each.getCustomPropertySet().getId().equals(customPropertySet.getId());
+    }
+
+    private void addCustomPropertySet(CustomPropertySet customPropertySet, boolean systemDefined, boolean inTransaction) {
         if (this.installed) {
-            try (TransactionContext ctx = transactionService.getContext()) {
+            if (!inTransaction) {
+                try (TransactionContext ctx = transactionService.getContext()) {
+                    this.registerCustomPropertySet(customPropertySet, systemDefined);
+                    ctx.commit();
+                }
+            }
+            else {
                 this.registerCustomPropertySet(customPropertySet, systemDefined);
-                ctx.commit();
             }
         }
         else {
@@ -296,13 +317,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
     @Override
     public void removeCustomPropertySet(CustomPropertySet customPropertySet) {
-        Iterator<ActiveCustomPropertySet> iterator = this.activePropertySets.iterator();
-        while (iterator.hasNext()) {
-            ActiveCustomPropertySet activeCustomPropertySet = iterator.next();
-            if (activeCustomPropertySet.getCustomPropertySet().getId().equals(customPropertySet.getId())) {
-                iterator.remove();
-            }
-        }
+        this.activePropertySets.removeIf(this.equalCustomPropertySetIdPredicate(customPropertySet));
     }
 
     @Override
@@ -427,7 +442,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     private <D, T extends PersistentDomainExtension<D>> ActiveCustomPropertySet findActiveCustomPropertySetOrThrowException(CustomPropertySet<D, T> customPropertySet) {
         return this.activePropertySets
                 .stream()
-                .filter(activeSet -> activeSet.getCustomPropertySet().getId().equals(customPropertySet.getId()))
+                .filter(this.equalCustomPropertySetIdPredicate(customPropertySet))
                 .findAny()
                 .orElseThrow(() -> new IllegalArgumentException("Custom property set " + customPropertySet.getId() + " is not active or not active any longer"));
     }

@@ -20,20 +20,22 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.ResourceDefinition;
+import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Interval;
 
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.*;
+import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -82,6 +84,8 @@ public class CustomPropertySetServiceImplTest {
     private DataModel versionedCustomPropertySetDataModel;
     @Mock
     private NlsService nlsService;
+    @Mock
+    private UserService userService;
     @Mock
     private Thesaurus thesaurus;
     @Mock
@@ -615,10 +619,112 @@ public class CustomPropertySetServiceImplTest {
                         VersionedDomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName());
     }
 
+    @Test
+    public void findCustomPropertySetAfterAdd() {
+        when(this.serviceDataModel.isInstalled()).thenReturn(true);
+        CustomPropertySetServiceImpl service = this.testInstance();
+        // Avoid creating the RegisteredCustomPropertySet
+        when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
+        DataMapper implMapper = this.registeredCustomPropertySetMapper;
+        when(this.serviceDataModel.mapper(RegisteredCustomPropertySetImpl.class)).thenReturn(implMapper);
+        when(this.registeredCustomPropertySetMapper
+                .getUnique(
+                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
+                        anyString()))
+                .thenReturn(Optional.of(this.registeredCustomPropertySet));
+        service.addCustomPropertySet(this.versionedCustomPropertySet);
+
+        // Business method
+        Optional<CustomPropertySet> expectedPresent = service.findRegisteredCustomPropertySet(this.versionedCustomPropertySet.getId());
+
+        // Asserts
+        assertThat(expectedPresent).isPresent();
+    }
+
+    @Test
+    public void cannotFindCustomPropertySetAfterRemoval() {
+        when(this.serviceDataModel.isInstalled()).thenReturn(true);
+        CustomPropertySetServiceImpl service = this.testInstance();
+        // Avoid creating the RegisteredCustomPropertySet
+        when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
+        DataMapper implMapper = this.registeredCustomPropertySetMapper;
+        when(this.serviceDataModel.mapper(RegisteredCustomPropertySetImpl.class)).thenReturn(implMapper);
+        when(this.registeredCustomPropertySetMapper
+                .getUnique(
+                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
+                        anyString()))
+                .thenReturn(Optional.of(this.registeredCustomPropertySet));
+        service.addCustomPropertySet(this.versionedCustomPropertySet);
+
+        // Business method
+        service.removeCustomPropertySet(this.versionedCustomPropertySet);
+
+        // Asserts
+        Optional<CustomPropertySet> expectedEmpty = service.findRegisteredCustomPropertySet(this.versionedCustomPropertySet.getId());
+        assertThat(expectedEmpty).isEmpty();
+    }
+
+    @Test
+    public void findSystemCustomPropertySetAfterAdd() {
+        when(this.serviceDataModel.isInstalled()).thenReturn(true);
+        CustomPropertySetServiceImpl service = this.testInstance();
+        // Avoid creating the RegisteredCustomPropertySet
+        when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
+        DataMapper implMapper = this.registeredCustomPropertySetMapper;
+        when(this.serviceDataModel.mapper(RegisteredCustomPropertySetImpl.class)).thenReturn(implMapper);
+        when(this.registeredCustomPropertySetMapper
+                .getUnique(
+                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
+                        anyString()))
+                .thenReturn(Optional.of(this.registeredCustomPropertySet));
+        service.addSystemCustomPropertySet(this.versionedCustomPropertySet);
+
+        // Business method
+        Optional<CustomPropertySet> expectedPresent = service.findRegisteredCustomPropertySet(this.versionedCustomPropertySet.getId());
+
+        // Asserts
+        assertThat(expectedPresent).isPresent();
+    }
+
+    @Test
+    public void cannotFindSystemCustomPropertySetAfterRemoval() {
+        when(this.serviceDataModel.isInstalled()).thenReturn(true);
+        CustomPropertySetServiceImpl service = this.testInstance();
+        // Avoid creating the RegisteredCustomPropertySet
+        when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
+        DataMapper implMapper = this.registeredCustomPropertySetMapper;
+        when(this.serviceDataModel.mapper(RegisteredCustomPropertySetImpl.class)).thenReturn(implMapper);
+        when(this.registeredCustomPropertySetMapper
+                .getUnique(
+                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
+                        anyString()))
+                .thenReturn(Optional.of(this.registeredCustomPropertySet));
+        service.addSystemCustomPropertySet(this.versionedCustomPropertySet);
+
+        // Business method
+        service.removeSystemCustomPropertySet(this.versionedCustomPropertySet);
+
+        // Asserts
+        Optional<CustomPropertySet> expectedEmpty = service.findRegisteredCustomPropertySet(this.versionedCustomPropertySet.getId());
+        assertThat(expectedEmpty).isEmpty();
+    }
+
+    @Test
+    public void getModuleResourcesDoesNotReturnNull() {
+        CustomPropertySetServiceImpl service = this.testInstance();
+
+        // Business method
+        List<ResourceDefinition> moduleResources = service.getModuleResources();
+
+        // Asserts
+        assertThat(moduleResources).isNotNull();
+    }
+
     private CustomPropertySetServiceImpl testInstance() {
         CustomPropertySetServiceImpl testInstance = new CustomPropertySetServiceImpl();
         testInstance.setOrmService(this.ormService, false);
         testInstance.setNlsService(this.nlsService);
+        testInstance.setUserService(this.userService);
         testInstance.setTransactionService(this.transactionService);
         testInstance.activate();
         return testInstance;

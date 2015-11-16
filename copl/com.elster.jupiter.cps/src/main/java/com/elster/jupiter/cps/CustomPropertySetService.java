@@ -42,6 +42,7 @@ public interface CustomPropertySetService {
      * Note that system defined CustomPropertySets cannot be edited
      * by the administrator so the component that registers the component
      * will also have to set the view and edit privileges.
+     * The latter also implies that you are responsible for the transaction management.
      *
      * @param customPropertySet The CustomPropertySet
      */

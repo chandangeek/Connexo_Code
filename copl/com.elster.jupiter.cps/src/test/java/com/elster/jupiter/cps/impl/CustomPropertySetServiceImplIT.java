@@ -27,6 +27,7 @@ import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.beans.impl.BeanServiceImpl;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.json.impl.JsonServiceImpl;
+
 import com.google.common.base.Strings;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
@@ -247,7 +248,10 @@ public class CustomPropertySetServiceImplIT {
         List<? extends DataModel> dataModelsBeforeAdd = ormService.getDataModels();
 
         // Business method
-        this.testInstance.addSystemCustomPropertySet(new CustomPropertySetForTestingPurposes(propertySpecService));
+        try (TransactionContext ctx = transactionService.getContext()) {
+            this.testInstance.addSystemCustomPropertySet(new CustomPropertySetForTestingPurposes(propertySpecService));
+            ctx.commit();
+        }
 
         // Asserts
         List<? extends DataModel> dataModelsAfterAdd = ormService.getDataModels();
@@ -260,8 +264,9 @@ public class CustomPropertySetServiceImplIT {
         OrmService ormService = injector.getInstance(OrmService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             TestDomain.install(ormService);
+            this.testInstance.addSystemCustomPropertySet(new CustomPropertySetForTestingPurposes(propertySpecService));
+            ctx.commit();
         }
-        this.testInstance.addSystemCustomPropertySet(new CustomPropertySetForTestingPurposes(propertySpecService));
 
         // Business method
         List<RegisteredCustomPropertySet> activeCustomPropertySets = this.testInstance.findActiveCustomPropertySets();
@@ -276,8 +281,9 @@ public class CustomPropertySetServiceImplIT {
         OrmService ormService = injector.getInstance(OrmService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             TestDomain.install(ormService);
+            this.testInstance.addSystemCustomPropertySet(new CustomPropertySetForTestingPurposes(propertySpecService));
+            ctx.commit();
         }
-        this.testInstance.addSystemCustomPropertySet(new CustomPropertySetForTestingPurposes(propertySpecService));
 
         // Business method
         List<RegisteredCustomPropertySet> activeCustomPropertySets = this.testInstance.findActiveCustomPropertySets(TestDomain.class);
@@ -290,11 +296,13 @@ public class CustomPropertySetServiceImplIT {
     public void systemDefinedCustomPropertySetIstReturnedByFindById() {
         PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
         OrmService ormService = injector.getInstance(OrmService.class);
+        CustomPropertySetForTestingPurposes customPropertySet;
         try (TransactionContext ctx = transactionService.getContext()) {
             TestDomain.install(ormService);
+            customPropertySet = new CustomPropertySetForTestingPurposes(propertySpecService);
+            this.testInstance.addSystemCustomPropertySet(customPropertySet);
+            ctx.commit();
         }
-        CustomPropertySetForTestingPurposes customPropertySet = new CustomPropertySetForTestingPurposes(propertySpecService);
-        this.testInstance.addSystemCustomPropertySet(customPropertySet);
 
         // Business method
         Optional<RegisteredCustomPropertySet> activeCustomPropertySet = this.testInstance.findActiveCustomPropertySet(customPropertySet.getId());
