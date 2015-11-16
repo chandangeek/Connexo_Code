@@ -130,7 +130,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     private volatile SecurityPropertyService securityPropertyService;
     private volatile QueryService queryService;
     private volatile MeteringGroupsService meteringGroupsService;
-    private volatile TaskService mdcTaskService;
     private volatile MasterDataService masterDataService;
 
     private ServerConnectionTaskService connectionTaskService;
@@ -159,8 +158,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
                                       RelationService relationService, ProtocolPluggableService protocolPluggableService,
                                       EngineConfigurationService engineConfigurationService, DeviceConfigurationService deviceConfigurationService,
                                       MeteringService meteringService, ValidationService validationService, EstimationService estimationService,
-                                      SchedulingService schedulingService, TaskService mdcTaskaskService,
-                                      MessageService messageService,
+                                      SchedulingService schedulingService, MessageService messageService,
                                       SecurityPropertyService securityPropertyService, UserService userService, DeviceMessageSpecificationService deviceMessageSpecificationService, MeteringGroupsService meteringGroupsService,
                                       QueryService queryService, TaskService mdcTaskService, MasterDataService masterDataService) {
         this();
@@ -181,14 +179,13 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.setValidationService(validationService);
         this.setEstimationService(estimationService);
         this.setSchedulingService(schedulingService);
-        this.setMdcTaskService(mdcTaskaskService);
+        this.setMdcTaskService(mdcTaskService);
         this.setMessagingService(messageService);
         this.setSecurityPropertyService(securityPropertyService);
         this.setUserService(userService);
         this.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         this.setMeteringGroupsService(meteringGroupsService);
         this.setQueryService(queryService);
-        this.setMdcTaskService(mdcTaskService);
         this.setMasterDataService(masterDataService);
         this.activate(bundleContext);
         if (!this.dataModel.isInstalled()) {
@@ -427,11 +424,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
     }
 
     @Reference
-    public void setMdcTaskService(TaskService taskService) {
-        this.mdcTaskService = taskService;
-    }
-
-    @Reference
     public void setMasterDataService(MasterDataService masterDataService) {
         this.masterDataService = masterDataService;
     }
@@ -496,7 +488,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Refer
         this.connectionTaskReportService = new ConnectionTaskReportServiceImpl(this, meteringService);
         this.communicationTaskService = new CommunicationTaskServiceImpl(this, meteringService);
         this.communicationTaskReportService = new CommunicationTaskReportServiceImpl(this, meteringService);
-        this.deviceService = new DeviceServiceImpl(this, protocolPluggableService, queryService, thesaurus, meteringGroupsService);
+        this.deviceService = new DeviceServiceImpl(this, protocolPluggableService, queryService, thesaurus, meteringGroupsService, meteringService);
         this.loadProfileService = new LoadProfileServiceImpl(this);
         this.logBookService = new LogBookServiceImpl(this);
         this.dataCollectionKpiService = new DataCollectionKpiServiceImpl(this);

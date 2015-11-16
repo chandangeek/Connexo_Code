@@ -7,6 +7,7 @@ import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
+import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
@@ -32,11 +33,23 @@ import com.energyict.mdc.tasks.ComTask;
 
 import com.elster.jupiter.util.conditions.Condition;
 import com.google.common.collect.BoundType;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -311,8 +324,7 @@ public class CommunicationTaskServiceImplOracleSpecificIT {
                     .setMRID("dynamic")
                     .setSearchDomain(oracleIntegrationPersistence.getDeviceSearchDomain())
                     .setQueryProviderName(DeviceEndDeviceQueryProvider.DEVICE_ENDDEVICE_QUERYPROVIDER)
-                    .withConditions(buildSearchablePropertyCondition("deviceType", Sea
-                            rchablePropertyOperator.EQUAL, Collections.singletonList("1")))
+                    .withConditions(buildSearchablePropertyCondition("deviceType", SearchablePropertyOperator.EQUAL, Collections.singletonList("1")))
                     .create();
             return queryEndDeviceGroup;
         }

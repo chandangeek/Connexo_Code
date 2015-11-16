@@ -157,8 +157,7 @@ abstract class AbstractBreakdownSqlExecutor {
         sqlBuilder.append(this.deviceContainerAliasName());
         sqlBuilder.append(".device in (");
         if (deviceGroup instanceof QueryEndDeviceGroup) {
-            QueryExecutor<Device> queryExecutor = this.deviceFromDeviceGroupQueryExecutor();
-            fragment = queryExecutor.asFragment(((QueryEndDeviceGroup) deviceGroup).getCondition(), "id");
+            fragment = ((QueryEndDeviceGroup) deviceGroup).toFragment();
         }
         else {
             fragment = ((EnumeratedEndDeviceGroup) deviceGroup).getAmrIdSubQuery(this.amrSystem.get()).toFragment();

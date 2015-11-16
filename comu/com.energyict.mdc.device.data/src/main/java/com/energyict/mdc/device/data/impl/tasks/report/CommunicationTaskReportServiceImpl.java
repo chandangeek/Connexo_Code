@@ -370,8 +370,7 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
         if (deviceGroup != null) {
             sqlBuilder.append(" and cte.device in (");
             if (deviceGroup instanceof QueryEndDeviceGroup) {
-                QueryExecutor<Device> queryExecutor = this.deviceFromDeviceGroupQueryExecutor();
-                sqlBuilder.add(queryExecutor.asFragment(((QueryEndDeviceGroup)deviceGroup).getCondition(), "id"));
+                sqlBuilder.add(((QueryEndDeviceGroup)deviceGroup).toFragment());
             } else {
                 sqlBuilder.add(((EnumeratedEndDeviceGroup) deviceGroup).getAmrIdSubQuery(getMdcAmrSystem().get()).toFragment());
             }
