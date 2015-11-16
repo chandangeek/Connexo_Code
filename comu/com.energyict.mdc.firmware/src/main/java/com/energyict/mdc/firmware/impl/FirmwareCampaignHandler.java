@@ -7,6 +7,7 @@ import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.orm.OptimisticLockException;
 import com.elster.jupiter.util.UpdatableHolder;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
@@ -17,12 +18,9 @@ import org.osgi.service.event.EventConstants;
 
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -57,21 +55,21 @@ public class FirmwareCampaignHandler implements MessageHandler {
                 if (firmwareCampaign.isPresent()) {
                     Optional<EndDeviceGroup> deviceGroupRef = context.getMeteringGroupsService().findEndDeviceGroup(deviceGroupId);
                     if (deviceGroupRef.isPresent()) {
-                        Stream<Device> devices = null;
+                        Stream<Device> devices;
                         EndDeviceGroup deviceGroup = deviceGroupRef.get();
                         if (deviceGroup instanceof QueryEndDeviceGroup) {
-                            Condition deviceQuery = ((QueryEndDeviceGroup) deviceGroup).getCondition();
-                            deviceQuery = deviceQuery.and(where("deviceConfiguration.deviceType").isEqualTo(firmwareCampaign.get().getDeviceType()));
-                            devices = context.getDeviceService().findAllDevices(deviceQuery).stream();
+                            Condition deviceCondition = ListOperator.IN.contains(((QueryEndDeviceGroup)deviceGroup)::toFragment, "id");
+                            Condition deviceTypeCondition = where("deviceConfiguration.deviceType").isEqualTo(firmwareCampaign.get().getDeviceType());
+                            devices = context.getDeviceService().findAllDevices(deviceCondition.and(deviceTypeCondition)).stream();
                         } else {
                             devices = deviceGroup.getMembers(context.getClock().instant())
                                     .stream()
                                     .map(endDevice -> context.getDeviceService().findDeviceById(Long.parseLong(endDevice.getAmrId())))
                                     .filter(Optional::isPresent)
                                     .map(Optional::get)
-                                    .filter(device -> device.getDeviceConfiguration().getDeviceType().getId() == firmwareCampaign.get().getDeviceType().getId())
-                                    .filter(filterDevicesByAllowedStates());
+                                    .filter(device -> device.getDeviceConfiguration().getDeviceType().getId() == firmwareCampaign.get().getDeviceType().getId());
                         }
+                        devices = devices.filter(filterDevicesByAllowedStates());
                         UpdatableHolder<Boolean> hasDevices = new UpdatableHolder<>(false);
                         devices.forEach( device -> {
                             // Just a managed bean wrapper, no actual creation
