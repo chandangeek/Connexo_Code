@@ -164,7 +164,7 @@ public class TimeDuration implements Comparable<TimeDuration>, Serializable {
             return Arrays.stream(TimeUnit.values())
                     .filter(t -> t.code == timeUnitCode)
                     .findFirst()
-                    .orElseThrow(IllegalArgumentException::new);
+                    .orElseThrow(() -> new IllegalArgumentException(String.valueOf(timeUnitCode) + " is not a supported time unit code"));
         }
 
         public static TimeUnit forDescription(String description) {
