@@ -35,10 +35,6 @@ public interface DashboardService {
 
     DeviceTypeBreakdown getConnectionTasksDeviceTypeBreakdown(EndDeviceGroup deviceGroup);
 
-    ConnectionTaskOverview getConnectionTaskOverview();
-
-    ConnectionTaskOverview getConnectionTaskOverview(EndDeviceGroup deviceGroup);
-
     ConnectionTypeHeatMap getConnectionTypeHeatMap();
 
     ConnectionTypeHeatMap getConnectionTypeHeatMap(EndDeviceGroup EndDeviceGroup);
@@ -78,5 +74,9 @@ public interface DashboardService {
     CommunicationTaskOverview getCommunicationTaskOverview();
 
     CommunicationTaskOverview getCommunicationTaskOverview(EndDeviceGroup deviceGroup);
+
+    ConnectionTaskOverview getConnectionTaskOverview();
+
+    ConnectionTaskOverview getConnectionTaskOverview(EndDeviceGroup deviceGroup);
 
 }
