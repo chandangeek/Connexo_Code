@@ -27,6 +27,8 @@ import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchDomain;
+import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
 import com.elster.jupiter.time.impl.TimeModule;
@@ -37,9 +39,6 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.impl.UserModule;
 import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -82,7 +81,6 @@ import org.osgi.service.log.LogService;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -113,33 +111,6 @@ public class FavoritesServiceImplTest {
 
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
-
-    public static final MessageSeed LABEL_CATEGORY = new MessageSeed() {
-        @Override
-        public String getModule() {
-            return FavoritesService.COMPONENTNAME;
-        }
-
-        @Override
-        public int getNumber() {
-            return 0;
-        }
-
-        @Override
-        public String getKey() {
-            return "label.category.favorites";
-        }
-
-        @Override
-        public String getDefaultFormat() {
-            return "Favorites";
-        }
-
-        @Override
-        public Level getLevel() {
-            return Level.INFO;
-        }
-    };
 
     private class MockModule extends AbstractModule {
 
@@ -172,6 +143,7 @@ public class FavoritesServiceImplTest {
                 new IdsModule(),
                 new MeteringModule(),
                 new MeteringGroupsModule(),
+                new SearchModule(),
                 new InMemoryMessagingModule(),
                 new OrmModule(),
                 new DataVaultModule(),
@@ -213,10 +185,18 @@ public class FavoritesServiceImplTest {
             user = userService.createUser("user", "user descr");
             user1 = userService.createUser("user1", "user1 descr");
 
-            endDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup(Condition.TRUE)
+            SearchDomain searchDomain = mock(SearchDomain.class);
+            when(searchDomain.getId()).thenReturn(Device.class.getName());
+            endDeviceGroup = meteringGroupsService.createQueryEndDeviceGroup()
+                    .setName("QEDG")
+                    .setSearchDomain(searchDomain)
+                    .setQueryProviderName("QueryProviderName")
                     .create();
 
-            endDeviceGroup1 = meteringGroupsService.createQueryEndDeviceGroup(Where.where("MRID").isEqualTo("ZABF0000100001"))
+            endDeviceGroup1 = meteringGroupsService.createQueryEndDeviceGroup()
+                    .setName("QEDG1")
+                    .setSearchDomain(searchDomain)
+                    .setQueryProviderName("QueryProviderName")
                     .create();
 
             DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
@@ -426,5 +406,4 @@ public class FavoritesServiceImplTest {
     private TransactionService getTransactionService() {
         return injector.getInstance(TransactionService.class);
     }
-
 }

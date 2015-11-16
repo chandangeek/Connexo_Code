@@ -254,7 +254,11 @@
             <artifactId>cps</artifactId>
             <scope>test</scope>
         </dependency>
-
+        <dependency>
+          <groupId>com.elster.jupiter</groupId>
+          <artifactId>search</artifactId>
+          <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
