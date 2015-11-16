@@ -7,6 +7,7 @@ import com.elster.jupiter.util.sql.SqlFragment;
 
 import java.util.List;
 
+
 public interface QueryEndDeviceGroup extends EndDeviceGroup {
 
     String TYPE_IDENTIFIER = "QEG";
