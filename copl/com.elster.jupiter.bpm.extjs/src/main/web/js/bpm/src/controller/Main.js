@@ -5,20 +5,14 @@ Ext.define('Bpm.controller.Main', {
         'Ext.window.Window',
         'Uni.controller.Navigation',
         'Uni.store.MenuItems',
-        'Bpm.controller.Task',
-        'Bpm.controller.Process',
+        'Bpm.controller.Task',       
         'Bpm.controller.history.BpmManagement',
         'Bpm.privileges.BpmManagement'
     ],
 
     controllers: [
         'Bpm.controller.history.BpmManagement',
-        'Bpm.controller.Task',
-        'Bpm.controller.Process'
-    ],
-
-    stores: [
-        'Bpm.store.process.Processes'
+        'Bpm.controller.Task'
     ],
 
     refs: [
@@ -37,7 +31,6 @@ Ext.define('Bpm.controller.Main', {
             historian = me.getController('Bpm.controller.history.BpmManagement'); // Forces route registration.
 
         me.addTaskManagement();
-        me.addProcessManagement();
     },
 
     addTaskManagement: function () {
@@ -58,27 +51,27 @@ Ext.define('Bpm.controller.Main', {
             dataCollection = Ext.create('Uni.model.PortalItem', {
                 title: Uni.I18n.translate('general.taskManagement', 'BPM', 'Task management'),
                 portal: 'workspace',
-                route: 'taksmanagement',
+                route: 'taskmanagement',
                 items: [
                     {
-                        text: Uni.I18n.translate('general.taksmanagement.tasks', 'BPM', 'Tasks'),
+                        text: Uni.I18n.translate('general.taskmanagement.tasks', 'BPM', 'Tasks'),
                         itemId: 'tasks',
-                        href: router.getRoute('workspace/taksmanagementtasks').buildUrl({}, {param: 'noFilter'})
+                        href: router.getRoute('workspace/tasks').buildUrl({}, {param: 'noFilter'})
                     },
                     {
-                        text: Uni.I18n.translate('general.taksmanagement.myopentasks', 'BPM', 'My open tasks'),
+                        text: Uni.I18n.translate('general.taskmanagement.myopentasks', 'BPM', 'My open tasks'),
                         itemId: 'my-open-tasks',
-                        href: router.getRoute('workspace/taksmanagementtasks').buildUrl({}, {param: 'myopentasks'})
+                        href: router.getRoute('workspace/tasks').buildUrl({}, {param: 'myopentasks'})
                     },
                     {
-                        text: Uni.I18n.translate('general.taksmanagement.unassignedtask', 'BPM', 'Unassigned tasks'),
+                        text: Uni.I18n.translate('general.taskmanagement.unassignedtask', 'BPM', 'Unassigned tasks'),
                         itemId: 'unassigned-tasks',
-                        href: router.getRoute('workspace/taksmanagementtasks').buildUrl({}, {param: 'unassign'})
+                        href: router.getRoute('workspace/tasks').buildUrl({}, {param: 'unassign'})
                     },
                     {
-                        text: Uni.I18n.translate('general.taksmanagement.overduetasks', 'BPM', 'Overdue tasks'),
+                        text: Uni.I18n.translate('general.taskmanagement.overduetasks', 'BPM', 'Overdue tasks'),
                         itemId: 'overdue-tasks',
-                        href: router.getRoute('workspace/taksmanagementtasks').buildUrl({}, {param: 'dueDate'})
+                        href: router.getRoute('workspace/tasks').buildUrl({}, {param: 'dueDate'})
                     }
                 ]
             });
@@ -88,40 +81,7 @@ Ext.define('Bpm.controller.Main', {
             Uni.store.PortalItems.add(dataCollection);
         }
     },
-    addProcessManagement: function () {
-        var me = this,
-            router = me.getController('Uni.controller.history.Router'),
-            dataCollection = null;
-
-        if (Bpm.privileges.BpmManagement.canViewProcesses()) {
-            Uni.store.MenuItems.add(Ext.create('Uni.model.MenuItem', {
-                text: Uni.I18n.translate('general.administration', 'BPM', 'Administration'),
-                glyph: 'settings',
-                portal: 'administration',
-                index: 30
-            }));
-        }
-
-        if (Bpm.privileges.BpmManagement.canViewProcesses()) {
-            dataCollection = Ext.create('Uni.model.PortalItem', {
-                title: Uni.I18n.translate('general.processManagement', 'BPM', 'Process management'),
-                portal: 'administration',
-                route: 'managementprocesses',
-                items: [
-                    {
-                        text: Uni.I18n.translate('general.managementprocesses.processes', 'BPM', 'Processes'),
-                        itemId: 'processes',
-                        href: router.getRoute('administration/managementprocesses').buildUrl()
-                    }
-                ]
-            });
-        }
-
-        if (dataCollection !== null) {
-            Uni.store.PortalItems.add(dataCollection);
-        }
-    },
-
+    
     initNavigtaion: function () {
         var controller = this.getController('Uni.controller.Navigation');
         this.setNavigationController(controller);

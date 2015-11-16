@@ -8,7 +8,7 @@ Ext.define('Bpm.view.task.OpenTask', {
         'Uni.property.form.GroupedPropertyForm'
     ],
     taskRecord: null,
-    edit: false,
+    showNavigation: true,
     router: null,
     itemNameLink: '',
     initComponent: function () {
@@ -30,6 +30,7 @@ Ext.define('Bpm.view.task.OpenTask', {
                         router: me.router,
                         routerIdArgument: 'taskId',
                         itemsName: me.itemNameLink,
+                        hidden: me.showNavigation == 'false'
                     }
                 ]
             },
@@ -50,6 +51,7 @@ Ext.define('Bpm.view.task.OpenTask', {
                             type: 'column',
                             align: 'stretch'
                         },
+                        privileges: Bpm.privileges.BpmManagement.assign,
                         items: [
                             {
                                 xtype: 'container',
@@ -67,7 +69,6 @@ Ext.define('Bpm.view.task.OpenTask', {
                                             type: 'hbox',
                                             align: 'left'
                                         },
-                                        privileges: Bpm.privileges.BpmManagement.assign,
                                         items: [
                                             {
                                                 xtype: 'combobox',
@@ -142,7 +143,10 @@ Ext.define('Bpm.view.task.OpenTask', {
                                                         width: 330,
                                                         fieldLabel: Uni.I18n.translate('task.task.edit.priority', 'BPM', 'Priority'),
                                                         labelWidth: 250,
-                                                        allowBlank: false
+                                                        allowBlank: false,
+                                                        listeners: {
+                                                            blur: me.fieldValidation
+                                                        }
                                                     },
                                                     {
                                                         xtype: 'label',
@@ -209,6 +213,7 @@ Ext.define('Bpm.view.task.OpenTask', {
                             type: 'vbox',
                             align: 'stretch'
                         },
+                        privileges: Bpm.privileges.BpmManagement.execute,
                         itemId: 'task-execution-form',
                         items: [
                             {
@@ -239,15 +244,6 @@ Ext.define('Bpm.view.task.OpenTask', {
                                                 taskRecord: me.taskRecord
                                             },
                                             {
-                                                text: Uni.I18n.translate('task.action.release', 'BPM', 'Release'),
-                                                xtype: 'button',
-                                                hidden: true,
-                                                ui: 'action',
-                                                itemId: 'btn-release',
-                                                action: 'releaseTask',
-                                                taskRecord: me.taskRecord
-                                            },
-                                            {
                                                 text: Uni.I18n.translate('task.action', 'BPM', 'Start'),
                                                 xtype: 'button',
                                                 hidden: true,
@@ -275,6 +271,14 @@ Ext.define('Bpm.view.task.OpenTask', {
             }
         ]
         me.callParent(arguments);
+    },
+    fieldValidation: function (field) {
+        var value = field.getValue();
+
+        if (Ext.isEmpty(value) || value < field.minValue || value > field.maxValue) {
+            field.setValue(field.minValue);
+        }
     }
+
 });
 

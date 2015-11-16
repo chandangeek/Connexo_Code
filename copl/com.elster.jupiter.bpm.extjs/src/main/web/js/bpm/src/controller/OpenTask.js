@@ -53,10 +53,6 @@ Ext.define('Bpm.controller.OpenTask', {
             selector: 'bpm-task-open-task #task-execution-form'
         },
         {
-            ref: 'btnRelease',
-            selector: 'bpm-task-open-task #btn-release'
-        },
-        {
             ref: 'btnStart',
             selector: 'bpm-task-open-task #btn-start'
         },
@@ -78,9 +74,6 @@ Ext.define('Bpm.controller.OpenTask', {
             'bpm-task-open-task #btn-task-save': {
                 click: this.saveTask
             },
-            'bpm-task-open-task #btn-release': {
-                click: this.chooseAction
-            },
             'bpm-task-open-task #btn-start': {
                 click: this.chooseAction
             },
@@ -101,7 +94,7 @@ Ext.define('Bpm.controller.OpenTask', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             queryString = Uni.util.QueryString.getQueryStringValues(false),
-            tasksRoute = router.getRoute('workspace/taksmanagementtasks'),
+            tasksRoute = router.getRoute('workspace/tasks'),
             openTaskView, topTitle, taskRecord, queryParams = {};
 
         sort = router.arguments.sort;
@@ -110,7 +103,7 @@ Ext.define('Bpm.controller.OpenTask', {
         taskStatus = router.arguments.status;
         process = router.arguments.process;
 
-        var tasksRoute = router.getRoute('workspace/taksmanagementtasks');
+        var tasksRoute = router.getRoute('workspace/tasks');
         tasksRoute.params.sort = tasksRoute.params.user = tasksRoute.params.dueDate = tasksRoute.params.status =
             tasksRoute.params.process = undefined;
         tasksRoute.params.use = true;
@@ -128,7 +121,8 @@ Ext.define('Bpm.controller.OpenTask', {
                 openTaskView = Ext.create('Bpm.view.task.OpenTask', {
                     itemNameLink: '<a href="' + tasksRoute.buildUrl({}, queryParams) + '">' + Uni.I18n.translate('bpm.task.tasksName', 'BPM', 'tasks') + '</a>',
                     router: me.getController('Uni.controller.history.Router'),
-                    taskRecord: taskRecord
+                    taskRecord: taskRecord,
+                    showNavigation: queryString.showNavigation
                 });
 
                 openTaskView.taskRecord = taskRecord;
@@ -152,9 +146,6 @@ Ext.define('Bpm.controller.OpenTask', {
         var me = this,
             assigneeForm = me.getAssigneeUserForm();
 
-        if (!assigneeForm) {
-            return;
-        }
         var assigneeCombo = assigneeForm.down('#cbo-assignee-user');
         assigneeCombo.store.load({
             callback: function (records, operation, success) {
@@ -208,6 +199,8 @@ Ext.define('Bpm.controller.OpenTask', {
             taskEdit = Ext.create('Bpm.model.task.TaskEdit'),
             editTaskForm = me.getEditTaskForm();
 
+        me.loadJbpmForm(taskRecord);
+
         editTaskForm.setLoading();
         editTaskForm.updateRecord(taskRecord);
         taskEdit.getProxy().extraParams = {
@@ -219,6 +212,8 @@ Ext.define('Bpm.controller.OpenTask', {
         taskEdit.save({
             success: function () {
                 editTaskForm.setLoading(false);
+
+                me.loadJbpmForm(taskRecord);
             },
             failure: function (record, operation) {
                 editTaskForm.setLoading(false);
@@ -230,7 +225,9 @@ Ext.define('Bpm.controller.OpenTask', {
         var me = this,
             aboutTaskForm = me.getAboutTaskForm();
 
+        aboutTaskForm.setLoading();
         aboutTaskForm && aboutTaskForm.loadRecord(taskRecord);
+        aboutTaskForm.setLoading(false);
     },
 
     updatePriority: function (control, newValue, oldValue) {
@@ -283,7 +280,6 @@ Ext.define('Bpm.controller.OpenTask', {
         var me = this,
             status = taskRecord.get('status');
 
-        me.getBtnRelease().setVisible((status == "Reserved") || (status == "InProgress"));
         me.getBtnStart().setVisible((status == "Reserved"));
         me.getBtnSave().setVisible(status == "InProgress");
         me.getBtnComplete().setVisible(status == "InProgress");
@@ -306,28 +302,12 @@ Ext.define('Bpm.controller.OpenTask', {
         openTaskRecord.set('action', action);
         openTaskRecord.endEdit();
 
-
-        var task = me.getModel('Bpm.model.task.Task');
-        task.load(openTaskRecord.get('id'), {
-            success: function (taskRecord) {
-                me.loadAssigneeForm(taskRecord);
-                me.loadEditTaskForm(taskRecord);
-                me.loadAboutTaskForm(taskRecord);
-                me.loadJbpmForm(taskRecord);
-            }
-        });
-/*
         openTaskRecord.save({
             success: function () {
 
-                //if (button.action === 'claimTask') {
-                //    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.task.openTask.claimed', 'BPM', 'Task claimed.'));
-                //} else
                 if (button.action === 'saveTask') {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.task.openTask.saved', 'BPM', 'Task saved.'));
-                } else if (button.action === 'releaseTask') {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.task.openTask.released', 'BPM', 'Task released.'));
-                } else if (button.action === 'startTask') {
+               } else if (button.action === 'startTask') {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.task.openTask.started', 'BPM', 'Task started.'));
                 } else if (button.action === 'completeTask') {
                     me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.task.openTask.completed', 'BPM', 'Task completed.'));
@@ -352,7 +332,7 @@ Ext.define('Bpm.controller.OpenTask', {
                     }
                 }
             }
-        })*/
+        })
     }
 
 });

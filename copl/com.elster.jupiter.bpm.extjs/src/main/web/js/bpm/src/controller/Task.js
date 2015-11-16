@@ -85,13 +85,13 @@ Ext.define('Bpm.controller.Task', {
             queryString.sort = Ext.JSON.encode(sort);
             window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
         }
-        else if (router.getRoute('workspace/taksmanagementtasks').params.use === true){
+        else if (router.getRoute('workspace/tasks').params.use === true){
 
             var argSort = router.arguments.sort, argUser = router.arguments.user,
                 argDueDate = router.arguments.dueDate, argStatus = router.arguments.status,
                 argProcess = router.arguments.process;
 
-            router.getRoute('workspace/taksmanagementtasks').params.use = false;
+            router.getRoute('workspace/tasks').params.use = false;
             queryString.param = undefined;
             argSort && (argSort != '') && (queryString.sort = argSort);
             argUser && (argUser != '') && (queryString.user = argUser);
@@ -150,7 +150,7 @@ Ext.define('Bpm.controller.Task', {
 
         switch (item.action) {
             case 'openTask':
-                route = 'workspace/taksmanagementtasks/openTask';
+                route = 'workspace/tasks/openTask';
                 break;
         }
 
