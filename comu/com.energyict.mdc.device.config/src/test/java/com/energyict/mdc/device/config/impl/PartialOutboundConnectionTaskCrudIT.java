@@ -168,7 +168,6 @@ public class PartialOutboundConnectionTaskCrudIT {
     private IdBusinessObjectFactory businessObjectFactory;
 
     private static class MockModule extends AbstractModule {
-
         @Override
         protected void configure() {
             bind(EventAdmin.class).toInstance(eventAdmin);
@@ -230,6 +229,7 @@ public class PartialOutboundConnectionTaskCrudIT {
         transactionService = injector.getInstance(TransactionService.class);
         try (TransactionContext ctx = transactionService.getContext()) {
             OrmService ormService = injector.getInstance(OrmService.class);
+            DummyConnectionProvider.install(ormService);
             eventService = new SpyEventService(injector.getInstance(EventService.class));
             NlsService nlsService = injector.getInstance(NlsService.class);
             PropertySpecServiceImpl propertySpecService = (PropertySpecServiceImpl) injector.getInstance(PropertySpecService.class);
@@ -609,7 +609,7 @@ public class PartialOutboundConnectionTaskCrudIT {
     @Test
     @Transactional
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.NEXT_EXECUTION_SPEC_NOT_ALLOWED_FOR_ASAP + "}", property = "nextExecutionSpecs")
-    public void testCanNotCreateConnectionTaskWithNextExecutionSpecIfAsSoonAsPossible() {
+    public void testCannotCreateConnectionTaskWithNextExecutionSpecIfAsSoonAsPossible() {
         DeviceConfiguration deviceConfiguration;
         DeviceType deviceType = deviceConfigurationService.newDeviceType("MyType", deviceProtocolPluggableClass);
         deviceType.save();
