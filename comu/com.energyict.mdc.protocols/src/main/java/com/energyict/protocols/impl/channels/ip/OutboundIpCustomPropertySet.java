@@ -85,9 +85,9 @@ public abstract class OutboundIpCustomPropertySet implements CustomPropertySet<C
     protected PropertySpec portPropertySpec() {
         return this.getPropertySpecService()
                 .basicPropertySpec(
-                        OutboundIpConnectionProperties.Fields.PORT.javaName(),
+                        OutboundIpConnectionProperties.Fields.PORT_NUMBER.javaName(),
                         true,
-                        new StringFactory());
+                        new BigDecimalFactory());
     }
 
     protected PropertySpec connectionTimeoutPropertySpec() {

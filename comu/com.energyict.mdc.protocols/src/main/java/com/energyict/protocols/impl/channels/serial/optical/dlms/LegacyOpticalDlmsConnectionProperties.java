@@ -65,11 +65,17 @@ public class LegacyOpticalDlmsConnectionProperties extends SioSerialConnectionPr
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues) {
         super.copyTo(propertySetValues);
-        propertySetValues.setProperty(Field.ADDRESSING_MODE.javaName(), this.addressingMode);
-        propertySetValues.setProperty(Field.SERVER_MAC_ADDRESS.javaName(), this.serverMacAddress);
-        propertySetValues.setProperty(Field.SERVER_LOWER_MAC_ADDRESS.javaName(), this.serverLowerMacAddress);
-        propertySetValues.setProperty(Field.SERVER_UPPER_MAC_ADDRESS.javaName(), this.serverUpperMacAddress);
-        propertySetValues.setProperty(Field.DATA_LINK_LAYER_TYPE.javaName(), this.dataLinkLayerType);
+        this.copyTo(propertySetValues, Field.ADDRESSING_MODE.javaName(), this.addressingMode);
+        this.copyTo(propertySetValues, Field.SERVER_MAC_ADDRESS.javaName(), this.serverMacAddress);
+        this.copyTo(propertySetValues, Field.SERVER_LOWER_MAC_ADDRESS.javaName(), this.serverLowerMacAddress);
+        this.copyTo(propertySetValues, Field.SERVER_UPPER_MAC_ADDRESS.javaName(), this.serverUpperMacAddress);
+        this.copyTo(propertySetValues, Field.DATA_LINK_LAYER_TYPE.javaName(), this.dataLinkLayerType);
+    }
+
+    private void copyTo(CustomPropertySetValues propertySetValues, String propertyName, Object propertyValue) {
+        if (propertyValue != null) {
+            propertySetValues.setProperty(propertyName, propertyValue);
+        }
     }
 
 }

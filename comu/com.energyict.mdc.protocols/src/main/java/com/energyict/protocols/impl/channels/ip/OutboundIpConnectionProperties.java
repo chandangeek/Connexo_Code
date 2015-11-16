@@ -13,6 +13,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 
 import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;
 
@@ -48,15 +49,15 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
                 return "HOST";
             }
         },
-        PORT {
+        PORT_NUMBER {
             @Override
             public String javaName() {
-                return "port";
+                return "portNumber";
             }
 
             @Override
             public String databaseName() {
-                return "PORT";
+                return "PORTNR";
             }
         },
         CONNECTION_TIMEOUT {
@@ -141,9 +142,8 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
     @NotEmpty
     @Size(max = Table.MAX_STRING_LENGTH)
     private String host;
-    @NotEmpty
-    @Size(max = Table.MAX_STRING_LENGTH)
-    private String port;
+    @NotNull
+    private BigDecimal portNumber;
     private TimeDuration connectionTimeout;
     private int connectionTimeoutValue;
     private int connectionTimeoutUnit;
@@ -175,7 +175,7 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
     }
 
     protected void copyPort(CustomPropertySetValues propertyValues) {
-        this.port = (String) propertyValues.getProperty(Fields.PORT.javaName());
+        this.portNumber = (BigDecimal) propertyValues.getProperty(Fields.PORT_NUMBER.javaName());
     }
 
     protected void copyConnectionTimeout(CustomPropertySetValues propertyValues) {
@@ -203,7 +203,7 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues) {
         propertySetValues.setProperty(Fields.HOST.javaName(), this.host);
-        propertySetValues.setProperty(Fields.PORT.javaName(), this.port);
+        propertySetValues.setProperty(Fields.PORT_NUMBER.javaName(), this.portNumber);
         this.copyNullablePropertyTo(propertySetValues, Fields.CONNECTION_TIMEOUT, this.connectionTimeout);
         this.copyNullablePropertyTo(propertySetValues, Fields.BUFFER_SIZE, this.bufferSize);
         this.copyPostDialPropertiesTo(propertySetValues);

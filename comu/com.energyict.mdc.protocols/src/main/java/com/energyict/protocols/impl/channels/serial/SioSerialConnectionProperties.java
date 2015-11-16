@@ -80,11 +80,17 @@ public class SioSerialConnectionProperties implements PersistentDomainExtension<
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues) {
-        propertySetValues.setProperty(SerialPortConfiguration.PARITY_NAME, this.parity);
-        propertySetValues.setProperty(SerialPortConfiguration.FLOW_CONTROL_NAME, this.flowControl);
-        propertySetValues.setProperty(SerialPortConfiguration.NR_OF_STOP_BITS_NAME, this.numberOfStopBits);
-        propertySetValues.setProperty(SerialPortConfiguration.NR_OF_DATA_BITS_NAME, this.numberOfDataBits);
-        propertySetValues.setProperty(SerialPortConfiguration.BAUDRATE_NAME, this.baudrate);
+        this.copyTo(propertySetValues, SerialPortConfiguration.PARITY_NAME, this.parity);
+        this.copyTo(propertySetValues, SerialPortConfiguration.FLOW_CONTROL_NAME, this.flowControl);
+        this.copyTo(propertySetValues, SerialPortConfiguration.NR_OF_STOP_BITS_NAME, this.numberOfStopBits);
+        this.copyTo(propertySetValues, SerialPortConfiguration.NR_OF_DATA_BITS_NAME, this.numberOfDataBits);
+        this.copyTo(propertySetValues, SerialPortConfiguration.BAUDRATE_NAME, this.baudrate);
+    }
+
+    private void copyTo(CustomPropertySetValues propertySetValues, String propertyName, Object propertyValue) {
+        if (propertyValue != null) {
+            propertySetValues.setProperty(propertyName, propertyValue);
+        }
     }
 
     @Override

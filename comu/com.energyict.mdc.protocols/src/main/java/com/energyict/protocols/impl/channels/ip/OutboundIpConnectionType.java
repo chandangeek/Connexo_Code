@@ -40,7 +40,7 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
     }
 
     protected int portNumberPropertyValue() {
-        return intProperty((BigDecimal) getProperty(OutboundIpConnectionProperties.Fields.PORT.javaName()));
+        return intProperty((BigDecimal) getProperty(OutboundIpConnectionProperties.Fields.PORT_NUMBER.javaName()));
     }
 
     protected int connectionTimeOutPropertyValue() {

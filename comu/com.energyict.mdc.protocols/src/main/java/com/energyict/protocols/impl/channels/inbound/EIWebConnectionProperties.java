@@ -11,6 +11,8 @@ import com.energyict.mdc.protocol.api.ConnectionProvider;
 
 import javax.validation.constraints.Size;
 
+import static com.elster.jupiter.util.Checks.is;
+
 /**
  * Provides an implementation for the {@link PersistentDomainExtension} interface
  * for the {@link EIWebConnectionType} and the {@link EIWebPlusConnectionType}.
@@ -83,8 +85,12 @@ public class EIWebConnectionProperties implements PersistentDomainExtension<Conn
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues) {
-        propertySetValues.setProperty(Fields.IP_ADDRESS.javaName(), this.ipAddress);
-        propertySetValues.setProperty(Fields.MAC_ADDRESS.javaName(), this.macAddress);
+        if (!is(this.ipAddress).empty()) {
+            propertySetValues.setProperty(Fields.IP_ADDRESS.javaName(), this.ipAddress);
+        }
+        if (!is(this.macAddress).empty()) {
+            propertySetValues.setProperty(Fields.MAC_ADDRESS.javaName(), this.macAddress);
+        }
     }
 
     @Override

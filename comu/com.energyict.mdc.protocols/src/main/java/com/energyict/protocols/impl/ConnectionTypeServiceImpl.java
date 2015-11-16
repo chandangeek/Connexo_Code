@@ -1,5 +1,8 @@
 package com.energyict.protocols.impl;
 
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.LibraryType;
 import com.energyict.mdc.io.ModemType;
@@ -8,10 +11,11 @@ import com.energyict.mdc.io.SocketService;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.services.ConnectionTypeService;
+import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
-
 import com.energyict.protocols.impl.channels.ConnectionTypeRule;
 import com.energyict.protocols.mdc.protocoltasks.ServerConnectionType;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
@@ -24,6 +28,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
@@ -52,6 +57,7 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService {
     private volatile SocketService socketService;
     private volatile Map<String, SerialComponentService> serialComponentServices = new HashMap<>();
     private Injector injector;
+    private volatile Thesaurus thesaurus;
 
     // Need default constructor for OSGi framework
     public ConnectionTypeServiceImpl() {
@@ -59,10 +65,11 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService {
     }
 
     @Inject
-    public ConnectionTypeServiceImpl(PropertySpecService propertySpecService, SocketService socketService) {
+    public ConnectionTypeServiceImpl(PropertySpecService propertySpecService, SocketService socketService, NlsService nlsService) {
         this();
         this.setPropertySpecService(propertySpecService);
         this.setSocketService(socketService);
+        this.setNlsService(nlsService);
         this.activate();
     }
 
@@ -72,6 +79,8 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService {
             public void configure() {
                 this.bind(PropertySpecService.class).toInstance(propertySpecService);
                 this.bind(SocketService.class).toInstance(socketService);
+                this.bind(Thesaurus.class).toInstance(thesaurus);
+                this.bind(MessageInterpolator.class).toInstance(thesaurus);
                 serialComponentServices
                     .forEach((k, v) -> this
                             .bind(SerialComponentService.class)
@@ -98,6 +107,11 @@ public class ConnectionTypeServiceImpl implements ConnectionTypeService {
     @Reference
     public void setSocketService(SocketService socketService) {
         this.socketService = socketService;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(DeviceProtocolService.COMPONENT_NAME, Layer.DOMAIN);
     }
 
     @Reference(target = "(&(library=" + LibraryType.Target.RXTX + ")(modem-type=" + ModemType.Target.NONE + "))")
