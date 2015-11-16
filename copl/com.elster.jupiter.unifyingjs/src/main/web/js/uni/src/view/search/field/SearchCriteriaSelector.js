@@ -184,12 +184,16 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
     },
 
     setValue: function(value, suspendEvent) {
+        if (!Ext.isDefined(suspendEvent)) {
+            suspendEvent = false;
+        }
+
         var item = this.menu.items.findBy(function(item){return item.value == value});
         if (item) {
             item.setActive();
             this.setText(item.text);
 
-            if (Ext.isDefined(suspendEvent) && !suspendEvent) {
+            if (!suspendEvent) {
                 this.fireEvent('change', this);
             }
         }
