@@ -10,7 +10,7 @@ import com.elster.jupiter.nls.TranslationKey;
  */
 public enum EDPropertyTranslationKeys implements TranslationKey {
 
-    ENDDEVICE_MRID("enddevice.mRID", "MRID"),
+    ENDDEVICE_MRID("enddevice.mRID", "mRID"),
     ENDDEVICE_NAME("enddevice.name", "Name"),
 
     
