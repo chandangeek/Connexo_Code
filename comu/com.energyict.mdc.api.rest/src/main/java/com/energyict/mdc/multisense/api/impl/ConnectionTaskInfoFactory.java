@@ -91,7 +91,7 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
         map.put("isDefault", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.isDefault = connectionTask.isDefault());
         map.put("properties", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(connectionTask.getConnectionType().getPropertySpecs(), connectionTask.getTypedProperties()));
         map.put("comWindow", (connectionTaskInfo, connectionTask, uriInfo) -> {
-            if (ScheduledConnectionTask.class.isAssignableFrom(connectionTask.getClass())) {
+            if (connectionTask instanceof ScheduledConnectionTask) {
                 ComWindow communicationWindow = ((ScheduledConnectionTask) connectionTask).getCommunicationWindow();
                 if (communicationWindow!=null) {
                     connectionTaskInfo.comWindow = new ComWindowInfo();
@@ -101,17 +101,17 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
             }
         });
         map.put("connectionStrategy", (connectionTaskInfo, connectionTask, uriInfo) -> {
-            if (ScheduledConnectionTask.class.isAssignableFrom(connectionTask.getClass())) {
+            if (connectionTask instanceof ScheduledConnectionTask) {
                 connectionTaskInfo.connectionStrategy = ((ScheduledConnectionTask) connectionTask).getConnectionStrategy();
             }
         });
         map.put("allowSimultaneousConnections", (connectionTaskInfo, connectionTask, uriInfo) -> {
-            if (ScheduledConnectionTask.class.isAssignableFrom(connectionTask.getClass())) {
+            if (connectionTask instanceof ScheduledConnectionTask) {
                 connectionTaskInfo.allowSimultaneousConnections = ((ScheduledConnectionTask) connectionTask).isSimultaneousConnectionsAllowed();
             }
         });
         map.put("rescheduleRetryDelay", (connectionTaskInfo, connectionTask, uriInfo) -> {
-            if (ScheduledConnectionTask.class.isAssignableFrom(connectionTask.getClass())) {
+            if (connectionTask instanceof ScheduledConnectionTask) {
                 TimeDuration rescheduleDelay = ((ScheduledConnectionTask) connectionTask).getRescheduleDelay();
                 if (rescheduleDelay!=null) {
                     connectionTaskInfo.rescheduleRetryDelay = new TimeDurationInfo(rescheduleDelay);
@@ -119,7 +119,7 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
             }
         });
         map.put("nextExecutionSpecs", (connectionTaskInfo, connectionTask, uriInfo) -> {
-            if (ScheduledConnectionTask.class.isAssignableFrom(connectionTask.getClass())) {
+            if (connectionTask instanceof ScheduledConnectionTask) {
                 NextExecutionSpecs nextExecutionSpecs = ((ScheduledConnectionTask) connectionTask).getNextExecutionSpecs();
                 if (nextExecutionSpecs != null) {
                     connectionTaskInfo.nextExecutionSpecs = TemporalExpressionInfo.from(nextExecutionSpecs.getTemporalExpression());
@@ -146,7 +146,7 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
 
 
     public ScheduledConnectionTask createScheduledConnectionTask(ConnectionTaskInfo info, Device device, PartialConnectionTask partialConnectionTask) {
-        if (!PartialScheduledConnectionTask.class.isAssignableFrom(partialConnectionTask.getClass())) {
+        if (!(partialConnectionTask instanceof PartialScheduledConnectionTask)) {
             throw exceptionFactory.newException(MessageSeeds.EXPECTED_PARTIAL_OUTBOUND);
         }
 
@@ -179,7 +179,7 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
     }
 
     public ConnectionTask<?, ?> updateInboundConnectionTask(long connectionTaskId, ConnectionTaskInfo connectionTaskInfo, Device device, ConnectionTask connectionTask) {
-        if (!InboundConnectionTask.class.isAssignableFrom(connectionTask.getClass())) {
+        if (!(connectionTask instanceof InboundConnectionTask)) {
             throw exceptionFactory.newException(MessageSeeds.EXPECTED_INBOUND);
         }
         InboundConnectionTask inboundConnectionTask = (InboundConnectionTask) connectionTask;
@@ -196,7 +196,7 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
     }
 
     public ConnectionTask<?, ?> updateScheduledConnectionTask(long connectionTaskId, ConnectionTaskInfo connectionTaskInfo, Device device, ConnectionTask connectionTask) {
-        if (!ScheduledConnectionTask.class.isAssignableFrom(connectionTask.getClass())) {
+        if (!(connectionTask instanceof ScheduledConnectionTask)) {
             throw exceptionFactory.newException(MessageSeeds.EXPECTED_OUTBOUND);
         }
         ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTask;
