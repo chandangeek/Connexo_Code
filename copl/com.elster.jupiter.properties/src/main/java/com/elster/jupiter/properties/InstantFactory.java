@@ -70,22 +70,4 @@ public class InstantFactory extends AbstractValueFactory<Instant> {
             return "";
         }
     }
-
-    @Override
-    public void bind(SqlBuilder builder, Instant value) {
-        if (value != null) {
-            builder.addLong(value.toEpochMilli());
-        } else {
-            builder.addNull(this.getJdbcType());
-        }
-    }
-
-    @Override
-    public void bind(PreparedStatement statement, int offset, Instant value) throws SQLException {
-        if (value != null) {
-            statement.setLong(offset, value.toEpochMilli());
-        } else {
-            statement.setNull(offset, this.getJdbcType());
-        }
-    }
 }
