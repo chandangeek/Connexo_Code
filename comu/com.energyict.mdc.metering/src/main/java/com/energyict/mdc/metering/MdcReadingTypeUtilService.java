@@ -87,4 +87,12 @@ public interface MdcReadingTypeUtilService {
      */
     public Unit getMdcUnitFor(String readingType);
 
+    /**
+     * Creates a readingType from the given ReadingType with the commodity set the PrimaryMetered
+     *
+     * @param readingType the ReadingType to start from
+     *
+     * @return primary metered applied ReadingType
+     */
+    ReadingType getOrCreatePrimaryMeteredReadingType(ReadingType readingType);
 }

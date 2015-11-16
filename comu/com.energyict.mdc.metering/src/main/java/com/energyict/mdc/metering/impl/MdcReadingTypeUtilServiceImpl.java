@@ -1,5 +1,6 @@
 package com.energyict.mdc.metering.impl;
 
+import com.elster.jupiter.cbo.Commodity;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -161,4 +162,16 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
         }
     }
 
+    @Override
+    public ReadingType getOrCreatePrimaryMeteredReadingType(ReadingType readingType) {
+        ReadingTypeCodeBuilder readingTypeCodeBuilder = copyReadingTypeFields(readingType);
+        readingTypeCodeBuilder.commodity(Commodity.ELECTRICITY_PRIMARY_METERED);
+        String mrid = readingTypeCodeBuilder.code();
+        Optional<ReadingType> primaryMeteredReadingType = this.meteringService.getReadingType(mrid);
+        if(primaryMeteredReadingType.isPresent()){
+            return primaryMeteredReadingType.get();
+        } else {
+            return this.meteringService.createReadingType(mrid, readingType.getAliasName());
+        }
+    }
 }
