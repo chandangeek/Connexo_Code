@@ -2,9 +2,12 @@ package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
+
+import javax.validation.constraints.Size;
 
 /**
  * Insert your comments here.
@@ -15,9 +18,12 @@ import com.energyict.mdc.protocol.api.ConnectionProvider;
 public class ModemConnectionPropertyValues implements PersistentDomainExtension<ConnectionProvider> {
 
     @SuppressWarnings("unused")
+    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
+    @SuppressWarnings("unused")
     private Reference<ConnectionProvider> connectionProvider = Reference.empty();
     @SuppressWarnings("unused")
     private Interval interval;
+    @Size(max=32)
     private String phoneNumber;
 
     @Override

@@ -28,7 +28,7 @@ public class ModemConnectionPersistenceSupport implements PersistenceSupport<Con
 
     @Override
     public String domainFieldName() {
-        return "connectionType";
+        return "connectionProvider";
     }
 
     @Override
@@ -52,6 +52,7 @@ public class ModemConnectionPersistenceSupport implements PersistenceSupport<Con
             .column(ModemConnectionProperties.PHONE_NUMBER.propertyName())
             .notNull()
             .varChar()
+            .map(ModemConnectionProperties.PHONE_NUMBER.propertyName())
             .add();
     }
 

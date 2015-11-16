@@ -29,7 +29,7 @@ public class IpConnectionPersistenceSupport implements PersistenceSupport<Connec
 
     @Override
     public String domainFieldName() {
-        return "connectionType";
+        return "connectionProvider";
     }
 
     @Override
@@ -53,11 +53,13 @@ public class IpConnectionPersistenceSupport implements PersistenceSupport<Connec
             .column(IpConnectionProperties.IP_ADDRESS.propertyName())
             .notNull()
             .varChar()
+            .map(IpConnectionProperties.IP_ADDRESS.propertyName())
             .add();
         table
             .column(IpConnectionProperties.PORT.propertyName())
             .number()
             .conversion(ColumnConversion.NUMBER2INT)
+            .map(IpConnectionProperties.PORT.propertyName())
             .add();
     }
 
