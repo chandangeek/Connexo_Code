@@ -105,7 +105,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>users</artifactId>
@@ -165,6 +164,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>pubsub</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>search</artifactId>
             <scope>test</scope>
         </dependency>
         <!--<dependency>-->

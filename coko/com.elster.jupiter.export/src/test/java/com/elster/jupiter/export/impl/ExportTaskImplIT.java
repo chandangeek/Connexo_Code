@@ -46,6 +46,7 @@ import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
@@ -207,6 +208,7 @@ public class ExportTaskImplIT {
                     new TimeModule(),
                     new TaskModule(),
                     new MeteringGroupsModule(),
+                    new SearchModule(),
                     new AppServiceModule(),
                     new BasicPropertiesModule(),
                     new MailModule(),
