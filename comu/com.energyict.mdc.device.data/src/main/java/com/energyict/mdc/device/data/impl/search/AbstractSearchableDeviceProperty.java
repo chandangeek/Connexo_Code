@@ -105,13 +105,13 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
 
     @Override
     public void visitTrue(Constant trueCondition) {
-        this.underConstruction.add(new ComparisonFragment(this, this.columnName, Operator.EQUAL.compare(this.columnName, "Y")));
+        this.underConstruction.add(new ComparisonFragment(this, this.columnName, Operator.EQUAL.compare(this.columnName, Boolean.TRUE)));
     }
 
     @Override
     public void visitFalse(Constant falseCondition) {
         this.underConstruction.openBracket();
-        this.underConstruction.add(new ComparisonFragment(this, this.columnName, Operator.EQUAL.compare(this.columnName, "N")));
+        this.underConstruction.add(new ComparisonFragment(this, this.columnName, Operator.EQUAL.compare(this.columnName, Boolean.FALSE)));
         this.underConstruction.append(" OR ");
         this.underConstruction.add(new ComparisonFragment(this, this.columnName, Operator.ISNULL.compare(this.columnName)));
         this.underConstruction.closeBracket();

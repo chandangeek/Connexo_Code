@@ -131,7 +131,7 @@ public class ConnectionStatusSearchableProperty extends AbstractSearchableDevice
     }
 
     enum ConnectionStatusContainer {
-        ACTIVE(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE, PropertyTranslationKeys.CONNECTION_TASK_STATUS_INCOMPLETE),
+        ACTIVE(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE, PropertyTranslationKeys.CONNECTION_TASK_STATUS_ACTIVE),
         INACTIVE(ConnectionTask.ConnectionTaskLifecycleStatus.INACTIVE, PropertyTranslationKeys.CONNECTION_TASK_STATUS_INACTIVE),
         INCOMPLETE(ConnectionTask.ConnectionTaskLifecycleStatus.INCOMPLETE, PropertyTranslationKeys.CONNECTION_TASK_STATUS_INCOMPLETE),
         ;
