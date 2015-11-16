@@ -980,6 +980,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testDeleteWithProperties() {
+        Instant now = this.freezeClock(2015, Calendar.MAY, 2);
         ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) this.createOutboundWithIpPropertiesWithoutViolations("testDeleteWithProperties");
         long id = connectionTask.getId();
 
@@ -991,7 +992,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>> customPropertySet = inboundIpConnectionTypePluggableClass.getConnectionType()
                 .getCustomPropertySet()
                 .get();
-        assertThat(inMemoryPersistence.getCustomPropertySetService().getValuesFor(customPropertySet, connectionTask).isEmpty()).isTrue();
+        assertThat(inMemoryPersistence.getCustomPropertySetService().getValuesFor(customPropertySet, connectionTask, now).isEmpty()).isTrue();
         // Todo: assert that old values were journalled properly but need support from CustomPropertySetService first
     }
 
@@ -1022,12 +1023,13 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testMakeObsoleteAlsoMakesRelationsObsolete() {
+        Instant now = this.freezeClock(2015, Calendar.MAY, 2);
         ScheduledConnectionTaskImpl connectionTask = (ScheduledConnectionTaskImpl) this.createOutboundWithIpPropertiesWithoutViolations("testMakeObsoleteAlsoMakesRelationsObsolete");
 
         CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>> customPropertySet = outboundIpConnectionTypePluggableClass.getConnectionType()
                 .getCustomPropertySet()
                 .get();
-        assertThat(inMemoryPersistence.getCustomPropertySetService().getValuesFor(customPropertySet, connectionTask).isEmpty()).isTrue();
+        assertThat(inMemoryPersistence.getCustomPropertySetService().getValuesFor(customPropertySet, connectionTask, now).isEmpty()).isFalse();
 
         // Business method
         device.removeConnectionTask(connectionTask);
@@ -1035,7 +1037,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
         // Asserts
         assertThat(connectionTask.isObsolete()).isTrue();
         assertThat(connectionTask.getObsoleteDate()).isNotNull();
-        assertThat(inMemoryPersistence.getCustomPropertySetService().getValuesFor(customPropertySet, connectionTask).isEmpty()).isTrue();
+        assertThat(inMemoryPersistence.getCustomPropertySetService().getValuesFor(customPropertySet, connectionTask, now).isEmpty()).isTrue();
         // Todo: assert that old values were journalled properly but need support from CustomPropertySetService first
     }
 

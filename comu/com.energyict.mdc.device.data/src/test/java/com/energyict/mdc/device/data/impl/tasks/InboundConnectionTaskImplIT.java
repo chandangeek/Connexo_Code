@@ -20,7 +20,9 @@ import com.energyict.mdc.protocol.api.ConnectionProvider;
 
 import javax.validation.ConstraintViolationException;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import org.junit.*;
@@ -580,6 +582,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testDeleteWithProperties() {
+        Instant now = this.freezeClock(2015, Calendar.MAY, 2);
         InboundConnectionTaskImpl connectionTask = this.createInboundWithIpPropertiesWithoutViolations();
         long id = connectionTask.getId();
 
@@ -591,7 +594,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>> customPropertySet = inboundIpConnectionTypePluggableClass.getConnectionType()
                 .getCustomPropertySet()
                 .get();
-        assertThat(inMemoryPersistence.getCustomPropertySetService().getValuesFor(customPropertySet, connectionTask).isEmpty()).isTrue();
+        assertThat(inMemoryPersistence.getCustomPropertySetService().getValuesFor(customPropertySet, connectionTask, now).isEmpty()).isTrue();
         // Todo: assert that old values were journalled properly but need support from CustomPropertySetService first
     }
 
@@ -611,6 +614,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testMakeObsoleteAlsoMakesRelationsObsolete() {
+        Instant now = this.freezeClock(2015, Calendar.MAY, 2);
         InboundConnectionTaskImpl connectionTask = this.createInboundWithIpPropertiesWithoutViolations();
 
         // Business method
@@ -622,7 +626,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>> customPropertySet = inboundIpConnectionTypePluggableClass.getConnectionType()
                 .getCustomPropertySet()
                 .get();
-        assertThat(inMemoryPersistence.getCustomPropertySetService().getValuesFor(customPropertySet, connectionTask).isEmpty()).isTrue();
+        assertThat(inMemoryPersistence.getCustomPropertySetService().getValuesFor(customPropertySet, connectionTask, now).isEmpty()).isTrue();
         // Todo: assert that old values were journalled properly but need support from CustomPropertySetService first
     }
 

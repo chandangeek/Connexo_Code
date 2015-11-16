@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.cps.PersistenceSupport;
-import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 
@@ -58,7 +57,6 @@ public class IpConnectionPersistenceSupport implements PersistenceSupport<Connec
         table
             .column(IpConnectionProperties.PORT.propertyName())
             .number()
-            .conversion(ColumnConversion.NUMBER2INT)
             .map(IpConnectionProperties.PORT.propertyName())
             .add();
     }

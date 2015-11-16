@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
 import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
@@ -17,6 +18,8 @@ import com.energyict.mdc.device.data.tasks.ScheduledComTaskExecutionUpdater;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 
 import javax.validation.ConstraintViolationException;
+import java.time.Instant;
+import java.util.Calendar;
 
 import org.junit.*;
 
@@ -189,8 +192,8 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         assertThat(updated.getProperties()).hasSize(2);
         assertThat(updated.getProperty(IpConnectionProperties.IP_ADDRESS.propertyName())).isNotNull();
         assertThat(updated.getProperty(IpConnectionProperties.IP_ADDRESS.propertyName()).getValue()).isEqualTo(IP_ADDRESS_PROPERTY_VALUE);
-        assertThat(updated.getProperty(IpConnectionProperties.IP_ADDRESS.propertyName())).isNotNull();
-        assertThat(updated.getProperty(IpConnectionProperties.IP_ADDRESS.propertyName()).getValue()).isEqualTo(PORT_PROPERTY_VALUE);
+        assertThat(updated.getProperty(IpConnectionProperties.PORT.propertyName())).isNotNull();
+        assertThat(updated.getProperty(IpConnectionProperties.PORT.propertyName()).getValue()).isEqualTo(PORT_PROPERTY_VALUE);
     }
 
     @Test
@@ -228,6 +231,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testMakeObsoleteAlsoMakesRelationsObsolete() {
+        Instant now = inMemoryPersistence.getClock().instant();
         partialConnectionInitiationTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialConnectionInitiationTask.save();
         ConnectionInitiationTaskImpl connectionTask = createSimpleConnectionInitiationTask();
@@ -243,7 +247,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>> customPropertySet = inboundIpConnectionTypePluggableClass.getConnectionType()
                 .getCustomPropertySet()
                 .get();
-        assertThat(inMemoryPersistence.getCustomPropertySetService().getValuesFor(customPropertySet, connectionTask).isEmpty()).isTrue();
+        assertThat(inMemoryPersistence.getCustomPropertySetService().getValuesFor(customPropertySet, connectionTask, now).isEmpty()).isTrue();
         // Todo: assert that old values were journalled properly but need support from CustomPropertySetService first
     }
 
@@ -338,6 +342,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testMakeObsolete() {
+        Instant now = this.freezeClock(2015, Calendar.MAY, 2);
         partialConnectionInitiationTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialConnectionInitiationTask.save();
 
@@ -347,7 +352,8 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>> customPropertySet = outboundIpConnectionTypePluggableClass.getConnectionType()
                 .getCustomPropertySet()
                 .get();
-        assertThat(inMemoryPersistence.getCustomPropertySetService().getValuesFor(customPropertySet, connectionTask).size()).isEqualTo(1);
+        CustomPropertySetValues values = inMemoryPersistence.getCustomPropertySetService().getValuesFor(customPropertySet, connectionTask, now);
+        assertThat(values.size()).isEqualTo(2); // Remember that we set both ip address and the port
 
         // Asserts
         assertThat(connectionTask.getObsoleteDate()).isNull();
@@ -360,7 +366,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask.getObsoleteDate()).isNotNull();
         assertThat(connectionTask.isObsolete()).isTrue();
 
-        assertThat(inMemoryPersistence.getCustomPropertySetService().getValuesFor(customPropertySet, connectionTask).isEmpty()).isTrue();
+        assertThat(inMemoryPersistence.getCustomPropertySetService().getValuesFor(customPropertySet, connectionTask, now).isEmpty()).isTrue();
         // Todo: assert that old values were journalled properly but need support from CustomPropertySetService first
     }
 

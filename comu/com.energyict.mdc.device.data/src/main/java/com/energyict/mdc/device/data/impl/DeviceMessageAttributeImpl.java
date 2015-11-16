@@ -1,9 +1,5 @@
 package com.energyict.mdc.device.data.impl;
 
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
-
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -14,6 +10,9 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 
 import javax.inject.Inject;
 import javax.validation.constraints.Size;
@@ -53,7 +52,8 @@ public class DeviceMessageAttributeImpl extends PersistentIdObject<DeviceMessage
     @Override
     public PropertySpec getSpecification() {
         if (this.propertySpec == null) {
-            this.propertySpec = deviceMessage.get().getSpecification().getPropertySpec(name).get();
+            // Support null because we want javax.validation to report the problem
+            this.propertySpec = deviceMessage.get().getSpecification().getPropertySpec(name).orElse(null);
         }
         return propertySpec;
     }
