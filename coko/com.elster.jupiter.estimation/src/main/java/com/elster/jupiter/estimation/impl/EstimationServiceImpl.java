@@ -81,6 +81,7 @@ import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
 @Component(name = "com.elster.jupiter.estimation", service = {InstallService.class, EstimationService.class, TranslationKeyProvider.class, MessageSeedProvider.class, PrivilegesProvider.class}, property = "name=" + EstimationService.COMPONENTNAME, immediate = true)
 public class EstimationServiceImpl implements IEstimationService, InstallService, TranslationKeyProvider, MessageSeedProvider, PrivilegesProvider {
 
+    static final String ESTIMATION_TASKS_USER = "estimation";
     static final String DESTINATION_NAME = "EstimationTask";
     static final String SUBSCRIBER_NAME = "EstimationTask";
     static final String SUBSCRIBER_DISPLAYNAME = "Handle estimation";
@@ -393,7 +394,7 @@ public class EstimationServiceImpl implements IEstimationService, InstallService
 
     @Override
     public void install() {
-        new InstallerImpl(dataModel, messageService, timeService, eventService).install();
+        new InstallerImpl(dataModel, messageService, timeService, eventService, userService).install();
     }
 
     @Override
