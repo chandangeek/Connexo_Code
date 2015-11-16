@@ -171,7 +171,7 @@ Ext.define('Uni.view.search.Overview', {
                                     '->',
                                     {
                                         itemId: 'clear-sorting-button',
-                                        text: Uni.I18n.translate('general.clearSorting', 'UNI', 'Clear sorting'),
+                                        text: Uni.I18n.translate('general.clearSorting', 'UNI', 'Clear all'),
                                         action: 'clearSorting'
                                     }
                                 ]
