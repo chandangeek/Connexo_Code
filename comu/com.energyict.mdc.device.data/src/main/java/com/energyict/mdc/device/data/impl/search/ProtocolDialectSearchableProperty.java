@@ -11,7 +11,6 @@ import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Contains;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.streams.Predicates;
@@ -79,7 +78,7 @@ public class ProtocolDialectSearchableProperty extends AbstractSearchableDeviceP
     }
 
     @Override
-    public void bindSingleValue(PreparedStatement statement, Object value, int bindPosition) throws SQLException {
+    public void bindSingleValue(PreparedStatement statement, int bindPosition, Object value) throws SQLException {
         statement.setLong(bindPosition, ((ProtocolDialect) value).getPluggableClass().getId());
     }
 

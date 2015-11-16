@@ -82,7 +82,7 @@ public class ComTaskScheduleTypeSearchableProperty extends AbstractSearchableDev
     }
 
     @Override
-    public void bindSingleValue(PreparedStatement statement, Object value, int bindPosition) throws SQLException {
+    public void bindSingleValue(PreparedStatement statement, int bindPosition, Object value) throws SQLException {
         statement.setString(bindPosition, toDisplayAfterValidation(value));
     }
 

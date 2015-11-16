@@ -73,7 +73,7 @@ public class ConnectionStatusSearchableProperty extends AbstractSearchableDevice
     }
 
     @Override
-    public void bindSingleValue(PreparedStatement statement, Object value, int bindPosition) throws SQLException {
+    public void bindSingleValue(PreparedStatement statement, int bindPosition, Object value) throws SQLException {
         statement.setInt(bindPosition, ((ConnectionStatusSearchWrapper) value).getContainer().getStatus().ordinal());
     }
 

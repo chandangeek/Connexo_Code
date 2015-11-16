@@ -46,7 +46,7 @@ public class ComTaskPlannedDateSearchableProperty extends AbstractDateSearchable
     }
 
     @Override
-    public void bindSingleValue(PreparedStatement statement, Object value, int bindPosition) throws SQLException {
+    public void bindSingleValue(PreparedStatement statement, int bindPosition, Object value) throws SQLException {
         statement.setLong(bindPosition, ((Instant) value).toEpochMilli() / TimeUnit.SECONDS.toMillis(1));
     }
 }

@@ -1,7 +1,6 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.properties.HasIdAndName;
-import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.And;
 import com.elster.jupiter.util.conditions.Comparison;
@@ -21,7 +20,6 @@ import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.energyict.mdc.device.data.impl.search.sqlbuilder.ValueBinder;
-import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -157,19 +155,15 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
     }
 
     @Override
-    public void bindSingleValue(PreparedStatement statement, Object value, int bindPosition) throws SQLException {
+    public void bindSingleValue(PreparedStatement statement, int bindPosition, Object value) throws SQLException {
         if (value instanceof HasId) {
             HasId hasId = (HasId) value;
             statement.setLong(bindPosition, hasId.getId());
         } else if (value instanceof HasIdAndName) {
             HasIdAndName hasId = (HasIdAndName) value;
             statement.setObject(bindPosition, hasId.getId());
-        } else if (value instanceof TimeDuration) {
-            new TimeDurationValueFactory().bind(statement, bindPosition, (TimeDuration) value);
-        } else if (value instanceof Instant){
-            statement.setLong(bindPosition, ((Instant) value).toEpochMilli());
         } else {
-            statement.setObject(bindPosition, value);
+            getSpecification().getValueFactory().bind(statement, bindPosition, value);
         }
     }
 
@@ -181,8 +175,8 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
             this.valueBinder = valueBinder;
         }
 
-        protected void bindSingleValue(PreparedStatement statement, Object value, int bindPosition) throws SQLException {
-            this.valueBinder.bindSingleValue(statement, value, bindPosition);
+        protected void bindSingleValue(PreparedStatement statement, int bindPosition, Object value) throws SQLException {
+            this.valueBinder.bindSingleValue(statement, bindPosition, value);
         }
     }
 
@@ -225,7 +219,7 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
         public int bind(PreparedStatement statement, int position) throws SQLException {
             int bindPosition = position;
             for (Object value : this.comparison.getValues()) {
-                this.bindSingleValue(statement, value, bindPosition);
+                this.bindSingleValue(statement, bindPosition, value);
                 bindPosition++;
             }
             return bindPosition;
@@ -246,7 +240,7 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
         public int bind(PreparedStatement statement, int position) throws SQLException {
             int bindPosition = position;
             for (Object value : this.contains.getCollection()) {
-                this.bindSingleValue(statement, value, bindPosition);
+                this.bindSingleValue(statement, bindPosition, value);
                 bindPosition++;
             }
             return bindPosition;
