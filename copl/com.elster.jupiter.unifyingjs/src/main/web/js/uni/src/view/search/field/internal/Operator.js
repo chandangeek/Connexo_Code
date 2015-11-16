@@ -31,6 +31,7 @@ Ext.define('Uni.view.search.field.internal.Operator', {
         }
 
         me.callParent(arguments);
+        me.originalValue = me.operator;
     }
 });
 
