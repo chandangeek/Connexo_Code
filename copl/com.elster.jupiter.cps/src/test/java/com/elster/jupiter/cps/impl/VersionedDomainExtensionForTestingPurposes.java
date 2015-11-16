@@ -101,7 +101,9 @@ public class VersionedDomainExtensionForTestingPurposes implements PersistentDom
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues) {
         propertySetValues.setProperty(FieldNames.BILLING_CYCLE.javaName(), this.getBillingCycle());
-        propertySetValues.setProperty(FieldNames.CONTRACT_NUMBER.javaName(), this.getContractNumber());
+        if (this.getContractNumber() != null) {
+            propertySetValues.setProperty(FieldNames.CONTRACT_NUMBER.javaName(), this.getContractNumber());
+        }
     }
 
     @Override

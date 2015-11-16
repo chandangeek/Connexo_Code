@@ -130,7 +130,7 @@ class ActiveCustomPropertySet {
             }
             Interval updatedInterval = interval.withEnd(effectiveTimestamp);
             DomainExtensionAccessor.setInterval(domainExtension.get(), updatedInterval);
-            this.customPropertySetDataModel.update(businessObject, HardCodedFieldNames.INTERVAL.javaName());
+            this.customPropertySetDataModel.update(domainExtension.get(), HardCodedFieldNames.INTERVAL.javaName() + ".end");
         }
         this.createExtension(businessObject, values, effectiveTimestamp);
     }
