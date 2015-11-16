@@ -44,7 +44,8 @@ Ext.define('Uni.service.Search', {
             'add',
             'remove',
             'change',
-            'reset'
+            'reset',
+            'searchResultsBeforeLoad'
         );
     },
 
@@ -100,6 +101,7 @@ Ext.define('Uni.service.Search', {
         me.unbind();
         me.storeListeners.push(me.getSearchResultsStore().on({
             load: me.onSearchResultsLoad,
+            beforeload: me.onSearchResultsBeforeLoad,
             scope: me,
             destroyable: true
         }));
@@ -173,6 +175,11 @@ Ext.define('Uni.service.Search', {
         if (!success) {
             store.removeAll();
         }
+    },
+
+    onSearchResultsBeforeLoad: function () {
+        var me = this;
+        me.fireEvent('searchResultsBeforeLoad');
     },
 
     init: function() {
