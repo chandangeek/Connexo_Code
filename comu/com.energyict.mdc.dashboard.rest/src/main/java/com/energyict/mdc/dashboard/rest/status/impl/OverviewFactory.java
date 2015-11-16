@@ -23,7 +23,7 @@ public class OverviewFactory {
         this.thesaurus = thesaurus;
     }
 
-    public <C extends Enum> TaskSummaryInfo createOverview(Thesaurus thesaurus, TranslationKey translationKey, DashboardCounters<C> dashboardCounters, FilterOption alias, TranslationKeyForEnumSet<C> adapter) {
+    public <C extends Enum> TaskSummaryInfo createOverview(TranslationKey translationKey, DashboardCounters<C> dashboardCounters, FilterOption alias, TranslationKeyForEnumSet<C> adapter) {
         return this.createOverview(
                 thesaurus.getFormat(translationKey).format(),
                 dashboardCounters,

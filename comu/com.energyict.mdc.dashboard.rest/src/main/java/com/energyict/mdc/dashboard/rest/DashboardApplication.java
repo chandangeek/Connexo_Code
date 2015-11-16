@@ -10,12 +10,11 @@ import com.energyict.mdc.dashboard.rest.status.impl.BreakdownFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.ComSessionSuccessIndicatorTranslationKeys;
 import com.energyict.mdc.dashboard.rest.status.impl.ComTaskExecutionInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.ComTaskExecutionSessionInfoFactory;
-import com.energyict.mdc.dashboard.rest.status.impl.CommunicationHeatMapResource;
+import com.energyict.mdc.dashboard.rest.status.impl.CommunicationHeatMapInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.CommunicationOverviewInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.CommunicationOverviewResource;
 import com.energyict.mdc.dashboard.rest.status.impl.CommunicationResource;
 import com.energyict.mdc.dashboard.rest.status.impl.CompletionCodeTranslationKeys;
-import com.energyict.mdc.dashboard.rest.status.impl.ConnectionHeatMapResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionOverviewInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionOverviewResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionResource;
@@ -276,10 +275,8 @@ public class DashboardApplication extends Application implements MessageSeedProv
                 ConnectionOverviewResource.class,
                 DashboardFieldResource.class,
                 ConnectionResource.class,
-                ConnectionHeatMapResource.class,
                 CommunicationResource.class,
                 CommunicationOverviewResource.class,
-                CommunicationHeatMapResource.class,
                 IssuesResource.class,
                 LabeledDeviceResource.class,
                 FavoriteDeviceGroupResource.class
@@ -336,6 +333,7 @@ public class DashboardApplication extends Application implements MessageSeedProv
             bind(firmwareService).to(FirmwareService.class);
             bind(FilterFactory.class).to(FilterFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
+            bind(CommunicationHeatMapInfoFactory.class).to(CommunicationHeatMapInfoFactory.class);
         }
     }
 
