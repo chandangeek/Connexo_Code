@@ -70,8 +70,8 @@ Ext.define('Imt.controller.History', {
                                     }
                                 }                                    
                             }
-           			    }
-           			}
+           			    },
+           			},
            		},
    				edit: {
                 	title: Uni.I18n.translate('general.label.usagepoint.edit', 'IMT', 'Edit usage point'),
@@ -84,7 +84,28 @@ Ext.define('Imt.controller.History', {
                     route: 'device/{mRID}',
                     controller: 'Imt.devicemanagement.controller.Device',
                     action: 'showDevice'
-                }
+                },
+                metrologyconfiguration: {
+	              title: Uni.I18n.translate('general.label.metrologyconfiguration.view', 'IMT', 'Metrology configuration'),
+	              route: '{mRID}',
+	              controller: 'Imt.usagepointmanagement.controller.View',
+	              action: 'showMetrologyConfiguration',
+                  items: {
+                	  view: {
+	                    route: 'metrologyconfiguration/{mcid}/view',
+	                    controller: 'Imt.usagepointmanagement.controller.View',
+	                    action: 'showMetrologyConfiguration',
+	                    callback: function (route) {
+	                        this.getApplication().on('metrologyConfigurationLoaded', function (record) {
+	                            route.setTitle(record.get('name'));
+	                            return true;
+	                        }, {single: true});
+	
+	                        return this;
+	                    },  
+                	  },
+                  }
+                },
             }
         },
         administration: {

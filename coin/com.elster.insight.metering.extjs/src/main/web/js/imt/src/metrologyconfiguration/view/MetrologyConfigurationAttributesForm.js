@@ -50,21 +50,21 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm
                             }
                             return '-';
                         }
-                    },
-                    {
-                        xtype: 'fieldcontainer',
-                        ui: 'actions',
-                        fieldLabel: '&nbsp',
-                        items: [
-                            {
-                                text: Uni.I18n.translate('general.button.cancel', 'IMT', 'Back'),
-                                xtype: 'button',
-                                ui: 'action',
-                                itemId: 'backLink',
-                                href: me.router.getRoute('administration/metrologyconfiguration').buildUrl(),
-                            }
-                        ]
-                    }
+                    }, 
+//                    {
+//                        xtype: 'fieldcontainer',
+//                        ui: 'actions',
+//                        fieldLabel: '&nbsp',
+//                        items: [
+//                            {
+//                                text: Uni.I18n.translate('general.button.cancel', 'IMT', 'Back'),
+//                                xtype: 'button',
+//                                ui: 'action',
+//                                itemId: 'backLink',
+//                                href: me.router.getRoute('administration/metrologyconfiguration').buildUrl(),
+//                            }
+//                        ]
+//                    }
                 ]
             }
         ];
