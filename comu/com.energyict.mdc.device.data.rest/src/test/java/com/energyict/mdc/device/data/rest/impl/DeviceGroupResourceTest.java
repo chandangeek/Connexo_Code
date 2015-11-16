@@ -4,8 +4,10 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.rest.util.RestQuery;
+import com.elster.jupiter.search.SearchDomain;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
@@ -15,9 +17,7 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 
 import javax.ws.rs.HttpMethod;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.Arrays;
@@ -28,10 +28,7 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Created by bvn on 10/13/14.
@@ -133,7 +130,7 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
     }
     
     @Test
-    public void testGetMembersOfDeviceGroup() {
+    public void testGetMembersOfStaticDeviceGroup() {
         when(meteringGroupService.findEndDeviceGroup(111)).thenReturn(Optional.of(endDeviceGroup));
         EndDevice endDevice = mock(EndDevice.class);
         when(endDevice.getAmrId()).thenReturn("1");
@@ -149,6 +146,34 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
 
         String response = target("/devicegroups/111/devices").request().get(String.class);
         
+        JsonModel jsonModel = JsonModel.model(response);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(2);
+        assertThat(jsonModel.<List<Integer>>get("$.devices[*].id")).containsExactly(1, 2);
+        assertThat(jsonModel.<List<String>>get("$.devices[*].mRID")).containsExactly("MRID1", "MRID2");
+        assertThat(jsonModel.<List<String>>get("$.devices[*].serialNumber")).containsExactly("001", "002");
+        assertThat(jsonModel.<List<String>>get("$.devices[*].deviceTypeName")).containsExactly("Elster AS1440", "Iskra 001");
+        assertThat(jsonModel.<List<String>>get("$.devices[*].deviceConfigurationName")).containsExactly("Default", "Default");
+    }
+
+    @Test
+    public void testGetMembersOfDynamicDeviceGroup() {
+        QueryEndDeviceGroup queryEndDeviceGroup = mock(QueryEndDeviceGroup.class);
+        when(meteringGroupService.findEndDeviceGroup(111)).thenReturn(Optional.of(queryEndDeviceGroup));
+        when(queryEndDeviceGroup.isDynamic()).thenReturn(true);
+        SearchDomain searchDomain = mock(SearchDomain.class);
+        when(searchService.findDomain(Device.class.getName())).thenReturn(Optional.of(searchDomain));
+        Finder<Device> finder = mock(Finder.class);
+        doReturn(finder).when(searchDomain).finderFor(Matchers.any());
+
+        List<Device> devices = Arrays.asList(
+                mockDevice(1, "001", "Elster AS1440", "Default"),
+                mockDevice(2, "002", "Iskra 001", "Default"));
+        when(finder.from(Matchers.any())).thenReturn(finder);
+        when(finder.find()).thenReturn(devices);
+        when(finder.stream()).thenReturn(Stream.of(devices.get(0), devices.get(1)));
+
+        String response = target("/devicegroups/111/devices").request().get(String.class);
+
         JsonModel jsonModel = JsonModel.model(response);
         assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(2);
         assertThat(jsonModel.<List<Integer>>get("$.devices[*].id")).containsExactly(1, 2);

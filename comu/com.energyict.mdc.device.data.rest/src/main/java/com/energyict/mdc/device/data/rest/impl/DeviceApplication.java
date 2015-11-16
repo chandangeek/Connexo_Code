@@ -287,6 +287,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
         keys.addAll(Arrays.asList(CompletionCodeTranslationKeys.values()));
         keys.addAll(Arrays.asList(DeviceMessageStatusTranslationKeys.values()));
         keys.addAll(Arrays.asList(ConnectionStrategyTranslationKeys.values()));
+        keys.addAll(Arrays.asList(DeviceSearchModelTranslationKeys.values()));
         return keys;
     }
 
