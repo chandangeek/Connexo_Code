@@ -18,7 +18,7 @@ public interface ServerComTaskExecution extends ComTaskExecution, HasLastComTask
      * Sets the given Comport as 'lock'
      * @param comPort the comPort that is about to execute the ComTaskExecution
      */
-    public void setLockedComPort(ComPort comPort);
+    void setLockedComPort(ComPort comPort);
 
     /**
      * Notifies this ComTaskExecution that the execution has completed without errors.
@@ -31,7 +31,7 @@ public interface ServerComTaskExecution extends ComTaskExecution, HasLastComTask
      * @see #isExecuting()
      * @see #getExecutingComPort()
      */
-    public void executionCompleted ();
+    void executionCompleted();
 
     /**
      * Notifies this ComTaskExecution that the execution has failed.
@@ -44,7 +44,7 @@ public interface ServerComTaskExecution extends ComTaskExecution, HasLastComTask
      * @see #isExecuting()
      * @see #getExecutingComPort()
      */
-    public void executionFailed ();
+    void executionFailed();
 
     /**
      * Notifies this ComTaskExecution that execution has been started
@@ -61,7 +61,7 @@ public interface ServerComTaskExecution extends ComTaskExecution, HasLastComTask
      * @see #isExecuting()
      * @see #getExecutingComPort()
      */
-    public void executionStarted (ComPort comPort);
+    void executionStarted(ComPort comPort);
 
     /**
      * Makes this ComTaskExecution obsolete, i.e. it will no longer execute
@@ -69,7 +69,7 @@ public interface ServerComTaskExecution extends ComTaskExecution, HasLastComTask
      * <p>
      * Note: the call needs to run in a Transaction, no additional save() is required.
      */
-    public void makeObsolete();
+    void makeObsolete();
 
     /**
      * Notifies this ComTaskExecution that the ConnectionTask
@@ -80,6 +80,6 @@ public interface ServerComTaskExecution extends ComTaskExecution, HasLastComTask
      * ConnectionTask as the default one to link this ComTaskExecution
      * to that new default ConnectionTask.
      */
-    public void connectionTaskRemoved ();
+    void connectionTaskRemoved();
 
 }

@@ -13,7 +13,9 @@ import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.ComTaskExecutionFields;
+import com.energyict.mdc.device.data.CommunicationTaskService;
+import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.exceptions.CannotUpdateObsoleteComTaskExecutionException;
 import com.energyict.mdc.device.data.exceptions.ComTaskExecutionIsAlreadyObsoleteException;
 import com.energyict.mdc.device.data.exceptions.ComTaskExecutionIsExecutingAndCannotBecomeObsoleteException;
@@ -38,6 +40,7 @@ import com.energyict.mdc.engine.config.ComPort;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.ComTask;
+
 import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
@@ -748,10 +751,14 @@ public abstract class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExe
 
     public abstract static class AbstractComTaskExecutionBuilder<C extends ComTaskExecution, CI extends ComTaskExecutionImpl> implements ComTaskExecutionBuilder<C> {
 
-        protected final CI comTaskExecution;
+        private final CI comTaskExecution;
 
         protected AbstractComTaskExecutionBuilder(CI instance) {
             this.comTaskExecution = instance;
+        }
+
+        protected CI getComTaskExecution() {
+            return this.comTaskExecution;
         }
 
         @Override

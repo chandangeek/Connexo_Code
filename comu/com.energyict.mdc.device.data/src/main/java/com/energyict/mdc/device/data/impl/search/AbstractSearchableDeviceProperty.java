@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
+import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.And;
 import com.elster.jupiter.util.conditions.Comparison;
@@ -11,12 +13,15 @@ import com.elster.jupiter.util.conditions.Exists;
 import com.elster.jupiter.util.conditions.FragmentExpression;
 import com.elster.jupiter.util.conditions.Membership;
 import com.elster.jupiter.util.conditions.Not;
+import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Or;
 import com.elster.jupiter.util.conditions.Text;
 import com.elster.jupiter.util.conditions.Visitor;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
+import com.energyict.mdc.device.data.impl.search.sqlbuilder.ValueBinder;
+import com.energyict.mdc.dynamic.TimeDurationValueFactory;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -31,7 +36,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-28 (13:16)
  */
-public abstract class AbstractSearchableDeviceProperty implements SearchableDeviceProperty, Visitor {
+public abstract class AbstractSearchableDeviceProperty implements SearchableDeviceProperty, Visitor, ValueBinder {
 
     private SqlBuilder underConstruction = new SqlBuilder();
     private String columnName;
@@ -65,7 +70,7 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
     }
 
     protected SqlFragment toSqlFragment(Instant instant) {
-        return new InstantFragment(instant);
+        return new InstantFragment(this, instant);
     }
 
     public void visitAnd(And and) {
@@ -89,7 +94,7 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
 
     @Override
     public void visitComparison(Comparison comparison) {
-        this.underConstruction.add(new ComparisonFragment(this.columnName, comparison));
+        this.underConstruction.add(new ComparisonFragment(this, this.columnName, comparison));
     }
 
     @Override
@@ -102,17 +107,21 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
 
     @Override
     public void visitTrue(Constant trueCondition) {
-        // Ignore
+        this.underConstruction.add(new ComparisonFragment(this, this.columnName, Operator.EQUAL.compare(this.columnName, "Y")));
     }
 
     @Override
     public void visitFalse(Constant falseCondition) {
-        // Ignore
+        this.underConstruction.openBracket();
+        this.underConstruction.add(new ComparisonFragment(this, this.columnName, Operator.EQUAL.compare(this.columnName, "N")));
+        this.underConstruction.append(" OR ");
+        this.underConstruction.add(new ComparisonFragment(this, this.columnName, Operator.ISNULL.compare(this.columnName)));
+        this.underConstruction.closeBracket();
     }
 
     @Override
     public void visitContains(Contains contains) {
-        this.underConstruction.add(new InFragment(this.columnName, contains));
+        this.underConstruction.add(new InFragment(this, this.columnName, contains));
     }
 
     @Override
@@ -147,22 +156,41 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
         Where.where(this.columnName).isEffective(this.now).visit(this);
     }
 
-    private abstract static class ProxyAwareSqlFragment {
+    @Override
+    public void bindSingleValue(PreparedStatement statement, Object value, int bindPosition) throws SQLException {
+        if (value instanceof HasId) {
+            HasId hasId = (HasId) value;
+            statement.setLong(bindPosition, hasId.getId());
+        } else if (value instanceof HasIdAndName) {
+            HasIdAndName hasId = (HasIdAndName) value;
+            statement.setObject(bindPosition, hasId.getId());
+        } else if (value instanceof TimeDuration) {
+            new TimeDurationValueFactory().bind(statement, bindPosition, (TimeDuration) value);
+        } else if (value instanceof Instant){
+            statement.setLong(bindPosition, ((Instant) value).toEpochMilli());
+        } else {
+            statement.setObject(bindPosition, value);
+        }
+    }
+
+    private abstract static class ProxyAwareSqlFragment{
+
+        private final ValueBinder valueBinder;
+
+        protected ProxyAwareSqlFragment(ValueBinder valueBinder) {
+            this.valueBinder = valueBinder;
+        }
+
         protected void bindSingleValue(PreparedStatement statement, Object value, int bindPosition) throws SQLException {
-            if (value instanceof HasId) {
-                HasId hasId = (HasId) value;
-                statement.setLong(bindPosition, hasId.getId());
-            }
-            else {
-                statement.setObject(bindPosition, value);
-            }
+            this.valueBinder.bindSingleValue(statement, value, bindPosition);
         }
     }
 
     private static class InstantFragment extends ProxyAwareSqlFragment implements SqlFragment {
         private final Instant instant;
 
-        public InstantFragment(Instant instant) {
+        public InstantFragment(ValueBinder valueBinder, Instant instant) {
+            super(valueBinder);
             this.instant = instant;
         }
 
@@ -182,8 +210,8 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
         private final String columnName;
         private final Comparison comparison;
 
-        private ComparisonFragment(String columnName, Comparison comparison) {
-            super();
+        private ComparisonFragment(ValueBinder valueBinder, String columnName, Comparison comparison) {
+            super(valueBinder);
             this.columnName = columnName;
             this.comparison = comparison;
         }
@@ -208,8 +236,8 @@ public abstract class AbstractSearchableDeviceProperty implements SearchableDevi
         private final String columnName;
         private final Contains contains;
 
-        private InFragment(String columnName, Contains contains) {
-            super();
+        private InFragment(ValueBinder valueBinder, String columnName, Contains contains) {
+            super(valueBinder);
             this.columnName = columnName;
             this.contains = contains;
         }

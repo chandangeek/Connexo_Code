@@ -24,8 +24,6 @@ public interface ConnectionTaskPropertyProvider {
      */
     TypedProperties getTypedProperties ();
 
-    boolean hasDirtyProperties();
-
     void saveAllProperties();
 
     void removeAllProperties();
