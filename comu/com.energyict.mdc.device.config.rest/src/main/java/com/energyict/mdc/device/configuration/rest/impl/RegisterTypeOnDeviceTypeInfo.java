@@ -12,6 +12,7 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,7 +30,7 @@ public class RegisterTypeOnDeviceTypeInfo {
     public ReadingTypeInfo readingType;
     public ReadingTypeInfo calculatedReadingType;
     public DeviceTypeCustomPropertySetInfo customPropertySet;
-    public List<ReadingTypeInfo> multipliedCalculatedReadingType;
+    public List<ReadingTypeInfo> multipliedCalculatedReadingType = new ArrayList<>();
     public long version;
     public VersionInfo<Long> parent;
 
