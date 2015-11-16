@@ -7,6 +7,7 @@ import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
 import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
@@ -34,10 +35,11 @@ public class SetValidateOnStorePostBuilder implements Consumer<Device> {
     public SetValidateOnStorePostBuilder(MeteringService meteringService,
                                          MeteringGroupsService meteringGroupsService,
                                          DeviceConfigurationService deviceConfigurationService,
-                                         ValidationService validationService){
+                                         ValidationService validationService,
+                                         SearchService searchService){
        this.meteringService = meteringService;
        this.validationService = validationService;
-       this.deviceGroupBuilder =  DeviceGroupTpl.A1800_DEVICES.get(new DeviceGroupBuilder(meteringGroupsService, deviceConfigurationService));
+       this.deviceGroupBuilder =  DeviceGroupTpl.A1800_DEVICES.get(new DeviceGroupBuilder(meteringGroupsService, deviceConfigurationService, searchService));
        this.validationTaskBuilder = new DataValidationTaskBuilder(validationService);
     }
 

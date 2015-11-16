@@ -56,6 +56,8 @@ import com.elster.jupiter.orm.impl.OrmServiceImpl;
 import com.elster.jupiter.parties.impl.PartyModule;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
 import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.search.impl.SearchModule;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
 import com.elster.jupiter.tasks.impl.TaskModule;
@@ -98,6 +100,7 @@ import com.energyict.mdc.device.data.LogBook;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
 import com.energyict.mdc.device.data.impl.DeviceServiceImpl;
+import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
 import com.energyict.mdc.device.data.importers.impl.attributes.connection.ConnectionAttributesImportFactory;
 import com.energyict.mdc.device.data.importers.impl.attributes.security.SecurityAttributesImportFactory;
@@ -295,6 +298,7 @@ public class DemoTest {
                 new NlsModule(),
                 new UserModule(),
                 new MeteringGroupsModule(),
+                new SearchModule(),
                 new KpiModule(),
                 new TaskModule(),
                 new com.elster.jupiter.issue.impl.module.IssueModule(),
@@ -749,6 +753,7 @@ public class DemoTest {
             createRequiredProtocols();
             createDefaultStuff();
             injector.getInstance(DemoServiceImpl.class);
+            prepareSearchDomain();
             ctx.commit();
         }
         tuneDeviceCountForSpeedTest();
@@ -854,4 +859,9 @@ public class DemoTest {
         }
     }
 
+    private void prepareSearchDomain() {
+        SearchService searchService = injector.getInstance(SearchService.class);
+        DeviceSearchDomain deviceSearchDomain = injector.getInstance(DeviceSearchDomain.class);
+        searchService.register(deviceSearchDomain);
+    }
 }
