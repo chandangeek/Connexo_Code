@@ -407,7 +407,6 @@ public enum TableSpecs {
             Table<ComTaskExecutionSession> table = dataModel.addTable(name(), ComTaskExecutionSession.class);
             table.map(ComTaskExecutionSessionImpl.class);
             Column id = table.addAutoIdColumn();
-            table.addAuditColumns();
             Column device = table.column("DEVICE").number().notNull().add();
             Column session = table.column("COMSESSION").number().notNull().add();
             table.column("STARTDATE").number().conversion(NUMBER2INSTANT).notNull().map(ComTaskExecutionSessionImpl.Fields.START_DATE.fieldName()).add();
