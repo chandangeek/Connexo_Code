@@ -144,6 +144,7 @@ public class DeviceSearchDomain implements SearchDomain {
                 injector.getInstance(ComTaskConnectionMethodSearchableProperty.class).init(this, comTaskGroup),
                 injector.getInstance(ComTaskNextCommunicationSearchableProperty.class).init(this, comTaskGroup),
                 injector.getInstance(ComTaskLastCommunicationSearchableProperty.class).init(this, comTaskGroup),
+                injector.getInstance(ComTaskStatusSearchableProperty.class).init(this, comTaskGroup),
                 injector.getInstance(ConnectionNameSearchableProperty.class).init(this, connectionGroup),
                 injector.getInstance(ConnectionDirectionSearchableProperty.class).init(this, connectionGroup),
                 injector.getInstance(ConnectionCommunicationPortPoolSearchableProperty.class).init(this, connectionGroup),

@@ -52,10 +52,7 @@ import static org.mockito.Matchers.anyList;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.startsWith;
 import static org.mockito.Mockito.anyBoolean;
-import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests the {@link DeviceSearchDomain} component.
@@ -205,6 +202,7 @@ public class DeviceSearchDomainTest {
         verify(this.dataModel).getInstance(ComTaskConnectionMethodSearchableProperty.class);
         verify(this.dataModel).getInstance(ComTaskNextCommunicationSearchableProperty.class);
         verify(this.dataModel).getInstance(ComTaskLastCommunicationSearchableProperty.class);
+        verify(this.dataModel).getInstance(ComTaskStatusSearchableProperty.class);
         verify(this.dataModel).getInstance(ConnectionNameSearchableProperty.class);
         verify(this.dataModel).getInstance(ConnectionDirectionSearchableProperty.class);
         verify(this.dataModel).getInstance(ConnectionCommunicationPortPoolSearchableProperty.class);
@@ -555,6 +553,14 @@ public class DeviceSearchDomainTest {
                 eq(FactoryIds.SECURITY_SET),
                 anyList())).thenReturn(securitySetSpec);
         /** {@link #mockConnectionMethodPropertySpec()} */
+        PropertySpec currentStatus = mock(PropertySpec.class);
+        when(currentStatus.getName()).thenReturn(ComTaskStatusSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.stringReferencePropertySpec(
+                eq(ComTaskStatusSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                any(),
+                anyVararg()
+        )).thenReturn(currentStatus);
     }
 
     private void mockConnections() {
