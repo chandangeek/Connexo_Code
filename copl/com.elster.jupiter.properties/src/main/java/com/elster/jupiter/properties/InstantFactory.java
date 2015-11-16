@@ -1,7 +1,10 @@
 package com.elster.jupiter.properties;
 
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.time.Instant;
 
 /**
@@ -68,4 +71,21 @@ public class InstantFactory extends AbstractValueFactory<Instant> {
         }
     }
 
+    @Override
+    public void bind(SqlBuilder builder, Instant value) {
+        if (value != null) {
+            builder.addLong(value.toEpochMilli());
+        } else {
+            builder.addNull(this.getJdbcType());
+        }
+    }
+
+    @Override
+    public void bind(PreparedStatement statement, int offset, Instant value) throws SQLException {
+        if (value != null) {
+            statement.setLong(offset, value.toEpochMilli());
+        } else {
+            statement.setNull(offset, this.getJdbcType());
+        }
+    }
 }
