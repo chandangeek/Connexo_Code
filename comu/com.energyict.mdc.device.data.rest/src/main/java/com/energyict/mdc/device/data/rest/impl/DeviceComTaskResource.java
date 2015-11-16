@@ -91,7 +91,7 @@ public class DeviceComTaskResource {
         if(comTaskExecutions.isEmpty()){
             List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
             for (ComTaskEnablement comTaskEnablement : comTaskEnablements) {
-                comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement));
+                comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).add());
             }
         }
         if (!comTaskExecutions.isEmpty()) {
@@ -113,7 +113,7 @@ public class DeviceComTaskResource {
         if(comTaskExecutions.isEmpty()){
             List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
             for (ComTaskEnablement comTaskEnablement : comTaskEnablements) {
-                comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement));
+                comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).add());
             }
         }
         if (!comTaskExecutions.isEmpty()) {
@@ -136,7 +136,7 @@ public class DeviceComTaskResource {
         if(comTaskExecutions.isEmpty()){
             List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
             for (ComTaskEnablement comTaskEnablement : comTaskEnablements) {
-                comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement));
+                comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).add());
             }
         }
         if (!comTaskExecutions.isEmpty()) {
@@ -159,7 +159,7 @@ public class DeviceComTaskResource {
         if(comTaskExecutions.isEmpty()){
             List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
             for (ComTaskEnablement comTaskEnablement : comTaskEnablements) {
-                comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement));
+                comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).add());
             }
         }
         if (!comTaskExecutions.isEmpty()) {
@@ -189,7 +189,7 @@ public class DeviceComTaskResource {
         Device device = resourceHelper.lockDeviceOrThrowException(info.device);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
         if (!comTaskExecutions.isEmpty()) {
-            comTaskExecutions.forEach(runComTaskFromExecution());
+            comTaskExecutions.forEach(ComTaskExecution::scheduleNow);
         } else {
             List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
             comTaskEnablements.forEach(runComTaskFromEnablement(device));
@@ -231,7 +231,7 @@ public class DeviceComTaskResource {
         if(comTaskExecutions.isEmpty()){
             List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
             for (ComTaskEnablement comTaskEnablement : comTaskEnablements) {
-                comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement));
+                comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).add());
             }
         }
         ComTaskExecution comTaskExecution = getComTaskExecutionForDeviceAndComTaskOrThrowException(comTaskId, device);
@@ -314,7 +314,7 @@ public class DeviceComTaskResource {
         if (comTaskExecutions.isEmpty()) {
             List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
             for (ComTaskEnablement comTaskEnablement : comTaskEnablements) {
-                comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement));
+                comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).add());
             }
         }
         comTaskExecutions.stream().filter(cte -> cte.isOnHold()).forEach(cte -> cte.updateNextExecutionTimestamp());
@@ -338,7 +338,7 @@ public class DeviceComTaskResource {
         if (comTaskExecutions.isEmpty()) {
             List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
             for (ComTaskEnablement comTaskEnablement : comTaskEnablements) {
-                comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement));
+                comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).add());
             }
         }
         comTaskExecutions.stream().filter(cte -> !cte.isOnHold()).forEach(cte -> cte.putOnHold());
@@ -387,32 +387,27 @@ public class DeviceComTaskResource {
 
     private Consumer<? super ComTaskEnablement> runComTaskFromEnablement(Device device) {
         return comTaskEnablement -> {
-            ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement);
-            manuallyScheduledComTaskExecution.scheduleNow();
+            createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).scheduleNow().add();
         };
     }
 
     private Consumer<? super ComTaskEnablement> runComTaskFromEnablementNow(Device device) {
         return comTaskEnablement -> {
-            ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement);
-            manuallyScheduledComTaskExecution.runNow();
+            createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).runNow().add();
         };
     }
 
-    private ManuallyScheduledComTaskExecution createManuallyScheduledComTaskExecutionWithoutFrequency(Device device, ComTaskEnablement comTaskEnablement) {
+    private ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> createManuallyScheduledComTaskExecutionWithoutFrequency(Device device, ComTaskEnablement comTaskEnablement) {
         ComTaskExecutionBuilder<ManuallyScheduledComTaskExecution> manuallyScheduledComTaskExecutionComTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
         if (comTaskEnablement.hasPartialConnectionTask()) {
             device.getConnectionTasks().stream()
                     .filter(connectionTask -> connectionTask.getPartialConnectionTask().getId() == comTaskEnablement.getPartialConnectionTask().get().getId())
                     .forEach(manuallyScheduledComTaskExecutionComTaskExecutionBuilder::connectionTask);
         }
-        ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = manuallyScheduledComTaskExecutionComTaskExecutionBuilder.add();
-        device.save();
-        return manuallyScheduledComTaskExecution;
-    }
-
-    private Consumer<? super ComTaskExecution> runComTaskFromExecution() {
-        return ComTaskExecution::scheduleNow;
+        return manuallyScheduledComTaskExecutionComTaskExecutionBuilder;
+//        ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = manuallyScheduledComTaskExecutionComTaskExecutionBuilder.add();
+//
+//        return manuallyScheduledComTaskExecution;
     }
 
     private Consumer<? super ComTaskExecution> runComTaskFromExecutionNow() {

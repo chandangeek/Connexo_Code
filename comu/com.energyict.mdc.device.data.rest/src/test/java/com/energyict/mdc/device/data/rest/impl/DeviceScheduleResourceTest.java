@@ -305,13 +305,14 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(protocolDialectConfigurationProperties);
         ComTaskExecutionBuilder comTaskExecutionBuilder = mock(ComTaskExecutionBuilder.class);
         when(device.newAdHocComTaskExecution(comTaskEnablement)).thenReturn(comTaskExecutionBuilder);
+        when(comTaskExecutionBuilder.scheduleNow()).thenReturn(comTaskExecutionBuilder);
         ManuallyScheduledComTaskExecution comTaskExecution = mock(ManuallyScheduledComTaskExecution.class);
         when(comTaskExecutionBuilder.add()).thenReturn(comTaskExecution);
 
         Response response = target("/devices/1/schedules").request().post(Entity.json(schedulingInfo));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         verify(comTaskExecutionBuilder, times(1)).add();
-        verify(comTaskExecution, times(1)).scheduleNow();
+        verify(comTaskExecutionBuilder, times(1)).scheduleNow();
     }
 
     @Test
