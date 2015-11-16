@@ -423,7 +423,7 @@ Ext.define('Uni.service.Search', {
         if (widget.property.get('affectsAvailableDomainProperties')) {
             store = me.getSearchPropertiesStore();
             store.clearFilter(true);
-            store.addFilter(widget.getFilter(), false);
+            store.addFilter(me.getFilters(), false);
             store.load();
         }
 
@@ -443,7 +443,7 @@ Ext.define('Uni.service.Search', {
                         //    Ext.Ajax.abort(store.lastRequest);
                         //}
                         store.clearFilter(true);
-                        store.addFilter(widget.getFilter(), false);
+                        store.addFilter(me.getFilters(), false);
                         //item.menu.setLoading(true);
                         //store.load({
                         //    callback: function () {
