@@ -1,5 +1,48 @@
 package com.energyict.mdc.device.config.impl.deviceconfigchange;
 
+import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
+import com.elster.jupiter.datavault.impl.DataVaultModule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.domain.util.impl.DomainUtilModule;
+import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.estimation.impl.EstimationModule;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.events.impl.EventsModule;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
+import com.elster.jupiter.ids.impl.IdsModule;
+import com.elster.jupiter.license.License;
+import com.elster.jupiter.license.LicenseService;
+import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
+import com.elster.jupiter.metering.impl.MeteringModule;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.impl.OrmModule;
+import com.elster.jupiter.parties.impl.PartyModule;
+import com.elster.jupiter.properties.impl.BasicPropertiesModule;
+import com.elster.jupiter.pubsub.impl.PubSubModule;
+import com.elster.jupiter.search.impl.SearchModule;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
+import com.elster.jupiter.tasks.impl.TaskModule;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.time.impl.TimeModule;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.users.impl.UserModule;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.UtilModule;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.impl.ValidationModule;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.device.config.DeviceType;
@@ -41,52 +84,17 @@ import com.energyict.mdc.scheduling.SchedulingModule;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TasksModule;
-
-import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
-import com.elster.jupiter.cps.CustomPropertySetService;
-import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
-import com.elster.jupiter.datavault.impl.DataVaultModule;
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
-import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
-import com.elster.jupiter.domain.util.impl.DomainUtilModule;
-import com.elster.jupiter.estimation.EstimationService;
-import com.elster.jupiter.estimation.impl.EstimationModule;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.events.impl.EventsModule;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
-import com.elster.jupiter.fsm.impl.FiniteStateMachineModule;
-import com.elster.jupiter.ids.impl.IdsModule;
-import com.elster.jupiter.license.License;
-import com.elster.jupiter.license.LicenseService;
-import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.groups.impl.MeteringGroupsModule;
-import com.elster.jupiter.metering.impl.MeteringModule;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.nls.impl.NlsModule;
-import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.impl.OrmModule;
-import com.elster.jupiter.parties.impl.PartyModule;
-import com.elster.jupiter.properties.impl.BasicPropertiesModule;
-import com.elster.jupiter.pubsub.impl.PubSubModule;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.security.thread.impl.ThreadSecurityModule;
-import com.elster.jupiter.tasks.impl.TaskModule;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.time.impl.TimeModule;
-import com.elster.jupiter.transaction.TransactionContext;
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.impl.TransactionModule;
-import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.users.impl.UserModule;
-import com.elster.jupiter.util.HasId;
-import com.elster.jupiter.util.UtilModule;
-import com.elster.jupiter.validation.ValidationService;
-import com.elster.jupiter.validation.impl.ValidationModule;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Rule;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
@@ -98,17 +106,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Copyrights EnergyICT
@@ -200,6 +200,7 @@ public abstract class AbstractConflictIT {
                     new ValidationModule(),
                     new EstimationModule(),
                     new MeteringGroupsModule(),
+                    new SearchModule(),
                     new TaskModule(),
                     new IssuesModule(),
                     new BasicPropertiesModule(),
