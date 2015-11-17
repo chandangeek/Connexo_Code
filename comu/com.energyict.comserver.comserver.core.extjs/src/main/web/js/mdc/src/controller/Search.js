@@ -140,6 +140,11 @@ Ext.define('Mdc.controller.Search', {
             handler: me.showBulkAction,
             scope: me
         });
+
+        me.service.on('searchResultsBeforeLoad', me.availableClearAll, me);
+        widget.on('destroy', function () {
+            me.service.un('searchResultsBeforeLoad', me.availableClearAll, me);
+        }, me)
     },
 
     showBulkAction: function () {
@@ -147,5 +152,13 @@ Ext.define('Mdc.controller.Search', {
             router = me.getController('Uni.controller.history.Router');
 
         router.getRoute('search/bulkAction').forward();
+    },
+
+    availableClearAll: function () {
+        var me = this,
+            searchOverview = me.getSearchOverview(),
+            filters = me.service.getFilters();
+
+        searchOverview.down('[action=clearFilters]').setDisabled(!(filters && filters.length));
     }
 });

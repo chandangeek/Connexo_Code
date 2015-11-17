@@ -24,8 +24,8 @@ Ext.define('Mdc.view.setup.devicegroup.Wizard', {
                 xtype: 'device-group-wizard-step1',
                 itemId: 'devicegroup-wizard-step1',
                 title: me.isEdit
-                    ? Uni.I18n.translate('devicegroup.wizard.step1title.edit', 'MDC', 'Step 1 of 2: Set group name')
-                    : Uni.I18n.translate('devicegroup.wizard.step1title.add', 'MDC', 'Step 1 of 2: General attributes'),
+                    ? Uni.I18n.translate('devicegroup.wizard.step1title.edit', 'MDC', 'Step 1 of 4: Set group name')
+                    : Uni.I18n.translate('devicegroup.wizard.step1title.add', 'MDC', 'Step 1 of 4: General attributes'),
                 navigationIndex: 1,
                 isEdit: me.isEdit
             },
