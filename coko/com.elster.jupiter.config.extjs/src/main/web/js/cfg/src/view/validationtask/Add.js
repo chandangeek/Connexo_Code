@@ -49,6 +49,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                         itemId: 'txt-task-name',
                         width: 500,
                         required: true,
+                        allowBlank: false,
                         fieldLabel: Uni.I18n.translate('general.name', 'CFG', 'Name'),
                         enforceMaxLength: true,
                         maxLength: 80,
@@ -65,6 +66,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                     {
                         xtype: 'fieldcontainer',
                         fieldLabel: Uni.I18n.translate('validationTasks.general.grouptype', 'CFG', 'Group type'),
+                        required: true,
                         itemId: 'group-type-container',
                         layout: 'hbox',
                         items: [
@@ -284,7 +286,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                                 }
                             }
                         ]
-                    },,
+                    },
                     {
                         xtype: 'fieldcontainer',
                         ui: 'actions',
