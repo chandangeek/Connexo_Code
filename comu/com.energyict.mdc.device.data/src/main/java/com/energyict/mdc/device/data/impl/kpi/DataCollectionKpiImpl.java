@@ -1,11 +1,5 @@
 package com.energyict.mdc.device.data.impl.kpi;
 
-import com.energyict.mdc.common.TranslatableApplicationException;
-import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.device.data.impl.constraintvalidators.MustHaveUniqueEndDeviceGroup;
-import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
-import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
-
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.kpi.Kpi;
 import com.elster.jupiter.kpi.KpiBuilder;
@@ -21,13 +15,17 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.tasks.RecurrentTask;
-import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.ScheduleExpression;
+import com.energyict.mdc.common.TranslatableApplicationException;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
+import com.energyict.mdc.device.data.impl.constraintvalidators.MustHaveUniqueEndDeviceGroup;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
+import com.energyict.mdc.device.data.kpi.DataCollectionKpiScore;
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -416,13 +414,14 @@ public class DataCollectionKpiImpl implements DataCollectionKpi, PersistenceAwar
         public void save() {
             if (this.kpi.isPresent()) {
                 DestinationSpec destination = messageService.getDestinationSpec(DataCollectionKpiCalculatorHandlerFactory.TASK_DESTINATION).get();
-                RecurrentTaskBuilder taskBuilder = taskService.newBuilder();
-                taskBuilder.setName(taskName());
-                taskBuilder.setScheduleExpression(this.toScheduleExpression(this.kpi.get()));
-                taskBuilder.setDestination(destination);
-                taskBuilder.setPayLoad(scheduledExcutionPayload());
-                taskBuilder.scheduleImmediately(true);
-                RecurrentTask recurrentTask = taskBuilder.build();
+                RecurrentTask recurrentTask = taskService.newBuilder()
+                        .setApplication("MultiSense")
+                        .setName(taskName())
+                        .setScheduleExpression(this.toScheduleExpression(this.kpi.get()))
+                        .setDestination(destination)
+                        .setPayLoad(scheduledExcutionPayload())
+                        .scheduleImmediately(true)
+                        .build();
                 this.setRecurrentTask(recurrentTask);
             }
         }
