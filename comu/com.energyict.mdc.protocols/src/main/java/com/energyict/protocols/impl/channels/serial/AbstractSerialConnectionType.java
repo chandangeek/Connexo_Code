@@ -31,11 +31,13 @@ import java.util.Set;
  */
 public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
 
+    private final String serialComponentServiceId;
     private final SerialComponentService serialComponentService;
     private final Thesaurus thesaurus;
 
-    public AbstractSerialConnectionType(SerialComponentService serialComponentService, Thesaurus thesaurus) {
+    public AbstractSerialConnectionType(String serialComponentServiceId, SerialComponentService serialComponentService, Thesaurus thesaurus) {
         super();
+        this.serialComponentServiceId = serialComponentServiceId;
         this.serialComponentService = serialComponentService;
         this.thesaurus = thesaurus;
     }
@@ -64,7 +66,7 @@ public abstract class AbstractSerialConnectionType extends ConnectionTypeImpl {
 
     @Override
     public Optional<CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>>> getCustomPropertySet() {
-        return Optional.of(new SioSerialCustomPropertySet(this.thesaurus, this.serialComponentService));
+        return Optional.of(new SioSerialCustomPropertySet("CPS-" + this.serialComponentServiceId, this.thesaurus, this.serialComponentService));
     }
 
     protected Parities getParityValue() {

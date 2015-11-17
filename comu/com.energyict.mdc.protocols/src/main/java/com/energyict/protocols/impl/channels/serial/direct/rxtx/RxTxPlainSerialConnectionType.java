@@ -1,11 +1,10 @@
 package com.energyict.protocols.impl.channels.serial.direct.rxtx;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.io.SerialComponentService;
 import com.energyict.mdc.protocol.api.ConnectionException;
 import com.energyict.mdc.protocol.api.ConnectionType;
-
-import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.protocols.impl.ConnectionTypeServiceImpl;
 
 import javax.inject.Inject;
@@ -22,7 +21,7 @@ public class RxTxPlainSerialConnectionType extends RxTxSerialConnectionType {
 
     @Inject
     public RxTxPlainSerialConnectionType(@Named(ConnectionTypeServiceImpl.RXTX_PLAIN_GUICE_INJECTION_NAME) SerialComponentService plainRxTxSerialComponentService, Thesaurus thesaurus) {
-        super(plainRxTxSerialComponentService, thesaurus);
+        super(ConnectionTypeServiceImpl.RXTX_PLAIN_GUICE_INJECTION_NAME, plainRxTxSerialComponentService, thesaurus);
     }
 
     @Override

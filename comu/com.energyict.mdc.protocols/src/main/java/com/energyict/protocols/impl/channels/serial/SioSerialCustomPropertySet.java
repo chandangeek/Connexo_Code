@@ -31,13 +31,20 @@ import java.util.Set;
  */
 public class SioSerialCustomPropertySet implements CustomPropertySet<ConnectionProvider, SioSerialConnectionProperties> {
 
+    private final String id;
     private final Thesaurus thesaurus;
     private final SerialComponentService serialComponentService;
 
-    public SioSerialCustomPropertySet(Thesaurus thesaurus, SerialComponentService serialComponentService) {
+    public SioSerialCustomPropertySet(String id, Thesaurus thesaurus, SerialComponentService serialComponentService) {
         super();
+        this.id = id;
         this.thesaurus = thesaurus;
         this.serialComponentService = serialComponentService;
+    }
+
+    @Override
+    public String getId() {
+        return this.id;
     }
 
     @Override
