@@ -4,6 +4,7 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.devtools.persistence.test.rules.TransactionalRule;
+import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
@@ -119,9 +120,15 @@ public abstract class BaseTest {
             TaskService taskService = mock(TaskService.class);
             bind(TaskService.class).toInstance(taskService);
 
-            RecurrentTaskBuilder builder = mock(RecurrentTaskBuilder.class);
+            RecurrentTask recurrentTask = mock(RecurrentTask.class);
+            RecurrentTaskBuilder builder = FakeBuilder.initBuilderStub(recurrentTask, RecurrentTaskBuilder.class,
+                    RecurrentTaskBuilder.RecurrentTaskBuilderNameSetter.class,
+                    RecurrentTaskBuilder.RecurrentTaskBuilderDestinationSetter.class,
+                    RecurrentTaskBuilder.RecurrentTaskBuilderPayloadSetter.class,
+                    RecurrentTaskBuilder.RecurrentTaskBuilderScheduleSetter.class,
+                    RecurrentTaskBuilder.RecurrentTaskBuilderFinisher.class
+            );
             when(taskService.newBuilder()).thenReturn(builder);
-            when(builder.build()).thenReturn(mock(RecurrentTask.class));
 
             bind(KieResources.class).toInstance(mock(KieResources.class));
             bind(KnowledgeBaseFactoryService.class).toInstance(mockKnowledgeBaseFactoryService());
