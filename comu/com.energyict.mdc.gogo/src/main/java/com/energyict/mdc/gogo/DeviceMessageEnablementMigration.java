@@ -8,11 +8,14 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.security.Principal;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Optional;
 
 /**
@@ -56,7 +59,7 @@ public class DeviceMessageEnablementMigration implements Migrator {
 
     public void migrate() {
         executeTransaction(() -> {
-            Optional<? extends DataModel> dataModel = this.ormService.getDataModel("DTC");
+            Optional<DataModel> dataModel = this.ormService.getDataModel("DTC");
             if (dataModel.isPresent()) {
                 try (Connection connection = dataModel.get().getConnection(false);
                      final PreparedStatement statement = connection.prepareStatement(getUpdateClause())) {
