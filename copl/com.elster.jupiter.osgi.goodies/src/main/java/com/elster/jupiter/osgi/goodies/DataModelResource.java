@@ -1,19 +1,31 @@
 package com.elster.jupiter.osgi.goodies;
 
 
-import javax.inject.Inject;
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
+import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.TableConstraint;
 
-import com.elster.jupiter.orm.*;
 import com.google.common.base.Joiner;
 
-import java.util.*;
+import javax.inject.Inject;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Path("/datamodels")
 public class DataModelResource {
-	
+
 	@Inject
 	private OrmService ormService;
 
@@ -21,11 +33,11 @@ public class DataModelResource {
 	@Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
 	public List<DataModelInfo> getDataModels() {
 		return  ormService.getDataModels().stream()
-			.sorted((Comparator<DataModel>) Comparator.comparing(DataModel::getName)) // jdk 1.8u20 needs this cast , eclipse jdt not
-			.map( DataModelInfo::new)
+			.sorted(Comparator.comparing(DataModel::getName))
+			.map(DataModelInfo::new)
 			.collect(Collectors.toList());
 	}
-	
+
 	@GET
     @Path("/{componentName}.svg")
     @Produces("image/svg+xml")
@@ -34,7 +46,7 @@ public class DataModelResource {
 		String result = generate(dataModel);
     	return new GraphvizInterface().toSvg(result);
     }
-	
+
 	@GET
     @Path("/{componentName}/tables/{tableName}.svg")
     @Produces("image/svg+xml")
@@ -44,7 +56,7 @@ public class DataModelResource {
 		String result = generate(table);
     	return new GraphvizInterface().toSvg(result);
     }
-	
+
 	@GET
 	@Path("/{componentName}/tables/{tableName}.txt")
 	@Produces("text/plain")
@@ -57,15 +69,15 @@ public class DataModelResource {
 			return Joiner.on("\n").join(table.getDdl());
 		}
 	}
-	
+
 	private String generate(DataModel model) {
 		StringBuilder builder = new StringBuilder("digraph datamodel {\n");
-		Set<String> tables = new HashSet<>();		
+		Set<String> tables = new HashSet<>();
 		for (Table<?> table : model.getTables()) {
 			addTable(table,tables,builder);
 			for (ForeignKeyConstraint tableConstraint : table.getForeignKeyConstraints()) {
-				String arrowhead = tableConstraint.isNotNull() ? "teetee" : "teeodot";  
-				String arrowtail = "none"; 				
+				String arrowhead = tableConstraint.isNotNull() ? "teetee" : "teeodot";
+				String arrowtail = "none";
 				if (tableConstraint.getReverseFieldName() != null) {
 					if (tableConstraint.isOneToOne()) {
 						arrowtail = "teeodot";
@@ -84,7 +96,7 @@ public class DataModelResource {
 
 	private String generate(Table<?> table) {
 		StringBuilder builder = new StringBuilder("digraph table {\n");
-		builder.append("rankdir=\"LR\";\n");	
+		builder.append("rankdir=\"LR\";\n");
 		Set<String> tables = new HashSet<>();
 		addTable(table, tables, builder);
 		builder.append(table.getName() + ";\n");
@@ -92,7 +104,7 @@ public class DataModelResource {
 		for (Column column : table.getColumns()) {
 			String node = getNodeName(column);
 			builder.append(node + "[shape=plaintext label=\"" + column.getName() + "\"];\n");
-			builder.append(table.getName() + "->" + node + " [style=invis];\n");	
+			builder.append(table.getName() + "->" + node + " [style=invis];\n");
 			if (column.getFieldName() != null) {
 				String mapperNode = "\"" + table.getName() + "." + column.getName() + "." + column.getFieldName() +  "\"";
 				aspects.add(mapperNode);
@@ -102,9 +114,9 @@ public class DataModelResource {
 		}
 		builder.append("{rank=same;");
 		for (Column column : table.getColumns()) {
-			builder.append(getNodeName(column) + ";");			
+			builder.append(getNodeName(column) + ";");
 		}
-		builder.append("}\n");		
+		builder.append("}\n");
 		for (TableConstraint constraint : table.getConstraints()) {
 			builder.append(constraint.getName() + " [label=\"" + getLabel(constraint) + "\"];\n");
 			builder.append(table.getName() + "->" + constraint.getName() + ";\n");
@@ -118,7 +130,7 @@ public class DataModelResource {
 				builder.append(mapperNode + " [shape=plaintext label=\"" + foreignKey.getFieldName() + "\"];\n");
 				builder.append(foreignKey.getName() + "->" + mapperNode + ";\n");
 				addTable(foreignKey.getReferencedTable(), tables, builder);
-				String dir = foreignKey.getReverseFieldName() == null ? "forward" : "both"; 
+				String dir = foreignKey.getReverseFieldName() == null ? "forward" : "both";
 				builder.append(mapperNode + "->" + foreignKey.getReferencedTable().getName() + " [dir=" + dir + "];\n");
 			}
 		}
@@ -130,15 +142,15 @@ public class DataModelResource {
 			builder.append(mapperNode + "->" + constraint.getTable().getName() + " [dir=both];\n");
 		}
 		builder.append("{rank=same;");
-		
+
 		for (String aspect : aspects) {
-			builder.append(aspect + ";");			
+			builder.append(aspect + ";");
 		}
 		builder.append("}\n");
-		builder.append("}");		
+		builder.append("}");
 		return builder.toString();
 	}
-	
+
 	private List<ForeignKeyConstraint> getReferencing(Table<?> table) {
 		List<ForeignKeyConstraint> result = new ArrayList<>();
 		for (Table<?> each : table.getDataModel().getTables()) {
@@ -152,15 +164,15 @@ public class DataModelResource {
 		}
 		return result;
 	}
-	
+
 	private String getNodeName(Column column) {
 		return "\"" + column.getTable().getName() + "." + column.getName() + "\"";
 	}
-	
+
 	private String getLabel(TableConstraint constraint) {
 		if (constraint.isForeignKey()) {
 			return "Foreign Key";
-		} 
+		}
 		if (constraint.isPrimaryKey()) {
 			return "Primary Key";
 		}
@@ -169,20 +181,20 @@ public class DataModelResource {
 		}
 		return "Unknown Constraint";
 	}
-	
+
 	private void addTable(Table<?> table , Set<String> tables , StringBuilder builder) {
 		if (tables.contains(table.getName())) {
 			return;
 		}
 		tables.add(table.getName());
 		String shape = table.getJournalTableName() == null ? "box" : "invhouse";
- 		builder.append(table.getName() + "[shape=" + shape + " URL=\"/api/goodies/datamodels/" + table.getComponentName() + "/tables/" + table.getName() + ".svg\"];\n");		
+ 		builder.append(table.getName() + "[shape=" + shape + " URL=\"/api/goodies/datamodels/" + table.getComponentName() + "/tables/" + table.getName() + ".svg\"];\n");
 	}
-	
+
 	static private class DataModelInfo {
 		public String name;
 		public String description;
-		
+
 		DataModelInfo(DataModel model) {
 			this.name = model.getName();
 			this.description = model.getDescription();
