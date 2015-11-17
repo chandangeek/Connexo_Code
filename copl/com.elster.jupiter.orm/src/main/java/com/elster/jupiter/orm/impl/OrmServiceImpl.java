@@ -16,6 +16,7 @@ import com.elster.jupiter.orm.schema.SchemaInfoProvider;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.streams.Functions;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -86,7 +87,11 @@ public class OrmServiceImpl implements OrmService, InstallService {
     }
 
     @Override
-    public Optional<DataModelImpl> getDataModel(String name) {
+    public Optional<DataModel> getDataModel(String name) {
+        return Optional.ofNullable(dataModels.get(name));
+    }
+
+    public Optional<DataModelImpl> getDataModelImpl(String name) {
         return Optional.ofNullable(dataModels.get(name));
     }
 
@@ -221,7 +226,7 @@ public class OrmServiceImpl implements OrmService, InstallService {
     }
 
     @Override
-    public List<DataModelImpl> getDataModels() {
+    public List<DataModel> getDataModels() {
         synchronized (dataModels) {
             return new ArrayList<>(dataModels.values());
         }
@@ -271,13 +276,12 @@ public class OrmServiceImpl implements OrmService, InstallService {
     }
 
     <T> Optional<DataMapperImpl<T>> optionalMapper(Class<T> iface) {
-        for (DataModelImpl model : getDataModels()) {
-            Optional<DataMapperImpl<T>> candidate = model.optionalMapper(iface);
-            if (candidate.isPresent()) {
-                return candidate;
-            }
-        }
-        return Optional.empty();
+        return getDataModels()
+                .stream()
+                .map(DataModelImpl.class::cast)
+                .map(model -> model.optionalMapper(iface))
+                .flatMap(Functions.asStream())
+                .findFirst();
     }
 
     public DataModelImpl getUpgradeDataModel(DataModel model) {

@@ -1,7 +1,9 @@
 package com.elster.jupiter.orm;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.orm.associations.RefAny;
+
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -39,12 +41,12 @@ public interface OrmService {
     /*
      * Obtain all registered dataModels
      */
-    List<? extends DataModel> getDataModels();
+    List<DataModel> getDataModels();
 
     /*
      * Gets the dataModel with the given name
      */
-    Optional<? extends DataModel> getDataModel(String name);
+    Optional<DataModel> getDataModel(String name);
 
     /*
      * Cache coherence between app servers
