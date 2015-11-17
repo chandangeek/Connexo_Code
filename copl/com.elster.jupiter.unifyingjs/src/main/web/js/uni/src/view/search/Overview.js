@@ -4,6 +4,7 @@
 Ext.define('Uni.view.search.Overview', {
     extend: 'Ext.container.Container',
     xtype: 'uni-view-search-overview',
+    itemId: 'centerContainer', // added for test
     overflowY: 'auto',
 
     requires: [
@@ -111,12 +112,7 @@ Ext.define('Uni.view.search.Overview', {
                                 xtype: 'uni-search-internal-criteriapanel',
                                 itemId: 'search-criteria-removable',
                                 layout: 'column',
-                                //hidden: true,
-                                lbar: {
-                                    xtype: 'label',
-                                    text: '',
-                                    width: 100
-                                },
+                                margin: '0 0 0 100',
                                 service: me.getService()
                             },
                             {
@@ -135,7 +131,8 @@ Ext.define('Uni.view.search.Overview', {
                                         itemId: 'clear-all-button',
                                         text: Uni.I18n.translate('general.clearFilters', 'UNI', 'Clear all'),
                                         action: 'clearFilters',
-                                        margin: '0 0 0 0'
+                                        margin: '0 0 0 0',
+                                        disabled: true
                                     }
                                 ]
                             },

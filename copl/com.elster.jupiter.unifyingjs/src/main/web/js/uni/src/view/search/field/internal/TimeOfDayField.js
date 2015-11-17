@@ -29,6 +29,21 @@ Ext.define('Uni.view.search.field.internal.TimeOfDayField', {
         return value;
     },
 
+    setValue: function (value) {
+        this.down('#hours').setValue(parseInt(value/3600));
+        this.down('#minutes').setValue(value%3600/60);
+    },
+
+    setMinValue: function (minValue) {
+        this.down('#hours').setMinValue(parseInt(minValue/3600));
+        this.down('#minutes').setMinValue(minValue%3600/60);
+    },
+
+    setMaxValue: function (maxValue) {
+        this.down('#hours').setMaxValue(parseInt(maxValue/3600));
+        this.down('#minutes').setMaxValue(maxValue%3600/60);
+    },
+
     reset: function() {
         this.down('#hours').reset();
         this.down('#minutes').reset();
@@ -53,22 +68,12 @@ Ext.define('Uni.view.search.field.internal.TimeOfDayField', {
 
         me.items = [
             {
-                xtype: 'label',
-                itemId: 'label',
-                hidden: this.hideTime,
-                text: Uni.I18n.translate('search.field.datetime.at', 'UNI', 'at'),
-                padding: 5,
-                margin: 0
-            },
-            {
                 xtype: 'numberfield',
                 itemId: 'hours',
                 value: 0,
                 maxValue: 23,
                 minValue: 0,
                 width: 55,
-                hidden: this.hideTime,
-                disabled: true,
                 listeners: {
                     change: me.onChange,
                     scope: me
@@ -81,8 +86,6 @@ Ext.define('Uni.view.search.field.internal.TimeOfDayField', {
                 maxValue: 59,
                 minValue: 0,
                 width: 55,
-                hidden: this.hideTime,
-                disabled: true,
                 listeners: {
                     change: me.onChange,
                     scope: me

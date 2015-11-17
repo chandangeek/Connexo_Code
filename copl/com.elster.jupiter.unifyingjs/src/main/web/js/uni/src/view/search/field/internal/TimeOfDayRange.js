@@ -1,6 +1,6 @@
 Ext.define('Uni.view.search.field.internal.TimeOfDayRange', {
     extend: 'Uni.view.search.field.internal.DateRange',
-    alias: 'widget.uni-search-internal-single-timeOfDayRange',
+    alias: 'widget.uni-search-internal-timeOfDayRange',
     requires: [
         'Uni.view.search.field.internal.TimeOfDayField'
     ],
@@ -18,7 +18,7 @@ Ext.define('Uni.view.search.field.internal.TimeOfDayRange', {
                 itemId: 'from',
                 listeners: {
                     change: function(field) {
-                        me.down('#to').setMinValue(new Date(field.getValue()));
+                        me.down('#to').setMinValue(field.getValue());
                         me.fireEvent('change', me, me.getValue());
                     },
                     reset: function() {
@@ -31,7 +31,7 @@ Ext.define('Uni.view.search.field.internal.TimeOfDayRange', {
                 itemId: 'to',
                 listeners: {
                     change: function(field) {
-                        me.down('#from').setMaxValue(new Date(field.getValue()));
+                        me.down('#from').setMaxValue(field.getValue());
                         me.fireEvent('change', me, me.getValue());
                     },
                     reset: function() {

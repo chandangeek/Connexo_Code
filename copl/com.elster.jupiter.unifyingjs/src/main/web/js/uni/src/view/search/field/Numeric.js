@@ -17,7 +17,7 @@ Ext.define('Uni.view.search.field.Numeric', {
         this.menu.items.filterBy(function(item){
             return Ext.isFunction(item.getValue);
         }).each(function(item){
-            if (Ext.isDefined(item.getValue())) {value.push(item.getValue());}
+            if (!Ext.isEmpty(item.getValue())) {value.push(item.getValue());}
         });
 
         return Ext.isEmpty(value) ? null : value;

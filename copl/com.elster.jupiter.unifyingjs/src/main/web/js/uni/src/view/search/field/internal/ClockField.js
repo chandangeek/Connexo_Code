@@ -6,5 +6,9 @@ Ext.define('Uni.view.search.field.internal.ClockField', {
         var value = this.callParent(arguments);
 
         return value ? value / 1000 : value;
+    },
+
+    setValue: function(value) {
+        this.callParent([value * 1000]);
     }
 });
