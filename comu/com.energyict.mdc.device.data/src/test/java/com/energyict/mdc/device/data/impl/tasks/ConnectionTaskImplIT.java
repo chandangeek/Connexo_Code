@@ -1,9 +1,12 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.cps.EditPrivilege;
+import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.users.Privilege;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
@@ -39,11 +42,16 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Provides code reuse opportunities for test classes
@@ -480,6 +488,17 @@ public abstract class ConnectionTaskImplIT extends PersistenceIntegrationTest {
 
     protected ComTaskExecution getReloadedComTaskExecution(ComTaskExecution comTaskExecution) {
         return  inMemoryPersistence.getCommunicationTaskService().findComTaskExecution(comTaskExecution.getId()).get();
+    }
+
+    protected void grantAllViewAndEditPrivilegesToPrincipal() {
+        Set<Privilege> privileges = new HashSet<>();
+        Privilege editPrivilege = mock(Privilege.class);
+        when(editPrivilege.getName()).thenReturn(EditPrivilege.LEVEL_1.getPrivilege());
+        privileges.add(editPrivilege);
+        Privilege viewPrivilege = mock(Privilege.class);
+        when(viewPrivilege.getName()).thenReturn(ViewPrivilege.LEVEL_1.getPrivilege());
+        privileges.add(viewPrivilege);
+        when(inMemoryPersistence.getMockedUser().getPrivileges()).thenReturn(privileges);
     }
 
     private class ComTaskExecutionDialect implements DeviceProtocolDialect {

@@ -189,6 +189,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testCreateWithAllIpProperties() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialConnectionInitiationTask.save();
         ScheduledConnectionTaskImpl connectionTask = createASimpleScheduledConnectionTask();
@@ -221,6 +222,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testCreateWithOnlyRequiredIpPropertiesAndNoDefaultsOnPluggableClass() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
         ScheduledConnectionTaskImpl connectionTask = createASimpleScheduledConnectionTask();
@@ -244,6 +246,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testCreateWithOnlyRequiredIpPropertiesAndSomeDefaultsOnPluggableClass() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         // First update the properties of the ipConnectionType pluggable class
         outboundIpConnectionTypePluggableClass.removeProperty(outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionProperties.IP_ADDRESS.propertyName()).get());
         outboundIpConnectionTypePluggableClass.setProperty(outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionProperties.PORT.propertyName()).get(), PORT_PROPERTY_VALUE);
@@ -353,6 +356,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testUpdateIpConnectionTypeProperty() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
         ScheduledConnectionTaskImpl connectionTask = createASimpleScheduledConnectionTask();
@@ -375,6 +379,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testAddIpConnectionTypeProperty() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
         ScheduledConnectionTaskImpl connectionTask = createASimpleScheduledConnectionTask();
@@ -396,6 +401,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testRemoveIpConnectionTypeProperty() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
         ScheduledConnectionTaskImpl connectionTask = createASimpleScheduledConnectionTask();
@@ -417,6 +423,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testReturnToInheritedProperty() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         // First update the properties of the ipConnectionType pluggable class
         outboundIpConnectionTypePluggableClass.removeProperty(outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionProperties.IP_ADDRESS.propertyName()).get());
         outboundIpConnectionTypePluggableClass.setProperty(outboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionProperties.PORT.propertyName()).get(), UPDATED_PORT_PROPERTY_VALUE);
@@ -468,6 +475,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testGetPropertiesOnMultipleDates() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         // Create task with properties on may first 2011
         Instant mayFirst2011 = freezeClock(2011, Calendar.MAY, 1);
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
@@ -494,8 +502,8 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testGetPropertiesOnMultipleDatesAfterReload() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         // Create task with properties on may first 2011
-
         Instant mayFirst2011 = freezeClock(2011, Calendar.MAY, 1);
         partialScheduledConnectionTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialScheduledConnectionTask.save();
@@ -967,6 +975,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testDeleteWithNoProperties() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testDeleteWithNoProperties");
         long id = connectionTask.getId();
 
@@ -1010,6 +1019,7 @@ public class ScheduledConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testMakeObsoleteWithNoProperties() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         ScheduledConnectionTaskImpl connectionTask = this.createAsapWithNoPropertiesWithoutViolations("testMakeObsoleteWithNoProperties");
 
         // Business method

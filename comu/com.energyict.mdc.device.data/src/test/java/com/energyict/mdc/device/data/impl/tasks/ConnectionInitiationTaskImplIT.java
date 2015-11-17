@@ -76,6 +76,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testCreateWithOnlyRequiredPropertiesAndNoViolations() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         partialConnectionInitiationTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialConnectionInitiationTask.save();
         ConnectionInitiationTaskImpl connectionInitiationTask = (ConnectionInitiationTaskImpl) device.getConnectionInitiationTaskBuilder(partialConnectionInitiationTask)
@@ -177,6 +178,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testAddMissingProperties() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         partialConnectionInitiationTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialConnectionInitiationTask.save();
         ConnectionInitiationTaskImpl connectionInitiationTask = createSimpleConnectionInitiationTask();
@@ -231,6 +233,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testMakeObsoleteAlsoMakesRelationsObsolete() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         Instant now = inMemoryPersistence.getClock().instant();
         partialConnectionInitiationTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialConnectionInitiationTask.save();
@@ -342,6 +345,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testMakeObsolete() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         Instant now = this.freezeClock(2015, Calendar.MAY, 2);
         partialConnectionInitiationTask.setConnectionTypePluggableClass(outboundIpConnectionTypePluggableClass);
         partialConnectionInitiationTask.save();

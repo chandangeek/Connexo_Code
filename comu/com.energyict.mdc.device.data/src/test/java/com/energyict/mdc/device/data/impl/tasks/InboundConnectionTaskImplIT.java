@@ -293,6 +293,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testCreateWithAllIpProperties() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         partialInboundConnectionTask.setConnectionTypePluggableClass(inboundIpConnectionTypePluggableClass);
         partialInboundConnectionTask.save();
         InboundConnectionTaskImpl connectionTask = (InboundConnectionTaskImpl) this.device.getInboundConnectionTaskBuilder(partialInboundConnectionTask)
@@ -320,6 +321,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testCreateWithOnlyRequiredIpPropertiesAndSomeDefaultsOnPluggableClass() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         // First update the properties of the ipConnectionType pluggable class
         inboundIpConnectionTypePluggableClass.removeProperty(inboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionProperties.IP_ADDRESS.propertyName()).get());
         inboundIpConnectionTypePluggableClass.setProperty(inboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionProperties.PORT.propertyName()).get(), PORT_PROPERTY_VALUE);
@@ -439,6 +441,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testUpdateIpConnectionTypeProperty() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         partialInboundConnectionTask.setConnectionTypePluggableClass(inboundIpConnectionTypePluggableClass);
         partialInboundConnectionTask.save();
         InboundConnectionTaskImpl connectionTask = (InboundConnectionTaskImpl) this.device.getInboundConnectionTaskBuilder(partialInboundConnectionTask)
@@ -463,6 +466,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testAddIpConnectionTypeProperty() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         partialInboundConnectionTask.setConnectionTypePluggableClass(inboundIpConnectionTypePluggableClass);
         partialInboundConnectionTask.save();
         InboundConnectionTaskImpl connectionTask = (InboundConnectionTaskImpl) this.device.getInboundConnectionTaskBuilder(partialInboundConnectionTask)
@@ -488,6 +492,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CONNECTION_TASK_REQUIRED_PROPERTY_MISSING + "}")
     @Transactional
     public void testRemoveIpConnectionTypeProperty() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         partialInboundConnectionTask.setConnectionTypePluggableClass(inboundIpConnectionTypePluggableClass);
         partialInboundConnectionTask.save();
         InboundConnectionTaskImpl connectionTask = (InboundConnectionTaskImpl) this.device.getInboundConnectionTaskBuilder(partialInboundConnectionTask)
@@ -507,6 +512,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testReturnToInheritedProperty() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         // First update the properties of the ipConnectionType pluggable class
         inboundIpConnectionTypePluggableClass.setProperty(inboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionProperties.IP_ADDRESS.propertyName()).get(), IP_ADDRESS_PROPERTY_VALUE);
         inboundIpConnectionTypePluggableClass.setProperty(inboundIpConnectionTypePluggableClass.getPropertySpec(IpConnectionProperties.PORT.propertyName()).get(), UPDATED_PORT_PROPERTY_VALUE);
@@ -568,6 +574,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testDeleteWithNoProperties() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         InboundConnectionTaskImpl connectionTask = this.createWithNoPropertiesWithoutViolations();
         long id = connectionTask.getId();
 
@@ -577,7 +584,6 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         // Asserts
         assertThat(inMemoryPersistence.getConnectionTaskService().findConnectionTask(id).get().isObsolete()).isTrue();
     }
-
 
     @Test
     @Transactional
@@ -613,7 +619,8 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
 
     @Test
     @Transactional
-    public void testMakeObsoleteAlsoMakesRelationsObsolete() {
+    public void testMakeObsoleteAlsoRemovesCustomProperties() {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         Instant now = this.freezeClock(2015, Calendar.MAY, 2);
         InboundConnectionTaskImpl connectionTask = this.createInboundWithIpPropertiesWithoutViolations();
 
@@ -633,6 +640,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testSwitchFromOutboundDefault() throws SQLException, BusinessException {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         ScheduledConnectionTaskImpl outboundDefault = (ScheduledConnectionTaskImpl) this.createOutboundWithIpPropertiesWithoutViolations("testSwitchFromOutboundDefault");
         inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(outboundDefault);
 
@@ -651,6 +659,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testSetAsDefaultWithoutOtherDefault() throws SQLException, BusinessException {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         InboundConnectionTask connectionTask = this.createInboundWithIpPropertiesWithoutViolations();
 
         // Business method
@@ -663,6 +672,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testUnsetAsDefaultWithOtherConnectionTasks() throws SQLException, BusinessException {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         InboundConnectionTask connectionTask = this.createInboundWithIpPropertiesWithoutViolations(false);
         ScheduledConnectionTask outboundDefault = this.createOutboundWithIpPropertiesWithoutViolations("testUnsetAsDefaultWithOtherConnectionTasks");
         inMemoryPersistence.getConnectionTaskService().setDefaultConnectionTask(outboundDefault);
@@ -681,6 +691,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
     @Test
     @Transactional
     public void testUnsetAsDefaultWithoutOtherDefaults() throws SQLException, BusinessException {
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         InboundConnectionTask connectionTask = this.createInboundWithIpPropertiesWithoutViolations(false);
 
         // Business method

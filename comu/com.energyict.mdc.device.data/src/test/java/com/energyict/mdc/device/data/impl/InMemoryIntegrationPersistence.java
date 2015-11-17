@@ -82,7 +82,6 @@ import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurationModule;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
-import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.io.impl.MdcIOModule;
@@ -107,10 +106,10 @@ import com.energyict.mdc.scheduling.model.impl.ComScheduleFinder;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.tasks.impl.TaskFinder;
 import com.energyict.mdc.tasks.impl.TasksModule;
+
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Provider;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 import org.osgi.service.log.LogService;
@@ -119,7 +118,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
-import java.security.Principal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -132,7 +130,9 @@ import java.util.Properties;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Copyrights EnergyICT
@@ -142,7 +142,7 @@ import static org.mockito.Mockito.*;
 public class InMemoryIntegrationPersistence {
 
     private BundleContext bundleContext;
-    private Principal principal;
+    private User principal;
     private EventAdmin eventAdmin;
     private TransactionService transactionService;
     private OrmService ormService;
@@ -348,7 +348,7 @@ public class InMemoryIntegrationPersistence {
     private void initializeMocks(String testName) {
         this.bundleContext = mock(BundleContext.class);
         this.eventAdmin = mock(EventAdmin.class);
-        this.principal = mock(Principal.class, withSettings().extraInterfaces(User.class));
+        this.principal = mock(User.class);
         when(this.principal.getName()).thenReturn(testName);
         this.licenseService = mock(LicenseService.class);
         when(this.licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.<License>empty());
@@ -483,17 +483,12 @@ public class InMemoryIntegrationPersistence {
             bind(CronExpressionParser.class).toInstance(mock(CronExpressionParser.class, RETURNS_DEEP_STUBS));
             bind(IssueService.class).toInstance(mock(IssueService.class, RETURNS_DEEP_STUBS));
             bind(Thesaurus.class).toInstance(thesaurus);
-            bind(DataModel.class).toProvider(new Provider<DataModel>() {
-                @Override
-                public DataModel get() {
-                    return dataModel;
-                }
-            });
+            bind(DataModel.class).toProvider(() -> dataModel);
         }
     }
 
     public User getMockedUser(){
-        return (User) this.principal;
+        return this.principal;
     }
 
     public UserService getUserService() {

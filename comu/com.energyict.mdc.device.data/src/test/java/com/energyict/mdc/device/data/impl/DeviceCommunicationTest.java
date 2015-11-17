@@ -1,5 +1,14 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cps.EditPrivilege;
+import com.elster.jupiter.cps.ViewPrivilege;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.issue.share.entity.IssueStatus;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.users.Privilege;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -12,7 +21,6 @@ import com.energyict.mdc.device.config.PartialInboundConnectionTaskBuilder;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTaskBuilder;
 import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.exceptions.CannotDeleteConnectionTaskWhichIsNotFromThisDevice;
 import com.energyict.mdc.device.data.impl.tasks.InboundNoParamsConnectionTypeImpl;
 import com.energyict.mdc.device.data.impl.tasks.IpConnectionProperties;
 import com.energyict.mdc.device.data.impl.tasks.OutboundIpConnectionTypeImpl;
@@ -29,19 +37,15 @@ import com.energyict.mdc.protocol.api.ComPortType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.google.common.base.Strings;
 
 import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.assertj.core.api.Condition;
 import org.junit.*;
@@ -523,6 +527,7 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         DeviceConfiguration deviceConfiguration = createDeviceConfigWithPartialIpOutboundConnectionTask();
         Device device = inMemoryPersistence.getDeviceService().newDevice(deviceConfiguration, "DeviceWithConnectionProps", MRID);
         device.save();
+        this.grantAllViewAndEditPrivilegesToPrincipal();
         Device.ScheduledConnectionTaskBuilder scheduledConnectionTaskBuilder = device.getScheduledConnectionTaskBuilder(partialScheduledConnectionTask);
         scheduledConnectionTaskBuilder.setProperty(IpConnectionProperties.IP_ADDRESS.propertyName(), ipAddress);
         scheduledConnectionTaskBuilder.setProperty(IpConnectionProperties.PORT.propertyName(), portNumber);
@@ -656,6 +661,17 @@ public class DeviceCommunicationTest extends PersistenceIntegrationTest {
         assertThat(reloadedDevice.getScheduledConnectionTasks()).isEmpty();
         ConnectionInitiationTask connectionInitiationTask = reloadedDevice.getConnectionInitiationTasks().get(0);
         assertThat(connectionInitiationTask.getProperties()).isEmpty();
+    }
+
+    private void grantAllViewAndEditPrivilegesToPrincipal() {
+        Set<Privilege> privileges = new HashSet<>();
+        Privilege editPrivilege = mock(Privilege.class);
+        when(editPrivilege.getName()).thenReturn(EditPrivilege.LEVEL_1.getPrivilege());
+        privileges.add(editPrivilege);
+        Privilege viewPrivilege = mock(Privilege.class);
+        when(viewPrivilege.getName()).thenReturn(ViewPrivilege.LEVEL_1.getPrivilege());
+        privileges.add(viewPrivilege);
+        when(inMemoryPersistence.getMockedUser().getPrivileges()).thenReturn(privileges);
     }
 
 }
