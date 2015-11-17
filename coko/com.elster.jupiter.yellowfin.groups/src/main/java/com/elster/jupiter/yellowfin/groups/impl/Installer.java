@@ -3,19 +3,9 @@ package com.elster.jupiter.yellowfin.groups.impl;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsKey;
-import com.elster.jupiter.nls.SimpleNlsKey;
-import com.elster.jupiter.nls.SimpleTranslation;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 
 class Installer {
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
@@ -47,6 +37,7 @@ class Installer {
     private void createTask() {
         if (!taskService.getRecurrentTask(YellowfinGroupsService.ADHOC_SEARCH_LIFE_CYCLE_QUEUE_TASK).isPresent()) {
             taskService.newBuilder()
+                    .setApplication("Pulse")
                     .setName(YellowfinGroupsService.ADHOC_SEARCH_LIFE_CYCLE_QUEUE_TASK)
                     .setScheduleExpressionString(CRON_STRING) //
                     .setDestination(getDestination())
