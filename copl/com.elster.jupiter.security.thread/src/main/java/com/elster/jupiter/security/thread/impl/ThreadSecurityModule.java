@@ -1,23 +1,19 @@
 package com.elster.jupiter.security.thread.impl;
 
-import java.security.Principal;
-
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+
 import com.google.inject.AbstractModule;
+
+import java.security.Principal;
 
 public class ThreadSecurityModule extends AbstractModule {
 
     private final ThreadPrincipalService service;
 
     public ThreadSecurityModule() {
-    	this(new Principal() {	
-			@Override
-			public String getName() {
-				return "Test";
-			}
-		});
+    	this(() -> "Test");
     }
-    
+
     public ThreadSecurityModule(Principal principal) {
         this.service = new ThreadPrincipalServiceImpl();
         service.set(principal);
@@ -27,4 +23,5 @@ public class ThreadSecurityModule extends AbstractModule {
     protected void configure() {
         bind(ThreadPrincipalService.class).toInstance(service);
     }
+
 }
