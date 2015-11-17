@@ -180,7 +180,7 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
         resources.add(userService.createModuleResourceWithPrivileges(BpmService.COMPONENTNAME, Privileges.RESOURCE_BPM_PROCESSES.getKey(), Privileges.RESOURCE_BPM_PROCESSES_DESCRIPTION.getKey(),
                 Arrays.asList(
                         Privileges.Constants.VIEW_BPM, Privileges.Constants.DESIGN_BPM, Privileges.Constants.ADMINISTRATE_BPM)));
-        resources.add(userService.createModuleResourceWithPrivileges(BpmService.COMPONENTNAME, "bpm.userTasks", "bpm.userTasks.description",
+        resources.add(userService.createModuleResourceWithPrivileges(BpmService.COMPONENTNAME, Privileges.RESOURCE_BPM_TASKS.getKey(), Privileges.RESOURCE_BPM_TASKS_DESCRIPTION.getKey(),
                 Arrays.asList(
                         Privileges.Constants.ASSIGN_TASK, Privileges.Constants.VIEW_TASK, Privileges.Constants.EXECUTE_TASK)));
 
