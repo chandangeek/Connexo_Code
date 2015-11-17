@@ -24,7 +24,7 @@ public interface TaskService {
 
     List<RecurrentTask> getRecurrentTasks();
 
-    TaskFinder getTaskFinder(RecurrentTaskFilterSpecification filterSpecification);
+    TaskFinder getTaskFinder(RecurrentTaskFilterSpecification filterSpecification, int start, int limit);
 
     Optional<TaskOccurrence> getOccurrence(Long id);
 
