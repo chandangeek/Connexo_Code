@@ -170,6 +170,16 @@ public class DeviceLifeCycleStateResource {
         return Response.ok(deviceLifeCycleStateFactory.from(deviceLifeCycle, stateForDeletion)).build();
     }
 
+    public List<DeviceLifeCycleStateInfo> getAllStatesForDeviceLifecycle(long deviceLifeCycleId) {
+        DeviceLifeCycle deviceLifeCycle = resourceHelper.findDeviceLifeCycleByIdOrThrowException(deviceLifeCycleId);
+        List<DeviceLifeCycleStateInfo> states = (List<DeviceLifeCycleStateInfo>) deviceLifeCycle.getFiniteStateMachine().getStates()
+                .stream()
+                .map(state -> deviceLifeCycleStateFactory.from(deviceLifeCycle, state))
+                .sorted((st1, st2) -> st1.name.compareToIgnoreCase(st2.name)) // alphabetical sort
+                .collect(Collectors.toList());
+        return states;
+    }
+
     private void checkStateHasTransitions(DeviceLifeCycle deviceLifeCycle, State stateForDeletion) {
         List<Long> transitionIds = deviceLifeCycle.getFiniteStateMachine().getTransitions().stream()
                 .filter(transition -> transition.getFrom().getId() == stateForDeletion.getId()

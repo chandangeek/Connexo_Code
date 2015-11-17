@@ -123,6 +123,15 @@ public class DeviceLifeCycleResource {
         return Response.ok(deviceLifeCycleFactory.from(deviceLifeCycle)).build();
     }
 
+    @GET
+    @Path("/states")
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
+    public List<DeviceLifeCycleStateSummaryInfo> getAllLifeCycleState() {
+        return deviceLifeCycleConfigurationService.findAllDeviceLifeCycles().stream()
+                .map(deviceLifeCycleFactory::from).map(s -> this.lifeCycleStateResourceProvider.get().getAllStatesForDeviceLifecycle(s.id).stream().map(x -> new DeviceLifeCycleStateSummaryInfo(s.id, s.name, x.name))).flatMap(y -> y).collect(Collectors.toList());
+    }
+
     @Path("/{deviceLifeCycleId}/states")
     public DeviceLifeCycleStateResource getLifeCycleStateResource() {
         return this.lifeCycleStateResourceProvider.get();
