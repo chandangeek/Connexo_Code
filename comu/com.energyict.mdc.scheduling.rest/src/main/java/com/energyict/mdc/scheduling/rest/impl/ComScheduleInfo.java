@@ -28,12 +28,12 @@ public class ComScheduleInfo {
     public ComScheduleInfo() {
     }
 
-    public static ComScheduleInfo from(ComSchedule comSchedule, boolean inUse) {
+    public static ComScheduleInfo from(ComSchedule comSchedule, boolean inUse, Instant instant) {
         ComScheduleInfo comScheduleInfo = new ComScheduleInfo();
         comScheduleInfo.id = comSchedule.getId();
         comScheduleInfo.name = comSchedule.getName();
         comScheduleInfo.temporalExpression = TemporalExpressionInfo.from(comSchedule.getTemporalExpression());
-        Optional<ZonedDateTime> nextOccurrence = comSchedule.getTemporalExpression().nextOccurrence(ZonedDateTime.ofInstant(Instant.now(), ZoneId.systemDefault()));
+        Optional<ZonedDateTime> nextOccurrence = comSchedule.getTemporalExpression().nextOccurrence(ZonedDateTime.ofInstant((comSchedule.getStartDate().isAfter(instant) ? comSchedule.getStartDate() : instant) , ZoneId.systemDefault()));
         nextOccurrence.ifPresent(zonedDateTime -> comScheduleInfo.plannedDate = zonedDateTime.toInstant());
         comScheduleInfo.startDate = comSchedule.getStartDate();
         comScheduleInfo.isInUse = inUse;

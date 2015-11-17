@@ -46,7 +46,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 @Path("/schedules")
@@ -84,7 +83,7 @@ public class SchedulingResource {
 
         List<ComScheduleInfo> comScheduleInfos = new ArrayList<>();
         for (ComSchedule comSchedule : comSchedules) {
-            comScheduleInfos.add(ComScheduleInfo.from(comSchedule, isInUse(comSchedule)));
+            comScheduleInfos.add(ComScheduleInfo.from(comSchedule, isInUse(comSchedule), clock.instant()));
         }
         return PagedInfoList.fromPagedList("schedules", comScheduleInfos, queryParameters);
     }
@@ -217,7 +216,7 @@ public class SchedulingResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE, Privileges.Constants.VIEW_SHARED_COMMUNICATION_SCHEDULE})
     public ComScheduleInfo getSchedules(@PathParam("id") long id) {
         ComSchedule comSchedule = resourceHelper.findComScheduleOrThrowException(id);
-        return ComScheduleInfo.from(comSchedule, isInUse(comSchedule));
+        return ComScheduleInfo.from(comSchedule, isInUse(comSchedule), clock.instant());
     }
 
 
@@ -234,7 +233,7 @@ public class SchedulingResource {
             getComTasks(comScheduleInfo.comTaskUsages).stream().forEach(comScheduleBuilder::addComTask);
         }
         ComSchedule comSchedule = comScheduleBuilder.build();
-        return Response.status(Response.Status.CREATED).entity(ComScheduleInfo.from(comSchedule, false)).build();
+        return Response.status(Response.Status.CREATED).entity(ComScheduleInfo.from(comSchedule, false, clock.instant())).build();
     }
 
     @DELETE
@@ -266,7 +265,7 @@ public class SchedulingResource {
             updateTasks(comSchedule, comScheduleInfo.comTaskUsages);
         }
         comSchedule.update();
-        return ComScheduleInfo.from(comSchedule, isInUse(comSchedule));
+        return ComScheduleInfo.from(comSchedule, isInUse(comSchedule), clock.instant());
     }
 
     private List<ComTask> getComTasks(Collection<ComTaskInfo> comTaskUsages) {

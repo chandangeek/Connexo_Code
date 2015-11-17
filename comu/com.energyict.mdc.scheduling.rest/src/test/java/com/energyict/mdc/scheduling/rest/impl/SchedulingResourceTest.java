@@ -20,6 +20,7 @@ import java.io.ByteArrayInputStream;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -35,6 +36,9 @@ import static org.mockito.Mockito.*;
 
 public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
 
+    private static final Instant NOW = ZonedDateTime.of(2013, 9, 10, 14, 47, 24, 0, ZoneId.of("Europe/Paris")).toInstant();
+    private static final Instant FUTURE = ZonedDateTime.of(2055, 9, 10, 14, 47, 24, 0, ZoneId.of("Europe/Paris")).toInstant();
+    private static final Instant FUTURE_TO_CHECK = ZonedDateTime.of(2055, 9, 10, 14, 50, 0, 0, ZoneId.of("Europe/Paris")).toInstant();
     public static final long OK_VERSION = 58L;
     public static final long BAD_VERSION = 43L;
     public static final long COM_TASK_ID = 17L;
@@ -44,10 +48,38 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         List<ComSchedule> comSchedules = new ArrayList<>();
         when(schedulingService.getAllSchedules()).thenReturn(comSchedules);
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
+        when(clock.instant()).thenReturn(NOW);
 
         Map<String, Object> map = target("/schedules/").request().get(Map.class);
         assertThat(map.get("total")).isEqualTo(0);
         assertThat((List<?>) map.get("schedules")).isEmpty();
+    }
+
+    @Test
+    public void testUpdateScheduleFutureStartDate() throws Exception {
+        ComSchedule mockedSchedule = mock(ComSchedule.class);
+        when(mockedSchedule.getId()).thenReturn(COM_TASK_ID);
+        when(mockedSchedule.getName()).thenReturn("Schedule Future Start Date");
+        when(mockedSchedule.getPlannedDate()).thenReturn(Optional.of(Instant.now()));
+        when(mockedSchedule.getSchedulingStatus()).thenReturn(SchedulingStatus.ACTIVE);
+        when(mockedSchedule.getNextTimestamp(any(Calendar.class))).thenReturn(new Date());
+        when(mockedSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("10 minutes")));
+        when(mockedSchedule.getmRID()).thenReturn(Optional.<String>empty());
+        when(mockedSchedule.getVersion()).thenReturn(OK_VERSION);
+        when(mockedSchedule.getStartDate()).thenReturn(FUTURE);
+        when(clock.instant()).thenReturn(FUTURE);
+        when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(mockedSchedule));
+        when(schedulingService.findAndLockComScheduleByIdAndVersion(COM_TASK_ID, OK_VERSION)).thenReturn(Optional.of(mockedSchedule));
+        when(schedulingService.findAndLockComScheduleByIdAndVersion(COM_TASK_ID, BAD_VERSION)).thenReturn(Optional.empty());
+
+        assertThat(mockedSchedule.getStartDate()).isEqualTo(FUTURE);
+        ComScheduleInfo info = ComScheduleInfo.from(mockedSchedule, false, FUTURE);
+        info.name = "new name";
+        info.version = OK_VERSION;
+        Response response = target("/schedules/" + COM_TASK_ID).request().build(HttpMethod.PUT, Entity.json(info)).invoke();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        assertThat(info.temporalExpression.asTemporalExpression().nextOccurrence(ZonedDateTime.ofInstant(FUTURE,ZoneId.systemDefault()))).isEqualTo(Optional.of(ZonedDateTime.ofInstant(FUTURE_TO_CHECK, ZoneId.systemDefault())));
+        verify(mockedSchedule, times(1)).setName("new name");
     }
 
     @Test
@@ -61,6 +93,8 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         when(mockedSchedule.getSchedulingStatus()).thenReturn(SchedulingStatus.ACTIVE);
         when(mockedSchedule.getNextTimestamp(any(Calendar.class))).thenReturn(new Date());
         when(mockedSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("10 minutes")));
+        when(mockedSchedule.getStartDate()).thenReturn(NOW);
+        when(clock.instant()).thenReturn(NOW);
         ComTask comTask1 = mockComTask(11L, "Com task 1");
         ComTask comTask2 = mockComTask(12L, "Com task 2");
         when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
@@ -87,7 +121,7 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
     @Test
     public void testGetScheduleListSecondPage() throws Exception {
         List<ComSchedule> schedules = new ArrayList<>();
-        IntStream.range(1, 100).forEach(i -> schedules.add(mockComSchedule(i, MessageFormat.format("cs {0}",i))));
+        IntStream.range(1, 100).forEach(i -> schedules.add(mockComSchedule(i, MessageFormat.format("cs {0}", i))));
         when(schedulingService.getAllSchedules()).thenReturn(schedules);
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
 
@@ -109,6 +143,8 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         when(mockedSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("10 minutes")));
         when(mockedSchedule.getmRID()).thenReturn(Optional.<String>empty());
         when(mockedSchedule.getVersion()).thenReturn(OK_VERSION);
+        when(mockedSchedule.getStartDate()).thenReturn(NOW);
+        when(clock.instant()).thenReturn(NOW);
         when(schedulingService.findSchedule(id)).thenReturn(Optional.of(mockedSchedule));
         when(schedulingService.findAndLockComScheduleByIdAndVersion(COM_TASK_ID, OK_VERSION)).thenReturn(Optional.of(mockedSchedule));
         when(schedulingService.findAndLockComScheduleByIdAndVersion(COM_TASK_ID, BAD_VERSION)).thenReturn(Optional.empty());
@@ -129,6 +165,8 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         when(mockedSchedule.getNextTimestamp(any(Calendar.class))).thenReturn(new Date());
         when(mockedSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("10 minutes")));
         when(mockedSchedule.getmRID()).thenReturn(Optional.<String>empty());
+        when(mockedSchedule.getStartDate()).thenReturn(NOW);
+        when(clock.instant()).thenReturn(NOW);
         ComTask comTask1 = mockComTask(COM_TASK_1, "Com task 1");
         ComTask comTask2 = mockComTask(COM_TASK_2, "Com task 2");
         when(mockedSchedule.getComTasks()).thenReturn(Arrays.asList(comTask1, comTask2));
@@ -166,11 +204,13 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         when(mockedSchedule.getNextTimestamp(any(Calendar.class))).thenReturn(new Date());
         when(mockedSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("10 minutes")));
         when(mockedSchedule.getmRID()).thenReturn(Optional.<String>empty());
+        when(mockedSchedule.getStartDate()).thenReturn(NOW);
+        when(clock.instant()).thenReturn(NOW);
         when(schedulingService.findSchedule(1L)).thenReturn(Optional.of(mockedSchedule));
         when(mockedSchedule.getVersion()).thenReturn(OK_VERSION);
         when(schedulingService.findAndLockComScheduleByIdAndVersion(1L, OK_VERSION)).thenReturn(Optional.of(mockedSchedule));
         when(schedulingService.findAndLockComScheduleByIdAndVersion(1L, BAD_VERSION)).thenReturn(Optional.empty());
-        ComScheduleInfo comScheduleInfo = ComScheduleInfo.from(mockedSchedule, false);
+        ComScheduleInfo comScheduleInfo = ComScheduleInfo.from(mockedSchedule, false, clock.instant());
         Entity<ComScheduleInfo> json = Entity.json(comScheduleInfo);
         Response response = target("/schedules/1").request().put(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -190,6 +230,8 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         when(mockedSchedule.getNextTimestamp(any(Calendar.class))).thenReturn(new Date());
         when(mockedSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("10 minutes")));
         when(mockedSchedule.getmRID()).thenReturn(Optional.<String>empty());
+        when(mockedSchedule.getStartDate()).thenReturn(NOW);
+        when(clock.instant()).thenReturn(NOW);
         ComTask comTask1 = mockComTask(COM_TASK_1, "Com task 1");
         ComTask comTask2 = mockComTask(COM_TASK_2, "Com task 2");
         ComTask comTask3 = mockComTask(COM_TASK_3, "Com task 3");
@@ -234,6 +276,8 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         when(mockedSchedule.getNextTimestamp(any(Calendar.class))).thenReturn(new Date());
         when(mockedSchedule.getTemporalExpression()).thenReturn(new TemporalExpression(new TimeDuration("10 minutes")));
         when(mockedSchedule.getmRID()).thenReturn(Optional.<String>empty());
+        when(mockedSchedule.getStartDate()).thenReturn(NOW);
+        when(clock.instant()).thenReturn(NOW);
         ComTask comTask1 = mockComTask(COM_TASK_1, "Com task 1");
         ComTask comTask2 = mockComTask(COM_TASK_2, "Com task 2");
         ComTask comTask3 = mockComTask(COM_TASK_3, "Com task 3");
@@ -398,7 +442,7 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
     @Test
     public void testUpdateComScheduleOkVersion() {
         ComSchedule comSchedule = mockComSchedule(COM_TASK_ID, "name");
-        ComScheduleInfo info = ComScheduleInfo.from(comSchedule, false);
+        ComScheduleInfo info = ComScheduleInfo.from(comSchedule, false, clock.instant());
         info.name = "new name";
         info.version = OK_VERSION;
         Response response = target("/schedules/" + COM_TASK_ID).request().build(HttpMethod.PUT, Entity.json(info)).invoke();
@@ -408,7 +452,7 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
     @Test
     public void testUpdateComScheduleBadVersion() {
         ComSchedule comSchedule = mockComSchedule(COM_TASK_ID, "name");
-        ComScheduleInfo info = ComScheduleInfo.from(comSchedule, false);
+        ComScheduleInfo info = ComScheduleInfo.from(comSchedule, false, clock.instant());
         info.version = BAD_VERSION;
         Response response = target("/schedules/" + COM_TASK_ID).request().build(HttpMethod.PUT, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
@@ -417,7 +461,7 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
     @Test
     public void testDeleteComScheduleOkVersion() {
         ComSchedule comSchedule = mockComSchedule(COM_TASK_ID, "name");
-        ComScheduleInfo info = ComScheduleInfo.from(comSchedule, false);
+        ComScheduleInfo info = ComScheduleInfo.from(comSchedule, false, clock.instant());
         info.name = "new name";
         info.version = OK_VERSION;
         Response response = target("/schedules/" + COM_TASK_ID).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
@@ -427,7 +471,7 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
     @Test
     public void testDeleteComScheduleBadVersion() {
         ComSchedule comSchedule = mockComSchedule(COM_TASK_ID, "name");
-        ComScheduleInfo info = ComScheduleInfo.from(comSchedule, false);
+        ComScheduleInfo info = ComScheduleInfo.from(comSchedule, false, clock.instant());
         info.name = "new name";
         info.version = BAD_VERSION;
         Response response = target("/schedules/" + COM_TASK_ID).request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
