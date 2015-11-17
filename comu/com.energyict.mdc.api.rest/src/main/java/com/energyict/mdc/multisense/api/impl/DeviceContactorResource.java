@@ -23,6 +23,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
@@ -84,7 +85,9 @@ public class DeviceContactorResource {
                 path(DeviceMessageResource.class, "getDeviceMessage").
                 build(mRID, messageId);
 
-        return Response.accepted().location(uri).build();
+        LinkInfo linkInfo = new LinkInfo();
+        linkInfo.link = Link.fromUri(uri).build();
+        return Response.accepted(linkInfo).location(uri).build();
     }
 
     /**

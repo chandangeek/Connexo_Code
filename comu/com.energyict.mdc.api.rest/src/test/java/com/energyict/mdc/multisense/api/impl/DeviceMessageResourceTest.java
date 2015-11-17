@@ -36,15 +36,15 @@ public class DeviceMessageResourceTest extends MultisensePublicApiJerseyTest {
         DeviceMessageCategory category = mockDeviceMessageCategory(33, "category");
         DeviceMessageSpec messageSpec = mockDeviceMessageSpec(DeviceMessageId.CLOCK_SET_DST, "dst");
         when(messageSpec.getCategory()).thenReturn(category);
-        DeviceMessage deviceMessage = mockDeviceMessage(mockDevice, messageSpec);
+        DeviceMessage deviceMessage = mockDeviceMessage(mockDevice, messageSpec, now);
         when(mockDevice.getMessages()).thenReturn(Arrays.asList(deviceMessage));
     }
 
-    protected DeviceMessage mockDeviceMessage(Device mockDevice, DeviceMessageSpec specification) {
+    protected DeviceMessage mockDeviceMessage(Device mockDevice, DeviceMessageSpec specification, Object now) {
         DeviceMessage deviceMessage = mock(DeviceMessage.class);
         when(deviceMessage.getId()).thenReturn(id);
         when(deviceMessage.getStatus()).thenReturn(DeviceMessageStatus.CONFIRMED);
-        when(deviceMessage.getSentDate()).thenReturn(Optional.of(now));
+        when(deviceMessage.getSentDate()).thenReturn(Optional.of(this.now));
         when(deviceMessage.getDevice()).thenReturn(mockDevice);
         when(deviceMessage.getSpecification()).thenReturn(specification);
         return deviceMessage;

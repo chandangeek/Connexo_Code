@@ -54,9 +54,11 @@ import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageStatus;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
@@ -67,6 +69,7 @@ import com.energyict.mdc.scheduling.model.ComSchedule;
 import com.energyict.mdc.tasks.ClockTask;
 import com.energyict.mdc.tasks.ClockTaskType;
 import com.energyict.mdc.tasks.ComTask;
+import com.energyict.mdc.tasks.MessagesTask;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.TaskService;
 import org.mockito.Mock;
@@ -385,12 +388,14 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         return mock;
     }
 
-    DeviceMessageCategory mockDeviceMessageCategory(int id, String name) {
+    DeviceMessageCategory mockDeviceMessageCategory(int id, String name, DeviceMessageSpec ... specs) {
         DeviceMessageCategory mock = mock(DeviceMessageCategory.class);
         when(mock.getId()).thenReturn(id);
         when(mock.getName()).thenReturn(name);
         when(mock.getDescription()).thenReturn("Description of " + name);
-        when(mock.getMessageSpecifications()).thenReturn(Collections.emptyList());
+        if (specs!=null && specs.length>0) {
+            when(mock.getMessageSpecifications()).thenReturn(Arrays.asList(specs));
+        }
         when(deviceMessageSpecificationService.findCategoryById(id)).thenReturn(Optional.of(mock));
         return mock;
     }
@@ -508,5 +513,24 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(mock.getDeviceMessageId()).thenReturn(deviceMessageId);
         when(mock.getUserActions()).thenReturn(Collections.singleton(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1));
         return mock;
+    }
+
+    protected MessagesTask mockMessagesTask(long id, DeviceMessageCategory... deviceMessageCategories) {
+        MessagesTask messagesTask = mock(MessagesTask.class);
+        when(messagesTask.getId()).thenReturn(id);
+        if (deviceMessageCategories!=null && deviceMessageCategories.length>0) {
+            when(messagesTask.getDeviceMessageCategories()).thenReturn(Arrays.asList(deviceMessageCategories));
+        }
+        return messagesTask;
+    }
+
+    protected DeviceMessage mockDeviceMessage(long id, Device mockDevice, DeviceMessageSpec specification, Optional<Instant> now) {
+        DeviceMessage deviceMessage = mock(DeviceMessage.class);
+        when(deviceMessage.getId()).thenReturn(id);
+        when(deviceMessage.getStatus()).thenReturn(DeviceMessageStatus.CONFIRMED);
+        when(deviceMessage.getSentDate()).thenReturn(now);
+        when(deviceMessage.getDevice()).thenReturn(mockDevice);
+        when(deviceMessage.getSpecification()).thenReturn(specification);
+        return deviceMessage;
     }
 }
