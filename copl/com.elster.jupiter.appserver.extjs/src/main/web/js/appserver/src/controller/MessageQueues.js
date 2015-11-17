@@ -93,6 +93,8 @@ Ext.define('Apr.controller.MessageQueues',{
             records = this.getStore('Apr.store.MessageQueues').getModifiedRecords(),
             length = records.length;
         Ext.Array.each(this.getStore('Apr.store.MessageQueues').getModifiedRecords(),function(record){
+            record.set('retryDelayInSeconds',record.get('retryDelayInMinutes')*60);
+            delete record.data.retryDelayInMinutes;
             record.save({
                 success: function () {
                    length--;

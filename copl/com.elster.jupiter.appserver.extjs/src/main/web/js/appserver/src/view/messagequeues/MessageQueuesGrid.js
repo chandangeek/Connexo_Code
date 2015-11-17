@@ -29,19 +29,21 @@ Ext.define('Apr.view.messageQueues.MessageQueuesGrid', {
                 flex: 1,
                 editor: {
                     xtype: 'numberfield',
-                    minValue: 1
+                    minValue: 0,
+                    maxValue: 1000
                 }
             },
             {
                 header: Uni.I18n.translate('general.timeBeforeRetry', 'APR', 'Time before retry'),
-                dataIndex: 'retryDelayInSeconds',
+                dataIndex: 'retryDelayInMinutes',
                 flex: 1,
                 editor: {
                     xtype: 'numberfield',
-                    minValue: 1
+                    minValue: 1,
+                    maxValue: 44640
                 },
                 renderer: function(value){
-                    return Uni.I18n.translatePlural('general.second',value,'APR', '{0} seconds','{0} second','{0} seconds')
+                    return Uni.I18n.translatePlural('general.minute',value,'APR', '{0} minutes','{0} minute','{0} minutes')
                 }
             }
         ];

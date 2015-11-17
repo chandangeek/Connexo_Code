@@ -14,6 +14,16 @@ Ext.define('Apr.model.MessageQueue', {
         {
             name: 'numberOFErrors',
             type: 'int'
+        },
+        {
+            name: 'retryDelayInMinutes',
+            type: 'int',
+         //   persist: false,
+            mapping:  function (data) {
+                if (data.retryDelayInSeconds) {
+                    return data.retryDelayInSeconds / 60;
+                }
+            }
         }
 
     ],
