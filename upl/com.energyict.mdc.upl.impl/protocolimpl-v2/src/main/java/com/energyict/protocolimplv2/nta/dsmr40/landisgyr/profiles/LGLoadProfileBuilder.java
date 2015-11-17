@@ -105,6 +105,10 @@ public class LGLoadProfileBuilder extends Dsmr40LoadProfileBuilder {
     }
 
     public ProfileIntervalStatusBits getProfileIntervalStatusBits() {
-        return new DSMRProfileIntervalStatusBits();
+        return new DSMRProfileIntervalStatusBits(isIgnoreDstStatusCode());
+    }
+
+    protected boolean isIgnoreDstStatusCode() {
+        return false;   //Default false, subclasses can override
     }
 }
