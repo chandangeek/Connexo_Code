@@ -18,6 +18,7 @@ import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.messaging.LegacyPartialLoadProfileMessageBuilder;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.*;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.generic.csvhandling.CSVParser;
@@ -241,7 +242,7 @@ public class Dsmr23MessageExecutor extends MessageParser {
                 msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
                 log(Level.SEVERE, "Message failed : " + e.getMessage());
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                throw ConnectionCommunicationException.communicationInterruptedException(e);
             } catch (SQLException e) {
                 msgResult = MessageResult.createFailed(msgEntry, e.getMessage());
                 log(Level.SEVERE, "Message failed : " + e.getMessage());

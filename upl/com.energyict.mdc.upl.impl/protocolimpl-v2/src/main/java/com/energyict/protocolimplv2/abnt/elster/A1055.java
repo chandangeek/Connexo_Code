@@ -29,6 +29,8 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.exceptions.DataParseException;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.abnt.common.AbntProperties;
 import com.energyict.protocolimplv2.abnt.common.AbstractAbntProtocol;
@@ -202,7 +204,7 @@ public class A1055 extends AbstractAbntProtocol {
             DateTimeField dateTimeField = (DateTimeField) getRequestFactory().readDefaultParameters().getField(ReadParameterFields.currentDateTime);
             return dateTimeField.getDate(getProperties().getTimeZone());
         } catch (ParsingException e) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(e);
+            throw DataParseException.ioException(e);
         }
     }
 
@@ -211,9 +213,9 @@ public class A1055 extends AbstractAbntProtocol {
         try {
             getRequestFactory().setTime(timeToSet);
         } catch (ParsingException e) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(e);
+            throw DataParseException.ioException(e);
         } catch (AbntException e) {
-            throw MdcManager.getComServerExceptionFactory().notAllowedToExecuteCommand("date/time change", e);
+            throw DeviceConfigurationException.notAllowedToExecuteCommand("date/time change", e);
         }
     }
 

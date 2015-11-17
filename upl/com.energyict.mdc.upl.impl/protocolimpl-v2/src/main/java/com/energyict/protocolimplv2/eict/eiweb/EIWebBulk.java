@@ -7,6 +7,7 @@ import com.energyict.mdc.meterdata.CollectedData;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDiscoveryContext;
 import com.energyict.mdc.protocol.inbound.ServletBasedInboundDeviceProtocol;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.MdcManager;
 
 import javax.servlet.http.HttpServletRequest;
@@ -88,7 +89,7 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
                 throw e;
             }
         } catch (IOException e) {
-            throw MdcManager.getComServerExceptionFactory().createConnectionCommunicationException(e);
+            throw ConnectionCommunicationException.unexpectedIOException(e);
         }
         return DiscoverResultType.DATA;
     }
@@ -124,7 +125,7 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
                         break;
                 }
             } catch (IOException e) {
-                throw MdcManager.getComServerExceptionFactory().createConnectionCommunicationException(e);
+                throw ConnectionCommunicationException.unexpectedIOException(e);
             }
         }
     }

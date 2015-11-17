@@ -9,6 +9,7 @@ import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdw.core.LoadProfile;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.protocol.exceptions.CodingException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
@@ -91,11 +92,11 @@ public class Dsmr23MbusMessaging extends AbstractDlmsMessaging implements Device
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "updateSentMessages");
+        throw CodingException.unsupportedMethod(this.getClass(), "updateSentMessages");
     }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "executePendingMessages");
+        throw CodingException.unsupportedMethod(this.getClass(), "executePendingMessages");
     }
 }

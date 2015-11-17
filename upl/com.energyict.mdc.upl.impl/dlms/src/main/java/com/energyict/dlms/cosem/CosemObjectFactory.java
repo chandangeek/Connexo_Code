@@ -14,7 +14,7 @@ import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.NotInObjectListException;
 import com.energyict.protocol.ProtocolException;
-import com.energyict.protocolimplv2.MdcManager;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
 import java.io.IOException;
 import java.util.List;
@@ -543,7 +543,7 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
             return new ObjectReference(protocolLink.getMeterConfig().getSN(obisCode));
         }
         ProtocolException protocolException = new ProtocolException("CosemObjectFactory, getObjectReference, invalid reference type " + protocolLink.getReference());
-        throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(protocolException);
+        throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
     }
 
     public ObjectReference getObjectReference(byte[] ln, int sn) throws NotInObjectListException {
@@ -557,7 +557,7 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
             return new ObjectReference(sn);
         }
         ProtocolException protocolException = new ProtocolException("CosemObjectFactory, getObjectReference, invalid reference type " + protocolLink.getReference());
-        throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(protocolException);
+        throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
     }
 
     public boolean isUseGetWithList() {

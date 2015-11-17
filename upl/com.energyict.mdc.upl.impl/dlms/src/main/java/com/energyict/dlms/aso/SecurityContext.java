@@ -11,6 +11,7 @@ import com.energyict.encryption.BitVector;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.exceptions.DataEncryptionException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 
@@ -498,7 +499,7 @@ public class SecurityContext {
         byte[] systemTitleBytes = ProtocolTools.getSubArray(cipherFrame, ptr, ptr + systemTitleLength);
         ptr += systemTitleLength;
         if (!Arrays.equals(systemTitleBytes, getResponseSystemTitle())) {
-            throw MdcManager.getComServerExceptionFactory().createDataEncryptionException(new ProtocolException("The system-title of the response doesn't corresponds to the system-title used during association establishment"));
+            throw DataEncryptionException.dataEncryptionException(new ProtocolException("The system-title of the response doesn't corresponds to the system-title used during association establishment"));
         }
         byte[] fullCipherFrame = ProtocolTools.concatByteArrays(new byte[]{(byte) 0x00}, ProtocolTools.getSubArray(cipherFrame, ptr));  // First byte is reserved for the tag, here we just insert a dummy byte
         return dataTransportDecryption(fullCipherFrame);                                                                                // Decryption will start from position 1

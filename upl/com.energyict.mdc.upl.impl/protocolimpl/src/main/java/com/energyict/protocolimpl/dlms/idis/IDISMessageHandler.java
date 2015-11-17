@@ -8,6 +8,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageEntry;
 import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
@@ -123,7 +124,7 @@ public class IDISMessageHandler extends GenericMessaging implements MessageProto
             return MessageResult.createFailed(messageEntry, e.getMessage());
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
         idis.getLogger().log(Level.SEVERE, "Unexpected message: " + messageEntry.getContent());
         return MessageResult.createFailed(messageEntry);

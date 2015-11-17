@@ -9,6 +9,7 @@ import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.mdc.protocol.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdw.core.TimeZoneInUse;
 import com.energyict.protocol.MeterProtocol;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
@@ -286,7 +287,7 @@ public class DlmsProperties implements DlmsSessionProperties {
         if (value != null) {
             return value.intValue();
         } else {
-            throw MdcManager.getComServerExceptionFactory().missingProperty(key);
+            throw DeviceConfigurationException.missingProperty(key);
         }
     }
 

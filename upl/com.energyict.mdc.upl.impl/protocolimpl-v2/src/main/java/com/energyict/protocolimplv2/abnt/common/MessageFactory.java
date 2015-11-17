@@ -13,6 +13,7 @@ import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineDeviceMessageAttribute;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
@@ -253,7 +254,7 @@ public class MessageFactory implements DeviceMessageSupport {
                 return offlineDeviceMessageAttribute.getDeviceMessageAttributeValue();
             }
         }
-        throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("DeviceMessage didn't contain a value found for MessageAttribute " + attributeName));
+        throw DataParseException.ioException(new ProtocolException("DeviceMessage didn't contain a value found for MessageAttribute " + attributeName));
     }
 
     @Override
@@ -283,7 +284,7 @@ public class MessageFactory implements DeviceMessageSupport {
         try {
             return CodeTableXmlParsing.parseActivityCalendarAndSpecialDayTable(messageAttribute, 0, "0");
         } catch (ParserConfigurationException e) {
-            throw MdcManager.getComServerExceptionFactory().createGeneralParseException(e);
+            throw DataParseException.generalParseException(e);
         }
     }
 

@@ -22,6 +22,7 @@ import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
@@ -187,7 +188,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             //        if (testFile.delete()) {
             //            ProtocolTools.writeBytesToFile(fileName, bytes, false);
             //        } else {
-            //            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(new IOException("Could not write file '" + userFile.getFileName() + "' to temp directory, it already exists but is still in use"));
+            //            throw ConnectionCommunicationException.createUnExpectedProtocolError(new IOException("Could not write file '" + userFile.getFileName() + "' to temp directory, it already exists but is still in use"));
             //        }
             //    }   //Else: file exists and has the correct content. Ok, continue to execute message.
             //} else {
@@ -416,7 +417,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         try {
             ProtocolTools.getBytesFromHexString(hexMacAddress, "");
         } catch (IndexOutOfBoundsException | NumberFormatException e) {
-            throw MdcManager.getComServerExceptionFactory().createInvalidPropertyFormatException("MAC address", hexMacAddress, "Should be 16 hex characters");
+            throw DeviceConfigurationException.invalidPropertyFormat("MAC address", hexMacAddress, "Should be 16 hex characters");
         }
 
         final long normalTimeout = getProtocol().getDlmsSessionProperties().getTimeout();

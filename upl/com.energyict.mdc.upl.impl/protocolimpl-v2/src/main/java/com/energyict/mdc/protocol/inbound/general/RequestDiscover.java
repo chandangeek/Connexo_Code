@@ -2,6 +2,7 @@ package com.energyict.mdc.protocol.inbound.general;
 
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.general.frames.AbstractInboundFrame;
+import com.energyict.protocol.exceptions.InboundFrameException;
 import com.energyict.protocolimplv2.MdcManager;
 
 /**
@@ -32,7 +33,7 @@ public class RequestDiscover extends AbstractDiscover {
                 }
             } catch (InboundTimeOutException e) {
                 if (!receivedValidFrame) { // Timeout during receive of the first frame
-                    throw MdcManager.getComServerExceptionFactory().createInboundTimeOutException(e.getMessage());
+                    throw InboundFrameException.timeoutException(e, e.getMessage());
                 }
                 notTimedOut = false;    // Timeout during receive of additional frames
             }

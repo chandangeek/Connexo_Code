@@ -4,6 +4,9 @@ import com.energyict.cbo.NestedIOException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.DataEncryptionException;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
@@ -22,7 +25,7 @@ public class SecurityContextV2EncryptionHandler {
         try {
             return securityContext.dataTransportEncryption(plainText);
         } catch (UnsupportedException e) {             //Unsupported security policy
-            throw MdcManager.getComServerExceptionFactory().createUnsupportedPropertyValueException("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy()));
+            throw DeviceConfigurationException.unsupportedPropertyValue("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy()));
         }
     }
 
@@ -30,9 +33,9 @@ public class SecurityContextV2EncryptionHandler {
            try {
                return securityContext.dataTransportGeneralEncryption(request);
            } catch (UnsupportedException e) {  //Unsupported security policy
-               throw MdcManager.getComServerExceptionFactory().createUnsupportedPropertyValueException("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy()));
+               throw DeviceConfigurationException.unsupportedPropertyValue("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy()));
            } catch (IOException e) {           // Error while writing to the stream
-               throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(new NestedIOException(e));
+               throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
            }
        }
 
@@ -40,11 +43,11 @@ public class SecurityContextV2EncryptionHandler {
         try {
             return securityContext.dataTransportDecryption(cipherFrame);
         } catch (ConnectionException e) {              //Failed to decrypt data
-            throw MdcManager.getComServerExceptionFactory().createDataEncryptionException();
+            throw DataEncryptionException.dataEncryptionException(e);
         } catch (DLMSConnectionException e) {          //Invalid frame counter
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(new NestedIOException(e));
+            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
         } catch (UnsupportedException e) {             //Unsupported security policy
-            throw MdcManager.getComServerExceptionFactory().createUnsupportedPropertyValueException("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy()));
+            throw DeviceConfigurationException.unsupportedPropertyValue("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy()));
         }
     }
 
@@ -52,11 +55,11 @@ public class SecurityContextV2EncryptionHandler {
         try {
             return securityContext.dataTransportGeneralDecryption(securedResponse);
         } catch (ConnectionException e) {              //Failed to decrypt data
-            throw MdcManager.getComServerExceptionFactory().createDataEncryptionException(e);
+            throw DataEncryptionException.dataEncryptionException(e);
         } catch (DLMSConnectionException e) {          //Invalid frame counter
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(new NestedIOException(e));
+            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
         } catch (UnsupportedException e) {             //Unsupported security policy
-            throw MdcManager.getComServerExceptionFactory().createUnsupportedPropertyValueException("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy()));
+            throw DeviceConfigurationException.unsupportedPropertyValue("dataTransportSecurityLevel", String.valueOf(securityContext.getSecurityPolicy()));
         }
     }
 }

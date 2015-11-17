@@ -1,5 +1,6 @@
 package test.com.energyict.protocolimplv2.coronis.waveflow.core.parameter;
 
+import com.energyict.protocol.exceptions.CodingException;
 import com.energyict.protocolimplv2.MdcManager;
 import test.com.energyict.protocolimplv2.coronis.waveflow.WaveFlow;
 
@@ -38,6 +39,6 @@ public class NumberOfFrameInRxAndTx extends AbstractParameter {
 
     @Override
     protected byte[] prepare() {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(getClass(), "prepare");
+        throw CodingException.unsupportedMethod(getClass(), "prepare");
     }
 }

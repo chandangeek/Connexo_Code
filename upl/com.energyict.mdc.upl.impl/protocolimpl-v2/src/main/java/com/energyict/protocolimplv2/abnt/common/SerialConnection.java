@@ -1,11 +1,17 @@
 package com.energyict.protocolimplv2.abnt.common;
 
-import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.base.CRCGenerator;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
-import com.energyict.protocolimplv2.abnt.common.exception.*;
+import com.energyict.protocolimplv2.abnt.common.exception.AbntException;
+import com.energyict.protocolimplv2.abnt.common.exception.ConnectionException;
+import com.energyict.protocolimplv2.abnt.common.exception.CrcMismatchException;
+import com.energyict.protocolimplv2.abnt.common.exception.ParsingException;
+import com.energyict.protocolimplv2.abnt.common.exception.TimeOutException;
+import com.energyict.protocolimplv2.abnt.common.exception.TimeOutInfo;
 import com.energyict.protocolimplv2.abnt.common.frame.RequestFrame;
 import com.energyict.protocolimplv2.abnt.common.frame.ResponseFrame;
 import com.energyict.protocolimplv2.abnt.common.frame.field.Crc;
@@ -37,12 +43,12 @@ public class SerialConnection implements Connection {
         this.properties = properties;
     }
 
-    protected static ComServerExecutionException createUnexpectedResponseException(AbntException e) {
-        return MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
+    protected static ProtocolRuntimeException createUnexpectedResponseException(AbntException e) {
+        return CommunicationException.unexpectedResponse(e);
     }
 
-    protected static ComServerExecutionException createNumberOfRetriesReachedException(int attempts, AbntException e) {
-        return MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, attempts);
+    protected static ProtocolRuntimeException createNumberOfRetriesReachedException(int attempts, AbntException e) {
+        return ConnectionCommunicationException.numberOfRetriesReached(e, attempts);
     }
 
     @Override
@@ -191,8 +197,8 @@ public class SerialConnection implements Connection {
             doForcedDelay();
             ensureComChannelIsInWritingMode();
             comChannel.write(bytes);
-        } catch (ComServerExecutionException e) {
-            if (MdcManager.getComServerExceptionFactory().isCommunicationException(e)) {
+        } catch (ProtocolRuntimeException e) {
+            if (e instanceof CommunicationException) {
                 throw new ConnectionException("Unable to send frame", e);
             } else {
                 throw e;

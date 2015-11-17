@@ -12,6 +12,7 @@ import com.energyict.protocol.*;
 import java.util.logging.*;
 import com.energyict.cbo.*;
 import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.MdcManager;
 
 
@@ -234,7 +235,7 @@ public class RtuPlusBusFrames {
                 }
                 catch(InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                    throw ConnectionCommunicationException.communicationInterruptedException(e);
                 }
                 
                 if (halfDuplexController != null)
@@ -412,7 +413,7 @@ public class RtuPlusBusFrames {
         }
         catch(InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
         catch( IOException e) { 
             //System.out.println("IOException thrown");
@@ -542,7 +543,7 @@ public class RtuPlusBusFrames {
         }
         catch(InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
         catch( IOException e)
         {   
@@ -642,7 +643,7 @@ public class RtuPlusBusFrames {
             Thread.currentThread().sleep( 1000 );
         } catch( InterruptedException ie ) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(ie);
+            throw ConnectionCommunicationException.communicationInterruptedException(ie);
         }
         
         long time = System.currentTimeMillis();
@@ -654,7 +655,7 @@ public class RtuPlusBusFrames {
                 Thread.currentThread().sleep( 1000 );
             } catch( InterruptedException ie ) {
                 Thread.currentThread().interrupt();
-                throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(ie);
+                throw ConnectionCommunicationException.communicationInterruptedException(ie);
             }
             
             if( DEBUG >= 1 ) System.out.println( "aChar=" + aChar + " " + "waiting=" + ( System.currentTimeMillis() - time ) );

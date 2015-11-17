@@ -20,6 +20,9 @@ import com.energyict.dlms.protocolimplv2.connection.DlmsV2Connection;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
 import com.energyict.protocol.UnsupportedException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.DataEncryptionException;
+import com.energyict.protocol.exceptions.DeviceConfigurationException;
 import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
@@ -73,7 +76,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                 if (this.acse.hlsChallengeMatch()) {
                     releaseAssociation();
                     ConnectionException connectionException = new ConnectionException("Invalid responding authenticationValue.");
-                    throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(connectionException);
+                    throw ConnectionCommunicationException.protocolConnectFailed(connectionException);
                 }
                 if (!DLMSMeterConfig.OLD2.equalsIgnoreCase(this.protocolLink.getMeterConfig().getExtra())) {
                     this.associationStatus = ASSOCIATION_CONNECTED;
@@ -89,7 +92,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                 this.associationStatus = ASSOCIATION_CONNECTED;
             }
         } catch (UnsupportedException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnsupportedPropertyValueException("AuthenticationAccessLevel", "Manufacturer specific");
+            throw DeviceConfigurationException.unsupportedPropertyValue("AuthenticationAccessLevel", "Manufacturer specific");
         }
     }
 
@@ -97,11 +100,11 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
         try {
             this.acse.analyzeAARE(response);
         } catch (ConnectionException e) {                        //Decryption failed
-            throw MdcManager.getComServerExceptionFactory().createDataEncryptionException();
+            throw DataEncryptionException.dataEncryptionException(e);
         } catch (IOException e) {                                //Association failed
-            throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(e);
+            throw ConnectionCommunicationException.protocolConnectFailed(e);
         } catch (DLMSConnectionException e) {                    //Invalid frame counter
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(new NestedIOException(e));
+            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
         }
     }
 
@@ -136,7 +139,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                 } catch (UnsupportedException e) {
                     throw e;        //Security level not supported
                 } catch (IOException e) {
-                    throw MdcManager.getComServerExceptionFactory().createCipheringException(e);
+                    throw ConnectionCommunicationException.cipheringException(e);
                 }
                 // the association object will fail if we don't get a proper response.
                 this.associationStatus = ASSOCIATION_CONNECTED;
@@ -147,13 +150,13 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                     try {
                         decryptedResponse = replyToHLSAuthentication(this.securityContext.associationEncryption(plainText));
                     } catch (NoSuchAlgorithmException e) {
-                        throw MdcManager.getComServerExceptionFactory().createDataEncryptionException(e);
+                        throw DataEncryptionException.dataEncryptionException(e);
                     }
                     analyzeDecryptedResponse(decryptedResponse);
                 } else {
                     ConnectionException connectionException = new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
                             ") requires the server to respond with a challenge.");
-                    throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(connectionException);
+                    throw ConnectionCommunicationException.protocolConnectFailed(connectionException);
                 }
             }
 
@@ -164,13 +167,13 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                     try {
                         decryptedResponse = replyToHLSAuthentication(this.securityContext.associationEncryption(plainText));
                     } catch (NoSuchAlgorithmException e) {
-                        throw MdcManager.getComServerExceptionFactory().createDataEncryptionException(e);
+                        throw DataEncryptionException.dataEncryptionException(e);
                     }
                     analyzeDecryptedResponse(decryptedResponse);
                 } else {
                     ConnectionException connectionException = new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
                             ") requires the server to respond with a challenge.");
-                    throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(connectionException);
+                    throw ConnectionCommunicationException.protocolConnectFailed(connectionException);
                 }
             }
 
@@ -183,13 +186,13 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                 } else {
                     ConnectionException connectionException = new ConnectionException("No challenge was responded; Current authenticationLevel(" + this.securityContext.getAuthenticationLevel() +
                             ") requires the server to respond with a challenge.");
-                    throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(connectionException);
+                    throw ConnectionCommunicationException.protocolConnectFailed(connectionException);
                 }
             }
             break;
             default: {
                 // should never get here
-                throw MdcManager.getComServerExceptionFactory().createUnsupportedPropertyValueException("AuthenticationAccessLevel", String.valueOf(this.securityContext.getAuthenticationLevel()));
+                throw DeviceConfigurationException.unsupportedPropertyValue("AuthenticationAccessLevel", String.valueOf(this.securityContext.getAuthenticationLevel()));
             }
         }
     }
@@ -208,14 +211,14 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
             try {
                 cToSEncrypted = this.securityContext.associationEncryption(plainText);
             } catch (NoSuchAlgorithmException e) {
-                throw MdcManager.getComServerExceptionFactory().createDataEncryptionException(e);
+                throw DataEncryptionException.dataEncryptionException(e);
             }
         } else {
             cToSEncrypted = this.securityContext.createHighLevelAuthenticationGMACResponse(this.securityContext.getSecurityProvider().getCallingAuthenticationValue(), encryptedResponse);
         }
         if (!Arrays.equals(cToSEncrypted, encryptedResponse)) {
             IOException ioException = new IOException("HighLevelAuthentication failed, client and server challenges do not match.");
-            throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(ioException);
+            throw ConnectionCommunicationException.protocolConnectFailed(ioException);
         } else {
             this.associationStatus = ASSOCIATION_CONNECTED;
         }
@@ -237,14 +240,14 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
             try {
                 berEncodedData = aln.replyToHLSAuthentication(digest);
             } catch (DataAccessResultException | ProtocolException | ExceptionResponseException e) {
-                throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(e);
+                throw ConnectionCommunicationException.protocolConnectFailed(e);
             } catch (IOException e) {
-                throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, getDlmsV2Connection().getMaxTries());
+                throw ConnectionCommunicationException.numberOfRetriesReached(e, getDlmsV2Connection().getMaxTries());
             }
             try {
                 decryptedResponse = new OctetString(berEncodedData, 0);
             } catch (IOException e) {
-                throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(e);
+                throw ConnectionCommunicationException.protocolConnectFailed(e);
             }
         } else if ((this.acse.getContextId() == AssociationControlServiceElement.SHORT_NAME_REFERENCING_NO_CIPHERING)
                 || (this.acse.getContextId() == AssociationControlServiceElement.SHORT_NAME_REFERENCING_WITH_CIPHERING)) {    // reply with AssociationSN
@@ -253,9 +256,9 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
             try {
                 response = asn.replyToHLSAuthentication(digest);
             } catch (DataAccessResultException | ProtocolException | ExceptionResponseException e) {
-                throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(e);
+                throw ConnectionCommunicationException.protocolConnectFailed(e);
             } catch (IOException e) {
-                throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, getDlmsV2Connection().getMaxTries());
+                throw ConnectionCommunicationException.numberOfRetriesReached(e, getDlmsV2Connection().getMaxTries());
             }
             if (response.length == 0) {
                 return new byte[0];
@@ -263,7 +266,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
             try {
                 decryptedResponse = new OctetString(response, 0);
             } catch (IOException e) {
-                throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(e);
+                throw ConnectionCommunicationException.protocolConnectFailed(e);
             }
         } else {
             throw new IllegalArgumentException("Invalid ContextId: " + this.acse.getContextId());
@@ -294,7 +297,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
         try {
             this.acse.analyzeRLRE(response);
         } catch (DLMSConnectionException | AssociationControlServiceElement.ACSEParsingException e) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolDisconnectFailed(e);    //Association release failed
+            throw ConnectionCommunicationException.protocolDisconnectFailed(e);    //Association release failed
         }
     }
 }

@@ -8,10 +8,10 @@ import com.energyict.dlms.cosem.AbstractCosemObject;
 import com.energyict.dlms.cosem.ExceptionResponseException;
 import com.energyict.dlms.protocolimplv2.connection.DlmsV2Connection;
 import com.energyict.dlms.protocolimplv2.connection.SecureConnection;
-import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -124,14 +124,14 @@ public class GeneralBlockTransferHandler {
                 byte[] cosemResponse = doHandleGeneralBlockTransfer(rawResponse);
                 return addLegacyHDLCHeadersToCosemApdu(cosemResponse);  // Re-add the 3 bytes, who represent the legacy HDLC header
 
-            } catch (IOException | ComServerExecutionException e) {
-                if (e instanceof ComServerExecutionException && !isConnectionCommunicationException(e)) {
-                    throw (ComServerExecutionException) e;  //Throw exception, we're only interested in handling ConnectionCommunicationException and IOExceptions
+            } catch (IOException | ProtocolRuntimeException e) {
+                if (e instanceof ProtocolRuntimeException && !isConnectionCommunicationException(e)) {
+                    throw (ProtocolRuntimeException) e;  //Throw exception, we're only interested in handling ConnectionCommunicationException and IOExceptions
                 } else {
                     //Handle IOException and ConnectionCommunicationException
                     if (currentRetryCount++ >= this.maxRetries) {
                         IOException ioException = (e instanceof IOException) ? (IOException) e : new IOException(e.getMessage(), e);
-                        throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(ioException, maxRetries + 1);
+                        throw ConnectionCommunicationException.numberOfRetriesReached(ioException, maxRetries + 1);
                     }
 
                     rawResponse = getDlmsV2Connection().sendRequest(retryRequest, isAlreadyEncrypted); // This call does take into account retries, so no need to catch & retry this call
@@ -209,9 +209,9 @@ public class GeneralBlockTransferHandler {
                     getDlmsV2Connection().prepareComChannelForReceiveOfNextPacket(); // To ensure logging of next received packet is correct
                 }
             }
-        } catch (ComServerExecutionException | IOException e) {
-            if (e instanceof ComServerExecutionException && !isConnectionCommunicationException(e)) {
-                throw (ComServerExecutionException) e;  //Throw exception, we're only interested in handling ConnectionCommunicationException and IOExceptions
+        } catch (ProtocolRuntimeException | IOException e) {
+            if (e instanceof ProtocolRuntimeException && !isConnectionCommunicationException(e)) {
+                throw e;  //Throw exception, we're only interested in handling ConnectionCommunicationException and IOExceptions
             } else {
                 //Handle IOException and ConnectionCommunicationException
                 if (!checkForMissingBlocks) {
@@ -230,7 +230,7 @@ public class GeneralBlockTransferHandler {
     }
 
     private boolean isConnectionCommunicationException(Exception e) {
-        return MdcManager.getComServerExceptionFactory().isConnectionCommunicationException(e);
+        return e instanceof ConnectionCommunicationException;
     }
 
     /**
@@ -334,7 +334,7 @@ public class GeneralBlockTransferHandler {
                     this.responseData = decryptGeneralCiphering(secureConnection, getResponseData());
                 } else {
                     IOException ioException = new IOException("Unknown GlobalCiphering-Tag : " + getResponseData()[LOCATION_SECURED_XDLMS_APDU_TAG]);
-                    throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(ioException);
+                    throw ConnectionCommunicationException.unExpectedProtocolError(ioException);
                 }
             }
         }

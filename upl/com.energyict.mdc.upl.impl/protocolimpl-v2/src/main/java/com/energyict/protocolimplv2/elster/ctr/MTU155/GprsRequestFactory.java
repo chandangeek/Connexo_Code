@@ -2,10 +2,10 @@ package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
 import com.energyict.cpo.TypedProperties;
 import com.energyict.dialer.core.Link;
-import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.EK155.EK155Properties;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.common.AttributeType;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.encryption.SecureGprsConnection;
@@ -62,9 +62,6 @@ import com.energyict.protocolimplv2.elster.ctr.MTU155.structure.field.WriteDataB
 import com.energyict.protocolimplv2.elster.ctr.MTU155.util.GasQuality;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.util.MeterInfo;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -966,9 +963,9 @@ public class GprsRequestFactory implements RequestFactory {
             } else {
                 getLogger().warning("Unable to close connection. getConnection() returned null.");
             }
-        } catch (ComServerExecutionException e) {
+        } catch (ProtocolRuntimeException e) {
             getLogger().severe("Failed to close session! " + e.getMessage());
-            throw MdcManager.getComServerExceptionFactory().createProtocolDisconnectFailed(e);
+            throw ConnectionCommunicationException.protocolDisconnectFailed(e);
         }
     }
 

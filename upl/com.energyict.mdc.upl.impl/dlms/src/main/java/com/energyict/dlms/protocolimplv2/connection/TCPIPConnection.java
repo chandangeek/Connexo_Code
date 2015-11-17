@@ -10,8 +10,9 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ServerComChannel;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.ProtocolUtils;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exceptions.DataParseException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-import com.energyict.protocolimplv2.MdcManager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -120,7 +121,7 @@ public class TCPIPConnection implements DlmsV2Connection {
             byte[] frame = new byte[length];
             int readBytes = readFixedNumberOfBytes(frame);
             if (readBytes != length) {
-                throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("Attempted to read out full frame (" + length + " bytes), but received " + readBytes + " bytes instead..."));
+                throw DataParseException.ioException(new ProtocolException("Attempted to read out full frame (" + length + " bytes), but received " + readBytes + " bytes instead..."));
             }
 
             //Now check if this frame has the correct version, source & destination
@@ -281,7 +282,7 @@ public class TCPIPConnection implements DlmsV2Connection {
                     Thread.sleep(50);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                    throw ConnectionCommunicationException.communicationInterruptedException(e);
                 }
             }
         }
@@ -293,7 +294,7 @@ public class TCPIPConnection implements DlmsV2Connection {
         byte[] header = new byte[8];
         int readBytes = readFixedNumberOfBytes(header);
         if (readBytes != 8) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolParseException(new ProtocolException("Attempted to read out 8 header bytes but received " + readBytes + " bytes instead..."));
+            throw DataParseException.ioException(new ProtocolException("Attempted to read out 8 header bytes but received " + readBytes + " bytes instead..."));
         }
         return ByteBuffer.wrap(header);
     }
@@ -317,7 +318,7 @@ public class TCPIPConnection implements DlmsV2Connection {
             Thread.sleep(lDelay);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
     }
 
@@ -348,10 +349,10 @@ public class TCPIPConnection implements DlmsV2Connection {
                 }
                 return receiveData().getData();
             } catch (ProtocolException e) {    //Received invalid data, cannot continue...
-                throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+                throw ConnectionCommunicationException.unExpectedProtocolError(e);
             } catch (IOException e) {
                 if (this.currentRetryCount++ >= this.maxRetries) {
-                    throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, maxRetries + 1);
+                    throw ConnectionCommunicationException.numberOfRetriesReached(e, maxRetries + 1);
                 }
             }
         }
@@ -368,10 +369,10 @@ public class TCPIPConnection implements DlmsV2Connection {
                 sendOut(data);
                 return receiveData().getRawData();
             } catch (ProtocolException e) {    //Received invalid data, cannot continue...
-                throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+                throw ConnectionCommunicationException.unExpectedProtocolError(e);
             } catch (IOException e) {
                 if (this.currentRetryCount++ >= this.maxRetries) {
-                    throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, maxRetries + 1);
+                    throw ConnectionCommunicationException.numberOfRetriesReached(e, maxRetries + 1);
                 }
             }
         }
@@ -396,10 +397,10 @@ public class TCPIPConnection implements DlmsV2Connection {
                 sendOut(wpdu.getFrameData());
                 return receiveData().getData();
             } catch (ProtocolException e) {    //Received invalid data, cannot continue...
-                throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(e);
+                throw ConnectionCommunicationException.unExpectedProtocolError(e);
             } catch (IOException e) {
                 if (this.currentRetryCount++ >= this.maxRetries) {
-                    throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, maxRetries + 1);
+                    throw ConnectionCommunicationException.numberOfRetriesReached(e, maxRetries + 1);
                 }
             }
         }

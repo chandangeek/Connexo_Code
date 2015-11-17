@@ -37,6 +37,7 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
+import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.events.CTRMeterEvent;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.exception.CTRException;
@@ -181,7 +182,7 @@ public class MTU155 implements DeviceProtocol {
         try {
             return getRequestFactory().getMeterInfo().getTime();
         } catch (CTRException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
+            throw CommunicationException.unexpectedResponse(e);
         }
     }
 
@@ -190,7 +191,7 @@ public class MTU155 implements DeviceProtocol {
         try {
             getRequestFactory().getMeterInfo().setTime(timeToSet);
         } catch (CTRException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
+            throw CommunicationException.unexpectedResponse(e);
         }
     }
 

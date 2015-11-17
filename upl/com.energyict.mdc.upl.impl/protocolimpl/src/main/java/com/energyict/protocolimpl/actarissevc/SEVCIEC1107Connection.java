@@ -6,6 +6,7 @@ import com.energyict.cbo.NestedIOException;
 
 import com.energyict.protocol.*;
 import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.MdcManager;
 
 /**
@@ -138,7 +139,7 @@ public class SEVCIEC1107Connection {
                 }
                 catch(InterruptedException e) {
                     Thread.currentThread().interrupt();
-                    throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+                    throw ConnectionCommunicationException.communicationInterruptedException(e);
                 }
                 return;
             }
@@ -498,7 +499,7 @@ public class SEVCIEC1107Connection {
         } // try
         catch(InterruptedException e){
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -558,7 +559,7 @@ public class SEVCIEC1107Connection {
         } // try
         catch(InterruptedException e){
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -594,7 +595,7 @@ public class SEVCIEC1107Connection {
         } // try
         catch(InterruptedException e){
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -651,7 +652,7 @@ public class SEVCIEC1107Connection {
         } // try
         catch(InterruptedException e){
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -692,7 +693,7 @@ public class SEVCIEC1107Connection {
         } // try
         catch(InterruptedException e){
             Thread.currentThread().interrupt();
-            throw MdcManager.getComServerExceptionFactory().communicationInterruptedException(e);
+            throw ConnectionCommunicationException.communicationInterruptedException(e);
         }
         catch (IOException e) {
             e.printStackTrace();

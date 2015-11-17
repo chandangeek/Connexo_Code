@@ -8,6 +8,7 @@ import com.energyict.mdc.meterdata.CollectedMessageList;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.protocol.exceptions.CodingException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.eict.webrtuz3.messages.WebRTUZ3MessageExecutor;
@@ -61,12 +62,12 @@ public class WebRTUZ3MBusMessaging extends AbstractDlmsMessaging implements Devi
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "executePendingMessages");
+        throw CodingException.unsupportedMethod(this.getClass(), "executePendingMessages");
     }
 
     @Override
     public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> offlineDeviceMessages) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "updateSentMessages");
+        throw CodingException.unsupportedMethod(this.getClass(), "updateSentMessages");
     }
 
     @Override

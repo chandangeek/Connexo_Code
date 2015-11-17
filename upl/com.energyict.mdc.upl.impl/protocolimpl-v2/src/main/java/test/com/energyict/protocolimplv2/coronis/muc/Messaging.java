@@ -13,6 +13,7 @@ import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdc.protocol.tasks.support.DeviceMessageSupport;
 import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineDeviceMessage;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.identifiers.DeviceMessageIdentifierById;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
@@ -66,7 +67,7 @@ public class Messaging implements DeviceMessageSupport {
                 result.addCollectedMessage(collectedMessage);
             }
         } catch (IOException e) {      //Timeout, abort session
-            throw MdcManager.getComServerExceptionFactory().createNumberOfRetriesReached(e, 1);    //No retries on protocol level, TCP handles this
+            throw ConnectionCommunicationException.numberOfRetriesReached(e, 1);    //No retries on protocol level, TCP handles this
         }
         return result;
     }

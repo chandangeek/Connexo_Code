@@ -15,8 +15,8 @@ import com.energyict.mdw.offline.OfflineDevice;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
-import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.dlms.AbstractMeterTopology;
 import com.energyict.protocolimplv2.dlms.idis.am130.events.AM130LogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.am130.messages.AM130Messaging;
@@ -128,7 +128,7 @@ public class AM130 extends AM500 {
             frameCounter = publicDlmsSession.getCosemObjectFactory().getData(FRAMECOUNTER_OBISCODE).getValueAttr().longValue();
         } catch (DataAccessResultException | ProtocolException e) {
             final ProtocolException protocolException = new ProtocolException(e, "Error while reading out the framecounter, cannot continue! " + e.getMessage());
-            throw MdcManager.getComServerExceptionFactory().createUnExpectedProtocolError(protocolException);
+            throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
         } catch (IOException e) {
             throw IOExceptionHandler.handle(e, publicDlmsSession);
         }

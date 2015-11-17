@@ -5,12 +5,9 @@ import com.energyict.cbo.TimeConstants;
 import com.energyict.mdc.ManagerFactory;
 import com.energyict.mdc.MdwInterface;
 import com.energyict.mdc.ServerManager;
-import com.energyict.mdc.exceptions.ComServerExceptionFactoryProvider;
-import com.energyict.mdc.exceptions.DefaultComServerExceptionFactoryProvider;
 import com.energyict.mdc.meterdata.CollectedDataFactoryProvider;
 import com.energyict.mdc.meterdata.DefaultCollectedDataFactoryProvider;
 import com.energyict.mdc.ports.InboundComPort;
-import com.energyict.mdc.protocol.exceptions.CommunicationException;
 import com.energyict.mdc.protocol.inbound.DeviceIdentifier;
 import com.energyict.mdc.protocol.inbound.InboundDAO;
 import com.energyict.mdw.core.Device;
@@ -19,6 +16,7 @@ import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalValue;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.exceptions.CommunicationException;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;
@@ -51,7 +49,6 @@ public class ProfileBuilderTest {
 
     @BeforeClass
     public static void doBefore() {
-        ComServerExceptionFactoryProvider.instance.set(new DefaultComServerExceptionFactoryProvider());
         CollectedDataFactoryProvider.instance.set(new DefaultCollectedDataFactoryProvider());
     }
 

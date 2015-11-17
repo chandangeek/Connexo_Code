@@ -28,6 +28,9 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.mdw.offline.OfflineRegister;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.exceptions.CodingException;
+import com.energyict.protocol.exceptions.CommunicationException;
+import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.elster.garnet.common.TopologyMaintainer;
@@ -94,7 +97,7 @@ public class GarnetConcentrator implements DeviceProtocol {
         try {
             getRequestFactory().openSession();
         } catch (GarnetException e) {
-            throw MdcManager.getComServerExceptionFactory().createProtocolConnectFailed(e);
+            throw ConnectionCommunicationException.protocolConnectFailed(e);
         }
     }
 
@@ -119,7 +122,7 @@ public class GarnetConcentrator implements DeviceProtocol {
             ConcentratorVersionResponseStructure concentratorVersion = getRequestFactory().readConcentratorVersion();
             return ProtocolTools.removeLeadingZerosFromString(concentratorVersion.getSerialNumber().getSerialNumber());
         } catch (GarnetException e) {
-            throw MdcManager.getComServerExceptionFactory().createUnexpectedResponse(e);
+            throw CommunicationException.unexpectedResponse(e);
         }
     }
 
@@ -141,7 +144,7 @@ public class GarnetConcentrator implements DeviceProtocol {
 
     @Override
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
-        throw MdcManager.getComServerExceptionFactory().createUnsupportedMethodException(this.getClass(), "getLoadProfileData");
+        throw CodingException.unsupportedMethod(this.getClass(), "getLoadProfileData");
     }
 
     @Override

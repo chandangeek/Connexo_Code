@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.ace4000.requests;
 
-import com.energyict.mdc.exceptions.ComServerExecutionException;
 import com.energyict.mdc.meterdata.CollectedRegister;
 import com.energyict.mdc.meterdata.ResultType;
 import com.energyict.mdw.offline.OfflineRegister;
@@ -86,7 +85,7 @@ public class ReadMBusRegisters extends AbstractRequest<List<OfflineRegister>, Li
     }
 
     @Override
-    protected void handleException(ComServerExecutionException e) {
+    protected void handleException(RuntimeException e) {
         createResult("Didn't receive register from meter");
     }
 
