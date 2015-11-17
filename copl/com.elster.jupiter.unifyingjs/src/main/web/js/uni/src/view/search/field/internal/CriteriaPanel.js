@@ -26,16 +26,52 @@ Ext.define('Uni.view.search.field.internal.CriteriaPanel', {
     },
 
     onCriteriaAdd: function(filters, filter, property) {
-        if (property.get('sticky') === this.sticky) {
-            this.add(filter);
-            this.setVisible(this.items.length);
+        var me = this;
+
+        if (property.get('sticky') === me.sticky) {
+            if (property.get('group')) {
+                var group = property.get('group');
+                var dock = me.down('panel[group="'+ group.id+'"]');
+                if (!dock) {
+                    dock = me.addDocked({
+                        xtype: 'panel',
+                        group: group.id,
+                        dock: 'bottom',
+                        layout: 'column',
+                        header: {
+                            style: {
+                                background: 'transparent',
+                                padding: '0 0 5 0'
+                            }
+                        },
+                        defaults: me.defaults,
+                        title: group.displayValue
+                    })[0];
+                }
+
+                dock.add(filter);
+            } else {
+                me.add(filter);
+            }
+
+            me.setVisible(me.items.length + me.dockedItems.length);
         }
     },
 
     onCriteriaRemove: function(filters, filter, property) {
         if (property.get('sticky') === this.sticky) {
             filter.destroy();
-            this.setVisible(this.items.length);
+
+            if (property.get('group')) {
+                var group = property.get('group'),
+                    panel = this.down('panel[group="'+ group.id+'"]');
+
+                if (!panel.items.length) {
+                    this.removeDocked(panel);
+                }
+            }
         }
+
+        this.setVisible(this.items.length + this.dockedItems.length);
     }
 });
