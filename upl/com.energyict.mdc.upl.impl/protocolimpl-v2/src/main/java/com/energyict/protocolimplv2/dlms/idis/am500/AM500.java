@@ -116,6 +116,7 @@ public class AM500 extends AbstractDlmsProtocol {
         while (true) {
             ProtocolRuntimeException exception;
             try {
+                dlmsSession.getDLMSConnection().setRetries(0);   //Temporarily disable retries in the connection layer, AARQ retries are handled here
                 if (dlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
                     dlmsSession.getDlmsV2Connection().connectMAC();
                     dlmsSession.createAssociation();
@@ -130,6 +131,8 @@ public class AM500 extends AbstractDlmsProtocol {
                     throw e;
                 }
                 exception = e;
+            } finally {
+                dlmsSession.getDLMSConnection().setRetries(getDlmsSessionProperties().getRetries());
             }
 
             //Release and retry the AARQ in case of ACSE exception

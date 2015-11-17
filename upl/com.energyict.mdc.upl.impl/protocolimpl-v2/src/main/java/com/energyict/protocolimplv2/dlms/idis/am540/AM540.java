@@ -145,7 +145,7 @@ public class AM540 extends AM130 {
         while (true) {
             ProtocolRuntimeException exception;
             try {
-                getDlmsSession().getDLMSConnection().setRetries(0);   //Temporarily disable retries in the connection layer, AARQ retries are handled here
+                dlmsSession.getDLMSConnection().setRetries(0);   //Temporarily disable retries in the connection layer, AARQ retries are handled here
                 if (dlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
                     dlmsSession.getDlmsV2Connection().connectMAC();
                     dlmsSession.createAssociation((int) getDlmsSessionProperties().getAARQTimeout());
@@ -161,7 +161,7 @@ public class AM540 extends AM130 {
                 }
                 exception = e;
             } finally {
-                getDlmsSession().getDLMSConnection().setRetries(getDlmsSessionProperties().getRetries());
+                dlmsSession.getDLMSConnection().setRetries(getDlmsSessionProperties().getRetries());
             }
 
             //Release and retry the AARQ in case of ACSE exception
