@@ -44,7 +44,8 @@ Ext.define('Uni.service.Search', {
             'add',
             'remove',
             'change',
-            'reset'
+            'reset',
+            'searchResultsBeforeLoad'
         );
     },
 
@@ -61,14 +62,13 @@ Ext.define('Uni.service.Search', {
     }),
 
     criteriaMap: {
-        'Boolean':      'uni-search-criteria-boolean',
-        'Instant':      'uni-search-criteria-datetime',
-        'TimeDuration': 'uni-search-criteria-timeduration',
-        'BigDecimal':   'uni-search-criteria-numeric',
-        'Selection':    'uni-search-criteria-selection',
-        'Date':         'uni-search-criteria-date',
-        'Clock':        'uni-search-criteria-clock',
-        'TimeOfDay':    'uni-search-criteria-timeofday',
+        'Boolean:com.elster.jupiter.properties.BooleanFactory':              'uni-search-criteria-boolean',
+        'Instant:com.elster.jupiter.properties.InstantFactory':              'uni-search-criteria-datetime',
+        'TimeDuration:com.elster.jupiter.properties.StringReferenceFactory': 'uni-search-criteria-timeduration',
+        'BigDecimal:com.elster.jupiter.properties.BigDecimalFactory':        'uni-search-criteria-numeric',
+        'Date:com.energyict.mdc.dynamic.DateFactory':                        'uni-search-criteria-date',
+        'Date:com.energyict.mdc.dynamic.DateAndTimeFactory':                 'uni-search-criteria-clock',
+        'TimeOfDay:com.energyict.mdc.dynamic.TimeOfDayFactory':              'uni-search-criteria-timeofday'
     },
 
     fieldMap: {
@@ -100,6 +100,7 @@ Ext.define('Uni.service.Search', {
         me.unbind();
         me.storeListeners.push(me.getSearchResultsStore().on({
             load: me.onSearchResultsLoad,
+            beforeload: me.onSearchResultsBeforeLoad,
             scope: me,
             destroyable: true
         }));
@@ -173,6 +174,11 @@ Ext.define('Uni.service.Search', {
         if (!success) {
             store.removeAll();
         }
+    },
+
+    onSearchResultsBeforeLoad: function () {
+        var me = this;
+        me.fireEvent('searchResultsBeforeLoad');
     },
 
     init: function() {
@@ -340,7 +346,7 @@ Ext.define('Uni.service.Search', {
 
     createWidgetForProperty: function (property) {
         var me = this,
-            type = property.get('type'),
+            type = property.get('type') + ':' + property.get('factoryName'),
             displayValue = property.get('displayValue'),
             config = {
                 xtype: me.criteriaMap[type],

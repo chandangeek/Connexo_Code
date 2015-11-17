@@ -130,7 +130,8 @@ Ext.define('Uni.view.search.Overview', {
                                         itemId: 'clear-all-button',
                                         text: Uni.I18n.translate('general.clearFilters', 'UNI', 'Clear all'),
                                         action: 'clearFilters',
-                                        margin: '0 0 0 0'
+                                        margin: '0 0 0 0',
+                                        disabled: true
                                     }
                                 ]
                             },

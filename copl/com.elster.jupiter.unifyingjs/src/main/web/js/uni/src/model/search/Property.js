@@ -9,6 +9,7 @@ Ext.define('Uni.model.search.Property', {
         {name: 'name', type: 'string'},
         {name: 'displayValue', type: 'string'},
         {name: 'type', type: 'string'},
+        {name: 'factoryName', type: 'string'},
         {name: 'exhaustive', type: 'boolean'},
         {name: 'link', type: 'auto'},
         {name: 'selectionMode', type: 'string'},

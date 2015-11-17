@@ -64,7 +64,7 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
     getValue: function() {
         var value = this.getField().getValue();
 
-        return Ext.isDefined(value) ? Ext.create('Uni.model.search.Value', {
+        return !Ext.isEmpty(value) ? Ext.create('Uni.model.search.Value', {
             operator: this.down('#filter-operator').getValue(),
             criteria: value
         }) : null;

@@ -62,7 +62,10 @@ Ext.define('Uni.view.search.ColumnPicker', {
                     itemId: 'column-picker-cancel-button',
                     ui: 'link',
                     handler: function() {
+                        Ext.suspendLayouts();
+                        me.setColumns(me.currentColumns, true);
                         me.menu.hide();
+                        Ext.resumeLayouts(true);
                     }
                 }
             ],
@@ -117,7 +120,25 @@ Ext.define('Uni.view.search.ColumnPicker', {
                         }
                     }
                 }
-            ]
+            ],
+            listeners: {
+                show: {
+                    scope: me,
+                    fn: function () {
+                        var currentColumns = [];
+
+                        me.menu.down('#columns-selected').items.each(function (menuItem) {
+                            menuItem.column.isDefault = true;
+                            currentColumns.push(menuItem.column);
+                        });
+                        me.menu.down('#columns-available').items.each(function (menuItem) {
+                            menuItem.column.isDefault = false;
+                            currentColumns.push(menuItem.column);
+                        })
+                        me.currentColumns = currentColumns;
+                    }
+                }
+            }
         };
 
         me.callParent(arguments);
@@ -134,13 +155,15 @@ Ext.define('Uni.view.search.ColumnPicker', {
         };
     },
 
-    setColumns: function (columns) {
+    setColumns: function (columns, restoreState) {
         var me = this,
             available = me.menu.down('#columns-available'),
             selected = me.menu.down('#columns-selected')
         ;
 
-        me.defaultColumns = columns;
+        if (!restoreState) {
+            me.defaultColumns = columns;
+        }
         Ext.suspendLayouts();
         available.removeAll();
         selected.removeAll();
@@ -152,7 +175,9 @@ Ext.define('Uni.view.search.ColumnPicker', {
             });
         }
 
-        me.grid.reconfigure(null, _.filter(columns, function(c){return c.isDefault}));
+        if (!restoreState) {
+            me.grid.reconfigure(null, _.filter(columns, function(c){return c.isDefault}));
+        }
         Ext.resumeLayouts(true);
     }
 });
