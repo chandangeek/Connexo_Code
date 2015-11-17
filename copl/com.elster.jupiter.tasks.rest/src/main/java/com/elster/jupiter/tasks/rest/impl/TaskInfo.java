@@ -9,7 +9,7 @@ import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
-import com.elster.jupiter.util.cron.parser.CronExpressionDescriptor;
+import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
@@ -108,9 +108,11 @@ public class TaskInfo {
         }
         if (scheduleExpression instanceof TemporalExpression) {
             return fromTemporalExpression((TemporalExpression) scheduleExpression, thesaurus);
-        } else {
-            return new CronExpressionDescriptor(thesaurus).getDescription(scheduleExpression.toString());
         }
+        if (scheduleExpression instanceof CronExpression) {
+            return timeService.toLocalizedString((CronExpression) scheduleExpression);
+        }
+        return scheduleExpression.toString();
     }
 
     private String fromPeriodicalScheduleExpression(PeriodicalScheduleExpression scheduleExpression, TimeService timeService) {
