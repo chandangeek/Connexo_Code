@@ -186,6 +186,7 @@ public class DeviceSearchDomainTest {
         verify(this.dataModel).getInstance(RegisterObisCodeSearchableProperty.class);
         verify(this.dataModel).getInstance(RegisterReadingTypeUnitOfMeasureSearchableProperty.class);
         verify(this.dataModel).getInstance(RegisterReadingTypeTimeOfUseSearchableProperty.class);
+        verify(this.dataModel).getInstance(RegisterLastReadingSearchableProperty.class);
         verify(this.dataModel).getInstance(ProtocolDialectSearchableProperty.class);
         verify(this.dataModel).getInstance(ChannelReadingTypeNameSearchableProperty.class);
         verify(this.dataModel).getInstance(ChannelReadingTypeUnitOfMeasureSearchableProperty.class);
@@ -445,6 +446,12 @@ public class DeviceSearchDomainTest {
                 eq(false),
                 Matchers.anyObject(),
                 Matchers.anyVararg())).thenReturn(unitOfMeasure);
+        PropertySpec lastReadingSpec = mock(PropertySpec.class);
+        when(lastReadingSpec.getName()).thenReturn(RegisterLastReadingSearchableProperty.PROPERTY_NAME);
+        when(this.propertySpecService.basicPropertySpec(
+                eq(RegisterLastReadingSearchableProperty.PROPERTY_NAME),
+                eq(false),
+                Matchers.<StringFactory>anyObject())).thenReturn(lastReadingSpec);
     }
 
     private void mockProtocolDialectPropertySpec() {
