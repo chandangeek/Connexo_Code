@@ -2,25 +2,16 @@ package com.elster.jupiter.data.lifecycle.impl;
 
 import com.elster.jupiter.data.lifecycle.LifeCycleCategory;
 import com.elster.jupiter.data.lifecycle.LifeCycleCategoryKind;
-import com.elster.jupiter.data.lifecycle.LifeCycleService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsKey;
-import com.elster.jupiter.nls.SimpleNlsKey;
-import com.elster.jupiter.nls.SimpleTranslation;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.tasks.TaskService;
-import com.elster.jupiter.users.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.logging.Logger;
 
 class Installer {
@@ -66,6 +57,7 @@ class Installer {
     private void createTask() {
         if (!taskService.getRecurrentTask(DATA_LIFECYCLE_RECCURENT_TASK_NAME).isPresent()) {
             taskService.newBuilder()
+                    .setApplication("Pulse")
                     .setName(DATA_LIFECYCLE_RECCURENT_TASK_NAME)
                     .setScheduleExpressionString("0 0 18 ? * 1L") // last sunday of the month at 18:00
                     .setDestination(getDestination())
