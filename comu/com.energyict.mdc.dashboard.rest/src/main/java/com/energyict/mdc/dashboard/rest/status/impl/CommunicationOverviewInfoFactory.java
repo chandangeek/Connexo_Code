@@ -31,10 +31,12 @@ public class CommunicationOverviewInfoFactory {
     private final DashboardService dashboardService;
     private final DataCollectionKpiService dataCollectionKpiService;
     private final KpiScoreFactory kpiScoreFactory;
-    private final CommunicationHeatMapInfoFactory communicationHeatMapInfoFactory;
 
     @Inject
-    public CommunicationOverviewInfoFactory(BreakdownFactory breakdownFactory, OverviewFactory overviewFactory, SummaryInfoFactory summaryInfoFactory, Thesaurus thesaurus, DashboardService dashboardService, DataCollectionKpiService dataCollectionKpiService, KpiScoreFactory kpiScoreFactory, CommunicationHeatMapInfoFactory communicationHeatMapInfoFactory) {
+    public CommunicationOverviewInfoFactory(BreakdownFactory breakdownFactory, OverviewFactory overviewFactory,
+                                            SummaryInfoFactory summaryInfoFactory, Thesaurus thesaurus,
+                                            DashboardService dashboardService, DataCollectionKpiService dataCollectionKpiService,
+                                            KpiScoreFactory kpiScoreFactory) {
         this.breakdownFactory = breakdownFactory;
         this.overviewFactory = overviewFactory;
         this.summaryInfoFactory = summaryInfoFactory;
@@ -42,7 +44,6 @@ public class CommunicationOverviewInfoFactory {
         this.dashboardService = dashboardService;
         this.dataCollectionKpiService = dataCollectionKpiService;
         this.kpiScoreFactory = kpiScoreFactory;
-        this.communicationHeatMapInfoFactory = communicationHeatMapInfoFactory;
     }
 
     public CommunicationOverviewInfo asInfo() {
@@ -101,7 +102,6 @@ public class CommunicationOverviewInfoFactory {
                         overview.getDeviceTypeBreakdown(), FilterOption.deviceTypes));
         breakdownFactory.sortAllBreakdowns(info.breakdowns);
 
-        info.heatMap = communicationHeatMapInfoFactory.from(overview.getHeatMap());
         return info;
     }
 

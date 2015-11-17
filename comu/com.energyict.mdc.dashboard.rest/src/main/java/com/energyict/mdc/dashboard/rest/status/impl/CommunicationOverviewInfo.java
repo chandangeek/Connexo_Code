@@ -12,7 +12,6 @@ public class CommunicationOverviewInfo {
     public List<TaskSummaryInfo> overviews;
     public List<BreakdownSummaryInfo> breakdowns;
     public DeviceGroupFilterInfo deviceGroup;
-    public CommunicationHeatMapInfo heatMap;
     public KpiInfo kpi;
 
     public CommunicationOverviewInfo() {

@@ -11,6 +11,7 @@ import com.energyict.mdc.dashboard.rest.status.impl.ComSessionSuccessIndicatorTr
 import com.energyict.mdc.dashboard.rest.status.impl.ComTaskExecutionInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.ComTaskExecutionSessionInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.CommunicationHeatMapInfoFactory;
+import com.energyict.mdc.dashboard.rest.status.impl.CommunicationHeatMapResource;
 import com.energyict.mdc.dashboard.rest.status.impl.CommunicationOverviewInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.CommunicationOverviewResource;
 import com.energyict.mdc.dashboard.rest.status.impl.CommunicationResource;
@@ -279,7 +280,8 @@ public class DashboardApplication extends Application implements MessageSeedProv
                 CommunicationOverviewResource.class,
                 IssuesResource.class,
                 LabeledDeviceResource.class,
-                FavoriteDeviceGroupResource.class
+                FavoriteDeviceGroupResource.class,
+                CommunicationHeatMapResource.class
         );
     }
 
