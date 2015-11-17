@@ -4,6 +4,7 @@ import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.lifecycle.config.*;
 import com.energyict.mdc.device.lifecycle.config.rest.info.*;
 
@@ -127,9 +128,15 @@ public class DeviceLifeCycleResource {
     @Path("/states")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
-    public List<DeviceLifeCycleStateSummaryInfo> getAllLifeCycleState() {
-        return deviceLifeCycleConfigurationService.findAllDeviceLifeCycles().stream()
-                .map(deviceLifeCycleFactory::from).map(s -> this.lifeCycleStateResourceProvider.get().getAllStatesForDeviceLifecycle(s.id).stream().map(x -> new DeviceLifeCycleStateSummaryInfo(s.id, s.name, x.name))).flatMap(y -> y).collect(Collectors.toList());
+    public PagedInfoList getDeviceLifeCycleStateSummary(@BeanParam JsonQueryParameters queryParams) {
+        List<DeviceLifeCycleStateSummaryInfo> deviceLifeCycleStateSummary = deviceLifeCycleConfigurationService.findAllDeviceLifeCycles().stream()
+                .map(deviceLifeCycleFactory::from)
+                .map(s -> this.lifeCycleStateResourceProvider.get().getAllStatesForDeviceLifecycle(s.id).stream()
+                        .map(x -> new DeviceLifeCycleStateSummaryInfo(s.id, s.name, x.name)))
+                .flatMap(y -> y)
+                .collect(Collectors.toList());
+        return PagedInfoList.fromPagedList("deviceStates", ListPager.of(deviceLifeCycleStateSummary).from(queryParams).find(), queryParams);
+
     }
 
     @Path("/{deviceLifeCycleId}/states")
