@@ -22,6 +22,13 @@ Ext.define('Uni.view.search.field.TimeDuration', {
         return this.menu.down('combobox[valueField=code]');
     },
 
+    reset: function () {
+        var me = this;
+
+        me.getUnitField().reset();
+        me.callParent(arguments);
+    },
+
     initComponent: function () {
         var me = this;
 
