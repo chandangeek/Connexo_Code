@@ -4,6 +4,7 @@
 Ext.define('Uni.view.search.Overview', {
     extend: 'Ext.container.Container',
     xtype: 'uni-view-search-overview',
+    itemId: 'centerContainer', // added for test
     overflowY: 'auto',
 
     requires: [
