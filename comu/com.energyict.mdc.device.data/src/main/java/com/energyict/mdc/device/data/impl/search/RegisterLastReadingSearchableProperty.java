@@ -43,11 +43,13 @@ public class RegisterLastReadingSearchableProperty extends AbstractDateSearchabl
         SqlBuilder builder = new SqlBuilder();
         builder.append(JoinClauseBuilder.Aliases.END_DEVICE + ".id IN (");
         builder.append("select MTR_METERACTIVATION.METERID from MTR_CHANNEL " +
-                "right join MTR_METERACTIVATION on MTR_METERACTIVATION.ID = MTR_CHANNEL.METERACTIVATIONID AND MTR_METERACTIVATION.STARTTIME < ");
+                "right join MTR_METERACTIVATION on MTR_METERACTIVATION.ID = MTR_CHANNEL.METERACTIVATIONID AND MTR_METERACTIVATION.STARTTIME >= ");
         builder.addLong(now.toEpochMilli());
-        builder.append(" AND MTR_METERACTIVATION.ENDTIME > ");
+        builder.append(" AND MTR_METERACTIVATION.ENDTIME < ");
         builder.addLong(now.toEpochMilli());
         builder.append(" left join IDS_TIMESERIES on MTR_CHANNEL.TIMESERIESID = IDS_TIMESERIES.ID " +
+                "right join MDS_MEASUREMENTTYPE on MDS_MEASUREMENTTYPE.READINGTYPE = MTR_CHANNEL.BULKQUANTITYREADINGTYPEMRID OR MDS_MEASUREMENTTYPE.READINGTYPE = MTR_CHANNEL.MAINREADINGTYPEMRID " +
+                "right join DTC_REGISTERSPEC on DTC_REGISTERSPEC.REGISTERTYPEID = MDS_MEASUREMENTTYPE.ID " +
                 "where ");
         builder.add(toSqlFragment("IDS_TIMESERIES.LASTTIME", condition, now));
         builder.closeBracket();
