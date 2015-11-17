@@ -105,8 +105,14 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
 
     @Before
     public void setUp() {
-        when(taskService.newBuilder()).thenReturn(FakeBuilder.initBuilderStub(recurrentTask, RecurrentTaskBuilder.class));
-        when(taskBuilder.build()).thenReturn(recurrentTask);
+        taskBuilder = FakeBuilder.initBuilderStub(recurrentTask, RecurrentTaskBuilder.class,
+                RecurrentTaskBuilder.RecurrentTaskBuilderNameSetter.class,
+                RecurrentTaskBuilder.RecurrentTaskBuilderDestinationSetter.class,
+                RecurrentTaskBuilder.RecurrentTaskBuilderPayloadSetter.class,
+                RecurrentTaskBuilder.RecurrentTaskBuilderScheduleSetter.class,
+                RecurrentTaskBuilder.RecurrentTaskBuilderFinisher.class
+        );
+        when(taskService.newBuilder()).thenReturn(taskBuilder);
         when(recurrentTask.getLastOccurrence()).thenReturn(Optional.empty());
 
         doNothing().when(recurrentTask).setNextExecution(any(Instant.class));

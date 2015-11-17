@@ -278,9 +278,10 @@ public final class DataValidationTaskImpl implements DataValidationTask {
 
     private void persistRecurrentTask() {
         RecurrentTask task = taskService.newBuilder()
+                .setApplication("Pulse")
                 .setName(uuid)
-                .setDestination(dataValidationService.getDestination())
                 .setScheduleExpression(scheduleExpression)
+                .setDestination(dataValidationService.getDestination())
                 .setPayLoad(uuid)
                 .scheduleImmediately(scheduleImmediately)
                 .setFirstExecution(nextExecution).build();
