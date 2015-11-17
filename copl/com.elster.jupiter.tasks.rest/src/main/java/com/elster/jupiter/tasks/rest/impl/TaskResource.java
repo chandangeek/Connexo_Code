@@ -59,10 +59,10 @@ public class TaskResource {
             JsonQueryFilter filter = new JsonQueryFilter(params.get("filter").get(0));
             filterSpec.applications.addAll(filter.getStringList("application"));
             filterSpec.queues.addAll(filter.getStringList("queue"));
+            filterSpec.startedOnFrom = filter.getInstant("startedOnFrom");
+            filterSpec.startedOnTo = filter.getInstant("startedOnTo");
         }
-        TaskFinder finder = taskService.getTaskFinder(filterSpec)
-                .setStart(params.getStartInt())
-                .setLimit(params.getLimit());
+        TaskFinder finder = taskService.getTaskFinder(filterSpec, params.getStartInt(), params.getLimit());
 
         List<? extends RecurrentTask> list = finder.find();
         TaskInfos infos = new TaskInfos(params.clipToLimit(list), thesaurus, timeService);
