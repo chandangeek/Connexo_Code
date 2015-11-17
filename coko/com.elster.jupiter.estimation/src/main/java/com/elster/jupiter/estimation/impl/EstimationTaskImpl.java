@@ -102,13 +102,13 @@ public class EstimationTaskImpl implements IEstimationTask {
 
     private void persist() {
         RecurrentTask task = taskService.newBuilder()
+                .setApplication("Pulse")
                 .setName(UUID.randomUUID().toString())
                 .setScheduleExpression(scheduleExpression)
                 .setDestination(estimationService.getDestination())
                 .setPayLoad(getName())
                 .scheduleImmediately(scheduleImmediately)
                 .setFirstExecution(nextExecution).build();
-        task.save();
         recurrentTask.set(task);
         Save.CREATE.save(dataModel, this);
     }
