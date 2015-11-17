@@ -84,11 +84,13 @@ public class DefaultRecurrentTaskBuilderTest {
 
     @Test
     public void testCronStringAndScheduleImmediately() {
-        RecurrentTask recurrentTask = defaultRecurrentTaskBuilder.setDestination(destination)
-                .scheduleImmediately(true)
-                .setScheduleExpressionString(CRON_STRING)
+        RecurrentTask recurrentTask = defaultRecurrentTaskBuilder
+                .setApplication("Pulse")
                 .setName(NAME)
+                .setScheduleExpressionString(CRON_STRING)
+                .setDestination(destination)
                 .setPayLoad(PAYLOAD)
+                .scheduleImmediately(true)
                 .build();
 
         assertThat(recurrentTask.getNextExecution()).isEqualTo(FIRST);
@@ -96,11 +98,13 @@ public class DefaultRecurrentTaskBuilderTest {
 
     @Test
     public void testCronString() {
-        RecurrentTask recurrentTask = defaultRecurrentTaskBuilder.setDestination(destination)
-                .scheduleImmediately(true)
-                .setScheduleExpressionString(CRON_STRING)
+        RecurrentTask recurrentTask = defaultRecurrentTaskBuilder
+                .setApplication("Pulse")
                 .setName(NAME)
+                .setScheduleExpressionString(CRON_STRING)
+                .setDestination(destination)
                 .setPayLoad(PAYLOAD)
+                .scheduleImmediately(true)
                 .build();
 
         recurrentTask.updateNextExecution();
@@ -109,11 +113,13 @@ public class DefaultRecurrentTaskBuilderTest {
 
     @Test
     public void testName() {
-        RecurrentTask recurrentTask = defaultRecurrentTaskBuilder.setDestination(destination)
-                .scheduleImmediately(true)
-                .setScheduleExpressionString(CRON_STRING)
+        RecurrentTask recurrentTask = defaultRecurrentTaskBuilder
+                .setApplication("Pulse")
                 .setName(NAME)
+                .setScheduleExpressionString(CRON_STRING)
+                .setDestination(destination)
                 .setPayLoad(PAYLOAD)
+                .scheduleImmediately(true)
                 .build();
 
         assertThat(recurrentTask.getName()).isEqualTo(NAME);
@@ -121,11 +127,13 @@ public class DefaultRecurrentTaskBuilderTest {
 
     @Test
     public void testPayload() {
-        RecurrentTask recurrentTask = defaultRecurrentTaskBuilder.setDestination(destination)
-                .scheduleImmediately(true)
-                .setScheduleExpressionString(CRON_STRING)
+        RecurrentTask recurrentTask = defaultRecurrentTaskBuilder
+                .setApplication("Pulse")
                 .setName(NAME)
+                .setScheduleExpressionString(CRON_STRING)
+                .setDestination(destination)
                 .setPayLoad(PAYLOAD)
+                .scheduleImmediately(true)
                 .build();
 
         assertThat(recurrentTask.getPayLoad()).isEqualTo(PAYLOAD);
@@ -133,11 +141,13 @@ public class DefaultRecurrentTaskBuilderTest {
 
     @Test
     public void testDestination() {
-        RecurrentTask recurrentTask = defaultRecurrentTaskBuilder.setDestination(destination)
-                .scheduleImmediately(true)
-                .setScheduleExpressionString(CRON_STRING)
+        RecurrentTask recurrentTask = defaultRecurrentTaskBuilder
+                .setApplication("Pulse")
                 .setName(NAME)
+                .setScheduleExpressionString(CRON_STRING)
+                .setDestination(destination)
                 .setPayLoad(PAYLOAD)
+                .scheduleImmediately(true)
                 .build();
 
         assertThat(recurrentTask.getDestination()).isEqualTo(destination);

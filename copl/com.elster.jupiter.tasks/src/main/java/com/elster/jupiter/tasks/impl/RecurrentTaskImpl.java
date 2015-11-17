@@ -25,7 +25,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NOT_UNIQUE + "}")
 class RecurrentTaskImpl implements RecurrentTask {
@@ -33,6 +32,7 @@ class RecurrentTaskImpl implements RecurrentTask {
     private static final Logger LOGGER = Logger.getLogger(RecurrentTaskImpl.class.getName());
 
     private long id;
+    private String application;
     private String name;
     private transient ScheduleExpression scheduleExpression;
     private String cronString;
@@ -63,7 +63,8 @@ class RecurrentTaskImpl implements RecurrentTask {
         this.clock = clock;
     }
 
-    RecurrentTaskImpl init(String name, ScheduleExpression scheduleExpression, DestinationSpec destinationSpec, String payload) {
+    RecurrentTaskImpl init(String application, String name, ScheduleExpression scheduleExpression, DestinationSpec destinationSpec, String payload) {
+        this.application = application;
         this.destinationSpec = destinationSpec;
         this.destination = destinationSpec.getName();
         this.payload = payload;
@@ -73,8 +74,8 @@ class RecurrentTaskImpl implements RecurrentTask {
         return this;
     }
 
-    static RecurrentTaskImpl from(DataModel dataModel, String name, ScheduleExpression scheduleExpression, DestinationSpec destinationSpec, String payload) {
-        return dataModel.getInstance(RecurrentTaskImpl.class).init(name, scheduleExpression, destinationSpec, payload);
+    static RecurrentTaskImpl from(DataModel dataModel, String application, String name, ScheduleExpression scheduleExpression, DestinationSpec destinationSpec, String payload) {
+        return dataModel.getInstance(RecurrentTaskImpl.class).init(application, name, scheduleExpression, destinationSpec, payload);
     }
 
     @Override
@@ -280,5 +281,10 @@ class RecurrentTaskImpl implements RecurrentTask {
     @Override
     public final int hashCode() {
         return Objects.hash(id);
+    }
+
+    @Override
+    public String getApplication() {
+        return application;
     }
 }

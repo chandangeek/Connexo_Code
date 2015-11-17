@@ -63,7 +63,7 @@ public class TaskOccurrenceImplTest {
         when(validator.validate(anyObject())).thenReturn(new HashSet<>());
 
         when(clock.instant()).thenReturn(now, instant2);
-        recurrentTask = RecurrentTaskImpl.from(dataModel, NAME, mock(ScheduleExpression.class), mock(DestinationSpec.class), "payload");
+        recurrentTask = RecurrentTaskImpl.from(dataModel, "Pulse", NAME, mock(ScheduleExpression.class), mock(DestinationSpec.class), "payload");
     }
 
     @After

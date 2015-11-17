@@ -203,11 +203,12 @@ public class RecurrentTaskIT {
             QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
             DestinationSpec destination = queueTableSpec.createDestinationSpec("Destiny", 60);
             RecurrentTask recurrentTask = taskService.newBuilder()
-                    .setScheduleExpression(TEMPORAL_EXPRESSION)
-                    .scheduleImmediately(true)
+                    .setApplication("Pulse")
                     .setName(NAME)
-                    .setPayLoad(PAY_LOAD)
+                    .setScheduleExpression(TEMPORAL_EXPRESSION)
                     .setDestination(destination)
+                    .setPayLoad(PAY_LOAD)
+                    .scheduleImmediately(true)
                     .build();
             id = recurrentTask.getId();
             context.commit();
@@ -225,11 +226,12 @@ public class RecurrentTaskIT {
             QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
             DestinationSpec destination = queueTableSpec.createDestinationSpec("Destiny", 60);
             RecurrentTask recurrentTask = taskService.newBuilder()
-                    .setScheduleExpressionString("0 0 18 * * ? *")
-                    .scheduleImmediately(true)
+                    .setApplication("Pulse")
                     .setName(NAME)
-                    .setPayLoad(PAY_LOAD)
+                    .setScheduleExpressionString("0 0 18 * * ? *")
                     .setDestination(destination)
+                    .setPayLoad(PAY_LOAD)
+                    .scheduleImmediately(true)
                     .build();
             id = recurrentTask.getId();
             context.commit();
@@ -250,18 +252,20 @@ public class RecurrentTaskIT {
             QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
             DestinationSpec destination = queueTableSpec.createDestinationSpec("Destiny", 60);
             RecurrentTask recurrentTask = taskService.newBuilder()
-                    .setScheduleExpressionString("0 0 18 * * ? *")
-                    .scheduleImmediately(true)
+                    .setApplication("Pulse")
                     .setName("DUPLICATED")
-                    .setPayLoad(PAY_LOAD)
+                    .setScheduleExpressionString("0 0 18 * * ? *")
                     .setDestination(destination)
+                    .setPayLoad(PAY_LOAD)
+                    .scheduleImmediately(true)
                     .build();
             RecurrentTask recurrentTask2 = taskService.newBuilder()
-                    .setScheduleExpressionString("0 0 18 * * ? *")
-                    .scheduleImmediately(true)
+                    .setApplication("Pulse")
                     .setName("DUPLICATED")
-                    .setPayLoad(PAY_LOAD)
+                    .setScheduleExpressionString("0 0 18 * * ? *")
                     .setDestination(destination)
+                    .setPayLoad(PAY_LOAD)
+                    .scheduleImmediately(true)
                     .build();
             fail("violation expected");
         } catch (ConstraintViolationException cve) {
@@ -278,11 +282,12 @@ public class RecurrentTaskIT {
             QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
             DestinationSpec destination = queueTableSpec.createDestinationSpec("Destiny", 60);
             RecurrentTask recurrentTask = taskService.newBuilder()
-                    .setScheduleExpressionString("0 0 18 * * ? *")
-                    .scheduleImmediately(true)
+                    .setApplication("Pulse")
                     .setName(NAME)
-                    .setPayLoad(PAY_LOAD)
+                    .setScheduleExpressionString("0 0 18 * * ? *")
                     .setDestination(destination)
+                    .setPayLoad(PAY_LOAD)
+                    .scheduleImmediately(true)
                     .build();
             id = recurrentTask.getId();
             context.commit();
@@ -332,11 +337,12 @@ public class RecurrentTaskIT {
             QueueTableSpec queueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
             DestinationSpec destination = queueTableSpec.createDestinationSpec("Destiny", 60);
             RecurrentTask recurrentTask = taskService.newBuilder()
-                    .setScheduleExpression(scheduleExpression)
-                    .scheduleImmediately(true)
+                    .setApplication("Pulse")
                     .setName(NAME)
-                    .setPayLoad(PAY_LOAD)
+                    .setScheduleExpression(scheduleExpression)
                     .setDestination(destination)
+                    .setPayLoad(PAY_LOAD)
+                    .scheduleImmediately(true)
                     .build();
             id = recurrentTask.getId();
             context.commit();

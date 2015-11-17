@@ -48,6 +48,7 @@ public class RecurrentTaskImplTest extends EqualsContractTest {
     private static final String SERIALIZED1 = "S1";
     private static final String SERIALIZED2 = "S2";
     public static final long INSTANCEA_ID = 45;
+    public static final String APPLICATION = "Pulse";
 
     private RecurrentTaskImpl instanceA;
     private RecurrentTaskImpl recurrentTask;
@@ -91,7 +92,7 @@ public class RecurrentTaskImplTest extends EqualsContractTest {
         when(validatorFactory.getValidator()).thenReturn(validator);
         when(validator.validate(anyObject())).thenReturn(new HashSet<>());
 
-        recurrentTask = new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, jsonService, clock).init(NAME, cronExpression, destination, PAYLOAD);
+        recurrentTask = new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, jsonService, clock).init(APPLICATION, NAME, cronExpression, destination, PAYLOAD);
 
         when(clock.instant()).thenReturn(NOW);
         when(cronExpression.nextOccurrence(zoned(NOW))).thenReturn(Optional.of(zoned(NEXT)));
@@ -108,7 +109,7 @@ public class RecurrentTaskImplTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (instanceA == null) {
-            instanceA = new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, jsonService, clock).init(NAME, cronExpression, destination, PAYLOAD);
+            instanceA = new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, jsonService, clock).init(APPLICATION, NAME, cronExpression, destination, PAYLOAD);
             field("id").ofType(Long.TYPE).in(instanceA).set(INSTANCEA_ID);
         }
         return instanceA;
@@ -116,14 +117,14 @@ public class RecurrentTaskImplTest extends EqualsContractTest {
 
     @Override
     protected Object getInstanceEqualToA() {
-        RecurrentTaskImpl entity = new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, jsonService, clock).init(NAME, cronExpression, destination, PAYLOAD);
+        RecurrentTaskImpl entity = new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, jsonService, clock).init(APPLICATION, NAME, cronExpression, destination, PAYLOAD);
         field("id").ofType(Long.TYPE).in(entity).set(INSTANCEA_ID);
         return entity;
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        RecurrentTaskImpl entity = new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, jsonService, clock).init(NAME, cronExpression, destination, PAYLOAD);
+        RecurrentTaskImpl entity = new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, jsonService, clock).init(APPLICATION, NAME, cronExpression, destination, PAYLOAD);
         field("id").ofType(Long.TYPE).in(entity).set(INSTANCEA_ID + 1);
         return Collections.singletonList(entity);
     }
@@ -136,7 +137,7 @@ public class RecurrentTaskImplTest extends EqualsContractTest {
     @Override
     protected Object getInstanceOfSubclassEqualToA() {
         RecurrentTaskImpl recurrentTask = new RecurrentTaskImpl(dataModel, cronExpressionParser, messageService, jsonService, clock) {
-        }.init(NAME, cronExpression, destination, PAYLOAD);
+        }.init(APPLICATION, NAME, cronExpression, destination, PAYLOAD);
         field("id").ofType(Long.TYPE).in(recurrentTask).set(INSTANCEA_ID);
         return recurrentTask;
     }

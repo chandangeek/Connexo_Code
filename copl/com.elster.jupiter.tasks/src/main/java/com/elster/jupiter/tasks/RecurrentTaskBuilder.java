@@ -7,19 +7,36 @@ import java.time.Instant;
 
 public interface RecurrentTaskBuilder {
 
-    RecurrentTaskBuilder setScheduleExpressionString(String expression);
+    RecurrentTaskBuilderNameSetter setApplication(String application);
 
-    RecurrentTaskBuilder setDestination(DestinationSpec destination);
+    interface RecurrentTaskBuilderNameSetter {
 
-    RecurrentTaskBuilder setPayLoad(String payLoad);
+        RecurrentTaskBuilderScheduleSetter setName(String string);
 
-    RecurrentTaskBuilder scheduleImmediately(boolean value);
+    }
 
-    RecurrentTaskBuilder setFirstExecution(Instant instant);
+    interface RecurrentTaskBuilderScheduleSetter {
+        RecurrentTaskBuilderDestinationSetter setScheduleExpressionString(String expression);
 
-    RecurrentTask build();
+        RecurrentTaskBuilderDestinationSetter setScheduleExpression(ScheduleExpression scheduleExpression);
+    }
 
-	RecurrentTaskBuilder setName(String string);
+    interface RecurrentTaskBuilderDestinationSetter {
+        RecurrentTaskBuilderPayloadSetter setDestination(DestinationSpec destination);
+    }
 
-    RecurrentTaskBuilder setScheduleExpression(ScheduleExpression scheduleExpression);
+    interface RecurrentTaskBuilderPayloadSetter {
+        RecurrentTaskBuilderFinisher setPayLoad(String payLoad);
+    }
+
+    interface RecurrentTaskBuilderFinisher {
+
+        RecurrentTaskBuilderFinisher scheduleImmediately(boolean value);
+
+        RecurrentTaskBuilderFinisher setFirstExecution(Instant instant);
+
+        RecurrentTask build();
+
+
+    }
 }

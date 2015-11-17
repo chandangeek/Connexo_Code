@@ -60,4 +60,6 @@ public interface RecurrentTask extends HasName, HasAuditInfo {
      * @since v1.1
      */
     History<? extends RecurrentTask> getHistory();
+
+    String getApplication();
 }

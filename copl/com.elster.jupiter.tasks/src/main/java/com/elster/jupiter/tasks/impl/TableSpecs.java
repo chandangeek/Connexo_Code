@@ -22,6 +22,7 @@ enum TableSpecs {
             table.map(RecurrentTaskImpl.class);
             table.setJournalTableName("TSK_RECURRENT_TASKJRNL");
             Column idColumn = table.addAutoIdColumn();
+            Column applicationColumn = table.column("APPLICATION").varChar(NAME_LENGTH).notNull().map("application").add();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.column("CRONSTRING").varChar(NAME_LENGTH).notNull().map("cronString").add();
             table.column("NEXTEXECUTION").type("number").conversion(NUMBER2INSTANT).map("nextExecution").add();
