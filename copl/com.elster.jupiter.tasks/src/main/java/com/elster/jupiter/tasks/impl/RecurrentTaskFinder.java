@@ -90,7 +90,26 @@ public class RecurrentTaskFinder implements TaskFinder {
             builder.append(") ");
         }
 
-        builder.append("order by TSKSTATUS, STARTDATE");
+        if ((filter.queues != null) && (!filter.queues.isEmpty())) {
+            if ((filter.startedOnFrom == null) && (filter.startedOnTo == null)) {
+                builder.append(" where ( ");
+            } else {
+                builder.append(" and ( ");
+            }
+            List<String> queues = new ArrayList();
+            queues.addAll(filter.queues);
+            for (int i = 0; i < queues.size(); i++) {
+                builder.append("DESTINATION= ");
+                builder.addObject(queues.get(i));
+                if (i < queues.size() - 1) {
+                    builder.append(" or ");
+                }
+            }
+            builder.append(") ");
+        }
+
+        builder.append("order by TSKSTATUS, STARTDATE ");
+
 
         try(Fetcher<RecurrentTaskImpl> fetcher = mapper.fetcher(builder)) {
             return getRecurrentTasks(fetcher);
