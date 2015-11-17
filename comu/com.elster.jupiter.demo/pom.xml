@@ -43,6 +43,10 @@
         <!-- Jupiter modules -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>cps</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>util</artifactId>
         </dependency>
         <dependency>
@@ -321,11 +325,6 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.data.importers</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>cps</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

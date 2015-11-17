@@ -1,11 +1,21 @@
 package com.elster.jupiter.demo.impl;
 
+import com.elster.jupiter.cps.EditPrivilege;
+import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Insert your comments here.
@@ -112,12 +122,22 @@ public class ConsoleUser implements User {
     @Override
     public void setLocale(Locale locale) {
         throw new UnsupportedOperationException(this.getClass().getName() + " does not support setting Locale");
-
     }
 
     @Override
     public Set<Privilege> getPrivileges() {
-        return Collections.emptySet();
+        Set<Privilege> privileges = new HashSet<>();
+        privileges.addAll(
+                Stream
+                    .of(EditPrivilege.values())
+                    .map(CustomPropertySetPrivilege::from)
+                    .collect(Collectors.toList()));
+        privileges.addAll(
+                Stream
+                    .of(ViewPrivilege.values())
+                    .map(CustomPropertySetPrivilege::from)
+                    .collect(Collectors.toList()));
+        return privileges;
     }
 
     @Override
@@ -142,7 +162,6 @@ public class ConsoleUser implements User {
 
     @Override
     public void setStatus(boolean status) {
-
     }
 
     @Override
@@ -159,4 +178,32 @@ public class ConsoleUser implements User {
     public Instant getModifiedDate() {
         return Instant.now();
     }
+
+    private static class CustomPropertySetPrivilege implements Privilege {
+        private final String privilege;
+
+        private CustomPropertySetPrivilege(String privilege) {
+            super();
+            this.privilege = privilege;
+        }
+
+        static CustomPropertySetPrivilege from(EditPrivilege editPrivilege) {
+            return new CustomPropertySetPrivilege(editPrivilege.getPrivilege());
+        }
+
+        static CustomPropertySetPrivilege from(ViewPrivilege viewPrivilege) {
+            return new CustomPropertySetPrivilege(viewPrivilege.getPrivilege());
+        }
+
+        @Override
+        public void delete() {
+            throw new UnsupportedOperationException("Delete is not supported");
+        }
+
+        @Override
+        public String getName() {
+            return this.privilege;
+        }
+    }
+
 }
