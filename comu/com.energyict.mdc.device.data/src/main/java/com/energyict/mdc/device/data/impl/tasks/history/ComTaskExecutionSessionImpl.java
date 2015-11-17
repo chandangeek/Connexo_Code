@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
+import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.tasks.HasLastComTaskExecutionSession;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -24,10 +25,7 @@ import com.energyict.mdc.tasks.ComTask;
 
 import com.google.common.collect.Range;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import javax.inject.Inject;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -84,9 +82,15 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
     private CompletionCode highestPriorityCompletionCode;
     private String highestPriorityErrorDescription;
 
+    private CommunicationTaskService communicationTaskService;
+
     @Inject
-    ComTaskExecutionSessionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
+    ComTaskExecutionSessionImpl(DataModel dataModel,
+                                CommunicationTaskService communicationTaskService,
+                                EventService eventService,
+                                Thesaurus thesaurus) {
         super(ComTaskExecution.class, dataModel, eventService, thesaurus);
+        this.communicationTaskService = communicationTaskService;
     }
 
     static ComTaskExecutionSessionImpl from(DataModel dataModel, ComSession comSession, ComTaskExecution comTaskExecution, ComTask comTask, Device device, Range<Instant> interval, SuccessIndicator successIndicator) {
@@ -102,8 +106,9 @@ public class ComTaskExecutionSessionImpl extends PersistentIdObject<ComTaskExecu
      * that this ComTaskExecutionSession has been saved.
      */
     void created() {
-        HasLastComTaskExecutionSession comTaskExecution = (HasLastComTaskExecutionSession) this.comTaskExecution.get();
-        comTaskExecution.sessionCreated(this);
+        // Make sure we have the latest version of the comTaskExecution
+        communicationTaskService.findComTaskExecution(this.comTaskExecution.get().getId()).
+                ifPresent(x -> ((HasLastComTaskExecutionSession) x).sessionCreated(this));
     }
 
     @Override
