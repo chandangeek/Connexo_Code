@@ -24,7 +24,7 @@ public final class NotFoundException extends IdentifierResolvingException {
         super(cause, reference, cause.getMessage());
     }
 
-    public static NotFoundException notFound(Class duplicateClassType, String identifier){
-        return new NotFoundException(ProtocolExceptionReference.NOT_FOUND, duplicateClassType.getSimpleName(), identifier);
+    public static NotFoundException notFound(Class classType, String identifier){
+        return new NotFoundException(ProtocolExceptionReference.NOT_FOUND, classType.getSimpleName(), identifier);
     }
 }
