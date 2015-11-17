@@ -2,6 +2,7 @@ package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.tasks.RecurrentTask;
@@ -20,6 +21,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+@LiteralSql
 public class RecurrentTaskFinder implements TaskFinder {
 
     private DataModel dataModel;
@@ -41,7 +43,6 @@ public class RecurrentTaskFinder implements TaskFinder {
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
-        //return queryExecutor.select(condition, orders, true, null, start+1, start+limit+1);
     }
 
     private List<RecurrentTask> findTasks(Connection connection) throws SQLException {
@@ -74,6 +75,7 @@ public class RecurrentTaskFinder implements TaskFinder {
         builder.append(") ");
         builder.append("on RT.ID=TSKID ");
 
+        //add started bewteen conditions
         if ((filter.startedOnFrom != null) || (filter.startedOnTo != null)) {
             builder.append("where exists (select * from TSK_TASK_OCCURRENCE where ");
             if (filter.startedOnFrom != null) {
@@ -90,6 +92,7 @@ public class RecurrentTaskFinder implements TaskFinder {
             builder.append(") ");
         }
 
+        //add queues filter conditions
         if ((filter.queues != null) && (!filter.queues.isEmpty())) {
             if ((filter.startedOnFrom == null) && (filter.startedOnTo == null)) {
                 builder.append(" where ( ");
@@ -107,6 +110,26 @@ public class RecurrentTaskFinder implements TaskFinder {
             }
             builder.append(") ");
         }
+
+        //add application filter conditions
+        //uncomment after Toms commit of new field application
+        /*if ((filter.applications != null) && (!filter.applications.isEmpty())) {
+            if ((filter.startedOnFrom == null) && (filter.startedOnTo == null) && (filter.queues == null)) {
+                builder.append(" where ( ");
+            } else {
+                builder.append(" and ( ");
+            }
+            List<String> applications = new ArrayList();
+            applications.addAll(filter.queues);
+            for (int i = 0; i < applications.size(); i++) {
+                builder.append("APPLICATION= ");
+                builder.addObject(applications.get(i));
+                if (i < applications.size() - 1) {
+                    builder.append(" or ");
+                }
+            }
+            builder.append(") ");
+        }*/
 
         builder.append("order by TSKSTATUS, STARTDATE ");
 
