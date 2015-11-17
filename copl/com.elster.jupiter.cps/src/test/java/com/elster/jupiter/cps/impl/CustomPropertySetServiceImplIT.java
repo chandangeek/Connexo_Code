@@ -979,6 +979,7 @@ public class CustomPropertySetServiceImplIT {
         when(this.principal.getPrivileges()).thenReturn(privileges);
 
     }
+
     private abstract class LatchDrivenRunnable implements Runnable {
         private final TransactionService transactionService;
         private final CustomPropertySetServiceImpl service;
