@@ -44,7 +44,7 @@ public class H2BootstrapService implements BootstrapService {
         try (Connection connection = decoratedDataSource.getConnection()){
             connection.prepareStatement("create alias regexp_like as $$ boolean regexpLike(String s, String p, String ignore) { return s.matches(p); } $$;").execute();
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new DataSourceSetupException(e);
         }
         return decoratedDataSource;
     }
