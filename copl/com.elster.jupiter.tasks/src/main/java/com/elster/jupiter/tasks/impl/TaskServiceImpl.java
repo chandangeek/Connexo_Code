@@ -168,24 +168,8 @@ public class TaskServiceImpl implements TaskService, InstallService, Translation
     }
 
     @Override
-    public TaskFinder getTaskFinder(RecurrentTaskFilterSpecification filterSpecification) {
-        Condition condition = Where.where("nextExecution").isNotNull();
-        /*if (!filterSpecification.applications.isEmpty()) {
-            Condition appCondition = Condition.FALSE;
-            for (String app : filterSpecification.applications) {
-                appCondition = appCondition.or(Where.where("application").isEqualTo(app));
-            }
-            condition = condition.and(appCondition);
-        }*/
-        if (!filterSpecification.queues.isEmpty()) {
-            Condition queueCondition = Condition.FALSE;
-            for (String queue : filterSpecification.queues) {
-                queueCondition = queueCondition.or(Where.where("destination").isEqualTo(queue));
-            }
-            condition = condition.and(queueCondition);
-        }
-        Order[] orders = new Order[]{Order.ascending("nextExecution")};
-        return new RecurrentTaskFinder(dataModel.query(RecurrentTask.class), condition, orders);
+    public TaskFinder getTaskFinder(RecurrentTaskFilterSpecification filterSpecification, int start, int limit) {
+        return new RecurrentTaskFinder(dataModel, filterSpecification, start, limit);
     }
 
     @Override

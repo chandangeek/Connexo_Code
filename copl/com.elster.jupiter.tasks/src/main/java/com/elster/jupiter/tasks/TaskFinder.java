@@ -10,14 +10,6 @@ import java.util.List;
  */
 public interface TaskFinder {
 
-    public TaskFinder with (Condition condition);
-
-    public TaskFinder setStart (Integer start);
-
-    public TaskFinder setLimit (Integer limit);
-
-    public TaskFinder setCondition (Condition condition);
-
     public List<? extends RecurrentTask> find();
 
 }

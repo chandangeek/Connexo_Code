@@ -1,5 +1,6 @@
 package com.elster.jupiter.tasks;
 
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -10,4 +11,6 @@ public class RecurrentTaskFilterSpecification {
 
     public Set<String> applications = new HashSet<>();
     public Set<String> queues = new HashSet<>();
+    public Instant startedOnFrom;
+    public Instant startedOnTo;
 }
