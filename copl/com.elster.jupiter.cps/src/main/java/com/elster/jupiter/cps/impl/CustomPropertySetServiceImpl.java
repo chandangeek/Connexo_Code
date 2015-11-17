@@ -282,17 +282,43 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     private void registerCustomPropertySet(CustomPropertySet customPropertySet, boolean systemDefined) {
+        DataModel dataModel = this.registerAndInstallOrReuseDataModel(customPropertySet);
+        Optional<RegisteredCustomPropertySet> registeredCustomPropertySet = this.dataModel
+                .mapper(RegisteredCustomPropertySet.class)
+                .getUnique(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName(), customPropertySet.getId());
+        if (registeredCustomPropertySet.isPresent()) {
+            /* Pluggable Classes can be registered multiple times
+             * with different properties but they will obviously
+             * have the same CustomPropertySet. */
+            if (!systemDefined) {
+                throw new DuplicateCustomPropertySetException(this.thesaurus);
+            }
+        }
+        else {
+            RegisteredCustomPropertySetImpl newRegisteredCustomPropertySet = this.createRegisteredCustomPropertySet(customPropertySet, systemDefined);
+            this.activePropertySets.add(new ActiveCustomPropertySet(customPropertySet, this.thesaurus, dataModel, newRegisteredCustomPropertySet));
+        }
+    }
+
+    private DataModel registerAndInstallOrReuseDataModel(CustomPropertySet customPropertySet) {
+        return this.ormService
+                .getDataModels()
+                .stream()
+                .filter(dataModel -> this.dataModelHasMatchingTable(dataModel, customPropertySet))
+                .findAny()
+                .orElseGet(() -> this.registerAndInstallDataModel(customPropertySet));
+    }
+
+    private boolean dataModelHasMatchingTable(DataModel dataModel, CustomPropertySet customPropertySet) {
+        return dataModel.getTables().stream().anyMatch(table -> table.getName().equals(customPropertySet.getPersistenceSupport().tableName()));
+    }
+
+    private DataModel registerAndInstallDataModel(CustomPropertySet customPropertySet) {
         DataModel dataModel = this.ormService.newDataModel(customPropertySet.getPersistenceSupport().componentName(), customPropertySet.getName());
         this.addTableFor(customPropertySet, dataModel);
         dataModel.register(this.getCustomPropertySetModule(dataModel, customPropertySet));
         dataModel.install(true, false);
-        RegisteredCustomPropertySet registeredCustomPropertySet =
-                this.dataModel
-                    .mapper(RegisteredCustomPropertySet.class)
-                    .getUnique(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName(), customPropertySet.getId())
-                    .map(Function.identity())
-                    .orElseGet(() -> this.createRegisteredCustomPropertySet(customPropertySet, systemDefined));
-        this.activePropertySets.add(new ActiveCustomPropertySet(customPropertySet, dataModel, registeredCustomPropertySet));
+        return dataModel;
     }
 
     private void addTableFor(CustomPropertySet customPropertySet, DataModel dataModel) {
@@ -403,6 +429,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     public <D, T extends PersistentDomainExtension<D>> void setValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values) {
         ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
         this.validateCustomPropertySetIsNotVersioned(customPropertySet, activeCustomPropertySet);
+        activeCustomPropertySet.validateCurrentUserIsAllowedToEdit();
         activeCustomPropertySet.setValuesEntityFor(businesObject, values);
     }
 
@@ -410,6 +437,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     public <D, T extends PersistentDomainExtension<D>> void setValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values, Instant effectiveTimestamp) {
         ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
         this.validateCustomPropertySetIsVersioned(customPropertySet, activeCustomPropertySet);
+        activeCustomPropertySet.validateCurrentUserIsAllowedToEdit();
         activeCustomPropertySet.setValuesEntityFor(businesObject, values, effectiveTimestamp);
     }
 

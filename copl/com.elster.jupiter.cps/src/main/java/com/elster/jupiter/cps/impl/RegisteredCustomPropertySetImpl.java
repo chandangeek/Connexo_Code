@@ -19,6 +19,7 @@ import javax.validation.constraints.Size;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -196,23 +197,27 @@ public class RegisteredCustomPropertySetImpl implements RegisteredCustomProperty
     }
 
     private boolean currentUserIsAllowedToViewCustomPropertySet() {
-        final List<String> currentUserPrivileges = getCurrentUserPrivileges();
-        return this.getViewPrivileges().isEmpty() ||
-                this.getViewPrivileges()
+        return this.getViewPrivileges().isEmpty()
+            || this.currentUserIsAllowedTo(
+                    this.getViewPrivileges()
                         .stream()
-                        .filter(f -> currentUserPrivileges.contains(f.getPrivilege()))
-                        .findFirst()
-                        .isPresent();
+                        .map(ViewPrivilege::getPrivilege)
+                        .collect(Collectors.toSet()));
     }
 
     private boolean currentUserIsAllowedToEditCustomPropertySet() {
-        final List<String> currentUserPrivileges = getCurrentUserPrivileges();
-        return this.getEditPrivileges().isEmpty() ||
-                this.getEditPrivileges()
+        return this.getEditPrivileges().isEmpty()
+            || this.currentUserIsAllowedTo(
+                    this.getEditPrivileges()
                         .stream()
-                        .filter(f -> currentUserPrivileges.contains(f.getPrivilege()))
-                        .findFirst()
-                        .isPresent();
+                        .map(EditPrivilege::getPrivilege)
+                        .collect(Collectors.toSet()));
+    }
+
+    private boolean currentUserIsAllowedTo(Set<String> privileges) {
+        Set<String> currentUserPrivileges = new HashSet<>(this.getCurrentUserPrivileges());
+        currentUserPrivileges.retainAll(privileges);
+        return !currentUserPrivileges.isEmpty();
     }
 
     boolean isActive() {

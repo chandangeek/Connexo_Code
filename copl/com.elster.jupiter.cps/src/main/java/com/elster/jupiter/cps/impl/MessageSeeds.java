@@ -17,7 +17,9 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     CAN_NOT_BE_EMPTY(1, Keys.CAN_NOT_BE_EMPTY, "This field can not be empty"),
     FIELD_TOO_LONG(2, Keys.FIELD_TOO_LONG, "Field must not exceed {max} characters"),
     EDIT_HISTORICAL_VALUES_NOT_SUPPORTED(3, Keys.EDIT_HISTORICAL_VALUES_NOT_SUPPORTED, "Editing of historical values is currently not supported"),
-    CAN_NOT_BE_NULL(4, Keys.CAN_NOT_BE__NULL, "This field can not be null");
+    CAN_NOT_BE_NULL(4, Keys.CAN_NOT_BE__NULL, "This field can not be null"),
+    DUPLICATE_CUSTOM_PROPERTY_SET(5, Keys.DUPLICATE_CUSTOM_PROPERTY_SET, "The id must be unique"),
+    CURRENT_USER_IS_NOT_ALLOWED_TO_EDIT(7, Keys.CURRENT_USER_IS_NOT_ALLOWED_TO_EDIT, "The current user is not allowed to edit values of the custom property set");
 
     private final int number;
 
@@ -66,5 +68,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         public static final String CAN_NOT_BE_EMPTY = "CanNotBeEmpty";
         public static final String FIELD_TOO_LONG = "FieldTooLong";
         public static final String EDIT_HISTORICAL_VALUES_NOT_SUPPORTED = "edit.historical.values.not.supported";
+        public static final String DUPLICATE_CUSTOM_PROPERTY_SET = "cps.duplicate";
+        public static final String CURRENT_USER_IS_NOT_ALLOWED_TO_EDIT = "cps.edit.notAllowed";
     }
 }

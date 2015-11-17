@@ -7,8 +7,10 @@ import com.elster.jupiter.cps.HardCodedFieldNames;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataMapper;
@@ -23,8 +25,11 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Interval;
 
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -77,6 +82,10 @@ public class CustomPropertySetServiceImplTest {
     @Mock
     private OrmService ormService;
     @Mock
+    private ValidatorFactory validatorFactory;
+    @Mock
+    private Validator validator;
+    @Mock
     private DataModel serviceDataModel;
     @Mock
     private DataModel customPropertySetDataModel;
@@ -128,6 +137,10 @@ public class CustomPropertySetServiceImplTest {
         when(this.ormService.newDataModel(eq(CUSTOM_PROPERTY_SET_COMPONENT_ID), anyString())).thenReturn(this.customPropertySetDataModel);
         when(this.ormService.newDataModel(eq(VERSIONED_CUSTOM_PROPERTY_SET_COMPONENT_ID), anyString())).thenReturn(this.versionedCustomPropertySetDataModel);
         when(this.nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(this.thesaurus);
+        NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
+        when(messageFormat.format(anyVararg())).thenReturn("Translation not supported in unit testing");
+        when(this.thesaurus.getFormat(any(MessageSeed.class))).thenReturn(messageFormat);
+        when(this.thesaurus.getFormat(any(TranslationKey.class))).thenReturn(messageFormat);
         when(this.customPropertySet.isVersioned()).thenReturn(false);
         when(this.customPropertySet.getId()).thenReturn(CUSTOM_PROPERTY_SET_ID);
         when(this.customPropertySet.getName()).thenReturn("For testing purposes only");
@@ -184,6 +197,14 @@ public class CustomPropertySetServiceImplTest {
         when(this.customPropertySetForeignKeyConstraintBuilder.map(anyString())).thenReturn(this.customPropertySetForeignKeyConstraintBuilder);
         when(this.primaryKeyConstraintBuilder.on(anyVararg())).thenReturn(this.primaryKeyConstraintBuilder);
         when(this.primaryKeyConstraintBuilder.allowZero()).thenReturn(this.primaryKeyConstraintBuilder);
+        when(this.serviceDataModel.getValidatorFactory()).thenReturn(this.validatorFactory);
+        when(this.validatorFactory.getValidator()).thenReturn(this.validator);
+        when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
+        when(this.registeredCustomPropertySetMapper
+                .getUnique(
+                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
+                        anyString()))
+                .thenReturn(Optional.empty());
     }
 
     @Test
@@ -214,13 +235,8 @@ public class CustomPropertySetServiceImplTest {
     public void addNonVersionedCustomPropertySetAfterInstallation() {
         when(this.serviceDataModel.isInstalled()).thenReturn(true);
         CustomPropertySetServiceImpl service = this.testInstance();
-        // Avoid creating the RegisteredCustomPropertySet
-        when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
-        when(this.registeredCustomPropertySetMapper
-                .getUnique(
-                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
-                        anyString()))
-                .thenReturn(Optional.of(this.registeredCustomPropertySet));
+        when(this.customPropertySet.getId()).thenReturn("addNonVersionedCustomPropertySetAfterInstallation");
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
 
         // Business method
         service.addCustomPropertySet(this.customPropertySet);
@@ -229,8 +245,6 @@ public class CustomPropertySetServiceImplTest {
         verify(this.persistenceSupport).componentName();
         verify(this.customPropertySet, atLeastOnce()).getId();
         verify(this.customPropertySet).isVersioned();
-        verify(this.customPropertySet, never()).defaultViewPrivileges();    // Since we avoid to create the RegisteredCustomPropertySet
-        verify(this.customPropertySet, never()).defaultEditPrivileges();    // Since we avoid to create the RegisteredCustomPropertySet
         verify(this.ormService).newDataModel(eq(CUSTOM_PROPERTY_SET_COMPONENT_ID), anyString());
         verify(this.persistenceSupport).tableName();
         verify(this.customPropertySetDataModel).addTable(TABLE_NAME, DomainExtensionForTestingPurposes.class);
@@ -254,6 +268,8 @@ public class CustomPropertySetServiceImplTest {
     public void addNonVersionedCustomPropertySetBeforeInstallation() {
         when(this.serviceDataModel.isInstalled()).thenReturn(false);
         CustomPropertySetServiceImpl service = this.testInstance();
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
+        when(this.customPropertySet.getId()).thenReturn("addNonVersionedCustomPropertySetBeforeInstallation");
 
         // Business method
         service.addCustomPropertySet(this.customPropertySet);
@@ -264,19 +280,14 @@ public class CustomPropertySetServiceImplTest {
 
     @Test
     public void addNonVersionedCustomPropertySetBeforeActivation() {
-        when(this.serviceDataModel.isInstalled()).thenReturn(true);
-        // Avoid creating the RegisteredCustomPropertySet
-        when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
-        when(this.registeredCustomPropertySetMapper
-                .getUnique(
-                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
-                        anyString()))
-                .thenReturn(Optional.of(this.registeredCustomPropertySet));
         CustomPropertySetServiceImpl testInstance = new CustomPropertySetServiceImpl();
         testInstance.setOrmService(this.ormService, false);
         testInstance.setNlsService(this.nlsService);
         testInstance.setTransactionService(this.transactionService);
         testInstance.addCustomPropertySet(this.customPropertySet);
+        when(this.serviceDataModel.isInstalled()).thenReturn(true);
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, testInstance));
+        when(this.customPropertySet.getId()).thenReturn("addNonVersionedCustomPropertySetBeforeActivation");
 
         // Busines method
         testInstance.activate();
@@ -285,8 +296,6 @@ public class CustomPropertySetServiceImplTest {
         verify(this.persistenceSupport).componentName();
         verify(this.customPropertySet, atLeastOnce()).getId();
         verify(this.customPropertySet).isVersioned();
-        verify(this.customPropertySet, never()).defaultViewPrivileges();    // Since we avoid to create the RegisteredCustomPropertySet
-        verify(this.customPropertySet, never()).defaultEditPrivileges();    // Since we avoid to create the RegisteredCustomPropertySet
         verify(this.ormService).newDataModel(eq(CUSTOM_PROPERTY_SET_COMPONENT_ID), anyString());
         verify(this.persistenceSupport).tableName();
         verify(this.customPropertySetDataModel).addTable(TABLE_NAME, DomainExtensionForTestingPurposes.class);
@@ -310,13 +319,8 @@ public class CustomPropertySetServiceImplTest {
     public void addVersionedCustomPropertySetAfterInstallation() {
         when(this.serviceDataModel.isInstalled()).thenReturn(true);
         CustomPropertySetServiceImpl service = this.testInstance();
-        // Avoid creating the RegisteredCustomPropertySet
-        when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
-        when(this.registeredCustomPropertySetMapper
-                .getUnique(
-                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
-                        anyString()))
-                .thenReturn(Optional.of(this.registeredCustomPropertySet));
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
+        when(this.versionedCustomPropertySet.getId()).thenReturn("addVersionedCustomPropertySetAfterInstallation");
 
         // Business method
         service.addCustomPropertySet(this.versionedCustomPropertySet);
@@ -325,8 +329,6 @@ public class CustomPropertySetServiceImplTest {
         verify(this.versionedPersistenceSupport).componentName();
         verify(this.versionedCustomPropertySet, atLeastOnce()).getId();
         verify(this.versionedCustomPropertySet).isVersioned();
-        verify(this.versionedCustomPropertySet, never()).defaultViewPrivileges();    // Since we avoid to create the RegisteredCustomPropertySet
-        verify(this.versionedCustomPropertySet, never()).defaultEditPrivileges();    // Since we avoid to create the RegisteredCustomPropertySet
         verify(this.ormService).newDataModel(eq(VERSIONED_CUSTOM_PROPERTY_SET_COMPONENT_ID), anyString());
         verify(this.versionedPersistenceSupport, atLeastOnce()).tableName();
         verify(this.versionedCustomPropertySetDataModel).addTable(VERSIONED_TABLE_NAME, VersionedDomainExtensionForTestingPurposes.class);
@@ -351,18 +353,13 @@ public class CustomPropertySetServiceImplTest {
     @Test
     public void addVersionedCustomPropertySetBeforeActivation() {
         when(this.serviceDataModel.isInstalled()).thenReturn(true);
-        // Avoid creating the RegisteredCustomPropertySet
-        when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
-        when(this.registeredCustomPropertySetMapper
-                .getUnique(
-                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
-                        anyString()))
-                .thenReturn(Optional.of(this.registeredCustomPropertySet));
+        when(this.versionedCustomPropertySet.getId()).thenReturn("addVersionedCustomPropertySetBeforeActivation");
         CustomPropertySetServiceImpl testInstance = new CustomPropertySetServiceImpl();
         testInstance.setOrmService(this.ormService, false);
         testInstance.setNlsService(this.nlsService);
         testInstance.setTransactionService(this.transactionService);
         testInstance.addCustomPropertySet(this.versionedCustomPropertySet);
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, testInstance));
 
         // Busines method
         testInstance.activate();
@@ -371,8 +368,6 @@ public class CustomPropertySetServiceImplTest {
         verify(this.versionedPersistenceSupport).componentName();
         verify(this.versionedCustomPropertySet, atLeastOnce()).getId();
         verify(this.versionedCustomPropertySet).isVersioned();
-        verify(this.versionedCustomPropertySet, never()).defaultViewPrivileges();    // Since we avoid to create the RegisteredCustomPropertySet
-        verify(this.versionedCustomPropertySet, never()).defaultEditPrivileges();    // Since we avoid to create the RegisteredCustomPropertySet
         verify(this.ormService).newDataModel(eq(VERSIONED_CUSTOM_PROPERTY_SET_COMPONENT_ID), anyString());
         verify(this.versionedPersistenceSupport, atLeastOnce()).tableName();
         verify(this.versionedCustomPropertySetDataModel).addTable(VERSIONED_TABLE_NAME, VersionedDomainExtensionForTestingPurposes.class);
@@ -398,6 +393,8 @@ public class CustomPropertySetServiceImplTest {
     public void addVersionedCustomPropertySetBeforeInstallation() {
         when(this.serviceDataModel.isInstalled()).thenReturn(false);
         CustomPropertySetServiceImpl service = this.testInstance();
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
+        when(this.versionedCustomPropertySet.getId()).thenReturn("addVersionedCustomPropertySetBeforeInstallation");
 
         // Business method
         service.addCustomPropertySet(this.versionedCustomPropertySet);
@@ -413,6 +410,9 @@ public class CustomPropertySetServiceImplTest {
         testInstance.setOrmService(this.ormService, false);
         testInstance.setNlsService(this.nlsService);
         testInstance.setTransactionService(this.transactionService);
+        when(this.customPropertySet.getId()).thenReturn("addCustomPropertySetsWhileActivating-nonversioned");
+        when(this.versionedCustomPropertySet.getId()).thenReturn("addCustomPropertySetsWhileActivating-versioned");
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, testInstance));
 
         /* Create 3 threads that will wait on CountdownLatch to start simultaneously
          *    1. activate the service
@@ -440,13 +440,8 @@ public class CustomPropertySetServiceImplTest {
     public void getCustomPropertiesWhenSetIsNotRegisteredYet() {
         when(this.serviceDataModel.isInstalled()).thenReturn(true);
         CustomPropertySetServiceImpl service = this.testInstance();
-        // Avoid creating the RegisteredCustomPropertySet
-        when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
-        when(this.registeredCustomPropertySetMapper
-                .getUnique(
-                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
-                        anyString()))
-                .thenReturn(Optional.of(this.registeredCustomPropertySet));
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
+        when(this.customPropertySet.getId()).thenReturn("getCustomPropertiesWhenSetIsNotRegisteredYet");
 
         // Business method
         service.getValuesFor(this.customPropertySet, new TestDomain(1L));
@@ -458,13 +453,8 @@ public class CustomPropertySetServiceImplTest {
     public void getNonVersionedCustomPropertiesForVersionedSet() {
         when(this.serviceDataModel.isInstalled()).thenReturn(true);
         CustomPropertySetServiceImpl service = this.testInstance();
-        // Avoid creating the RegisteredCustomPropertySet
-        when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
-        when(this.registeredCustomPropertySetMapper
-                .getUnique(
-                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
-                        anyString()))
-                .thenReturn(Optional.of(this.registeredCustomPropertySet));
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
+        when(this.versionedCustomPropertySet.getId()).thenReturn("getNonVersionedCustomPropertiesForVersionedSet");
         service.addCustomPropertySet(this.versionedCustomPropertySet);
 
         // Business method
@@ -477,13 +467,8 @@ public class CustomPropertySetServiceImplTest {
     public void getCustomPropertiesThatDoNotExistYet() {
         when(this.serviceDataModel.isInstalled()).thenReturn(true);
         CustomPropertySetServiceImpl service = this.testInstance();
-        // Avoid creating the RegisteredCustomPropertySet
-        when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
-        when(this.registeredCustomPropertySetMapper
-                .getUnique(
-                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
-                        anyString()))
-                .thenReturn(Optional.of(this.registeredCustomPropertySet));
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
+        when(this.customPropertySet.getId()).thenReturn("getCustomPropertiesThatDoNotExistYet");
         service.addCustomPropertySet(this.customPropertySet);
         DataMapper<DomainExtensionForTestingPurposes> dataMapper = mock(DataMapper.class);
         when(dataMapper.getOptional(anyVararg())).thenReturn(Optional.<DomainExtensionForTestingPurposes>empty());
@@ -503,13 +488,8 @@ public class CustomPropertySetServiceImplTest {
     public void getCustomProperties() {
         when(this.serviceDataModel.isInstalled()).thenReturn(true);
         CustomPropertySetServiceImpl service = this.testInstance();
-        // Avoid creating the RegisteredCustomPropertySet
-        when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
-        when(this.registeredCustomPropertySetMapper
-                .getUnique(
-                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
-                        anyString()))
-                .thenReturn(Optional.of(this.registeredCustomPropertySet));
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
+        when(this.customPropertySet.getId()).thenReturn("getCustomProperties");
         service.addCustomPropertySet(this.customPropertySet);
         DomainExtensionForTestingPurposes extension = mock(DomainExtensionForTestingPurposes.class);
         DataMapper<DomainExtensionForTestingPurposes> dataMapper = mock(DataMapper.class);
@@ -530,13 +510,8 @@ public class CustomPropertySetServiceImplTest {
     public void getVersionedCustomPropertiesWhenSetIsNotRegisteredYet() {
         when(this.serviceDataModel.isInstalled()).thenReturn(true);
         CustomPropertySetServiceImpl service = this.testInstance();
-        // Avoid creating the RegisteredCustomPropertySet
-        when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
-        when(this.registeredCustomPropertySetMapper
-                .getUnique(
-                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
-                        anyString()))
-                .thenReturn(Optional.of(this.registeredCustomPropertySet));
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
+        when(this.versionedCustomPropertySet.getId()).thenReturn("getVersionedCustomPropertiesWhenSetIsNotRegisteredYet");
 
         // Business method
         service.getValuesFor(this.versionedCustomPropertySet, new TestDomain(1L), Instant.now());
@@ -548,13 +523,7 @@ public class CustomPropertySetServiceImplTest {
     public void getVersionedCustomPropertiesForNonVersionedSet() {
         when(this.serviceDataModel.isInstalled()).thenReturn(true);
         CustomPropertySetServiceImpl service = this.testInstance();
-        // Avoid creating the RegisteredCustomPropertySet
-        when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
-        when(this.registeredCustomPropertySetMapper
-                .getUnique(
-                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
-                        anyString()))
-                .thenReturn(Optional.of(this.registeredCustomPropertySet));
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
         service.addCustomPropertySet(this.customPropertySet);
 
         // Business method
@@ -567,13 +536,8 @@ public class CustomPropertySetServiceImplTest {
     public void getVersionedCustomPropertiesThatDoNotExistYet() {
         when(this.serviceDataModel.isInstalled()).thenReturn(true);
         CustomPropertySetServiceImpl service = this.testInstance();
-        // Avoid creating the RegisteredCustomPropertySet
-        when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
-        when(this.registeredCustomPropertySetMapper
-                .getUnique(
-                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
-                        anyString()))
-                .thenReturn(Optional.of(this.registeredCustomPropertySet));
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
+        when(this.versionedCustomPropertySet.getId()).thenReturn("getVersionedCustomPropertiesThatDoNotExistYet");
         service.addCustomPropertySet(this.versionedCustomPropertySet);
         DataMapper<VersionedDomainExtensionForTestingPurposes> dataMapper = mock(DataMapper.class);
         when(dataMapper.getOptional(anyVararg())).thenReturn(Optional.<VersionedDomainExtensionForTestingPurposes>empty());
@@ -593,13 +557,8 @@ public class CustomPropertySetServiceImplTest {
     public void getVersionedCustomProperties() {
         when(this.serviceDataModel.isInstalled()).thenReturn(true);
         CustomPropertySetServiceImpl service = this.testInstance();
-        // Avoid creating the RegisteredCustomPropertySet
-        when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
-        when(this.registeredCustomPropertySetMapper
-                .getUnique(
-                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
-                        anyString()))
-                .thenReturn(Optional.of(this.registeredCustomPropertySet));
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
+        when(this.versionedCustomPropertySet.getId()).thenReturn("getVersionedCustomProperties");
         service.addCustomPropertySet(this.versionedCustomPropertySet);
         TestDomain testDomain = new TestDomain(1L);
         Interval expectedInterval = Interval.startAt(Instant.ofEpochSecond(1000L));
@@ -614,24 +573,15 @@ public class CustomPropertySetServiceImplTest {
         // Asserts
         assertThat(extension.getInterval()).isEqualTo(expectedInterval);
         assertThat(properties.propertyNames())
-                .containsOnly(
-                        VersionedDomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(),
-                        VersionedDomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName());
+                .containsOnly(VersionedDomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName());
     }
 
     @Test
     public void findCustomPropertySetAfterAdd() {
         when(this.serviceDataModel.isInstalled()).thenReturn(true);
         CustomPropertySetServiceImpl service = this.testInstance();
-        // Avoid creating the RegisteredCustomPropertySet
-        when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
-        DataMapper implMapper = this.registeredCustomPropertySetMapper;
-        when(this.serviceDataModel.mapper(RegisteredCustomPropertySetImpl.class)).thenReturn(implMapper);
-        when(this.registeredCustomPropertySetMapper
-                .getUnique(
-                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
-                        anyString()))
-                .thenReturn(Optional.of(this.registeredCustomPropertySet));
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
+        when(this.versionedCustomPropertySet.getId()).thenReturn("findCustomPropertySetAfterAdd");
         service.addCustomPropertySet(this.versionedCustomPropertySet);
 
         // Business method
@@ -645,15 +595,8 @@ public class CustomPropertySetServiceImplTest {
     public void cannotFindCustomPropertySetAfterRemoval() {
         when(this.serviceDataModel.isInstalled()).thenReturn(true);
         CustomPropertySetServiceImpl service = this.testInstance();
-        // Avoid creating the RegisteredCustomPropertySet
-        when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
-        DataMapper implMapper = this.registeredCustomPropertySetMapper;
-        when(this.serviceDataModel.mapper(RegisteredCustomPropertySetImpl.class)).thenReturn(implMapper);
-        when(this.registeredCustomPropertySetMapper
-                .getUnique(
-                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
-                        anyString()))
-                .thenReturn(Optional.of(this.registeredCustomPropertySet));
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
+        when(this.versionedCustomPropertySet.getId()).thenReturn("cannotFindCustomPropertySetAfterRemoval");
         service.addCustomPropertySet(this.versionedCustomPropertySet);
 
         // Business method
@@ -668,15 +611,8 @@ public class CustomPropertySetServiceImplTest {
     public void findSystemCustomPropertySetAfterAdd() {
         when(this.serviceDataModel.isInstalled()).thenReturn(true);
         CustomPropertySetServiceImpl service = this.testInstance();
-        // Avoid creating the RegisteredCustomPropertySet
-        when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
-        DataMapper implMapper = this.registeredCustomPropertySetMapper;
-        when(this.serviceDataModel.mapper(RegisteredCustomPropertySetImpl.class)).thenReturn(implMapper);
-        when(this.registeredCustomPropertySetMapper
-                .getUnique(
-                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
-                        anyString()))
-                .thenReturn(Optional.of(this.registeredCustomPropertySet));
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
+        when(this.versionedCustomPropertySet.getId()).thenReturn("findSystemCustomPropertySetAfterAdd");
         service.addSystemCustomPropertySet(this.versionedCustomPropertySet);
 
         // Business method
@@ -690,15 +626,8 @@ public class CustomPropertySetServiceImplTest {
     public void cannotFindSystemCustomPropertySetAfterRemoval() {
         when(this.serviceDataModel.isInstalled()).thenReturn(true);
         CustomPropertySetServiceImpl service = this.testInstance();
-        // Avoid creating the RegisteredCustomPropertySet
-        when(this.serviceDataModel.mapper(RegisteredCustomPropertySet.class)).thenReturn(this.registeredCustomPropertySetMapper);
-        DataMapper implMapper = this.registeredCustomPropertySetMapper;
-        when(this.serviceDataModel.mapper(RegisteredCustomPropertySetImpl.class)).thenReturn(implMapper);
-        when(this.registeredCustomPropertySetMapper
-                .getUnique(
-                        eq(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName()),
-                        anyString()))
-                .thenReturn(Optional.of(this.registeredCustomPropertySet));
+        when(this.serviceDataModel.getInstance(RegisteredCustomPropertySetImpl.class)).thenReturn(new RegisteredCustomPropertySetImpl(this.serviceDataModel, this.threadPrincipalService, service));
+        when(this.versionedCustomPropertySet.getId()).thenReturn("cannotFindSystemCustomPropertySetAfterRemoval");
         service.addSystemCustomPropertySet(this.versionedCustomPropertySet);
 
         // Business method

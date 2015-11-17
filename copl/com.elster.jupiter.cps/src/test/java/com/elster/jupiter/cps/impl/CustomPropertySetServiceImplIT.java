@@ -4,7 +4,9 @@ import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
@@ -21,6 +23,7 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
+import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.beans.BeanService;
@@ -38,11 +41,13 @@ import org.osgi.service.event.EventAdmin;
 import java.math.BigDecimal;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
-import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -52,7 +57,6 @@ import org.junit.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.withSettings;
 
 /**
  * Integration tests the {@link CustomPropertySetServiceImpl} component.
@@ -66,7 +70,7 @@ public class CustomPropertySetServiceImplIT {
     private UserService userService;
     private DataVaultService dataVaultService;
     private TimeService timeService;
-    private Principal principal;
+    private User principal;
     private EventAdmin eventAdmin;
     private Clock clock;
     private TransactionService transactionService;
@@ -104,7 +108,7 @@ public class CustomPropertySetServiceImplIT {
         this.timeService = mock(TimeService.class);
         this.dataVaultService = mock(DataVaultService.class);
         this.userService = mock(UserService.class);
-        this.principal = mock(Principal.class, withSettings().extraInterfaces(User.class));
+        this.principal = mock(User.class);
         when(this.principal.getName()).thenReturn(testName);
     }
 
@@ -140,13 +144,13 @@ public class CustomPropertySetServiceImplIT {
     public void addNonVersionedCustomPropertySetWhenTestDomainIsNotRegisteredWithOrmService() {
         PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
         OrmService ormService = injector.getInstance(OrmService.class);
-        List<? extends DataModel> dataModelsBeforeAdd = ormService.getDataModels();
+        List<DataModel> dataModelsBeforeAdd = ormService.getDataModels();
 
         // Business method
         this.testInstance.addCustomPropertySet(new CustomPropertySetForTestingPurposes(propertySpecService));
 
         // Asserts
-        List<? extends DataModel> dataModelsAfterAdd = ormService.getDataModels();
+        List<DataModel> dataModelsAfterAdd = ormService.getDataModels();
         assertThat(dataModelsAfterAdd.size()).isGreaterThan(dataModelsBeforeAdd.size());
     }
 
@@ -158,28 +162,43 @@ public class CustomPropertySetServiceImplIT {
             TestDomain.install(ormService);
         }
 
-        List<? extends DataModel> dataModelsBeforeAdd = ormService.getDataModels();
+        List<DataModel> dataModelsBeforeAdd = ormService.getDataModels();
 
         // Business method
         this.testInstance.addCustomPropertySet(new CustomPropertySetForTestingPurposes(propertySpecService));
 
         // Asserts
-        List<? extends DataModel> dataModelsAfterAdd = ormService.getDataModels();
+        List<DataModel> dataModelsAfterAdd = ormService.getDataModels();
         assertThat(dataModelsAfterAdd.size()).isGreaterThan(dataModelsBeforeAdd.size());
         assertThat(this.testInstance.findActiveCustomPropertySets()).isNotEmpty();
+    }
+
+    @Test(expected = DuplicateCustomPropertySetException.class)
+    public void addNonVersionedCustomPropertySetSecondTime() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        try (TransactionContext ctx = transactionService.getContext()) {
+            TestDomain.install(ormService);
+        }
+        this.testInstance.addCustomPropertySet(new CustomPropertySetForTestingPurposes(propertySpecService));
+
+        // Business method
+        this.testInstance.addCustomPropertySet(new CustomPropertySetForTestingPurposes(propertySpecService));
+
+        // Asserts: see expected exception rule
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void addVersionedCustomPropertySetWhenTestDomainIsNotRegisteredWithOrmService() {
         PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
         OrmService ormService = injector.getInstance(OrmService.class);
-        List<? extends DataModel> dataModelsBeforeAdd = ormService.getDataModels();
+        List<DataModel> dataModelsBeforeAdd = ormService.getDataModels();
 
         // Business method
         this.testInstance.addCustomPropertySet(new VersionedCustomPropertySetForTestingPurposes(propertySpecService));
 
         // Asserts
-        List<? extends DataModel> dataModelsAfterAdd = ormService.getDataModels();
+        List<DataModel> dataModelsAfterAdd = ormService.getDataModels();
         assertThat(dataModelsAfterAdd.size()).isGreaterThan(dataModelsBeforeAdd.size());
     }
 
@@ -191,15 +210,53 @@ public class CustomPropertySetServiceImplIT {
             TestDomain.install(ormService);
         }
 
-        List<? extends DataModel> dataModelsBeforeAdd = ormService.getDataModels();
+        List<DataModel> dataModelsBeforeAdd = ormService.getDataModels();
 
         // Business method
         this.testInstance.addCustomPropertySet(new VersionedCustomPropertySetForTestingPurposes(propertySpecService));
 
         // Asserts
-        List<? extends DataModel> dataModelsAfterAdd = ormService.getDataModels();
+        List<DataModel> dataModelsAfterAdd = ormService.getDataModels();
         assertThat(dataModelsAfterAdd.size()).isGreaterThan(dataModelsBeforeAdd.size());
         assertThat(this.testInstance.findActiveCustomPropertySets()).isNotEmpty();
+    }
+
+    @Test(expected = DuplicateCustomPropertySetException.class)
+    public void addVersionedCustomPropertySetSecondTime() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        try (TransactionContext ctx = transactionService.getContext()) {
+            TestDomain.install(ormService);
+        }
+
+        this.testInstance.addCustomPropertySet(new VersionedCustomPropertySetForTestingPurposes(propertySpecService));
+
+        // Business method
+        this.testInstance.addCustomPropertySet(new VersionedCustomPropertySetForTestingPurposes(propertySpecService));
+
+        // Asserts: see expected exception rule
+    }
+
+    @Test
+    public void addVersionedCustomPropertySetWithSamePersistenceSupportClass() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        try (TransactionContext ctx = transactionService.getContext()) {
+            TestDomain.install(ormService);
+        }
+
+        this.testInstance.addCustomPropertySet(new VersionedCustomPropertySetForTestingPurposes(propertySpecService));
+        List<DataModel> dataModelsBeforeAdd = ormService.getDataModels();
+        List<RegisteredCustomPropertySet> customPropertySetsBeforeAdd = this.testInstance.findActiveCustomPropertySets();
+
+        // Business method
+        this.testInstance.addCustomPropertySet(new VersionedCustomPropertySetForTestingPurposesWithSamePersistenceSupport(propertySpecService));
+
+        // Asserts
+        List<DataModel> dataModelsAfterAdd = ormService.getDataModels();
+        assertThat(dataModelsAfterAdd).hasSameSizeAs(dataModelsBeforeAdd);
+        List<RegisteredCustomPropertySet> customPropertySetsAfterAdd = this.testInstance.findActiveCustomPropertySets();
+        assertThat(customPropertySetsAfterAdd.size()).isGreaterThan(customPropertySetsBeforeAdd.size());
     }
 
     @Test(timeout = 5000)
@@ -208,7 +265,7 @@ public class CustomPropertySetServiceImplIT {
         try (TransactionContext ctx = transactionService.getContext()) {
             TestDomain.install(ormService);
         }
-        List<? extends DataModel> dataModelsBeforeAdd = ormService.getDataModels();
+        List<DataModel> dataModelsBeforeAdd = ormService.getDataModels();
         CustomPropertySetServiceImpl service = new CustomPropertySetServiceImpl();
         service.setOrmService(ormService, true);
         service.setNlsService(this.injector.getInstance(NlsService.class));
@@ -232,7 +289,7 @@ public class CustomPropertySetServiceImplIT {
         stopLatch.await();
 
         // Asserts
-        List<? extends DataModel> dataModelsAfterAdd = ormService.getDataModels();
+        List<DataModel> dataModelsAfterAdd = ormService.getDataModels();
         assertThat(dataModelsAfterAdd.size()).isEqualTo(dataModelsBeforeAdd.size() + 2);
         assertThat(service.findActiveCustomPropertySets()).hasSize(2);
     }
@@ -245,7 +302,32 @@ public class CustomPropertySetServiceImplIT {
             TestDomain.install(ormService);
         }
 
-        List<? extends DataModel> dataModelsBeforeAdd = ormService.getDataModels();
+        List<DataModel> dataModelsBeforeAdd = ormService.getDataModels();
+
+        // Business method
+        try (TransactionContext ctx = transactionService.getContext()) {
+            this.testInstance.addSystemCustomPropertySet(new CustomPropertySetForTestingPurposes(propertySpecService));
+
+            // Asserts
+            List<DataModel> dataModelsAfterAdd = ormService.getDataModels();
+            assertThat(dataModelsAfterAdd.size()).isGreaterThan(dataModelsBeforeAdd.size());
+        }
+
+    }
+
+    @Test
+    public void addSystemDefinedCustomPropertySetSecondTime() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        try (TransactionContext ctx = transactionService.getContext()) {
+            TestDomain.install(ormService);
+        }
+
+        try (TransactionContext ctx = transactionService.getContext()) {
+            this.testInstance.addSystemCustomPropertySet(new CustomPropertySetForTestingPurposes(propertySpecService));
+            ctx.commit();
+        }
+        List<DataModel> dataModelsBeforeAdd = ormService.getDataModels();
 
         // Business method
         try (TransactionContext ctx = transactionService.getContext()) {
@@ -254,8 +336,8 @@ public class CustomPropertySetServiceImplIT {
         }
 
         // Asserts
-        List<? extends DataModel> dataModelsAfterAdd = ormService.getDataModels();
-        assertThat(dataModelsAfterAdd.size()).isGreaterThan(dataModelsBeforeAdd.size());
+        List<DataModel> dataModelsAfterAdd = ormService.getDataModels();
+        assertThat(dataModelsAfterAdd).hasSameSizeAs(dataModelsBeforeAdd);
     }
 
     @Test
@@ -325,6 +407,8 @@ public class CustomPropertySetServiceImplIT {
             ctx.commit();
         }
         this.testInstance.addCustomPropertySet(customPropertySet);
+        this.grantAllViewAndEditPrivilegesToPrincipal();
+
         CustomPropertySetValues values = CustomPropertySetValues.empty();
         BigDecimal expectedBillingCycle = BigDecimal.TEN;
         values.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), expectedBillingCycle);
@@ -336,6 +420,126 @@ public class CustomPropertySetServiceImplIT {
             this.testInstance.setValuesFor(customPropertySet, testDomain, values);
 
             // Asserts: not expecting any exceptions
+        }
+    }
+
+    @Test
+    public void updateNonVersionedValues() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        CustomPropertySetForTestingPurposes customPropertySet = new CustomPropertySetForTestingPurposes(propertySpecService);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        TestDomain testDomain = new TestDomain();
+        try (TransactionContext ctx = transactionService.getContext()) {
+            DataModel testDomainDataModel = TestDomain.install(ormService);
+            testDomain.setName("updateNonVersionedValues");
+            testDomain.setDescription("for testing purposes only");
+            testDomainDataModel.persist(testDomain);
+            ctx.commit();
+        }
+        this.testInstance.addCustomPropertySet(customPropertySet);
+        this.grantAllViewAndEditPrivilegesToPrincipal();
+
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        BigDecimal initialBillingCycle = BigDecimal.ONE;
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), initialBillingCycle);
+        String initialContractNumber = "initialValue";
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), initialContractNumber);
+        BigDecimal expectedBillingCycle = BigDecimal.TEN;
+
+        try (TransactionContext ctx = transactionService.getContext()) {
+            // Set initial values
+            this.testInstance.setValuesFor(customPropertySet, testDomain, values);
+            ctx.commit();
+        }
+
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), expectedBillingCycle);
+        String expectedContractNumber = "updateNonVersionedValues";
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), expectedContractNumber);
+        try (TransactionContext ctx = transactionService.getContext()) {
+            // Business method
+            this.testInstance.setValuesFor(customPropertySet, testDomain, values);
+
+            // Asserts: not expecting any exceptions
+        }
+    }
+
+    @Test(expected = CurrentUserIsNotAllowedToEditValuesOfCustomPropertySetException.class)
+    public void updateNonVersionedValuesWithoutEditPrivileges() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        CustomPropertySetForTestingPurposes customPropertySet = new CustomPropertySetForTestingPurposes(propertySpecService);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        TestDomain testDomain = new TestDomain();
+        try (TransactionContext ctx = transactionService.getContext()) {
+            DataModel testDomainDataModel = TestDomain.install(ormService);
+            testDomain.setName("updateNonVersionedValues");
+            testDomain.setDescription("for testing purposes only");
+            testDomainDataModel.persist(testDomain);
+            ctx.commit();
+        }
+        this.testInstance.addCustomPropertySet(customPropertySet);
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        BigDecimal initialBillingCycle = BigDecimal.ONE;
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), initialBillingCycle);
+        String initialContractNumber = "initialValue";
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), initialContractNumber);
+        BigDecimal expectedBillingCycle = BigDecimal.TEN;
+
+        try (TransactionContext ctx = transactionService.getContext()) {
+            // Set initial values
+            this.testInstance.setValuesFor(customPropertySet, testDomain, values);
+            ctx.commit();
+        }
+
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), expectedBillingCycle);
+        String expectedContractNumber = "updateNonVersionedValues";
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), expectedContractNumber);
+        try (TransactionContext ctx = transactionService.getContext()) {
+            // Business method
+            this.testInstance.setValuesFor(customPropertySet, testDomain, values);
+
+            // Asserts: not expecting any exceptions
+        }
+    }
+
+    @Test
+    public void verifyValuesAfterUpdateOfNonVersionedValues() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        CustomPropertySetForTestingPurposes customPropertySet = new CustomPropertySetForTestingPurposes(propertySpecService);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        TestDomain testDomain = new TestDomain();
+        try (TransactionContext ctx = transactionService.getContext()) {
+            DataModel testDomainDataModel = TestDomain.install(ormService);
+            testDomain.setName("verifyValuesAfterUpdateOfNonVersionedValues");
+            testDomain.setDescription("for testing purposes only");
+            testDomainDataModel.persist(testDomain);
+            ctx.commit();
+        }
+        this.testInstance.addCustomPropertySet(customPropertySet);
+        this.grantAllViewAndEditPrivilegesToPrincipal();
+
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        BigDecimal initialBillingCycle = BigDecimal.ONE;
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), initialBillingCycle);
+        String initialContractNumber = "initialValue";
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), initialContractNumber);
+        BigDecimal expectedBillingCycle = BigDecimal.TEN;
+
+        try (TransactionContext ctx = transactionService.getContext()) {
+            // Set initial values
+            this.testInstance.setValuesFor(customPropertySet, testDomain, values);
+            ctx.commit();
+        }
+
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), expectedBillingCycle);
+        String expectedContractNumber = "verifyValuesAfterUpdateOfNonVersionedValues";
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), expectedContractNumber);
+        try (TransactionContext ctx = transactionService.getContext()) {
+            // Business method
+            this.testInstance.setValuesFor(customPropertySet, testDomain, values);
+
+            CustomPropertySetValues valuesForVerifying = this.testInstance.getValuesFor(customPropertySet, testDomain);
+            assertThat(valuesForVerifying.getProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName())).isEqualToComparingFieldByField(expectedBillingCycle);
+            assertThat(valuesForVerifying.getProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName())).isEqualToComparingFieldByField(expectedContractNumber);
         }
     }
 
@@ -378,6 +582,8 @@ public class CustomPropertySetServiceImplIT {
             ctx.commit();
         }
         this.testInstance.addCustomPropertySet(customPropertySet);
+        this.grantAllViewAndEditPrivilegesToPrincipal();
+
         CustomPropertySetValues values = CustomPropertySetValues.empty();
         values.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), "dontCareBecauseWillFailAnyway");
 
@@ -405,6 +611,8 @@ public class CustomPropertySetServiceImplIT {
         }
         this.testInstance.addCustomPropertySet(customPropertySet);
         CustomPropertySetValues values = CustomPropertySetValues.empty();
+        this.grantAllViewAndEditPrivilegesToPrincipal();
+
         BigDecimal expectedBillingCycle = BigDecimal.TEN;
         values.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), expectedBillingCycle);
         values.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), Strings.repeat("Too long", 100));
@@ -414,6 +622,40 @@ public class CustomPropertySetServiceImplIT {
             this.testInstance.setValuesFor(customPropertySet, testDomain, values);
 
             // Asserts: see expected contraint violation rule
+        }
+    }
+
+    @Test
+    public void removeNonVersionedValues() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        CustomPropertySetForTestingPurposes customPropertySet = new CustomPropertySetForTestingPurposes(propertySpecService);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        TestDomain testDomain = new TestDomain();
+        try (TransactionContext ctx = transactionService.getContext()) {
+            DataModel testDomainDataModel = TestDomain.install(ormService);
+            testDomain.setName("removeNonVersionedValues");
+            testDomain.setDescription("for testing purposes only");
+            testDomainDataModel.persist(testDomain);
+            ctx.commit();
+        }
+        this.testInstance.addCustomPropertySet(customPropertySet);
+        this.grantAllViewAndEditPrivilegesToPrincipal();
+
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        BigDecimal expectedBillingCycle = BigDecimal.TEN;
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), expectedBillingCycle);
+        String expectedContractNumber = "createNonVersionedValues";
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), expectedContractNumber);
+
+        try (TransactionContext ctx = transactionService.getContext()) {
+            this.testInstance.setValuesFor(customPropertySet, testDomain, values);
+
+            // Business method
+            this.testInstance.removeValuesFor(customPropertySet, testDomain);
+
+            // Asserts
+            CustomPropertySetValues valuesAfterRemove = this.testInstance.getValuesFor(customPropertySet, testDomain);
+            assertThat(valuesAfterRemove.isEmpty()).isTrue();
         }
     }
 
@@ -431,6 +673,7 @@ public class CustomPropertySetServiceImplIT {
             ctx.commit();
         }
         this.testInstance.addCustomPropertySet(customPropertySet);
+        this.grantAllViewAndEditPrivilegesToPrincipal();
 
         CustomPropertySetValues values = CustomPropertySetValues.empty();
         BigDecimal expectedBillingCycle = BigDecimal.TEN;
@@ -444,6 +687,132 @@ public class CustomPropertySetServiceImplIT {
 
             // Asserts: not expecting any exceptions
         }
+    }
+
+    @Test
+    public void updateVersionedValues() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        VersionedCustomPropertySetForTestingPurposes customPropertySet = new VersionedCustomPropertySetForTestingPurposes(propertySpecService);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        TestDomain testDomain = new TestDomain();
+        try (TransactionContext ctx = transactionService.getContext()) {
+            DataModel testDomainDataModel = TestDomain.install(ormService);
+            testDomain.setName("updateVersionedValues");
+            testDomain.setDescription("for testing purposes only");
+            testDomainDataModel.persist(testDomain);
+            ctx.commit();
+        }
+        this.testInstance.addCustomPropertySet(customPropertySet);
+        this.grantAllViewAndEditPrivilegesToPrincipal();
+
+        CustomPropertySetValues initialValues = CustomPropertySetValues.empty();
+        BigDecimal initialBillingCycle = BigDecimal.ONE;
+        initialValues.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), initialBillingCycle);
+        String initialContractNumber = "initialValue";
+        initialValues.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), initialContractNumber);
+
+        try (TransactionContext ctx = transactionService.getContext()) {
+            this.testInstance.setValuesFor(customPropertySet, testDomain, initialValues, Instant.now());
+            ctx.commit();
+        }
+
+        CustomPropertySetValues updateValues = CustomPropertySetValues.empty();
+        BigDecimal expectedBillingCycle = BigDecimal.TEN;
+        updateValues.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), expectedBillingCycle);
+        String expectedContractNumber = "updated!";
+        updateValues.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), expectedContractNumber);
+
+        try (TransactionContext ctx = transactionService.getContext()) {
+            // Business method
+            this.testInstance.setValuesFor(customPropertySet, testDomain, updateValues, Instant.now());
+
+            // Asserts: not expecting any exceptions
+        }
+    }
+
+    @Test(expected = CurrentUserIsNotAllowedToEditValuesOfCustomPropertySetException.class)
+    public void updateVersionedValuesWithoutEditPrivileges() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        VersionedCustomPropertySetForTestingPurposes customPropertySet = new VersionedCustomPropertySetForTestingPurposes(propertySpecService);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        TestDomain testDomain = new TestDomain();
+        try (TransactionContext ctx = transactionService.getContext()) {
+            DataModel testDomainDataModel = TestDomain.install(ormService);
+            testDomain.setName("updateVersionedValues");
+            testDomain.setDescription("for testing purposes only");
+            testDomainDataModel.persist(testDomain);
+            ctx.commit();
+        }
+        this.testInstance.addCustomPropertySet(customPropertySet);
+
+        CustomPropertySetValues initialValues = CustomPropertySetValues.empty();
+        BigDecimal initialBillingCycle = BigDecimal.ONE;
+        initialValues.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), initialBillingCycle);
+        String initialContractNumber = "initialValue";
+        initialValues.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), initialContractNumber);
+
+        try (TransactionContext ctx = transactionService.getContext()) {
+            this.testInstance.setValuesFor(customPropertySet, testDomain, initialValues, Instant.now());
+            ctx.commit();
+        }
+
+        CustomPropertySetValues updateValues = CustomPropertySetValues.empty();
+        BigDecimal expectedBillingCycle = BigDecimal.TEN;
+        updateValues.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), expectedBillingCycle);
+        String expectedContractNumber = "updated!";
+        updateValues.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), expectedContractNumber);
+
+        try (TransactionContext ctx = transactionService.getContext()) {
+            // Business method
+            this.testInstance.setValuesFor(customPropertySet, testDomain, updateValues, Instant.now());
+
+            // Asserts: not expecting any exceptions
+        }
+    }
+
+    @Test
+    public void verifyValuesAfterUpdateOfVersionedValues() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        VersionedCustomPropertySetForTestingPurposes customPropertySet = new VersionedCustomPropertySetForTestingPurposes(propertySpecService);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        TestDomain testDomain = new TestDomain();
+        try (TransactionContext ctx = transactionService.getContext()) {
+            DataModel testDomainDataModel = TestDomain.install(ormService);
+            testDomain.setName("verifyValuesAfterUpdateOfVersionedValues");
+            testDomain.setDescription("for testing purposes only");
+            testDomainDataModel.persist(testDomain);
+            ctx.commit();
+        }
+        this.testInstance.addCustomPropertySet(customPropertySet);
+        this.grantAllViewAndEditPrivilegesToPrincipal();
+
+        CustomPropertySetValues initialValues = CustomPropertySetValues.empty();
+        BigDecimal initialBillingCycle = BigDecimal.ONE;
+        initialValues.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), initialBillingCycle);
+        String initialContractNumber = "initialValue";
+        initialValues.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), initialContractNumber);
+
+        try (TransactionContext ctx = transactionService.getContext()) {
+            this.testInstance.setValuesFor(customPropertySet, testDomain, initialValues, Instant.now());
+            ctx.commit();
+        }
+
+        CustomPropertySetValues updateValues = CustomPropertySetValues.empty();
+        BigDecimal expectedBillingCycle = BigDecimal.TEN;
+        updateValues.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), expectedBillingCycle);
+        String expectedContractNumber = "updated!";
+        updateValues.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), expectedContractNumber);
+
+        try (TransactionContext ctx = transactionService.getContext()) {
+            // Business method
+            this.testInstance.setValuesFor(customPropertySet, testDomain, updateValues, Instant.now());
+
+            // Asserts
+            CustomPropertySetValues valuesForVerifying = this.testInstance.getValuesFor(customPropertySet, testDomain, Instant.now());
+            assertThat(valuesForVerifying.getProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName())).isEqualToComparingFieldByField(expectedBillingCycle);
+            assertThat(valuesForVerifying.getProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName())).isEqualToComparingFieldByField(expectedContractNumber);
+        }
+
     }
 
     @Test(expected = UnsupportedOperationException.class)
@@ -479,13 +848,41 @@ public class CustomPropertySetServiceImplIT {
         TestDomain testDomain = new TestDomain();
         try (TransactionContext ctx = transactionService.getContext()) {
             DataModel testDomainDataModel = TestDomain.install(ormService);
+            testDomain.setName("createVersionedValuesWithMissingRequiredProperty");
+            testDomain.setDescription("for testing purposes only");
+            testDomainDataModel.persist(testDomain);
+            ctx.commit();
+        }
+        this.testInstance.addCustomPropertySet(customPropertySet);
+        this.grantAllViewAndEditPrivilegesToPrincipal();
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), "dontCareBecauseWillFailAnyway");
+
+        try (TransactionContext ctx = transactionService.getContext()) {
+            // Business method
+            this.testInstance.setValuesFor(customPropertySet, testDomain, values, Instant.now());
+
+            // Asserts: see expected contraint violation rule
+        }
+    }
+
+    @Test(expected = CurrentUserIsNotAllowedToEditValuesOfCustomPropertySetException.class)
+    public void createVersionedValuesWithoutEditPrivileges() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        VersionedCustomPropertySetForTestingPurposes customPropertySet = new VersionedCustomPropertySetForTestingPurposes(propertySpecService);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        TestDomain testDomain = new TestDomain();
+        try (TransactionContext ctx = transactionService.getContext()) {
+            DataModel testDomainDataModel = TestDomain.install(ormService);
             testDomain.setName("createNonVersionedValuesWithMissingRequiredProperty");
             testDomain.setDescription("for testing purposes only");
             testDomainDataModel.persist(testDomain);
             ctx.commit();
         }
         this.testInstance.addCustomPropertySet(customPropertySet);
+
         CustomPropertySetValues values = CustomPropertySetValues.empty();
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), BigDecimal.ONE);
         values.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), "dontCareBecauseWillFailAnyway");
 
         try (TransactionContext ctx = transactionService.getContext()) {
@@ -511,6 +908,8 @@ public class CustomPropertySetServiceImplIT {
             ctx.commit();
         }
         this.testInstance.addCustomPropertySet(customPropertySet);
+        this.grantAllViewAndEditPrivilegesToPrincipal();
+
         CustomPropertySetValues values = CustomPropertySetValues.empty();
         BigDecimal expectedBillingCycle = BigDecimal.TEN;
         values.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), expectedBillingCycle);
@@ -524,6 +923,62 @@ public class CustomPropertySetServiceImplIT {
         }
     }
 
+    @Test
+    public void removeVersionedValues() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        VersionedCustomPropertySetForTestingPurposes customPropertySet = new VersionedCustomPropertySetForTestingPurposes(propertySpecService);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        TestDomain testDomain = new TestDomain();
+        try (TransactionContext ctx = transactionService.getContext()) {
+            DataModel testDomainDataModel = TestDomain.install(ormService);
+            testDomain.setName("createVersionedValues");
+            testDomain.setDescription("for testing purposes only");
+            testDomainDataModel.persist(testDomain);
+            ctx.commit();
+        }
+        this.testInstance.addCustomPropertySet(customPropertySet);
+        this.grantAllViewAndEditPrivilegesToPrincipal();
+
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        BigDecimal expectedBillingCycle = BigDecimal.TEN;
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), expectedBillingCycle);
+        String expectedContractNumber = "createVersionedValues";
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), expectedContractNumber);
+
+        try (TransactionContext ctx = transactionService.getContext()) {
+            this.testInstance.setValuesFor(customPropertySet, testDomain, values, Instant.now());
+
+            // Business method
+            this.testInstance.removeValuesFor(customPropertySet, testDomain);
+
+            // Asserts
+            CustomPropertySetValues valuesAfterRemove = this.testInstance.getValuesFor(customPropertySet, testDomain, Instant.now());
+            assertThat(valuesAfterRemove.isEmpty()).isTrue();
+        }
+
+    }
+
+    private void addAllViewAndEditPrivileges(CustomPropertySet customPropertySet) {
+        try (TransactionContext ctx = transactionService.getContext()) {
+            this.testInstance
+                    .findActiveCustomPropertySet(customPropertySet.getId()).get()
+                    .updatePrivileges(
+                            EnumSet.allOf(ViewPrivilege.class),
+                            EnumSet.allOf(EditPrivilege.class));
+        }
+    }
+
+    private void grantAllViewAndEditPrivilegesToPrincipal() {
+        Set<Privilege> privileges = new HashSet<>();
+        Privilege editPrivilege = mock(Privilege.class);
+        when(editPrivilege.getName()).thenReturn(EditPrivilege.LEVEL_1.getPrivilege());
+        privileges.add(editPrivilege);
+        Privilege viewPrivilege = mock(Privilege.class);
+        when(viewPrivilege.getName()).thenReturn(ViewPrivilege.LEVEL_1.getPrivilege());
+        privileges.add(viewPrivilege);
+        when(this.principal.getPrivileges()).thenReturn(privileges);
+
+    }
     private abstract class LatchDrivenRunnable implements Runnable {
         private final TransactionService transactionService;
         private final CustomPropertySetServiceImpl service;

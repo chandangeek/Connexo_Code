@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.StringFactory;
+
 import com.google.inject.Module;
 
 import java.math.BigDecimal;
@@ -38,6 +39,11 @@ public class VersionedCustomPropertySetForTestingPurposes implements CustomPrope
     public VersionedCustomPropertySetForTestingPurposes(PropertySpecService propertySpecService) {
         super();
         this.propertySpecService = propertySpecService;
+    }
+
+    @Override
+    public String getId() {
+        return this.getClass().getSimpleName();
     }
 
     @Override

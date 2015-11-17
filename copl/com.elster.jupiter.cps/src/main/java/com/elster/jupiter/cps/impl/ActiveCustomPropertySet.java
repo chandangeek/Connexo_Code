@@ -6,6 +6,7 @@ import com.elster.jupiter.cps.HardCodedFieldNames;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Condition;
@@ -30,12 +31,14 @@ import static com.elster.jupiter.util.conditions.Where.where;
 class ActiveCustomPropertySet {
 
     private final CustomPropertySet customPropertySet;
+    private final Thesaurus thesaurus;
     private final DataModel customPropertySetDataModel;
     private final RegisteredCustomPropertySet registeredCustomPropertySet;
 
-    ActiveCustomPropertySet(CustomPropertySet customPropertySet, DataModel customPropertySetDataModel, RegisteredCustomPropertySet registeredCustomPropertySet) {
+    ActiveCustomPropertySet(CustomPropertySet customPropertySet, Thesaurus thesaurus, DataModel customPropertySetDataModel, RegisteredCustomPropertySet registeredCustomPropertySet) {
         super();
         this.customPropertySet = customPropertySet;
+        this.thesaurus = thesaurus;
         this.customPropertySetDataModel = customPropertySetDataModel;
         this.registeredCustomPropertySet = registeredCustomPropertySet;
     }
@@ -50,17 +53,27 @@ class ActiveCustomPropertySet {
 
     @SuppressWarnings("unchecked")
     <T extends PersistentDomainExtension<D>, D> Optional<T> getValuesEntityFor(D businessObject) {
-        Condition condition =    where(this.customPropertySet.getPersistenceSupport().domainFieldName()).isEqualTo(businessObject)
-                            .and(where(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName()).isEqualTo(this.registeredCustomPropertySet));
-        return this.getValuesEntityFor(condition, () -> "There should only be one set of property values for custom property set " + this.customPropertySet.getId() + " against business object " + businessObject);
+        if (this.registeredCustomPropertySet.isViewableByCurrentUser()) {
+            Condition condition =    where(this.customPropertySet.getPersistenceSupport().domainFieldName()).isEqualTo(businessObject)
+                                .and(where(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName()).isEqualTo(this.registeredCustomPropertySet));
+            return this.getValuesEntityFor(condition, () -> "There should only be one set of property values for custom property set " + this.customPropertySet.getId() + " against business object " + businessObject);
+        }
+        else {
+            return Optional.empty();
+        }
     }
 
     @SuppressWarnings("unchecked")
     <T extends PersistentDomainExtension<D>, D> Optional<T> getValuesEntityFor(D businessObject, Instant effectiveTimestamp) {
-        Condition condition =    where(this.customPropertySet.getPersistenceSupport().domainFieldName()).isEqualTo(businessObject)
-                            .and(where(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName()).isEqualTo(this.registeredCustomPropertySet))
-                            .and(where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(effectiveTimestamp));
-        return this.getValuesEntityFor(condition, () -> "There should only be one set of property values for custom property set " + this.customPropertySet.getId() + " at " + effectiveTimestamp + " against business object " + businessObject);
+        if (this.registeredCustomPropertySet.isViewableByCurrentUser()) {
+            Condition condition =    where(this.customPropertySet.getPersistenceSupport().domainFieldName()).isEqualTo(businessObject)
+                                .and(where(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName()).isEqualTo(this.registeredCustomPropertySet))
+                                .and(where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(effectiveTimestamp));
+            return this.getValuesEntityFor(condition, () -> "There should only be one set of property values for custom property set " + this.customPropertySet.getId() + " at " + effectiveTimestamp + " against business object " + businessObject);
+        }
+        else {
+            return Optional.empty();
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -148,6 +161,12 @@ class ActiveCustomPropertySet {
     @SuppressWarnings("unchecked")
     private <T extends PersistentDomainExtension<D>, D> void delete(T extension) {
         this.getMapper().remove(extension);
+    }
+
+    public void validateCurrentUserIsAllowedToEdit() {
+        if (!this.registeredCustomPropertySet.isEditableByCurrentUser()) {
+            throw new CurrentUserIsNotAllowedToEditValuesOfCustomPropertySetException(this.thesaurus);
+        }
     }
 
 }
