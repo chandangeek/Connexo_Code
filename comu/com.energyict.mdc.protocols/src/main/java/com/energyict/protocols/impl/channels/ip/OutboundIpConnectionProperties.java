@@ -7,7 +7,6 @@ import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
@@ -24,7 +23,7 @@ import java.math.BigDecimal;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-06 (12:53)
  */
-public class OutboundIpConnectionProperties implements PersistentDomainExtension<ConnectionProvider>, PersistenceAware {
+public class OutboundIpConnectionProperties implements PersistentDomainExtension<ConnectionProvider> {
 
     public enum Fields {
         CONNECTION_PROVIDER {
@@ -145,8 +144,6 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
     @NotNull
     private BigDecimal portNumber;
     private TimeDuration connectionTimeout;
-    private int connectionTimeoutValue;
-    private int connectionTimeoutUnit;
     private BigDecimal bufferSize;
     @DecimalMin(message = IpMessageSeeds.Keys.MUST_BE_POSITIVE, value = "0", inclusive = true, groups = {Save.Create.class, Save.Update.class})
     private BigDecimal postDialDelayMillis;
@@ -154,11 +151,6 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
     private BigDecimal postDialCommandAttempts;
     @Size(max = Table.MAX_STRING_LENGTH)
     private String postDialCommand;
-
-    @Override
-    public void postLoad() {
-        this.connectionTimeout = new TimeDuration(this.connectionTimeoutValue, this.connectionTimeoutUnit);
-    }
 
     @Override
     public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues) {
@@ -179,15 +171,7 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
     }
 
     protected void copyConnectionTimeout(CustomPropertySetValues propertyValues) {
-        this.setConnectionTimeout((TimeDuration) propertyValues.getProperty(Fields.CONNECTION_TIMEOUT.javaName()));
-    }
-
-    public void setConnectionTimeout(TimeDuration connectionTimeout) {
-        this.connectionTimeout = connectionTimeout;
-        if (connectionTimeout != null) {
-            this.connectionTimeoutValue = connectionTimeout.getCount();
-            this.connectionTimeoutUnit = connectionTimeout.getTimeUnitCode();
-        }
+        this.connectionTimeout = (TimeDuration) propertyValues.getProperty(Fields.CONNECTION_TIMEOUT.javaName());
     }
 
     protected void copyBufferSize(CustomPropertySetValues propertyValues) {
