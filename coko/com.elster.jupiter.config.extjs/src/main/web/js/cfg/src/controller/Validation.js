@@ -1145,9 +1145,6 @@ Ext.define('Cfg.controller.Validation', {
                 Ext.Array.each(Ext.ComponentQuery.query('#newVersion'), function (item) {
                     item.hide();
                 });
-            }
-
-            if (me.getVersionsGrid()){
                 Ext.Array.each(Ext.ComponentQuery.query('#addRuleLink'), function (item) {
                     item.hide();
                 });
