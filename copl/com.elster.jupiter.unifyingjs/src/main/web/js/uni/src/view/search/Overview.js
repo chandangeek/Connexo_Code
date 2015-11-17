@@ -112,12 +112,7 @@ Ext.define('Uni.view.search.Overview', {
                                 xtype: 'uni-search-internal-criteriapanel',
                                 itemId: 'search-criteria-removable',
                                 layout: 'column',
-                                //hidden: true,
-                                lbar: {
-                                    xtype: 'label',
-                                    text: '',
-                                    width: 100
-                                },
+                                margin: '0 0 0 100',
                                 service: me.getService()
                             },
                             {
