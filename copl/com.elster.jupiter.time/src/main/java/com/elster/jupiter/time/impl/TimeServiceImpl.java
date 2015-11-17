@@ -18,11 +18,15 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.RelativePeriodCategory;
 import com.elster.jupiter.time.RelativePeriodCategoryUsage;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.time.impl.parser.CronExpressionDescriptorImpl;
+import com.elster.jupiter.time.impl.parser.TranslationKeys;
 import com.elster.jupiter.time.security.Privileges;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -171,6 +175,11 @@ public class TimeServiceImpl implements TimeService, InstallService, PrivilegesP
     }
 
     @Override
+    public String toLocalizedString(CronExpression expression) {
+        return new CronExpressionDescriptorImpl(thesaurus).getDescription(expression.toString());
+    }
+
+    @Override
     public RelativePeriod getAllRelativePeriod() {
         return AllRelativePeriod.INSTANCE;
     }
@@ -237,7 +246,10 @@ public class TimeServiceImpl implements TimeService, InstallService, PrivilegesP
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(Labels.values());
+        return ImmutableList.<TranslationKey>builder()
+                .addAll(ImmutableList.copyOf(Labels.values()))
+                .addAll(ImmutableList.copyOf(TranslationKeys.values()))
+                .build();
     }
 
     @Override

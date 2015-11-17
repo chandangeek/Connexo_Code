@@ -2,6 +2,7 @@ package com.elster.jupiter.time;
 
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.util.cron.CronExpression;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +25,7 @@ public interface TimeService {
     Query<? extends RelativePeriod> getRelativePeriodQuery();
 
     String toLocalizedString(PeriodicalScheduleExpression expression);
+    String toLocalizedString(CronExpression expression);
 
     RelativePeriod getAllRelativePeriod();
 }
