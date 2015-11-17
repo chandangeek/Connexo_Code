@@ -126,7 +126,8 @@ Ext.define('Mdc.view.setup.devicegroup.Step2', {
                                 itemId: 'clear-all-button',
                                 text: Uni.I18n.translate('general.clearAll', 'MDC', 'Clear all'),
                                 action: 'clearFilters',
-                                margin: '0 0 0 0'
+                                margin: '0 0 0 0',
+                                disabled: true
                             }
                         ]
                     }

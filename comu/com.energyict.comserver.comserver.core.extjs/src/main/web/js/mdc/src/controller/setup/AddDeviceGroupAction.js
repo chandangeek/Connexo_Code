@@ -41,6 +41,10 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         {
             ref: 'step2FormErrorMessage',
             selector: '#add-devicegroup-browse #step2-adddevicegroup-errors'
+        },
+        {
+            ref: 'filterPanel',
+            selector: '#add-devicegroup-browse #device-group-filter'
         }
     ],
 
@@ -151,6 +155,10 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
         } else {
             widget.down('adddevicegroup-wizard').loadRecord(Ext.create(deviceGroupModelName));
         }
+        me.service.on('searchResultsBeforeLoad', me.availableClearAll, me);
+        widget.on('destroy', function () {
+            me.service.un('searchResultsBeforeLoad', me.availableClearAll, me);
+        }, me)
     },
 
     moveTo: function (button) {
@@ -474,5 +482,13 @@ Ext.define('Mdc.controller.setup.AddDeviceGroupAction', {
 
         staticGrid.getSelectionModel().deselectAll(true); // fix the ExtJS error: "getById called for ID that is not present in local cache"
         me.service.applyFilters.apply(me.service, arguments);
+    },
+
+    availableClearAll: function () {
+        var me = this,
+            filterPanel = me.getFilterPanel(),
+            filters = me.service.getFilters();
+
+        filterPanel.down('[action=clearFilters]').setDisabled(!(filters && filters.length));
     }
 });
