@@ -16,6 +16,8 @@ import com.energyict.mdc.dashboard.rest.status.impl.CommunicationOverviewInfoFac
 import com.energyict.mdc.dashboard.rest.status.impl.CommunicationOverviewResource;
 import com.energyict.mdc.dashboard.rest.status.impl.CommunicationResource;
 import com.energyict.mdc.dashboard.rest.status.impl.CompletionCodeTranslationKeys;
+import com.energyict.mdc.dashboard.rest.status.impl.ConnectionHeatMapInfoFactory;
+import com.energyict.mdc.dashboard.rest.status.impl.ConnectionHeatMapResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionOverviewInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionOverviewResource;
 import com.energyict.mdc.dashboard.rest.status.impl.ConnectionResource;
@@ -281,7 +283,8 @@ public class DashboardApplication extends Application implements MessageSeedProv
                 IssuesResource.class,
                 LabeledDeviceResource.class,
                 FavoriteDeviceGroupResource.class,
-                CommunicationHeatMapResource.class
+                CommunicationHeatMapResource.class,
+                ConnectionHeatMapResource.class
         );
     }
 
@@ -336,6 +339,7 @@ public class DashboardApplication extends Application implements MessageSeedProv
             bind(FilterFactory.class).to(FilterFactory.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(CommunicationHeatMapInfoFactory.class).to(CommunicationHeatMapInfoFactory.class);
+            bind(ConnectionHeatMapInfoFactory.class).to(ConnectionHeatMapInfoFactory.class);
         }
     }
 
