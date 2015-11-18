@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.data.validation.rest.impl;
 
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.device.data.validation.DeviceDataValidationService;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -29,7 +30,7 @@ public class ValidationResultsResource {
         this.deviceDataValidationService = deviceDataValidationService;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/devicegroups/{id}")
     @RolesAllowed({Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, Privileges.Constants.VALIDATE_MANUAL, Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
