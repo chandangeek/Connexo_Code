@@ -6,6 +6,7 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.time.TemporalExpression;
 import com.energyict.mdc.common.rest.IdListBuilder;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -68,7 +69,7 @@ public class SchedulingResource {
         this.resourceHelper = resourceHelper;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE, Privileges.Constants.VIEW_SHARED_COMMUNICATION_SCHEDULE})
     public PagedInfoList getSchedules(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
@@ -210,7 +211,7 @@ public class SchedulingResource {
         return alreadyAssignedComTaskIds;
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE, Privileges.Constants.VIEW_SHARED_COMMUNICATION_SCHEDULE})
@@ -221,7 +222,7 @@ public class SchedulingResource {
 
 
 
-    @POST
+    @POST @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE)
@@ -236,7 +237,7 @@ public class SchedulingResource {
         return Response.status(Response.Status.CREATED).entity(ComScheduleInfo.from(comSchedule, false, clock.instant())).build();
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE)
@@ -251,7 +252,7 @@ public class SchedulingResource {
         return Response.noContent().build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE)
@@ -298,7 +299,7 @@ public class SchedulingResource {
         return comTaskIdMap;
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{id}/comTasks")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_SHARED_COMMUNICATION_SCHEDULE, Privileges.Constants.VIEW_SHARED_COMMUNICATION_SCHEDULE})
@@ -311,7 +312,7 @@ public class SchedulingResource {
         }
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/preview")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
