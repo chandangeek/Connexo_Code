@@ -4,6 +4,7 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.util.conditions.Condition;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.Device;
@@ -76,7 +77,7 @@ public class DeviceResource {
      * @param uriInfo added by Jersey framework
      * @return Device information and links to related resources
      */
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{mrid}")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
@@ -97,7 +98,7 @@ public class DeviceResource {
      * @param uriInfo added by Jersey framework
      * @return Device information and links to related resources
      */
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList getDevices(@BeanParam JsonQueryParameters queryParameters, @BeanParam FieldSelection fieldSelection, @Context UriInfo uriInfo) {
@@ -113,7 +114,7 @@ public class DeviceResource {
      * @param uriInfo added by framework
      * @responseheader location href to newly created device
      */
-    @POST
+    @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
@@ -141,7 +142,7 @@ public class DeviceResource {
         return Response.created(uri).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{mrid}")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -172,7 +173,7 @@ public class DeviceResource {
     }
 
 
-    @DELETE
+    @DELETE @Transactional
     @Path("/{mrid}")
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})

@@ -1,8 +1,9 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
-import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
@@ -10,8 +11,6 @@ import com.energyict.mdc.multisense.api.security.Privileges;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
-import java.util.Comparator;
-import java.util.List;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -24,6 +23,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Comparator;
+import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 
@@ -41,7 +42,7 @@ public class DeviceMessageSpecificationResource {
         this.exceptionFactory = exceptionFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{deviceMessageSpecificationId}")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
@@ -57,7 +58,7 @@ public class DeviceMessageSpecificationResource {
         return deviceMessageSpecificationInfoFactory.from(deviceMessageSpec, uriInfo, fieldSelection.getFields());
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     public PagedInfoList<DeviceMessageSpecificationInfo> getDeviceMessageSpecifications(

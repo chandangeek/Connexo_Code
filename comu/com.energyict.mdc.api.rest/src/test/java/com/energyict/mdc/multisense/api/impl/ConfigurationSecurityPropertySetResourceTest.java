@@ -10,7 +10,6 @@ import com.jayway.jsonpath.JsonModel;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;

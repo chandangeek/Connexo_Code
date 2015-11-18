@@ -3,6 +3,7 @@ package com.energyict.mdc.multisense.api.impl;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -44,7 +45,7 @@ public class DeviceConfigurationResource {
         this.exceptionFactory = exceptionFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{deviceConfigId}")
     @RolesAllowed({com.energyict.mdc.multisense.api.security.Privileges.Constants.PUBLIC_REST_API})
@@ -59,7 +60,7 @@ public class DeviceConfigurationResource {
         return deviceConfigurationInfo;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.multisense.api.security.Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<DeviceConfigurationInfo> getHypermediaDeviceConfigurations(@PathParam("deviceTypeId") long deviceTypeId, @BeanParam JsonQueryParameters queryParameters,

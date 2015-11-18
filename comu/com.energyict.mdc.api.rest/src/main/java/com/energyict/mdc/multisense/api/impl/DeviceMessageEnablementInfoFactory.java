@@ -3,12 +3,13 @@ package com.energyict.mdc.multisense.api.impl;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
 import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DeviceMessageEnablementInfoFactory extends SelectableFieldFactory<DeviceMessageEnablementInfo, DeviceMessageEnablement> {
 

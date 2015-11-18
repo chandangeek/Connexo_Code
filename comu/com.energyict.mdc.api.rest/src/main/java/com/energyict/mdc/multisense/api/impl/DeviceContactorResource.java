@@ -2,6 +2,7 @@ package com.energyict.mdc.multisense.api.impl;
 
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.PROPFIND;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -65,7 +66,7 @@ public class DeviceContactorResource {
      * @statuscode 404 If there is no device with the provided mRID
      * @statuscode 202 The contacter state was accepted and a message was created to send the state to the meter
      */
-    @PUT
+    @PUT @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)

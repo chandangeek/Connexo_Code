@@ -3,6 +3,7 @@ package com.energyict.mdc.multisense.api.impl;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -55,7 +56,7 @@ public class ConnectionTaskResource {
         this.exceptionFactory = exceptionFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public PagedInfoList<ConnectionTaskInfo> getConnectionTasks(@PathParam("mrid") String mrid,
@@ -72,7 +73,7 @@ public class ConnectionTaskResource {
         return PagedInfoList.from(infos, queryParameters, uriBuilder, uriInfo);
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{connectionTaskId}")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
@@ -89,7 +90,7 @@ public class ConnectionTaskResource {
         return connectionTaskInfoFactory.from(connectionTask, uriInfo, fieldSelection.getFields());
     }
 
-    @POST
+    @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
@@ -115,7 +116,7 @@ public class ConnectionTaskResource {
         return Response.created(uri).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{connectionTaskId}")
