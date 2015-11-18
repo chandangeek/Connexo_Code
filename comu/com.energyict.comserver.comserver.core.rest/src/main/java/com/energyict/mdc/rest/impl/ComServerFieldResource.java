@@ -3,6 +3,7 @@ package com.energyict.mdc.rest.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.rest.FieldResource;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.engine.config.security.Privileges;
 import com.energyict.mdc.rest.impl.comserver.BaudrateAdapter;
 import com.energyict.mdc.rest.impl.comserver.ComPortTypeAdapter;
@@ -40,7 +41,7 @@ public class ComServerFieldResource extends FieldResource {
         this.thesaurus = thesaurus;
     }
 
-    @GET
+    @GET @Transactional
     @Path("/logLevel")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
@@ -48,7 +49,7 @@ public class ComServerFieldResource extends FieldResource {
         return asJsonArrayObjectWithTranslation("logLevels", "logLevel", new LogLevelAdapter().getClientSideValues());
     }
 
-    @GET
+    @GET @Transactional
     @Path("/timeUnit")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
@@ -80,7 +81,7 @@ public class ComServerFieldResource extends FieldResource {
     }
 
 
-    @GET
+    @GET @Transactional
     @Path("/comPortType")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
@@ -88,7 +89,7 @@ public class ComServerFieldResource extends FieldResource {
         return asJsonArrayObjectWithTranslation("comPortTypes", "comPortType", new ComPortTypeAdapter().getClientSideValues());
     }
 
-    @GET
+    @GET @Transactional
     @Path("/parity")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
@@ -96,7 +97,7 @@ public class ComServerFieldResource extends FieldResource {
         return asJsonArrayObjectWithTranslation("parities", "parity", new ParitiesAdapter().getClientSideValues());
     }
 
-    @GET
+    @GET @Transactional
     @Path("/flowControl")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
@@ -104,7 +105,7 @@ public class ComServerFieldResource extends FieldResource {
         return asJsonArrayObjectWithTranslation("flowControls", "flowControl", new FlowControlAdapter().getClientSideValues());
     }
 
-    @GET
+    @GET @Transactional
     @Path("/nrOfDataBits")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
@@ -112,7 +113,7 @@ public class ComServerFieldResource extends FieldResource {
         return asJsonArrayObjectWithTranslation("nrOfDataBits", "nrOfDataBits", new NrOfDataBitsAdapter().getClientSideValues());
     }
 
-    @GET
+    @GET @Transactional
     @Path("/nrOfStopBits")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
@@ -120,7 +121,7 @@ public class ComServerFieldResource extends FieldResource {
         return asJsonArrayObjectWithTranslation("nrOfStopBits", "nrOfStopBits", new NrOfStopBitsAdapter().getClientSideValues());
     }
 
-    @GET
+    @GET @Transactional
     @Path("/baudRate")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION})
