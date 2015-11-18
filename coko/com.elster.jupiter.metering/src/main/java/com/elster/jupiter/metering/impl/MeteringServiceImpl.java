@@ -10,25 +10,7 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.AmrSystem;
-import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.EndDevice;
-import com.elster.jupiter.metering.MessageSeeds;
-import com.elster.jupiter.metering.Meter;
-import com.elster.jupiter.metering.MeterActivation;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.PurgeConfiguration;
-import com.elster.jupiter.metering.ReadingStorer;
-import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.metering.ServiceCategory;
-import com.elster.jupiter.metering.ServiceKind;
-import com.elster.jupiter.metering.ServiceLocation;
-import com.elster.jupiter.metering.StorerProcess;
-import com.elster.jupiter.metering.UsagePoint;
-import com.elster.jupiter.metering.UsagePointAccountability;
-import com.elster.jupiter.metering.UsagePointConnectedKind;
-import com.elster.jupiter.metering.UsagePointDetail;
-import com.elster.jupiter.metering.UsagePointFilter;
+import com.elster.jupiter.metering.*;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.impl.search.PropertyTranslationKeys;
 import com.elster.jupiter.metering.security.Privileges;
@@ -58,6 +40,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.google.inject.AbstractModule;
+import com.sun.corba.se.impl.transport.ReadTCPTimeoutsImpl;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -66,6 +49,7 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.validation.MessageInterpolator;
+import javax.validation.constraints.NotNull;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.Period;
@@ -439,6 +423,11 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
             condition = condition.and(hasAccountability());
         }
         return DefaultFinder.of(UsagePoint.class, condition, dataModel);
+    }
+
+    @Override
+    public Finder<ReadingType> getReadingTypesByMridFilter(@NotNull ReadingTypeMridFilter filter) {
+        return DefaultFinder.of(ReadingType.class, filter.getFilterCondition(), dataModel);
     }
 
     @Override

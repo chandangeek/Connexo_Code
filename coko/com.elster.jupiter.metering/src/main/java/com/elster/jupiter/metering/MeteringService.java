@@ -112,4 +112,6 @@ public interface MeteringService {
     List<ReadingType> getAvailableNonEquidistantReadingTypes();
 
     Finder<UsagePoint> getUsagePoints(@NotNull UsagePointFilter filter);
+
+    Finder<ReadingType> getReadingTypesByMridFilter(@NotNull ReadingTypeMridFilter filter);
 }
