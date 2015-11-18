@@ -1,7 +1,7 @@
 package com.energyict.mdc.issue.datavalidation.rest.impl;
 
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
-import com.energyict.mdc.common.rest.Transactional;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
