@@ -8,6 +8,7 @@ import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -146,7 +147,7 @@ public class DeviceResource {
         this.deviceAttributesInfoFactory = deviceAttributesInfoFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public PagedInfoList getAllDevices(@BeanParam JsonQueryParameters queryParameters, @BeanParam StandardParametersBean params, @Context UriInfo uriInfo) {
@@ -163,7 +164,7 @@ public class DeviceResource {
         return PagedInfoList.fromPagedList("devices", deviceInfos, queryParameters);
     }
 
-    @POST
+    @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADD_DEVICE)
@@ -183,7 +184,7 @@ public class DeviceResource {
         return deviceInfoFactory.from(newDevice, getSlaveDevicesForDevice(newDevice));
     }
 
-    @PUT//the method designed like 'PATCH'
+    @PUT @Transactional//the method designed like 'PATCH'
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -231,7 +232,7 @@ public class DeviceResource {
         return slaves;
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{mRID}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -240,7 +241,7 @@ public class DeviceResource {
         return deviceInfoFactory.from(device, getSlaveDevicesForDevice(device));
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{mRID}/attributes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
@@ -249,7 +250,7 @@ public class DeviceResource {
         return Response.ok(deviceAttributesInfoFactory.from(device)).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{mRID}/attributes")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_ATTRIBUTE})
@@ -260,7 +261,7 @@ public class DeviceResource {
         return Response.ok(deviceAttributesInfoFactory.from(device)).build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{mRID}/customproperties")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
@@ -270,7 +271,7 @@ public class DeviceResource {
         return PagedInfoList.fromCompleteList("customproperties", customPropertySetInfos, queryParameters);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{mRID}/customproperties/{cpsId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
@@ -284,7 +285,7 @@ public class DeviceResource {
         return customPropertySetInfo;
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{mRID}/customproperties/{cpsId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -294,7 +295,7 @@ public class DeviceResource {
         return Response.ok().build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{mRID}/privileges")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
@@ -317,7 +318,7 @@ public class DeviceResource {
      * @param mrid Device's mRID
      * @return List of categories + device message specs, indicating if message spec will be picked up by a comtask or not
      */
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{mRID}/messagecategories")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
@@ -442,7 +443,7 @@ public class DeviceResource {
         return deviceLifeCycleActionResourceProvider.get();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{mRID}/topology/communication")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,

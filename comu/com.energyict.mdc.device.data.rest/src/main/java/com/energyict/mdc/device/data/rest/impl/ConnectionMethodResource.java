@@ -3,6 +3,7 @@ package com.energyict.mdc.device.data.rest.impl;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.ConnectionTaskService;
@@ -58,7 +59,7 @@ public class ConnectionMethodResource {
         this.comTaskExecutionResourceProvider = comTaskExecutionResourceProvider;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response getConnectionMethods(@PathParam("mRID") String mRID, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
@@ -68,7 +69,7 @@ public class ConnectionMethodResource {
         return Response.ok(PagedInfoList.fromPagedList("connectionMethods", connectionMethodInfos, queryParameters)).build();
     }
 
-    @POST
+    @POST @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION)
     public Response createConnectionMethod(@PathParam("mRID") String mrid, @Context UriInfo uriInfo, ConnectionMethodInfo<?> connectionMethodInfo) {
@@ -93,7 +94,7 @@ public class ConnectionMethodResource {
         }
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
@@ -103,7 +104,7 @@ public class ConnectionMethodResource {
         return Response.status(Response.Status.OK).entity(connectionMethodInfoFactory.asInfo(connectionTask, uriInfo)).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
@@ -135,7 +136,7 @@ public class ConnectionMethodResource {
     }
 
 
-    @DELETE
+    @DELETE @Transactional
     @Path("/{id}")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")

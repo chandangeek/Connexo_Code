@@ -5,6 +5,7 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
@@ -57,7 +58,7 @@ public class ComSessionResource {
         this.journalEntryInfoFactory = journalEntryInfoFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public ComSessionsInfo getConnectionMethodHistory(@PathParam("mRID") String mrid, @PathParam("connectionMethodId") long connectionMethodId, @BeanParam JsonQueryParameters queryParameters) {
@@ -75,7 +76,7 @@ public class ComSessionResource {
         return info;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{comSessionId}")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
@@ -88,7 +89,7 @@ public class ComSessionResource {
         return info;
     }
 
-    @GET
+    @GET @Transactional
     @Path("{comSessionId}/comtaskexecutionsessions")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
@@ -106,7 +107,7 @@ public class ComSessionResource {
         return info;
     }
 
-    @GET
+    @GET @Transactional
     @Path("{comSessionId}/journals")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})

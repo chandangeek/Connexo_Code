@@ -5,6 +5,7 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.users.User;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.rest.DeviceLabelInfo;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -45,7 +46,7 @@ public class DeviceLabelResource {
         this.thesaurus = thesaurus;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
     public PagedInfoList getDeviceLabels(@PathParam("mRID") String id, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext) {
@@ -55,7 +56,7 @@ public class DeviceLabelResource {
         return PagedInfoList.fromPagedList("deviceLabels", deviceLabels.stream().map(dl -> new DeviceLabelInfo(dl, thesaurus)).collect(Collectors.toList()), queryParameters);
     }
 
-    @POST
+    @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
@@ -68,7 +69,7 @@ public class DeviceLabelResource {
     }
 
     @Path("/{categoryId}")
-    @DELETE
+    @DELETE @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})

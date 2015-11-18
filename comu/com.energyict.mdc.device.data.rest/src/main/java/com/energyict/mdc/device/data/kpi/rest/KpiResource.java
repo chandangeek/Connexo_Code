@@ -8,6 +8,7 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpi;
 import com.energyict.mdc.device.data.kpi.DataCollectionKpiService;
 import com.energyict.mdc.device.data.rest.impl.MessageSeeds;
@@ -52,7 +53,7 @@ public class KpiResource {
         this.resourceHelper = resourceHelper;
     }
 
-    @GET
+    @GET @Transactional
     @Path("/groups")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getAvailableDeviceGroups(@BeanParam JsonQueryParameters queryParameters){
@@ -69,7 +70,7 @@ public class KpiResource {
                 .map(gr -> new LongIdWithNameInfo(gr.getId(), gr.getName())).collect(Collectors.toList()), queryParameters)).build();
     }
 
-    @GET
+    @GET @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public PagedInfoList getAllKpis(@BeanParam JsonQueryParameters queryParameters) {
@@ -82,7 +83,7 @@ public class KpiResource {
         return PagedInfoList.fromPagedList("kpis", collection, queryParameters);
     }
 
-    @GET
+    @GET @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{id}")
@@ -91,7 +92,7 @@ public class KpiResource {
         return dataCollectionKpiInfoFactory.from(dataCollectionKpi);
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{id}")
@@ -101,7 +102,7 @@ public class KpiResource {
         return Response.ok().build();
     }
 
-    @POST
+    @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response createKpi(DataCollectionKpiInfo kpiInfo) {
@@ -127,7 +128,7 @@ public class KpiResource {
         return Response.status(Response.Status.CREATED).entity(dataCollectionKpiInfoFactory.from(dataCollectionKpi)).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/{id}")

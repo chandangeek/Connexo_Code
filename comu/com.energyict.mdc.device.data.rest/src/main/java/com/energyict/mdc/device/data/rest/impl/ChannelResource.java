@@ -12,6 +12,7 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.validation.DataValidationStatus;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Channel;
 import com.energyict.mdc.device.data.Device;
@@ -87,14 +88,14 @@ public class ChannelResource {
         this.estimationHelper = estimationHelper;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
     public Response getChannels(@PathParam("mRID") String mRID, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         return channelHelper.get().getChannels(mRID, (d -> this.getFilteredChannels(d, filter)), queryParameters);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{channelid}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
@@ -103,7 +104,7 @@ public class ChannelResource {
         return channelHelper.get().getChannel(() -> channel);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{channelId}/customproperties")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -113,7 +114,7 @@ public class ChannelResource {
         return PagedInfoList.fromCompleteList("customproperties", customPropertySetInfo != null ? Arrays.asList(customPropertySetInfo) : new ArrayList<>(), queryParameters);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{channelId}/customproperties/{cpsId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -126,7 +127,7 @@ public class ChannelResource {
         return customPropertySetInfo;
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{channelId}/customproperties/{cpsId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -189,7 +190,7 @@ public class ChannelResource {
         return null;
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{channelid}/data")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
@@ -213,7 +214,7 @@ public class ChannelResource {
         return Response.status(Response.Status.BAD_REQUEST).build();
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{channelid}/data/{epochMillis}/validation")
@@ -273,7 +274,7 @@ public class ChannelResource {
         return info.value == null;
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{channelid}/data")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -315,7 +316,7 @@ public class ChannelResource {
                 (channelDataInfo.bulkValidationInfo != null && channelDataInfo.bulkValidationInfo.isConfirmed));
     }
 
-    @POST
+    @POST @Transactional
     @Path("/{channelid}/data/estimate")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -348,7 +349,7 @@ public class ChannelResource {
         return estimationHelper.getChannelDataInfoFromEstimationReports(channel, ranges, results);
     }
 
-    @GET
+    @GET @Transactional
     @Path("{channelid}/validationstatus")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
@@ -358,7 +359,7 @@ public class ChannelResource {
         return Response.ok(deviceValidationStatusInfo).build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("{channelid}/validationpreview")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
@@ -367,7 +368,7 @@ public class ChannelResource {
         return channelHelper.get().getChannelValidationInfo(() -> channel);
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("{channelid}/validate")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(com.elster.jupiter.validation.security.Privileges.Constants.VALIDATE_MANUAL)
@@ -385,7 +386,7 @@ public class ChannelResource {
         return Response.ok().build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("{channelid}/datavalidationissues/{issueid}/validationblocks")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})

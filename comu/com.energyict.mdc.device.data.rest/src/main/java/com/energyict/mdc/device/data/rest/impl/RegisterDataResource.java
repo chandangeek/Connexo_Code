@@ -5,6 +5,7 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Reading;
@@ -60,7 +61,7 @@ public class RegisterDataResource {
         this.deviceDataInfoFactory = deviceDataInfoFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public PagedInfoList getRegisterData(
@@ -116,7 +117,7 @@ public class RegisterDataResource {
         }
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -130,7 +131,7 @@ public class RegisterDataResource {
                 device.forValidation().isValidationActive(register, this.clock.instant()));
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{timeStamp}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -148,7 +149,7 @@ public class RegisterDataResource {
     }
 
 
-    @POST
+    @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})
@@ -164,7 +165,7 @@ public class RegisterDataResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Path("/{timeStamp}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_DATA, Privileges.Constants.ADMINISTER_DECOMMISSIONED_DEVICE_DATA})

@@ -9,6 +9,7 @@ import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.rest.SearchablePropertyValueConverter;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.device.data.ComScheduleOnDevicesFilterSpecification;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.ItemizeComScheduleQueueMessage;
@@ -43,7 +44,7 @@ public class BulkScheduleResource {
         this.searchService = searchService;
     }
 
-    @PUT
+    @PUT @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION)
     public Response addOrRemoveComScheduleToDeviceSet(BulkRequestInfo request) {
