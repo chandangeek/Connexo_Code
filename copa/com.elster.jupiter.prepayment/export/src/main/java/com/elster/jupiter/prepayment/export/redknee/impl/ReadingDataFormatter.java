@@ -8,6 +8,8 @@ import com.elster.jupiter.metering.readings.*;
 import com.elster.jupiter.nls.Thesaurus;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.time.Instant;
 import java.util.*;
 import java.util.logging.Logger;
@@ -155,7 +157,8 @@ public class ReadingDataFormatter implements com.elster.jupiter.export.ReadingDa
     @Override
     public void startItem(ReadingTypeDataExportItem item) {
         readingContainer = item.getReadingContainer();
-        this.logger.info("readingContainer:" + readingContainer.getMeter(Instant.now()).get().getMRID());
+        latestTimeStamp =  item.getLastExportedDate().orElse(null);
+        this.logger.finest("readingContainer:" + readingContainer.getMeter(latestTimeStamp).get().getMRID());
     }
 
     @Override
@@ -163,22 +166,20 @@ public class ReadingDataFormatter implements com.elster.jupiter.export.ReadingDa
 
     @Override
     public FormattedData processData(Stream<ExportData> exportDatas) {
-        return exportDatas.map(this::format).reduce(SimpleFormattedData::merged).orElseGet(() -> SimpleFormattedData.of(Collections.emptyList()));
+        return exportDatas.map(this::format)
+                .reduce(SimpleFormattedData::merged)
+                .orElseGet(() -> SimpleFormattedData.of(Collections.emptyList()));
     }
 
     private SimpleFormattedData format(ExportData exportData){
-        latestTimeStamp = null;
         structureMarker = createStructureMarker( exportData,
                                                  dataExportService.forRoot(tag).withPeriodOf(exportData.getStructureMarker()),
                                                  dataExportService.forRoot(updateTag).withPeriodOf(exportData.getStructureMarker()));
 
-        MeterReading data = ((MeterReadingData) exportData).getMeterReading();
-        List<IntervalBlock> intervalBlocks = data.getIntervalBlocks();
-
-        latestTimeStamp = intervalBlocks.stream().flatMap(i -> i.getIntervals().stream()).map(IntervalReading::getTimeStamp).max(Comparator.naturalOrder()).orElse(null);
+        List<IntervalBlock> intervalBlocks = ((MeterReadingData) exportData).getMeterReading().getIntervalBlocks();
 
         return SimpleFormattedData.of(
-                data.getIntervalBlocks().stream().map(Records::new).collect(Collectors.toList()),
+                intervalBlocks.stream().map(Records::new).flatMap(Records::formatReadings).collect(Collectors.toList()),
                 latestTimeStamp);
     }
 
@@ -190,7 +191,7 @@ public class ReadingDataFormatter implements com.elster.jupiter.export.ReadingDa
         return main.adopt(structureMarker);
     }
 
-    private class Records implements FormattedExportData{
+    private class Records {
 
         private IntervalBlock intervalBlock;
         private Meter meter;
@@ -208,60 +209,36 @@ public class ReadingDataFormatter implements com.elster.jupiter.export.ReadingDa
             }
         }
 
-        @Override
-        public String getAppendablePayload() {
-            if (intervalBlock.getIntervals().isEmpty()) {
+        public Stream<FormattedExportData> formatReadings(){
+            List<IntervalReading> readings = intervalBlock.getIntervals();
+            if (readings.isEmpty()) {
                 logger.finest(String.format("Nothing to export for meter %s", meter == null ? "" :  meter.getMRID()));
-                return "";
+                return Stream.empty();
             }
-//            Instant start = intervalBlock.getIntervals().get(0).getTimeStamp();
-//            meter = readingContainer.getMeter(start).orElse(null);
-//            usagePoint = readingContainer.getUsagePoint(start).orElse(null);
-//            activation = null;
-//            if (meter != null) {
-//                activation = meter.getMeterActivation(start).orElse(null);
-//            }
-            StringBuffer payload = new StringBuffer();
-
-            intervalBlock.getIntervals().forEach( x-> append(payload, x));
-
-            return payload.toString();
+            return readings.stream().map(reading -> TextLineExportData.of(ReadingDataFormatter.this.structureMarker, payload(reading)));
         }
 
-        @Override
-        public StructureMarker getStructureMarker() {
-            return ReadingDataFormatter.this.structureMarker;
+        private String payload(IntervalReading intervalReading){
+            return payloadElements(intervalReading).collect(Collectors.joining(fieldSeparator, "", NEW_LINE));
         }
 
-        private void append(StringBuffer payload, IntervalReading reading){
-            String meterMRID = (meter == null ? "" :  meter.getMRID());
-            String usagePointMRID = (usagePoint == null? "":  usagePoint.getMRID());
+        private Stream<String> payloadElements(IntervalReading reading){
             String offset = (activation == null ? "" : activation.getZoneId().getRules().getOffset(reading.getTimeStamp()).getId());
-            String readingTypeCode = intervalBlock.getReadingTypeCode();
-            String readingTypeCodeOrDefault = ( readingTypeCode == null ? DEFAULT_READING_TYPE : readingTypeCode);
             List<? extends ReadingQuality> readingQualities = reading.getReadingQualities();
-            String readingQuality = (reading.getReadingQualities().isEmpty() ? DEFAULT_READING_QUALITY_TYPE : readingQualities.get(0).getTypeCode());
+            String readingQuality = (readingQualities.isEmpty() ? DEFAULT_READING_QUALITY_TYPE : readingQualities.get(0).getTypeCode());
+            BigDecimal readingValue = reading.getValue();
 
-            payload.append(RecordType.Detail.toString())
-                   .append(fieldSeparator)
-                   .append(meterMRID)
-                   .append(fieldSeparator)
-                   .append(usagePointMRID)
-                   .append(fieldSeparator)
-                   .append(readingTypeCodeOrDefault)
-                   .append(fieldSeparator)
-                   .append(readingQuality)
-                   .append(fieldSeparator)
-                   .append(reading.getTimeStamp().getEpochSecond())
-                   .append(fieldSeparator)
-                   .append(offset)
-                   .append(fieldSeparator)
-                   .append(reading.getValue())
-                   .append(NEW_LINE);
-            if (latestTimeStamp == null || reading.getTimeStamp().isAfter(latestTimeStamp)){
-                latestTimeStamp = reading.getTimeStamp();
-            }
+            String[] field = new String[8];
+            field[0] = RecordType.Detail.toString();                     // RecordType
+            field[1] = (meter == null ? "" :  meter.getMRID());          // Meter mRID
+            field[2] = (usagePoint == null ? "":  usagePoint.getMRID()); // UsagePoint mRID
+            field[3] = (intervalBlock.getReadingTypeCode() == null ? DEFAULT_READING_TYPE : intervalBlock.getReadingTypeCode());  // ReadingType
+            field[4] = readingQuality;                                   // Reading quality
+            field[5] = ""+reading.getTimeStamp().getEpochSecond();          // Timestamp
+            field[6] = offset;                                           // Timestamp offset
+            field[7] = (readingValue == null ? "" : readingValue.toString());                               // Value
 
+            return Arrays.stream(field);
         }
     }
 
