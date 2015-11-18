@@ -13,6 +13,7 @@ import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfos;
 import com.energyict.mdc.common.TranslatableApplicationException;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -91,7 +92,7 @@ public class DeviceConfigurationResource {
         this.validationRuleInfoFactory = validationRuleInfoFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getDeviceConfigurationsForDeviceType(@PathParam("deviceTypeId") long id, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter queryFilter) {
@@ -111,7 +112,7 @@ public class DeviceConfigurationResource {
         return PagedInfoList.fromPagedList("deviceConfigurations", DeviceConfigurationInfo.from(deviceConfigurations), queryParameters);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{deviceConfigurationId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
@@ -119,7 +120,7 @@ public class DeviceConfigurationResource {
         return new DeviceConfigurationInfo(resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId));
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{deviceConfigurationId}/logbookconfigurations")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
@@ -153,7 +154,7 @@ public class DeviceConfigurationResource {
         return allLogBookTypes;
     }
 
-    @POST
+    @POST @Transactional
     @Path("/{deviceConfigurationId}/logbookconfigurations")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
@@ -175,7 +176,7 @@ public class DeviceConfigurationResource {
         return Response.ok(addedLogBookSpecs).build();
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Path("/{deviceConfigurationId}/logbookconfigurations/{logBookSpecId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
@@ -186,7 +187,7 @@ public class DeviceConfigurationResource {
         return Response.ok().build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{deviceConfigurationId}/logbookconfigurations/{logBookSpecId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -198,7 +199,7 @@ public class DeviceConfigurationResource {
         return Response.ok(LogBookSpecInfo.from(logBookSpec)).build();
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Path("/{deviceConfigurationId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
@@ -209,7 +210,7 @@ public class DeviceConfigurationResource {
         return Response.ok().build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{deviceConfigurationId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
@@ -221,7 +222,7 @@ public class DeviceConfigurationResource {
         return new DeviceConfigurationInfo(deviceConfiguration);
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{deviceConfigurationId}/status")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
@@ -242,7 +243,7 @@ public class DeviceConfigurationResource {
         return new DeviceConfigurationInfo(deviceConfiguration);
     }
 
-    @POST
+    @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
@@ -261,7 +262,7 @@ public class DeviceConfigurationResource {
         return new DeviceConfigurationInfo(deviceConfiguration);
     }
 
-    @POST
+    @POST @Transactional
     @Path("/{deviceConfigurationId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -302,7 +303,7 @@ public class DeviceConfigurationResource {
         return comTaskEnablementResourceProvider.get();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{deviceConfigurationId}/comtasks")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
@@ -310,7 +311,7 @@ public class DeviceConfigurationResource {
         return comTaskEnablementResourceProvider.get().getAllowedComTasksWhichAreNotDefinedYetFor(deviceTypeId, deviceConfigurationId, queryParameters, uriInfo);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{deviceConfigurationId}/registers/{registerId}/validationrules")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
@@ -326,7 +327,7 @@ public class DeviceConfigurationResource {
         return Response.ok(PagedInfoList.fromPagedList("validationRules", infos, queryParameters)).build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{deviceConfigurationId}/channels/{channelId}/validationrules")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
@@ -342,7 +343,7 @@ public class DeviceConfigurationResource {
         return Response.ok(PagedInfoList.fromPagedList("validationRules", infos, queryParameters)).build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{deviceConfigurationId}/loadprofiles/{loadProfileId}/validationrules")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
@@ -379,7 +380,7 @@ public class DeviceConfigurationResource {
         return deviceMessagesResourceProvider.get();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{deviceConfigurationId}/linkablevalidationrulesets")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})

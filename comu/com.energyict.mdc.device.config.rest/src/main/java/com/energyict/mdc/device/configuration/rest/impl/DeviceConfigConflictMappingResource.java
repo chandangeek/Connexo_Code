@@ -3,6 +3,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.device.config.ConflictingConnectionMethodSolution;
 import com.energyict.mdc.device.config.ConflictingSecuritySetSolution;
 import com.energyict.mdc.device.config.DeviceConfigConflictMapping;
@@ -38,7 +39,7 @@ public class DeviceConfigConflictMappingResource {
         this.resourceHelper = resourceHelper;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getDeviceConfigConflictMappingsForDeviceType(@PathParam("deviceTypeId") long id, @QueryParam("all") boolean hasAll, @BeanParam JsonQueryParameters queryParameters) {
@@ -49,7 +50,7 @@ public class DeviceConfigConflictMappingResource {
                 queryParameters);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{conflictId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
@@ -57,7 +58,7 @@ public class DeviceConfigConflictMappingResource {
         return new DeviceConfigSolutionMappingInfo(resourceHelper.findDeviceConfigConflictMappingById(conflictId));
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{conflictId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)

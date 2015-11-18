@@ -8,6 +8,7 @@ import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.security.Privileges;
 import com.energyict.mdc.common.TranslatableApplicationException;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -49,7 +50,7 @@ public class ValidationRuleSetResource {
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response getValidationsRuleSets(
@@ -65,7 +66,7 @@ public class ValidationRuleSetResource {
         return Response.ok(PagedInfoList.fromPagedList("validationRuleSets", result, queryParameters)).build();
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Path("/{validationRuleSetId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
@@ -80,7 +81,7 @@ public class ValidationRuleSetResource {
         return Response.ok().build();
     }
 
-    @POST
+    @POST @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public Response addRuleSetsToDeviceConfiguration(

@@ -5,6 +5,7 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.google.common.collect.ArrayListMultimap;
@@ -32,7 +33,7 @@ public class DeviceMessagePrivilegesResource {
         this.thesaurus = thesaurus;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getDeviceMessagePrivileges(@BeanParam JsonQueryParameters queryParameters) {

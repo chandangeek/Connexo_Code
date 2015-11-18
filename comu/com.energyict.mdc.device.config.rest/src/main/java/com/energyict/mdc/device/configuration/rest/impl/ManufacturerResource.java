@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.protocol.api.Manufacturer;
 
 import javax.ws.rs.GET;
@@ -14,7 +15,7 @@ public class ManufacturerResource {
     public ManufacturerResource() {
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public ManufacturerInfos getAllManufacturers() {
         ManufacturerInfos manufacturerInfos = new ManufacturerInfos();

@@ -3,6 +3,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.users.UserService;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.device.config.DeviceSecurityUserAction;
 import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.config.security.Privileges;
@@ -47,7 +48,7 @@ public class ExecutionLevelResource {
         this.conflictFactory = conflictFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public Response getPrivileges(@PathParam("securityPropertySetId") long securityPropertySetId, @QueryParam("available") Boolean filterAvailable) {
@@ -72,7 +73,7 @@ public class ExecutionLevelResource {
     }
 
 
-    @POST
+    @POST @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response linkDeviceConfigToPrivilege(@PathParam("securityPropertySetId") long securityPropertySetId, List<String> privilegeIds) {
@@ -87,7 +88,7 @@ public class ExecutionLevelResource {
         return Response.status(Response.Status.CREATED).build();
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Path("/{executionLevelId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)

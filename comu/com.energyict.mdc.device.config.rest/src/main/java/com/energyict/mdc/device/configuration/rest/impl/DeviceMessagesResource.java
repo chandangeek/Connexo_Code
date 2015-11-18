@@ -5,6 +5,7 @@ import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
@@ -52,7 +53,7 @@ public class DeviceMessagesResource {
         this.conflictFactory = conflictFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getDeviceMessages(
@@ -85,7 +86,7 @@ public class DeviceMessagesResource {
         return PagedInfoList.fromPagedList("categories", infos, queryParameters);
     }
 
-    @POST
+    @POST @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
@@ -110,7 +111,7 @@ public class DeviceMessagesResource {
         return Response.ok().build();
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
@@ -126,7 +127,7 @@ public class DeviceMessagesResource {
         return Response.ok().build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)

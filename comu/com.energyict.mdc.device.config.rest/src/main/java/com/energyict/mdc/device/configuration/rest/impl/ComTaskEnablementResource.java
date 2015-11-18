@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ComTaskEnablementBuilder;
@@ -52,7 +53,7 @@ public class ComTaskEnablementResource {
         this.conflictFactory = conflictFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getComTaskEnablements(@PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam JsonQueryParameters queryParameters) {
@@ -62,7 +63,7 @@ public class ComTaskEnablementResource {
         return PagedInfoList.fromPagedList("data", comTaskEnablements, queryParameters);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{comTaskEnablementId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
@@ -71,7 +72,7 @@ public class ComTaskEnablementResource {
         return Response.ok(ComTaskEnablementInfo.from(comTaskEnablement, thesaurus)).build();
     }
 
-    @POST
+    @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
@@ -102,7 +103,7 @@ public class ComTaskEnablementResource {
         return Response.status(Response.Status.CREATED).entity(ComTaskEnablementInfo.from(comTaskEnablement, thesaurus)).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{comTaskEnablementId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -130,7 +131,7 @@ public class ComTaskEnablementResource {
         return Response.ok(ComTaskEnablementInfo.from(comTaskEnablement, thesaurus)).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{comTaskEnablementId}/activate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -147,7 +148,7 @@ public class ComTaskEnablementResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{comTaskEnablementId}/deactivate")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -164,7 +165,7 @@ public class ComTaskEnablementResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Path("/{comTaskEnablementId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)

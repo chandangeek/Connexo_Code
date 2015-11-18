@@ -11,6 +11,7 @@ import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.common.rest.ReadingTypeComparator;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -41,7 +42,7 @@ public class ReadingTypeResource {
         this.masterDataService = masterDataService;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public PagedInfoList getReadingType(@BeanParam JsonQueryFilter queryFilter, @BeanParam JsonQueryParameters queryParameters) throws Exception {
         List<ReadingTypeInfo> readingTypeInfos = new ArrayList<>();

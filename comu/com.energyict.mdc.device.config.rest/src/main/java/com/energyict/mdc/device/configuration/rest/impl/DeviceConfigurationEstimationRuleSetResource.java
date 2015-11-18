@@ -6,6 +6,7 @@ import com.elster.jupiter.estimation.security.Privileges;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -42,7 +43,7 @@ public class DeviceConfigurationEstimationRuleSetResource {
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{ruleSetId}/deviceconfigurations")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.VIEW_ESTIMATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
@@ -53,7 +54,7 @@ public class DeviceConfigurationEstimationRuleSetResource {
         return PagedInfoList.fromPagedList("deviceConfigurations", infos, queryParameters);
     }
     
-    @GET
+    @GET @Transactional
     @Path("{ruleSetId}/linkabledeviceconfigurations")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_ESTIMATION_CONFIGURATION, Privileges.Constants.FINE_TUNE_ESTIMATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
@@ -65,7 +66,7 @@ public class DeviceConfigurationEstimationRuleSetResource {
         return PagedInfoList.fromPagedList("deviceConfigurations", infos, queryParameters);
     }
     
-    @POST
+    @POST @Transactional
     @Path("/{ruleSetId}/deviceconfigurations")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")

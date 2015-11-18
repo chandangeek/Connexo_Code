@@ -2,6 +2,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.masterdata.RegisterGroup;
@@ -40,7 +41,7 @@ public class RegisterGroupResource {
         this.resourceHelper = resourceHelper;
     }
 
-    @GET
+    @GET @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
@@ -54,7 +55,7 @@ public class RegisterGroupResource {
         return PagedInfoList.fromPagedList("registerGroups", registerGroupInfos, queryParameters);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
@@ -62,7 +63,7 @@ public class RegisterGroupResource {
         return new RegisterGroupInfo(resourceHelper.findRegisterGroupByIdOrThrowException(id));
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{id}/registertypes")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
@@ -71,7 +72,7 @@ public class RegisterGroupResource {
         return Response.ok(PagedInfoList.fromCompleteList("registerTypes", registerGroupInfo.registerTypes, queryParameters)).build();
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Path("/{id}")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -82,7 +83,7 @@ public class RegisterGroupResource {
         return Response.ok().build();
     }
 
-    @POST
+    @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
@@ -93,7 +94,7 @@ public class RegisterGroupResource {
 
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
