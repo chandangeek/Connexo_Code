@@ -58,8 +58,10 @@ public class ComTaskEnablementResource {
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getComTaskEnablements(@PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam JsonQueryParameters queryParameters) {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
-        List<ComTaskEnablementInfo> comTaskEnablements = ComTaskEnablementInfo.from(ListPager.of(deviceConfiguration.getComTaskEnablements(), new ComTaskEnablementComparator()).find(), thesaurus);
-
+        List<ComTaskEnablementInfo> comTaskEnablements = ComTaskEnablementInfo.
+                                                            from(ListPager.of(deviceConfiguration.getComTaskEnablements(), new ComTaskEnablementComparator()).
+                                                                    from(queryParameters).
+                                                                    find(), thesaurus);
         return PagedInfoList.fromPagedList("data", comTaskEnablements, queryParameters);
     }
 
