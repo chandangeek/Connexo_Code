@@ -68,8 +68,6 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
     @Mock
     NlsService nlsService;
     @Mock
-    TransactionService transactionService;
-    @Mock
     RestQueryService restQueryService;
     @Mock
     static SecurityContext securityContext;
