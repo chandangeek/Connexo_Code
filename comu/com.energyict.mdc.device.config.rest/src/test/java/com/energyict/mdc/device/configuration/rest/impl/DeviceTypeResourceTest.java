@@ -108,31 +108,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
     Unit unit = Unit.get("kWh");
 
-    private static ReadingType mockReadingType(String mrid) {
-        ReadingType readingType = mock(ReadingType.class);
-        when(readingType.getMRID()).thenReturn(mrid);
-        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
-        when(readingType.getAggregate()).thenReturn(Aggregate.AVERAGE);
-        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.FIXEDBLOCK1MIN);
-        when(readingType.getAccumulation()).thenReturn(Accumulation.BULKQUANTITY);
-        when(readingType.getFlowDirection()).thenReturn(FlowDirection.FORWARD);
-        when(readingType.getCommodity()).thenReturn(Commodity.AIR);
-        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ACVOLTAGEPEAK);
-        when(readingType.getInterharmonic()).thenReturn(new RationalNumber(1, 2));
-        when(readingType.getArgument()).thenReturn(new RationalNumber(1, 2));
-        when(readingType.getTou()).thenReturn(3);
-        when(readingType.getCpp()).thenReturn(4);
-        when(readingType.getConsumptionTier()).thenReturn(5);
-        when(readingType.getPhases()).thenReturn(Phase.PHASEA);
-        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.CENTI);
-        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
-        when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
-        when(readingType.getCalculatedReadingType()).thenReturn(Optional.<ReadingType>empty());
-        when(readingType.isCumulative()).thenReturn(true);
-        when(readingType.getAliasName()).thenReturn("abcde");
-        return readingType;
-    }
-
     @Test
     public void testGetEmptyDeviceTypeList() throws Exception {
         Finder<DeviceType> finder = mockFinder(Collections.<DeviceType>emptyList());
@@ -1149,7 +1124,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         NumericalRegisterSpec.Updater updater = mock(NumericalRegisterSpec.Updater.class);
         when(deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec)).thenReturn(updater);
 
-        RegisterConfigInfo registerConfigInfo = new RegisterConfigInfo(registerSpec, );
+        RegisterConfigInfo registerConfigInfo = new RegisterConfigInfo(registerSpec, Collections.emptyList());
         registerConfigInfo.registerType = registerType_id;
         registerConfigInfo.numberOfFractionDigits = 6;
         registerConfigInfo.overflow = BigDecimal.valueOf(123);
@@ -1290,7 +1265,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceType deviceType = mockDeviceType("Device type", deviceType_id);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(deviceConfig_id, deviceType);
         NumericalRegisterSpec registerSpec = mockNumericalRegister(registerSpec_id, deviceConfiguration);
-        RegisterConfigInfo info = new RegisterConfigInfo(registerSpec, );
+        RegisterConfigInfo info = new RegisterConfigInfo(registerSpec, Collections.emptyList());
 
         Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/61").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -1305,7 +1280,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceType deviceType = mockDeviceType("Device type", deviceType_id);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(deviceConfig_id, deviceType);
         NumericalRegisterSpec registerSpec = mockNumericalRegister(registerSpec_id, deviceConfiguration);
-        RegisterConfigInfo info = new RegisterConfigInfo(registerSpec, );
+        RegisterConfigInfo info = new RegisterConfigInfo(registerSpec, Collections.emptyList());
         info.version = BAD_VERSION;
 
         Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/61").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
@@ -1320,7 +1295,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceType deviceType = mockDeviceType("Device type", deviceType_id);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(deviceConfig_id, deviceType);
         NumericalRegisterSpec registerSpec = mockNumericalRegister(registerSpec_id, deviceConfiguration);
-        RegisterConfigInfo info = new RegisterConfigInfo(registerSpec, );
+        RegisterConfigInfo info = new RegisterConfigInfo(registerSpec, Collections.emptyList());
         info.parent.version = BAD_VERSION;
 
         Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/61").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
@@ -1536,24 +1511,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
     }
 
     private ReadingType mockReadingType() {
-        ReadingType readingType = mock(ReadingType.class);
-        when(readingType.getMRID()).thenReturn("mrid");
-        when(readingType.getMacroPeriod()).thenReturn(MacroPeriod.DAILY);
-        when(readingType.getAggregate()).thenReturn(Aggregate.AVERAGE);
-        when(readingType.getMeasuringPeriod()).thenReturn(TimeAttribute.FIXEDBLOCK1MIN);
-        when(readingType.getAccumulation()).thenReturn(Accumulation.BULKQUANTITY);
-        when(readingType.getFlowDirection()).thenReturn(FlowDirection.FORWARD);
-        when(readingType.getCommodity()).thenReturn(Commodity.AIR);
-        when(readingType.getMeasurementKind()).thenReturn(MeasurementKind.ACVOLTAGEPEAK);
-        when(readingType.getInterharmonic()).thenReturn(new RationalNumber(1, 2));
-        when(readingType.getArgument()).thenReturn(new RationalNumber(1, 2));
-        when(readingType.getTou()).thenReturn(3);
-        when(readingType.getCpp()).thenReturn(4);
-        when(readingType.getConsumptionTier()).thenReturn(5);
-        when(readingType.getPhases()).thenReturn(Phase.PHASEA);
-        when(readingType.getMultiplier()).thenReturn(MetricMultiplier.CENTI);
-        when(readingType.getUnit()).thenReturn(ReadingTypeUnit.AMPERE);
-        when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
+        ReadingType readingType = super.mockReadingType("mrid");
         return readingType;
     }
 
@@ -1562,42 +1520,5 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         protected SomeLocalizedException(Thesaurus thesaurus, MessageSeed messageSeed) {
             super(thesaurus, messageSeed);
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    private PropertySpec mockPropertySpec() {
-        PropertySpec propertySpec = mock(PropertySpec.class);
-        ValueFactory valueFactory = mock(BigDecimalFactory.class);
-        when(propertySpec.getName()).thenReturn("customAttribute");
-        when(propertySpec.getValueFactory()).thenReturn(valueFactory);
-        when(propertySpec.getValueFactory().getValueType()).thenReturn(BigDecimalFactory.class);
-        when(propertySpec.isRequired()).thenReturn(true);
-        when(propertySpec.getDescription()).thenReturn("kw");
-        return propertySpec;
-    }
-
-    @SuppressWarnings("unchecked")
-    private CustomPropertySet mockCustomPropertySet() {
-        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
-        when(customPropertySet.getName()).thenReturn("domainExtensionName");
-        when(customPropertySet.isRequired()).thenReturn(true);
-        when(customPropertySet.isVersioned()).thenReturn(false);
-        when(customPropertySet.defaultViewPrivileges()).thenReturn(Sets.newHashSet(ViewPrivilege.LEVEL_3));
-        when(customPropertySet.defaultEditPrivileges()).thenReturn(Sets.newHashSet(EditPrivilege.LEVEL_4));
-        when(customPropertySet.getDomainClass()).thenReturn(BigDecimalFactory.class);
-        return customPropertySet;
-    }
-
-    @SuppressWarnings("unchecked")
-    private RegisteredCustomPropertySet mockRegisteredCustomPropertySet() {
-        PropertySpec propertySpec = mockPropertySpec();
-        CustomPropertySet customPropertySet = mockCustomPropertySet();
-        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
-        when(registeredCustomPropertySet.getId()).thenReturn(100500L);
-        when(registeredCustomPropertySet.getViewPrivileges()).thenReturn(Sets.newHashSet(ViewPrivilege.LEVEL_1));
-        when(registeredCustomPropertySet.getEditPrivileges()).thenReturn(Sets.newHashSet(EditPrivilege.LEVEL_2));
-        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
-        when(registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
-        return registeredCustomPropertySet;
     }
 }

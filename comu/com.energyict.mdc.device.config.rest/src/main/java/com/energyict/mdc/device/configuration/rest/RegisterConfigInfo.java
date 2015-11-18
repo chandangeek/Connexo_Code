@@ -92,6 +92,7 @@ public class RegisterConfigInfo {
         this.numberOfFractionDigits = null;
         this.overflow = null;
         this.asText = registerSpec.isTextual();
+        this.collectedReadingType = new ReadingTypeInfo(registerSpec.getReadingType().getCalculatedReadingType().orElse(registerSpec.getReadingType()));
         this.version = registerSpec.getVersion();
         this.parent = new VersionInfo<>(registerSpec.getDeviceConfiguration().getId(), registerSpec.getDeviceConfiguration().getVersion());
     }
