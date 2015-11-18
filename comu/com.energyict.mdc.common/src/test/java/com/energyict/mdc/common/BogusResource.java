@@ -3,7 +3,7 @@ package com.energyict.mdc.common;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.domain.util.DefaultFinder;
-import com.energyict.mdc.common.rest.Transactional;
+import com.elster.jupiter.rest.util.Transactional;
 
 import java.util.List;
 import javax.inject.Inject;
