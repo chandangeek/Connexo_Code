@@ -2,8 +2,8 @@ package com.energyict.mdc.masterdata.impl;
 
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
+import com.elster.jupiter.metering.ReadingTypeMridFilter;
 import com.elster.jupiter.nls.*;
-import com.elster.jupiter.util.conditions.Condition;
 import com.energyict.mdc.common.CanFindByLongPrimaryKey;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.ObisCode;
@@ -46,7 +46,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Predicates.not;
 
 
@@ -332,27 +331,25 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     }
 
     @Override
-    public List<? extends MeasurementType> getPossibleMultiplyRegisterTypesFor(MeasurementType measurementType) {
-        if (measurementType.getReadingType().getUnit().equals(ReadingTypeUnit.COUNT)) {
-            Condition condition = where("readingType.mRID").matches(getReadingTypeMatchForMultipliers(measurementType), "");
-            return this.getDataModel().query(MeasurementType.class, ReadingType.class)
-                    .select(condition).stream().filter(not(measurementType1 ->
-                            measurementType1.getReadingType().getMRID().equals(measurementType.getReadingType().getMRID()))).collect(Collectors.toList());
-        } else if (measurementType.getReadingType().getCommodity().equals(Commodity.ELECTRICITY_SECONDARY_METERED)) {
-            ReadingType primaryMeteredReadingType = mdcReadingTypeUtilService.getOrCreatePrimaryMeteredReadingType(measurementType.getReadingType());
-            Condition condition = where("readingType.mRID").isEqualTo(primaryMeteredReadingType.getMRID());
-            return this.getDataModel().query(MeasurementType.class, ReadingType.class)
-                    .select(condition);
+    public List<ReadingType> getPossibleMultiplyReadingTypesFor(ReadingType readingType) {
+        if (readingType.getUnit().equals(ReadingTypeUnit.COUNT)) {
+            return meteringService.getReadingTypesByMridFilter(createReadingTypeFilterForUnitAndMultiplier(readingType)).find()
+                    .stream().filter(not(rt -> rt.getMRID().equals(readingType.getMRID()))).collect(Collectors.toList());
+        } else if (readingType.getCommodity().equals(Commodity.ELECTRICITY_SECONDARY_METERED)) {
+            return meteringService.getReadingTypesByMridFilter(createPrimaryMeteredElectricityReadingType(readingType)).find();
         } else {
             return Collections.emptyList();
         }
     }
 
-    /*
-     * Strip off the last three fields of the MRID and put the regex instead
-     */
-    private Object getReadingTypeMatchForMultipliers(MeasurementType measurementType) {
-        String regex = "\\.[0-9]+\\.[0-9]+\\.[0-9]+$";
-        return measurementType.getReadingType().getMRID().split(regex)[0] + regex;
+    private ReadingTypeMridFilter createReadingTypeFilterForUnitAndMultiplier(ReadingType readingType) {
+        ReadingTypeMridFilter readingTypeMridFilter = ReadingTypeMridFilter.fromTemplateReadingType(readingType);
+        readingTypeMridFilter.setMultiplier(null);
+        readingTypeMridFilter.setUnit(null);
+        return readingTypeMridFilter;
+    }
+
+    private ReadingTypeMridFilter createPrimaryMeteredElectricityReadingType(ReadingType readingType) {
+        return ReadingTypeMridFilter.fromTemplateReadingType(readingType).setCommodity(Commodity.ELECTRICITY_PRIMARY_METERED);
     }
 }

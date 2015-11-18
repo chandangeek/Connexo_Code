@@ -153,8 +153,8 @@ public interface MasterDataService {
     /**
      * Finds a list of RegisterTypes which can be used when a multiplier is applied to the given RegisterType
      *
-     * @param measurementType the registerType to get the multiply-able versions from
      * @return a list of possible registertypes
+     * @param readingType
      */
-    public List<? extends MeasurementType> getPossibleMultiplyRegisterTypesFor(MeasurementType measurementType);
+    public List<ReadingType> getPossibleMultiplyReadingTypesFor(ReadingType readingType);
 }
