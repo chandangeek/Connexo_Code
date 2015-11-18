@@ -1,9 +1,12 @@
 package com.elster.jupiter.cps;
 
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.time.Interval;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -178,4 +181,9 @@ public interface CustomPropertySetService {
      * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
      */
     <D, T extends PersistentDomainExtension<D>> Optional<T> getValuesEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp);
+    <D, T extends PersistentDomainExtension<D>> List<T> getValuesEntitiesFor(CustomPropertySet<D, T> customPropertySet, D businesObject);
+    <D, T extends PersistentDomainExtension<D>> List<CustomPropertySetValues> getValuesHistoryFor(CustomPropertySet<D, T> customPropertySet, D businesObject);
+    <D, T extends PersistentDomainExtension<D>> Map<CustomPropertySetValues, MessageSeed> getValuesRangeOverlapFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Interval interval, Instant effectiveTimestamp, boolean isUpdate);
+    <D, T extends PersistentDomainExtension<D>> void setValuesVersionFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values, Interval interval, Instant effectiveTimestamp, boolean isUpdate);
+
 }

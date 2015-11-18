@@ -25,8 +25,10 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -38,11 +40,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -402,6 +400,137 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         if (!activeCustomPropertySet.getCustomPropertySet().isVersioned()) {
             throw new UnsupportedOperationException("Custom property set " + customPropertySet.getId() + " is NOT versioned, you need to call CustomPropertySetService#getPersistentValuesFor(CustomPropertySet, Class<Domain>)");
         }
+    }
+
+    @Override
+    public <D, T extends PersistentDomainExtension<D>> List<CustomPropertySetValues> getValuesHistoryFor(CustomPropertySet<D, T> customPropertySet, D businesObject) {
+        return this.getValuesEntitiesFor(customPropertySet,businesObject).stream().map(e -> this.toCustomPropertySetValues(customPropertySet,Optional.of(e))).collect(Collectors.toList());
+    }
+
+    @Override
+    public <D, T extends PersistentDomainExtension<D>> Map<CustomPropertySetValues, MessageSeed> getValuesRangeOverlapFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Interval interval, Instant effectiveTimestamp, boolean isUpdate) {
+        Range<Instant> range = interval.toClosedOpenRange();
+        Comparator<Range<Instant>> rangeComparator = (Range<Instant> a, Range<Instant> b) ->
+                a.hasLowerBound() && b.hasLowerBound() ? a.lowerEndpoint().compareTo(b.lowerEndpoint()) : Boolean.compare(a.hasLowerBound(), b.hasLowerBound());
+        Map<CustomPropertySetValues, MessageSeed> issues = new HashMap<>();
+
+        List<Range<Instant>> ranges = this.getValuesEntitiesFor(customPropertySet, businesObject).stream()
+                .map(e -> this.toCustomPropertySetValues(customPropertySet, Optional.of(e)).getEffectiveRange())
+                .sorted(rangeComparator).collect(Collectors.toList());
+
+        Iterator<Range<Instant>> iterator = ranges.listIterator();
+        List<Range<Instant>> modifiedRanges = new ArrayList<>();
+        while (iterator.hasNext()) {
+            Range<Instant> r = iterator.next();
+            if (isUpdate && r.contains(effectiveTimestamp)) {
+                iterator.remove();
+            } else if (r.isConnected(range) && !r.intersection(range).isEmpty()) {
+                if (range.hasLowerBound() && r.contains(range.lowerEndpoint())) {
+                    if (!r.hasLowerBound()) {
+                        modifiedRanges.add(Range.lessThan(range.lowerEndpoint()));
+                        issues.put(this.getValuesFor(customPropertySet, businesObject, Instant.EPOCH), MessageSeeds.RANGE_OVERLAP_UPDATE_END);
+                    } else if (r.lowerEndpoint().isBefore(range.lowerEndpoint())) {
+                        modifiedRanges.add(Range.closedOpen(r.lowerEndpoint(), range.lowerEndpoint()));
+                        issues.put(this.getValuesFor(customPropertySet, businesObject, r.lowerEndpoint()), MessageSeeds.RANGE_OVERLAP_UPDATE_END);
+                    } else {
+                        issues.put(this.getValuesFor(customPropertySet, businesObject, r.lowerEndpoint()), MessageSeeds.RANGE_OVERLAP_DELETE);
+                    }
+                    iterator.remove();
+                } else if (range.hasUpperBound() && r.contains(range.upperEndpoint())) {
+                    if (!r.hasUpperBound()) {
+                        modifiedRanges.add(Range.atLeast(range.upperEndpoint()));
+                        issues.put(this.getValuesFor(customPropertySet, businesObject, r.lowerEndpoint()), MessageSeeds.RANGE_OVERLAP_UPDATE_START);
+                    } else if (r.upperEndpoint().isAfter(range.upperEndpoint())) {
+                        modifiedRanges.add(Range.closedOpen(range.upperEndpoint(), r.upperEndpoint()));
+                        issues.put(this.getValuesFor(customPropertySet, businesObject, r.lowerEndpoint()), MessageSeeds.RANGE_OVERLAP_UPDATE_START);
+                    } else {
+                        issues.put(this.getValuesFor(customPropertySet, businesObject, r.lowerEndpoint()), MessageSeeds.RANGE_OVERLAP_DELETE);
+                    }
+                    iterator.remove();
+                } else if (range.encloses(r)) {
+                    issues.put(this.getValuesFor(customPropertySet, businesObject, r.hasLowerBound() ? r.lowerEndpoint() : Instant.EPOCH), MessageSeeds.RANGE_OVERLAP_DELETE);
+                    iterator.remove();
+                }
+            }
+        }
+
+        ranges.add(range);
+        ranges.addAll(modifiedRanges);
+        Collections.sort(ranges, rangeComparator);
+        for (int i = 0; i < ranges.size() - 1; i++) {
+            if (!ranges.get(i).isConnected(ranges.get(i + 1))) {
+                if (ranges.get(i).equals(range)) {
+                    issues.put(this.getValuesFor(customPropertySet, businesObject, ranges.get(i + 1).lowerEndpoint()), MessageSeeds.RANGE_GAP_BEFORE);
+                } else {
+                    issues.put(this.getValuesFor(customPropertySet, businesObject, ranges.get(i).lowerEndpoint()), MessageSeeds.RANGE_GAP_AFTER);
+                }
+            }
+        }
+        return issues;
+    }
+
+    private  <D, T extends PersistentDomainExtension<D>> void cleanValuesIntervalFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Interval interval, Instant effectiveTimestamp, boolean isUpdate) {
+        ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
+        this.validateCustomPropertySetIsVersioned(customPropertySet, activeCustomPropertySet);
+        Range<Instant> range = interval.toClosedOpenRange();
+        Comparator<Range<Instant>> rangeComparator = (Range<Instant> a, Range<Instant> b) ->
+                a.hasLowerBound() && b.hasLowerBound() ? a.lowerEndpoint().compareTo(b.lowerEndpoint()) : Boolean.compare(a.hasLowerBound(), b.hasLowerBound());
+
+        List<Range<Instant>> ranges = this.getValuesEntitiesFor(customPropertySet,businesObject).stream()
+                .map(e -> this.toCustomPropertySetValues(customPropertySet,Optional.of(e)).getEffectiveRange())
+                .sorted(rangeComparator).collect(Collectors.toList());
+
+        Iterator<Range<Instant>> iterator = ranges.listIterator();
+        while (iterator.hasNext()) {
+            Range<Instant> r = iterator.next();
+            Instant currentStartTime = r.hasLowerBound() ? r.lowerEndpoint() : Instant.EPOCH;
+            if (isUpdate && r.contains(effectiveTimestamp)) {
+                activeCustomPropertySet.removeTimeSlicedValues(businesObject,currentStartTime);
+            }
+            else if (r.isConnected(range) && !r.intersection(range).isEmpty()) {
+                if (range.hasLowerBound() && r.contains(range.lowerEndpoint())) {
+                    if (!r.hasLowerBound()) {
+                        activeCustomPropertySet.alignTimeSlicedValues(businesObject,currentStartTime,Interval.of(Range.lessThan(range.lowerEndpoint())));
+                    }
+                    else if (currentStartTime.isBefore(range.lowerEndpoint())) {
+                        activeCustomPropertySet.alignTimeSlicedValues(businesObject,currentStartTime,Interval.of(Range.closedOpen(currentStartTime, range.lowerEndpoint())));
+                    }
+                    else{
+                        activeCustomPropertySet.removeTimeSlicedValues(businesObject,currentStartTime);
+                    }
+                }
+                else if (range.hasUpperBound() && r.contains(range.upperEndpoint())) {
+                    if (!r.hasUpperBound()) {
+                        activeCustomPropertySet.alignTimeSlicedValues(businesObject,currentStartTime,Interval.of(Range.atLeast(range.upperEndpoint())));
+                    }
+                    else if (r.upperEndpoint().isAfter(range.upperEndpoint())) {
+                        activeCustomPropertySet.alignTimeSlicedValues(businesObject,currentStartTime,Interval.of(Range.closedOpen(range.upperEndpoint(),r.upperEndpoint())));
+                    }
+                    else{
+                        activeCustomPropertySet.removeTimeSlicedValues(businesObject,currentStartTime);
+                    }
+                }
+                else if (range.encloses(r)) {
+                    activeCustomPropertySet.removeTimeSlicedValues(businesObject,currentStartTime);
+                }
+            }
+        }
+    }
+
+    @Override
+    public <D, T extends PersistentDomainExtension<D>> void setValuesVersionFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values, Interval interval, Instant effectiveTimestamp, boolean isUpdate) {
+        ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
+        this.validateCustomPropertySetIsVersioned(customPropertySet, activeCustomPropertySet);
+        cleanValuesIntervalFor(customPropertySet,businesObject,interval, effectiveTimestamp, isUpdate);
+        Instant startTime = interval.toClosedOpenRange().hasLowerBound() ? interval.toClosedOpenRange().lowerEndpoint() : Instant.EPOCH;
+        activeCustomPropertySet.setValuesEntityFor(businesObject, values, startTime, interval);
+    }
+
+    @Override
+    public <D, T extends PersistentDomainExtension<D>> List <T> getValuesEntitiesFor(CustomPropertySet<D, T> customPropertySet, D businesObject) {
+        ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
+        this.validateCustomPropertySetIsVersioned(customPropertySet, activeCustomPropertySet);
+        return activeCustomPropertySet.getValuesEntitiesFor(businesObject);
     }
 
     private <D, T extends PersistentDomainExtension<D>> ActiveCustomPropertySet findActiveCustomPropertySetOrThrowException(CustomPropertySet<D, T> customPropertySet) {

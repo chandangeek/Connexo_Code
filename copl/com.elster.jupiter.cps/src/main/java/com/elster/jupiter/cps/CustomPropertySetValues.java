@@ -160,7 +160,9 @@ public final class CustomPropertySetValues {
 
     @Override
     public int hashCode() {
-        return this.values.hashCode();
+        int result = values.hashCode();
+        result = 31 * result + effective.hashCode();
+        return result;
     }
 
     @Override
@@ -172,7 +174,7 @@ public final class CustomPropertySetValues {
             return false;
         }
         else {
-            return ((CustomPropertySetValues) other).values.equals(this.values);
+            return ((CustomPropertySetValues) other).values.equals(this.values) && ((CustomPropertySetValues) other).getEffectiveRange().equals(this.getEffectiveRange());
         }
     }
 
