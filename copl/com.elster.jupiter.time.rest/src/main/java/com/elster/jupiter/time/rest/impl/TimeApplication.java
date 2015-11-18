@@ -43,7 +43,8 @@ public class TimeApplication extends Application implements MessageSeedProvider 
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
-                RelativePeriodResource.class
+                RelativePeriodResource.class,
+                TimeFieldResource.class
         );
     }
 
