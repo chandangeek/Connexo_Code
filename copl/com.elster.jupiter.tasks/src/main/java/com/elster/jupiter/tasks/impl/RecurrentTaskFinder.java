@@ -112,15 +112,14 @@ public class RecurrentTaskFinder implements TaskFinder {
         }
 
         //add application filter conditions
-        //uncomment after Toms commit of new field application
-        /*if ((filter.applications != null) && (!filter.applications.isEmpty())) {
-            if ((filter.startedOnFrom == null) && (filter.startedOnTo == null) && (filter.queues == null)) {
+        if ((filter.applications != null) && (!filter.applications.isEmpty())) {
+            if ((filter.startedOnFrom == null) && (filter.startedOnTo == null) && ((filter.queues == null) || (filter.queues.isEmpty()))) {
                 builder.append(" where ( ");
             } else {
                 builder.append(" and ( ");
             }
             List<String> applications = new ArrayList();
-            applications.addAll(filter.queues);
+            applications.addAll(filter.applications);
             for (int i = 0; i < applications.size(); i++) {
                 builder.append("APPLICATION= ");
                 builder.addObject(applications.get(i));
@@ -129,7 +128,7 @@ public class RecurrentTaskFinder implements TaskFinder {
                 }
             }
             builder.append(") ");
-        }*/
+        }
 
         builder.append("order by TSKSTATUS, STARTDATE ");
 
