@@ -369,7 +369,11 @@ public class DeviceTypeResource {
                                                                     @PathParam("registerTypeId") long registerTypeId) {
         DeviceType deviceType = resourceHelper.findDeviceTypeByIdOrThrowException(deviceTypeId);
         RegisterType registerType = resourceHelper.findRegisterTypeByIdOrThrowException(registerTypeId);
-        return new RegisterTypeOnDeviceTypeInfo(registerType, false, false, false, deviceType.getRegisterTypeTypeCustomPropertySet(registerType), masterDataService.getPossibleMultiplyRegisterTypesFor(registerType));
+        return new RegisterTypeOnDeviceTypeInfo(registerType,
+                false, false, false,
+                deviceType.getRegisterTypeTypeCustomPropertySet(registerType),
+                masterDataService.getPossibleMultiplyReadingTypesFor(registerType.getReadingType()),
+                registerType.getReadingType().getCalculatedReadingType().orElse(null));
     }
 
     @PUT
@@ -490,7 +494,8 @@ public class DeviceTypeResource {
                     isLinkedByActiveRegisterSpec,
                     isLinkedByInactiveRegisterSpec,
                     deviceType.getRegisterTypeTypeCustomPropertySet(registerType),
-                    masterDataService.getPossibleMultiplyRegisterTypesFor(registerType));
+                    masterDataService.getPossibleMultiplyReadingTypesFor(registerType.getReadingType()),
+                    registerType.getReadingType().getCalculatedReadingType().orElse(null));
             if (isLinkedByDeviceType){
                 info.parent = new VersionInfo<>(deviceType.getId(), deviceType.getVersion());
             }

@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.configuration.rest;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.ObisCode;
@@ -34,8 +35,6 @@ public class RegisterConfigInfo {
     public String obisCodeDescription;
     @JsonProperty("unitOfMeasure")
     public String unitOfMeasure;
-    @JsonProperty("numberOfDigits")
-    public Integer numberOfDigits;
     @JsonProperty("numberOfFractionDigits")
     public Integer numberOfFractionDigits;
     @JsonProperty("overflow")
@@ -44,13 +43,18 @@ public class RegisterConfigInfo {
     public Integer timeOfUse;
     @JsonProperty("asText")
     public boolean asText;
+    @JsonProperty("useMultiplier")
+    public Boolean useMultiplier;
+    @JsonProperty("calculatedReadingType")
+    public ReadingTypeInfo calculatedReadingType;
+    public List<ReadingTypeInfo> possibleCalculatedReadingTypes = new ArrayList<>();
     public long version;
     public VersionInfo<Long> parent;
 
     public RegisterConfigInfo() {
     }
 
-    public RegisterConfigInfo(NumericalRegisterSpec registerSpec) {
+    public RegisterConfigInfo(NumericalRegisterSpec registerSpec, List<ReadingType> multipliedCalculatedRegisterTypes) {
         this.id = registerSpec.getId();
         this.name = registerSpec.getRegisterType().getReadingType().getAliasName();
         this.registerType = registerSpec.getRegisterType().getId();
@@ -60,10 +64,14 @@ public class RegisterConfigInfo {
         this.overruledObisCode = registerSpec.getDeviceObisCode();
         this.obisCodeDescription = registerSpec.getObisCode().getDescription();
         this.unitOfMeasure = registerSpec.getUnit().toString();
-        this.numberOfDigits = registerSpec.getNumberOfDigits();
         this.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
         this.overflow = registerSpec.getOverflowValue();
         this.asText = registerSpec.isTextual();
+        this.useMultiplier = registerSpec.isUseMultiplier();
+        if(this.useMultiplier){
+            this.calculatedReadingType = new ReadingTypeInfo(registerSpec.getCalculatedReadingType());
+        }
+        multipliedCalculatedRegisterTypes.forEach(readingTypeConsumer -> possibleCalculatedReadingTypes.add(new ReadingTypeInfo(readingTypeConsumer)));
         this.version = registerSpec.getVersion();
         this.parent = new VersionInfo<>(registerSpec.getDeviceConfiguration().getId(), registerSpec.getDeviceConfiguration().getVersion());
     }
@@ -78,7 +86,6 @@ public class RegisterConfigInfo {
         this.overruledObisCode = registerSpec.getDeviceObisCode();
         this.obisCodeDescription = registerSpec.getObisCode().getDescription();
         this.unitOfMeasure = registerSpec.getUnit().toString();
-        this.numberOfDigits = null;
         this.numberOfFractionDigits = null;
         this.overflow = null;
         this.asText = registerSpec.isTextual();
@@ -86,34 +93,27 @@ public class RegisterConfigInfo {
         this.parent = new VersionInfo<>(registerSpec.getDeviceConfiguration().getId(), registerSpec.getDeviceConfiguration().getVersion());
     }
 
-    public static RegisterConfigInfo from(RegisterSpec registerSpec) {
+    public static RegisterConfigInfo from(RegisterSpec registerSpec, List<ReadingType> multipliedCalculatedRegisterTypes) {
         if (registerSpec.isTextual()) {
             return new RegisterConfigInfo((TextualRegisterSpec) registerSpec);
         } else {
-            return new RegisterConfigInfo((NumericalRegisterSpec) registerSpec);
+            return new RegisterConfigInfo((NumericalRegisterSpec) registerSpec, multipliedCalculatedRegisterTypes);
         }
     }
 
-    public static List<RegisterConfigInfo> from(List<RegisterSpec> registerSpecList) {
-        List<RegisterConfigInfo> registerConfigs = new ArrayList<>(registerSpecList.size());
-        for (RegisterSpec registerSpec : registerSpecList) {
-            registerConfigs.add(RegisterConfigInfo.from(registerSpec));
-        }
-        return registerConfigs;
-    }
-
-    public void writeTo(RegisterSpec registerSpec, RegisterType registerType) {
+    public void writeTo(RegisterSpec registerSpec, RegisterType registerType, ReadingType calculatedReadingType) {
         registerSpec.setOverruledObisCode(this.overruledObisCode);
         registerSpec.setRegisterType(registerType);
         if (!registerSpec.isTextual()) {
-            this.writeTo((NumericalRegisterSpec) registerSpec);
+            this.writeTo((NumericalRegisterSpec) registerSpec, calculatedReadingType);
         }
     }
 
-    private void writeTo(NumericalRegisterSpec registerSpec) {
+    private void writeTo(NumericalRegisterSpec registerSpec, ReadingType calculatedReadingType) {
         registerSpec.setOverflowValue(this.overflow);
-        registerSpec.setNumberOfDigits(this.numberOfDigits != null ? this.numberOfDigits : 0);
         registerSpec.setNumberOfFractionDigits(this.numberOfFractionDigits != null ? this.numberOfFractionDigits : 0);
+        registerSpec.setUseMultiplier(this.useMultiplier);
+        registerSpec.setCalculatedReadingType(calculatedReadingType);
     }
 
 }

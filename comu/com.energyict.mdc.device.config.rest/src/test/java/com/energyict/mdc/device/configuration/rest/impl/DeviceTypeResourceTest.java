@@ -461,7 +461,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(registerSpec.getRegisterType()).thenReturn(registerType);
         when(registerSpec.getUnit()).thenReturn(unit);
         when(registerSpec.getDeviceObisCode()).thenReturn(new ObisCode());
-        when(registerSpec.getNumberOfDigits()).thenReturn(4);
         when(registerSpec.getOverflowValue()).thenReturn(BigDecimal.ONE);
         when(registerSpec.getNumberOfFractionDigits()).thenReturn(1);
         when(registerSpec.getObisCode()).thenReturn(obisCode);
@@ -1105,7 +1104,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         RegisterConfigInfo registerConfigInfo = new RegisterConfigInfo();
         registerConfigInfo.registerType = registerType_id;
         registerConfigInfo.numberOfFractionDigits = 6;
-        registerConfigInfo.numberOfDigits = 4;
         registerConfigInfo.overflow = BigDecimal.TEN;
         registerConfigInfo.overruledObisCode = null;
         registerConfigInfo.unitOfMeasure = "kWh";
@@ -1114,9 +1112,8 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/").request().post(json);
         assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
         ArgumentCaptor<RegisterType> registerTypeArgumentCaptor = ArgumentCaptor.forClass(RegisterType.class);
-        verify(registerSpecBuilder).setNumberOfDigits(4);
-        verify(registerSpecBuilder).setNumberOfFractionDigits(6);
-        verify(registerSpecBuilder).setOverflowValue(BigDecimal.TEN);
+        verify(registerSpecBuilder).numberOfFractionDigits(6);
+        verify(registerSpecBuilder).overflowValue(BigDecimal.TEN);
         verify(deviceConfiguration).createNumericalRegisterSpec(registerTypeArgumentCaptor.capture());
         assertThat(registerTypeArgumentCaptor.getValue()).isEqualTo(registerType);
     }
@@ -1152,10 +1149,9 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         NumericalRegisterSpec.Updater updater = mock(NumericalRegisterSpec.Updater.class);
         when(deviceConfiguration.getRegisterSpecUpdaterFor(registerSpec)).thenReturn(updater);
 
-        RegisterConfigInfo registerConfigInfo = new RegisterConfigInfo(registerSpec);
+        RegisterConfigInfo registerConfigInfo = new RegisterConfigInfo(registerSpec, );
         registerConfigInfo.registerType = registerType_id;
         registerConfigInfo.numberOfFractionDigits = 6;
-        registerConfigInfo.numberOfDigits = 4;
         registerConfigInfo.overflow = BigDecimal.valueOf(123);
         registerConfigInfo.overruledObisCode = obisCode;
         registerConfigInfo.unitOfMeasure = "kWh";
@@ -1172,7 +1168,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         verify(registerSpec).setOverruledObisCode(obisCodeArgumentCaptor.capture());
         assertThat(obisCodeArgumentCaptor.getValue().toString()).isEqualTo(obisCode.toString());
         verify(registerSpec).setOverflowValue(BigDecimal.valueOf(123));
-        verify(registerSpec).setNumberOfDigits(4);
         verify(registerSpec).setNumberOfFractionDigits(6);
         verify(deviceConfiguration).getRegisterSpecUpdaterFor(registerSpec);
         verify(updater).update();
@@ -1295,7 +1290,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceType deviceType = mockDeviceType("Device type", deviceType_id);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(deviceConfig_id, deviceType);
         NumericalRegisterSpec registerSpec = mockNumericalRegister(registerSpec_id, deviceConfiguration);
-        RegisterConfigInfo info = new RegisterConfigInfo(registerSpec);
+        RegisterConfigInfo info = new RegisterConfigInfo(registerSpec, );
 
         Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/61").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -1310,7 +1305,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceType deviceType = mockDeviceType("Device type", deviceType_id);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(deviceConfig_id, deviceType);
         NumericalRegisterSpec registerSpec = mockNumericalRegister(registerSpec_id, deviceConfiguration);
-        RegisterConfigInfo info = new RegisterConfigInfo(registerSpec);
+        RegisterConfigInfo info = new RegisterConfigInfo(registerSpec, );
         info.version = BAD_VERSION;
 
         Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/61").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();
@@ -1325,7 +1320,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         DeviceType deviceType = mockDeviceType("Device type", deviceType_id);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(deviceConfig_id, deviceType);
         NumericalRegisterSpec registerSpec = mockNumericalRegister(registerSpec_id, deviceConfiguration);
-        RegisterConfigInfo info = new RegisterConfigInfo(registerSpec);
+        RegisterConfigInfo info = new RegisterConfigInfo(registerSpec, );
         info.parent.version = BAD_VERSION;
 
         Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/61").request().build(HttpMethod.DELETE, Entity.json(info)).invoke();

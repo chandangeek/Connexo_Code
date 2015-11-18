@@ -6,9 +6,7 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
-import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.MeasurementType;
-import com.energyict.mdc.masterdata.RegisterType;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
@@ -27,37 +25,22 @@ public class RegisterTypeOnDeviceTypeInfo {
     public Boolean isLinkedByInactiveRegisterConfig;
     public String unitOfMeasure;
     public Boolean isCumulative;
+
+    /* The ReadingType from the RegisterType */
     public ReadingTypeInfo readingType;
-    public ReadingTypeInfo calculatedReadingType;
+
+    /* In case of a Channel, we need to add the interval ... */ //TODO check if this is the right place ...
+    public ReadingTypeInfo collectedReadingType;
+
+    /* A list of possible readingTypes where the 'multiplied' value can be stored */
+    public List<ReadingTypeInfo> possibleCalculatedReadingTypes = new ArrayList<>();
+
     public DeviceTypeCustomPropertySetInfo customPropertySet;
-    public List<ReadingTypeInfo> multipliedCalculatedReadingType = new ArrayList<>();
     public long version;
     public VersionInfo<Long> parent;
 
+    @SuppressWarnings("unused")
     public RegisterTypeOnDeviceTypeInfo() {
-    }
-
-    public RegisterTypeOnDeviceTypeInfo(MeasurementType measurementType, boolean isLinkedByDeviceType, boolean inLoadProfileType, List<? extends MeasurementType> multipliedCalculatedRegisterTypes) {
-        if (inLoadProfileType) {
-            measurementType = ((ChannelType) measurementType).getTemplateRegister();
-        }
-        this.id = measurementType.getId();
-        this.obisCode = measurementType.getObisCode();
-        this.isLinkedByDeviceType = isLinkedByDeviceType;
-        ReadingType readingType = measurementType.getReadingType();
-        this.readingType = new ReadingTypeInfo(readingType);
-        if (readingType.isCumulative()){
-            //TODO check whether or not it is sufficient to just provide the calculated readingtype
-            isCumulative = readingType.isCumulative();
-            readingType.getCalculatedReadingType().ifPresent(
-                    rt -> this.calculatedReadingType = new ReadingTypeInfo(rt)
-            );
-        }
-        if (measurementType.getUnit() != null) {
-            this.unitOfMeasure = measurementType.getUnit().toString();
-        }
-        multipliedCalculatedRegisterTypes.forEach(o -> multipliedCalculatedReadingType.add(new ReadingTypeInfo(o.getReadingType())));
-        this.version = measurementType.getVersion();
     }
 
     public RegisterTypeOnDeviceTypeInfo(MeasurementType measurementType,
@@ -65,8 +48,25 @@ public class RegisterTypeOnDeviceTypeInfo {
                                         boolean isLinkedByActiveRegisterSpec,
                                         boolean isLinkedByInactiveRegisterSpec,
                                         Optional<RegisteredCustomPropertySet> registeredCustomPropertySet,
-                                        List<? extends MeasurementType> multipliedCalculatedRegisterTypes) {
-        this(measurementType, isLinkedByDeviceType, false, multipliedCalculatedRegisterTypes);
+                                        List<ReadingType> multipliedCalculatedRegisterTypes,
+                                        ReadingType collectedReadingType) {
+
+        this.id = measurementType.getId();
+        this.obisCode = measurementType.getObisCode();
+        this.isLinkedByDeviceType = isLinkedByDeviceType;
+        ReadingType readingType = measurementType.getReadingType();
+        this.readingType = new ReadingTypeInfo(readingType);
+        this.isCumulative = readingType.isCumulative();
+        if(collectedReadingType != null){
+            this.collectedReadingType = new ReadingTypeInfo(collectedReadingType);
+        }
+
+        if (measurementType.getUnit() != null) {
+            this.unitOfMeasure = measurementType.getUnit().toString();
+        }
+        multipliedCalculatedRegisterTypes.forEach(readingTypeConsumer -> possibleCalculatedReadingTypes.add(new ReadingTypeInfo(readingTypeConsumer)));
+        this.version = measurementType.getVersion();
+
         this.isLinkedByActiveRegisterConfig = isLinkedByActiveRegisterSpec;
         this.isLinkedByInactiveRegisterConfig = isLinkedByInactiveRegisterSpec;
         if (registeredCustomPropertySet.isPresent()) {

@@ -4,6 +4,8 @@ import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.estimation.EstimationRuleSet;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionBuilder;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
@@ -51,6 +53,7 @@ public class ResourceHelper {
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final ValidationService validationService;
     private final EstimationService estimationService;
+    private final MeteringService meteringService;
 
     @Inject
     public ResourceHelper(ExceptionFactory exceptionFactory,
@@ -60,7 +63,7 @@ public class ResourceHelper {
                           DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
                           ConcurrentModificationExceptionFactory conflictFactory,
                           ValidationService validationService,
-                          EstimationService estimationService) {
+                          EstimationService estimationService, MeteringService meteringService) {
         super();
         this.exceptionFactory = exceptionFactory;
         this.masterDataService = masterDataService;
@@ -70,6 +73,7 @@ public class ResourceHelper {
         this.conflictFactory = conflictFactory;
         this.validationService = validationService;
         this.estimationService = estimationService;
+        this.meteringService = meteringService;
     }
 
     public ChannelType findChannelTypeByIdOrThrowException(long id) {
@@ -557,5 +561,9 @@ public class ResourceHelper {
                 .withActualParent(() -> getCurrentDeviceConfigurationVersion(info.parent.id), info.parent.id)
                 .withActualVersion(() -> getCurrentEstimationRuleSetVersion(info.id))
                 .build();
+    }
+
+    public Optional<ReadingType> findReadingType(String mRID) {
+        return meteringService.getReadingType(mRID);
     }
 }

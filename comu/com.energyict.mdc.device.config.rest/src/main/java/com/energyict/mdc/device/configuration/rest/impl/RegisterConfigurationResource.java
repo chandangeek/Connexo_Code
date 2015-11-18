@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -28,6 +29,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class RegisterConfigurationResource {
 
@@ -47,7 +49,7 @@ public class RegisterConfigurationResource {
     public PagedInfoList getRegisterConfigs(@PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam JsonQueryParameters queryParameters) {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         List<RegisterSpec> pagedRegisterSpecs = ListPager.of(deviceConfiguration.getRegisterSpecs(), new RegisterConfigurationComparator()).from(queryParameters).find();
-        List<RegisterConfigInfo> registerConfigInfos = RegisterConfigInfo.from(pagedRegisterSpecs);
+        List<RegisterConfigInfo> registerConfigInfos = pagedRegisterSpecs.stream().map(registerSpec -> RegisterConfigInfo.from(registerSpec, getPossibleMultiplyReadingTypesFor(registerSpec.getReadingType()))).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("registerConfigurations", registerConfigInfos, queryParameters);
     }
 
@@ -56,7 +58,12 @@ public class RegisterConfigurationResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public RegisterConfigInfo getRegisterConfigs(@PathParam("registerId") long registerId) {
-        return RegisterConfigInfo.from(resourceHelper.findRegisterSpecByIdOrThrowException(registerId));
+        RegisterSpec registerSpec = resourceHelper.findRegisterSpecByIdOrThrowException(registerId);
+        return RegisterConfigInfo.from(registerSpec, getPossibleMultiplyReadingTypesFor(registerSpec.getReadingType()));
+    }
+
+    private List<ReadingType> getPossibleMultiplyReadingTypesFor(ReadingType readingType) {
+        return masterDataService.getPossibleMultiplyReadingTypesFor(readingType);
     }
 
     @POST
@@ -66,7 +73,7 @@ public class RegisterConfigurationResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         RegisterType registerType = registerConfigInfo.registerType ==null?null: findRegisterTypeOrThrowException(registerConfigInfo.registerType);
         RegisterSpec registerSpec = createRegisterSpec(registerConfigInfo, deviceConfiguration, registerType);
-        return Response.status(Response.Status.CREATED).entity(RegisterConfigInfo.from(registerSpec)).build();
+        return Response.status(Response.Status.CREATED).entity(RegisterConfigInfo.from(registerSpec, getPossibleMultiplyReadingTypesFor(registerSpec.getReadingType()))).build();
     }
 
     private RegisterSpec createRegisterSpec(RegisterConfigInfo registerConfigInfo, DeviceConfiguration deviceConfiguration, RegisterType registerType) {
@@ -76,12 +83,15 @@ public class RegisterConfigurationResource {
                     .setOverruledObisCode(registerConfigInfo.overruledObisCode)
                     .add();
         } else {
-            registerSpec = deviceConfiguration.createNumericalRegisterSpec(registerType)
-                    .setNumberOfDigits(registerConfigInfo.numberOfDigits)
-                    .setNumberOfFractionDigits(registerConfigInfo.numberOfFractionDigits)
-                    .setOverflowValue(registerConfigInfo.overflow)
-                    .setOverruledObisCode(registerConfigInfo.overruledObisCode)
-                    .add();
+            NumericalRegisterSpec.Builder builder = deviceConfiguration.createNumericalRegisterSpec(registerType)
+                    .numberOfFractionDigits(registerConfigInfo.numberOfFractionDigits)
+                    .overflowValue(registerConfigInfo.overflow)
+                    .overruledObisCode(registerConfigInfo.overruledObisCode);
+            if (registerConfigInfo.useMultiplier != null) {
+                builder.useMultiplier(registerConfigInfo.useMultiplier);
+                builder.calculatedReadingType(findCalculatedReadingType(registerConfigInfo).orElse(null));
+            }
+            registerSpec = builder.add();
         }
         return registerSpec;
     }
@@ -94,8 +104,9 @@ public class RegisterConfigurationResource {
         info.id = registerConfigId;
         RegisterSpec registerSpec = resourceHelper.lockRegisterSpecOrThrowException(info);
         RegisterType registerType = info.registerType ==null?null:resourceHelper.findRegisterTypeByIdOrThrowException(info.registerType);
-        if(info.asText == registerSpec.isTextual()){
-            info.writeTo(registerSpec, registerType);
+        Optional<ReadingType> calculatedReadingType = findCalculatedReadingType(info);
+        if(stillTheSameDiscriminator(info, registerSpec)){
+            info.writeTo(registerSpec, registerType, calculatedReadingType.orElse(null));
             if (info.asText) {
                 registerSpec.getDeviceConfiguration().getRegisterSpecUpdaterFor((TextualRegisterSpec) registerSpec).update();
             } else {
@@ -103,10 +114,21 @@ public class RegisterConfigurationResource {
             }
         } else {
             registerSpec.getDeviceConfiguration().deleteRegisterSpec(registerSpec);
-            RegisterSpec newRegisterSpec = createRegisterSpec(info, registerSpec.getDeviceConfiguration(), registerType);
-            registerConfigId = newRegisterSpec.getId();
+            registerSpec = createRegisterSpec(info, registerSpec.getDeviceConfiguration(), registerType);
         }
-        return RegisterConfigInfo.from(resourceHelper.findRegisterSpecByIdOrThrowException(registerConfigId));
+        return RegisterConfigInfo.from(registerSpec, getPossibleMultiplyReadingTypesFor(registerSpec.getReadingType()));
+    }
+
+    private boolean stillTheSameDiscriminator(RegisterConfigInfo info, RegisterSpec registerSpec) {
+        return info.asText == registerSpec.isTextual();
+    }
+
+    private Optional<ReadingType> findCalculatedReadingType(RegisterConfigInfo info) {
+        if(info.calculatedReadingType != null){
+            return resourceHelper.findReadingType(info.calculatedReadingType.mRID);
+        } else {
+            return Optional.empty();
+        }
     }
 
     @DELETE
