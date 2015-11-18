@@ -1,7 +1,6 @@
 package com.energyict.mdc.scheduling.rest.impl;
 
 import com.energyict.mdc.common.rest.ExceptionLogger;
-import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -50,7 +49,6 @@ public class MasterSchedulingApplication extends Application implements MessageS
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
-                TransactionWrapper.class,
                 ExceptionLogger.class,
                 SchedulingResource.class
         );
