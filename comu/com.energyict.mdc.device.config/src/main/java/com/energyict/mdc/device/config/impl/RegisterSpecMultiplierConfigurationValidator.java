@@ -6,9 +6,9 @@ import javax.validation.ConstraintValidatorContext;
 /**
  * Validates that you have a calculated readingtype when a multiplier is configured
  */
-public class MultiplierConfigurationValidator implements ConstraintValidator<ValidMultiplierConfiguration, NumericalRegisterSpecImpl> {
+public class RegisterSpecMultiplierConfigurationValidator implements ConstraintValidator<ValidRegisterSpecMultiplierConfiguration, NumericalRegisterSpecImpl> {
     @Override
-    public void initialize(ValidMultiplierConfiguration validMultiplierConfiguration) {
+    public void initialize(ValidRegisterSpecMultiplierConfiguration validRegisterSpecMultiplierConfiguration) {
 
     }
 

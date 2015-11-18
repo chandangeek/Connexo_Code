@@ -2,10 +2,7 @@ package com.energyict.mdc.device.config.impl;
 
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.device.config.DeviceConfiguration;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.*;
 import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
 import com.energyict.mdc.device.config.exceptions.DuplicateChannelTypeException;
 import com.energyict.mdc.device.config.exceptions.LoadProfileSpecIsNotConfiguredOnDeviceConfigurationException;
@@ -519,5 +516,50 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(clonedChannelSpec.getOverflow()).isEqualTo(channelSpec.getOverflow());
         assertThat(clonedChannelSpec.getReadingMethod().getCode()).isEqualTo(channelSpec.getReadingMethod().getCode());
         assertThat(clonedChannelSpec.getValueCalculationMethod().getCode()).isEqualTo(channelSpec.getValueCalculationMethod().getCode());
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.CALCULATED_READINGTYPE_CANNOT_BE_EMPTY +"}")
+    public void calculatedReadingTypeIsRequiredWhenMultiplierIsTrueTest() {
+        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
+        channelSpecBuilder.useMultiplier(true);
+        channelSpecBuilder.add();
+    }
+    @Test
+    @Transactional
+    public void calculatedReadingTypeIsRequiredWhenMultiplierIsTrueWithoutViolationsTest() {
+        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
+        channelSpecBuilder.useMultiplier(true);
+        channelSpecBuilder.calculatedReadingType(channelType.getReadingType());
+        channelSpecBuilder.add();
+    }
+
+    @Test
+    @Transactional
+    public void calculatedReadingTypeIsRequiredWhenMultiplierIsTrueWithoutViolationsForUpdateTest() {
+        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
+        ChannelSpec channelSpec = channelSpecBuilder.add();
+
+        ChannelSpec.ChannelSpecUpdater channelSpecUpdater = getReloadedDeviceConfiguration().getChannelSpecUpdaterFor(channelSpec);
+        channelSpecUpdater.useMultiplier(true);
+        channelSpecUpdater.calculatedReadingType(channelType.getReadingType());
+        channelSpecUpdater.update();
+    }
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.CALCULATED_READINGTYPE_CANNOT_BE_EMPTY +"}")
+    public void calculatedReadingTypeIsRequiredWhenMultiplierIsTrueForUpdateTest() {
+        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
+        ChannelSpec channelSpec = channelSpecBuilder.add();
+
+        ChannelSpec.ChannelSpecUpdater channelSpecUpdater = getReloadedDeviceConfiguration().getChannelSpecUpdaterFor(channelSpec);
+        channelSpecUpdater.useMultiplier(true);
+        channelSpecUpdater.update();
+
     }
 }

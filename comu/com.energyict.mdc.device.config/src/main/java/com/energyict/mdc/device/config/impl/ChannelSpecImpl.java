@@ -47,6 +47,7 @@ import static com.elster.jupiter.util.Checks.is;
  * Date: 7/11/12
  * Time: 13:22
  */
+@ValidChannelSpecMultiplierConfiguration(groups = {Save.Create.class, Save.Update.class})
 public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ChannelSpec {
 
     enum ChannelSpecFields {
@@ -96,7 +97,6 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
     @SuppressWarnings("unused")
     private Instant modTime;
 
-    // TODO validate this stuff
     private boolean useMultiplier;
     private Reference<ReadingType> calculatedReadingType = ValueReference.absent();
 
@@ -179,8 +179,8 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
         this.useMultiplier = useMultiplier;
     }
 
-    public ReadingType getCalculatedReadingType() {
-        return calculatedReadingType.get();
+    public Optional<ReadingType> getCalculatedReadingType() {
+        return calculatedReadingType.getOptional();
     }
 
     public void setCalculatedReadingType(ReadingType calculatedReadingType) {

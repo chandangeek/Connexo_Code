@@ -24,7 +24,7 @@ import java.util.Optional;
 
 @ValidOverFlowAndNumberOfFractionDigits(groups = {Save.Create.class, Save.Update.class})
 @ValidNumericalRegisterSpec(groups = {Save.Update.class})
-@ValidMultiplierConfiguration(groups = {Save.Create.class, Save.Update.class})
+@ValidRegisterSpecMultiplierConfiguration(groups = {Save.Create.class, Save.Update.class})
 public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegisterSpec> implements NumericalRegisterSpec {
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")

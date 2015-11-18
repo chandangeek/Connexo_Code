@@ -11,8 +11,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target({ java.lang.annotation.ElementType.TYPE })
 @Retention(RUNTIME)
 @Documented
-@Constraint(validatedBy = { MultiplierConfigurationValidator.class })
-public @interface ValidMultiplierConfiguration {
+@Constraint(validatedBy = { ChannelSpecMultiplierConfigurationValidator.class })
+public @interface ValidChannelSpecMultiplierConfiguration {
     String message() default "";
 
     Class<?>[] groups() default { };

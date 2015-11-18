@@ -12,6 +12,7 @@ import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -59,7 +60,7 @@ public interface ChannelSpec extends HasId {
 
     void setUseMultiplier(boolean useMultiplier);
 
-    ReadingType getCalculatedReadingType();
+    Optional<ReadingType> getCalculatedReadingType();
 
     void setCalculatedReadingType(ReadingType calculatedReadingType);
 
