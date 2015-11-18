@@ -1,6 +1,7 @@
 package com.elster.jupiter.yellowfin.impl;
 
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.callback.InstallService;
@@ -172,6 +173,103 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService, T
         }
 
         return false;
+    }
+
+    @Override
+    public Optional<String> getUser(String username)  {
+
+        AdministrationServiceResponse rs = null;
+        AdministrationServiceRequest rsr = new AdministrationServiceRequest();
+        AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/AdministrationService", useSecureConnection);
+        AdministrationServiceSoapBindingStub rssbs = null;
+        try {
+            rssbs = (AdministrationServiceSoapBindingStub) ts.getAdministrationService();
+        } catch (ServiceException e) {
+            e.printStackTrace();
+        }
+
+        AdministrationPerson person = new AdministrationPerson();
+
+        person.setUserId(username);
+
+        rsr.setLoginId(yellowfinWebServiceUser);
+        rsr.setPassword(yellowfinWebServicePassword);
+        rsr.setOrgId(new Integer(1));
+        rsr.setFunction("GETUSER");
+        rsr.setPerson(person);
+
+        if (rssbs != null) {
+            try {
+                rs = rssbs.remoteAdministrationCall(rsr);
+                if (rs != null){
+                    if("SUCCESS".equals(rs.getStatusCode()) ) {
+                        return Optional.of("SUCCESS");
+                    }
+                    if(rs.getErrorCode() == 9) { // license breach
+                        return Optional.of("LICENSE_BREACH");
+                    }
+                    return Optional.of("NOT_FOUND");
+                }
+
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<String> createUser(String username)  {
+
+        AdministrationServiceResponse rs = null;
+        AdministrationServiceRequest rsr = new AdministrationServiceRequest();
+        AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/AdministrationService", useSecureConnection);
+        AdministrationServiceSoapBindingStub rssbs = null;
+        try {
+            rssbs = (AdministrationServiceSoapBindingStub) ts.getAdministrationService();
+        } catch (ServiceException e) {
+            e.printStackTrace();
+        }
+
+        AdministrationPerson person = new AdministrationPerson();
+
+        person.setUserId(username);
+        person.setPassword("test");
+        person.setFirstName("Connexo");
+        person.setLastName(username);
+        if(username.equals(yellowfinWebServiceUser)) {
+            person.setRoleCode("YFADMIN");
+        }
+        else {
+            person.setRoleCode("YFCORPWRITER");
+        }
+        person.setEmailAddress(username + "@elster.com");
+
+        rsr.setLoginId(yellowfinWebServiceUser);
+        rsr.setPassword(yellowfinWebServicePassword);
+        rsr.setOrgId(new Integer(1));
+        rsr.setFunction("ADDUSER");
+        rsr.setPerson(person);
+
+        if (rssbs != null) {
+            try {
+                rs = rssbs.remoteAdministrationCall(rsr);
+                if (rs != null){
+                    if("SUCCESS".equals(rs.getStatusCode()) ) {
+                        return Optional.of("SUCCESS");
+                    }
+                    if(rs.getErrorCode() == 9) { // license breach
+                        return Optional.of("LICENSE_BREACH");
+                    }
+                }
+
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return Optional.empty();
     }
 
     @Override
@@ -521,6 +619,9 @@ public class YellowfinServiceImpl implements YellowfinService, InstallService, T
 
     @Override
     public List<TranslationKey> getKeys() {
-        return Arrays.asList(Privileges.values());
+        List<TranslationKey> translationKeys = new ArrayList<>();
+        translationKeys.add(new SimpleTranslationKey("error.facts.unavailable", "Connexo Facts is not available."));
+        translationKeys.addAll(Arrays.asList(Privileges.values()));
+        return translationKeys;
     }
 }

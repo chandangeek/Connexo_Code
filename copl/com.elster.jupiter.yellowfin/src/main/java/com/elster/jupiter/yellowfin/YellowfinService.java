@@ -11,6 +11,10 @@ public interface YellowfinService {
 
     String getYellowfinUrl();
 
+    Optional<String> getUser(String username);
+
+    Optional<String> createUser(String username);
+
     Optional<String> login(String username);
     Optional<Boolean> logout(String username);
 
