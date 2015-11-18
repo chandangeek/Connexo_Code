@@ -99,7 +99,9 @@ Ext.define('Dsh.controller.Connections', {
             },
             // disable the finished between filter if in the latest status filter "Not applicable" is selected:
             'dsh-view-widget-connectionstopfilter #latest-state-filter': {
-                change: this.updateFinishedBetweenFilter
+                change: this.updateFinishedBetweenFilter,
+                // disable "Not applicable" in case of finish between date from/to is set but not applied
+                focus: this.showLatestStatusFilter
             },
             // Remove the option "Not applicable" from the latest status filter if the finished between filter is used:
             'dsh-view-widget-connectionstopfilter #finish-interval-filter': {
@@ -304,6 +306,14 @@ Ext.define('Dsh.controller.Connections', {
 
     updateFinishedBetweenFilter: function(combo, newValue) {
         this.getFinishedBetweenFilter().getChooseIntervalButton().setDisabled(Ext.isArray(newValue) && _.contains(newValue, 'NOT_APPLICABLE'));
+    },
+
+    showLatestStatusFilter: function() {
+        var me = this;
+        if(me.getFinishedBetweenFilter().getChooseIntervalButton().down('#fromDate').value != null ||
+            me.getFinishedBetweenFilter().getChooseIntervalButton().down('#toDate').value != null) {
+            me.getLatestStatusFilter().getStore().filterBy(me.doFilterLatestStatus);
+        }
     },
 
     updateLatestStatusFilter: function() {
