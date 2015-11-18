@@ -3,12 +3,12 @@ Ext.define('Apr.controller.MessageQueues',{
     requires: [
         'Apr.view.messagequeues.Menu',
         'Apr.view.messagequeues.MonitorSetup',
-        'Apr.view.messageQueues.MonitorGrid',
+        'Apr.view.messagequeues.MonitorGrid',
         'Apr.view.messagequeues.MonitorPreview',
         'Apr.view.messagequeues.MonitorPreviewForm',
         'Apr.view.messagequeues.MonitorActionMenu',
         'Apr.view.messagequeues.Setup',
-        'Apr.view.messageQueues.MessageQueuesGrid'
+        'Apr.view.messagequeues.MessageQueuesGrid'
     ],
     stores: [
         'Apr.store.MessageQueues',

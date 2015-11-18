@@ -1,4 +1,4 @@
-Ext.define('Apr.view.messageQueues.MessageQueuesGrid', {
+Ext.define('Apr.view.messagequeues.MessageQueuesGrid', {
     extend: 'Ext.grid.Panel',
     alias: 'widget.message-queues-grid',
     store: 'Apr.store.MessageQueues',
