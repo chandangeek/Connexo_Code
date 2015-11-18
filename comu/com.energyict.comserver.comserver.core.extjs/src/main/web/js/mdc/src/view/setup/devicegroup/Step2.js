@@ -112,8 +112,12 @@ Ext.define('Mdc.view.setup.devicegroup.Step2', {
                         }
                     ],
                     bbar: {
+                        xtype: 'container',
+                        layout: {
+                            type: 'hbox',
+                            pack: 'end'
+                        },
                         items: [
-                            '->',
                             {
                                 xtype: 'button',
                                 itemId: 'search-button',
