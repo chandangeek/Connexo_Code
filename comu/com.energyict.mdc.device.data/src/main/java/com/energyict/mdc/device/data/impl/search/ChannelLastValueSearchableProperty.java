@@ -36,9 +36,9 @@ public class ChannelLastValueSearchableProperty extends AbstractDateSearchablePr
         SqlBuilder builder = new SqlBuilder();
         builder.append(JoinClauseBuilder.Aliases.END_DEVICE + ".id IN (");
         builder.append("select MTR_METERACTIVATION.METERID from MTR_CHANNEL " +
-                "right join MTR_METERACTIVATION on MTR_METERACTIVATION.ID = MTR_CHANNEL.METERACTIVATIONID AND MTR_METERACTIVATION.STARTTIME >= ");
+                "right join MTR_METERACTIVATION on MTR_METERACTIVATION.ID = MTR_CHANNEL.METERACTIVATIONID AND MTR_METERACTIVATION.STARTTIME <= ");
         builder.addLong(now.toEpochMilli());
-        builder.append(" AND MTR_METERACTIVATION.ENDTIME < ");
+        builder.append(" AND MTR_METERACTIVATION.ENDTIME > ");
         builder.addLong(now.toEpochMilli());
         builder.append(" left join IDS_TIMESERIES on MTR_CHANNEL.TIMESERIESID = IDS_TIMESERIES.ID " +
                 "where ");
