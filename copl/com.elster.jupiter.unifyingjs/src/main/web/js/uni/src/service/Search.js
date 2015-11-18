@@ -188,8 +188,8 @@ Ext.define('Uni.service.Search', {
         me.initStoreListeners();
         Ext.suspendLayouts();
 
-        me.fireEvent('reset', me.filters);
         me.filters.removeAll();
+        me.fireEvent('reset', me.filters);
 
         me.initCriteria();
         me.saveState();
