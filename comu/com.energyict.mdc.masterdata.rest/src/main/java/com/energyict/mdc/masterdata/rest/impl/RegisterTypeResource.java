@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -50,7 +51,7 @@ public class RegisterTypeResource {
     /**
      * We should filter out the ChannelTypes from the RegisterTypes list as these have an interval.
      */
-    @GET
+    @GET @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
@@ -72,7 +73,7 @@ public class RegisterTypeResource {
         return PagedInfoList.fromPagedList("registerTypes", registerTypeInfos, queryParameters);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
@@ -81,7 +82,7 @@ public class RegisterTypeResource {
         return new RegisterTypeInfo(registerType, this.deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType), false);
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Path("/{id}")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -91,7 +92,7 @@ public class RegisterTypeResource {
         return Response.ok().build();
     }
 
-    @POST
+    @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
@@ -103,7 +104,7 @@ public class RegisterTypeResource {
         return new RegisterTypeInfo(measurementType, false, false); // It's a new one so cannot be used yet in a DeviceType right
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")

@@ -2,6 +2,7 @@ package com.energyict.mdc.masterdata.rest.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.security.Privileges;
@@ -42,7 +43,7 @@ public class LogBookTypeResource {
         this.resourceHelper = resourceHelper;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
     public PagedInfoList getLogbookTypes(@BeanParam JsonQueryParameters queryParameters) {
@@ -58,7 +59,7 @@ public class LogBookTypeResource {
         return PagedInfoList.fromPagedList("logbookTypes", LogBookTypeInfo.from(logbookTypes), queryParameters);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_MASTER_DATA, Privileges.Constants.VIEW_MASTER_DATA})
@@ -72,7 +73,7 @@ public class LogBookTypeResource {
         return PagedInfoList.fromPagedList("logbookType", Collections.singletonList(LogBookTypeInfo.from(logBookType, !deviceConfigurations.isEmpty())), queryParameters);
     }
 
-    @POST
+    @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
@@ -82,7 +83,7 @@ public class LogBookTypeResource {
         return Response.status(Response.Status.CREATED).entity(LogBookTypeInfo.from(newLogbook)).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -95,7 +96,7 @@ public class LogBookTypeResource {
         return Response.ok(LogBookTypeInfo.from(logBookRef)).build();
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_MASTER_DATA)
