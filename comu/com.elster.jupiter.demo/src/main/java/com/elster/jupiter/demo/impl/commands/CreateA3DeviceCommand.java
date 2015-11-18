@@ -174,8 +174,8 @@ public class CreateA3DeviceCommand {
         if (registerTypeTpls != null) {
             for (RegisterTypeTpl registerTypeName : registerTypeTpls) {
                 RegisterType registerType = registerTypes.get(registerTypeName);
-                configurationBuilder.newNumericalRegisterSpec(registerType).setOverflowValue(new BigDecimal(100000000)).setNumberOfFractionDigits(3).setNumberOfDigits(8)
-                        .setOverruledObisCode(new ObisCode(registerType.getObisCode().getA(), 1, registerType.getObisCode().getC(), registerType.getObisCode().getD(), registerType.getObisCode().getE(), registerType.getObisCode().getF()));
+                configurationBuilder.newNumericalRegisterSpec(registerType).overflowValue(new BigDecimal(100000000)).numberOfFractionDigits(3)
+                        .overruledObisCode(new ObisCode(registerType.getObisCode().getA(), 1, registerType.getObisCode().getC(), registerType.getObisCode().getD(), registerType.getObisCode().getE(), registerType.getObisCode().getF()));
             }
         }
     }
@@ -187,9 +187,9 @@ public class CreateA3DeviceCommand {
                 String mrid = channelType.getTemplateRegister().getReadingType().getMRID();
                 if (channels.containsKey(mrid)) {
                     configuration.createChannelSpec(channelType, loadProfileSpec)
-                            .setOverflow(new BigDecimal(100000000))
-                            .setNbrOfFractionDigits(3)
-                            .setOverruledObisCode(ObisCode.fromString(channels.get(mrid)))
+                            .overflow(new BigDecimal(100000000))
+                            .nbrOfFractionDigits(3)
+                            .overruledObisCode(ObisCode.fromString(channels.get(mrid)))
                             .add();
                 }
             }

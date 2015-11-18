@@ -107,9 +107,8 @@ public class DeviceConfigurationBuilder extends NamedBuilder<DeviceConfiguration
         if (this.registerTypes != null) {
             for (RegisterType registerType : registerTypes) {
                 builder.newNumericalRegisterSpec(registerType)
-                        .setOverflowValue(new BigDecimal(99999999))
-                        .setNumberOfDigits(8)
-                        .setNumberOfFractionDigits(0);
+                        .overflowValue(new BigDecimal(99999999))
+                        .numberOfFractionDigits(0);
             }
         }
     }
