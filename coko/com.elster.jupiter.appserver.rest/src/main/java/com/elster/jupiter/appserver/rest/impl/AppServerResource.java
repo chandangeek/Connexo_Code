@@ -197,6 +197,7 @@ public class AppServerResource {
                 appServer.setImportDirectory(fileSystem.getPath(info.importDirectory));
             }
 
+
             context.commit();
         }
         return Response.status(Response.Status.CREATED).entity(AppServerInfo.of(appServer, info.importDirectory, info.exportDirectory, thesaurus)).build();
