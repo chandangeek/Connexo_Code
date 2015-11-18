@@ -1,6 +1,5 @@
 package com.energyict.mdc.device.lifecycle.config.rest.impl;
 
-import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
@@ -72,7 +71,6 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
-                TransactionWrapper.class,
                 DeviceLifeCycleResource.class,
                 DeviceLifeCycleStateResource.class,
                 DeviceLifeCycleActionResource.class,
