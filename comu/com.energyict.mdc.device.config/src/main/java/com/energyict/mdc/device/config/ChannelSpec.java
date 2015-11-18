@@ -55,6 +55,14 @@ public interface ChannelSpec extends HasId {
 
     void setInterval(TimeDuration interval);
 
+    boolean isUseMultiplier();
+
+    void setUseMultiplier(boolean useMultiplier);
+
+    ReadingType getCalculatedReadingType();
+
+    void setCalculatedReadingType(ReadingType calculatedReadingType);
+
     ReadingType getReadingType();
 
     void validateDelete();
@@ -69,18 +77,21 @@ public interface ChannelSpec extends HasId {
      */
     interface ChannelSpecBuilder {
 
-        ChannelSpecBuilder setOverruledObisCode(ObisCode overruledObisCode);
+        ChannelSpecBuilder overruledObisCode(ObisCode overruledObisCode);
 
-        ChannelSpecBuilder setNbrOfFractionDigits(int nbrOfFractionDigits);
+        ChannelSpecBuilder nbrOfFractionDigits(int nbrOfFractionDigits);
 
-        ChannelSpecBuilder setOverflow(BigDecimal overflow);
+        ChannelSpecBuilder overflow(BigDecimal overflow);
 
-        ChannelSpecBuilder setReadingMethod(ReadingMethod readingMethod);
+        ChannelSpecBuilder readingMethod(ReadingMethod readingMethod);
 
-        ChannelSpecBuilder setValueCalculationMethod(ValueCalculationMethod valueCalculationMethod);
+        ChannelSpecBuilder valueCalculationMethod(ValueCalculationMethod valueCalculationMethod);
 
-        ChannelSpecBuilder setInterval(TimeDuration interval);
+        ChannelSpecBuilder interval(TimeDuration interval);
 
+        ChannelSpecBuilder useMultiplier(boolean useMultiplier);
+
+        ChannelSpecBuilder calculatedReadingType(ReadingType calculatedReadingType);
         /**
          * Does final validation and <i>creates</i> the {@link ChannelSpec}.
          * @return the ChannelSpec
@@ -90,15 +101,19 @@ public interface ChannelSpec extends HasId {
 
     interface ChannelSpecUpdater {
 
-        ChannelSpecUpdater setOverruledObisCode(ObisCode overruledObisCode);
+        ChannelSpecUpdater overruledObisCode(ObisCode overruledObisCode);
 
-        ChannelSpecUpdater setNbrOfFractionDigits(int nbrOfFractionDigits);
+        ChannelSpecUpdater nbrOfFractionDigits(int nbrOfFractionDigits);
 
-        ChannelSpecUpdater setOverflow(BigDecimal overflow);
+        ChannelSpecUpdater overflow(BigDecimal overflow);
 
-        ChannelSpecUpdater setReadingMethod(ReadingMethod readingMethod);
+        ChannelSpecUpdater readingMethod(ReadingMethod readingMethod);
 
-        ChannelSpecUpdater setValueCalculationMethod(ValueCalculationMethod valueCalculationMethod);
+        ChannelSpecUpdater valueCalculationMethod(ValueCalculationMethod valueCalculationMethod);
+
+        ChannelSpecUpdater useMultiplier(boolean useMultiplier);
+
+        ChannelSpecUpdater calculatedReadingType(ReadingType calculatedReadingType);
 
         /**
          * Updates the ChannelSpec.

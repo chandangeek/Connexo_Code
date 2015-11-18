@@ -94,8 +94,7 @@ public class MeasurementTypeImplTest extends PersistenceTest {
         DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
         deviceType.save();
         NumericalRegisterSpec.Builder registerSpecBuilder = configurationBuilder.newNumericalRegisterSpec(registerType);
-        registerSpecBuilder.setNumberOfDigits(5);
-        registerSpecBuilder.setNumberOfFractionDigits(2);
+        registerSpecBuilder.numberOfFractionDigits(2);
         configurationBuilder.add();
 
         // Business method
@@ -136,7 +135,7 @@ public class MeasurementTypeImplTest extends PersistenceTest {
         deviceType.save();
         DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
         LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = configurationBuilder.newLoadProfileSpec(this.loadProfileType);
-        configurationBuilder.newChannelSpec(channelTypeForRegisterType, loadProfileSpecBuilder).setReadingMethod(ReadingMethod.BASIC_DATA).setValueCalculationMethod(ValueCalculationMethod.AUTOMATIC);
+        configurationBuilder.newChannelSpec(channelTypeForRegisterType, loadProfileSpecBuilder).readingMethod(ReadingMethod.BASIC_DATA).valueCalculationMethod(ValueCalculationMethod.AUTOMATIC);
         configurationBuilder.add();
 
         // Business method
@@ -171,8 +170,7 @@ public class MeasurementTypeImplTest extends PersistenceTest {
         deviceType.save();
         DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
         NumericalRegisterSpec.Builder registerSpecBuilder = configurationBuilder.newNumericalRegisterSpec(registerType);
-        registerSpecBuilder.setNumberOfDigits(5);
-        registerSpecBuilder.setNumberOfFractionDigits(2);
+        registerSpecBuilder.numberOfFractionDigits(2);
         configurationBuilder.add();
 
         try {

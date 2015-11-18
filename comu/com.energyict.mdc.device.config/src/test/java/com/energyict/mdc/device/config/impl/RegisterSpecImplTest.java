@@ -45,7 +45,6 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     private final ObisCode registerTypeObisCode = ObisCode.fromString("1.0.1.6.0.255");
     private final ObisCode overruledRegisterSpecObisCode = ObisCode.fromString("1.0.1.8.2.255");
-    private final int numberOfDigits = 9;
     private final int numberOfFractionDigits = 3;
 
     private DeviceConfiguration deviceConfiguration;
@@ -93,8 +92,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     }
 
     private void setRegisterSpecDefaultFields(NumericalRegisterSpec.Builder registerSpecBuilder) {
-        registerSpecBuilder.setNumberOfDigits(numberOfDigits);
-        registerSpecBuilder.setNumberOfFractionDigits(numberOfFractionDigits);
+        registerSpecBuilder.numberOfFractionDigits(numberOfFractionDigits);
     }
 
     private TextualRegisterSpec createTextualRegisterSpecWithDefaults() {
@@ -121,7 +119,6 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(registerSpec.getObisCode()).isEqualTo(registerTypeObisCode);
         assertThat(registerSpec.getDeviceObisCode()).isEqualTo(registerTypeObisCode);
         assertThat(registerSpec.getDeviceConfiguration().getId()).isEqualTo(this.getReloadedDeviceConfiguration().getId());
-        assertThat(registerSpec.getNumberOfDigits()).isEqualTo(this.numberOfDigits);
         assertThat(registerSpec.getNumberOfFractionDigits()).isEqualTo(this.numberOfFractionDigits);
         assertThat(registerSpec.getOverflowValue()).isEqualTo(BigDecimal.valueOf(1000000000));
     }
@@ -142,20 +139,13 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS+"}", property = "numberOfFractionDigits")
     public void createRegisterSpecNoFractionDigits() {
-        RegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType).setNumberOfDigits(1).add();
-    }
-
-    @Test
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS+"}", property = "numberOfDigits")
-    public void createRegisterSpecNegativeDigits() {
-        RegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType).setNumberOfDigits(-1).setNumberOfFractionDigits(1).setOverflowValue(BigDecimal.ONE).add();
+        RegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType).add();
     }
 
     @Test
     @Transactional
     public void createRegisterSpecTestOverflowDefaultIsApplied() {
-        NumericalRegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType).setNumberOfDigits(5).setNumberOfFractionDigits(0).add();
+        NumericalRegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType).numberOfFractionDigits(0).add();
 
         assertThat(registerSpec.getOverflowValue()).isEqualTo(BigDecimal.valueOf(100000));
     }
@@ -164,35 +154,11 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     public void createRegisterSpecTestOverflowDefaultIsAppliedLargeValue() {
         // JP-2164
-        NumericalRegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType).setNumberOfDigits(20).setNumberOfFractionDigits(0).add();
+        NumericalRegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType).numberOfFractionDigits(0).add();
 
         assertThat(registerSpec.getOverflowValue()).isEqualTo(BigDecimal.TEN.pow(20));
     }
 
-    @Test
-    @Transactional
-    public void updateNumberOfDigitsRegisterSpecTest() {
-        NumericalRegisterSpec registerSpec = createNumericalRegisterSpecWithDefaults();
-        int updatedNumberOfDigits = 18;
-
-        NumericalRegisterSpec.Updater registerSpecUpdater = this.getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec);
-        registerSpecUpdater.setNumberOfDigits(updatedNumberOfDigits);
-        registerSpecUpdater.update();
-
-        assertThat(registerSpec.getNumberOfDigits()).isEqualTo(updatedNumberOfDigits);
-    }
-
-    @Test
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS+"}", property = "numberOfDigits")
-    public void updateNumberOfDigitsRegisterSpecTooLargeTest() {
-        NumericalRegisterSpec registerSpec = createNumericalRegisterSpecWithDefaults();
-        int updatedNumberOfDigits = 98;
-
-        NumericalRegisterSpec.Updater registerSpecUpdater = this.getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec);
-        registerSpecUpdater.setNumberOfDigits(updatedNumberOfDigits);
-        registerSpecUpdater.update();
-    }
 
     @Test
     @Transactional
@@ -201,7 +167,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         NumericalRegisterSpec registerSpec = createNumericalRegisterSpecWithDefaults();
 
         NumericalRegisterSpec.Updater registerSpecUpdater = this.getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec);
-        registerSpecUpdater.setOverflowValue(null);
+        registerSpecUpdater.overflowValue(null);
         registerSpecUpdater.update();
     }
 
@@ -212,7 +178,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         NumericalRegisterSpec registerSpec = createNumericalRegisterSpecWithDefaults();
 
         NumericalRegisterSpec.Updater registerSpecUpdater = getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec);
-        registerSpecUpdater.setOverflowValue(BigDecimal.ZERO);
+        registerSpecUpdater.overflowValue(BigDecimal.ZERO);
         registerSpecUpdater.update();
     }
 
@@ -223,19 +189,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         NumericalRegisterSpec registerSpec = createNumericalRegisterSpecWithDefaults();
 
         NumericalRegisterSpec.Updater registerSpecUpdater = getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec);
-        registerSpecUpdater.setNumberOfFractionDigits(-1);
-        registerSpecUpdater.update();
-    }
-
-    @Test
-    @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS+"}", property = "numberOfDigits", strict = false)
-    public void setNegativeNumberOfDigitsTest() {
-        NumericalRegisterSpec registerSpec = createNumericalRegisterSpecWithDefaults();
-        int updatedNumberOfDigits = -1;
-
-        NumericalRegisterSpec.Updater registerSpecUpdater = this.getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec);
-        registerSpecUpdater.setNumberOfDigits(updatedNumberOfDigits);
+        registerSpecUpdater.numberOfFractionDigits(-1);
         registerSpecUpdater.update();
     }
 
@@ -246,7 +200,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         int updatedNumberOfFractionDigits = 6;
 
         NumericalRegisterSpec.Updater registerSpecUpdater = this.getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec);
-        registerSpecUpdater.setNumberOfFractionDigits(updatedNumberOfFractionDigits);
+        registerSpecUpdater.numberOfFractionDigits(updatedNumberOfFractionDigits);
         registerSpecUpdater.update();
 
         assertThat(registerSpec.getNumberOfFractionDigits()).isEqualTo(updatedNumberOfFractionDigits);
@@ -259,7 +213,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         ObisCode overruledObisCode = ObisCode.fromString("1.0.2.8.3.255");
 
         NumericalRegisterSpec.Updater registerSpecUpdater = this.getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec);
-        registerSpecUpdater.setOverruledObisCode(overruledObisCode);
+        registerSpecUpdater.overruledObisCode(overruledObisCode);
         registerSpecUpdater.update();
 
         assertThat(registerSpec.getDeviceObisCode()).isEqualTo(overruledObisCode);
@@ -273,7 +227,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         BigDecimal overflow = new BigDecimal(456789);
 
         NumericalRegisterSpec.Updater registerSpecUpdater = this.getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec);
-        registerSpecUpdater.setOverflowValue(overflow);
+        registerSpecUpdater.overflowValue(overflow);
         registerSpecUpdater.update();
 
         assertThat(registerSpec.getOverflowValue()).isEqualTo(overflow);
@@ -287,7 +241,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         BigDecimal overflow = new BigDecimal(1000000001);
 
         NumericalRegisterSpec.Updater registerSpecUpdater = this.getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec);
-        registerSpecUpdater.setOverflowValue(overflow);
+        registerSpecUpdater.overflowValue(overflow);
         registerSpecUpdater.update();
     }
 
@@ -299,7 +253,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         BigDecimal overflow = new BigDecimal(123.33333333); // assuming we have three fractionDigits
 
         NumericalRegisterSpec.Updater registerSpecUpdater = this.getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec);
-        registerSpecUpdater.setOverflowValue(overflow);
+        registerSpecUpdater.overflowValue(overflow);
         registerSpecUpdater.update();
     }
 
@@ -356,7 +310,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         registerSpec2 = registerSpecBuilder.add();
 
         NumericalRegisterSpec.Updater registerSpecUpdater = this.getReloadedDeviceConfiguration().getRegisterSpecUpdaterFor(registerSpec2);
-        registerSpecUpdater.setOverruledObisCode(registerTypeObisCode);
+        registerSpecUpdater.overruledObisCode(registerTypeObisCode);
         registerSpecUpdater.update();
     }
 
@@ -387,19 +341,9 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED+"}", property = "numberOfDigits", strict = false)
-    public void testDecreaseNumberOfDigits() throws Exception {
-        NumericalRegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
-        this.getReloadedDeviceConfiguration().activate();
-        registerSpec.setNumberOfDigits(8); // decreased!!
-        registerSpec.save();
-    }
-
-    @Test
-    @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED+"}", property = "numberOfFractionDigits")
     public void testDecreaseNumberOfFractionDigits() throws Exception {
-        NumericalRegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
+        NumericalRegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType).numberOfFractionDigits(3).add();
         this.getReloadedDeviceConfiguration().activate();
         registerSpec.setNumberOfFractionDigits(1); // decreased!!
         registerSpec.save();
@@ -407,17 +351,8 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    public void testDecreaseNumberOfDigitsInactiveConfig() throws Exception {
-        NumericalRegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
-        registerSpec.setNumberOfDigits(8); // decreased!!
-        registerSpec.setOverflowValue(BigDecimal.valueOf(100000000));
-        registerSpec.save();
-    }
-
-    @Test
-    @Transactional
     public void testDecreaseNumberOfFractionDigitsInactiveConfig() throws Exception {
-        NumericalRegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
+        NumericalRegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType).numberOfFractionDigits(3).add();
         registerSpec.setNumberOfFractionDigits(1); // decreased!!
         registerSpec.save();
     }
@@ -426,7 +361,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.REGISTER_SPEC_REGISTER_TYPE_ACTIVE_DEVICE_CONFIG +"}", property = "registerType")
     public void testUpdateRegisterTypeForActiveConfig() throws Exception {
-        RegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType).setNumberOfDigits(10).setNumberOfFractionDigits(3).add();
+        RegisterSpec registerSpec = this.getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType).numberOfFractionDigits(3).add();
         getReloadedDeviceConfiguration().save();
         getReloadedDeviceConfiguration().activate();
         RegisterType registerType2 = getRegisterType(readingType2);
@@ -441,9 +376,8 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     public void testVeryBigOverflowValueExceedsMaxInt() throws Exception {
         this.getReloadedDeviceConfiguration().
                 createNumericalRegisterSpec(registerType).
-                setNumberOfDigits(10).
-                setNumberOfFractionDigits(3).
-                setOverflowValue(BigDecimal.valueOf(Long.MAX_VALUE)).
+                numberOfFractionDigits(3).
+                overflowValue(BigDecimal.valueOf(Long.MAX_VALUE)).
                 add();
         getReloadedDeviceConfiguration().save();
     }
@@ -453,9 +387,8 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     public void testVeryBigOverflowValueOverflowsToNegativeInt() throws Exception {
         RegisterSpec registerSpec = this.getReloadedDeviceConfiguration().
                 createNumericalRegisterSpec(registerType).
-                setNumberOfDigits(10).
-                setNumberOfFractionDigits(3).
-                setOverflowValue(BigDecimal.valueOf(Integer.MAX_VALUE).add(BigDecimal.valueOf(1000))).
+                numberOfFractionDigits(3).
+                overflowValue(BigDecimal.valueOf(Integer.MAX_VALUE).add(BigDecimal.valueOf(1000))).
                 add();
         getReloadedDeviceConfiguration().save();
     }
@@ -495,13 +428,11 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     public void cloneNumericalRegisterWithOverruledObisCodeTest() {
         ObisCode deviceObisCode = ObisCode.fromString("1.9.1.8.17.255");
         BigDecimal overFlowValue = BigDecimal.valueOf(65111L);
-        int numberOfDigits = 7;
         int numberOfFractionDigits = 6;
         NumericalRegisterSpec.Builder builder = getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType);
-        builder.setOverruledObisCode(deviceObisCode);
-        builder.setOverflowValue(overFlowValue);
-        builder.setNumberOfDigits(numberOfDigits);
-        builder.setNumberOfFractionDigits(numberOfFractionDigits);
+        builder.overruledObisCode(deviceObisCode);
+        builder.overflowValue(overFlowValue);
+        builder.numberOfFractionDigits(numberOfFractionDigits);
         NumericalRegisterSpec numericalRegisterSpec = builder.add();
 
         DeviceConfiguration cloneConfig = deviceType.newConfiguration("MyClone").add();
@@ -509,7 +440,6 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(registerSpec.getDeviceConfiguration().getId()).isEqualTo(cloneConfig.getId());
         assertThat(registerSpec.getDeviceObisCode()).isEqualTo(deviceObisCode);
         assertThat(registerSpec.getObisCode()).isEqualTo(registerType.getObisCode());
-        assertThat(registerSpec.getNumberOfDigits()).isEqualTo(numberOfDigits);
         assertThat(registerSpec.getNumberOfFractionDigits()).isEqualTo(numberOfFractionDigits);
         assertThat(registerSpec.getOverflowValue()).isEqualTo(overFlowValue);
     }
@@ -518,12 +448,10 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     @Transactional
     public void cloneNumericalRegisterWithoutOverruledObisCodeTest() {
         BigDecimal overFlowValue = BigDecimal.valueOf(65111L);
-        int numberOfDigits = 7;
         int numberOfFractionDigits = 6;
         NumericalRegisterSpec.Builder builder = getReloadedDeviceConfiguration().createNumericalRegisterSpec(registerType);
-        builder.setOverflowValue(overFlowValue);
-        builder.setNumberOfDigits(numberOfDigits);
-        builder.setNumberOfFractionDigits(numberOfFractionDigits);
+        builder.overflowValue(overFlowValue);
+        builder.numberOfFractionDigits(numberOfFractionDigits);
         NumericalRegisterSpec numericalRegisterSpec = builder.add();
 
         DeviceConfiguration cloneConfig = deviceType.newConfiguration("MyClone").add();
@@ -531,7 +459,6 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(registerSpec.getDeviceConfiguration().getId()).isEqualTo(cloneConfig.getId());
         assertThat(registerSpec.getDeviceObisCode()).isEqualTo(registerType.getObisCode());
         assertThat(registerSpec.getObisCode()).isEqualTo(registerType.getObisCode());
-        assertThat(registerSpec.getNumberOfDigits()).isEqualTo(numberOfDigits);
         assertThat(registerSpec.getNumberOfFractionDigits()).isEqualTo(numberOfFractionDigits);
         assertThat(registerSpec.getOverflowValue()).isEqualTo(overFlowValue);
     }

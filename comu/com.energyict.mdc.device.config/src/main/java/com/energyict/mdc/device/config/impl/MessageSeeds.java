@@ -35,11 +35,9 @@ public enum MessageSeeds implements MessageSeed {
     LOAD_PROFILE_TYPE_STILL_IN_USE_BY_DEVICE_TYPES(4012, "loadProfileType.XstillInUseByDeviceTypesY", "The load profile type with reading type {0} cannot be removed because it is still in use by the following device type(s): {1}"),
     LOG_BOOK_TYPE_OBIS_CODE_CANNOT_BE_UPDATED(5000, "logBookType.cannotUpdateObisCode", "The obis code of the log book type \"{0}\" cannot be updated because it is in use"),
     LOG_BOOK_TYPE_STILL_IN_USE_BY_LOG_BOOK_SPECS(5001, "logBookType.XstillInUseByLogBookSpecsY", "The log book type {0} cannot be removed because it is still in use by the following log book spec(s): {1}"),
-    REGISTER_SPEC_NUMBER_OF_DIGITS_INVALID(6001, Keys.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS, "Invalid number of digits. At least {min} digit is required, maximum is {max}"),
-    REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED(6002, Keys.REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED, "The number of digits can not be decreased"),
+    REGISTER_SPEC_OVERFLOW_DECREASED(6002, Keys.REGISTER_SPEC_OVERFLOW_DECREASED, "The overflow value can not be decreased"),
     REGISTER_SPEC_REGISTER_TYPE_IS_REQUIRED(6003, Keys.REGISTER_SPEC_REGISTER_TYPE_IS_REQUIRED,"The register type of a register configuration is required"),
     REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED(6004, Keys.REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED, "The number of fraction digits can not be decreased"),
-    REGISTER_SPEC_OVERFLOW_LARGER_THAN_NUMBER_OF_DIGITS(6005, Keys.REGISTER_SPEC_OVERFLOW_LARGER_THAN_NUMBER_OF_DIGITS,"The provided overflow value \"{0}\" may not exceed \"{1}\" (according to the provided number of digits \"{2}\")"),
     REGISTER_SPEC_OVERFLOW_LARGER_THAN_ZERO(6006, "registerSpec.overflow.invalidValue","The provided overflow value must be larger then zero (0))"),
     REGISTER_SPEC_OVERFLOW_INCORRECT_FRACTION_DIGITS(6007, Keys.REGISTER_SPEC_OVERFLOW_INCORRECT_FRACTION_DIGITS, "The provided overflow value \"{0}\" more fraction digits \"{1}\" than provided \"{2}\""),
     REGISTER_SPEC_CANNOT_DELETE_FOR_ACTIVE_CONFIG(6009, "registerSpec.delete.active.config","It is not allowed to remove a register configuration from an active device configuration"),
@@ -211,8 +209,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DEVICE_CONFIG_GATEWAY_NOT_ALLOWED = "deviceConfig.gateway.notAllowed";
         public static final String DEVICE_CONFIG_DIRECT_ADDRESS_NOT_ALLOWED = "deviceConfig.directAddress.notAllowed";
         public static final String DEVICE_CONFIGURATION_IS_NOT_DIRECTLY_ADDRESSABLE = "deviceConfig.isnot.directAddressable";
-        public static final String REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS = "registerSpec.invalidNumberOfDigits";
-        public static final String REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED = "registerSpec.numberOfDigits.decreased";
+        public static final String REGISTER_SPEC_OVERFLOW_DECREASED = "registerSpec.overFlow.decreased";
         public static final String REGISTER_SPEC_NUMBER_OF_FRACTION_DIGITS_DECREASED = "registerSpec.numberOfFractionDigits.decreased";
         public static final String REGISTER_SPEC_REGISTER_TYPE_ACTIVE_DEVICE_CONFIG = "registerSpec.measurementType.activeDeviceConfig";
         public static final String PROTOCOLDIALECT_REQUIRED = "protocolDialectConfigurationProperties.dialectName.required";
@@ -244,7 +241,6 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INCORRECT_CONNECTION_TYPE_FOR_CONNECTION_METHOD = "incorrect.direction.connection.method";
         public static final String INCORRECT_GATEWAY_TYPE = "incorrect.gateway.type";
         public static final String DEVICE_LIFE_CYCLE_REQUIRED = "deviceType.device.life.cycle.required";
-        public static final String REGISTER_SPEC_OVERFLOW_LARGER_THAN_NUMBER_OF_DIGITS = "registerSpec.overflow.exceed";
         public static final String REGISTER_SPEC_OVERFLOW_INCORRECT_FRACTION_DIGITS = "registerSpec.overflow.fractionDigits";
         public static final String DESTINATION_DATA_SOURCE_IS_EMPTY = "destinationDataSourceIsEmpty";
         public static final String MULTIPLE_SOLUTIONS_FOR_SAME_CONFLICT = "multipleSolutionsDefinedForSameConfig";

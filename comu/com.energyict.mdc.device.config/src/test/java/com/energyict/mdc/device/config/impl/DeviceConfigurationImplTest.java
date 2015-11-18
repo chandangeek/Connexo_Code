@@ -359,7 +359,7 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder1.add();
         deviceConfiguration.activate();
 
-        NumericalRegisterSpec.Builder registerSpecBuilder = deviceConfiguration.createNumericalRegisterSpec(registerType).setNumberOfDigits(10).setNumberOfFractionDigits(0);
+        NumericalRegisterSpec.Builder registerSpecBuilder = deviceConfiguration.createNumericalRegisterSpec(registerType).numberOfFractionDigits(0);
         try {
             registerSpecBuilder.add();
         } catch (CannotAddToActiveDeviceConfigurationException e) {

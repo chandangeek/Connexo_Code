@@ -171,7 +171,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
 
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
-        channelSpecBuilder.setNbrOfFractionDigits(digits);
+        channelSpecBuilder.nbrOfFractionDigits(digits);
         channelSpec = channelSpecBuilder.add();
 
         assertThat(channelSpec.getNbrOfFractionDigits()).isEqualTo(digits);
@@ -187,7 +187,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         channelSpec = createDefaultChannelSpec(loadProfileSpec);
 
         ChannelSpec.ChannelSpecUpdater channelSpecUpdater = getReloadedDeviceConfiguration().getChannelSpecUpdaterFor(channelSpec);
-        channelSpecUpdater.setNbrOfFractionDigits(digits);
+        channelSpecUpdater.nbrOfFractionDigits(digits);
         channelSpecUpdater.update();
 
         assertThat(channelSpec.getNbrOfFractionDigits()).isEqualTo(digits);
@@ -212,7 +212,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
 
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
-        channelSpecBuilder.setOverflow(overflow);
+        channelSpecBuilder.overflow(overflow);
         channelSpec = channelSpecBuilder.add();
 
         assertThat(channelSpec.getOverflow()).isEqualTo(overflow);
@@ -228,7 +228,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         channelSpec = createDefaultChannelSpec(loadProfileSpec);
 
         ChannelSpec.ChannelSpecUpdater channelSpecUpdater = getReloadedDeviceConfiguration().getChannelSpecUpdaterFor(channelSpec);
-        channelSpecUpdater.setOverflow(overflow);
+        channelSpecUpdater.overflow(overflow);
         channelSpecUpdater.update();
 
         assertThat(channelSpec.getOverflow()).isEqualTo(overflow);
@@ -241,7 +241,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
 
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
-        channelSpecBuilder.setOverruledObisCode(overruledChannelSpecObisCode);
+        channelSpecBuilder.overruledObisCode(overruledChannelSpecObisCode);
         channelSpec = channelSpecBuilder.add();
 
         assertThat(channelSpec.getDeviceObisCode()).isEqualTo(overruledChannelSpecObisCode);
@@ -257,7 +257,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         channelSpec = createDefaultChannelSpec(loadProfileSpec);
 
         ChannelSpec.ChannelSpecUpdater channelSpecUpdater = getReloadedDeviceConfiguration().getChannelSpecUpdaterFor(channelSpec);
-        channelSpecUpdater.setOverruledObisCode(overruledChannelSpecObisCode);
+        channelSpecUpdater.overruledObisCode(overruledChannelSpecObisCode);
         channelSpecUpdater.update();
 
         assertThat(channelSpec.getDeviceObisCode()).isEqualTo(overruledChannelSpecObisCode);
@@ -282,7 +282,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
 
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
-        channelSpecBuilder.setReadingMethod(ReadingMethod.BASIC_DATA);
+        channelSpecBuilder.readingMethod(ReadingMethod.BASIC_DATA);
         channelSpec = channelSpecBuilder.add();
 
         assertThat(channelSpec.getReadingMethod()).isEqualTo(ReadingMethod.BASIC_DATA);
@@ -297,7 +297,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         channelSpec = createDefaultChannelSpec(loadProfileSpec);
 
         ChannelSpec.ChannelSpecUpdater channelSpecUpdater = getReloadedDeviceConfiguration().getChannelSpecUpdaterFor(channelSpec);
-        channelSpecUpdater.setReadingMethod(ReadingMethod.BASIC_DATA);
+        channelSpecUpdater.readingMethod(ReadingMethod.BASIC_DATA);
         channelSpecUpdater.update();
 
         assertThat(channelSpec.getReadingMethod()).isEqualTo(ReadingMethod.BASIC_DATA);
@@ -321,7 +321,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
 
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
-        channelSpecBuilder.setValueCalculationMethod(ValueCalculationMethod.RAW_DATA);
+        channelSpecBuilder.valueCalculationMethod(ValueCalculationMethod.RAW_DATA);
         channelSpec = channelSpecBuilder.add();
 
         assertThat(channelSpec.getValueCalculationMethod()).isEqualTo(ValueCalculationMethod.RAW_DATA);
@@ -334,7 +334,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
 
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
-        channelSpecBuilder.setValueCalculationMethod(ValueCalculationMethod.FORCE_METER_ADVANCE);
+        channelSpecBuilder.valueCalculationMethod(ValueCalculationMethod.FORCE_METER_ADVANCE);
         channelSpec = channelSpecBuilder.add();
 
         assertThat(channelSpec.getValueCalculationMethod()).isEqualTo(ValueCalculationMethod.FORCE_METER_ADVANCE);
@@ -349,7 +349,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         channelSpec = createDefaultChannelSpec(loadProfileSpec);
 
         ChannelSpec.ChannelSpecUpdater channelSpecUpdater = getReloadedDeviceConfiguration().getChannelSpecUpdaterFor(channelSpec);
-        channelSpecUpdater.setValueCalculationMethod(ValueCalculationMethod.RAW_DATA);
+        channelSpecUpdater.valueCalculationMethod(ValueCalculationMethod.RAW_DATA);
         channelSpecUpdater.update();
 
         assertThat(channelSpec.getValueCalculationMethod()).isEqualTo(ValueCalculationMethod.RAW_DATA);
@@ -364,7 +364,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         channelSpec = createDefaultChannelSpec(loadProfileSpec);
 
         ChannelSpec.ChannelSpecUpdater channelSpecUpdater = getReloadedDeviceConfiguration().getChannelSpecUpdaterFor(channelSpec);
-        channelSpecUpdater.setValueCalculationMethod(ValueCalculationMethod.FORCE_METER_ADVANCE);
+        channelSpecUpdater.valueCalculationMethod(ValueCalculationMethod.FORCE_METER_ADVANCE);
         channelSpecUpdater.update();
 
         assertThat(channelSpec.getValueCalculationMethod()).isEqualTo(ValueCalculationMethod.FORCE_METER_ADVANCE);
@@ -454,7 +454,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     public void createWithoutValueCalculationMethodTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
-        channelSpecBuilder.setValueCalculationMethod(null);
+        channelSpecBuilder.valueCalculationMethod(null);
         channelSpecBuilder.add();
     }
 
@@ -504,7 +504,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     public void cloneChannelSpecsWithOverruledObisCodeTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
         ObisCode deviceChannelObisCode = ObisCode.fromString("1.2.3.4.55.6");
-        ChannelSpec channelSpec = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec).setOverruledObisCode(deviceChannelObisCode).add();
+        ChannelSpec channelSpec = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec).overruledObisCode(deviceChannelObisCode).add();
         DeviceConfiguration clone = deviceType.newConfiguration("MyClone").add();
 
         LoadProfileSpec lpSpecWithChannels = ((ServerLoadProfileSpec) loadProfileSpec).cloneForDeviceConfig(clone);

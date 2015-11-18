@@ -27,11 +27,11 @@ public class NumericalRegisterSpecValidator implements ConstraintValidator<Valid
         boolean valid=true;
         NumericalRegisterSpec freshRegisterSpec = (NumericalRegisterSpec) dataModel.mapper(RegisterSpec.class).getUnique("id", registerSpec.getId()).get();
         if (freshRegisterSpec.getDeviceConfiguration().isActive()) {
-            if (freshRegisterSpec.getNumberOfDigits()>registerSpec.getNumberOfDigits()) {
+            if (freshRegisterSpec.getOverflowValue().compareTo(registerSpec.getOverflowValue()) > 0) {
                 valid=false;
                 context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate("{"+ MessageSeeds.Keys.REGISTER_SPEC_NUMBER_OF_DIGITS_DECREASED+"}").
-                        addPropertyNode(RegisterSpecFields.NUMBER_OF_DIGITS.fieldName()).
+                context.buildConstraintViolationWithTemplate("{"+ MessageSeeds.Keys.REGISTER_SPEC_OVERFLOW_DECREASED +"}").
+                        addPropertyNode(RegisterSpecFields.OVERFLOW_VALUE.fieldName()).
                         addConstraintViolation();
             }
             if (freshRegisterSpec.getNumberOfFractionDigits()>registerSpec.getNumberOfFractionDigits()) {

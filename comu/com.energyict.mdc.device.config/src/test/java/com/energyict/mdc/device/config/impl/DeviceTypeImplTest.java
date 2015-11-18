@@ -655,8 +655,7 @@ public class DeviceTypeImplTest extends DeviceTypeProvidingPersistenceTest {
         // Add DeviceConfiguration with a RegisterSpec that uses the RegisterType
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration("Conf 1 for " + deviceTypeName);
         NumericalRegisterSpec.Builder registerSpecBuilder = deviceConfigurationBuilder.newNumericalRegisterSpec(this.registerType1);
-        registerSpecBuilder.setNumberOfDigits(5);
-        registerSpecBuilder.setNumberOfFractionDigits(2);
+        registerSpecBuilder.numberOfFractionDigits(2);
         deviceConfigurationBuilder.add();
 
         try {

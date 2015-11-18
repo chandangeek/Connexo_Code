@@ -2,6 +2,8 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
@@ -31,6 +33,7 @@ import com.energyict.mdc.device.config.impl.deviceconfigchange.DeviceConfigConfl
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.masterdata.MeasurementType;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
@@ -243,30 +246,37 @@ public enum TableSpecs {
             table.addAuditColumns();
             Column deviceConfiguration = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
             Column channelType = table.column("CHANNELTYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
-            table.column("OBISCODE").varChar(80).map("overruledObisCodeString").add();
-            table.column("FRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INT).map("nbrOfFractionDigits").add();
-            table.column("OVERFLOWVALUE").number().map("overflow").add();
-            table.column("READINGMETHOD").number().conversion(ColumnConversion.NUMBER2ENUM).notNull().map("readingMethod").add();
-            table.column("VALUECALCULATIONMETHOD").number().conversion(ColumnConversion.NUMBER2ENUM).notNull().map("valueCalculationMethod").add();
+            table.column("OBISCODE").varChar(Table.NAME_LENGTH).map(ChannelSpecImpl.ChannelSpecFields.OVERRULED_OBISCODE.fieldName()).add();
+            table.column("FRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INT).map(ChannelSpecImpl.ChannelSpecFields.NUMBER_OF_FRACTION_DIGITS.fieldName()).add();
+            table.column("OVERFLOWVALUE").number().map(ChannelSpecImpl.ChannelSpecFields.OVERFLOW_VALUE.fieldName()).add();
+            table.column("READINGMETHOD").number().conversion(ColumnConversion.NUMBER2ENUM).notNull().map(ChannelSpecImpl.ChannelSpecFields.READING_METHOD.fieldName()).add();
+            table.column("VALUECALCULATIONMETHOD").number().conversion(ColumnConversion.NUMBER2ENUM).notNull().map(ChannelSpecImpl.ChannelSpecFields.VALUE_CALCULATION_METHOD.fieldName()).add();
             Column loadProfileSpec = table.column("LOADPROFILESPECID").number().conversion(ColumnConversion.NUMBER2LONG).add();
-            table.column("INTERVAL").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("interval.count").add();
-            table.column("INTERVALCODE").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("interval.timeUnitCode").add();
+            table.column("INTERVAL").number().notNull().conversion(ColumnConversion.NUMBER2INT).map(ChannelSpecImpl.ChannelSpecFields.INTERVAL_COUNT.fieldName()).add();
+            table.column("INTERVALCODE").number().notNull().conversion(ColumnConversion.NUMBER2INT).map(ChannelSpecImpl.ChannelSpecFields.INTERVAL_CODE.fieldName()).add();
+            table.column("USEMULTIPLIER").number().conversion(NUMBER2BOOLEAN).map(ChannelSpecImpl.ChannelSpecFields.USEMULTIPLIER.fieldName()).add();
+            Column calculatedReadingType = table.column("CALCULATEDREADINGTYPE").varChar(Table.NAME_LENGTH).add();
             table.primaryKey("PK_DTC_CHANNELSPEC").on(id).add();
             table.foreignKey("FK_DTC_CHANNELSPEC_DEVCONFIG").
                     on(deviceConfiguration).
                     references(DTC_DEVICECONFIG.name()).
-                    map("deviceConfiguration").
+                    map(ChannelSpecImpl.ChannelSpecFields.DEVICE_CONFIG.fieldName()).
                     onDelete(CASCADE).
                     add();
             table.foreignKey("FK_DTC_CHANNELSPEC_REGMAP").
                     on(channelType).
-                    references(MasterDataService.COMPONENTNAME, "MDS_MEASUREMENTTYPE").
-                    map("channelType").
+                    references(MeasurementType.class).
+                    map(ChannelSpecImpl.ChannelSpecFields.CHANNEL_TYPE.fieldName()).
                     add();
+            table.foreignKey("FK_DTC_CHANNELSPEC_CALC")
+                    .on(calculatedReadingType)
+                    .references(ReadingType.class)
+                    .map(ChannelSpecImpl.ChannelSpecFields.CALCULATED_READINGTYPE.fieldName())
+                    .add();
             table.foreignKey("FK_DTC_CHANNELSPEC_LPRFSPEC").
                     on(loadProfileSpec).
                     references(DTC_LOADPROFILESPEC.name()).
-                    map("loadProfileSpec").
+                    map(ChannelSpecImpl.ChannelSpecFields.LOADPROFILE_SPEC.fieldName()).
                     reverseMap("channelSpecs").
                     composition().
                     add();
@@ -282,15 +292,16 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.addDiscriminatorColumn("DISCRIMINATOR", "char(1)");
             Column registerType = table.column("REGISTERTYPEID").number().conversion(ColumnConversion.NUMBER2LONG).notNull().add();
-            table.column("NUMBEROFDIGITS").number().conversion(ColumnConversion.NUMBER2INT).map(RegisterSpecFields.NUMBER_OF_DIGITS.fieldName()).add();
             table.column("DEVICEOBISCODE").varChar().map("overruledObisCodeString").add();
             table.column("NUMBEROFFRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INT).map(RegisterSpecFields.NUMBER_OF_FRACTION_DIGITS.fieldName()).add();
             table.column("OVERFLOWVALUE").number().map(RegisterSpecFields.OVERFLOW_VALUE.fieldName()).add();
             Column deviceConfiguration = table.column("DEVICECONFIGID").number().conversion(ColumnConversion.NUMBER2LONG).add();
+            table.column("USEMULTIPLIER").number().conversion(NUMBER2BOOLEAN).map(RegisterSpecFields.USEMULTIPLIER.fieldName()).add();
+            Column calculatedReadingType = table.column("CALCULATEDREADINGTYPE").varChar(Table.NAME_LENGTH).add();
             table.primaryKey("PK_DTC_REGISTERSPEC").on(id).add();
             table.foreignKey("FK_DTC_REGISTERSPEC_REGMAP").
                     on(registerType).
-                    references(MasterDataService.COMPONENTNAME, "MDS_MEASUREMENTTYPE").
+                    references(MeasurementType.class).
                     map(RegisterSpecFields.REGISTER_TYPE.fieldName()).
                     add();
             table.foreignKey("FK_DTC_REGISTERSPEC_DEVCONFIG").
@@ -301,6 +312,10 @@ public enum TableSpecs {
                     composition().
                     onDelete(CASCADE).
                     add();
+            table.foreignKey("FK_DTC_REGISTERSPEC_CALC")
+                    .on(calculatedReadingType)
+                    .references(ReadingType.class)
+                    .map(RegisterSpecFields.CALCULATED_READINGTYPE.fieldName()).add();
             table.unique("U_DTC_REGISTERTYPE_IN_CONFIG").
                     on(deviceConfiguration, registerType).
                     add();

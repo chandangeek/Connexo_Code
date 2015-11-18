@@ -34,16 +34,6 @@ public class OverFlowAndNumberOfDigitsValidator implements ConstraintValidator<V
                         addConstraintViolation();
             }
         }
-        if (registerSpec.getOverflowValue() != null && registerSpec.getNumberOfDigits() > 0) {
-            if (registerSpec.getOverflowValue().compareTo(BigDecimal.valueOf(10).pow(registerSpec.getNumberOfDigits())) == 1) {
-                valid=false;
-                String message = thesaurus.getFormat(MessageSeeds.REGISTER_SPEC_OVERFLOW_LARGER_THAN_NUMBER_OF_DIGITS).format(registerSpec.getOverflowValue(), Math.pow(10, registerSpec.getNumberOfDigits()), registerSpec.getNumberOfDigits());
-                context.disableDefaultConstraintViolation();
-                context.buildConstraintViolationWithTemplate(message).
-                        addPropertyNode(RegisterSpecFields.OVERFLOW_VALUE.fieldName()).
-                        addConstraintViolation();
-            }
-        }
         return valid;
     }
 }

@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
@@ -22,14 +24,16 @@ import java.math.BigDecimal;
 @ValidNumericalRegisterSpec(groups = {Save.Update.class})
 public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegisterSpec> implements NumericalRegisterSpec {
 
-    @Range(min = 1, max = 20, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_DIGITS + "}")
-    private int numberOfDigits;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
     @Range(min = 0, max = 6, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
     private Integer numberOfFractionDigits;
     @Min(value = 1, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_OVERFLOW_VALUE + "}")
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_OVERFLOW_IS_REQUIRED + "}")
     private BigDecimal overflow;
+
+    //TODO validate the stuff
+    private boolean useMultiplier;
+    private Reference<ReadingType> calculatedReadingType;
 
     @Inject
     public NumericalRegisterSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
@@ -44,15 +48,6 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
     @Override
     public boolean isCumulative() {
         return getRegisterType().isCumulative();
-    }
-
-    public int getNumberOfDigits() {
-        return numberOfDigits;
-    }
-
-    @Override
-    public void setNumberOfDigits(int numberOfDigits) {
-        this.numberOfDigits = numberOfDigits;
     }
 
     public int getNumberOfFractionDigits() {
@@ -77,6 +72,22 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
         this.overflow = overflowValue;
     }
 
+    public boolean isUseMultiplier() {
+        return useMultiplier;
+    }
+
+    public void setUseMultiplier(boolean useMultiplier) {
+        this.useMultiplier = useMultiplier;
+    }
+
+    public ReadingType getCalculatedReadingType() {
+        return calculatedReadingType.get();
+    }
+
+    public void setCalculatedReadingType(ReadingType calculatedReadingType) {
+        this.calculatedReadingType.set(calculatedReadingType);
+    }
+
     protected void validate() {
         super.validate();
     }
@@ -91,46 +102,39 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
         }
 
         @Override
-        public Builder setRegisterType(RegisterType registerType) {
-            this.registerSpec.setRegisterType(registerType);
-            return this;
-        }
-
-        @Override
-        public Builder setOverruledObisCode(ObisCode overruledObisCode) {
+        public Builder overruledObisCode(ObisCode overruledObisCode) {
             this.registerSpec.setOverruledObisCode(overruledObisCode);
             return this;
         }
 
         @Override
-        public Builder setNumberOfDigits(int numberOfDigits) {
-            this.registerSpec.setNumberOfDigits(numberOfDigits);
-            return this;
-        }
-
-        @Override
-        public Builder setNumberOfFractionDigits(int numberOfFractionDigits) {
+        public Builder numberOfFractionDigits(int numberOfFractionDigits) {
             this.registerSpec.setNumberOfFractionDigits(numberOfFractionDigits);
             return this;
         }
 
         @Override
-        public Builder setOverflowValue(BigDecimal overflowValue) {
+        public Builder overflowValue(BigDecimal overflowValue) {
             this.registerSpec.setOverflowValue(overflowValue);
             return this;
         }
 
         @Override
-        public NumericalRegisterSpec add() {
-            this.applyDefaultsIfApplicable();
-            this.registerSpec.validateBeforeAddToConfiguration();
-            return this.registerSpec;
+        public Builder calculatedReadingType(ReadingType calculatedReadingType) {
+            this.registerSpec.setCalculatedReadingType(calculatedReadingType);
+            return this;
         }
 
-        private void applyDefaultsIfApplicable() {
-            if (this.registerSpec.getOverflowValue() == null && registerSpec.getNumberOfDigits() > 0) {
-                registerSpec.setOverflowValue(BigDecimal.TEN.pow(registerSpec.getNumberOfDigits()));
-            }
+        @Override
+        public Builder useMultiplier(boolean useMultiplier) {
+            this.registerSpec.setUseMultiplier(useMultiplier);
+            return this;
+        }
+
+        @Override
+        public NumericalRegisterSpec add() {
+            this.registerSpec.validateBeforeAddToConfiguration();
+            return this.registerSpec;
         }
     }
 
@@ -148,26 +152,32 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
         }
 
         @Override
-        public AbstractUpdater setOverruledObisCode(ObisCode overruledObisCode) {
+        public AbstractUpdater overruledObisCode(ObisCode overruledObisCode) {
             this.registerSpec.setOverruledObisCode(overruledObisCode);
             return this;
         }
 
         @Override
-        public Updater setNumberOfDigits(int numberOfDigits) {
-            this.registerSpec.setNumberOfDigits(numberOfDigits);
-            return this;
-        }
-
-        @Override
-        public Updater setNumberOfFractionDigits(int numberOfFractionDigits) {
+        public Updater numberOfFractionDigits(int numberOfFractionDigits) {
             this.registerSpec.setNumberOfFractionDigits(numberOfFractionDigits);
             return this;
         }
 
         @Override
-        public Updater setOverflowValue(BigDecimal overflowValue) {
+        public Updater overflowValue(BigDecimal overflowValue) {
             this.registerSpec.setOverflowValue(overflowValue);
+            return this;
+        }
+
+        @Override
+        public Updater calculatedReadingType(ReadingType calculatedReadingType) {
+            this.registerSpec.setCalculatedReadingType(calculatedReadingType);
+            return this;
+        }
+
+        @Override
+        public Updater useMultiplier(boolean useMultiplier) {
+            this.registerSpec.setUseMultiplier(useMultiplier);
             return this;
         }
 
@@ -176,16 +186,14 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
             this.registerSpec.validateUpdate();
             this.registerSpec.save();
         }
-
     }
 
     @Override
     public RegisterSpec cloneForDeviceConfig(DeviceConfiguration deviceConfiguration) {
         Builder builder = deviceConfiguration.createNumericalRegisterSpec(getRegisterType());
-        builder.setNumberOfDigits(getNumberOfDigits());
-        builder.setNumberOfFractionDigits(getNumberOfFractionDigits());
-        builder.setOverflowValue(getOverflowValue());
-        builder.setOverruledObisCode(getObisCode().equals(getDeviceObisCode()) ? null : getDeviceObisCode());
+        builder.numberOfFractionDigits(getNumberOfFractionDigits());
+        builder.overflowValue(getOverflowValue());
+        builder.overruledObisCode(getObisCode().equals(getDeviceObisCode()) ? null : getDeviceObisCode());
         return builder.add();
     }
 }
