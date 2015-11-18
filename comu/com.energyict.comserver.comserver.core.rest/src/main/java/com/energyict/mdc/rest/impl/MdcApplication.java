@@ -2,7 +2,6 @@ package com.energyict.mdc.rest.impl;
 
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -51,7 +50,6 @@ public class MdcApplication extends Application implements TranslationKeyProvide
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
-                TransactionWrapper.class,
                 ComServerResource.class,
                 ComServerComPortResource.class,
                 ComPortResource.class,
