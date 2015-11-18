@@ -1,6 +1,7 @@
 package com.energyict.mdc.issue.datacollection.rest.resource;
 
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionFilter;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
@@ -88,7 +89,7 @@ public class IssueResource extends BaseResource {
         this.conflictFactory = conflictFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE,Privileges.Constants.ASSIGN_ISSUE,Privileges.Constants.CLOSE_ISSUE,Privileges.Constants.COMMENT_ISSUE,Privileges.Constants.ACTION_ISSUE})
     public PagedInfoList getAllIssues(@BeanParam StandardParametersBean params, @BeanParam JsonQueryParameters queryParams, @BeanParam JsonQueryFilter filter) {
@@ -107,7 +108,7 @@ public class IssueResource extends BaseResource {
                 IssueStatus.class, IssueType.class).find();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{" + ID + "}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
@@ -117,7 +118,7 @@ public class IssueResource extends BaseResource {
                     .orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND));
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{" + ID + "}/comments")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
@@ -126,7 +127,7 @@ public class IssueResource extends BaseResource {
         return PagedInfoList.fromCompleteList("comments", issueResourceHelper.getIssueComments(issue), queryParameters);
     }
 
-    @POST
+    @POST @Transactional
     @Path("/{" + ID + "}/comments")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -136,7 +137,7 @@ public class IssueResource extends BaseResource {
         return Response.ok(issueResourceHelper.postComment(issue, request, securityContext)).status(Response.Status.CREATED).build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{" + ID + "}/actions")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -146,7 +147,7 @@ public class IssueResource extends BaseResource {
         return PagedInfoList.fromCompleteList("issueActions", issueResourceHelper.getListOfAvailableIssueActions(issue), queryParameters);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{" + ID + "}/actions/{" + KEY + "}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE,Privileges.Constants.ASSIGN_ISSUE,Privileges.Constants.CLOSE_ISSUE,Privileges.Constants.COMMENT_ISSUE,Privileges.Constants.ACTION_ISSUE})
@@ -155,7 +156,7 @@ public class IssueResource extends BaseResource {
         return Response.ok(issueResourceHelper.getIssueActionById(actionId)).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{" + ID + "}/actions/{" + KEY + "}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -171,7 +172,7 @@ public class IssueResource extends BaseResource {
         return Response.ok(issueResourceHelper.performIssueAction(issue, request)).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/assign")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -206,7 +207,7 @@ public class IssueResource extends BaseResource {
         return issuesForBulk;
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/close")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
