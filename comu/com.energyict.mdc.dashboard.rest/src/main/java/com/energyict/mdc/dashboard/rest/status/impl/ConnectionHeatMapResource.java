@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.device.data.security.Privileges;
 import java.util.Optional;
@@ -42,7 +43,7 @@ public class ConnectionHeatMapResource {
      * @return HeatMap data
      * @throws Exception
      */
-    @GET
+    @GET @Transactional
     @Consumes("application/json")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})

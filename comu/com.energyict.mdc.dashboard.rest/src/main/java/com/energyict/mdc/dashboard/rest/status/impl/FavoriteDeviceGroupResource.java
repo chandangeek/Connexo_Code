@@ -5,7 +5,6 @@ import static com.energyict.mdc.dashboard.rest.status.impl.FavoriteDeviceGroupIn
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -28,6 +27,7 @@ import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.favorites.FavoriteDeviceGroup;
 import com.energyict.mdc.favorites.FavoritesService;
 
@@ -45,7 +45,7 @@ public class FavoriteDeviceGroupResource {
         this.conflictFactory = conflictFactory;
     }
     
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     //@RolesAllowed({Privileges.VIEW_DEVICE_GROUP_DETAIL, Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP})
     public PagedInfoList getFavoriteDeviceGroups(@QueryParam("includeAllGroups") boolean includeAllGroups, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext) {
@@ -60,7 +60,7 @@ public class FavoriteDeviceGroupResource {
         return PagedInfoList.fromPagedList("favoriteDeviceGroups", infos, queryParameters);
     }
     
-    @PUT
+    @PUT @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     //@RolesAllowed({Privileges.ADMINISTRATE_DEVICE_GROUP, Privileges.ADMINISTRATE_DEVICE_ENUMERATED_GROUP})

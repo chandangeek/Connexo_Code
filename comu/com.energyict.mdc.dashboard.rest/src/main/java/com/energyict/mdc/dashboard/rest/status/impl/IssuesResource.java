@@ -5,6 +5,7 @@ import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.users.User;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionFilter;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
@@ -35,7 +36,7 @@ public class IssuesResource {
         this.issueService = issueService;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public Response getIssues(@Context SecurityContext context) {

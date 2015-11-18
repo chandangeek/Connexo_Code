@@ -1,12 +1,13 @@
 package com.energyict.mdc.dashboard.rest.status;
 
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.OnlineComServer;
 import com.energyict.mdc.engine.config.RemoteComServer;
 import com.energyict.mdc.engine.config.security.Privileges;
 import com.energyict.mdc.engine.status.ComServerType;
-import java.util.logging.Level;
+
 import java.util.logging.Logger;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -52,7 +53,7 @@ public class ComServerStatusSummaryResource {
         this.comServerStatusInfoFactory = comServerStatusInfoFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE})
     public ComServerStatusSummaryInfo getComServerStatusSummary(@Context UriInfo uriInfo) {

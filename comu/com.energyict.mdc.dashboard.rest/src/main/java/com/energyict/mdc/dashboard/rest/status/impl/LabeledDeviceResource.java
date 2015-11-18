@@ -22,6 +22,7 @@ import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.favorites.DeviceLabel;
 import com.energyict.mdc.favorites.FavoritesService;
@@ -40,7 +41,7 @@ public class LabeledDeviceResource {
         this.exceptionFactory = exceptionFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})

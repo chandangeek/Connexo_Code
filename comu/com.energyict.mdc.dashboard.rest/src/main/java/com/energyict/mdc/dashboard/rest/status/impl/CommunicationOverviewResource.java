@@ -4,6 +4,7 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.device.data.security.Privileges;
 import java.util.Optional;
 import javax.annotation.security.RolesAllowed;
@@ -32,7 +33,7 @@ public class CommunicationOverviewResource {
         this.exceptionFactory = exceptionFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
@@ -46,7 +47,7 @@ public class CommunicationOverviewResource {
         }
     }
 
-    @GET
+    @GET @Transactional
     @Path("/widget")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)

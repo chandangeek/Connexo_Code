@@ -1,5 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status;
 
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.engine.status.ComServerStatus;
 import com.energyict.mdc.engine.status.StatusService;
 import com.energyict.mdc.engine.config.security.Privileges;
@@ -34,7 +35,7 @@ public class ComServerStatusResource {
         this.comServerStatusInfoFactory = comServerStatusInfoFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION_INTERNAL, com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE})
     public ComServerStatusInfo getComServerStatus(@Context UriInfo uriInfo) {

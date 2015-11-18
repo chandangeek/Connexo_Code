@@ -2,6 +2,7 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.energyict.mdc.common.rest.FieldResource;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.dashboard.rest.DashboardApplication;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.rest.ConnectionTaskLifecycleStatusAdapter;
@@ -61,7 +62,7 @@ public class DashboardFieldResource extends FieldResource {
         this.schedulingService = schedulingService;
     }
 
-    @GET
+    @GET @Transactional
     @Path("/breakdown")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
@@ -69,7 +70,7 @@ public class DashboardFieldResource extends FieldResource {
         return asJsonArrayObjectWithTranslation("breakdowns", "breakdown", BREAKDOWN_OPTION_ADAPTER.getClientSideValues());
     }
 
-    @GET
+    @GET @Transactional
     @Path("/taskstatus")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
@@ -80,7 +81,7 @@ public class DashboardFieldResource extends FieldResource {
     private List<String> taskStatusClientSideValues() {
         return Stream.of(TaskStatus.values()).map(TaskStatus::name).collect(Collectors.toList());
     }
-    @GET
+    @GET @Transactional
     @Path("/comsessionsuccessindicators")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
@@ -92,7 +93,7 @@ public class DashboardFieldResource extends FieldResource {
         return Stream.of(ComSessionSuccessIndicatorTranslationKeys.values()).map(ComSessionSuccessIndicatorTranslationKeys::getKey).collect(Collectors.toList());
     }
 
-    @GET
+    @GET @Transactional
     @Path("/connectiontasksuccessindicators")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
@@ -104,7 +105,7 @@ public class DashboardFieldResource extends FieldResource {
         return Stream.of(ConnectionTask.SuccessIndicator.values()).map(Enum::name).collect(Collectors.toList());
     }
 
-    @GET
+    @GET @Transactional
     @Path("/lifecyclestatus")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
@@ -112,7 +113,7 @@ public class DashboardFieldResource extends FieldResource {
         return asJsonArrayObjectWithTranslation("lifecycleStatuses", "lifecycleStatus", new ConnectionTaskLifecycleStatusAdapter().getClientSideValues());
     }
 
-    @GET
+    @GET @Transactional
     @Path("/completioncodes")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
@@ -124,7 +125,7 @@ public class DashboardFieldResource extends FieldResource {
         return Stream.of(CompletionCode.values()).map(Enum::name).collect(Collectors.toList());
     }
 
-    @GET
+    @GET @Transactional
     @Path("/devicetypes")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
@@ -132,7 +133,7 @@ public class DashboardFieldResource extends FieldResource {
         return Response.ok(asInfoMap("deviceTypes", deviceConfigurationService.findAllDeviceTypes().find())).build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/comportpools")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
@@ -140,7 +141,7 @@ public class DashboardFieldResource extends FieldResource {
         return Response.ok(asInfoMap("comPortPools", engineConfigurationService.findAllComPortPools().stream().collect(Collectors.toList()))).build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/comtasks")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
@@ -148,7 +149,7 @@ public class DashboardFieldResource extends FieldResource {
         return Response.ok(asInfoMap("comTasks", taskService.findAllComTasks().find())).build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/comschedules")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -156,7 +157,7 @@ public class DashboardFieldResource extends FieldResource {
         return Response.ok(asInfoMap("comSchedules", schedulingService.getAllSchedules())).build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/connectiontypepluggableclasses")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})

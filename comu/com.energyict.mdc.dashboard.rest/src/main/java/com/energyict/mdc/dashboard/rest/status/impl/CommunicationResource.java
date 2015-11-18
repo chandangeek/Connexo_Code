@@ -1,6 +1,7 @@
 package com.energyict.mdc.dashboard.rest.status.impl;
 
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.QueueMessage;
@@ -83,7 +84,7 @@ public class CommunicationResource {
         this.conflictFactory = conflictFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Consumes("application/json")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
@@ -107,7 +108,7 @@ public class CommunicationResource {
         return this.comTaskExecutionInfoFactory.from(comTaskExecution, lastComTaskExecutionSession);
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{comTaskExecId}/run")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -124,7 +125,7 @@ public class CommunicationResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{comTaskExecId}/runnow")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -141,7 +142,7 @@ public class CommunicationResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/run")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -153,7 +154,7 @@ public class CommunicationResource {
         return queueCommunicationBulkAction(communicationsBulkRequestInfo, "scheduleNow");
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/runnow")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
