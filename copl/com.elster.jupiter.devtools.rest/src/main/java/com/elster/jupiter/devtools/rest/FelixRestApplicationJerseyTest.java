@@ -16,6 +16,7 @@ import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
+import com.elster.jupiter.rest.util.TransactionWrapper;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -148,12 +149,14 @@ public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
         resourceConfig.register(JsonMappingExceptionMapper.class);
         resourceConfig.register(RestValidationExceptionMapper.class);
         resourceConfig.register(ConcurrentModificationExceptionMapper.class);
+        resourceConfig.register(TransactionWrapper.class);
         resourceConfig.register(new AbstractBinder() {
             @Override
             protected void configure() {
                 bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
                 bind(ConcurrentModificationInfo.class).to(ConcurrentModificationInfo.class);
                 bind(ConcurrentModificationExceptionFactory.class).to(ConcurrentModificationExceptionFactory.class);
+                bind(transactionService).to(TransactionService.class);
             }
         });
         application.getSingletons().stream().filter(s -> s instanceof AbstractBinder).forEach(resourceConfig::register);
