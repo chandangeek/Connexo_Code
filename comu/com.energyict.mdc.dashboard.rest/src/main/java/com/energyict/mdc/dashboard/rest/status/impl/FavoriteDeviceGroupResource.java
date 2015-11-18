@@ -27,7 +27,7 @@ import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
-import com.energyict.mdc.common.rest.Transactional;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.favorites.FavoriteDeviceGroup;
 import com.energyict.mdc.favorites.FavoritesService;
 

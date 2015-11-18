@@ -5,7 +5,7 @@ import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.users.User;
-import com.energyict.mdc.common.rest.Transactional;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionFilter;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;

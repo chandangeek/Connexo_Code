@@ -1,6 +1,6 @@
 package com.energyict.mdc.dashboard.rest.status;
 
-import com.energyict.mdc.common.rest.Transactional;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.engine.config.ComServer;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.OnlineComServer;

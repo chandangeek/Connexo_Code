@@ -3,7 +3,7 @@ package com.energyict.mdc.dashboard.rest.status.impl;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
-import com.energyict.mdc.common.rest.Transactional;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.FilterFactory;

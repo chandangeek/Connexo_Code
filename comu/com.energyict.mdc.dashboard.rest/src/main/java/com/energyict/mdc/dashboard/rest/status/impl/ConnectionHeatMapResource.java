@@ -5,7 +5,7 @@ import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.ExceptionFactory;
-import com.energyict.mdc.common.rest.Transactional;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.device.data.security.Privileges;
 import java.util.Optional;

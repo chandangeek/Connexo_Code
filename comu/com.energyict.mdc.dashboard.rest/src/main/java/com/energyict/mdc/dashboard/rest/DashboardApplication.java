@@ -1,7 +1,6 @@
 package com.energyict.mdc.dashboard.rest;
 
 import com.energyict.mdc.common.rest.ExceptionLogger;
-import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.dashboard.DashboardService;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusInfoFactory;
 import com.energyict.mdc.dashboard.rest.status.ComServerStatusResource;
@@ -262,7 +261,6 @@ public class DashboardApplication extends Application implements MessageSeedProv
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
-                TransactionWrapper.class,
                 ExceptionLogger.class,
                 ComServerStatusResource.class,
                 ComServerStatusSummaryResource.class,
