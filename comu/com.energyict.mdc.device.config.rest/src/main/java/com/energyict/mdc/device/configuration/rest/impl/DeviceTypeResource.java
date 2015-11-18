@@ -373,7 +373,7 @@ public class DeviceTypeResource {
                 false, false, false,
                 deviceType.getRegisterTypeTypeCustomPropertySet(registerType),
                 masterDataService.getPossibleMultiplyReadingTypesFor(registerType.getReadingType()),
-                registerType.getReadingType().getCalculatedReadingType().orElse(null));
+                registerType.getReadingType().getCalculatedReadingType().orElse(registerType.getReadingType()));
     }
 
     @PUT
@@ -495,7 +495,7 @@ public class DeviceTypeResource {
                     isLinkedByInactiveRegisterSpec,
                     deviceType.getRegisterTypeTypeCustomPropertySet(registerType),
                     masterDataService.getPossibleMultiplyReadingTypesFor(registerType.getReadingType()),
-                    registerType.getReadingType().getCalculatedReadingType().orElse(null));
+                    registerType.getReadingType().getCalculatedReadingType().orElse(registerType.getReadingType()));
             if (isLinkedByDeviceType){
                 info.parent = new VersionInfo<>(deviceType.getId(), deviceType.getVersion());
             }
