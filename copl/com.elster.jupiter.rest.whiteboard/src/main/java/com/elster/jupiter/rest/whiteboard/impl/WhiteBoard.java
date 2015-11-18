@@ -12,6 +12,7 @@ import com.elster.jupiter.rest.util.JsonMappingExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedExceptionMapper;
 import com.elster.jupiter.rest.util.LocalizedFieldValidationExceptionMapper;
 import com.elster.jupiter.rest.util.OptimisticLockExceptionMapper;
+import com.elster.jupiter.rest.util.TransactionWrapper;
 import com.elster.jupiter.rest.whiteboard.RestCallExecutedEvent;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserService;
@@ -157,6 +158,7 @@ public class WhiteBoard {
         secureConfig.register(ConstraintViolationExceptionMapper.class);
         secureConfig.register(JsonMappingExceptionMapper.class);
         secureConfig.register(OptimisticLockExceptionMapper.class);
+        secureConfig.register(TransactionWrapper.class);
         secureConfig.register(ConcurrentModificationExceptionMapper.class);
         secureConfig.register(urlRewriteFilter);
 		secureConfig.register(new AbstractBinder() {
