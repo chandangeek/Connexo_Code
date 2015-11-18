@@ -1,6 +1,7 @@
 package com.energyict.protocols.impl.channels.serial.optical.dlms;
 
 import com.elster.jupiter.cps.PersistenceSupport;
+import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
@@ -9,6 +10,8 @@ import com.energyict.protocols.impl.channels.serial.SioSerialConnectionPropertie
 
 import com.google.inject.Module;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -57,7 +60,13 @@ public class LegacyOpticalDlmsConnectionPropertiesPersistenceSupport implements 
     }
 
     @Override
-    public void addCustomPropertyColumnsTo(Table table) {
+    public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
+        // None of the custom properties are part of the primary key
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
         Stream
             .of(SioSerialConnectionProperties.FieldNames.values())
             .forEach(fieldName -> this.addCustomPropertyColumnTo(table, fieldName));
