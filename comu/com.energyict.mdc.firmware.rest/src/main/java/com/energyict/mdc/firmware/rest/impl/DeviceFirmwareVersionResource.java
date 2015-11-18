@@ -1,6 +1,6 @@
 package com.energyict.mdc.firmware.rest.impl;
 
-import com.energyict.mdc.common.rest.Transactional;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.Device;
 
 import javax.annotation.security.RolesAllowed;

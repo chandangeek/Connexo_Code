@@ -2,7 +2,7 @@ package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
-import com.energyict.mdc.common.rest.Transactional;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.firmware.*;
 import com.energyict.mdc.firmware.security.Privileges;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;

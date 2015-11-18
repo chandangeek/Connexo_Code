@@ -1,6 +1,5 @@
 package com.energyict.mdc.firmware.rest;
 
-import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
@@ -76,7 +75,6 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
                 DeviceFirmwareMessagesResource.class,
                 FirmwareTypesResource.class,
                 FirmwareComTaskResource.class,
-                TransactionWrapper.class,
                 MultiPartFeature.class,
                 RestValidationExceptionMapper.class,
                 DeviceStateAccessFeature.class
