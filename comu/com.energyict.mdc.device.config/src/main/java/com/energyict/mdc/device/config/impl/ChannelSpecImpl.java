@@ -96,9 +96,9 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
     @SuppressWarnings("unused")
     private Instant modTime;
 
-    // TOCO validate this stuff
+    // TODO validate this stuff
     private boolean useMultiplier;
-    private Reference<ReadingType> calculatedReadingType;
+    private Reference<ReadingType> calculatedReadingType = ValueReference.absent();
 
     @Inject
     public ChannelSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {

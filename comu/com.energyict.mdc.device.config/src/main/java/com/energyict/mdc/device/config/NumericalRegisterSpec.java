@@ -2,11 +2,11 @@ package com.energyict.mdc.device.config;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.masterdata.RegisterType;
 
 import aQute.bnd.annotation.ProviderType;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 /**
  * Models the specification of a register that contains numerical data.
@@ -45,7 +45,7 @@ public interface NumericalRegisterSpec extends RegisterSpec {
 
     void setUseMultiplier(boolean useMultiplier);
 
-    ReadingType getCalculatedReadingType();
+    Optional<ReadingType> getCalculatedReadingType();
 
     void setCalculatedReadingType(ReadingType calculatedReadingType);
 

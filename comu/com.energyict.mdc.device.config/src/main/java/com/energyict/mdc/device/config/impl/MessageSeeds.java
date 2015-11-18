@@ -24,7 +24,6 @@ public enum MessageSeeds implements MessageSeed {
     REGISTER_GROUP_NAME_IS_REQUIRED(1501, "registerGroup.name.required", "The name of a register group is required"),
     READING_TYPE_ALREADY_EXISTS(2002, Keys.READING_TYPE_ALREADY_EXISTS, "Reading type {0} already exists"),
     DEFAULT_PRODUCT_SPEC_CANNOT_BE_DELETED(2003, "productSpec.cannotDeleteDefault", "The default product spec cannot be removed"),
-    PRODUCT_SPEC_STILL_IN_USE(2004, "productSpec.XstillInUseByY", "The product spec with reading type {0} cannot be removed because it is still in use by the following measurement types: {1}"),
     MEASUREMENT_TYPE_OBIS_CODE_CANNOT_BE_UPDATED(3006, "measurementType.cannotUpdateObisCode", "The obis code of the measurement type \"{0}\" cannot be updated because it is in use"),
     REGISTER_TYPE_STILL_USED_BY_REGISTER_SPEC(3008, "measurementType.usedBy.registerSpec", "The register type {0} cannot be removed because it is still in use by the following register configuration(s): {1}"),
     CHANNEL_TYPE_STILL_USED_BY_CHANNEL_SPEC(3009, "measurementType.usedBy.channelSpec", "The register type {0} cannot be removed because it is still in use by the following channel configuration(s): {1}"),
@@ -100,6 +99,7 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_CONFIGURATION_CAN_NOT_BE_DIRECTLY_ADDRESSED(12013, Keys.DEVICE_CONFIG_DIRECT_ADDRESS_NOT_ALLOWED, "The device configuration can not be directly addressable as the device protocol does not allow it"),
     DEVICE_CONFIGURATION_IS_ACTIVE_CAN_NOT_CHANGE_FIELD(12014, Keys.DEVICE_CONFIG_ACTIVE_FIELD_IMMUTABLE, "You can not change this field for an active configuration"),
     DEVICE_CONFIGURATION_IS_NOT_DIRECTLY_ADDRESSABLE(12015, Keys.DEVICE_CONFIGURATION_IS_NOT_DIRECTLY_ADDRESSABLE, "It is not allowed to create connection methods because the device configuration is not directly addressable"),
+    DEVICE_CONFIGURATION_CALCULATED_READINGTYPE_CANNOT_BE_EMPTY(12016, Keys.CALCULATED_READINGTYPE_CANNOT_BE_EMPTY, "The calculated readingtype can not be empty when you define to use a multiplier"),
     NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED(13000, Keys.NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED, "The temporal expression of a NextExecutionSpec is required"),
     TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED(13001, Keys.TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED, "The frequency of a temporal expression is required"),
     TEMPORAL_EXPRESSION_UNKNOWN_UNIT(13002, Keys.TEMPORAL_EXPRESSION_UNKNOWN_UNIT, "The unit {0} is unknown or unsupported for temporal expressions"),
@@ -244,6 +244,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String REGISTER_SPEC_OVERFLOW_INCORRECT_FRACTION_DIGITS = "registerSpec.overflow.fractionDigits";
         public static final String DESTINATION_DATA_SOURCE_IS_EMPTY = "destinationDataSourceIsEmpty";
         public static final String MULTIPLE_SOLUTIONS_FOR_SAME_CONFLICT = "multipleSolutionsDefinedForSameConfig";
+        public static final String CALCULATED_READINGTYPE_CANNOT_BE_EMPTY = "calculatedReadingType.notEmpty.whenMultiplier";
     }
 
 }

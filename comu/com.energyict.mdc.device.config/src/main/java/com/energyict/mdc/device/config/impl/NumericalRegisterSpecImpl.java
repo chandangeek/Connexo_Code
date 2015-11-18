@@ -2,6 +2,7 @@ package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
@@ -19,9 +20,11 @@ import javax.inject.Provider;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.Optional;
 
-@ValidOverFlowAndNumberOfDigits(groups = {Save.Create.class, Save.Update.class})
+@ValidOverFlowAndNumberOfFractionDigits(groups = {Save.Create.class, Save.Update.class})
 @ValidNumericalRegisterSpec(groups = {Save.Update.class})
+@ValidMultiplierConfiguration(groups = {Save.Create.class, Save.Update.class})
 public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegisterSpec> implements NumericalRegisterSpec {
 
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
@@ -31,9 +34,8 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.REGISTER_SPEC_OVERFLOW_IS_REQUIRED + "}")
     private BigDecimal overflow;
 
-    //TODO validate the stuff
     private boolean useMultiplier;
-    private Reference<ReadingType> calculatedReadingType;
+    private Reference<ReadingType> calculatedReadingType = ValueReference.absent();
 
     @Inject
     public NumericalRegisterSpecImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus) {
@@ -80,8 +82,8 @@ public class NumericalRegisterSpecImpl extends RegisterSpecImpl<NumericalRegiste
         this.useMultiplier = useMultiplier;
     }
 
-    public ReadingType getCalculatedReadingType() {
-        return calculatedReadingType.get();
+    public Optional<ReadingType> getCalculatedReadingType() {
+        return calculatedReadingType.getOptional();
     }
 
     public void setCalculatedReadingType(ReadingType calculatedReadingType) {

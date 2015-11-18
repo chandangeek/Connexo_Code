@@ -34,6 +34,7 @@ import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
 
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -62,6 +63,7 @@ import static org.mockito.Mockito.when;
  * Time: 10:21
  */
 public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceTest {
+    private final BigDecimal overflowValue = BigDecimal.valueOf(10000);
 
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
@@ -359,7 +361,9 @@ public class DeviceConfigurationImplTest extends DeviceTypeProvidingPersistenceT
         DeviceConfiguration deviceConfiguration = deviceConfigurationBuilder1.add();
         deviceConfiguration.activate();
 
-        NumericalRegisterSpec.Builder registerSpecBuilder = deviceConfiguration.createNumericalRegisterSpec(registerType).numberOfFractionDigits(0);
+        NumericalRegisterSpec.Builder registerSpecBuilder = deviceConfiguration.createNumericalRegisterSpec(registerType)
+        .overflowValue(overflowValue)
+        .numberOfFractionDigits(0);
         try {
             registerSpecBuilder.add();
         } catch (CannotAddToActiveDeviceConfigurationException e) {

@@ -26,6 +26,7 @@ import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -47,6 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MeasurementTypeImplTest extends PersistenceTest {
 
     private static final TimeDuration INTERVAL_15_MINUTES = new TimeDuration(15, TimeDuration.TimeUnit.MINUTES);
+    private final BigDecimal overflowValue = BigDecimal.valueOf(10000);
 
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
@@ -94,6 +96,7 @@ public class MeasurementTypeImplTest extends PersistenceTest {
         DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
         deviceType.save();
         NumericalRegisterSpec.Builder registerSpecBuilder = configurationBuilder.newNumericalRegisterSpec(registerType);
+        registerSpecBuilder.overflowValue(overflowValue);
         registerSpecBuilder.numberOfFractionDigits(2);
         configurationBuilder.add();
 
@@ -170,6 +173,7 @@ public class MeasurementTypeImplTest extends PersistenceTest {
         deviceType.save();
         DeviceType.DeviceConfigurationBuilder configurationBuilder = deviceType.newConfiguration("Configuration");
         NumericalRegisterSpec.Builder registerSpecBuilder = configurationBuilder.newNumericalRegisterSpec(registerType);
+        registerSpecBuilder.overflowValue(overflowValue);
         registerSpecBuilder.numberOfFractionDigits(2);
         configurationBuilder.add();
 
