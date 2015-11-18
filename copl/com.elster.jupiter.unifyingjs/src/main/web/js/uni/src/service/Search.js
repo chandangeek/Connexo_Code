@@ -66,6 +66,7 @@ Ext.define('Uni.service.Search', {
         'Instant:com.elster.jupiter.properties.InstantFactory':              'uni-search-criteria-datetime',
         'TimeDuration:com.elster.jupiter.properties.StringReferenceFactory': 'uni-search-criteria-timeduration',
         'BigDecimal:com.elster.jupiter.properties.BigDecimalFactory':        'uni-search-criteria-numeric',
+        'Long:com.elster.jupiter.properties.LongFactory':                    'uni-search-criteria-numeric',
         'Date:com.energyict.mdc.dynamic.DateFactory':                        'uni-search-criteria-date',
         'Date:com.energyict.mdc.dynamic.DateAndTimeFactory':                 'uni-search-criteria-clock',
         'TimeOfDay:com.energyict.mdc.dynamic.TimeOfDayFactory':              'uni-search-criteria-timeofday'
