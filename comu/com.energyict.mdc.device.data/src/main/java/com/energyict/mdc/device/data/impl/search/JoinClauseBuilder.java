@@ -44,19 +44,7 @@ public interface JoinClauseBuilder {
 
     JoinClauseBuilder addDeviceType();
 
-    JoinClauseBuilder addLogbook();
-
-    JoinClauseBuilder addLogbookSpec();
-
-    JoinClauseBuilder addLogbookType();
-
-    JoinClauseBuilder addLoadProfile();
-
-    JoinClauseBuilder addLoadProfileSpec();
-
     JoinClauseBuilder addLoadProfileType();
-
-    JoinClauseBuilder addComTaskEnablement();
 
     JoinClauseBuilder addComTask();
 
@@ -70,9 +58,6 @@ public interface JoinClauseBuilder {
         public static final String DEVICE = "dev";
         public static final String END_DEVICE = "ed";
         public static final String DEVICE_TYPE = "dev_Type";
-        public static final String DEVICE_LOGBOOK = "dev_lb";
-        public static final String LOGBOOK_SPEC = "lb_spec";
-        public static final String LOGBOOK_TYPE = "lb_type";
         public static final String DEVICE_LOADPROFILE = "dev_lp";
         public static final String LOADPROFILE_SPEC = "lp_spec";
         public static final String LOADPROFILE_TYPE = "lp_type";
