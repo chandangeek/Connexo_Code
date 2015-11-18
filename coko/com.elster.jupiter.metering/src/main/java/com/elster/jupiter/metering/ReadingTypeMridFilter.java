@@ -250,6 +250,86 @@ public class ReadingTypeMridFilter {
         return this;
     }
 
+    public ReadingTypeMridFilter anyMacroPeriod() {
+        this.macroPeriod = null;
+        return this;
+    }
+
+    public ReadingTypeMridFilter anyAggregate() {
+        this.aggregate = null;
+        return this;
+    }
+
+    public ReadingTypeMridFilter anyMeasuringPeriod() {
+        this.measuringPeriod = null;
+        return this;
+    }
+
+    public ReadingTypeMridFilter anyAccumulation() {
+        this.accumulation = null;
+        return this;
+    }
+
+    public ReadingTypeMridFilter anyFlowDirection() {
+        this.flowDirection = null;
+        return this;
+    }
+
+    public ReadingTypeMridFilter anyCommodity() {
+        this.commodity = null;
+        return this;
+    }
+
+    public ReadingTypeMridFilter anyMeasurementKind() {
+        this.measurementKind = null;
+        return this;
+    }
+
+    public ReadingTypeMridFilter anyInterharmonic() {
+        this.interharmonic = null;
+        return this;
+    }
+
+    public ReadingTypeMridFilter anyArgument() {
+        this.argument = null;
+        return this;
+    }
+
+    public ReadingTypeMridFilter anyTou() {
+        this.tou = -1;
+        return this;
+    }
+
+    public ReadingTypeMridFilter anyCpp() {
+        this.cpp = -1;
+        return this;
+    }
+
+    public ReadingTypeMridFilter anyConsumptionTier() {
+        this.consumptionTier = -1;
+        return this;
+    }
+
+    public ReadingTypeMridFilter anyPhases() {
+        this.phases = null;
+        return this;
+    }
+
+    public ReadingTypeMridFilter anyMultiplier() {
+        this.multiplier = null;
+        return this;
+    }
+
+    public ReadingTypeMridFilter anyUnit() {
+        this.unit = null;
+        return this;
+    }
+
+    public ReadingTypeMridFilter anyCurrency() {
+        this.currency = null;
+        return this;
+    }
+
     public Condition getFilterCondition() {
         StringBuilder filter = new StringBuilder();
         Stream.of(Filters.values()).forEach(f -> filter.append(f.getFilterCriteria(this)));
