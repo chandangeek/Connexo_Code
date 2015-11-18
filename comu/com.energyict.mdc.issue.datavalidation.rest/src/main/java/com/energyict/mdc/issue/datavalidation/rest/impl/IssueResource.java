@@ -1,6 +1,7 @@
 package com.energyict.mdc.issue.datavalidation.rest.impl;
 
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.issue.datavalidation.DataValidationIssueFilter;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
@@ -89,7 +90,7 @@ public class IssueResource {
         this.conflictFactory = conflictFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
     public PagedInfoList getDataValidationIssues(@BeanParam StandardParametersBean queryFilter, @BeanParam JsonQueryParameters queryParams, @BeanParam JsonQueryFilter filter) {
@@ -102,7 +103,7 @@ public class IssueResource {
         return PagedInfoList.fromPagedList("dataValidationIssues", issueInfoFactory.asInfo(issues), queryParams);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
@@ -111,7 +112,7 @@ public class IssueResource {
         return Response.ok(issueInfoFactory.asInfo(issue, DeviceInfo.class)).build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{id}/comments")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
@@ -120,7 +121,7 @@ public class IssueResource {
         return PagedInfoList.fromCompleteList("comments", issueResourceHelper.getIssueComments(issue), queryParameters);
     }
 
-    @POST
+    @POST @Transactional
     @Path("/{id}/comments")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -130,7 +131,7 @@ public class IssueResource {
         return Response.ok(issueResourceHelper.postComment(issue, request, securityContext)).status(Response.Status.CREATED).build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{id}/actions")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -140,7 +141,7 @@ public class IssueResource {
         return PagedInfoList.fromCompleteList("issueActions", issueResourceHelper.getListOfAvailableIssueActions(issue), queryParameters);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{id}/actions/{actionId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_ISSUE, Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE, Privileges.Constants.COMMENT_ISSUE, Privileges.Constants.ACTION_ISSUE})
@@ -149,7 +150,7 @@ public class IssueResource {
         return Response.ok(issueResourceHelper.getIssueActionById(actionId)).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{id}/actions/{actionId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -165,7 +166,7 @@ public class IssueResource {
         return Response.ok(issueResourceHelper.performIssueAction(issue, request)).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/assign")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -184,7 +185,7 @@ public class IssueResource {
         return entity(info).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/close")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
