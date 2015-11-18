@@ -246,8 +246,7 @@ Ext.define('Uni.service.Search', {
             searchResults = me.getSearchResultsStore();
 
         searchResults.clearFilter(true);
-        searchResults.filter(me.getFilters(), true);
-        searchResults.load();
+        searchResults.filter(me.getFilters());
     },
 
     clearFilters: function () {
