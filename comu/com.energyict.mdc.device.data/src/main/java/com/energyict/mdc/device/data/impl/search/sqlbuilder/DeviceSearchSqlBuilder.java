@@ -168,38 +168,8 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
     }
 
     @Override
-    public JoinClauseBuilder addRegisterSpec() {
-        this.joins.add(Joins.RegisterSpec);
-        this.joins.add(Joins.RegisterMeasurementType);
-        return this;
-    }
-
-    @Override
-    public JoinClauseBuilder addRegisterReadingType() {
-        this.joins.add(Joins.RegisterSpec);
-        this.joins.add(Joins.RegisterMeasurementType);
-        this.joins.add(Joins.RegisterReadingType);
-        return this;
-    }
-
-    @Override
     public JoinClauseBuilder addDeviceType() {
         this.joins.add(Joins.DeviceType);
-        return this;
-    }
-
-    @Override
-    public JoinClauseBuilder addChannelReadingType() {
-        this.joins.add(Joins.ChannelSpec);
-        this.joins.add(Joins.ChannelMeasurementType);
-        this.joins.add(Joins.ChannelReadingType);
-        return this;
-    }
-
-    @Override
-    public JoinClauseBuilder addChannelSpec() {
-        this.joins.add(Joins.ChannelSpec);
-        this.joins.add(Joins.ChannelMeasurementType);
         return this;
     }
 

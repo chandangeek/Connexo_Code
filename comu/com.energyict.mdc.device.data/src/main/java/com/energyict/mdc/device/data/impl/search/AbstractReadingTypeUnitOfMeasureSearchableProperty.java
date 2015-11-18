@@ -57,10 +57,16 @@ public abstract class AbstractReadingTypeUnitOfMeasureSearchableProperty<T> exte
         return ((UnitOfMeasureInfo) value).getName();
     }
 
+    @Override
+    public final void appendJoinClauses(JoinClauseBuilder builder) {
+        // nothing to join to device table
+    }
+
     /**
-     * @return a table alias for MDS_MEASUREMENTTYPE which was defined in {@link #appendJoinClauses(JoinClauseBuilder)}
+     * @return join clause for MDS_MEASUREMENTTYPE
      */
-    public abstract String getSpecTableAlias();
+    public abstract String getMeasurementTypeJoinSql();
+
 
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
@@ -69,16 +75,20 @@ public abstract class AbstractReadingTypeUnitOfMeasureSearchableProperty<T> exte
         }
         Contains contains = (Contains) condition;
         SqlBuilder sqlBuilder = new SqlBuilder();
+        sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE + ".DEVICECONFIGID");
         if (contains.getOperator() == ListOperator.NOT_IN) {
-            sqlBuilder.append(" NOT ");
+            sqlBuilder.append(" NOT");
         }
-        sqlBuilder.openBracket();
+        sqlBuilder.append(" IN (");
+        sqlBuilder.append("select DEVICECONFIGID " +
+                "from ");
+        sqlBuilder.append(getMeasurementTypeJoinSql());
+        sqlBuilder.append(" where ");
         sqlBuilder.append(contains.getCollection().stream()
                 .map(UnitOfMeasureInfo.class::cast)
                 .map(unit -> {
                     StringBuilder builder = new StringBuilder(' ');
-                    builder.append(getSpecTableAlias());
-                    builder.append(".readingtype like '%.%.%.%.%.%.%.%.%.%.%.%.%.%.%.");
+                    builder.append("MDS_MEASUREMENTTYPE.readingtype like '%.%.%.%.%.%.%.%.%.%.%.%.%.%.%.");
                     builder.append(unit.getMetricMultiplier().getId());
                     builder.append(".");
                     builder.append(unit.getReadingTypeUnit().getId());

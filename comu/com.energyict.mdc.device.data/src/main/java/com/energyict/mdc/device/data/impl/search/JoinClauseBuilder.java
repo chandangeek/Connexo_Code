@@ -42,15 +42,7 @@ public interface JoinClauseBuilder {
 
     JoinClauseBuilder addDeviceEstimation();
 
-    JoinClauseBuilder addRegisterSpec();
-
-    JoinClauseBuilder addRegisterReadingType();
-
     JoinClauseBuilder addDeviceType();
-
-    JoinClauseBuilder addChannelReadingType();
-
-    JoinClauseBuilder addChannelSpec();
 
     JoinClauseBuilder addLogbook();
 
