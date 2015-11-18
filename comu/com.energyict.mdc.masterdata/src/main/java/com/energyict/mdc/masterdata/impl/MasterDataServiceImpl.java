@@ -343,10 +343,7 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     }
 
     private ReadingTypeMridFilter createReadingTypeFilterForUnitAndMultiplier(ReadingType readingType) {
-        ReadingTypeMridFilter readingTypeMridFilter = ReadingTypeMridFilter.fromTemplateReadingType(readingType);
-        readingTypeMridFilter.setMultiplier(null);
-        readingTypeMridFilter.setUnit(null);
-        return readingTypeMridFilter;
+        return ReadingTypeMridFilter.fromTemplateReadingType(readingType).anyMultiplier().anyUnit();
     }
 
     private ReadingTypeMridFilter createPrimaryMeteredElectricityReadingType(ReadingType readingType) {
