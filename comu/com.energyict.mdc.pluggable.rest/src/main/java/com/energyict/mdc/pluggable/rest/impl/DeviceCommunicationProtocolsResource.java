@@ -6,6 +6,7 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.energyict.mdc.common.rest.FieldValidationException;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.engine.config.security.Privileges;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -53,7 +54,7 @@ public class DeviceCommunicationProtocolsResource {
         this.resourceHelper = resourceHelper;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
     public PagedInfoList getDeviceCommunicationProtocols(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
@@ -66,7 +67,7 @@ public class DeviceCommunicationProtocolsResource {
         return PagedInfoList.fromPagedList("DeviceProtocolPluggableClass", deviceCommunicationProtocolInfos, queryParameters);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
@@ -76,7 +77,7 @@ public class DeviceCommunicationProtocolsResource {
         return new DeviceCommunicationProtocolInfo(uriInfo, deviceProtocolPluggableClass, licensedProtocol, true, mdcPropertyUtils);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/connectiontypes")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE, com.energyict.mdc.device.config.security.Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
@@ -86,7 +87,7 @@ public class DeviceCommunicationProtocolsResource {
                 .collect(Collectors.toList());
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{deviceProtocolId}/connectiontypes")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION, com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE, com.energyict.mdc.device.config.security.Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
@@ -108,7 +109,7 @@ public class DeviceCommunicationProtocolsResource {
         return infos;
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
@@ -125,7 +126,7 @@ public class DeviceCommunicationProtocolsResource {
         return Response.ok().build();
     }
 
-    @POST
+    @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
@@ -144,7 +145,7 @@ public class DeviceCommunicationProtocolsResource {
         }
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")

@@ -1,5 +1,6 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
@@ -23,7 +24,7 @@ public class LicensedProtocolResource {
     public LicensedProtocolResource() {
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public LicensedProtocolsInfo getLicensedProtocolInfos() {
         LicensedProtocolsInfo licensedProtocolsInfo = new LicensedProtocolsInfo();

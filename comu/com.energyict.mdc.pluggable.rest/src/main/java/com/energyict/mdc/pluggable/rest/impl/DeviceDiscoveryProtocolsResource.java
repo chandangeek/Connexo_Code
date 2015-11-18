@@ -1,6 +1,7 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
 import com.elster.jupiter.rest.util.ConcurrentModificationException;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.engine.config.security.Privileges;
 import com.energyict.mdc.protocol.pluggable.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -38,7 +39,7 @@ public class DeviceDiscoveryProtocolsResource {
         this.resourceHelper = resourceHelper;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
     public DeviceDiscoveryProtocolsInfo getDeviceDiscoveryProtocols() {
@@ -52,7 +53,7 @@ public class DeviceDiscoveryProtocolsResource {
         return deviceDiscoveryProtocolsInfo;
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
@@ -60,7 +61,7 @@ public class DeviceDiscoveryProtocolsResource {
         return new DeviceDiscoveryProtocolInfo(resourceHelper.findInboundDeviceProtocolPluggableClassOrThrowException(id));
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
@@ -76,7 +77,7 @@ public class DeviceDiscoveryProtocolsResource {
         return Response.ok().build();
     }
 
-    @POST
+    @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
@@ -89,7 +90,7 @@ public class DeviceDiscoveryProtocolsResource {
         }
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
