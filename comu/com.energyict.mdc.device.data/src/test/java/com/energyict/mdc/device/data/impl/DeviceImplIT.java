@@ -90,6 +90,7 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
     private static final ObisCode loadProfileObisCode = ObisCode.fromString("1.0.99.1.0.255");
     private final TimeZone testDefaultTimeZone = TimeZone.getTimeZone("Canada/East-Saskatchewan");
     private final TimeDuration interval = TimeDuration.minutes(15);
+    private final BigDecimal overflowValue = BigDecimal.valueOf(1234567);
 
     private ReadingType forwardEnergyReadingType;
     private ReadingType reverseEnergyReadingType;
@@ -1213,8 +1214,10 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         DeviceType.DeviceConfigurationBuilder configurationWithRegisterTypes = deviceType.newConfiguration("ConfigurationWithRegisterTypes");
         NumericalRegisterSpec.Builder registerSpecBuilder1 = configurationWithRegisterTypes.newNumericalRegisterSpec(registerType1);
         registerSpecBuilder1.numberOfFractionDigits(0);
+        registerSpecBuilder1.overflowValue(overflowValue);
         NumericalRegisterSpec.Builder registerSpecBuilder2 = configurationWithRegisterTypes.newNumericalRegisterSpec(registerType2);
         registerSpecBuilder2.numberOfFractionDigits(0);
+        registerSpecBuilder2.overflowValue(overflowValue);
         DeviceConfiguration deviceConfiguration = configurationWithRegisterTypes.add();
         deviceType.save();
         deviceConfiguration.activate();
