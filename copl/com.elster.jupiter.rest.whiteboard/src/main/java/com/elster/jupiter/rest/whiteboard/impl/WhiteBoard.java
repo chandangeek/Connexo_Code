@@ -15,6 +15,7 @@ import com.elster.jupiter.rest.util.OptimisticLockExceptionMapper;
 import com.elster.jupiter.rest.util.TransactionWrapper;
 import com.elster.jupiter.rest.whiteboard.RestCallExecutedEvent;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 import com.google.common.base.Strings;
@@ -57,6 +58,7 @@ public class WhiteBoard {
     private volatile LicenseService licenseService;
 	private volatile ThreadPrincipalService threadPrincipalService;
 	private volatile Publisher publisher;
+	private volatile TransactionService transactionService;
 	private AtomicReference<EventAdmin> eventAdminHolder = new AtomicReference<>();
 	private volatile WhiteBoardConfiguration configuration;
 
@@ -105,7 +107,12 @@ public class WhiteBoard {
 		this.publisher = publisher;
 	}
 
-    @Reference
+	@Reference
+	public void setTransactionService(TransactionService transactionService) {
+		this.transactionService = transactionService;
+	}
+
+	@Reference
     public void setLicenseService(LicenseService licenseService) {
         this.licenseService = licenseService;
     }
@@ -158,7 +165,7 @@ public class WhiteBoard {
         secureConfig.register(ConstraintViolationExceptionMapper.class);
         secureConfig.register(JsonMappingExceptionMapper.class);
         secureConfig.register(OptimisticLockExceptionMapper.class);
-        secureConfig.register(TransactionWrapper.class);
+        secureConfig.register(new TransactionWrapper(transactionService));
         secureConfig.register(ConcurrentModificationExceptionMapper.class);
         secureConfig.register(urlRewriteFilter);
 		secureConfig.register(new AbstractBinder() {
