@@ -1,6 +1,5 @@
 package com.energyict.mdc.tasks.rest.impl;
 
-import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.TaskService;
@@ -42,8 +41,7 @@ public class ComTasksApplication extends Application implements MessageSeedProvi
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
-                ComTaskResource.class,
-                TransactionWrapper.class
+                ComTaskResource.class
         );
     }
 
