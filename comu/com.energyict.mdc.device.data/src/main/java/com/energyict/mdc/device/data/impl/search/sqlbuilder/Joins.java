@@ -121,45 +121,6 @@ enum Joins implements JoinType {
         }
     },
 
-    LoadProfile {
-        @Override
-        public void appendTo(SqlBuilder sqlBuilder) {
-            sqlBuilder.append(" join DDC_LOADPROFILE ");
-            sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE_LOADPROFILE);
-            sqlBuilder.append(" on ");
-            sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE_LOADPROFILE);
-            sqlBuilder.append(".DEVICEID = ");
-            sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE);
-            sqlBuilder.append(".id ");
-        }
-    },
-
-    LoadProfileSpec {
-        @Override
-        public void appendTo(SqlBuilder sqlBuilder) {
-            sqlBuilder.append(" join DTC_LOADPROFILESPEC ");
-            sqlBuilder.append(JoinClauseBuilder.Aliases.LOADPROFILE_SPEC);
-            sqlBuilder.append(" on ");
-            sqlBuilder.append(JoinClauseBuilder.Aliases.LOADPROFILE_SPEC);
-            sqlBuilder.append(".id = ");
-            sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE_LOADPROFILE);
-            sqlBuilder.append(".LOADPROFILESPECID ");
-        }
-    },
-
-    LoadProfileType{
-        @Override
-        public void appendTo(SqlBuilder sqlBuilder) {
-            sqlBuilder.append(" join MDS_LOADPROFILETYPE ");
-            sqlBuilder.append(JoinClauseBuilder.Aliases.LOADPROFILE_TYPE);
-            sqlBuilder.append(" on ");
-            sqlBuilder.append(JoinClauseBuilder.Aliases.LOADPROFILE_TYPE);
-            sqlBuilder.append(".id = ");
-            sqlBuilder.append(JoinClauseBuilder.Aliases.LOADPROFILE_SPEC);
-            sqlBuilder.append(".LOADPROFILETYPEID ");
-        }
-    },
-
     ComTaskEnablement{
         @Override
         public void appendTo(SqlBuilder sqlBuilder) {

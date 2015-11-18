@@ -174,14 +174,6 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
     }
 
     @Override
-    public JoinClauseBuilder addLoadProfileType() {
-        this.joins.add(Joins.LoadProfile);
-        this.joins.add(Joins.LoadProfileSpec);
-        this.joins.add(Joins.LoadProfileType);
-        return this;
-    }
-
-    @Override
     public JoinClauseBuilder addComTask() {
         this.joins.add(Joins.ComTaskEnablement);
         this.joins.add(Joins.ComTask);

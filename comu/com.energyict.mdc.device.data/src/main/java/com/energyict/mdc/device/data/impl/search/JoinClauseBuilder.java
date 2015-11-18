@@ -44,8 +44,6 @@ public interface JoinClauseBuilder {
 
     JoinClauseBuilder addDeviceType();
 
-    JoinClauseBuilder addLoadProfileType();
-
     JoinClauseBuilder addComTask();
 
     JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass);
@@ -58,9 +56,6 @@ public interface JoinClauseBuilder {
         public static final String DEVICE = "dev";
         public static final String END_DEVICE = "ed";
         public static final String DEVICE_TYPE = "dev_Type";
-        public static final String DEVICE_LOADPROFILE = "dev_lp";
-        public static final String LOADPROFILE_SPEC = "lp_spec";
-        public static final String LOADPROFILE_TYPE = "lp_type";
         public static final String COM_TASK_ENABLEMENT = "cten";
         public static final String COM_TASK = "ctsk";
         public static final String PROTOCOL_DIALECT_PROPS = "pdprops";
