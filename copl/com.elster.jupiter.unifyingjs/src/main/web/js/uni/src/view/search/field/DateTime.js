@@ -129,7 +129,7 @@ Ext.define('Uni.view.search.field.DateTime', {
                         {
                             xtype: 'button',
                             ui: 'action',
-                            //disabled: true, //until 10.2
+                            disabled: true, //until 10.2
                             text: Uni.I18n.translate('general.addCriterion', 'UNI', 'Add criterion'),
                             action: 'addrange',
                             handler: me.addRangeHandler,
