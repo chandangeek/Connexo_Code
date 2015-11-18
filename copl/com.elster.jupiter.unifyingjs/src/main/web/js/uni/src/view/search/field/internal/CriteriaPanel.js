@@ -23,6 +23,10 @@ Ext.define('Uni.view.search.field.internal.CriteriaPanel', {
     onReset: function() {
         this.removeAll();
         this.setVisible(false);
+
+        if (!this.sticky) {
+            this.dockedItems.removeAll();
+        }
     },
 
     onCriteriaAdd: function(filters, filter, property) {
