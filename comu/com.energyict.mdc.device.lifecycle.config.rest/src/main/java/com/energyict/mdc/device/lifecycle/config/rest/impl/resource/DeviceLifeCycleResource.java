@@ -131,8 +131,8 @@ public class DeviceLifeCycleResource {
     public PagedInfoList getDeviceLifeCycleStateSummary(@BeanParam JsonQueryParameters queryParams) {
         List<DeviceLifeCycleStateSummaryInfo> deviceLifeCycleStateSummary = deviceLifeCycleConfigurationService.findAllDeviceLifeCycles().stream()
                 .map(deviceLifeCycleFactory::from)
-                .map(s -> this.lifeCycleStateResourceProvider.get().getAllStatesForDeviceLifecycle(s.id).stream()
-                        .map(x -> new DeviceLifeCycleStateSummaryInfo(s.id, s.name, x.name)))
+                .map(lifecycle -> this.lifeCycleStateResourceProvider.get().getAllStatesForDeviceLifecycle(lifecycle.id).stream()
+                        .map(state -> new DeviceLifeCycleStateSummaryInfo(lifecycle.id, state.id, lifecycle.name, state.name)))
                 .flatMap(y -> y)
                 .collect(Collectors.toList());
         return PagedInfoList.fromPagedList("deviceStates", ListPager.of(deviceLifeCycleStateSummary).from(queryParams).find(), queryParams);
