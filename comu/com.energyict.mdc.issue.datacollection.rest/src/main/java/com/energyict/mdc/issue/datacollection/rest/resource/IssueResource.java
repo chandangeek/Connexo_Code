@@ -1,7 +1,7 @@
 package com.energyict.mdc.issue.datacollection.rest.resource;
 
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
-import com.energyict.mdc.common.rest.Transactional;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionFilter;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.entity.IssueDataCollection;
