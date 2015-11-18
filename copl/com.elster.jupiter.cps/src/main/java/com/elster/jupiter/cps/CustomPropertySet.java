@@ -1,9 +1,10 @@
 package com.elster.jupiter.cps;
 
-import aQute.bnd.annotation.ConsumerType;
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.time.Interval;
+
+import aQute.bnd.annotation.ConsumerType;
 
 import java.util.List;
 import java.util.Set;
@@ -20,12 +21,18 @@ import java.util.Set;
  * In addition to providing the definition of the properties,
  * a CustomPropertySet will also provide a persistence class
  * that will be involved in validating business constraints.
- * A CustomPropertySet can also apply uniqueness constraints.
  * A CustomPropertySet can be "versioned" at which point the history
  * of the values of every attribute are maintained at the object level.
  * Note that this also imposes requirements on the persistence class.
  * It should implement the {@link Effectivity} interface and have
  * a field of type {@link Interval} by the name of "interval".
+ * A CustomPropertySet can also apply uniqueness constraints.
+ * By default, the business object that is extended and
+ * the CustomPropertySet are part of the primary key and if
+ * if the CustomPropertySet is versioned then the start of the
+ * effective interval is also part of the primary key.
+ * Should that be necessary, the CustomPropertySet can add
+ * additional primary key fields.
  * </p>
  * <p>
  * The unique identifier that a CustomPropertySet is expected to provide
@@ -34,6 +41,9 @@ import java.util.Set;
  * limited such that managing the uniqueness will not be a problem,
  * even when the service and delivery team defines reusable attribute sets
  * that they use across customers.
+ * The case where the same persistence class is used for different
+ * CustomPropertySets is supported as long as every CustomPropertySet
+ * has a unique identifier.
  * </p>
  *
  * @author Rudi Vankeirsbilck (rudi)

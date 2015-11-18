@@ -12,8 +12,10 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.impl.OrmModule;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.BasicPropertiesModule;
@@ -51,6 +53,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import org.junit.*;
 
@@ -137,7 +140,6 @@ public class CustomPropertySetServiceImplIT {
             bind(BeanService.class).toInstance(new BeanServiceImpl());
             bind(FileSystem.class).toInstance(FileSystems.getDefault());
         }
-
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -186,6 +188,31 @@ public class CustomPropertySetServiceImplIT {
         this.testInstance.addCustomPropertySet(new CustomPropertySetForTestingPurposes(propertySpecService));
 
         // Asserts: see expected exception rule
+    }
+
+    @Test
+    public void addNonVersionedCustomPropertySetWithAdditionalPrimaryKeyColumns() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        try (TransactionContext ctx = transactionService.getContext()) {
+            TestDomain.install(ormService);
+        }
+
+        List<DataModel> dataModelsBeforeAdd = ormService.getDataModels();
+
+        // Business method
+        CustomPropertySetWithAdditionalPrimaryKeyColumnsForTestingPurposes customPropertySet = new CustomPropertySetWithAdditionalPrimaryKeyColumnsForTestingPurposes(propertySpecService);
+        this.testInstance.addCustomPropertySet(customPropertySet);
+
+        // Asserts
+        List<DataModel> dataModelsAfterAdd = ormService.getDataModels();
+        assertThat(dataModelsAfterAdd.size()).isGreaterThan(dataModelsBeforeAdd.size());
+        assertThat(this.testInstance.findActiveCustomPropertySets()).isNotEmpty();
+        Optional<DataModel> dataModel = ormService.getDataModel(customPropertySet.getPersistenceSupport().componentName());
+        assertThat(dataModel).isPresent();
+        Table<?> table = dataModel.get().getTable(customPropertySet.getPersistenceSupport().tableName());
+        List<String> primaryKeyColumnNames = table.getPrimaryKeyColumns().stream().map(Column::getName).collect(Collectors.toList());
+        assertThat(primaryKeyColumnNames).contains(DomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.databaseName());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -259,6 +286,31 @@ public class CustomPropertySetServiceImplIT {
         assertThat(customPropertySetsAfterAdd.size()).isGreaterThan(customPropertySetsBeforeAdd.size());
     }
 
+    @Test
+    public void addVersionedCustomPropertySetWithAdditionalPrimaryKeyColumns() {
+        PropertySpecService propertySpecService = injector.getInstance(PropertySpecService.class);
+        OrmService ormService = injector.getInstance(OrmService.class);
+        try (TransactionContext ctx = transactionService.getContext()) {
+            TestDomain.install(ormService);
+        }
+
+        List<DataModel> dataModelsBeforeAdd = ormService.getDataModels();
+
+        // Business method
+        VersionedCustomPropertySetWithAdditionalPrimaryKeyColumnsForTestingPurposes customPropertySet = new VersionedCustomPropertySetWithAdditionalPrimaryKeyColumnsForTestingPurposes(propertySpecService);
+        this.testInstance.addCustomPropertySet(customPropertySet);
+
+        // Asserts
+        List<DataModel> dataModelsAfterAdd = ormService.getDataModels();
+        assertThat(dataModelsAfterAdd.size()).isGreaterThan(dataModelsBeforeAdd.size());
+        assertThat(this.testInstance.findActiveCustomPropertySets()).isNotEmpty();
+        Optional<DataModel> dataModel = ormService.getDataModel(customPropertySet.getPersistenceSupport().componentName());
+        assertThat(dataModel).isPresent();
+        Table<?> table = dataModel.get().getTable(customPropertySet.getPersistenceSupport().tableName());
+        List<String> primaryKeyColumnNames = table.getPrimaryKeyColumns().stream().map(Column::getName).collect(Collectors.toList());
+        assertThat(primaryKeyColumnNames).contains(VersionedDomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.databaseName());
+    }
+
     @Test(timeout = 5000)
     public void addCustomPropertySetsWhileActivating() throws InterruptedException {
         OrmService ormService = injector.getInstance(OrmService.class);
@@ -312,7 +364,6 @@ public class CustomPropertySetServiceImplIT {
             List<DataModel> dataModelsAfterAdd = ormService.getDataModels();
             assertThat(dataModelsAfterAdd.size()).isGreaterThan(dataModelsBeforeAdd.size());
         }
-
     }
 
     @Test
@@ -410,6 +461,7 @@ public class CustomPropertySetServiceImplIT {
         this.grantAllViewAndEditPrivilegesToPrincipal();
 
         CustomPropertySetValues values = CustomPropertySetValues.empty();
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.javaName(), ServiceCategoryForTestingPurposes.ELECTRICITY);
         BigDecimal expectedBillingCycle = BigDecimal.TEN;
         values.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), expectedBillingCycle);
         String expectedContractNumber = "createNonVersionedValues";
@@ -440,6 +492,7 @@ public class CustomPropertySetServiceImplIT {
         this.grantAllViewAndEditPrivilegesToPrincipal();
 
         CustomPropertySetValues values = CustomPropertySetValues.empty();
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.javaName(), ServiceCategoryForTestingPurposes.ELECTRICITY);
         BigDecimal initialBillingCycle = BigDecimal.ONE;
         values.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), initialBillingCycle);
         String initialContractNumber = "initialValue";
@@ -518,6 +571,7 @@ public class CustomPropertySetServiceImplIT {
         this.grantAllViewAndEditPrivilegesToPrincipal();
 
         CustomPropertySetValues values = CustomPropertySetValues.empty();
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.javaName(), ServiceCategoryForTestingPurposes.ELECTRICITY);
         BigDecimal initialBillingCycle = BigDecimal.ONE;
         values.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), initialBillingCycle);
         String initialContractNumber = "initialValue";
@@ -585,6 +639,7 @@ public class CustomPropertySetServiceImplIT {
         this.grantAllViewAndEditPrivilegesToPrincipal();
 
         CustomPropertySetValues values = CustomPropertySetValues.empty();
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.javaName(), ServiceCategoryForTestingPurposes.ELECTRICITY);
         values.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), "dontCareBecauseWillFailAnyway");
 
         try (TransactionContext ctx = transactionService.getContext()) {
@@ -610,9 +665,10 @@ public class CustomPropertySetServiceImplIT {
             ctx.commit();
         }
         this.testInstance.addCustomPropertySet(customPropertySet);
-        CustomPropertySetValues values = CustomPropertySetValues.empty();
         this.grantAllViewAndEditPrivilegesToPrincipal();
 
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.javaName(), ServiceCategoryForTestingPurposes.ELECTRICITY);
         BigDecimal expectedBillingCycle = BigDecimal.TEN;
         values.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), expectedBillingCycle);
         values.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), Strings.repeat("Too long", 100));
@@ -642,6 +698,7 @@ public class CustomPropertySetServiceImplIT {
         this.grantAllViewAndEditPrivilegesToPrincipal();
 
         CustomPropertySetValues values = CustomPropertySetValues.empty();
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.javaName(), ServiceCategoryForTestingPurposes.ELECTRICITY);
         BigDecimal expectedBillingCycle = BigDecimal.TEN;
         values.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), expectedBillingCycle);
         String expectedContractNumber = "createNonVersionedValues";
@@ -676,6 +733,7 @@ public class CustomPropertySetServiceImplIT {
         this.grantAllViewAndEditPrivilegesToPrincipal();
 
         CustomPropertySetValues values = CustomPropertySetValues.empty();
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.javaName(), ServiceCategoryForTestingPurposes.ELECTRICITY);
         BigDecimal expectedBillingCycle = BigDecimal.TEN;
         values.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), expectedBillingCycle);
         String expectedContractNumber = "createVersionedValues";
@@ -706,6 +764,7 @@ public class CustomPropertySetServiceImplIT {
         this.grantAllViewAndEditPrivilegesToPrincipal();
 
         CustomPropertySetValues initialValues = CustomPropertySetValues.empty();
+        initialValues.setProperty(DomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.javaName(), ServiceCategoryForTestingPurposes.ELECTRICITY);
         BigDecimal initialBillingCycle = BigDecimal.ONE;
         initialValues.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), initialBillingCycle);
         String initialContractNumber = "initialValue";
@@ -717,6 +776,7 @@ public class CustomPropertySetServiceImplIT {
         }
 
         CustomPropertySetValues updateValues = CustomPropertySetValues.empty();
+        updateValues.setProperty(DomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.javaName(), ServiceCategoryForTestingPurposes.ELECTRICITY);
         BigDecimal expectedBillingCycle = BigDecimal.TEN;
         updateValues.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), expectedBillingCycle);
         String expectedContractNumber = "updated!";
@@ -787,6 +847,7 @@ public class CustomPropertySetServiceImplIT {
         this.grantAllViewAndEditPrivilegesToPrincipal();
 
         CustomPropertySetValues initialValues = CustomPropertySetValues.empty();
+        initialValues.setProperty(DomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.javaName(), ServiceCategoryForTestingPurposes.ELECTRICITY);
         BigDecimal initialBillingCycle = BigDecimal.ONE;
         initialValues.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), initialBillingCycle);
         String initialContractNumber = "initialValue";
@@ -798,6 +859,7 @@ public class CustomPropertySetServiceImplIT {
         }
 
         CustomPropertySetValues updateValues = CustomPropertySetValues.empty();
+        updateValues.setProperty(DomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.javaName(), ServiceCategoryForTestingPurposes.ELECTRICITY);
         BigDecimal expectedBillingCycle = BigDecimal.TEN;
         updateValues.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), expectedBillingCycle);
         String expectedContractNumber = "updated!";
@@ -856,6 +918,7 @@ public class CustomPropertySetServiceImplIT {
         this.testInstance.addCustomPropertySet(customPropertySet);
         this.grantAllViewAndEditPrivilegesToPrincipal();
         CustomPropertySetValues values = CustomPropertySetValues.empty();
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.javaName(), ServiceCategoryForTestingPurposes.ELECTRICITY);
         values.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), "dontCareBecauseWillFailAnyway");
 
         try (TransactionContext ctx = transactionService.getContext()) {
@@ -912,6 +975,7 @@ public class CustomPropertySetServiceImplIT {
 
         CustomPropertySetValues values = CustomPropertySetValues.empty();
         BigDecimal expectedBillingCycle = BigDecimal.TEN;
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.javaName(), ServiceCategoryForTestingPurposes.ELECTRICITY);
         values.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), expectedBillingCycle);
         values.setProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(), Strings.repeat("Too long", 100));
 
@@ -940,6 +1004,7 @@ public class CustomPropertySetServiceImplIT {
         this.grantAllViewAndEditPrivilegesToPrincipal();
 
         CustomPropertySetValues values = CustomPropertySetValues.empty();
+        values.setProperty(DomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.javaName(), ServiceCategoryForTestingPurposes.ELECTRICITY);
         BigDecimal expectedBillingCycle = BigDecimal.TEN;
         values.setProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(), expectedBillingCycle);
         String expectedContractNumber = "createVersionedValues";

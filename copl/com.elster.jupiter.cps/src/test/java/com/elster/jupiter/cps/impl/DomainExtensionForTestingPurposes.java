@@ -22,6 +22,7 @@ public class DomainExtensionForTestingPurposes implements PersistentDomainExtens
 
     public enum FieldNames {
         DOMAIN("testDomain", "testDomain"),
+        SERVICE_CATEGORY("serviceCategory", "service_category"),
         BILLING_CYCLE("billingCycle", "bill_cycle"),
         CONTRACT_NUMBER("contractNumber", "contract_nr");
 
@@ -44,6 +45,8 @@ public class DomainExtensionForTestingPurposes implements PersistentDomainExtens
 
     private Reference<TestDomain> testDomain = Reference.empty();
     private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
+    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "CannotBeNull")
+    private ServiceCategoryForTestingPurposes serviceCategory = ServiceCategoryForTestingPurposes.ELECTRICITY;
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "CannotBeNull")
     private BigDecimal billingCycle;
     @Size(max= Table.NAME_LENGTH, groups = { Save.Create.class, Save.Update.class }, message = "FieldTooLong")
@@ -70,6 +73,14 @@ public class DomainExtensionForTestingPurposes implements PersistentDomainExtens
         return registeredCustomPropertySet.get();
     }
 
+    public ServiceCategoryForTestingPurposes getServiceCategory() {
+        return serviceCategory;
+    }
+
+    public void setServiceCategory(ServiceCategoryForTestingPurposes serviceCategory) {
+        this.serviceCategory = serviceCategory;
+    }
+
     public BigDecimal getBillingCycle() {
         return billingCycle;
     }
@@ -89,12 +100,14 @@ public class DomainExtensionForTestingPurposes implements PersistentDomainExtens
     @Override
     public void copyFrom(TestDomain domainInstance, CustomPropertySetValues propertyValues) {
         this.testDomain.set(domainInstance);
+        this.setServiceCategory((ServiceCategoryForTestingPurposes) propertyValues.getProperty(FieldNames.SERVICE_CATEGORY.javaName()));
         this.setBillingCycle((BigDecimal) propertyValues.getProperty(FieldNames.BILLING_CYCLE.javaName()));
         this.setContractNumber((String) propertyValues.getProperty(FieldNames.CONTRACT_NUMBER.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues) {
+        propertySetValues.setProperty(FieldNames.SERVICE_CATEGORY.javaName(), this.getServiceCategory());
         propertySetValues.setProperty(FieldNames.BILLING_CYCLE.javaName(), this.getBillingCycle());
         propertySetValues.setProperty(FieldNames.CONTRACT_NUMBER.javaName(), this.getContractNumber());
     }

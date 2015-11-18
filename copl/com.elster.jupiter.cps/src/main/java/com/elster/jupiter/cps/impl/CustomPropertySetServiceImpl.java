@@ -334,6 +334,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         }
     }
 
+    @SuppressWarnings("unchecked")
     private RegisteredCustomPropertySetImpl createRegisteredCustomPropertySet(CustomPropertySet customPropertySet, boolean systemDefined) {
         RegisteredCustomPropertySetImpl registeredCustomPropertySet = this.dataModel.getInstance(RegisteredCustomPropertySetImpl.class);
         registeredCustomPropertySet.initialize(customPropertySet, systemDefined, customPropertySet.defaultViewPrivileges(), customPropertySet.defaultEditPrivileges());
@@ -487,6 +488,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         private Table underConstruction;
         private Column domainReference;
         private Column customPropertySetReference;
+        private List<Column> customPrimaryKeyColumns;
 
         private TableBuilder(DataModel dataModel, CustomPropertySet customPropertySet) {
             super();
@@ -525,8 +527,10 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         void addPrimaryKeyColumnsTo(List<Column> primaryKeyColumns) {
             primaryKeyColumns.add(this.domainReference);
             primaryKeyColumns.add(this.customPropertySetReference);
+            primaryKeyColumns.addAll(this.customPrimaryKeyColumns);
         }
 
+        @SuppressWarnings("unchecked")
         void initializeUnderConstruction() {
             this.underConstruction =
                     this.dataModel.addTable(
@@ -537,12 +541,14 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
         private void addColumns() {
             this.addPrimaryKeyColumns();
-            this.customPropertySet.getPersistenceSupport().addCustomPropertyColumnsTo(this.underConstruction);
+            this.customPropertySet.getPersistenceSupport().addCustomPropertyColumnsTo(this.underConstruction, this.customPrimaryKeyColumns);
         }
 
+        @SuppressWarnings("unchecked")
         void addPrimaryKeyColumns() {
             this.domainReference = this.addDomainColumnTo(this.underConstruction, this.customPropertySet);
             this.customPropertySetReference = this.addPropertySetColumnTo(this.underConstruction, this.customPropertySet);
+            this.customPrimaryKeyColumns = new ArrayList<>(this.customPropertySet.getPersistenceSupport().addCustomPropertyPrimaryKeyColumnsTo(this.underConstruction));
         }
 
         private String tableNameFor(CustomPropertySet customPropertySet) {

@@ -4,6 +4,7 @@ import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
+import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -13,6 +14,7 @@ import com.google.inject.Module;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -31,8 +33,8 @@ import java.util.Set;
  */
 public class VersionedCustomPropertySetForTestingPurposes implements CustomPropertySet<TestDomain, VersionedDomainExtensionForTestingPurposes> {
 
-    public static final String TABLE_NAME = "T03_CUSTOM_BILLING";
-    public static final String FK_CUST_BILLING_DOMAIN = "FK_03CUST_BILLING_DOMAIN";
+    public static final String TABLE_NAME = "T04_CUSTOM_BILLING";
+    public static final String FK_CUST_BILLING_DOMAIN = "FK_04CUST_BILLING_DOMAIN";
 
     private final PropertySpecService propertySpecService;
 
@@ -99,7 +101,7 @@ public class VersionedCustomPropertySetForTestingPurposes implements CustomPrope
     private static class MyPeristenceSupport implements PersistenceSupport<TestDomain, VersionedDomainExtensionForTestingPurposes> {
         @Override
         public String componentName() {
-            return "T03";
+            return "T04";
         }
 
         @Override
@@ -128,7 +130,13 @@ public class VersionedCustomPropertySetForTestingPurposes implements CustomPrope
         }
 
         @Override
-        public void addCustomPropertyColumnsTo(Table table) {
+        public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
+            // None of the custom properties are part of the primary key
+            return Collections.emptyList();
+        }
+
+        @Override
+        public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table
                 .column(VersionedDomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.databaseName())
                 .number()
@@ -142,4 +150,5 @@ public class VersionedCustomPropertySetForTestingPurposes implements CustomPrope
                 .add();
         }
     }
+
 }

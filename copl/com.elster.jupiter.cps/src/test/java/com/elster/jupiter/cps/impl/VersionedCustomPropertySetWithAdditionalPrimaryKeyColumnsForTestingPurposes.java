@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * A {@link CustomPropertySet} for the {@link TestDomain}
+ * A versioned {@link CustomPropertySet} for the {@link TestDomain}
  * that will be used in the integration test classes of this bundle.
  * Should this be a real implementation, the class would need
  * a @Component annotation so that the OSGi container
@@ -31,26 +31,26 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-08-12 (14:28)
  */
-public class CustomPropertySetForTestingPurposes implements CustomPropertySet<TestDomain, DomainExtensionForTestingPurposes> {
+public class VersionedCustomPropertySetWithAdditionalPrimaryKeyColumnsForTestingPurposes implements CustomPropertySet<TestDomain, VersionedDomainExtensionForTestingPurposes> {
 
-    public static final String TABLE_NAME = "T02_CUSTOM_BILLING";
-    public static final String FK_CUST_BILLING_DOMAIN = "FK_02CUST_BILLING_DOMAIN";
+    public static final String TABLE_NAME = "T05_CUSTOM_BILLING";
+    public static final String FK_CUST_BILLING_DOMAIN = "FK_05CUST_BILLING_DOMAIN";
 
     private final PropertySpecService propertySpecService;
 
-    public CustomPropertySetForTestingPurposes(PropertySpecService propertySpecService) {
+    public VersionedCustomPropertySetWithAdditionalPrimaryKeyColumnsForTestingPurposes(PropertySpecService propertySpecService) {
         super();
         this.propertySpecService = propertySpecService;
     }
 
     @Override
     public String getId() {
-        return CustomPropertySetForTestingPurposes.class.getSimpleName();
+        return this.getClass().getSimpleName();
     }
 
     @Override
     public String getName() {
-        return CustomPropertySetForTestingPurposes.class.getSimpleName();
+        return VersionedCustomPropertySetWithAdditionalPrimaryKeyColumnsForTestingPurposes.class.getSimpleName();
     }
 
     @Override
@@ -59,7 +59,7 @@ public class CustomPropertySetForTestingPurposes implements CustomPropertySet<Te
     }
 
     @Override
-    public PersistenceSupport<TestDomain, DomainExtensionForTestingPurposes> getPersistenceSupport() {
+    public PersistenceSupport<TestDomain, VersionedDomainExtensionForTestingPurposes> getPersistenceSupport() {
         return new MyPeristenceSupport();
     }
 
@@ -70,7 +70,7 @@ public class CustomPropertySetForTestingPurposes implements CustomPropertySet<Te
 
     @Override
     public boolean isVersioned() {
-        return false;
+        return true;
     }
 
     @Override
@@ -85,6 +85,11 @@ public class CustomPropertySetForTestingPurposes implements CustomPropertySet<Te
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
+        PropertySpec serviceCategoryPropertySpec = this.propertySpecService
+                .basicPropertySpec(
+                        DomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.javaName(),
+                        true,
+                        new ServiceCategoryValueFactory());
         PropertySpec billingCyclePropertySpec = this.propertySpecService
                 .bigDecimalPropertySpec(
                         DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(),
@@ -95,13 +100,13 @@ public class CustomPropertySetForTestingPurposes implements CustomPropertySet<Te
                         DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(),
                         false,
                         new StringFactory());
-        return Arrays.asList(billingCyclePropertySpec, contractNumberPropertySpec);
+        return Arrays.asList(serviceCategoryPropertySpec, billingCyclePropertySpec, contractNumberPropertySpec);
     }
 
-    private static class MyPeristenceSupport implements PersistenceSupport<TestDomain, DomainExtensionForTestingPurposes> {
+    private static class MyPeristenceSupport implements PersistenceSupport<TestDomain, VersionedDomainExtensionForTestingPurposes> {
         @Override
         public String componentName() {
-            return "T02";
+            return "T05";
         }
 
         @Override
@@ -111,7 +116,7 @@ public class CustomPropertySetForTestingPurposes implements CustomPropertySet<Te
 
         @Override
         public String domainFieldName() {
-            return DomainExtensionForTestingPurposes.FieldNames.DOMAIN.javaName();
+            return VersionedDomainExtensionForTestingPurposes.FieldNames.DOMAIN.javaName();
         }
 
         @Override
@@ -120,8 +125,8 @@ public class CustomPropertySetForTestingPurposes implements CustomPropertySet<Te
         }
 
         @Override
-        public Class<DomainExtensionForTestingPurposes> persistenceClass() {
-            return DomainExtensionForTestingPurposes.class;
+        public Class<VersionedDomainExtensionForTestingPurposes> persistenceClass() {
+            return VersionedDomainExtensionForTestingPurposes.class;
         }
 
         @Override
@@ -131,23 +136,29 @@ public class CustomPropertySetForTestingPurposes implements CustomPropertySet<Te
 
         @Override
         public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
-            // None of the custom properties are part of the primary key
-            return Collections.emptyList();
+            Column serviceCategory = table
+                    .column(DomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.databaseName())
+                    .number()
+                    .map(DomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.javaName())
+                    .notNull()
+                    .add();
+            return Collections.singletonList(serviceCategory);
         }
 
         @Override
         public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
             table
-                .column(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.databaseName())
+                .column(VersionedDomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.databaseName())
                 .number()
-                .map(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName())
+                .map(VersionedDomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName())
                 .notNull()
                 .add();
             table
-                .column(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.databaseName())
+                .column(VersionedDomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.databaseName())
                 .varChar()
-                .map(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName())
+                .map(VersionedDomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName())
                 .add();
         }
     }
+
 }

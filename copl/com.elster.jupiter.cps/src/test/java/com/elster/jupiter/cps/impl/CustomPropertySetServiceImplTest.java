@@ -257,7 +257,7 @@ public class CustomPropertySetServiceImplTest {
         verify(this.customPropertySetColumnBuilder).add();
         verify(this.table).foreignKey(startsWith("FK_CPS_"));
         verify(this.customPropertySetForeignKeyConstraintBuilder).add();
-        verify(this.persistenceSupport).addCustomPropertyColumnsTo(this.table);
+        verify(this.persistenceSupport).addCustomPropertyColumnsTo(eq(this.table), any(List.class));
         verify(this.table).primaryKey(startsWith("PK_CPS_"));
         verify(this.primaryKeyConstraintBuilder).add();
         verify(this.customPropertySetDataModel).register(anyVararg());
@@ -308,7 +308,7 @@ public class CustomPropertySetServiceImplTest {
         verify(this.customPropertySetColumnBuilder).add();
         verify(this.table).foreignKey(startsWith("FK_CPS_"));
         verify(this.customPropertySetForeignKeyConstraintBuilder).add();
-        verify(this.persistenceSupport).addCustomPropertyColumnsTo(this.table);
+        verify(this.persistenceSupport).addCustomPropertyColumnsTo(eq(this.table), any(List.class));
         verify(this.table).primaryKey(startsWith("PK_CPS_"));
         verify(this.primaryKeyConstraintBuilder).add();
         verify(this.customPropertySetDataModel).register(anyVararg());
@@ -342,7 +342,7 @@ public class CustomPropertySetServiceImplTest {
         verify(this.customPropertySetColumnBuilder).add();
         verify(this.versionedTable).foreignKey(startsWith("FK_CPS_"));
         verify(this.customPropertySetForeignKeyConstraintBuilder).add();
-        verify(this.versionedPersistenceSupport).addCustomPropertyColumnsTo(this.versionedTable);
+        verify(this.versionedPersistenceSupport).addCustomPropertyColumnsTo(eq(this.versionedTable), any(List.class));
         verify(this.versionedTable).primaryKey(startsWith("PK_CPS_"));
         verify(this.primaryKeyConstraintBuilder).add();
         verify(this.versionedTable).addIntervalColumns(HardCodedFieldNames.INTERVAL.javaName());
@@ -381,7 +381,7 @@ public class CustomPropertySetServiceImplTest {
         verify(this.customPropertySetColumnBuilder).add();
         verify(this.versionedTable).foreignKey(startsWith("FK_CPS_"));
         verify(this.customPropertySetForeignKeyConstraintBuilder).add();
-        verify(this.versionedPersistenceSupport).addCustomPropertyColumnsTo(this.versionedTable);
+        verify(this.versionedPersistenceSupport).addCustomPropertyColumnsTo(eq(this.versionedTable), any(List.class));
         verify(this.versionedTable).primaryKey(startsWith("PK_CPS_"));
         verify(this.primaryKeyConstraintBuilder).add();
         verify(this.versionedTable).addIntervalColumns(HardCodedFieldNames.INTERVAL.javaName());
@@ -573,7 +573,9 @@ public class CustomPropertySetServiceImplTest {
         // Asserts
         assertThat(extension.getInterval()).isEqualTo(expectedInterval);
         assertThat(properties.propertyNames())
-                .containsOnly(VersionedDomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName());
+                .containsOnly(
+                        VersionedDomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.javaName(),
+                        VersionedDomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName());
     }
 
     @Test

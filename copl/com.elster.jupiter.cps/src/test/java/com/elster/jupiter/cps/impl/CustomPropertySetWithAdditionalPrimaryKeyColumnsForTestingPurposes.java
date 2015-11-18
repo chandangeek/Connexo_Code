@@ -31,26 +31,26 @@ import java.util.Set;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-08-12 (14:28)
  */
-public class CustomPropertySetForTestingPurposes implements CustomPropertySet<TestDomain, DomainExtensionForTestingPurposes> {
+public class CustomPropertySetWithAdditionalPrimaryKeyColumnsForTestingPurposes implements CustomPropertySet<TestDomain, DomainExtensionForTestingPurposes> {
 
-    public static final String TABLE_NAME = "T02_CUSTOM_BILLING";
-    public static final String FK_CUST_BILLING_DOMAIN = "FK_02CUST_BILLING_DOMAIN";
+    public static final String TABLE_NAME = "T03_CUSTOM_BILLING";
+    public static final String FK_CUST_BILLING_DOMAIN = "FK_03CUST_BILLING_DOMAIN";
 
     private final PropertySpecService propertySpecService;
 
-    public CustomPropertySetForTestingPurposes(PropertySpecService propertySpecService) {
+    public CustomPropertySetWithAdditionalPrimaryKeyColumnsForTestingPurposes(PropertySpecService propertySpecService) {
         super();
         this.propertySpecService = propertySpecService;
     }
 
     @Override
     public String getId() {
-        return CustomPropertySetForTestingPurposes.class.getSimpleName();
+        return CustomPropertySetWithAdditionalPrimaryKeyColumnsForTestingPurposes.class.getSimpleName();
     }
 
     @Override
     public String getName() {
-        return CustomPropertySetForTestingPurposes.class.getSimpleName();
+        return CustomPropertySetWithAdditionalPrimaryKeyColumnsForTestingPurposes.class.getSimpleName();
     }
 
     @Override
@@ -85,6 +85,11 @@ public class CustomPropertySetForTestingPurposes implements CustomPropertySet<Te
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
+        PropertySpec serviceCategoryPropertySpec = this.propertySpecService
+                .basicPropertySpec(
+                        DomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.javaName(),
+                        true,
+                        new ServiceCategoryValueFactory());
         PropertySpec billingCyclePropertySpec = this.propertySpecService
                 .bigDecimalPropertySpec(
                         DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName(),
@@ -95,13 +100,13 @@ public class CustomPropertySetForTestingPurposes implements CustomPropertySet<Te
                         DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName(),
                         false,
                         new StringFactory());
-        return Arrays.asList(billingCyclePropertySpec, contractNumberPropertySpec);
+        return Arrays.asList(serviceCategoryPropertySpec, billingCyclePropertySpec, contractNumberPropertySpec);
     }
 
     private static class MyPeristenceSupport implements PersistenceSupport<TestDomain, DomainExtensionForTestingPurposes> {
         @Override
         public String componentName() {
-            return "T02";
+            return "T03";
         }
 
         @Override
@@ -131,8 +136,13 @@ public class CustomPropertySetForTestingPurposes implements CustomPropertySet<Te
 
         @Override
         public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
-            // None of the custom properties are part of the primary key
-            return Collections.emptyList();
+            return Collections.singletonList(
+                    table
+                        .column(DomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.databaseName())
+                        .number()
+                        .map(DomainExtensionForTestingPurposes.FieldNames.SERVICE_CATEGORY.javaName())
+                        .notNull()
+                        .add());
         }
 
         @Override
@@ -150,4 +160,5 @@ public class CustomPropertySetForTestingPurposes implements CustomPropertySet<Te
                 .add();
         }
     }
+
 }

@@ -1,10 +1,13 @@
 package com.elster.jupiter.cps;
 
-import aQute.bnd.annotation.ConsumerType;
+import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+
+import aQute.bnd.annotation.ConsumerType;
 import com.google.inject.Module;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -81,19 +84,43 @@ public interface PersistenceSupport<D, T extends PersistentDomainExtension<D>> {
     Optional<Module> module();
 
     /**
-     * Adds the columns for each of the custom properties
-     * using the various builders that are provided by the Table.
-     * Note that primary key is generated for you.
-     * Attempting to add another one will produce a error.
-     * Feel free to add as many foreign keys, uniqueness constraints
-     * and/or indexes as you want or need.
+     * Adds and returns the columns for each of the custom properties
+     * that should be part of the primary key or an empty List.
+     * Use the various builders that are provided by the Table.
+     * Note that is part of the generation of the primary key.
+     * Attempting to start the builder for the primary key will produce a error.
+     * Note also that this is not the place to add foreign keys,
+     * uniqueness constraints and/or indexes.
+     * <p>
+     * Because we are not expecting this to be used very frequently,
+     * this has been defined as a default method for your convenience.
      *
      * @param table The Table
+     * @return The columns that need to be part of the primary key
      * @see Table#column(String)
      * @see Table#foreignKey(String)
      * @see Table#unique(String)
      * @see Table#index(String)
      */
-    void addCustomPropertyColumnsTo(Table table);
+    List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table);
+
+    /**
+     * Adds the columns for each of the custom properties
+     * using the various builders that are provided by the Table.
+     * Note that primary key is generated for you.
+     * Attempting to add another primary key one will produce a error.
+     * Feel free to add as many foreign keys, uniqueness constraints
+     * and/or indexes as you want or need.
+     * The List of primary key columns that was returned before
+     * is passed back to allow for stateless implementation classes.
+     *
+     * @param table The Table
+     * @param customPrimaryKeyColumns The List of primary key columns previously returned by this component
+     * @see Table#column(String)
+     * @see Table#foreignKey(String)
+     * @see Table#unique(String)
+     * @see Table#index(String)
+     */
+    void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns);
 
 }
