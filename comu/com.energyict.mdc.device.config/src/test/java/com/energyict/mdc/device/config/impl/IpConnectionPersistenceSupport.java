@@ -1,12 +1,15 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.cps.PersistenceSupport;
+import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 
 import com.google.inject.Module;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -48,7 +51,13 @@ public class IpConnectionPersistenceSupport implements PersistenceSupport<Connec
     }
 
     @Override
-    public void addCustomPropertyColumnsTo(Table table) {
+    public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
+        // None of the custom properties are part of the primary key
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
         table
             .column(IpConnectionProperties.IP_ADDRESS.propertyName())
             .notNull()
