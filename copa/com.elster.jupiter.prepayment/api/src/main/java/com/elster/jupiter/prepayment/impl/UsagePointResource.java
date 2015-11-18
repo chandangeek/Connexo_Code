@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -55,6 +56,7 @@ public class UsagePointResource {
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/contactor")
+    @Transactional
     public Response updateContactor(@PathParam("mrid") String mRID, ContactorInfo contactorInfo, @Context UriInfo uriInfo) {
         Device device = findDeviceThroughUsagePoint(mRID);
         DeviceMessageId deviceMessageId = getMessageId(contactorInfo);
@@ -77,6 +79,7 @@ public class UsagePointResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/messages/{messageId}")
+    @Transactional
     public Response getDeviceMessage(@PathParam("mrid") String mRID, @PathParam("messageId") long id) {
         Device device = findDeviceThroughUsagePoint(mRID);
         DeviceMessage<Device> deviceMessage = device.getMessages().stream().filter(msg -> msg.getId() == id).findFirst().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_MESSAGE));

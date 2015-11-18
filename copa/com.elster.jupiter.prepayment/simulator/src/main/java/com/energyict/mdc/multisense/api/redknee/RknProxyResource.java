@@ -1,9 +1,9 @@
 package com.energyict.mdc.multisense.api.redknee;
 
+import com.energyict.mdc.common.rest.Transactional;
 import org.glassfish.jersey.jackson.JacksonFeature;
 
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.ws.rs.ClientErrorException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -46,7 +46,7 @@ public class RknProxyResource {
         return Response.ok().entity("{\"status\":\"ok\"}").build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("usagepoints/{mrid}/contactor")
