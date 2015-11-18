@@ -43,22 +43,6 @@ enum Joins implements JoinType {
         }
     },
 
-    ComTaskExecution {
-        @Override
-        public void appendTo(SqlBuilder sqlBuilder) {
-            sqlBuilder.append(" join ");
-            sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
-            sqlBuilder.append(" cte on cte.device = dev.id ");
-        }
-    },
-
-    ComSchedule {
-        @Override
-        public void appendTo(SqlBuilder sqlBuilder) {
-            sqlBuilder.append(" join SCH_COMSCHEDULE csh on csh.id = cte.comschedule ");
-        }
-    },
-
     MeterActivation {
         @Override
         public void appendTo(SqlBuilder sqlBuilder) {

@@ -115,19 +115,6 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
     }
 
     @Override
-    public JoinClauseBuilder addComTaskExecution() {
-        this.joins.add(Joins.ComTaskExecution);
-        return this;
-    }
-
-    @Override
-    public JoinClauseBuilder addComSchedule() {
-        this.joins.add(Joins.ComTaskExecution);
-        this.joins.add(Joins.ComSchedule);
-        return this;
-    }
-
-    @Override
     public JoinClauseBuilder addUsagePoint() {
         this.joins.add(Joins.EndDevice);
         this.joins.add(Joins.MeterActivation);
@@ -170,13 +157,6 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
     @Override
     public JoinClauseBuilder addDeviceType() {
         this.joins.add(Joins.DeviceType);
-        return this;
-    }
-
-    @Override
-    public JoinClauseBuilder addComTask() {
-        this.joins.add(Joins.ComTaskEnablement);
-        this.joins.add(Joins.ComTask);
         return this;
     }
 

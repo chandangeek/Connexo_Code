@@ -24,10 +24,6 @@ public interface JoinClauseBuilder {
 
     JoinClauseBuilder addConnectionTask();
 
-    JoinClauseBuilder addComTaskExecution();
-
-    JoinClauseBuilder addComSchedule();
-
     JoinClauseBuilder addBatch();
 
     JoinClauseBuilder addUsagePoint();
@@ -43,8 +39,6 @@ public interface JoinClauseBuilder {
     JoinClauseBuilder addDeviceEstimation();
 
     JoinClauseBuilder addDeviceType();
-
-    JoinClauseBuilder addComTask();
 
     JoinClauseBuilder addConnectionTaskProperties(ConnectionTypePluggableClass connectionTypePluggableClass);
 
