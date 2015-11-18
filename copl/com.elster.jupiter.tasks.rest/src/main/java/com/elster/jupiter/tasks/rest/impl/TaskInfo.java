@@ -40,7 +40,7 @@ public class TaskInfo {
 
     public TaskInfo(RecurrentTask recurrentTask, Thesaurus thesaurus, TimeService timeService) {
         name = recurrentTask.getName();
-        application = "MultiSense";
+        application = recurrentTask.getApplication();
         queue = recurrentTask.getDestination().getName();
         trigger = thesaurus.getFormat(TranslationKeys.SCHEDULED).format() + " (" + getScheduledTriggerDescription(recurrentTask.getScheduleExpression(), thesaurus, timeService) + ")";
         Optional<TaskOccurrence> lastOccurrence = recurrentTask.getLastOccurrence();

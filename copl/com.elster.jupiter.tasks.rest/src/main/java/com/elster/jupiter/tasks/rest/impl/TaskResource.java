@@ -69,20 +69,22 @@ public class TaskResource {
         return infos;
     }
 
-    private List<? extends RecurrentTask> queryTasks(QueryParameters queryParameters) {
-        Query<? extends RecurrentTask> query = taskService.getTaskQuery();
-        RestQuery<? extends RecurrentTask> restQuery = queryService.wrap(query);
-        return restQuery.select(queryParameters);
-    }
-
     @GET
     @Path("/applications")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public List<ApplicationInfo> getApplications(@Context UriInfo uriInfo) {
-        List<ApplicationInfo> result = new ArrayList<ApplicationInfo>();
-        result.add(new ApplicationInfo("MultiSense"));
-        //result.add(new ApplicationInfo("Insight"));
-        return result;
+        List<RecurrentTask> tasks = taskService.getRecurrentTasks();
+        List<String> applicationNames = new ArrayList<String>();
+        for (RecurrentTask task : tasks)  {
+            applicationNames.add(task.getApplication());
+        }
+        Set<String> set = new HashSet<>();
+        set.addAll(applicationNames);
+        List<ApplicationInfo> applications = new ArrayList<ApplicationInfo>();
+        for (String applicationName : set) {
+            applications.add(new ApplicationInfo(applicationName));
+        }
+        return applications;
     }
 
     @GET
