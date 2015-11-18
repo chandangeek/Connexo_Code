@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2CURRENCY;
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2PRINCIPAL;
@@ -219,23 +220,12 @@ public class TableImpl<T> implements Table<T> {
     }
 
     ColumnImpl[] getVersionColumns() {
-        List<Column> result = new ArrayList<>();
-        for (ColumnImpl column : columns) {
-            if (column.isVersion()) {
-                result.add(column);
-            }
-        }
+        List<Column> result = columns.stream().filter(ColumnImpl::isVersion).collect(Collectors.toList());
         return result.toArray(new ColumnImpl[result.size()]);
     }
 
     List<ColumnImpl> getInsertValueColumns() {
-        List<ColumnImpl> result = new ArrayList<>();
-        for (ColumnImpl column : columns) {
-            if (column.hasInsertValue()) {
-                result.add(column);
-            }
-        }
-        return result;
+        return columns.stream().filter(ColumnImpl::hasInsertValue).collect(Collectors.toList());
     }
 
     List<ColumnImpl> getUpdateValueColumns() {
@@ -249,23 +239,11 @@ public class TableImpl<T> implements Table<T> {
     }
 
     List<ColumnImpl> getStandardColumns() {
-        List<ColumnImpl> result = new ArrayList<>();
-        for (ColumnImpl column : columns) {
-            if (column.isStandard()) {
-                result.add(column);
-            }
-        }
-        return result;
+        return columns.stream().filter(ColumnImpl::isStandard).collect(Collectors.toList());
     }
 
     List<ColumnImpl> getAutoUpdateColumns() {
-        List<ColumnImpl> result = new ArrayList<>();
-        for (ColumnImpl column : columns) {
-            if (column.hasAutoValue(true)) {
-                result.add(column);
-            }
-        }
-        return result;
+        return columns.stream().filter(column -> column.hasAutoValue(true)).collect(Collectors.toList());
     }
 
     @Override
@@ -675,12 +653,10 @@ public class TableImpl<T> implements Table<T> {
 		List<ColumnImpl> primaryKeyColumns = primaryKey.getColumns();
 		for (int i = 0 ; i < primaryKeyColumns.size() ; i++) {
 			if (!primaryKeyColumns.get(i).equals(columns.get(i))) {
-				throw new IllegalStateException(MessageFormat.format("Table '" + getName() + "' : Primary key columns must be defined first and in order in table {0}", getName()));
+				throw new IllegalStateException(MessageFormat.format("Table '{0}' : Primary key columns must be defined first and in order", getName()));
 			}
 		}
-		for (ForeignKeyConstraintImpl constraint : getForeignKeyConstraints()) {
-			constraint.prepare();
-		}
+        getForeignKeyConstraints().forEach(ForeignKeyConstraintImpl::prepare);
 		buildReferenceConstraints();
 		buildReverseMappedConstraints();
 		realColumns = new ArrayList<>();
