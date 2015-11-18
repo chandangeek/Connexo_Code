@@ -1,7 +1,6 @@
 package com.energyict.mdc.common;
 
-import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.common.rest.Untransactional;
+import com.energyict.mdc.common.rest.Transactional;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -21,14 +20,14 @@ public class TransactionResource {
     public TransactionResource() {
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/transactional")
     public Response getTransactional() {
         return Response.noContent().build();
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Path("/exception")
     public Response getWithError() {
@@ -37,7 +36,6 @@ public class TransactionResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @Untransactional
     @Path("/notransaction")
     public Response getWithoutTransaction() {
         return Response.noContent().build();

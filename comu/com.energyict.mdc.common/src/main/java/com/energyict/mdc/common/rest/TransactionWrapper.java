@@ -37,7 +37,8 @@ public class TransactionWrapper implements ApplicationEventListener {
 
         @Override
         public void onEvent(final RequestEvent event) {
-            if (event.getUriInfo().getMatchedResourceMethod() != null && !event.getUriInfo().getMatchedResourceMethod().getInvocable().getHandlingMethod().isAnnotationPresent(Untransactional.class)) {
+            if (event.getUriInfo().getMatchedResourceMethod() != null
+                    && event.getUriInfo().getMatchedResourceMethod().getInvocable().getHandlingMethod().isAnnotationPresent(Transactional.class)) {
                 switch (event.getType()) {
                     case REQUEST_MATCHED:
                         contextThreadLocal.set(transactionService.getContext());

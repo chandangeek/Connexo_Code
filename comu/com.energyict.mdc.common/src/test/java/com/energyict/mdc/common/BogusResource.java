@@ -3,6 +3,8 @@ package com.energyict.mdc.common;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.domain.util.DefaultFinder;
+import com.energyict.mdc.common.rest.Transactional;
+
 import java.util.List;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -24,7 +26,7 @@ public class BogusResource {
         this.dateModel = dateModel;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public List<String> getSomething(@BeanParam JsonQueryParameters queryParameters) {
         return DefaultFinder.of(String.class, dateModel).from(queryParameters).find();

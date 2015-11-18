@@ -47,7 +47,7 @@ public class FieldResource {
     /**
      * This method will return a JSON list of all available field descriptions in this resource
      */
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Object getAllFields() {
         final List<Object> allFields = new ArrayList<>();
