@@ -151,7 +151,7 @@ public final class DeviceCreator implements DeviceBuilderForTesting {
                     LoadProfileSpec.LoadProfileSpecBuilder loadProfileSpecBuilder = deviceConfigurationBuilder.newLoadProfileSpec(loadProfileType);
                     for (ChannelType channelType : loadProfileType.getChannelTypes()) {
                         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = deviceConfigurationBuilder.newChannelSpec(channelType, loadProfileSpecBuilder);
-                        channelSpecBuilder.setOverflow(BigDecimal.valueOf(CHANNEL_OVERFLOW_VALUE));
+                        channelSpecBuilder.overflow(BigDecimal.valueOf(CHANNEL_OVERFLOW_VALUE));
                     }
                 }
                 for (LogBookType logBookType : logBookTypes) {
