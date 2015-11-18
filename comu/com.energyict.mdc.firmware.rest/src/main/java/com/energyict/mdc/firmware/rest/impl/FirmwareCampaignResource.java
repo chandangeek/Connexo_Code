@@ -2,6 +2,7 @@ package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.firmware.*;
 import com.energyict.mdc.firmware.security.Privileges;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -39,7 +40,7 @@ public class FirmwareCampaignResource {
         this.mdcPropertyUtils = mdcPropertyUtils;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_FIRMWARE_CAMPAIGN})
     public Response getFirmwareCampaigns(@BeanParam JsonQueryParameters queryParameters){
@@ -51,7 +52,7 @@ public class FirmwareCampaignResource {
         return Response.ok(PagedInfoList.fromPagedList("firmwareCampaigns", firmwareCampaigns, queryParameters)).build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_FIRMWARE_CAMPAIGN})
@@ -60,7 +61,7 @@ public class FirmwareCampaignResource {
         return Response.ok(campaignInfoFactory.from(firmwareCampaign)).build();
     }
 
-    @POST
+    @POST @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN})
@@ -70,7 +71,7 @@ public class FirmwareCampaignResource {
         return Response.ok(campaignInfoFactory.from(firmwareCampaign)).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN})
@@ -86,7 +87,7 @@ public class FirmwareCampaignResource {
         return Response.ok(campaignInfoFactory.from(firmwareCampaign)).build();
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -98,7 +99,7 @@ public class FirmwareCampaignResource {
         return Response.ok(campaignInfoFactory.from(firmwareCampaign)).build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{id}/devices")
     @Produces(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_FIRMWARE_CAMPAIGN})

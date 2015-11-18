@@ -1,5 +1,6 @@
 package com.energyict.mdc.firmware.rest.impl;
 
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.device.data.Device;
 
 import javax.annotation.security.RolesAllowed;
@@ -22,7 +23,7 @@ public class DeviceFirmwareVersionResource {
         this.resourceHelper = resourceHelper;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE, com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response getFirmwareVersionsOnDevice(@PathParam("mRID") String mRID) {

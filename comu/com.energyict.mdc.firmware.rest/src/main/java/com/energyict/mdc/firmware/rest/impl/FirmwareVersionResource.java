@@ -5,6 +5,7 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.security.Privileges;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -54,7 +55,7 @@ public class FirmwareVersionResource {
         this.versionFactory = versionFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE, Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
     public PagedInfoList getFilteredFirmwareVersions(@PathParam("deviceTypeId") long deviceTypeId, @BeanParam JsonQueryFilter filter, @BeanParam JsonQueryParameters queryParameters) {
@@ -64,7 +65,7 @@ public class FirmwareVersionResource {
         return PagedInfoList.fromPagedList("firmwares", versionFactory.from(allFirmwares), queryParameters);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE_TYPE, Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
@@ -73,7 +74,7 @@ public class FirmwareVersionResource {
         return Response.ok().entity(versionFactory.fullInfo(firmwareVersion)).build();
     }
 
-    @POST
+    @POST @Transactional
     @Path("/validate")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -91,7 +92,7 @@ public class FirmwareVersionResource {
         return Response.ok().build();
     }
 
-    @POST
+    @POST @Transactional
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
@@ -116,7 +117,7 @@ public class FirmwareVersionResource {
         return Response.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{id}/validate")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -133,7 +134,7 @@ public class FirmwareVersionResource {
         return Response.ok().build();
     }
 
-    @POST
+    @POST @Transactional
     @Path("/{id}")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -162,7 +163,7 @@ public class FirmwareVersionResource {
         return Response.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")

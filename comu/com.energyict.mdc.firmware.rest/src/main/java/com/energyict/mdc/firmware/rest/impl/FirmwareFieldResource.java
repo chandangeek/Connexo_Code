@@ -2,6 +2,7 @@ package com.energyict.mdc.firmware.rest.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.rest.FieldResource;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
@@ -33,7 +34,7 @@ public class FirmwareFieldResource extends FieldResource {
         this.firmwareMessageInfoFactory = firmwareMessageInfoFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Path("/firmwareStatuses")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE, com.energyict.mdc.device.config.security.Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
@@ -41,7 +42,7 @@ public class FirmwareFieldResource extends FieldResource {
         return asJsonArrayObjectWithTranslation("firmwareStatuses", "id", new FirmwareStatusFieldAdapter().getClientSideValues());
     }
 
-    @GET
+    @GET @Transactional
     @Path("/firmwareTypes")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE, com.energyict.mdc.device.config.security.Privileges.Constants.ADMINISTRATE_DEVICE_TYPE})
@@ -56,7 +57,7 @@ public class FirmwareFieldResource extends FieldResource {
         return asJsonArrayObjectWithTranslation("firmwareTypes", "id", firmwareTypes);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/devicetypes")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE})
@@ -68,7 +69,7 @@ public class FirmwareFieldResource extends FieldResource {
         return Response.ok(deviceTypes).build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/devicetypes/{deviceTypeId}/{firmwareOption}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.config.security.Privileges.Constants.VIEW_DEVICE_TYPE})

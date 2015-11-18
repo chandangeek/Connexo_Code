@@ -7,6 +7,7 @@ import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.device.config.ComTaskEnablement;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.DeviceType;
@@ -86,7 +87,7 @@ public class DeviceFirmwareMessagesResource {
         this.deviceService = deviceService;
     }
 
-    @GET
+    @GET @Transactional
     @Path("/firmwaremessagespecs/{uploadOption}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE})
@@ -96,7 +97,7 @@ public class DeviceFirmwareMessagesResource {
         return Response.ok(firmwareMessageInfoFactory.from(firmwareMessageSpec, device, uploadOption, firmwareType)).build();
     }
 
-    @POST
+    @POST @Transactional
     @Path("/firmwaremessages")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -121,7 +122,7 @@ public class DeviceFirmwareMessagesResource {
     }
 
 
-    @PUT
+    @PUT @Transactional
     @Path("/firmwaremessages/{messageId}/activate")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -187,7 +188,7 @@ public class DeviceFirmwareMessagesResource {
         }
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Path("/firmwaremessages/{msgId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -211,7 +212,7 @@ public class DeviceFirmwareMessagesResource {
         return Response.ok().build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/firmwaresactions")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE})
@@ -243,7 +244,7 @@ public class DeviceFirmwareMessagesResource {
         return Response.ok(PagedInfoList.fromPagedList("firmwareactions", deviceFirmwareActions, queryParameters)).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/status/run")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE})
@@ -260,7 +261,7 @@ public class DeviceFirmwareMessagesResource {
     }
 
 
-    @PUT
+    @PUT @Transactional
     @Path("/status/runnow")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE})
