@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
+@Ignore
 public class FTPTest {
 
     public static final int SERVER_CONTROL_PORT = 40407;
