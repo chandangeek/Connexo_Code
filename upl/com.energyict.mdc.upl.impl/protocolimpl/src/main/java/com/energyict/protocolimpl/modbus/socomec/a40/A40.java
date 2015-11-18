@@ -55,7 +55,6 @@ public class A40 extends Modbus {
     }
     
     public ProfileData getProfileData(Date lastReading, boolean includeEvents) throws IOException {
-    	
     	if(getProfile().isSupported()){
     		ProfileData profileData = new ProfileData();
     		profileData.setChannelInfos(getProfile().getChannelInfos());
@@ -65,7 +64,6 @@ public class A40 extends Modbus {
     	} else {
     		throw new UnsupportedException("ProfileData is not supported by the meter.");
     	}
-    	
     }
     
     public int getProfileInterval() throws UnsupportedException, IOException {
@@ -84,6 +82,7 @@ public class A40 extends Modbus {
     protected List doTheGetOptionalKeys() {
         List result = new ArrayList();
         result.add("SocomecType");
+        result.add("Connection");
         return result;
     }
 
