@@ -87,7 +87,7 @@ public class RegisterConfigurationResource {
                     .numberOfFractionDigits(registerConfigInfo.numberOfFractionDigits)
                     .overflowValue(registerConfigInfo.overflow)
                     .overruledObisCode(registerConfigInfo.overruledObisCode);
-            if (registerConfigInfo.useMultiplier != null) {
+            if (registerConfigInfo.useMultiplier != null && registerConfigInfo.useMultiplier) {
                 builder.useMultiplier(registerConfigInfo.useMultiplier);
                 builder.calculatedReadingType(findCalculatedReadingType(registerConfigInfo).orElse(null));
             }

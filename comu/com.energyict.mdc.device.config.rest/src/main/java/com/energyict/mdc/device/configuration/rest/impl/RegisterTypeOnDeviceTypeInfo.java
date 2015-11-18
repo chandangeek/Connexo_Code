@@ -29,7 +29,7 @@ public class RegisterTypeOnDeviceTypeInfo {
     /* The ReadingType from the RegisterType */
     public ReadingTypeInfo readingType;
 
-    /* In case of a Channel, we need to add the interval ... */ //TODO check if this is the right place ...
+    /* In case of a Channel, we need to add the interval ... */
     public ReadingTypeInfo collectedReadingType;
 
     /* A list of possible readingTypes where the 'multiplied' value can be stored */
@@ -57,9 +57,7 @@ public class RegisterTypeOnDeviceTypeInfo {
         ReadingType readingType = measurementType.getReadingType();
         this.readingType = new ReadingTypeInfo(readingType);
         this.isCumulative = readingType.isCumulative();
-        if(collectedReadingType != null){
-            this.collectedReadingType = new ReadingTypeInfo(collectedReadingType);
-        }
+        this.collectedReadingType = new ReadingTypeInfo(collectedReadingType);
 
         if (measurementType.getUnit() != null) {
             this.unitOfMeasure = measurementType.getUnit().toString();

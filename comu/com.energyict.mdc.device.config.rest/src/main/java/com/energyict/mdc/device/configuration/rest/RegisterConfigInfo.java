@@ -48,6 +48,8 @@ public class RegisterConfigInfo {
     @JsonProperty("calculatedReadingType")
     public ReadingTypeInfo calculatedReadingType;
     public List<ReadingTypeInfo> possibleCalculatedReadingTypes = new ArrayList<>();
+    @JsonProperty("collectedReadingType")
+    public ReadingTypeInfo collectedReadingType;
     public long version;
     public VersionInfo<Long> parent;
 
@@ -69,9 +71,10 @@ public class RegisterConfigInfo {
         this.asText = registerSpec.isTextual();
         this.useMultiplier = registerSpec.isUseMultiplier();
         if(this.useMultiplier){
-            this.calculatedReadingType = new ReadingTypeInfo(registerSpec.getCalculatedReadingType());
+            this.calculatedReadingType = new ReadingTypeInfo(registerSpec.getCalculatedReadingType().get());
         }
         multipliedCalculatedRegisterTypes.forEach(readingTypeConsumer -> possibleCalculatedReadingTypes.add(new ReadingTypeInfo(readingTypeConsumer)));
+        this.collectedReadingType = new ReadingTypeInfo(registerSpec.getReadingType().getCalculatedReadingType().orElse(registerSpec.getReadingType()));
         this.version = registerSpec.getVersion();
         this.parent = new VersionInfo<>(registerSpec.getDeviceConfiguration().getId(), registerSpec.getDeviceConfiguration().getVersion());
     }
