@@ -116,6 +116,7 @@ public class AppServerImpl implements AppServer {
     @Override
     public List<ImportScheduleOnAppServerImpl> getImportSchedulesOnAppServer() {
         if (importSchedulesOnAppServer == null) {
+            List<ImportScheduleOnAppServerImpl> list = getImportScheduleOnAppServerFactory().find("appServer", this);
             importSchedulesOnAppServer = getImportScheduleOnAppServerFactory().find("appServer", this)
                     .stream()
                     .filter(importService -> importService.getAppServer().getName().equals(this.getName()))
@@ -309,8 +310,10 @@ public class AppServerImpl implements AppServer {
         @Override
         public void removeImportScheduleOnAppServer(ImportScheduleOnAppServer importScheduleOnAppServer) {
             ImportScheduleOnAppServerImpl found = getImportScheduleOnAppServer(importScheduleOnAppServer);
+            found.getImportSchedule().ifPresent(s -> fileImportService.unschedule(s));
             getImportScheduleOnAppServerFactory().remove(found);
             importSchedulesOnAppServer.remove(found);
+
         }
 
         @Override
