@@ -1,6 +1,6 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
-import com.energyict.mdc.common.rest.Transactional;
+import com.elster.jupiter.rest.util.Transactional;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
