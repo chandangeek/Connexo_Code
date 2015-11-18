@@ -21,18 +21,25 @@ Ext.define('Uni.view.search.field.internal.CriteriaPanel', {
     },
 
     onReset: function() {
-        this.removeAll();
-        this.setVisible(false);
+        var me = this;
 
-        if (!this.sticky) {
-            this.dockedItems.removeAll();
+        Ext.suspendLayouts();
+        me.removeAll();
+        if (!me.sticky) {
+            me.dockedItems.each(function(item){
+                me.removeDocked(item);
+            });
         }
+
+        Ext.resumeLayouts(true);
+        me.setVisible(false);
     },
 
     onCriteriaAdd: function(filters, filter, property) {
         var me = this;
 
         if (property.get('sticky') === me.sticky) {
+            Ext.suspendLayouts();
             if (property.get('group')) {
                 var group = property.get('group');
                 var dock = me.down('panel[group="'+ group.id+'"]');
@@ -58,6 +65,7 @@ Ext.define('Uni.view.search.field.internal.CriteriaPanel', {
                 me.add(filter);
             }
 
+            Ext.resumeLayouts(true);
             me.setVisible(me.items.length + me.dockedItems.length);
         }
     },
