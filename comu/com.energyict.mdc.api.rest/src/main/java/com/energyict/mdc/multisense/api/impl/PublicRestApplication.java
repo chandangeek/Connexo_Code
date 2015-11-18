@@ -259,7 +259,7 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(DeviceProtocolPluggableClassInfoFactory.class).to(DeviceProtocolPluggableClassInfoFactory.class).in(Singleton.class);
             bind(AuthenticationDeviceAccessLevelInfoFactory.class).to(AuthenticationDeviceAccessLevelInfoFactory.class).in(Singleton.class);
             bind(EncryptionDeviceAccessLevelInfoFactory.class).to(EncryptionDeviceAccessLevelInfoFactory.class).in(Singleton.class);
-            bind(ConfigurationSecurityPropertySetFactory.class).to(ConfigurationSecurityPropertySetFactory.class).in(Singleton.class);
+            bind(ConfigurationSecurityPropertySetInfoFactory.class).to(ConfigurationSecurityPropertySetInfoFactory.class).in(Singleton.class);
             bind(ComTaskExecutionInfoFactory.class).to(ComTaskExecutionInfoFactory.class).in(Singleton.class);
             bind(ComTaskEnablementInfoFactory.class).to(ComTaskEnablementInfoFactory.class).in(Singleton.class);
             bind(ProtocolDialectConfigurationPropertiesInfoFactory.class).to(ProtocolDialectConfigurationPropertiesInfoFactory.class).in(Singleton.class);

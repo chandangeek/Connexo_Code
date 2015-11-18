@@ -119,7 +119,7 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(model.<List>get("data")).hasSize(2);
         assertThat(model.<Integer>get("data[0].id")).isEqualTo(1);
         assertThat(model.<String>get("data[0].name")).isEqualTo("action.name.1");
-        assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo(LinkInfo.REF_SELF);
+        assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo(Relation.REF_SELF.rel());
         assertThat(model.<String>get("data[0].link.href")).isEqualTo("http://localhost:9998/devices/XAS/actions/1");
         assertThat(model.<List>get("data[0].properties")).hasSize(1);
         assertThat(model.<String>get("data[0].properties[0].key")).isEqualTo("string.property");
@@ -128,7 +128,7 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(model.<Boolean>get("data[0].properties[0].required")).isEqualTo(true);
         assertThat(model.<Integer>get("data[1].id")).isEqualTo(2);
         assertThat(model.<String>get("data[1].name")).isEqualTo("action.name.2");
-        assertThat(model.<String>get("data[1].link.params.rel")).isEqualTo(LinkInfo.REF_SELF);
+        assertThat(model.<String>get("data[1].link.params.rel")).isEqualTo(Relation.REF_SELF.rel());
         assertThat(model.<String>get("data[1].link.href")).isEqualTo("http://localhost:9998/devices/XAS/actions/2");
         assertThat(model.<List>get("data[1].properties")).hasSize(1);
         assertThat(model.<String>get("data[1].properties[0].key")).isEqualTo("string.property");

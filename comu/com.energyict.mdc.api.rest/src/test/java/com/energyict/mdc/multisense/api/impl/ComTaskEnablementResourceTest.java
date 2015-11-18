@@ -51,7 +51,7 @@ public class ComTaskEnablementResourceTest extends MultisensePublicApiJerseyTest
         assertThat(model.<String>get("link[0].href")).isEqualTo("http://localhost:9998/devicetypes/21/deviceconfigurations/22/comtaskenablements?start=0&limit=10");
         assertThat(model.<List>get("data")).hasSize(1);
         assertThat(model.<Integer>get("data[0].id")).isEqualTo(102);
-        assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo(LinkInfo.REF_SELF);
+        assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo(Relation.REF_SELF.rel());
         assertThat(model.<String>get("data[0].link.href")).isEqualTo("http://localhost:9998/devicetypes/21/deviceconfigurations/22/comtaskenablements/102");
     }
 

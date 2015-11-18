@@ -9,9 +9,39 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import static java.util.stream.Collectors.toList;
+
 public class ProtocolDialectConfigurationPropertiesInfoFactory extends SelectableFieldFactory<ProtocolDialectConfigurationPropertiesInfo, ProtocolDialectConfigurationProperties> {
+
+    public LinkInfo asLink(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, Relation relation, UriInfo uriInfo) {
+        return asLink(protocolDialectConfigurationProperties, relation, getUriBuilder(uriInfo));
+    }
+
+    public List<LinkInfo> asLink(Collection<ProtocolDialectConfigurationProperties> protocolDialectConfigurationPropertiess, Relation relation, UriInfo uriInfo) {
+        UriBuilder uriBuilder = getUriBuilder(uriInfo);
+        return protocolDialectConfigurationPropertiess.stream().map(i-> asLink(i, relation, uriBuilder)).collect(toList());
+    }
+
+    private LinkInfo asLink(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, Relation relation, UriBuilder uriBuilder) {
+        LinkInfo info = new LinkInfo();
+        info.id = protocolDialectConfigurationProperties.getId();
+        info.link = Link.fromUriBuilder(uriBuilder)
+                .rel(relation.rel())
+                .title("Protocol dialect configuration properties").
+                build(protocolDialectConfigurationProperties.getDeviceConfiguration().getDeviceType().getId(),
+                        protocolDialectConfigurationProperties.getDeviceConfiguration().getId(),
+                        protocolDialectConfigurationProperties.getId());
+        return info;
+    }
+
+    private UriBuilder getUriBuilder(UriInfo uriInfo) {
+        return uriInfo.getBaseUriBuilder()
+                .path(ProtocolDialectConfigurationPropertiesResource.class)
+                .path(ProtocolDialectConfigurationPropertiesResource.class, "getProtocolDialectConfigurationProperties");
+    }
 
     public ProtocolDialectConfigurationPropertiesInfo from(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, UriInfo uriInfo, Collection<String> fields) {
         ProtocolDialectConfigurationPropertiesInfo info = new ProtocolDialectConfigurationPropertiesInfo();
@@ -32,7 +62,7 @@ public class ProtocolDialectConfigurationPropertiesInfoFactory extends Selectabl
                     .resolveTemplate("deviceTypeId", protocolDialectConfigurationProperties.getDeviceConfiguration().getDeviceType().getId())
                     .resolveTemplate("deviceConfigId", protocolDialectConfigurationProperties.getDeviceConfiguration().getId());
             protocolDialectConfigurationPropertiesInfo.link = Link.fromUriBuilder(uriBuilder).
-                    rel(LinkInfo.REF_SELF).
+                    rel(Relation.REF_SELF.rel()).
                     title("Protocol dialect configuration properties").
                     build(protocolDialectConfigurationProperties.getId());
         }));

@@ -31,6 +31,31 @@ public class DeviceMessageInfoFactory extends SelectableFieldFactory<DeviceMessa
         this.mdcPropertyUtils = mdcPropertyUtils;
     }
 
+    public LinkInfo asLink(DeviceMessage deviceMessage, Relation relation, UriInfo uriInfo) {
+        return asLink(deviceMessage, relation, getUriBuilder(uriInfo));
+    }
+
+    public List<LinkInfo> asLink(Collection<DeviceMessage> deviceMessages, Relation relation, UriInfo uriInfo) {
+        UriBuilder uriBuilder = getUriBuilder(uriInfo);
+        return deviceMessages.stream().map(i-> asLink(i, relation, uriBuilder)).collect(toList());
+    }
+
+    private LinkInfo asLink(DeviceMessage deviceMessage, Relation relation, UriBuilder uriBuilder) {
+        LinkInfo info = new LinkInfo();
+        info.id = deviceMessage.getId();
+        info.link = Link.fromUriBuilder(uriBuilder)
+                .rel(relation.rel())
+                .title("Device message")
+                .build(((Device)deviceMessage.getDevice()).getmRID(), deviceMessage.getId());
+        return info;
+    }
+
+    private UriBuilder getUriBuilder(UriInfo uriInfo) {
+        return uriInfo.getBaseUriBuilder()
+                .path(DeviceMessageResource.class)
+                .path(DeviceMessageResource.class, "getDeviceMessage");
+    }
+
     public DeviceMessageInfo from(DeviceMessage deviceMessage, UriInfo uriInfo, Collection<String> fields) {
         DeviceMessageInfo info = new DeviceMessageInfo();
         copySelectedFields(info, deviceMessage, uriInfo, fields);
@@ -47,7 +72,7 @@ public class DeviceMessageInfoFactory extends SelectableFieldFactory<DeviceMessa
                     path(DeviceMessageResource.class).
                     path(DeviceMessageResource.class, "getDeviceMessage");
             deviceMessageInfo.link = Link.fromUriBuilder(uriBuilder).
-                    rel(LinkInfo.REF_SELF).
+                    rel(Relation.REF_SELF.rel()).
                     title("Device message").
                     build(((Device)deviceMessage.getDevice()).getmRID(), deviceMessage.getId());
         }
@@ -61,7 +86,7 @@ public class DeviceMessageInfoFactory extends SelectableFieldFactory<DeviceMessa
             deviceMessageInfo.device = new LinkInfo();
             deviceMessageInfo.device.id = device.getId();
             deviceMessageInfo.device.link = Link.fromUriBuilder(uriBuilder).
-                    rel(LinkInfo.REF_PARENT).
+                    rel(Relation.REF_PARENT.rel()).
                     title("Device").
                     build(device.getmRID());
         }

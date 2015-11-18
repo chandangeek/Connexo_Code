@@ -33,12 +33,12 @@ import static java.util.stream.Collectors.toList;
 public class ConfigurationSecurityPropertySetResource {
 
     private final DeviceConfigurationService deviceConfigurationService;
-    private final ConfigurationSecurityPropertySetFactory securityPropertySetInfoFactory;
+    private final ConfigurationSecurityPropertySetInfoFactory securityPropertySetInfoFactory;
     private final ExceptionFactory exceptionFactory;
 
     @Inject
     public ConfigurationSecurityPropertySetResource(DeviceConfigurationService deviceConfigurationService,
-                                                    ConfigurationSecurityPropertySetFactory securityPropertySetInfoFactory, ExceptionFactory exceptionFactory) {
+                                                    ConfigurationSecurityPropertySetInfoFactory securityPropertySetInfoFactory, ExceptionFactory exceptionFactory) {
         this.deviceConfigurationService = deviceConfigurationService;
         this.securityPropertySetInfoFactory = securityPropertySetInfoFactory;
         this.exceptionFactory = exceptionFactory;

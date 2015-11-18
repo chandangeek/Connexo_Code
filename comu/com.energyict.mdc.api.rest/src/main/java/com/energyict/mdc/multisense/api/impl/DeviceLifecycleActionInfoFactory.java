@@ -51,7 +51,7 @@ public class DeviceLifecycleActionInfoFactory extends SelectableFieldFactory<Lif
             UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().
                     path(DeviceLifecycleActionResource.class).
                     path(DeviceLifecycleActionResource.class, "executeAction");
-            deviceLifeCycleActionInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_SELF).build(deviceAction.device.getmRID(), deviceAction.action.getId());
+            deviceLifeCycleActionInfo.link = Link.fromUriBuilder(uriBuilder).rel(Relation.REF_SELF.rel()).build(deviceAction.device.getmRID(), deviceAction.action.getId());
         });
         map.put("properties", (deviceLifeCycleActionInfo, deviceAction, uriInfo) -> {
             List<PropertySpec> uniquePropertySpecsForMicroActions =

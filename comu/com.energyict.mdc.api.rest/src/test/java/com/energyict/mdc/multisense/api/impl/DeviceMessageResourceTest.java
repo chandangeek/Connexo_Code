@@ -63,7 +63,7 @@ public class DeviceMessageResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(model.<Integer>get("data[0].id")).isEqualTo(31);
         assertThat(model.<String>get("data[0].status")).isEqualTo("Confirmed");
         assertThat(model.<Instant>get("data[0].sentDate")).isEqualTo(now.toEpochMilli());
-        assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo(LinkInfo.REF_SELF);
+        assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo(Relation.REF_SELF.rel());
         assertThat(model.<String>get("data[0].link.href")).isEqualTo("http://localhost:9998/devices/X01/messages/31");
     }
 

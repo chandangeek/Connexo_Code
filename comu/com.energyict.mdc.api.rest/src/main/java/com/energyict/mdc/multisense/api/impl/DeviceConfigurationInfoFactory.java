@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +22,31 @@ public class DeviceConfigurationInfoFactory extends SelectableFieldFactory<Devic
 
     @Inject
     public DeviceConfigurationInfoFactory() {
+    }
+
+    public LinkInfo asLink(DeviceConfiguration deviceConfiguration, Relation relation, UriInfo uriInfo) {
+        return asLink(deviceConfiguration, relation, getUriBuilder(uriInfo));
+    }
+
+    public List<LinkInfo> asLink(Collection<DeviceConfiguration> deviceConfigurations, Relation relation, UriInfo uriInfo) {
+        UriBuilder uriBuilder = getUriBuilder(uriInfo);
+        return deviceConfigurations.stream().map(i-> asLink(i, relation, uriBuilder)).collect(toList());
+    }
+
+    private LinkInfo asLink(DeviceConfiguration deviceConfiguration, Relation relation, UriBuilder uriBuilder) {
+        LinkInfo info = new LinkInfo();
+        info.id = deviceConfiguration.getId();
+        info.link = Link.fromUriBuilder(uriBuilder)
+                .rel(relation.rel())
+                .title("Device configuration")
+                .build(deviceConfiguration.getDeviceType().getId(), deviceConfiguration.getId());
+        return info;
+    }
+
+    private UriBuilder getUriBuilder(UriInfo uriInfo) {
+        return uriInfo.getBaseUriBuilder()
+                .path(DeviceConfigurationResource.class)
+                .path(DeviceConfigurationResource.class, "getDeviceConfiguration");
     }
 
     public DeviceConfigurationInfo from(DeviceConfiguration deviceConfiguration, UriInfo uriInfo, List<String> fields) {
@@ -39,7 +65,7 @@ public class DeviceConfigurationInfoFactory extends SelectableFieldFactory<Devic
         });
         map.put("link", (deviceConfigurationInfo, deviceConfiguration, uriInfo) -> {
             UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path(DeviceConfigurationResource.class).path("{id}");
-            deviceConfigurationInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_SELF).title("self reference").build(deviceConfiguration.getDeviceType().getId(), deviceConfiguration.getId());
+            deviceConfigurationInfo.link = Link.fromUriBuilder(uriBuilder).rel(Relation.REF_SELF.rel()).title("self reference").build(deviceConfiguration.getDeviceType().getId(), deviceConfiguration.getId());
         });
         map.put("description", (deviceConfigurationInfo, deviceConfiguration, uriInfo) -> {
             deviceConfigurationInfo.description = deviceConfiguration.getDescription();
@@ -47,7 +73,7 @@ public class DeviceConfigurationInfoFactory extends SelectableFieldFactory<Devic
         map.put("deviceType", (deviceConfigurationInfo, deviceConfiguration, uriInfo) -> {
             deviceConfigurationInfo.deviceType = new LinkInfo();
             deviceConfigurationInfo.deviceType.id = deviceConfiguration.getDeviceType().getId();
-            deviceConfigurationInfo.deviceType.link = Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class).path("{id}")).rel(LinkInfo.REF_PARENT).title("Device type").build(deviceConfiguration.getDeviceType().getId());
+            deviceConfigurationInfo.deviceType.link = Link.fromUriBuilder(uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class).path("{id}")).rel(Relation.REF_PARENT.rel()).title("Device type").build(deviceConfiguration.getDeviceType().getId());
 
         });
         map.put("connectionMethods", (deviceConfigurationInfo, deviceConfiguration, uriInfo) -> {
@@ -60,7 +86,7 @@ public class DeviceConfigurationInfoFactory extends SelectableFieldFactory<Devic
                     deviceConfiguration.getPartialConnectionTasks().stream().map(pct -> {
                         LinkInfo linkInfo = new LinkInfo();
                         linkInfo.id = pct.getId();
-                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).build(pct.getId());
+                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(Relation.REF_RELATION.rel()).build(pct.getId());
                         return linkInfo;
                     }).collect(toList());
         });
@@ -74,7 +100,7 @@ public class DeviceConfigurationInfoFactory extends SelectableFieldFactory<Devic
                     deviceConfiguration.getComTaskEnablements().stream().map(enablement -> {
                         LinkInfo linkInfo = new LinkInfo();
                         linkInfo.id = enablement.getId();
-                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).build(enablement.getId());
+                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(Relation.REF_RELATION.rel()).build(enablement.getId());
                         return linkInfo;
                     }).collect(toList());
         });
@@ -88,7 +114,7 @@ public class DeviceConfigurationInfoFactory extends SelectableFieldFactory<Devic
                     deviceConfiguration.getSecurityPropertySets().stream().map(sps -> {
                         LinkInfo linkInfo = new LinkInfo();
                         linkInfo.id = sps.getId();
-                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).build(sps.getId());
+                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(Relation.REF_RELATION.rel()).build(sps.getId());
                         return linkInfo;
                     }).collect(toList());
         });
@@ -102,7 +128,7 @@ public class DeviceConfigurationInfoFactory extends SelectableFieldFactory<Devic
                     deviceConfiguration.getDeviceMessageEnablements().stream().map(sps -> {
                         LinkInfo linkInfo = new LinkInfo();
                         linkInfo.id = sps.getId();
-                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).build(sps.getId());
+                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(Relation.REF_RELATION.rel()).build(sps.getId());
                         return linkInfo;
                     }).collect(toList());
         });

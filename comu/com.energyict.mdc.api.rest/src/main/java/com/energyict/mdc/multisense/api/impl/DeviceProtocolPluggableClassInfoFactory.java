@@ -9,6 +9,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
@@ -19,6 +20,31 @@ public class DeviceProtocolPluggableClassInfoFactory extends SelectableFieldFact
         DeviceProtocolPluggableClassInfo info = new DeviceProtocolPluggableClassInfo();
         copySelectedFields(info, deviceProtocolPluggableClass, uriInfo, fields);
         return info;
+    }
+
+    public LinkInfo asLink(DeviceProtocolPluggableClass deviceProtocolPluggableClass, Relation relation, UriInfo uriInfo) {
+        return asLink(deviceProtocolPluggableClass, relation, getUriBuilder(uriInfo));
+    }
+
+    public List<LinkInfo> asLink(Collection<DeviceProtocolPluggableClass> deviceProtocolPluggableClasss, Relation relation, UriInfo uriInfo) {
+        UriBuilder uriBuilder = getUriBuilder(uriInfo);
+        return deviceProtocolPluggableClasss.stream().map(i-> asLink(i, relation, uriBuilder)).collect(toList());
+    }
+
+    private LinkInfo asLink(DeviceProtocolPluggableClass deviceProtocolPluggableClass, Relation relation, UriBuilder uriBuilder) {
+        LinkInfo info = new LinkInfo();
+        info.id = deviceProtocolPluggableClass.getId();
+        info.link = Link.fromUriBuilder(uriBuilder)
+                .rel(relation.rel())
+                .title("pluggable class")
+                .build(deviceProtocolPluggableClass.getId());
+        return info;
+    }
+
+    private UriBuilder getUriBuilder(UriInfo uriInfo) {
+        return uriInfo.getBaseUriBuilder()
+                .path(DeviceProtocolPluggableClassResource.class)
+                .path(DeviceProtocolPluggableClassResource.class, "getDeviceProtocolPluggableClass");
     }
 
     @Override
@@ -33,7 +59,7 @@ public class DeviceProtocolPluggableClassInfoFactory extends SelectableFieldFact
                     getBaseUriBuilder().
                     path(DeviceProtocolPluggableClassResource.class).
                     path(DeviceProtocolPluggableClassResource.class, "getDeviceProtocolPluggableClass")).
-                    rel(LinkInfo.REF_SELF).
+                    rel(Relation.REF_SELF.rel()).
                     title("pluggable class").
                     build(deviceProtocolPluggableClass.getId())
         ));
@@ -51,7 +77,7 @@ public class DeviceProtocolPluggableClassInfoFactory extends SelectableFieldFact
                         LinkInfo linkInfo = new LinkInfo();
                         linkInfo.id = (long)aal.getId();
                         linkInfo.link = Link.fromUriBuilder(uriBuilder).
-                                rel(LinkInfo.REF_RELATION).
+                                rel(Relation.REF_RELATION.rel()).
                                 title("Authentication access level").
                                 build(aal.getId());
 
@@ -72,7 +98,7 @@ public class DeviceProtocolPluggableClassInfoFactory extends SelectableFieldFact
                         LinkInfo linkInfo = new LinkInfo();
                         linkInfo.id = (long)aal.getId();
                         linkInfo.link = Link.fromUriBuilder(uriBuilder).
-                                rel(LinkInfo.REF_RELATION).
+                                rel(Relation.REF_RELATION.rel()).
                                 title("Encryption access level").
                                 build(aal.getId());
 

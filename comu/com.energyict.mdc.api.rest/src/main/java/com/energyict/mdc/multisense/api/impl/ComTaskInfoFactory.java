@@ -10,6 +10,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
@@ -19,11 +20,37 @@ import static java.util.stream.Collectors.toList;
  */
 public class ComTaskInfoFactory extends SelectableFieldFactory<ComTaskInfo, ComTask> {
 
+    public LinkInfo asLink(ComTask comTask, Relation relation, UriInfo uriInfo) {
+        return asLink(comTask, relation, getUriBuilder(uriInfo));
+    }
+
+    public List<LinkInfo> asLink(Collection<ComTask> comTasks, Relation relation, UriInfo uriInfo) {
+        UriBuilder uriBuilder = getUriBuilder(uriInfo);
+        return comTasks.stream().map(i-> asLink(i, relation, uriBuilder)).collect(toList());
+    }
+
+    private LinkInfo asLink(ComTask comTask, Relation relation, UriBuilder uriBuilder) {
+        LinkInfo info = new LinkInfo();
+        info.id = comTask.getId();
+        info.link = Link.fromUriBuilder(uriBuilder)
+                .rel(relation.rel())
+                .title("Scheduled communication task")
+                .build(comTask.getId());
+        return info;
+    }
+
+    private UriBuilder getUriBuilder(UriInfo uriInfo) {
+        return uriInfo.getBaseUriBuilder()
+                .path(ComTaskResource.class)
+                .path(ComTaskResource.class, "getComTask");
+    }
+
     public ComTaskInfo from(ComTask comTask, UriInfo uriInfo, Collection<String> fields) {
         ComTaskInfo info = new ComTaskInfo();
         copySelectedFields(info, comTask, uriInfo, fields);
         return info;
     }
+
 
     @Override
     protected Map<String, PropertyCopier<ComTaskInfo, ComTask>> buildFieldMap() {
@@ -38,7 +65,7 @@ public class ComTaskInfoFactory extends SelectableFieldFactory<ComTaskInfo, ComT
                     .map(pt->{
                         LinkInfo linkInfo = new LinkInfo();
                         linkInfo.id = pt.getId();
-                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).build(pt.getId());
+                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(Relation.REF_RELATION.rel()).build(pt.getId());
                         return linkInfo;
                     }).collect(toList());
         } );
@@ -54,7 +81,7 @@ public class ComTaskInfoFactory extends SelectableFieldFactory<ComTaskInfo, ComT
                     .map(mt -> {
                         LinkInfo linkInfo = new LinkInfo();
                         linkInfo.id = (long) mt.getId();
-                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).build(mt.getId());
+                        linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(Relation.REF_RELATION.rel()).build(mt.getId());
                         return linkInfo;
                     }).collect(toList());
         });
@@ -63,11 +90,12 @@ public class ComTaskInfoFactory extends SelectableFieldFactory<ComTaskInfo, ComT
                     getBaseUriBuilder().
                     path(ComTaskResource.class).
                     path(ComTaskResource.class, "getComTask")).
-                    rel(LinkInfo.REF_SELF).
+                    rel(Relation.REF_SELF.rel()).
                     title("communication task").
                     build(comTask.getId())
         ));
 
         return map;
     }
+
 }

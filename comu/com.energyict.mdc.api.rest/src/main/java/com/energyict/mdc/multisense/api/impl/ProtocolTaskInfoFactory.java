@@ -5,17 +5,47 @@ import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
 import com.energyict.mdc.tasks.ProtocolTask;
 import com.energyict.mdc.tasks.rest.Categories;
 
+import javax.ws.rs.core.Link;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Created by bvn on 7/20/15.
  */
 public class ProtocolTaskInfoFactory extends SelectableFieldFactory<ProtocolTaskInfo, ProtocolTask> {
+
+    public LinkInfo asLink(ProtocolTask protocolTask, Relation relation, UriInfo uriInfo) {
+        return asLink(protocolTask, relation, getUriBuilder(uriInfo));
+    }
+
+    public List<LinkInfo> asLink(Collection<ProtocolTask> protocolTasks, Relation relation, UriInfo uriInfo) {
+        UriBuilder uriBuilder = getUriBuilder(uriInfo);
+        return protocolTasks.stream().map(i-> asLink(i, relation, uriBuilder)).collect(toList());
+    }
+
+    private LinkInfo asLink(ProtocolTask protocolTask, Relation relation, UriBuilder uriBuilder) {
+        LinkInfo info = new LinkInfo();
+        info.id = protocolTask.getId();
+        info.link = Link.fromUriBuilder(uriBuilder)
+                .rel(relation.rel())
+                .title("Protocol task")
+                .build(protocolTask.getId());
+        return info;
+    }
+
+    private UriBuilder getUriBuilder(UriInfo uriInfo) {
+        return uriInfo.getBaseUriBuilder()
+                .path(ProtocolTaskResource.class)
+                .path(ProtocolTaskResource.class, "getProtocolTask");
+    }
 
     public ProtocolTaskInfo from(ProtocolTask protocolTask, UriInfo uriInfo, Collection<String> fields) {
         ProtocolTaskInfo info = new ProtocolTaskInfo();

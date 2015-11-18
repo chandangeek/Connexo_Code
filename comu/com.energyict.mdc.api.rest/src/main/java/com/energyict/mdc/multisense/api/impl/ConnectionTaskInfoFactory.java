@@ -27,7 +27,10 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Created by bvn on 7/13/15.
@@ -45,6 +48,31 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
         this.engineConfigurationService = engineConfigurationService;
         this.connectionTaskService = connectionTaskService;
         this.exceptionFactory = exceptionFactory;
+    }
+
+    public LinkInfo asLink(ConnectionTask connectionTask, Relation relation, UriInfo uriInfo) {
+        return asLink(connectionTask, relation, getUriBuilder(uriInfo));
+    }
+
+    public List<LinkInfo> asLink(Collection<ConnectionTask> connectionTasks, Relation relation, UriInfo uriInfo) {
+        UriBuilder uriBuilder = getUriBuilder(uriInfo);
+        return connectionTasks.stream().map(i-> asLink(i, relation, uriBuilder)).collect(toList());
+    }
+
+    private LinkInfo asLink(ConnectionTask connectionTask, Relation relation, UriBuilder uriBuilder) {
+        LinkInfo info = new LinkInfo();
+        info.id = connectionTask.getId();
+        info.link = Link.fromUriBuilder(uriBuilder)
+                .rel(relation.rel())
+                .title("Connection task")
+                .build(connectionTask.getDevice().getmRID(), connectionTask.getId());
+        return info;
+    }
+
+    private UriBuilder getUriBuilder(UriInfo uriInfo) {
+        return uriInfo.getBaseUriBuilder()
+                .path(ConnectionTaskResource.class)
+                .path(ConnectionTaskResource.class, "getConnectionTask");
     }
 
     public ConnectionTaskInfo from(ConnectionTask<?, ?> connectionTask, UriInfo uriInfo, Collection<String> fields) {
@@ -67,7 +95,7 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
                     .resolveTemplate("deviceConfigId", connectionTask.getDevice().getDeviceConfiguration().getId())
                     .resolveTemplate("id", connectionTask.getPartialConnectionTask().getId());
 
-            connectionTaskInfo.connectionMethod.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_PARENT).build();
+            connectionTaskInfo.connectionMethod.link = Link.fromUriBuilder(uriBuilder).rel(Relation.REF_PARENT.rel()).build();
         });
         map.put("direction", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.direction = ConnectionTaskType.from(connectionTask));
         map.put("link", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.link =
@@ -75,7 +103,7 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
                         uriInfo.getBaseUriBuilder().
                                 path(ConnectionTaskResource.class).
                                 path(ConnectionTaskResource.class, "getConnectionTask")).
-                    rel(LinkInfo.REF_SELF).
+                    rel(Relation.REF_SELF.rel()).
                     build(connectionTask.getDevice().getmRID(), connectionTask.getId())
         );
         map.put("status", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.status = connectionTask.getStatus());
@@ -86,7 +114,7 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
             UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().
                     path(ComPortPoolResource.class).
                     path(ComPortPoolResource.class, "getComPortPool");
-            connectionTaskInfo.comPortPool.link = Link.fromUriBuilder(uriBuilder).rel(LinkInfo.REF_RELATION).build(connectionTaskInfo.comPortPool.id);
+            connectionTaskInfo.comPortPool.link = Link.fromUriBuilder(uriBuilder).rel(Relation.REF_RELATION.rel()).build(connectionTaskInfo.comPortPool.id);
         });
         map.put("isDefault", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.isDefault = connectionTask.isDefault());
         map.put("properties", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(connectionTask.getConnectionType().getPropertySpecs(), connectionTask.getTypedProperties()));

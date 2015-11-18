@@ -31,7 +31,7 @@ public class ComScheduleResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(model.<List>get("data")).hasSize(2);
         assertThat(model.<Integer>get("data[0].id")).isEqualTo(10);
         assertThat(model.<String>get("data[0].name")).isEqualTo("schedule 1");
-        assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo(LinkInfo.REF_SELF);
+        assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo(Relation.REF_SELF.rel());
         assertThat(model.<String>get("data[0].link.href")).isEqualTo("http://localhost:9998/comschedules/10");
     }
 

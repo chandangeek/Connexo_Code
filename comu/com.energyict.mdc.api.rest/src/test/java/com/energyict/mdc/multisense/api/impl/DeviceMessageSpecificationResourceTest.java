@@ -43,7 +43,7 @@ public class DeviceMessageSpecificationResourceTest extends MultisensePublicApiJ
         assertThat(model.<List>get("data")).hasSize(1);
         assertThat(model.<Integer>get("data[0].id")).isEqualTo(15001);
         assertThat(model.<String>get("data[0].name")).isEqualTo("Set clock");
-        assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo(LinkInfo.REF_SELF);
+        assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo(Relation.REF_SELF.rel());
         assertThat(model.<String>get("data[0].link.href")).isEqualTo("http://localhost:9998/devicemessagecategories/12/devicemessagespecifications/15001");
     }
 

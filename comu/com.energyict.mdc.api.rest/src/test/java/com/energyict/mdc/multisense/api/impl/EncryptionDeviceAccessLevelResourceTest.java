@@ -32,7 +32,7 @@ public class EncryptionDeviceAccessLevelResourceTest extends MultisensePublicApi
         assertThat(model.<Integer>get("data[0].id")).isEqualTo(2);
         assertThat(model.<String>get("data[0].name")).isEqualTo("Proper name for 2");
         assertThat(model.<List>get("data[0].properties")).hasSize(1);
-        assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo(LinkInfo.REF_SELF);
+        assertThat(model.<String>get("data[0].link.params.rel")).isEqualTo(Relation.REF_SELF.rel());
         assertThat(model.<String>get("data[0].link.href")).isEqualTo("http://localhost:9998/pluggableclasses/77/encryptionaccesslevels/2");
     }
 

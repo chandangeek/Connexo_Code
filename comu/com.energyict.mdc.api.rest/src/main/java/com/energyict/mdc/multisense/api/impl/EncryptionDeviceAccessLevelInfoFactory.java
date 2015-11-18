@@ -10,14 +10,44 @@ import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Link;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import static java.util.stream.Collectors.toList;
 
 public class EncryptionDeviceAccessLevelInfoFactory extends SelectableFieldFactory<DeviceAccessLevelInfo, Pair<DeviceProtocolPluggableClass, DeviceAccessLevel>> {
 
     private final MdcPropertyUtils mdcPropertyUtils;
+
+    public LinkInfo asLink(Pair<DeviceProtocolPluggableClass, DeviceAccessLevel> pair, Relation relation, UriInfo uriInfo) {
+        return asLink(pair, relation, getUriBuilder(uriInfo));
+    }
+
+    public List<LinkInfo> asLink(Collection<Pair<DeviceProtocolPluggableClass, DeviceAccessLevel>> pairs, Relation relation, UriInfo uriInfo) {
+        UriBuilder uriBuilder = getUriBuilder(uriInfo);
+        return pairs.stream().map(i-> asLink(i, relation, uriBuilder)).collect(toList());
+    }
+
+    private LinkInfo asLink(Pair<DeviceProtocolPluggableClass, DeviceAccessLevel> pair, Relation relation, UriBuilder uriBuilder) {
+        LinkInfo info = new LinkInfo();
+        info.id = (long)pair.getLast().getId();
+        info.link = Link.fromUriBuilder(uriBuilder)
+                .rel(relation.rel())
+                .title("Encryption access level").
+                build(pair.getFirst().getId(),pair.getLast().getId());
+        return info;
+    }
+
+    private UriBuilder getUriBuilder(UriInfo uriInfo) {
+        return uriInfo.getBaseUriBuilder()
+                .path(DeviceTypeResource.class)
+                .path(DeviceTypeResource.class, "getDeviceType");
+    }
+
 
     @Inject
     public EncryptionDeviceAccessLevelInfoFactory(MdcPropertyUtils mdcPropertyUtils) {
@@ -41,7 +71,7 @@ public class EncryptionDeviceAccessLevelInfoFactory extends SelectableFieldFacto
                     getBaseUriBuilder().
                     path(EncryptionDeviceAccessLevelResource.class).
                     path(EncryptionDeviceAccessLevelResource.class, "getEncryptionDeviceAccessLevel")).
-                    rel(LinkInfo.REF_SELF).
+                    rel(Relation.REF_SELF.rel()).
                     title("Encryption access level").
                     build(deviceAccessLevel.getFirst().getId(),deviceAccessLevel.getLast().getId())
         ));

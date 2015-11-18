@@ -29,7 +29,7 @@ public class ComPortPoolResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(jsonModel.<JSONObject>get("$").size()).isEqualTo(6);
         assertThat(jsonModel.<Integer>get("$.id")).isEqualTo(11);
         assertThat(jsonModel.<String>get("$.link.href")).isEqualTo("http://localhost:9998/comportpools/11");
-        assertThat(jsonModel.<String>get("$.link.params.rel")).isEqualTo(LinkInfo.REF_SELF);
+        assertThat(jsonModel.<String>get("$.link.params.rel")).isEqualTo(Relation.REF_SELF.rel());
         assertThat(jsonModel.<String>get("$.name")).isEqualTo("cpp1");
         assertThat(jsonModel.<Boolean>get("$.active")).isEqualTo(true);
         assertThat(jsonModel.<String>get("$.description")).isEqualTo("Just another comportpool");
