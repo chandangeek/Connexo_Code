@@ -116,9 +116,12 @@ Ext.define('Uni.view.search.Overview', {
                                 service: me.getService()
                             },
                             {
-                                xtype: 'toolbar',
+                                xtype: 'container',
+                                layout: {
+                                    type: 'hbox',
+                                    pack: 'end'
+                                },
                                 items: [
-                                    '->',
                                     {
                                         xtype: 'button',
                                         itemId: 'search-button',
