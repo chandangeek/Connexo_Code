@@ -1,6 +1,6 @@
 package com.energyict.mdc.multisense.api.redknee;
 
-import com.energyict.mdc.common.rest.Transactional;
+import com.elster.jupiter.rest.util.Transactional;
 import org.glassfish.jersey.jackson.JacksonFeature;
 
 import javax.inject.Inject;

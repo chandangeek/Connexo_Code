@@ -13,7 +13,6 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.rest.ExceptionLogger;
-import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.data.DeviceService;
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -50,7 +49,6 @@ public class PrepaymentApplication extends Application implements TranslationKey
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
-                TransactionWrapper.class,
                 ExceptionLogger.class,
                 UsagePointResource.class
         );
