@@ -3,6 +3,7 @@ package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.device.lifecycle.config.rest.info.TransitionBusinessProcessInfoFactory;
 
 import javax.inject.Inject;
@@ -28,7 +29,7 @@ public class TransitionBusinessProcessResource {
         this.transitionBusinessProcessInfoFactory = transitionBusinessProcessInfoFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Path("/")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public Response getAvailableStateChangeProcesses(@BeanParam JsonQueryParameters queryParams){

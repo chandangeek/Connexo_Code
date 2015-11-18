@@ -5,6 +5,7 @@ import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
@@ -53,7 +54,7 @@ public class DeviceLifeCycleStateResource {
         this.resourceHelper = resourceHelper;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
     public PagedInfoList getStatesForDeviceLifecycle(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @BeanParam JsonQueryParameters queryParams) {
@@ -66,7 +67,7 @@ public class DeviceLifeCycleStateResource {
         return PagedInfoList.fromPagedList("deviceLifeCycleStates", ListPager.of(states).from(queryParams).find(), queryParams);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{stateId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
@@ -77,7 +78,7 @@ public class DeviceLifeCycleStateResource {
     }
 
 
-    @POST
+    @POST @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
@@ -90,7 +91,7 @@ public class DeviceLifeCycleStateResource {
         return Response.status(Response.Status.CREATED).entity(deviceLifeCycleStateFactory.from(deviceLifeCycle, newState)).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{stateId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -137,7 +138,7 @@ public class DeviceLifeCycleStateResource {
         return transitionBussinessProcessInfos.stream().noneMatch(x -> x.id == stateChangeBusinessProcess.getId());
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{stateId}/status")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -153,7 +154,7 @@ public class DeviceLifeCycleStateResource {
         return Response.ok(deviceLifeCycleStateFactory.from(deviceLifeCycle, stateForEdit)).build();
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Path("/{stateId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})

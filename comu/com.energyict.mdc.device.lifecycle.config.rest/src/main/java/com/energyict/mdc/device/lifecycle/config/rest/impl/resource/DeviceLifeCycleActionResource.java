@@ -4,6 +4,7 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.RestValidationBuilder;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.lifecycle.config.AuthorizedAction;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycle;
@@ -60,7 +61,7 @@ public class DeviceLifeCycleActionResource {
         this.microActionAndCheckInfoFactory = microActionAndCheckInfoFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
     public PagedInfoList getActionsForDeviceLifecycle(@PathParam("deviceLifeCycleId") Long deviceLifeCycleId, @BeanParam JsonQueryParameters queryParams) {
@@ -73,7 +74,7 @@ public class DeviceLifeCycleActionResource {
         return PagedInfoList.fromPagedList("deviceLifeCycleActions", ListPager.of(transitions).from(queryParams).find(), queryParams);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{actionId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE_LIFE_CYCLE})
@@ -83,7 +84,7 @@ public class DeviceLifeCycleActionResource {
         return Response.ok(authorizedActionInfoFactory.from(action)).build();
     }
 
-    @POST
+    @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
@@ -96,7 +97,7 @@ public class DeviceLifeCycleActionResource {
         return Response.ok(authorizedActionInfoFactory.from(authorizedAction)).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{actionId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
@@ -119,7 +120,7 @@ public class DeviceLifeCycleActionResource {
                 .validate();
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Path("/{actionId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.CONFIGURE_DEVICE_LIFE_CYCLE})
@@ -135,7 +136,7 @@ public class DeviceLifeCycleActionResource {
         return Response.ok(authorizedActionInfoFactory.from(authorizedAction)).build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/microactions")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -166,7 +167,7 @@ public class DeviceLifeCycleActionResource {
         return Response.ok(PagedInfoList.fromCompleteList("microActions", microActions, queryParams)).build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/microchecks")
     @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
