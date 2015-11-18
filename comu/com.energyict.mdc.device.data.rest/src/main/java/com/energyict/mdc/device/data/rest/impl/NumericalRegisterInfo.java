@@ -7,8 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 
 public class NumericalRegisterInfo extends RegisterInfo<NumericalRegister, NumericalReading> {
-    @JsonProperty("numberOfDigits")
-    public Integer numberOfDigits;
+
     @JsonProperty("numberOfFractionDigits")
     public Integer numberOfFractionDigits;
     @JsonProperty("overflow")

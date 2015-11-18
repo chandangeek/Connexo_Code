@@ -298,7 +298,6 @@ public class DeviceDataInfoFactory {
         NumericalRegisterInfo numericalRegisterInfo = new NumericalRegisterInfo();
         addCommonRegisterInfo(numericalRegister, numericalRegisterInfo);
         NumericalRegisterSpec registerSpec = (NumericalRegisterSpec)numericalRegister.getRegisterSpec();
-        numericalRegisterInfo.numberOfDigits = registerSpec.getNumberOfDigits();
         numericalRegisterInfo.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
         numericalRegisterInfo.overflow = registerSpec.getOverflowValue();
         numericalRegisterInfo.detailedValidationInfo = registerValidationInfo;
