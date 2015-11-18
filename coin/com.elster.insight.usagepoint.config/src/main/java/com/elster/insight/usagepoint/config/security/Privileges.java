@@ -1,12 +1,5 @@
 package com.elster.insight.usagepoint.config.security;
 
-/**
- * Not an enum, otherwise it won't work for RolesAllowed.
- */
-/*public interface Privileges {
-
-}*/
-
 import com.elster.jupiter.nls.TranslationKey;
 import java.util.Arrays;
 import java.util.stream.Collectors;
