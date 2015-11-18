@@ -1212,11 +1212,9 @@ public class DeviceImplIT extends PersistenceIntegrationTest {
         deviceType.addRegisterType(registerType2);
         DeviceType.DeviceConfigurationBuilder configurationWithRegisterTypes = deviceType.newConfiguration("ConfigurationWithRegisterTypes");
         NumericalRegisterSpec.Builder registerSpecBuilder1 = configurationWithRegisterTypes.newNumericalRegisterSpec(registerType1);
-        registerSpecBuilder1.setNumberOfDigits(9);
-        registerSpecBuilder1.setNumberOfFractionDigits(0);
+        registerSpecBuilder1.numberOfFractionDigits(0);
         NumericalRegisterSpec.Builder registerSpecBuilder2 = configurationWithRegisterTypes.newNumericalRegisterSpec(registerType2);
-        registerSpecBuilder2.setNumberOfDigits(9);
-        registerSpecBuilder2.setNumberOfFractionDigits(0);
+        registerSpecBuilder2.numberOfFractionDigits(0);
         DeviceConfiguration deviceConfiguration = configurationWithRegisterTypes.add();
         deviceType.save();
         deviceConfiguration.activate();
