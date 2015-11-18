@@ -1,45 +1,38 @@
-Ext.define('Mdc.view.setup.executionlevels.ExecutionLevelGrid', {
+Ext.define('Dbp.processes.view.DeviceStatesGrid', {
     extend: 'Ext.grid.Panel',
-    alias: 'widget.execution-level-grid',
+    alias: 'widget.device-states-grid',
     overflowY: 'auto',
-    itemId: 'execution-level-grid',
     selModel: {
         mode: 'SINGLE'
     },
     requires: [
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Mdc.view.setup.executionlevels.ExecutionLevelActionMenu'
+        'Dbp.processes.view.DeviceStatesActionMenu'
     ],
     store: 'ext-empty-store',
-    deviceTypeId: null,
-    deviceConfigId: null,
+
 
     initComponent: function () {
         this.columns = [
             {
-                header: Uni.I18n.translate('executionLevel.executionlevel', 'MDC', 'Privilege'),
+                header: Uni.I18n.translate('editProcess.deviceLifeCycle', 'DBP', 'Device life cycle'),
                 dataIndex: 'name',
                 flex: 1
             },
             {
-                header: Uni.I18n.translate('executionLevel.userroles', 'MDC', 'User roles'),
-                dataIndex: 'userRoles',
-                renderer: function (value) {
-                    var resultArray = [];
-                    Ext.Array.each(value, function (userRole) {
-                        resultArray.push(Ext.String.htmlEncode(userRole.name));
-                    });
-                    return resultArray.join('<br>');
-                },
+                header: Uni.I18n.translate('editProcess.deviceState', 'DBP', 'Device state'),
+                dataIndex: 'deviceState',
                 flex: 1
             },
             {
                 xtype: 'uni-actioncolumn',
-                privileges: Mdc.privileges.DeviceType.admin,
-                items: 'Mdc.view.setup.executionlevels.ExecutionLevelActionMenu'
+                privileges: Dbp.privileges.DeviceProcesses.administrateProcesses,
+                menu: {
+                    xtype: 'dbp-device-states-action-menu',
+                    itemId: 'mnu-device-states-action'
+                }
             }
-
         ];
 
         this.dockedItems = [
@@ -48,15 +41,15 @@ Ext.define('Mdc.view.setup.executionlevels.ExecutionLevelGrid', {
                 store: this.store,
                 usesExactCount: true,
                 dock: 'top',
-                displayMsg: Uni.I18n.translatePlural('executionLevel.pagingtoolbartop.displayMsg', 0, 'MDC', 'No privileges', '{0} privilege', '{0} privileges'),
-                emptyMsg: Uni.I18n.translate('executionLevel.pagingtoolbartop.emptyMsg', 'MDC', 'There are no privileges'),
+                displayMsg: Uni.I18n.translatePlural('deviceState.pagingtoolbartop.displayMsg', 0, 'DBP', 'No device state', '{0} deivice state', '{0} device states'),
+                emptyMsg: Uni.I18n.translate('deviceState.pagingtoolbartop.emptyMsg', 'DBP', 'There are no device states'),
                 items: [
                     {
-                        text: Uni.I18n.translate('executionLevels.addExecutionLevels', 'MDC', 'Add privileges'),
-                        itemId: 'createExecutionLevel',
-                        privileges: Mdc.privileges.DeviceType.admin,
+                        text: Uni.I18n.translate('deviceState.addDeviceStates', 'DBP', 'Add device states'),
+                        itemId: 'addDeviceStates',
+                        privileges: Dbp.privileges.DeviceProcesses.administrateProcesses,
                         xtype: 'button',
-                        action: 'createExecutionLevel',
+                        action: 'addDeviceState',
                         href: ''
                     }
                 ]

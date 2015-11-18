@@ -1,8 +1,8 @@
 Ext.define('Dbp.processes.model.EditProcess', {
     extend: 'Ext.data.Model',
-	 requires: [
+    requires: [
         'Dbp.processes.model.DeviceState',
-		'Dbp.processes.model.Privilege'
+        'Dbp.processes.model.Privilege'
     ],
 
     fields: [
@@ -15,14 +15,6 @@ Ext.define('Dbp.processes.model.EditProcess', {
             type: 'string'
         },
         {
-            name: 'deploymentId',
-            type: 'string'
-        },
-        {
-            name: 'version',
-            type: 'string'
-        },
-        {
             name: 'associatedTo',
             type: 'string'
         },
@@ -30,7 +22,7 @@ Ext.define('Dbp.processes.model.EditProcess', {
             name: 'active',
             type: 'string'
         },
-		{
+        {
             name: 'deviceStates',
             persist: false
         },
@@ -46,7 +38,7 @@ Ext.define('Dbp.processes.model.EditProcess', {
             associationKey: 'deviceStates',
             name: 'deviceStates'
         },
-		{
+        {
             type: 'hasMany',
             model: 'Dbp.processes.model.Privilege',
             associationKey: 'privileges',

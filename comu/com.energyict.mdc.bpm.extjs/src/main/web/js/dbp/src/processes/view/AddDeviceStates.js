@@ -1,7 +1,7 @@
 Ext.define('Dbp.processes.view.AddDeviceStates', {
     extend: 'Uni.view.grid.SelectionGrid',
     xtype: 'dbp-add-device-states-grid',
-    store: 'Dbp.processes.store.DeviceState',
+    store: 'Dbp.processes.store.DeviceStates',
     height: 310,
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural(
@@ -14,7 +14,7 @@ Ext.define('Dbp.processes.view.AddDeviceStates', {
         items: [
             {
                 header: Uni.I18n.translate('editProcess.deviceLifeCycle', 'DBP', 'Device life cycle'),
-                dataIndex: 'deviceLifeCycle',
+                dataIndex: 'name',
                 flex: 2
             },
             {
@@ -28,16 +28,16 @@ Ext.define('Dbp.processes.view.AddDeviceStates', {
     buttons: [
         {
             xtype: 'button',
-            text: Uni.I18n.translate('editProcess.add','DBP','Add'),
+            text: Uni.I18n.translate('editProcess.add', 'DBP', 'Add'),
             itemId: 'btn-add-deviceStates',
-            action: 'addDeviceStates',
+            action: 'addSelectedDeviceStates',
             disabled: true,
             ui: 'action'
         },
         {
             xtype: 'button',
             itemId: 'btn-cancel-add-deviceStates',
-            text: Uni.I18n.translate('editProcess.cancel','DBP','Cancel'),
+            text: Uni.I18n.translate('editProcess.cancel', 'DBP', 'Cancel'),
             href: '#',
             ui: 'link'
         }

@@ -4,7 +4,10 @@ Ext.define('Dbp.processes.store.Privileges', {
     autoLoad: false,
     proxy: {
         type: 'rest',
-        url: '/api/bpm/runtime/process/privileges',
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined,
+        url: '/api/bpm/runtime/processes/privileges',
         reader: {
             type: 'json',
             root: 'privileges'

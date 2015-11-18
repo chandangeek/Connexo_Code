@@ -7,8 +7,8 @@ Ext.define('Dbp.processes.view.ProcessesGrid', {
         'Uni.view.toolbar.PagingBottom',
         'Dbp.processes.store.Processes'
     ],
-    viewConfig:{
-        markDirty:false
+    viewConfig: {
+        markDirty: false
     },
     initComponent: function () {
         var me = this;
