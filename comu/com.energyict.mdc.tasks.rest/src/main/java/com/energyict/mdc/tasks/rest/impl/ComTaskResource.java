@@ -3,6 +3,7 @@ package com.energyict.mdc.tasks.rest.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.energyict.mdc.common.rest.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.engine.config.security.Privileges;
 import com.energyict.mdc.masterdata.MasterDataService;
@@ -57,7 +58,7 @@ public class ComTaskResource {
         this.resourceHelper = resourceHelper;
     }
 
-    @GET
+    @GET @Transactional
 
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
@@ -67,7 +68,7 @@ public class ComTaskResource {
         return PagedInfoList.fromPagedList("data", comTaskInfos, queryParameters);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
@@ -76,7 +77,7 @@ public class ComTaskResource {
         return Response.status(Response.Status.OK).entity(ComTaskInfo.fullFrom(comTask)).build();
     }
 
-    @POST
+    @POST @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
@@ -107,7 +108,7 @@ public class ComTaskResource {
                 .collect(Collectors.toList());
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -139,7 +140,7 @@ public class ComTaskResource {
         return Response.ok(ComTaskInfo.from(comTask)).build();
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION)
@@ -149,7 +150,7 @@ public class ComTaskResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/categories")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
@@ -158,7 +159,7 @@ public class ComTaskResource {
         return PagedInfoList.fromPagedList("data", categoryInfos, queryParameters);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/actions")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
@@ -178,7 +179,7 @@ public class ComTaskResource {
                 Response.status(Response.Status.BAD_REQUEST).entity("No \"category\" query property is present").build());
     }
 
-    @GET
+    @GET @Transactional
     @Path("/messages")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_COMMUNICATION_ADMINISTRATION, Privileges.Constants.ADMINISTRATE_COMMUNICATION_ADMINISTRATION})
