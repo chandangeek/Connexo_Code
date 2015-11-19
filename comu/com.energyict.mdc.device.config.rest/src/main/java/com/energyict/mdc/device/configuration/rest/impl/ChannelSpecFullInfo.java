@@ -6,7 +6,6 @@ import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
 import com.energyict.mdc.device.config.ChannelSpec;
-import com.energyict.mdc.masterdata.rest.RegisterTypeInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -21,7 +20,7 @@ import java.util.stream.Collectors;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ChannelSpecFullInfo extends ChannelSpecInfo {
     @JsonProperty("measurementType")
-    public RegisterTypeInfo registerTypeInfo;
+    public MeasurementTypeShortInfo measurementType;
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode overruledObisCode;
     public BigDecimal overflowValue;
@@ -49,7 +48,7 @@ public class ChannelSpecFullInfo extends ChannelSpecInfo {
         info.overflowValue = channelSpec.getOverflow();
         info.nbrOfFractionDigits = channelSpec.getNbrOfFractionDigits();
         // TODO check that it is truth (true for isLinkedByDeviceType)
-        info.registerTypeInfo = new RegisterTypeInfo(channelSpec.getChannelType(), true, false);
+        info.measurementType = new MeasurementTypeShortInfo(channelSpec.getChannelType(), multipliedCalculatedRegisterTypes,  collectedReadingType);
         info.useMultiplier = channelSpec.isUseMultiplier();
         if (info.useMultiplier) {
             info.calculatedReadingType = new ReadingTypeInfo(channelSpec.getCalculatedReadingType().get());

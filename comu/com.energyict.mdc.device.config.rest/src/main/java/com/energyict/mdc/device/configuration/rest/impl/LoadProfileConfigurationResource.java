@@ -189,7 +189,7 @@ public class LoadProfileConfigurationResource {
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @PathParam("loadProfileSpecId") long loadProfileSpecId,
             ChannelSpecFullInfo info) {
-        ChannelType channelType = resourceHelper.findChannelTypeByIdOrThrowException(info.registerTypeInfo.id);
+        ChannelType channelType = resourceHelper.findChannelTypeByIdOrThrowException(info.measurementType.id);
         LoadProfileSpec loadProfileSpec = resourceHelper.findLoadProfileSpecOrThrowException(loadProfileSpecId);
         DeviceConfiguration deviceConfiguration = loadProfileSpec.getDeviceConfiguration();
 
@@ -231,8 +231,8 @@ public class LoadProfileConfigurationResource {
         ChannelSpec channelSpec = resourceHelper.lockChannelSpecOrThrowException(info);
         DeviceConfiguration deviceConfiguration = channelSpec.getLoadProfileSpec().getDeviceConfiguration();
 
-        if (info.registerTypeInfo != null && info.registerTypeInfo.id > 0) {
-            channelSpec.setChannelType(resourceHelper.findChannelTypeByIdOrThrowException(info.registerTypeInfo.id));
+        if (info.measurementType != null && info.measurementType.id > 0) {
+            channelSpec.setChannelType(resourceHelper.findChannelTypeByIdOrThrowException(info.measurementType.id));
         }
         ChannelSpec.ChannelSpecUpdater specUpdater = deviceConfiguration.getChannelSpecUpdaterFor(channelSpec);
         specUpdater.overruledObisCode(info.overruledObisCode);

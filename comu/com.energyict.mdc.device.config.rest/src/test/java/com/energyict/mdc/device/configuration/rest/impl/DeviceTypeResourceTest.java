@@ -416,7 +416,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
         Map<String, Object> jsonRegisterConfiguration = target("/devicetypes/6/deviceconfigurations/113/registerconfigurations/1").request().get(Map.class);
         assertThat(jsonRegisterConfiguration.keySet()).containsOnly("id", "name", "readingType", "registerType", "obisCode", "overruledObisCode",
-                "obisCodeDescription", "unitOfMeasure", "numberOfFractionDigits", "overflow", "timeOfUse", "asText", "useMultiplier",
+                "obisCodeDescription", "numberOfFractionDigits", "overflow", "asText", "useMultiplier",
                 "possibleCalculatedReadingTypes", "collectedReadingType", "version", "parent")
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
     }
