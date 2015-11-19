@@ -8,7 +8,7 @@ enum Joins implements JoinType {
     EndDevice {
         @Override
         public void appendTo(SqlBuilder sqlBuilder) {
-            sqlBuilder.append(" join MTR_ENDDEVICE ed on ed.AMRID = dev.id ");
+            sqlBuilder.append(" join MTR_ENDDEVICE ed on ed.AMRID = TO_CHAR(dev.id) ");
         }
     },
 
