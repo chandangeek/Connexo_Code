@@ -25,7 +25,6 @@ public class ChannelSpecFullInfo extends ChannelSpecInfo {
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode overruledObisCode;
     public BigDecimal overflowValue;
-    public String unitOfMeasure;
     public int nbrOfFractionDigits;
     public Boolean isLinkedByActiveDeviceConfiguration;
     @JsonProperty("useMultiplier")
@@ -51,7 +50,6 @@ public class ChannelSpecFullInfo extends ChannelSpecInfo {
         info.nbrOfFractionDigits = channelSpec.getNbrOfFractionDigits();
         // TODO check that it is truth (true for isLinkedByDeviceType)
         info.registerTypeInfo = new RegisterTypeInfo(channelSpec.getChannelType(), true, false);
-        info.unitOfMeasure = channelSpec.getChannelType().getUnit().toString();
         info.useMultiplier = channelSpec.isUseMultiplier();
         if (info.useMultiplier) {
             info.calculatedReadingType = new ReadingTypeInfo(channelSpec.getCalculatedReadingType().get());

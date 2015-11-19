@@ -434,7 +434,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(registerSpec.isTextual()).thenReturn(false);
         when(registerSpec.getId()).thenReturn(id);
         when(registerSpec.getRegisterType()).thenReturn(registerType);
-        when(registerSpec.getUnit()).thenReturn(unit);
         when(registerSpec.getDeviceObisCode()).thenReturn(new ObisCode());
         when(registerSpec.getOverflowValue()).thenReturn(BigDecimal.ONE);
         when(registerSpec.getNumberOfFractionDigits()).thenReturn(1);
@@ -1070,7 +1069,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         NumericalRegisterSpec registerSpec = mock(NumericalRegisterSpec.class);
         when(registerSpec.getRegisterType()).thenReturn(registerType);
         when(registerSpec.getObisCode()).thenReturn(obisCode);
-        when(registerSpec.getUnit()).thenReturn(unit);
         when(registerSpec.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(registerSpec.getReadingType()).thenReturn(readingType);
 
@@ -1083,7 +1081,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         registerConfigInfo.numberOfFractionDigits = 6;
         registerConfigInfo.overflow = BigDecimal.TEN;
         registerConfigInfo.overruledObisCode = null;
-        registerConfigInfo.unitOfMeasure = "kWh";
 
         Entity<RegisterConfigInfo> json = Entity.json(registerConfigInfo);
         Response response = target("/devicetypes/41/deviceconfigurations/51/registerconfigurations/").request().post(json);
@@ -1118,7 +1115,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(registerSpec.getId()).thenReturn(registerSpec_id);
         when(registerSpec.getObisCode()).thenReturn(obisCode);
         when(registerSpec.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        when(registerSpec.getUnit()).thenReturn(unit);
         when(registerSpec.getVersion()).thenReturn(OK_VERSION);
         when(registerSpec.getReadingType()).thenReturn(readingType);
         deviceConfiguration.getRegisterSpecs().add(registerSpec);
@@ -1133,7 +1129,6 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         registerConfigInfo.numberOfFractionDigits = 6;
         registerConfigInfo.overflow = BigDecimal.valueOf(123);
         registerConfigInfo.overruledObisCode = obisCode;
-        registerConfigInfo.unitOfMeasure = "kWh";
 
         doReturn(Optional.of(registerSpec)).when(deviceConfigurationService).findRegisterSpec(registerSpec_id);
         doReturn(Optional.of(registerSpec)).when(deviceConfigurationService).findAndLockRegisterSpecByIdAndVersion(registerSpec_id, OK_VERSION);

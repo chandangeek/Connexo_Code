@@ -33,14 +33,10 @@ public class RegisterConfigInfo {
     public ObisCode overruledObisCode;
     @JsonProperty("obisCodeDescription")
     public String obisCodeDescription;
-    @JsonProperty("unitOfMeasure")
-    public String unitOfMeasure;
     @JsonProperty("numberOfFractionDigits")
     public Integer numberOfFractionDigits;
     @JsonProperty("overflow")
     public BigDecimal overflow;
-    @JsonProperty("timeOfUse")
-    public Integer timeOfUse;
     @JsonProperty("asText")
     public boolean asText;
     @JsonProperty("useMultiplier")
@@ -61,11 +57,9 @@ public class RegisterConfigInfo {
         this.name = registerSpec.getRegisterType().getReadingType().getAliasName();
         this.registerType = registerSpec.getRegisterType().getId();
         this.readingType = new ReadingTypeInfo(registerSpec.getRegisterType().getReadingType());
-        this.timeOfUse = registerSpec.getRegisterType().getTimeOfUse();
         this.obisCode = registerSpec.getObisCode();
         this.overruledObisCode = registerSpec.getDeviceObisCode();
         this.obisCodeDescription = registerSpec.getObisCode().getDescription();
-        this.unitOfMeasure = registerSpec.getUnit().toString();
         this.asText = registerSpec.isTextual();
         this.collectedReadingType = new ReadingTypeInfo(registerSpec.getReadingType().getCalculatedReadingType().orElse(registerSpec.getReadingType()));
         this.version = registerSpec.getVersion();
@@ -84,11 +78,9 @@ public class RegisterConfigInfo {
         this.name = registerSpec.getRegisterType().getReadingType().getAliasName();
         this.registerType = registerSpec.getRegisterType().getId();
         this.readingType = new ReadingTypeInfo(registerSpec.getRegisterType().getReadingType());
-        this.timeOfUse = registerSpec.getRegisterType().getTimeOfUse();
         this.obisCode = registerSpec.getObisCode();
         this.overruledObisCode = registerSpec.getDeviceObisCode();
         this.obisCodeDescription = registerSpec.getObisCode().getDescription();
-        this.unitOfMeasure = registerSpec.getUnit().toString();
         this.asText = registerSpec.isTextual();
         this.collectedReadingType = new ReadingTypeInfo(registerSpec.getReadingType().getCalculatedReadingType().orElse(registerSpec.getReadingType()));
         this.version = registerSpec.getVersion();

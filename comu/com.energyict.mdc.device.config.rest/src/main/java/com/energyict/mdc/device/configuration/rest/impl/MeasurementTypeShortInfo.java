@@ -18,7 +18,6 @@ public class MeasurementTypeShortInfo {
     public long id;
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode obisCode;
-    public String unitOfMeasure;
     public Boolean isCumulative;
 
     /* The ReadingType from the RegisterType */
@@ -44,10 +43,6 @@ public class MeasurementTypeShortInfo {
         this.readingType = new ReadingTypeInfo(readingType);
         this.isCumulative = readingType.isCumulative();
         this.collectedReadingType = new ReadingTypeInfo(collectedReadingType);
-
-        if (measurementType.getUnit() != null) {
-            this.unitOfMeasure = measurementType.getUnit().toString();
-        }
         multipliedCalculatedRegisterTypes.forEach(readingTypeConsumer -> possibleCalculatedReadingTypes.add(new ReadingTypeInfo(readingTypeConsumer)));
         this.version = measurementType.getVersion();
     }

@@ -133,7 +133,6 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
         when(registerType.getId()).thenReturn(id);
         when(registerType.getObisCode()).thenReturn(obisCode);
         when(registerType.getTimeOfUse()).thenReturn(0);
-        when(registerType.getUnit()).thenReturn(Unit.get("kWh"));
         ReadingType readingType = mockReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72." + id);
         when(readingType.getAliasName()).thenReturn(name);
         when(registerType.getReadingType()).thenReturn(readingType);
@@ -145,7 +144,6 @@ public class BaseLoadProfileTest extends DeviceConfigurationApplicationJerseyTes
         when(channelType.getId()).thenReturn(id);
         when(channelType.getObisCode()).thenReturn(obisCode);
         when(channelType.getTimeOfUse()).thenReturn(0);
-        when(channelType.getUnit()).thenReturn(Unit.get("kWh"));
         ReadingType readingType = mockReadingType("0.0.0.1.1.1.12.0.0.0.0.0.0.0.0.3.72." + id);
         when(readingType.getAliasName()).thenReturn(name);
         when(channelType.getReadingType()).thenReturn(readingType);
