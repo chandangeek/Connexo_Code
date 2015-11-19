@@ -1,18 +1,5 @@
 package com.energyict.mdc.device.config.impl;
 
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.Unit;
-import com.energyict.mdc.device.config.*;
-import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
-import com.energyict.mdc.device.config.exceptions.DuplicateChannelTypeException;
-import com.energyict.mdc.device.config.exceptions.LoadProfileSpecIsNotConfiguredOnDeviceConfigurationException;
-import com.energyict.mdc.device.config.exceptions.RegisterTypeIsNotConfiguredException;
-import com.energyict.mdc.masterdata.ChannelType;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.protocol.api.device.ReadingMethod;
-import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
-
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
@@ -20,13 +7,27 @@ import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViol
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.Unit;
+import com.energyict.mdc.device.config.ChannelSpec;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.LoadProfileSpec;
+import com.energyict.mdc.device.config.exceptions.CannotDeleteFromActiveDeviceConfigurationException;
+import com.energyict.mdc.device.config.exceptions.DuplicateChannelTypeException;
+import com.energyict.mdc.device.config.exceptions.LoadProfileSpecIsNotConfiguredOnDeviceConfigurationException;
+import com.energyict.mdc.device.config.exceptions.RegisterTypeIsNotConfiguredException;
+import com.energyict.mdc.masterdata.ChannelType;
+import com.energyict.mdc.masterdata.LoadProfileType;
+import com.energyict.mdc.masterdata.RegisterType;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Optional;
-
-import org.junit.*;
-import org.junit.rules.*;
 
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
@@ -261,112 +262,6 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(channelSpec.getObisCode()).isEqualTo(channelTypeObisCode);
     }
 
-    @Test
-    @Transactional
-    public void validateReadingMethodIsByDefaultENGINEERINGUNITSTest() {
-        ChannelSpec channelSpec;
-        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
-
-        channelSpec = createDefaultChannelSpec(loadProfileSpec);
-
-        assertThat(channelSpec.getReadingMethod()).isEqualTo(ReadingMethod.ENGINEERING_UNIT);
-    }
-
-    @Test
-    @Transactional
-    public void createWithBASICDATAReadingMethodTest() {
-        ChannelSpec channelSpec;
-        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
-
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
-        channelSpecBuilder.readingMethod(ReadingMethod.BASIC_DATA);
-        channelSpec = channelSpecBuilder.add();
-
-        assertThat(channelSpec.getReadingMethod()).isEqualTo(ReadingMethod.BASIC_DATA);
-    }
-
-    @Test
-    @Transactional
-    public void updateWithBASICDATAReadingMethodTest() {
-        ChannelSpec channelSpec;
-        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
-
-        channelSpec = createDefaultChannelSpec(loadProfileSpec);
-
-        ChannelSpec.ChannelSpecUpdater channelSpecUpdater = getReloadedDeviceConfiguration().getChannelSpecUpdaterFor(channelSpec);
-        channelSpecUpdater.readingMethod(ReadingMethod.BASIC_DATA);
-        channelSpecUpdater.update();
-
-        assertThat(channelSpec.getReadingMethod()).isEqualTo(ReadingMethod.BASIC_DATA);
-    }
-
-    @Test
-    @Transactional
-    public void validateValueCalculationMethodIsByDefaultSetToAUTOMATICTest() {
-        ChannelSpec channelSpec;
-        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
-
-        channelSpec = createDefaultChannelSpec(loadProfileSpec);
-
-        assertThat(channelSpec.getValueCalculationMethod()).isEqualTo(ValueCalculationMethod.AUTOMATIC);
-    }
-
-    @Test
-    @Transactional
-    public void createWithRAWDATAValueCalculationMethodTest() {
-        ChannelSpec channelSpec;
-        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
-
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
-        channelSpecBuilder.valueCalculationMethod(ValueCalculationMethod.RAW_DATA);
-        channelSpec = channelSpecBuilder.add();
-
-        assertThat(channelSpec.getValueCalculationMethod()).isEqualTo(ValueCalculationMethod.RAW_DATA);
-    }
-
-    @Test
-    @Transactional
-    public void createWithFORCEMETERADVANCEValueCalculationMethodTest() {
-        ChannelSpec channelSpec;
-        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
-
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
-        channelSpecBuilder.valueCalculationMethod(ValueCalculationMethod.FORCE_METER_ADVANCE);
-        channelSpec = channelSpecBuilder.add();
-
-        assertThat(channelSpec.getValueCalculationMethod()).isEqualTo(ValueCalculationMethod.FORCE_METER_ADVANCE);
-    }
-
-    @Test
-    @Transactional
-    public void updateWithRAWDATAValueCalculationMethodTest() {
-        ChannelSpec channelSpec;
-        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
-
-        channelSpec = createDefaultChannelSpec(loadProfileSpec);
-
-        ChannelSpec.ChannelSpecUpdater channelSpecUpdater = getReloadedDeviceConfiguration().getChannelSpecUpdaterFor(channelSpec);
-        channelSpecUpdater.valueCalculationMethod(ValueCalculationMethod.RAW_DATA);
-        channelSpecUpdater.update();
-
-        assertThat(channelSpec.getValueCalculationMethod()).isEqualTo(ValueCalculationMethod.RAW_DATA);
-    }
-
-    @Test
-    @Transactional
-    public void updateWithFORCEMETERADVANCEValueCalculationMethodTest() {
-        ChannelSpec channelSpec;
-        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
-
-        channelSpec = createDefaultChannelSpec(loadProfileSpec);
-
-        ChannelSpec.ChannelSpecUpdater channelSpecUpdater = getReloadedDeviceConfiguration().getChannelSpecUpdaterFor(channelSpec);
-        channelSpecUpdater.valueCalculationMethod(ValueCalculationMethod.FORCE_METER_ADVANCE);
-        channelSpecUpdater.update();
-
-        assertThat(channelSpec.getValueCalculationMethod()).isEqualTo(ValueCalculationMethod.FORCE_METER_ADVANCE);
-    }
-
     @Test(expected = RegisterTypeIsNotConfiguredException.class)
     @Transactional
     public void createWithChannelTypeNotInLoadProfileTypeTest() {
@@ -447,16 +342,6 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
     @Test
     @Transactional
-    @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Keys.CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED + "}")
-    public void createWithoutValueCalculationMethodTest() {
-        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
-        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
-        channelSpecBuilder.valueCalculationMethod(null);
-        channelSpecBuilder.add();
-    }
-
-    @Test
-    @Transactional
     public void successfulDeleteTest() {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
         ChannelSpec channelSpec = createDefaultChannelSpec(loadProfileSpec);
@@ -492,8 +377,6 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(clonedChannelSpec.getInterval()).isEqualTo(channelType.getInterval());
         assertThat(clonedChannelSpec.getNbrOfFractionDigits()).isEqualTo(channelSpec.getNbrOfFractionDigits());
         assertThat(clonedChannelSpec.getOverflow()).isEqualTo(channelSpec.getOverflow());
-        assertThat(clonedChannelSpec.getReadingMethod().getCode()).isEqualTo(channelSpec.getReadingMethod().getCode());
-        assertThat(clonedChannelSpec.getValueCalculationMethod().getCode()).isEqualTo(channelSpec.getValueCalculationMethod().getCode());
     }
 
     @Test
@@ -514,8 +397,6 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         assertThat(clonedChannelSpec.getInterval()).isEqualTo(channelType.getInterval());
         assertThat(clonedChannelSpec.getNbrOfFractionDigits()).isEqualTo(channelSpec.getNbrOfFractionDigits());
         assertThat(clonedChannelSpec.getOverflow()).isEqualTo(channelSpec.getOverflow());
-        assertThat(clonedChannelSpec.getReadingMethod().getCode()).isEqualTo(channelSpec.getReadingMethod().getCode());
-        assertThat(clonedChannelSpec.getValueCalculationMethod().getCode()).isEqualTo(channelSpec.getValueCalculationMethod().getCode());
     }
 
     @Test

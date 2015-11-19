@@ -3,12 +3,10 @@ package com.energyict.mdc.device.config;
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.validation.ValidationRule;
 import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.validation.ValidationRule;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.masterdata.ChannelType;
-import com.energyict.mdc.protocol.api.device.ReadingMethod;
-import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -32,10 +30,6 @@ public interface ChannelSpec extends HasId {
 
     BigDecimal getOverflow();
 
-    ReadingMethod getReadingMethod();
-
-    ValueCalculationMethod getValueCalculationMethod();
-
     LoadProfileSpec getLoadProfileSpec();
 
     TimeDuration getInterval();
@@ -49,10 +43,6 @@ public interface ChannelSpec extends HasId {
     void setNbrOfFractionDigits(int nbrOfFractionDigits);
 
     void setOverflow(BigDecimal overflow);
-
-    void setReadingMethod(ReadingMethod readingMethod);
-
-    void setValueCalculationMethod(ValueCalculationMethod valueCalculationMethod);
 
     void setInterval(TimeDuration interval);
 
@@ -84,10 +74,6 @@ public interface ChannelSpec extends HasId {
 
         ChannelSpecBuilder overflow(BigDecimal overflow);
 
-        ChannelSpecBuilder readingMethod(ReadingMethod readingMethod);
-
-        ChannelSpecBuilder valueCalculationMethod(ValueCalculationMethod valueCalculationMethod);
-
         ChannelSpecBuilder interval(TimeDuration interval);
 
         ChannelSpecBuilder useMultiplier(boolean useMultiplier);
@@ -107,10 +93,6 @@ public interface ChannelSpec extends HasId {
         ChannelSpecUpdater nbrOfFractionDigits(int nbrOfFractionDigits);
 
         ChannelSpecUpdater overflow(BigDecimal overflow);
-
-        ChannelSpecUpdater readingMethod(ReadingMethod readingMethod);
-
-        ChannelSpecUpdater valueCalculationMethod(ValueCalculationMethod valueCalculationMethod);
 
         ChannelSpecUpdater useMultiplier(boolean useMultiplier);
 

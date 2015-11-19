@@ -207,8 +207,6 @@ public class LoadProfileSpecImpl extends PersistentIdObject<LoadProfileSpec> imp
             channelSpecBuilder.interval(channelSpec.getInterval());
             channelSpecBuilder.nbrOfFractionDigits(channelSpec.getNbrOfFractionDigits());
             channelSpecBuilder.overflow(channelSpec.getOverflow());
-            channelSpecBuilder.readingMethod(channelSpec.getReadingMethod());
-            channelSpecBuilder.valueCalculationMethod(channelSpec.getValueCalculationMethod());
             channelSpecBuilder.add();
         });
         return loadProfileSpec;

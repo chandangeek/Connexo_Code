@@ -50,13 +50,6 @@ public interface RegisterSpec extends HasId {
     public boolean isTextual();
 
     /**
-     * Returns the spec's unit
-     *
-     * @return the unit
-     */
-    public Unit getUnit();
-
-    /**
      * Returns the spec's obis code
      *
      * @return the obis code

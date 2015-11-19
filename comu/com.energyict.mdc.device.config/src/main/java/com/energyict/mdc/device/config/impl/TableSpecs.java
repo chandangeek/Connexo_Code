@@ -249,8 +249,6 @@ public enum TableSpecs {
             table.column("OBISCODE").varChar(Table.NAME_LENGTH).map(ChannelSpecImpl.ChannelSpecFields.OVERRULED_OBISCODE.fieldName()).add();
             table.column("FRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INT).map(ChannelSpecImpl.ChannelSpecFields.NUMBER_OF_FRACTION_DIGITS.fieldName()).add();
             table.column("OVERFLOWVALUE").number().map(ChannelSpecImpl.ChannelSpecFields.OVERFLOW_VALUE.fieldName()).add();
-            table.column("READINGMETHOD").number().conversion(ColumnConversion.NUMBER2ENUM).notNull().map(ChannelSpecImpl.ChannelSpecFields.READING_METHOD.fieldName()).add();
-            table.column("VALUECALCULATIONMETHOD").number().conversion(ColumnConversion.NUMBER2ENUM).notNull().map(ChannelSpecImpl.ChannelSpecFields.VALUE_CALCULATION_METHOD.fieldName()).add();
             Column loadProfileSpec = table.column("LOADPROFILESPECID").number().conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("INTERVAL").number().notNull().conversion(ColumnConversion.NUMBER2INT).map(ChannelSpecImpl.ChannelSpecFields.INTERVAL_COUNT.fieldName()).add();
             table.column("INTERVALCODE").number().notNull().conversion(ColumnConversion.NUMBER2INT).map(ChannelSpecImpl.ChannelSpecFields.INTERVAL_CODE.fieldName()).add();

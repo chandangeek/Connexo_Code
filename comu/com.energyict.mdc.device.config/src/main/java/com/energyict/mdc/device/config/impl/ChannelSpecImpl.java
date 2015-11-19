@@ -13,8 +13,6 @@ import com.energyict.mdc.device.config.exceptions.RegisterTypeIsNotConfiguredExc
 import com.energyict.mdc.device.config.exceptions.UnsupportedIntervalException;
 import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.MeasurementType;
-import com.energyict.mdc.protocol.api.device.ReadingMethod;
-import com.energyict.mdc.protocol.api.device.ValueCalculationMethod;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
@@ -29,7 +27,6 @@ import com.elster.jupiter.validation.ValidationRule;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -59,8 +56,6 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
         NUMBER_OF_FRACTION_DIGITS("nbrOfFractionDigits"),
         OVERFLOW_VALUE("overflow"),
         OVERRULED_OBISCODE("overruledObisCodeString"),
-        READING_METHOD("readingMethod"),
-        VALUE_CALCULATION_METHOD("valueCalculationMethod"),
         USEMULTIPLIER("useMultiplier"),
         CALCULATED_READINGTYPE("calculatedReadingType");
 
@@ -79,10 +74,6 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_CHANNEL_TYPE_IS_REQUIRED + "}")
     private final Reference<ChannelType> channelType = ValueReference.absent();
     private final Reference<LoadProfileSpecImpl> loadProfileSpec = ValueReference.absent();
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_READING_METHOD_IS_REQUIRED + "}")
-    private ReadingMethod readingMethod = ReadingMethod.ENGINEERING_UNIT;
-    @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_VALUE_CALCULATION_METHOD_IS_REQUIRED + "}")
-    private ValueCalculationMethod valueCalculationMethod = ValueCalculationMethod.AUTOMATIC;
     private int nbrOfFractionDigits = 0;
     private String overruledObisCodeString;
     private ObisCode overruledObisCode;
@@ -144,16 +135,6 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
     @Override
     public BigDecimal getOverflow() {
         return overflow;
-    }
-
-    @Override
-    public ReadingMethod getReadingMethod() {
-        return readingMethod;
-    }
-
-    @Override
-    public ValueCalculationMethod getValueCalculationMethod() {
-        return valueCalculationMethod;
     }
 
     @Override
@@ -360,16 +341,6 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
         this.overflow = overflow;
     }
 
-    @Override
-    public void setReadingMethod(ReadingMethod readingMethod) {
-        this.readingMethod = readingMethod;
-    }
-
-    @Override
-    public void setValueCalculationMethod(ValueCalculationMethod valueCalculationMethod) {
-        this.valueCalculationMethod = valueCalculationMethod;
-    }
-
     public void setLoadProfileSpec(LoadProfileSpecImpl loadProfileSpec) {
         validateLoadProfileSpecForUpdate(loadProfileSpec);
         this.loadProfileSpec.set(loadProfileSpec);
@@ -427,18 +398,6 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
         }
 
         @Override
-        public ChannelSpec.ChannelSpecBuilder readingMethod(ReadingMethod readingMethod) {
-            this.channelSpec.setReadingMethod(readingMethod);
-            return this;
-        }
-
-        @Override
-        public ChannelSpec.ChannelSpecBuilder valueCalculationMethod(ValueCalculationMethod valueCalculationMethod) {
-            this.channelSpec.setValueCalculationMethod(valueCalculationMethod);
-            return this;
-        }
-
-        @Override
         public ChannelSpec.ChannelSpecBuilder interval(TimeDuration interval) {
             this.channelSpec.setInterval(interval);
             return this;
@@ -488,18 +447,6 @@ public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements 
         @Override
         public ChannelSpec.ChannelSpecUpdater overflow(BigDecimal overflow) {
             this.channelSpec.setOverflow(overflow);
-            return this;
-        }
-
-        @Override
-        public ChannelSpec.ChannelSpecUpdater readingMethod(ReadingMethod readingMethod) {
-            this.channelSpec.setReadingMethod(readingMethod);
-            return this;
-        }
-
-        @Override
-        public ChannelSpec.ChannelSpecUpdater valueCalculationMethod(ValueCalculationMethod valueCalculationMethod) {
-            this.channelSpec.setValueCalculationMethod(valueCalculationMethod);
             return this;
         }
 
