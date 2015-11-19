@@ -7,6 +7,7 @@ import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -23,10 +24,17 @@ import static java.util.stream.Collectors.toList;
 public class ConfigurationSecurityPropertySetInfoFactory extends SelectableFieldFactory<ConfigurationSecurityPropertySetInfo, SecurityPropertySet> {
 
     private final MdcPropertyUtils mdcPropertyUtils;
+    private final Provider<AuthenticationDeviceAccessLevelInfoFactory> authenticationDeviceAccessLevelInfoFactoryProvider;
+    private final Provider<EncryptionDeviceAccessLevelInfoFactory> encryptionDeviceAccessLevelInfoFactoryProvider;
 
     @Inject
-    public ConfigurationSecurityPropertySetInfoFactory(MdcPropertyUtils mdcPropertyUtils) {
+    public ConfigurationSecurityPropertySetInfoFactory(
+            MdcPropertyUtils mdcPropertyUtils,
+            Provider<AuthenticationDeviceAccessLevelInfoFactory> authenticationDeviceAccessLevelInfoFactoryProvider,
+            Provider<EncryptionDeviceAccessLevelInfoFactory> encryptionDeviceAccessLevelInfoFactoryProvider) {
         this.mdcPropertyUtils = mdcPropertyUtils;
+        this.authenticationDeviceAccessLevelInfoFactoryProvider = authenticationDeviceAccessLevelInfoFactoryProvider;
+        this.encryptionDeviceAccessLevelInfoFactoryProvider = encryptionDeviceAccessLevelInfoFactoryProvider;
     }
 
     public LinkInfo asLink(SecurityPropertySet securityPropertySet, Relation relation, UriInfo uriInfo) {
@@ -68,37 +76,22 @@ public class ConfigurationSecurityPropertySetInfoFactory extends SelectableField
         Map<String, PropertyCopier<ConfigurationSecurityPropertySetInfo, SecurityPropertySet>> map = new HashMap<>();
         map.put("id", (configurationSecurityPropertySetInfo, securityPropertySet, uriInfo) -> configurationSecurityPropertySetInfo.id = securityPropertySet.getId());
         map.put("name", (configurationSecurityPropertySetInfo, securityPropertySet, uriInfo) -> configurationSecurityPropertySetInfo.name = securityPropertySet.getName());
-        map.put("authenticationAccessLevel", (configurationSecurityPropertySetInfo, securityPropertySet, uriInfo) -> {
-            UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
-                    .path(AuthenticationDeviceAccessLevelResource.class)
-                    .path(AuthenticationDeviceAccessLevelResource.class, "getAuthenticationDeviceAccessLevel")
-                    .resolveTemplate("deviceProtocolPluggableClassId", securityPropertySet.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass().getId());
-            LinkInfo linkInfo = new LinkInfo();
-            linkInfo.id = (long)securityPropertySet.getAuthenticationDeviceAccessLevel().getId();
-            linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(Relation.REF_RELATION.rel()).build(securityPropertySet.getAuthenticationDeviceAccessLevel().getId());
-            configurationSecurityPropertySetInfo.authenticationAccessLevel = linkInfo;
-        });
-        map.put("encryptionAccessLevel", (configurationSecurityPropertySetInfo, securityPropertySet, uriInfo) -> {
-            UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
-                    .path(EncryptionDeviceAccessLevelResource.class)
-                    .path(EncryptionDeviceAccessLevelResource.class, "getEncryptionDeviceAccessLevel")
-                    .resolveTemplate("deviceProtocolPluggableClassId", securityPropertySet.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass().getId());
-            LinkInfo linkInfo = new LinkInfo();
-            linkInfo.id = (long)securityPropertySet.getEncryptionDeviceAccessLevel().getId();
-            linkInfo.link = Link.fromUriBuilder(uriBuilder).rel(Relation.REF_RELATION.rel()).build(securityPropertySet.getEncryptionDeviceAccessLevel().getId());
-            configurationSecurityPropertySetInfo.encryptionAccessLevel = linkInfo;
-
-        });
+        map.put("authenticationAccessLevel", (configurationSecurityPropertySetInfo, securityPropertySet, uriInfo) ->
+            configurationSecurityPropertySetInfo.authenticationAccessLevel = authenticationDeviceAccessLevelInfoFactoryProvider.get().asLink(
+                    securityPropertySet.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass(),
+                    securityPropertySet.getAuthenticationDeviceAccessLevel(),
+                    Relation.REF_RELATION,
+                    uriInfo));
+        map.put("encryptionAccessLevel", (configurationSecurityPropertySetInfo, securityPropertySet, uriInfo) ->
+            configurationSecurityPropertySetInfo.encryptionAccessLevel = encryptionDeviceAccessLevelInfoFactoryProvider.get().asLink(
+                    securityPropertySet.getDeviceConfiguration().getDeviceType().getDeviceProtocolPluggableClass(),
+                    securityPropertySet.getEncryptionDeviceAccessLevel(),
+                    Relation.REF_RELATION,
+                    uriInfo
+            ));
         map.put("properties", (configurationSecurityPropertySetInfo, securityPropertySet, uriInfo) -> configurationSecurityPropertySetInfo.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(securityPropertySet.getPropertySpecs(), TypedProperties.empty()));
-        map.put("link", (configurationSecurityPropertySetInfo, securityPropertySet, uriInfo) -> {
-            UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
-                    .path(ConfigurationSecurityPropertySetResource.class)
-                    .path(ConfigurationSecurityPropertySetResource.class, "getSecurityPropertySet")
-                    .resolveTemplate("deviceTypeId", securityPropertySet.getDeviceConfiguration().getDeviceType().getId())
-                    .resolveTemplate("deviceConfigId", securityPropertySet.getDeviceConfiguration().getId())
-                    .resolveTemplate("securityPropertySetId", securityPropertySet.getId());
-            configurationSecurityPropertySetInfo.link = Link.fromUriBuilder(uriBuilder).rel(Relation.REF_SELF.rel()).build();
-        });
+        map.put("link", (configurationSecurityPropertySetInfo, securityPropertySet, uriInfo) ->
+            configurationSecurityPropertySetInfo.link = asLink(securityPropertySet, Relation.REF_SELF, uriInfo).link);
         return map;
     }
 

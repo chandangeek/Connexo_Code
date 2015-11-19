@@ -22,6 +22,7 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -41,13 +42,21 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
     private final EngineConfigurationService engineConfigurationService;
     private final ConnectionTaskService connectionTaskService;
     private final ExceptionFactory exceptionFactory;
+    private final Provider<PartialConnectionTaskInfoFactory> partialConnectionTaskInfoFactoryProvider;
+    private final Provider<ComPortPoolInfoFactory> comPortPoolInfoFactoryProvider;
 
     @Inject
-    public ConnectionTaskInfoFactory(MdcPropertyUtils mdcPropertyUtils, EngineConfigurationService engineConfigurationService, ConnectionTaskService connectionTaskService, ExceptionFactory exceptionFactory) {
+    public ConnectionTaskInfoFactory(
+            MdcPropertyUtils mdcPropertyUtils, EngineConfigurationService engineConfigurationService,
+            ConnectionTaskService connectionTaskService, ExceptionFactory exceptionFactory,
+            Provider<PartialConnectionTaskInfoFactory> partialConnectionTaskInfoFactoryProvider,
+            Provider<ComPortPoolInfoFactory> comPortPoolInfoFactoryProvider) {
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.engineConfigurationService = engineConfigurationService;
         this.connectionTaskService = connectionTaskService;
         this.exceptionFactory = exceptionFactory;
+        this.partialConnectionTaskInfoFactoryProvider = partialConnectionTaskInfoFactoryProvider;
+        this.comPortPoolInfoFactoryProvider = comPortPoolInfoFactoryProvider;
     }
 
     public LinkInfo asLink(ConnectionTask connectionTask, Relation relation, UriInfo uriInfo) {
@@ -85,37 +94,14 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
     protected Map<String, PropertyCopier<ConnectionTaskInfo, ConnectionTask<?, ?>>> buildFieldMap() {
         Map<String, PropertyCopier<ConnectionTaskInfo, ConnectionTask<?,?>>> map = new HashMap<>();
         map.put("id", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.id = connectionTask.getId());
-        map.put("connectionMethod", (connectionTaskInfo, connectionTask, uriInfo)-> {
-            connectionTaskInfo.connectionMethod = new LinkInfo();
-            connectionTaskInfo.connectionMethod.id = connectionTask.getPartialConnectionTask().getId();
-            UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
-                    .path(PartialConnectionTaskResource.class)
-                    .path(PartialConnectionTaskResource.class, "getPartialConnectionTask")
-                    .resolveTemplate("deviceTypeId", connectionTask.getDevice().getDeviceConfiguration().getDeviceType().getId())
-                    .resolveTemplate("deviceConfigId", connectionTask.getDevice().getDeviceConfiguration().getId())
-                    .resolveTemplate("id", connectionTask.getPartialConnectionTask().getId());
-
-            connectionTaskInfo.connectionMethod.link = Link.fromUriBuilder(uriBuilder).rel(Relation.REF_PARENT.rel()).build();
-        });
+        map.put("connectionMethod", (connectionTaskInfo, connectionTask, uriInfo)->
+            connectionTaskInfo.connectionMethod = partialConnectionTaskInfoFactoryProvider.get().asLink(connectionTask.getPartialConnectionTask(), Relation.REF_PARENT, uriInfo));
         map.put("direction", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.direction = ConnectionTaskType.from(connectionTask));
-        map.put("link", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.link =
-                Link.fromUriBuilder(
-                        uriInfo.getBaseUriBuilder().
-                                path(ConnectionTaskResource.class).
-                                path(ConnectionTaskResource.class, "getConnectionTask")).
-                    rel(Relation.REF_SELF.rel()).
-                    build(connectionTask.getDevice().getmRID(), connectionTask.getId())
-        );
+        map.put("link", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.link = this.asLink(connectionTask, Relation.REF_SELF, uriInfo).link);
         map.put("status", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.status = connectionTask.getStatus());
         map.put("connectionType", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.connectionType = connectionTask.getPartialConnectionTask().getPluggableClass().getName());
-        map.put("comPortPool", (connectionTaskInfo, connectionTask, uriInfo)-> {
-            connectionTaskInfo.comPortPool = new LinkInfo();
-            connectionTaskInfo.comPortPool.id = connectionTask.getComPortPool().getId();
-            UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().
-                    path(ComPortPoolResource.class).
-                    path(ComPortPoolResource.class, "getComPortPool");
-            connectionTaskInfo.comPortPool.link = Link.fromUriBuilder(uriBuilder).rel(Relation.REF_RELATION.rel()).build(connectionTaskInfo.comPortPool.id);
-        });
+        map.put("comPortPool", (connectionTaskInfo, connectionTask, uriInfo)->
+            connectionTaskInfo.comPortPool = comPortPoolInfoFactoryProvider.get().asLink(connectionTask.getComPortPool(), Relation.REF_RELATION, uriInfo));
         map.put("isDefault", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.isDefault = connectionTask.isDefault());
         map.put("properties", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(connectionTask.getConnectionType().getPropertySpecs(), connectionTask.getTypedProperties()));
         map.put("comWindow", (connectionTaskInfo, connectionTask, uriInfo) -> {

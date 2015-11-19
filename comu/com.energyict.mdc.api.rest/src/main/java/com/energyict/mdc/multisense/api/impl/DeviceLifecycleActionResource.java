@@ -114,7 +114,7 @@ public class DeviceLifecycleActionResource {
         if (info==null) {
             throw exceptionFactory.newException(MessageSeeds.CONTENT_EXPECTED);
         }
-        device = deviceService.findAndLockDeviceByIdAndVersion(device.getId(), info.deviceVersion)
+        device = deviceService.findAndLockDeviceByIdAndVersion(device.getId(), info.device.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.CONFLICT_ON_DEVICE));
         ExecutableAction requestedAction = getExecutableActionByIdOrThrowException(actionId, device);
         if (requestedAction.getAction() instanceof AuthorizedTransitionAction){

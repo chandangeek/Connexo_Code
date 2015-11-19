@@ -42,7 +42,8 @@ public class ProtocolDialectConfigurationPropertiesResource {
         this.exceptionFactory = exceptionFactory;
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Path("/{id}")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
@@ -67,7 +68,8 @@ public class ProtocolDialectConfigurationPropertiesResource {
         return info;
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)

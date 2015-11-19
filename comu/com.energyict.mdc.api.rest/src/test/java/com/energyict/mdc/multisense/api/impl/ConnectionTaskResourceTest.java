@@ -72,6 +72,7 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         when(comPortPool.getId()).thenReturn(65L);
 
         PartialScheduledConnectionTask partial = mockPartialScheduledConnectionTask(1681, "partial connection task");
+        when(partial.getConfiguration()).thenReturn(deviceConfiguration);
         ScheduledConnectionTask connectionTask = mockScheduledConnectionTask(41L, "connTask", deviceXas, comPortPool, partial);
         when(connectionTaskService.findConnectionTask(41L)).thenReturn(Optional.of(connectionTask));
 
@@ -303,6 +304,8 @@ public class ConnectionTaskResourceTest extends MultisensePublicApiJerseyTest {
         when(existing.isDefault()).thenReturn(false); // override
         when(deviceXas.getConnectionTasks()).thenReturn(Collections.singletonList(existing));
         when(connectionTaskService.findConnectionTask(123456789)).thenReturn(Optional.of(existing));
+        when(pct1.getConfiguration()).thenReturn(deviceConfiguration);
+        when(pct2.getConfiguration()).thenReturn(deviceConfiguration);
         // ACTUAL CALL
         Response response = target("devices/XAS/connectiontasks/123456789").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());

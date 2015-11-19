@@ -1,15 +1,14 @@
 package com.energyict.mdc.multisense.api.impl;
 
-import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.multisense.api.impl.utils.PropertyCopier;
 import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -22,8 +21,11 @@ import static java.util.stream.Collectors.toList;
  */
 public class DeviceTypeInfoFactory extends SelectableFieldFactory<DeviceTypeInfo, DeviceType> {
 
+    private final Provider<DeviceConfigurationInfoFactory> deviceConfigurationInfoFactoryProvider;
+
     @Inject
-    public DeviceTypeInfoFactory() {
+    public DeviceTypeInfoFactory(Provider<DeviceConfigurationInfoFactory> deviceConfigurationInfoFactory) {
+        this.deviceConfigurationInfoFactoryProvider = deviceConfigurationInfoFactory;
     }
 
     public LinkInfo asLink(DeviceType deviceType, Relation relation, UriInfo uriInfo) {
@@ -66,23 +68,13 @@ public class DeviceTypeInfoFactory extends SelectableFieldFactory<DeviceTypeInfo
             deviceTypeInfo.name = deviceType.getName();
         });
         map.put("link", (deviceTypeInfo, deviceType, uriInfo) -> {
-            UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().path(DeviceTypeResource.class).path("{id}");
-            deviceTypeInfo.link = Link.fromUriBuilder(uriBuilder).rel(Relation.REF_SELF.rel()).title("self reference").build(deviceType.getId());
+            deviceTypeInfo.link = asLink(deviceType, Relation.REF_SELF, uriInfo).link;
         });
         map.put("description", (deviceTypeInfo, deviceType, uriInfo) -> {
             deviceTypeInfo.description = deviceType.getDescription();
         });
         map.put("deviceConfigurations", (deviceTypeInfo, deviceType, uriInfo) -> {
-            deviceTypeInfo.deviceConfigurations = new ArrayList<>();
-            for (DeviceConfiguration deviceConfiguration : deviceType.getConfigurations()) {
-                LinkInfo deviceConfigurationInfo = new LinkInfo();
-                deviceConfigurationInfo.id = deviceConfiguration.getId();
-                UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
-                        .path(DeviceConfigurationResource.class)
-                        .path(DeviceConfigurationResource.class, "getDeviceConfiguration");
-                deviceConfigurationInfo.link = Link.fromUriBuilder(uriBuilder).rel("child").title("Device configuration").build(deviceType.getId(), deviceConfiguration.getId());
-                deviceTypeInfo.deviceConfigurations.add(deviceConfigurationInfo);
-            }
+            deviceTypeInfo.deviceConfigurations = deviceConfigurationInfoFactoryProvider.get().asLink(deviceType.getConfigurations(), Relation.REF_RELATION, uriInfo);
         });
         return map;
     }

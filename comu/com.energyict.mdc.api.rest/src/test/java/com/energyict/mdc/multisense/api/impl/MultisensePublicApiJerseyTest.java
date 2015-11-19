@@ -202,7 +202,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         DeviceType mock = mock(DeviceType.class);
         when(mock.getId()).thenReturn(id);
         when(mock.getName()).thenReturn(name);
-        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1000 + id, "Default");
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(1000 + id, "Default", mock);
         when(mock.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
         DeviceProtocolPluggableClass pluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(pluggableClass.getId()).thenReturn(id * id);

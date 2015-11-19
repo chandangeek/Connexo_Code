@@ -1,5 +1,6 @@
 package com.energyict.mdc.multisense.api.impl;
 
+import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.GatewayType;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.Device;
@@ -19,6 +20,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -37,10 +39,36 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo,Device>
     private final DeviceLifeCycleService deviceLifeCycleService;
 
     @Inject
-    public DeviceInfoFactory(BatchService batchService, TopologyService topologyService, DeviceLifeCycleService deviceLifeCycleService) {
+    public DeviceInfoFactory(BatchService batchService, TopologyService topologyService,
+                             DeviceLifeCycleService deviceLifeCycleService) {
         this.batchService = batchService;
         this.topologyService = topologyService;
         this.deviceLifeCycleService = deviceLifeCycleService;
+    }
+
+    public LinkInfo asLink(Device device, Relation relation, UriInfo uriInfo) {
+        return asLink(device, relation, getUriBuilder(uriInfo));
+    }
+
+    public List<LinkInfo> asLink(Collection<Device> devices, Relation relation, UriInfo uriInfo) {
+        UriBuilder uriBuilder = getUriBuilder(uriInfo);
+        return devices.stream().map(i-> asLink(i, relation, uriBuilder)).collect(toList());
+    }
+
+    private LinkInfo asLink(Device device, Relation relation, UriBuilder uriBuilder) {
+        LinkInfo info = new LinkInfo();
+        info.id = device.getId();
+        info.link = Link.fromUriBuilder(uriBuilder)
+                .rel(relation.rel())
+                .title("Device")
+                .build(device.getmRID());
+        return info;
+    }
+
+    private UriBuilder getUriBuilder(UriInfo uriInfo) {
+        return uriInfo.getBaseUriBuilder()
+                .path(DeviceResource.class)
+                .path(DeviceResource.class, "getDevice");
     }
 
     public DeviceInfo asHypermedia(Device device, UriInfo uriInfo, Collection<String> fields) {

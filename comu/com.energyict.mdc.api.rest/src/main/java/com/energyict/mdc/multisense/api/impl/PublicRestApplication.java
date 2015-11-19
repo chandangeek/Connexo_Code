@@ -241,32 +241,32 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(schedulingService).to(SchedulingService.class);
             bind(deviceMessageService).to(DeviceMessageService.class);
 
-            bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class).in(Singleton.class);
-            bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class).in(Singleton.class);
-            bind(ExceptionFactory.class).to(ExceptionFactory.class).in(Singleton.class);
-            bind(ResourceHelper.class).to(ResourceHelper.class).in(Singleton.class);
+            bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
+            bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
+            bind(ExceptionFactory.class).to(ExceptionFactory.class);
+            bind(ResourceHelper.class).to(ResourceHelper.class);
 
-            bind(DeviceInfoFactory.class).to(DeviceInfoFactory.class).in(Singleton.class);
-            bind(DeviceLifecycleActionInfoFactory.class).to(DeviceLifecycleActionInfoFactory.class).in(Singleton.class);
-            bind(DeviceTypeInfoFactory.class).to(DeviceTypeInfoFactory.class).in(Singleton.class);
-            bind(DeviceConfigurationInfoFactory.class).to(DeviceConfigurationInfoFactory.class).in(Singleton.class);
-            bind(ConnectionTaskInfoFactory.class).to(ConnectionTaskInfoFactory.class).in(Singleton.class);
-            bind(ComPortPoolInfoFactory.class).to(ComPortPoolInfoFactory.class).in(Singleton.class);
-            bind(PartialConnectionTaskInfoFactory.class).to(PartialConnectionTaskInfoFactory.class).in(Singleton.class);
-            bind(ComTaskInfoFactory.class).to(ComTaskInfoFactory.class).in(Singleton.class);
-            bind(DeviceMessageCategoryInfoFactory.class).to(DeviceMessageCategoryInfoFactory.class).in(Singleton.class);
-            bind(ProtocolTaskInfoFactory.class).to(ProtocolTaskInfoFactory.class).in(Singleton.class);
-            bind(DeviceProtocolPluggableClassInfoFactory.class).to(DeviceProtocolPluggableClassInfoFactory.class).in(Singleton.class);
-            bind(AuthenticationDeviceAccessLevelInfoFactory.class).to(AuthenticationDeviceAccessLevelInfoFactory.class).in(Singleton.class);
-            bind(EncryptionDeviceAccessLevelInfoFactory.class).to(EncryptionDeviceAccessLevelInfoFactory.class).in(Singleton.class);
-            bind(ConfigurationSecurityPropertySetInfoFactory.class).to(ConfigurationSecurityPropertySetInfoFactory.class).in(Singleton.class);
-            bind(ComTaskExecutionInfoFactory.class).to(ComTaskExecutionInfoFactory.class).in(Singleton.class);
-            bind(ComTaskEnablementInfoFactory.class).to(ComTaskEnablementInfoFactory.class).in(Singleton.class);
-            bind(ProtocolDialectConfigurationPropertiesInfoFactory.class).to(ProtocolDialectConfigurationPropertiesInfoFactory.class).in(Singleton.class);
-            bind(DeviceMessageInfoFactory.class).to(DeviceMessageInfoFactory.class).in(Singleton.class);
-            bind(ComScheduleInfoFactory.class).to(ComScheduleInfoFactory.class).in(Singleton.class);
-            bind(DeviceMessageSpecificationInfoFactory.class).to(DeviceMessageSpecificationInfoFactory.class).in(Singleton.class);
-            bind(DeviceMessageEnablementInfoFactory.class).to(DeviceMessageEnablementInfoFactory.class).in(Singleton.class);
+            bind(DeviceInfoFactory.class).to(DeviceInfoFactory.class);
+            bind(DeviceLifecycleActionInfoFactory.class).to(DeviceLifecycleActionInfoFactory.class);
+            bind(DeviceTypeInfoFactory.class).to(DeviceTypeInfoFactory.class);
+            bind(DeviceConfigurationInfoFactory.class).to(DeviceConfigurationInfoFactory.class);
+            bind(ConnectionTaskInfoFactory.class).to(ConnectionTaskInfoFactory.class);
+            bind(ComPortPoolInfoFactory.class).to(ComPortPoolInfoFactory.class);
+            bind(PartialConnectionTaskInfoFactory.class).to(PartialConnectionTaskInfoFactory.class);
+            bind(ComTaskInfoFactory.class).to(ComTaskInfoFactory.class);
+            bind(DeviceMessageCategoryInfoFactory.class).to(DeviceMessageCategoryInfoFactory.class);
+            bind(ProtocolTaskInfoFactory.class).to(ProtocolTaskInfoFactory.class);
+            bind(DeviceProtocolPluggableClassInfoFactory.class).to(DeviceProtocolPluggableClassInfoFactory.class);
+            bind(AuthenticationDeviceAccessLevelInfoFactory.class).to(AuthenticationDeviceAccessLevelInfoFactory.class);
+            bind(EncryptionDeviceAccessLevelInfoFactory.class).to(EncryptionDeviceAccessLevelInfoFactory.class);
+            bind(ConfigurationSecurityPropertySetInfoFactory.class).to(ConfigurationSecurityPropertySetInfoFactory.class);
+            bind(ComTaskExecutionInfoFactory.class).to(ComTaskExecutionInfoFactory.class);
+            bind(ComTaskEnablementInfoFactory.class).to(ComTaskEnablementInfoFactory.class);
+            bind(ProtocolDialectConfigurationPropertiesInfoFactory.class).to(ProtocolDialectConfigurationPropertiesInfoFactory.class);
+            bind(DeviceMessageInfoFactory.class).to(DeviceMessageInfoFactory.class);
+            bind(ComScheduleInfoFactory.class).to(ComScheduleInfoFactory.class);
+            bind(DeviceMessageSpecificationInfoFactory.class).to(DeviceMessageSpecificationInfoFactory.class);
+            bind(DeviceMessageEnablementInfoFactory.class).to(DeviceMessageEnablementInfoFactory.class);
         }
     }
 

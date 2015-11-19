@@ -104,6 +104,7 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         when(manuallyScheduledComTaskExecution.usesSharedSchedule()).thenReturn(false);
         ScheduledConnectionTask scheduledConnectionTask = mockScheduledConnectionTask(24, "Scheduled task");
         when(manuallyScheduledComTaskExecution.getConnectionTask()).thenReturn(Optional.of(scheduledConnectionTask));
+        when(scheduledConnectionTask.getDevice()).thenReturn(device);
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(manuallyScheduledComTaskExecution));
 
         Response response = target("/devices/SPE001/comtaskexecutions/102").request().get();
@@ -144,6 +145,7 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         when(comTaskExecution.isScheduledManually()).thenReturn(true);
         when(comTaskExecution.usesSharedSchedule()).thenReturn(false);
         ScheduledConnectionTask scheduledConnectionTask = mockScheduledConnectionTask(24, "Scheduled task");
+        when(scheduledConnectionTask.getDevice()).thenReturn(device);
         when(comTaskExecution.getConnectionTask()).thenReturn(Optional.of(scheduledConnectionTask));
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
 
@@ -190,6 +192,7 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         when(comTaskExecution.usesSharedSchedule()).thenReturn(true);
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
         ScheduledConnectionTask scheduledConnectionTask = mockScheduledConnectionTask(25, "Scheduled task");
+        when(scheduledConnectionTask.getDevice()).thenReturn(device);
         when(comTaskExecution.getConnectionTask()).thenReturn(Optional.of(scheduledConnectionTask));
 
         Response response = target("/devices/SPE001/comtaskexecutions/102").request().get();

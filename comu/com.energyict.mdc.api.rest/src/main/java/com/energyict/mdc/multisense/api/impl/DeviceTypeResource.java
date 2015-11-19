@@ -47,7 +47,7 @@ public class DeviceTypeResource {
     @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Path("/{deviceTypeId}")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
-    public DeviceTypeInfo getHypermediaDeviceType(@PathParam("deviceTypeId") long id, @BeanParam FieldSelection fields, @Context UriInfo uriInfo) {
+    public DeviceTypeInfo getDeviceType(@PathParam("deviceTypeId") long id, @BeanParam FieldSelection fields, @Context UriInfo uriInfo) {
         return deviceConfigurationService.findDeviceType(id)
                 .map(d -> deviceTypeInfoFactory.from(d, uriInfo, fields.getFields()))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_TYPE));

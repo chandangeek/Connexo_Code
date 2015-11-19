@@ -28,6 +28,7 @@ public class ComTaskEnablementResourceTest extends MultisensePublicApiJerseyTest
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType);
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getId()).thenReturn(24L);
+        when(securityPropertySet.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
         ComTask comTask = mockComTask(23, "Com task");
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
@@ -39,6 +40,7 @@ public class ComTaskEnablementResourceTest extends MultisensePublicApiJerseyTest
         when(comTaskEnablement.getSecurityPropertySet()).thenReturn(securityPropertySet);
         ProtocolDialectConfigurationProperties properties = mock(ProtocolDialectConfigurationProperties.class);
         when(properties.getId()).thenReturn(24L);
+        when(properties.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(properties);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
         Response response = target("/devicetypes/21/deviceconfigurations/22/comtaskenablements").queryParam("start",0).queryParam("limit",10).request().get();
@@ -82,6 +84,7 @@ public class ComTaskEnablementResourceTest extends MultisensePublicApiJerseyTest
         DeviceType deviceType = mockDeviceType(21, "Some type");
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType);
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
+        when(securityPropertySet.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         ProtocolDialectConfigurationProperties properties = mock(ProtocolDialectConfigurationProperties.class);
         when(properties.getId()).thenReturn(25L);
         when(securityPropertySet.getId()).thenReturn(24L);
@@ -100,6 +103,7 @@ public class ComTaskEnablementResourceTest extends MultisensePublicApiJerseyTest
         when(comTaskEnablement.isSuspended()).thenReturn(true);
         when(comTaskEnablement.getProtocolDialectConfigurationProperties()).thenReturn(properties);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
+        when(properties.getDeviceConfiguration()).thenReturn(deviceConfiguration);
 
         Response response = target("devicetypes/21/deviceconfigurations/22/comtaskenablements/102").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());

@@ -5,6 +5,7 @@ import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageCategory;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -20,8 +21,11 @@ import static java.util.stream.Collectors.toList;
  */
 public class DeviceMessageCategoryInfoFactory extends SelectableFieldFactory<DeviceMessageCategoryInfo, DeviceMessageCategory> {
 
+    private final Provider<DeviceMessageSpecificationInfoFactory> deviceMessageSpecificationInfoFactoryProvider;
+
     @Inject
-    public DeviceMessageCategoryInfoFactory() {
+    public DeviceMessageCategoryInfoFactory(Provider<DeviceMessageSpecificationInfoFactory> deviceMessageSpecificationInfoFactoryProvider) {
+        this.deviceMessageSpecificationInfoFactoryProvider = deviceMessageSpecificationInfoFactoryProvider;
     }
 
     public LinkInfo asLink(DeviceMessageCategory deviceMessageCategory, Relation relation, UriInfo uriInfo) {
@@ -63,32 +67,9 @@ public class DeviceMessageCategoryInfoFactory extends SelectableFieldFactory<Dev
         map.put("name", (deviceMessageCategoryInfo, deviceMessageCategory, uriInfo) -> deviceMessageCategoryInfo.name = deviceMessageCategory.getName());
         map.put("description", (deviceMessageCategoryInfo, deviceMessageCategory, uriInfo) -> deviceMessageCategoryInfo.description = deviceMessageCategory.getDescription());
         map.put("link", ((deviceMessageCategoryInfo, deviceMessageCategory, uriInfo) ->
-            deviceMessageCategoryInfo.link = Link.fromUriBuilder(uriInfo.
-                    getBaseUriBuilder().
-                    path(DeviceMessageCategoryResource.class).
-                    path(DeviceMessageCategoryResource.class, "getDeviceMessageCategory")).
-                    rel(Relation.REF_SELF.rel()).
-                    title("Device message category").
-                    build(deviceMessageCategory.getId())
-        ));
-        map.put("deviceMessageSpecs", ((deviceMessageCategoryInfo, deviceMessageCategory, uriInfo) -> {
-            UriBuilder uriBuilder = uriInfo.getBaseUriBuilder()
-                    .path(DeviceMessageSpecificationResource.class)
-                    .path(DeviceMessageSpecificationResource.class, "getDeviceMessageSpecification")
-                    .resolveTemplate("categoryId", deviceMessageCategory.getId());
-            deviceMessageCategoryInfo.deviceMessageSpecs = deviceMessageCategory
-                    .getMessageSpecifications().stream()
-                    .map(spec -> {
-                        LinkInfo linkInfo = new LinkInfo();
-                        linkInfo.id = spec.getId().dbValue();
-                        linkInfo.link = Link.fromUriBuilder(uriBuilder)
-                                .rel(Relation.REF_RELATION.rel())
-                                .title("Device message specification")
-                                .build(spec.getId().dbValue());
-                        return linkInfo;
-                    })
-                    .collect(toList());
-        }));
+            deviceMessageCategoryInfo.link = asLink(deviceMessageCategory, Relation.REF_SELF, uriInfo).link));
+        map.put("deviceMessageSpecs", ((deviceMessageCategoryInfo, deviceMessageCategory, uriInfo) ->
+            deviceMessageCategoryInfo.deviceMessageSpecs = deviceMessageSpecificationInfoFactoryProvider.get().asLink(deviceMessageCategory.getMessageSpecifications(), Relation.REF_RELATION, uriInfo)));
         return map;
     }
 }

@@ -11,6 +11,7 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -27,10 +28,12 @@ import static java.util.stream.Collectors.toList;
 public class PartialConnectionTaskInfoFactory extends SelectableFieldFactory<PartialConnectionTaskInfo, PartialConnectionTask> {
 
     private final MdcPropertyUtils mdcPropertyUtils;
+    private final Provider<ComPortPoolInfoFactory> comPortPoolInfoFactoryProvider;
 
     @Inject
-    public PartialConnectionTaskInfoFactory(MdcPropertyUtils mdcPropertyUtils) {
+    public PartialConnectionTaskInfoFactory(MdcPropertyUtils mdcPropertyUtils, Provider<ComPortPoolInfoFactory> comPortPoolInfoFactory) {
         this.mdcPropertyUtils = mdcPropertyUtils;
+        this.comPortPoolInfoFactoryProvider = comPortPoolInfoFactory;
     }
 
     public LinkInfo asLink(PartialConnectionTask partialConnectionTask, Relation relation, UriInfo uriInfo) {
@@ -72,21 +75,10 @@ public class PartialConnectionTaskInfoFactory extends SelectableFieldFactory<Par
         map.put("id",(partialConnectionTaskInfo, partialConnectionTask, uriInfo) -> partialConnectionTaskInfo.id = partialConnectionTask.getId());
         map.put("name",(partialConnectionTaskInfo, partialConnectionTask, uriInfo) -> partialConnectionTaskInfo.name = partialConnectionTask.getName());
         map.put("direction",(partialConnectionTaskInfo, partialConnectionTask, uriInfo) -> partialConnectionTaskInfo.direction = ConnectionTaskType.from(partialConnectionTask));
-        map.put("link",(partialConnectionTaskInfo, partialConnectionTask, uriInfo) -> {
-            UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().
-                    path(PartialConnectionTaskResource.class).
-                    path(PartialConnectionTaskResource.class, "getPartialConnectionTask");
-            partialConnectionTaskInfo.link = Link.fromUriBuilder(uriBuilder).rel(Relation.REF_SELF.rel()).build(partialConnectionTask.getConfiguration().getDeviceType().getId(), partialConnectionTask.getConfiguration().getId(), partialConnectionTask.getId());
-        });
+        map.put("link",(partialConnectionTaskInfo, partialConnectionTask, uriInfo) -> partialConnectionTaskInfo.link = asLink(partialConnectionTask, Relation.REF_SELF, uriInfo).link);
         map.put("connectionType", (partialConnectionTaskInfo, partialConnectionTask, uriInfo) -> partialConnectionTaskInfo.connectionType = partialConnectionTask.getPluggableClass().getName());
-        map.put("comPortPool", (partialConnectionTaskInfo, partialConnectionTask, uriInfo) -> {
-            partialConnectionTaskInfo.comPortPool = new LinkInfo();
-            partialConnectionTaskInfo.comPortPool.id = partialConnectionTask.getComPortPool().getId();
-            UriBuilder uriBuilder = uriInfo.getBaseUriBuilder().
-                    path(ComPortPoolResource.class).
-                    path(ComPortPoolResource.class, "getComPortPool");
-            partialConnectionTaskInfo.comPortPool.link = Link.fromUriBuilder(uriBuilder).rel(Relation.REF_RELATION.rel()).build(partialConnectionTaskInfo.comPortPool.id);
-        });
+        map.put("comPortPool", (partialConnectionTaskInfo, partialConnectionTask, uriInfo) ->
+                partialConnectionTaskInfo.comPortPool = comPortPoolInfoFactoryProvider.get().asLink(partialConnectionTask.getComPortPool(), Relation.REF_RELATION, uriInfo));
         map.put("isDefault", (partialConnectionTaskInfo, partialConnectionTask, uriInfo)-> partialConnectionTaskInfo.isDefault = partialConnectionTask.isDefault());
         map.put("properties", (partialConnectionTaskInfo, partialConnectionTask, uriInfo)-> partialConnectionTaskInfo.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(partialConnectionTask.getConnectionType().getPropertySpecs(), partialConnectionTask.getTypedProperties()));
         map.put("comWindow", (partialConnectionTaskInfo, partialConnectionTask, uriInfo) -> {

@@ -6,6 +6,7 @@ import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
 import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -19,12 +20,12 @@ import static java.util.stream.Collectors.toList;
 public class ComScheduleInfoFactory extends SelectableFieldFactory<ComScheduleInfo, ComSchedule> {
 
     private final DeviceService deviceService;
-    private final ComTaskInfoFactory comTaskInfoFactory;
+    private final Provider<ComTaskInfoFactory> comTaskInfoFactoryProvider;
 
     @Inject
-    public ComScheduleInfoFactory(DeviceService deviceService, ComTaskInfoFactory comTaskInfoFactory) {
+    public ComScheduleInfoFactory(DeviceService deviceService, Provider<ComTaskInfoFactory> comTaskInfoFactoryProvider) {
         this.deviceService = deviceService;
-        this.comTaskInfoFactory = comTaskInfoFactory;
+        this.comTaskInfoFactoryProvider = comTaskInfoFactoryProvider;
     }
 
     public LinkInfo asLink(ComSchedule comSchedule, Relation relation, UriInfo uriInfo) {
@@ -61,7 +62,7 @@ public class ComScheduleInfoFactory extends SelectableFieldFactory<ComScheduleIn
         map.put("temporalExpression", (comScheduleInfo, comSchedule, uriInfo) -> comScheduleInfo.temporalExpression = comSchedule.getTemporalExpression());
         map.put("plannedDate", (comScheduleInfo, comSchedule, uriInfo) -> comScheduleInfo.plannedDate = comSchedule.getPlannedDate().orElse(null));
         map.put("isInUse", (comScheduleInfo, comSchedule, uriInfo) -> comScheduleInfo.isInUse = deviceService.isLinkedToDevices(comSchedule));
-        map.put("comTasks", ((comScheduleInfo, comSchedule, uriInfo) -> comTaskInfoFactory.asLink(comSchedule.getComTasks(), Relation.REF_RELATION, uriInfo)));
+        map.put("comTasks", ((comScheduleInfo, comSchedule, uriInfo) -> comTaskInfoFactoryProvider.get().asLink(comSchedule.getComTasks(), Relation.REF_RELATION, uriInfo)));
         map.put("startDate", (comScheduleInfo, comSchedule, uriInfo) -> comScheduleInfo.startDate = comSchedule.getStartDate());
         map.put("mRID", (comScheduleInfo, comSchedule, uriInfo) -> comScheduleInfo.mRID = comSchedule.getmRID().orElse(null));
         return map;

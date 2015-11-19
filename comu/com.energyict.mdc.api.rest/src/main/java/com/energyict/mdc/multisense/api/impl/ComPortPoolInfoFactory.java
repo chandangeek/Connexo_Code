@@ -34,7 +34,7 @@ public class ComPortPoolInfoFactory extends SelectableFieldFactory<ComPortPoolIn
         info.id = comPortPool.getId();
         info.link = Link.fromUriBuilder(uriBuilder)
                 .rel(relation.rel())
-                .title("yyy")
+                .title("Communication port pool")
                 .build(comPortPool.getId());
         return info;
     }
@@ -55,15 +55,7 @@ public class ComPortPoolInfoFactory extends SelectableFieldFactory<ComPortPoolIn
     protected Map<String, PropertyCopier<ComPortPoolInfo, ComPortPool>> buildFieldMap() {
         Map<String, PropertyCopier<ComPortPoolInfo,ComPortPool>> map = new HashMap<>();
         map.put("id", ((comPortPoolInfo, comPortPool, uriInfo) -> comPortPoolInfo.id = comPortPool.getId()));
-        map.put("link", ((comPortPoolInfo, comPortPool, uriInfo) ->
-            comPortPoolInfo.link = Link.fromUriBuilder(uriInfo.
-                    getBaseUriBuilder().
-                    path(ComPortPoolResource.class).
-                    path(ComPortPoolResource.class, "getComPortPool")).
-                    rel(Relation.REF_SELF.rel()).
-                    title("com port pool").
-                    build(comPortPool.getId())
-        ));
+        map.put("link", ((comPortPoolInfo, comPortPool, uriInfo) -> comPortPoolInfo.link = this.asLink(comPortPool, Relation.REF_SELF, uriInfo).link));
         map.put("name", ((comPortPoolInfo, comPortPool, uriInfo) -> comPortPoolInfo.name = comPortPool.getName()));
         map.put("active", ((comPortPoolInfo, comPortPool, uriInfo) -> comPortPoolInfo.active = comPortPool.isActive()));
         map.put("description", ((comPortPoolInfo, comPortPool, uriInfo) -> comPortPoolInfo.description = comPortPool.getDescription()));

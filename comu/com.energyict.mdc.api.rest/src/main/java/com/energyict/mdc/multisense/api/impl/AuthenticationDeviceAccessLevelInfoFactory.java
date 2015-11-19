@@ -28,22 +28,22 @@ public class AuthenticationDeviceAccessLevelInfoFactory extends SelectableFieldF
         this.mdcPropertyUtils = mdcPropertyUtils;
     }
 
-    public LinkInfo asLink(Pair<DeviceProtocolPluggableClass, DeviceAccessLevel> pair, Relation relation, UriInfo uriInfo) {
-        return asLink(pair, relation, getUriBuilder(uriInfo));
+    public LinkInfo asLink(DeviceProtocolPluggableClass protocolPluggableClass, DeviceAccessLevel deviceAccessLevel, Relation relation, UriInfo uriInfo) {
+        return asLink(protocolPluggableClass, deviceAccessLevel, relation, getUriBuilder(uriInfo));
     }
 
     public List<LinkInfo> asLink(Collection<Pair<DeviceProtocolPluggableClass, DeviceAccessLevel>> pairs, Relation relation, UriInfo uriInfo) {
         UriBuilder uriBuilder = getUriBuilder(uriInfo);
-        return pairs.stream().map(ct-> asLink(ct, relation, uriBuilder)).collect(toList());
+        return pairs.stream().map(ct-> asLink(ct.getFirst(), ct.getLast(), relation, uriBuilder)).collect(toList());
     }
 
-    private LinkInfo asLink(Pair<DeviceProtocolPluggableClass, DeviceAccessLevel> pair, Relation relation, UriBuilder uriBuilder) {
+    private LinkInfo asLink(DeviceProtocolPluggableClass protocolPluggableClass, DeviceAccessLevel deviceAccessLevel, Relation relation, UriBuilder uriBuilder) {
         LinkInfo info = new LinkInfo();
-        info.id = (long)pair.getLast().getId();
+        info.id = (long)deviceAccessLevel.getId();
         info.link = Link.fromUriBuilder(uriBuilder)
                 .rel(relation.rel())
                 .title("Authentication access level").
-                build(pair.getFirst().getId(), pair.getLast().getId());
+                build(protocolPluggableClass.getId(), deviceAccessLevel.getId());
         return info;
     }
 
@@ -60,7 +60,7 @@ public class AuthenticationDeviceAccessLevelInfoFactory extends SelectableFieldF
         map.put("id", (deviceAccessLevelInfo, pair, uriInfo) -> deviceAccessLevelInfo.id = (long) pair.getLast().getId());
         map.put("name", (deviceAccessLevelInfo, pair, uriInfo) -> deviceAccessLevelInfo.name = pair.getLast().getTranslation());
         map.put("properties", (deviceAccessLevelInfo, pair, uriInfo) -> deviceAccessLevelInfo.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(pair.getLast().getSecurityProperties(), TypedProperties.empty()));
-        map.put("link", ((deviceAccessLevelInfo, pair, uriInfo) -> deviceAccessLevelInfo.link = this.asLink(pair, Relation.REF_SELF, uriInfo).link));
+        map.put("link", ((deviceAccessLevelInfo, pair, uriInfo) -> deviceAccessLevelInfo.link = this.asLink(pair.getFirst(), pair.getLast(), Relation.REF_SELF, uriInfo).link));
         return map;
     }
     

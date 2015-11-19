@@ -59,6 +59,7 @@ public class ProtocolTaskInfoFactory extends SelectableFieldFactory<ProtocolTask
         map.put("id", (protocolTaskInfo, protocolTask, uriInfo) -> protocolTaskInfo.id = protocolTask.getId());
         map.put("category", (protocolTaskInfo, protocolTask, uriInfo) -> getProtocolTaskCategory(protocolTask).ifPresent(task->protocolTaskInfo.category=task.getId()));
         map.put("action", (protocolTaskInfo, protocolTask, uriInfo) -> protocolTaskInfo.action = getAction(protocolTask));
+        map.put("link", ((protocolTaskInfo, protocolTask, uriInfo) -> protocolTaskInfo.link = asLink(protocolTask, Relation.REF_SELF, uriInfo).link));
         return map;
     }
 

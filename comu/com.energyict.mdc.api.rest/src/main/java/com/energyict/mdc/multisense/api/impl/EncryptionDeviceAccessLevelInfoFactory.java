@@ -23,29 +23,29 @@ public class EncryptionDeviceAccessLevelInfoFactory extends SelectableFieldFacto
 
     private final MdcPropertyUtils mdcPropertyUtils;
 
-    public LinkInfo asLink(Pair<DeviceProtocolPluggableClass, DeviceAccessLevel> pair, Relation relation, UriInfo uriInfo) {
-        return asLink(pair, relation, getUriBuilder(uriInfo));
+    public LinkInfo asLink(DeviceProtocolPluggableClass protocolPluggableClass, DeviceAccessLevel deviceAccessLevel, Relation relation, UriInfo uriInfo) {
+        return asLink(protocolPluggableClass, deviceAccessLevel, relation, getUriBuilder(uriInfo));
     }
 
     public List<LinkInfo> asLink(Collection<Pair<DeviceProtocolPluggableClass, DeviceAccessLevel>> pairs, Relation relation, UriInfo uriInfo) {
         UriBuilder uriBuilder = getUriBuilder(uriInfo);
-        return pairs.stream().map(i-> asLink(i, relation, uriBuilder)).collect(toList());
+        return pairs.stream().map(i-> asLink(i.getFirst(), i.getLast(), relation, uriBuilder)).collect(toList());
     }
 
-    private LinkInfo asLink(Pair<DeviceProtocolPluggableClass, DeviceAccessLevel> pair, Relation relation, UriBuilder uriBuilder) {
+    private LinkInfo asLink(DeviceProtocolPluggableClass protocolPluggableClass, DeviceAccessLevel deviceAccessLevel, Relation relation, UriBuilder uriBuilder) {
         LinkInfo info = new LinkInfo();
-        info.id = (long)pair.getLast().getId();
+        info.id = (long)deviceAccessLevel.getId();
         info.link = Link.fromUriBuilder(uriBuilder)
                 .rel(relation.rel())
                 .title("Encryption access level").
-                build(pair.getFirst().getId(),pair.getLast().getId());
+                build(protocolPluggableClass.getId(),deviceAccessLevel.getId());
         return info;
     }
 
     private UriBuilder getUriBuilder(UriInfo uriInfo) {
         return uriInfo.getBaseUriBuilder()
-                .path(DeviceTypeResource.class)
-                .path(DeviceTypeResource.class, "getDeviceType");
+                .path(EncryptionDeviceAccessLevelResource.class)
+                .path(EncryptionDeviceAccessLevelResource.class, "getEncryptionDeviceAccessLevel");
     }
 
 
@@ -67,14 +67,7 @@ public class EncryptionDeviceAccessLevelInfoFactory extends SelectableFieldFacto
         map.put("name", (deviceAccessLevelInfo, pair, uriInfo) -> deviceAccessLevelInfo.name = pair.getLast().getTranslation());
         map.put("properties", (deviceAccessLevelInfo, pair, uriInfo) -> deviceAccessLevelInfo.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(pair.getLast().getSecurityProperties(), TypedProperties.empty()));
         map.put("link", ((deviceAccessLevelInfo, deviceAccessLevel, uriInfo) ->
-            deviceAccessLevelInfo.link = Link.fromUriBuilder(uriInfo.
-                    getBaseUriBuilder().
-                    path(EncryptionDeviceAccessLevelResource.class).
-                    path(EncryptionDeviceAccessLevelResource.class, "getEncryptionDeviceAccessLevel")).
-                    rel(Relation.REF_SELF.rel()).
-                    title("Encryption access level").
-                    build(deviceAccessLevel.getFirst().getId(),deviceAccessLevel.getLast().getId())
-        ));
+            deviceAccessLevelInfo.link = asLink(deviceAccessLevel.getFirst(), deviceAccessLevel.getLast(), Relation.REF_SELF, uriInfo).link));
 
         return map;
     }

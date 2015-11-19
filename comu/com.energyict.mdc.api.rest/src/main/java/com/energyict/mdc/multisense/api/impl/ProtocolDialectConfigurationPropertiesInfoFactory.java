@@ -40,7 +40,7 @@ public class ProtocolDialectConfigurationPropertiesInfoFactory extends Selectabl
     private UriBuilder getUriBuilder(UriInfo uriInfo) {
         return uriInfo.getBaseUriBuilder()
                 .path(ProtocolDialectConfigurationPropertiesResource.class)
-                .path(ProtocolDialectConfigurationPropertiesResource.class, "getProtocolDialectConfigurationProperties");
+                .path(ProtocolDialectConfigurationPropertiesResource.class, "getProtocolDialectConfigurationProperty");
     }
 
     public ProtocolDialectConfigurationPropertiesInfo from(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, UriInfo uriInfo, Collection<String> fields) {
@@ -54,19 +54,8 @@ public class ProtocolDialectConfigurationPropertiesInfoFactory extends Selectabl
         Map<String, PropertyCopier<ProtocolDialectConfigurationPropertiesInfo, ProtocolDialectConfigurationProperties>> map = new HashMap<>();
         map.put("id", (protocolDialectConfigurationPropertiesInfo, protocolDialectConfigurationProperties, uriInfo) -> protocolDialectConfigurationPropertiesInfo.id = protocolDialectConfigurationProperties.getId());
         map.put("name", (protocolDialectConfigurationPropertiesInfo, protocolDialectConfigurationProperties, uriInfo) -> protocolDialectConfigurationPropertiesInfo.name = protocolDialectConfigurationProperties.getName());
-        map.put("link", ((protocolDialectConfigurationPropertiesInfo, protocolDialectConfigurationProperties, uriInfo) -> {
-            UriBuilder uriBuilder = uriInfo
-                    .getBaseUriBuilder()
-                    .path(ProtocolDialectConfigurationPropertiesResource.class)
-                    .path(ProtocolDialectConfigurationPropertiesResource.class, "getProtocolDialectConfigurationProperty")
-                    .resolveTemplate("deviceTypeId", protocolDialectConfigurationProperties.getDeviceConfiguration().getDeviceType().getId())
-                    .resolveTemplate("deviceConfigId", protocolDialectConfigurationProperties.getDeviceConfiguration().getId());
-            protocolDialectConfigurationPropertiesInfo.link = Link.fromUriBuilder(uriBuilder).
-                    rel(Relation.REF_SELF.rel()).
-                    title("Protocol dialect configuration properties").
-                    build(protocolDialectConfigurationProperties.getId());
-        }));
-
+        map.put("link", ((protocolDialectConfigurationPropertiesInfo, protocolDialectConfigurationProperties, uriInfo) ->
+                protocolDialectConfigurationPropertiesInfo.link = asLink(protocolDialectConfigurationProperties, Relation.REF_SELF, uriInfo).link));
         return map;
     }
 }

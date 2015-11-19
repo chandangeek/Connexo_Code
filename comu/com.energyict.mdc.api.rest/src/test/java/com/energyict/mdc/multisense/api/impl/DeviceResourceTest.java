@@ -146,7 +146,8 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         ExecutableAction executableAction2 = mockExecutableAction(2L, "action.name.2", MicroAction.ENABLE_VALIDATION, stringPropertySpec);
         when(deviceLifeCycleService.getExecutableActions(deviceXas)).thenReturn(Arrays.asList(executableAction1, executableAction2));
         LifeCycleActionInfo info = new LifeCycleActionInfo();
-        info.deviceVersion = 333L;
+        info.device = new LinkInfo();
+        info.device.version = 333L;
         info.name = "action.name.1";
         info.properties = new ArrayList<>();
         PropertyInfo propertyInfo = new PropertyInfo();
@@ -179,7 +180,8 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         ExecutableAction executableAction2 = mockExecutableAction(2L, "action.name.2", MicroAction.ENABLE_VALIDATION, stringPropertySpec);
         when(deviceLifeCycleService.getExecutableActions(deviceXas)).thenReturn(Arrays.asList(executableAction1, executableAction2));
         LifeCycleActionInfo info = new LifeCycleActionInfo();
-        info.deviceVersion = 333L;
+        info.device = new LinkInfo();
+        info.device.version = 333L;
         info.name = "action.name.1";
         info.properties = new ArrayList<>();
         info.effectiveTimestamp = now;
@@ -254,7 +256,8 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         ExecutableAction executableAction1 = mockExecutableAction(1L, "action.name.1", MicroAction.ENABLE_ESTIMATION, datePropertySpec);
         when(deviceLifeCycleService.getExecutableActions(deviceXas)).thenReturn(Collections.singletonList(executableAction1));
         LifeCycleActionInfo info = new LifeCycleActionInfo();
-        info.deviceVersion = 333L;
+        info.device = new LinkInfo();
+        info.device.version = 333L;
         info.name = "action.name.1";
         info.properties = new ArrayList<>();
         PropertyInfo propertyInfo = new PropertyInfo();
