@@ -1,4 +1,4 @@
 -classpath: target/classes
 -dsannotations: *
 Private-Package: com.elster.jupiter.subsystem.mdc.impl
-Embed-Dependency:*;type=pom
+Embed-Dependency: groupId=com.energyict;artifactId=mdc.bom;type=pom
