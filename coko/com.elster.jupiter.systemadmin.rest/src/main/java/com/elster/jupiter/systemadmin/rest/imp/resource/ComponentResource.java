@@ -51,7 +51,7 @@ public class ComponentResource {
             stream = stream.filter(filterByBundleStatus.get());
         }
         List<ComponentInfo> components = stream.map(componentInfoFactory::asInfo).sorted(this::comparator).collect(Collectors.toList());
-        return PagedInfoList.fromPagedList("components", components, queryParams);
+        return PagedInfoList.fromCompleteList("components", components, queryParams);
     }
 
     private Optional<Predicate<RuntimeComponent>> buildFilterByApplication(JsonQueryFilter filter) {

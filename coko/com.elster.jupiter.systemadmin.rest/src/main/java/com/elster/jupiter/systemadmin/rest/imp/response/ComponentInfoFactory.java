@@ -18,7 +18,7 @@ public class ComponentInfoFactory {
 
     public ComponentInfo asInfo(RuntimeComponent runtimeComponent) {
         ComponentInfo info = new ComponentInfo();
-        info.id = runtimeComponent.getId();
+        info.bundleId = runtimeComponent.getId();
         info.application = runtimeComponent.getSubsystem().getName();
         info.name = runtimeComponent.getName();
         info.status = thesaurus.getFormat(ComponentStatusTranslationKeys.getTranslatedName(runtimeComponent.getStatus())).format();
