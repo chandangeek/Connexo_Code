@@ -2,6 +2,6 @@
 -dsannotations: *
 Private-Package: com.elster.jupiter.subsystem.kore.impl
 Embed-Dependency: \
-    groupId=com.elster.jupiter|com.elster.jupiter.subsystem;\
-    artifactId=kore.bom|platform.bom|platform;\
-    type=pom
+    groupId=com.elster.jupiter;artifactId=kore.bom;type=pom,\
+    groupId=com.elster.jupiter;artifactId=platform.bom;type=pom,\
+    groupId=com.elster.jupiter.subsystem;artifactId=platform;type=pom
