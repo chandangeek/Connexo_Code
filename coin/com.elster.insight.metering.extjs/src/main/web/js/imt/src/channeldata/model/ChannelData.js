@@ -4,6 +4,7 @@ Ext.define('Imt.channeldata.model.ChannelData', {
     fields: [
         {name: 'value', type: 'auto'},
         {name: 'interval', type: 'auto'},
+        'mainValidationInfo',
         {
             name: 'interval_start',
             persist: false,
@@ -17,7 +18,6 @@ Ext.define('Imt.channeldata.model.ChannelData', {
             mapping: 'interval.end',
             dateFormat: 'time',
             type: 'date'
-        },
-        'validationResult'
+        }
     ]
 });

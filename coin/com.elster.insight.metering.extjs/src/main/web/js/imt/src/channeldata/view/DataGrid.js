@@ -83,7 +83,7 @@ Ext.define('Imt.channeldata.view.DataGrid', {
     },
     formatColumn: function (v, metaData, record) {
         var cls = 'icon-validation-cell',
-            status = record.get('validationResult');
+            status = record.get('mainValidationInfo').validationResult;
 
         if (status == 'validationStatus.notValidated') {
             cls += ' icon-validation-black';

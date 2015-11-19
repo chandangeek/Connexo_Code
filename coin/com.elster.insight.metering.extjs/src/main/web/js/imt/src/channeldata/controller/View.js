@@ -196,7 +196,7 @@ Ext.define('Imt.channeldata.controller.View', {
         store.each(function (record) {
             var point = {},
                 interval = record.get('interval'),
-                valRes = record.get('validationResult');
+                valRes = record.get('mainValidationInfo').validationResult;
 
             point.x = interval.start;
             point.id = point.x;
