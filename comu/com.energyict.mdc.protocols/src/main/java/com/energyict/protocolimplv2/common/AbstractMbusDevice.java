@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.common;
 
-import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
@@ -13,7 +15,14 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
-import com.energyict.mdc.protocol.api.device.data.*;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
+import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.protocol.api.device.data.CollectedLogBook;
+import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
+import com.energyict.mdc.protocol.api.device.data.CollectedRegister;
+import com.energyict.mdc.protocol.api.device.data.CollectedTopology;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
@@ -22,12 +31,11 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+import com.energyict.protocols.exception.UnsupportedMethodException;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccessLevel;
 import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
-import com.energyict.protocols.exception.UnsupportedMethodException;
 
 import javax.inject.Provider;
 import java.util.ArrayList;
@@ -35,6 +43,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -121,13 +130,8 @@ public abstract class AbstractMbusDevice implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        return getMeterProtocol().getSecurityPropertySpecs();
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return getMeterProtocol().getSecurityRelationTypeName();
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+        return this.getMeterProtocol().getCustomPropertySet();
     }
 
     /**
@@ -152,11 +156,6 @@ public abstract class AbstractMbusDevice implements DeviceProtocol {
         encryptionAccessLevels.addAll(getMeterProtocol().getEncryptionAccessLevels());
         encryptionAccessLevels.add(inheritedEncryptionDeviceAccessLevelProvider.get());
         return encryptionAccessLevels;
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        return getMeterProtocol().getSecurityPropertySpec(name);
     }
 
     @Override
@@ -260,4 +259,5 @@ public abstract class AbstractMbusDevice implements DeviceProtocol {
     public CollectedFirmwareVersion getFirmwareVersions() {
         throw new UnsupportedMethodException(this.getClass(), "getFirmwareVersions");
     }
+
 }

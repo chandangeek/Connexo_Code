@@ -1,10 +1,10 @@
 package com.energyict.protocolimplv2.security;
 
-import com.energyict.mdc.dynamic.EncryptedStringFactory;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.BooleanFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.StringFactory;
+import com.energyict.mdc.dynamic.EncryptedStringFactory;
 import com.energyict.mdc.dynamic.PasswordFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
@@ -29,6 +29,11 @@ public enum DeviceSecurityProperty {
                     markRequired().
                     finish();
         }
+
+        @Override
+        public String javaName() {
+            return SecurityPropertySpecName.PASSWORD.toString();
+        }
     },
     /**
      * A key used for encryption of bytes
@@ -41,6 +46,11 @@ public enum DeviceSecurityProperty {
                     name(SecurityPropertySpecName.ENCRYPTION_KEY.toString()).
                     markRequired().
                     finish();
+        }
+
+        @Override
+        public String javaName() {
+            return SecurityPropertySpecName.ENCRYPTION_KEY.toString();
         }
     },
     /**
@@ -55,6 +65,11 @@ public enum DeviceSecurityProperty {
                     markRequired().
                     finish();
         }
+
+        @Override
+        public String javaName() {
+            return SecurityPropertySpecName.AUTHENTICATION_KEY.toString();
+        }
     },
     /**
      * A DLMS clientMacAddress
@@ -67,6 +82,11 @@ public enum DeviceSecurityProperty {
                     name(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString()).
                     markRequired().
                     finish();
+        }
+
+        @Override
+        public String javaName() {
+            return SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString();
         }
     },
     /**
@@ -81,6 +101,11 @@ public enum DeviceSecurityProperty {
                     markRequired().
                     finish();
         }
+
+        @Override
+        public String javaName() {
+            return SecurityPropertySpecName.DEVICE_ACCESS_IDENTIFIER.toString();
+        }
     },
     /**
      * A username for ANSI C12 protocols
@@ -93,6 +118,11 @@ public enum DeviceSecurityProperty {
                     name(SecurityPropertySpecName.ANSI_C12_USER.toString()).
                     markRequired().
                     finish();
+        }
+
+        @Override
+        public String javaName() {
+            return SecurityPropertySpecName.PASSWORD.toString();
         }
     },
     /**
@@ -107,6 +137,11 @@ public enum DeviceSecurityProperty {
                     markRequired().
                     finish();
         }
+
+        @Override
+        public String javaName() {
+            return SecurityPropertySpecName.ANSI_C12_USER_ID.toString();
+        }
     },
     /**
      * Indication for ansi protocols to use a binary password
@@ -119,6 +154,11 @@ public enum DeviceSecurityProperty {
                     name(SecurityPropertySpecName.BINARY_PASSWORD.toString()).
                     markRequired().
                     finish();
+        }
+
+        @Override
+        public String javaName() {
+            return SecurityPropertySpecName.BINARY_PASSWORD.toString();
         }
     },
     /**
@@ -133,6 +173,11 @@ public enum DeviceSecurityProperty {
                     markRequired().
                     finish();
         }
+
+        @Override
+        public String javaName() {
+            return SecurityPropertySpecName.ANSI_CALLED_AP_TITLE.toString();
+        }
     },
 
     /**
@@ -145,6 +190,11 @@ public enum DeviceSecurityProperty {
                     newPropertySpecBuilder(EncryptedStringFactory.class).
                     name(SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER.toString()).finish();
         }
+
+        @Override
+        public String javaName() {
+            return SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER.toString();
+        }
     },
 
     /**
@@ -156,6 +206,11 @@ public enum DeviceSecurityProperty {
             return propertySpecService.
                     newPropertySpecBuilder(EncryptedStringFactory.class).
                     name(SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER.toString()).finish();
+        }
+
+        @Override
+        public String javaName() {
+            return SecurityPropertySpecName.ENCRYPTION_KEY_CUSTOMER.toString();
         }
     }
     ;
@@ -173,5 +228,11 @@ public enum DeviceSecurityProperty {
      * @return the PropertySpec for this Enum value
      */
     protected abstract PropertySpec doGetPropertySpec(PropertySpecService propertySpecService);
+
+    public abstract String javaName();
+
+    public String databaseName() {
+        return javaName().toUpperCase();
+    }
 
 }

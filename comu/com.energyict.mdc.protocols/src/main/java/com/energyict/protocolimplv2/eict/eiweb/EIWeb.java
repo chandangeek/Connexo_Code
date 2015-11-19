@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.eict.eiweb;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
@@ -14,6 +16,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
@@ -42,12 +45,13 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
  * Basic implementation of the EIWeb DeviceProtocol.
- * The basic implementation will not do much, mainly serve as a placeholder so the DeviceType can be created
- * <p/>
+ * The basic implementation will not do much, mainly serve as a placeholder so the DeviceType can be created.
+ *
  * Copyrights EnergyICT
  * Date: 9/10/13
  * Time: 12:02 PM
@@ -205,13 +209,8 @@ public class EIWeb implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        return this.securitySupport.getSecurityPropertySpecs();
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return this.securitySupport.getSecurityRelationTypeName();
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+        return this.securitySupport.getCustomPropertySet();
     }
 
     @Override
@@ -222,11 +221,6 @@ public class EIWeb implements DeviceProtocol {
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         return this.securitySupport.getEncryptionAccessLevels();
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        return this.securitySupport.getSecurityPropertySpec(name);
     }
 
     @Override

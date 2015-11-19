@@ -1,24 +1,27 @@
 package com.energyict.protocolimplv2.security;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.EncryptedStringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
-
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocols.mdc.services.impl.TranslationKeys;
 
 import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides general security <b>capabilities</b> for a DLMS protocol, which
@@ -45,46 +48,40 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
     /**
      * Summarizes the used ID for the Encryption- and AuthenticationLevels.
      */
-    protected enum AuthenticationAccessLevelIds {
+    enum AuthenticationAccessLevelIds {
 
         PUBLIC_CLIENT_NO_AUTHENTICATION(0, 16),
         PUBLIC_CLIENT_LOW_LEVEL_AUTHENTICATION(1, 16),
-        //        PUBLIC_CLIENT_MANUFACTURER_SPECIFIC_AUTHENTICATION(2, 16),
         PUBLIC_CLIENT_MD5_AUTHENTICATION(3, 16),
         PUBLIC_CLIENT_SHA1_AUTHENTICATION(4, 16),
         PUBLIC_CLIENT_GMAC_AUTHENTICATION(5, 16),
 
         DATA_CLIENT_NO_AUTHENTICATION(6, 32),
         DATA_CLIENT_LOW_LEVEL_AUTHENTICATION(7, 32),
-        //        DATA_CLIENT_MANUFACTURER_SPECIFIC_AUTHENTICATION(8, 32),
         DATA_CLIENT_MD5_AUTHENTICATION(9, 32),
         DATA_CLIENT_SHA1_AUTHENTICATION(10, 32),
         DATA_CLIENT_GMAC_AUTHENTICATION(11, 32),
 
         EXT_DATA_CLIENT_NO_AUTHENTICATION(12, 48),
         EXT_DATA_CLIENT_LOW_LEVEL_AUTHENTICATION(13, 48),
-        //        EXT_DATA_CLIENT_MANUFACTURER_SPECIFIC_AUTHENTICATION(14, 48),
         EXT_DATA_CLIENT_MD5_AUTHENTICATION(15, 48),
         EXT_DATA_CLIENT_SHA1_AUTHENTICATION(16, 48),
         EXT_DATA_CLIENT_GMAC_AUTHENTICATION(17, 48),
 
         MANAGEMENT_CLIENT_NO_AUTHENTICATION(18, 64),
         MANAGEMENT_CLIENT_LOW_LEVEL_AUTHENTICATION(19, 64),
-        //        MANAGEMENT_CLIENT_MANUFACTURER_SPECIFIC_AUTHENTICATION(20, 64),
         MANAGEMENT_CLIENT_MD5_AUTHENTICATION(21, 64),
         MANAGEMENT_CLIENT_SHA1_AUTHENTICATION(22, 64),
         MANAGEMENT_CLIENT_GMAC_AUTHENTICATION(23, 64),
 
         FIRMWARE_CLIENT_NO_AUTHENTICATION(24, 80),
         FIRMWARE_CLIENT_LOW_LEVEL_AUTHENTICATION(25, 80),
-        //        FIRMWARE_CLIENT_MANUFACTURER_SPECIFIC_AUTHENTICATION(26, 80),
         FIRMWARE_CLIENT_MD5_AUTHENTICATION(27, 80),
         FIRMWARE_CLIENT_SHA1_AUTHENTICATION(28, 80),
         FIRMWARE_CLIENT_GMAC_AUTHENTICATION(29, 80),
 
         MANUFACTURER_CLIENT_NO_AUTHENTICATION(30, 0),
         MANUFACTURER_CLIENT_LOW_LEVEL_AUTHENTICATION(31, 0),
-        //        MANUFACTURER_CLIENT_MANUFACTURER_SPECIFIC_AUTHENTICATION(32, 0),
         MANUFACTURER_CLIENT_MD5_AUTHENTICATION(33, 0),
         MANUFACTURER_CLIENT_SHA1_AUTHENTICATION(34, 0),
         MANUFACTURER_CLIENT_GMAC_AUTHENTICATION(35, 0);
@@ -95,46 +92,50 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         private final int accessLevel;
         private final int clientId;
 
-        private AuthenticationAccessLevelIds(int accessLevel, int clientId) {
+        AuthenticationAccessLevelIds(int accessLevel, int clientId) {
             this.accessLevel = accessLevel;
             this.clientId = clientId;
         }
 
-        public int getAccessLevel() {
+        int getAccessLevel() {
             return accessLevel;
         }
 
-        public static int getClientIdFor(int authenticationDeviceAccessLevel) {
+        int getClientId() {
+            return clientId;
+        }
+
+        static int getClientIdFor(int authenticationDeviceAccessLevel) {
             for (AuthenticationAccessLevelIds authenticationAccessLevelId : values()) {
-                if (authenticationAccessLevelId.accessLevel == authenticationDeviceAccessLevel) {
-                    return authenticationAccessLevelId.clientId;
+                if (authenticationAccessLevelId.getAccessLevel() == authenticationDeviceAccessLevel) {
+                    return authenticationAccessLevelId.getClientId();
                 }
             }
             return 0;
         }
 
-        public static int getAuthenticationAccessLevelForClientMacAndOriginalAccessLevel(final int clientId, final int originalAccessLevel) {
+        static int getAuthenticationAccessLevelForClientMacAndOriginalAccessLevel(final int clientId, final int originalAccessLevel) {
             for (AuthenticationAccessLevelIds authenticationAccessLevelId : values()) {
-                final int offset = ((authenticationAccessLevelId.clientId / clientIDMultiple) - 1) * numberOfLevelsPerClient;
-                if (authenticationAccessLevelId.clientId == clientId && (authenticationAccessLevelId.accessLevel - offset) == originalAccessLevel) {
-                    return authenticationAccessLevelId.accessLevel;
+                final int offset = ((authenticationAccessLevelId.getClientId() / clientIDMultiple) - 1) * numberOfLevelsPerClient;
+                if (authenticationAccessLevelId.getClientId() == clientId && (authenticationAccessLevelId.getAccessLevel() - offset) == originalAccessLevel) {
+                    return authenticationAccessLevelId.getAccessLevel();
                 }
             }
             return 0;
         }
 
-        public static int getSimpleAuthenticationAccessLevelForClientMacAndNewAccessLevel(final int clientId, final int newAccessLevel) {
+        static int getSimpleAuthenticationAccessLevelForClientMacAndNewAccessLevel(final int clientId, final int newAccessLevel) {
             for (AuthenticationAccessLevelIds authenticationAccessLevelId : values()) {
-                final int offset = ((authenticationAccessLevelId.clientId / clientIDMultiple) - 1) * numberOfLevelsPerClient;
-                if (authenticationAccessLevelId.clientId == clientId && authenticationAccessLevelId.accessLevel == newAccessLevel) {
-                    return authenticationAccessLevelId.accessLevel - offset;
+                final int offset = ((authenticationAccessLevelId.getClientId() / clientIDMultiple) - 1) * numberOfLevelsPerClient;
+                if (authenticationAccessLevelId.getClientId() == clientId && authenticationAccessLevelId.getAccessLevel() == newAccessLevel) {
+                    return authenticationAccessLevelId.getAccessLevel() - offset;
                 }
             }
             return 0;
         }
     }
 
-    protected enum EncryptionAccessLevelIds {
+    enum EncryptionAccessLevelIds {
 
         PUBLIC_CLIENT_NO_MESSAGE_ENCRYPTION(0, 16),
         PUBLIC_CLIENT_MESSAGE_ENCRYPTION(1, 16),
@@ -172,189 +173,115 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
         private final int accessLevel;
         private final int clientId;
 
-        private EncryptionAccessLevelIds(int accessLevel, int clientId) {
+        EncryptionAccessLevelIds(int accessLevel, int clientId) {
             this.accessLevel = accessLevel;
             this.clientId = clientId;
         }
 
-        private int getAccessLevel() {
+        int getAccessLevel() {
             return this.accessLevel;
         }
 
-        public static int getEncryptionAccessLevelForClientMacAndOriginalAccessLevel(final int clientId, final int originalAccessLevel) {
+        int getClientId() {
+            return clientId;
+        }
+
+        static int getEncryptionAccessLevelForClientMacAndOriginalAccessLevel(final int clientId, final int originalAccessLevel) {
             for (EncryptionAccessLevelIds encryptionAccessLevelId : values()) {
-                final int offset = ((encryptionAccessLevelId.clientId / clientIDMultiple) - 1) * numberOfLevelsPerClient;
-                if (encryptionAccessLevelId.clientId == clientId && (encryptionAccessLevelId.accessLevel - offset) == originalAccessLevel) {
-                    return encryptionAccessLevelId.accessLevel;
+                final int offset = ((encryptionAccessLevelId.getClientId() / clientIDMultiple) - 1) * numberOfLevelsPerClient;
+                if (encryptionAccessLevelId.getClientId() == clientId && (encryptionAccessLevelId.getAccessLevel() - offset) == originalAccessLevel) {
+                    return encryptionAccessLevelId.getAccessLevel();
                 }
             }
             return 0;
         }
 
-        public static int getSimpleEncryptionAccessLevelForClientMacAndNewAccessLevel(final int clientId, final int newAccessLevel) {
+        static int getSimpleEncryptionAccessLevelForClientMacAndNewAccessLevel(final int clientId, final int newAccessLevel) {
             for (EncryptionAccessLevelIds encryptionAccessLevelId : values()) {
-                final int offset = ((encryptionAccessLevelId.clientId / clientIDMultiple) - 1) * numberOfLevelsPerClient;
-                if (encryptionAccessLevelId.clientId == clientId && encryptionAccessLevelId.accessLevel == newAccessLevel) {
-                    return encryptionAccessLevelId.accessLevel - offset;
+                final int offset = ((encryptionAccessLevelId.getClientId() / clientIDMultiple) - 1) * numberOfLevelsPerClient;
+                if (encryptionAccessLevelId.getClientId() == clientId && encryptionAccessLevelId.getAccessLevel() == newAccessLevel) {
+                    return encryptionAccessLevelId.getAccessLevel() - offset;
                 }
             }
             return 0;
         }
+    }
+
+    @Override
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+        return Optional.of(new DlmsSecurityPerClientSupportCustomPropertySet(this.thesaurus, this.propertySpecService));
     }
 
     private PropertySpec getEncryptionKeyPublicPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
-                .name(SecurityPropertySpecName.ENCRYPTION_KEY_PUBLIC.toString())
-                .markRequired()
-                .finish();
+        return DlmsSecurityPerClientProperties.ActualFields.PUBLIC_ENCRYPTION_KEY.propertySpec(this.propertySpecService);
     }
 
     private PropertySpec getEncryptionKeyDataPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
-                .name(SecurityPropertySpecName.ENCRYPTION_KEY_DATA.toString())
-                .markRequired()
-                .finish();
+        return DlmsSecurityPerClientProperties.ActualFields.DATA_ENCRYPTION_KEY.propertySpec(this.propertySpecService);
     }
 
     private PropertySpec getEncryptionKeyExtDataPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
-                .name(SecurityPropertySpecName.ENCRYPTION_KEY_EXT_DATA.toString())
-                .markRequired()
-                .finish();
+        return DlmsSecurityPerClientProperties.ActualFields.EXTRA_DATA_ENCRYPTION_KEY.propertySpec(this.propertySpecService);
     }
 
     private PropertySpec getEncryptionKeyManagementPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
-                .name(SecurityPropertySpecName.ENCRYPTION_KEY_MANAGEMENT.toString())
-                .markRequired()
-                .finish();
+        return DlmsSecurityPerClientProperties.ActualFields.MANAGEMENT_ENCRYPTION_KEY.propertySpec(this.propertySpecService);
     }
 
     private PropertySpec getEncryptionKeyFirmwarePropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
-                .name(SecurityPropertySpecName.ENCRYPTION_KEY_FIRMWARE.toString())
-                .markRequired()
-                .finish();
+        return DlmsSecurityPerClientProperties.ActualFields.FIRMWARE_ENCRYPTION_KEY.propertySpec(this.propertySpecService);
     }
 
     private PropertySpec getEncryptionKeyManufacturerPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
-                .name(SecurityPropertySpecName.ENCRYPTION_KEY_MANUFACTURER.toString())
-                .markRequired()
-                .finish();
+        return DlmsSecurityPerClientProperties.ActualFields.MANUFACTURER_ENCRYPTION_KEY.propertySpec(this.propertySpecService);
     }
 
     private PropertySpec getAuthenticationKeyPublicPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
-                .name(SecurityPropertySpecName.AUTHENTICATION_KEY_PUBLIC.toString())
-                .markRequired()
-                .finish();
+        return DlmsSecurityPerClientProperties.ActualFields.PUBLIC_AUTHENTICATION_KEY.propertySpec(this.propertySpecService);
     }
 
     private PropertySpec getAuthenticationKeyDataPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
-                .name(SecurityPropertySpecName.AUTHENTICATION_KEY_DATA.toString())
-                .markRequired()
-                .finish();
+        return DlmsSecurityPerClientProperties.ActualFields.DATA_AUTHENTICATION_KEY.propertySpec(this.propertySpecService);
     }
 
     private PropertySpec getAuthenticationKeyExtDataPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
-                .name(SecurityPropertySpecName.AUTHENTICATION_KEY_EXT_DATA.toString())
-                .markRequired()
-                .finish();
+        return DlmsSecurityPerClientProperties.ActualFields.EXTRA_DATA_AUTHENTICATION_KEY.propertySpec(this.propertySpecService);
     }
 
     private PropertySpec getAuthenticationKeyManagementPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
-                .name(SecurityPropertySpecName.AUTHENTICATION_KEY_MANAGEMENT.toString())
-                .markRequired()
-                .finish();
+        return DlmsSecurityPerClientProperties.ActualFields.MANAGEMENT_AUTHENTICATION_KEY.propertySpec(this.propertySpecService);
     }
 
     private PropertySpec getAuthenticationKeyFirmwarePropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
-                .name(SecurityPropertySpecName.AUTHENTICATION_KEY_FIRMWARE.toString())
-                .markRequired()
-                .finish();
+        return DlmsSecurityPerClientProperties.ActualFields.FIRMWARE_AUTHENTICATION_KEY.propertySpec(this.propertySpecService);
     }
 
     private PropertySpec getAuthenticationKeyManufacturerPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
-                .name(SecurityPropertySpecName.AUTHENTICATION_KEY_MANUFACTURER.toString())
-                .markRequired()
-                .finish();
+        return DlmsSecurityPerClientProperties.ActualFields.MANUFACTURER_AUTHENTICATION_KEY.propertySpec(this.propertySpecService);
     }
 
     private PropertySpec getPasswordPublicPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
-                .name(SecurityPropertySpecName.PASSWORD_PUBLIC.toString())
-                .markRequired()
-                .finish();
+        return DlmsSecurityPerClientProperties.ActualFields.PUBLIC_PASSWORD.propertySpec(this.propertySpecService);
     }
 
     private PropertySpec getPasswordDataPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
-                .name(SecurityPropertySpecName.PASSWORD_DATA.toString())
-                .markRequired()
-                .finish();
+        return DlmsSecurityPerClientProperties.ActualFields.DATA_PASSWORD.propertySpec(this.propertySpecService);
     }
 
     private PropertySpec getPasswordExtDataPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
-                .name(SecurityPropertySpecName.PASSWORD_EXT_DATA.toString())
-                .markRequired()
-                .finish();
+        return DlmsSecurityPerClientProperties.ActualFields.EXTRA_DATA_PASSWORD.propertySpec(this.propertySpecService);
     }
 
     private PropertySpec getPasswordManagementPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
-                .name(SecurityPropertySpecName.PASSWORD_MANAGEMENT.toString())
-                .markRequired()
-                .finish();
+        return DlmsSecurityPerClientProperties.ActualFields.MANAGEMENT_PASSWORD.propertySpec(this.propertySpecService);
     }
 
     private PropertySpec getPasswordFirmwarePropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
-                .name(SecurityPropertySpecName.PASSWORD_FIRMWARE.toString())
-                .markRequired()
-                .finish();
+        return DlmsSecurityPerClientProperties.ActualFields.FIRMWARE_PASSWORD.propertySpec(this.propertySpecService);
     }
 
     private PropertySpec getPasswordManufacturerPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
-                .name(SecurityPropertySpecName.PASSWORD_MANUFACTURER.toString())
-                .markRequired()
-                .finish();
-    }
-
-    @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        return Arrays.<PropertySpec>asList(
-                getAuthenticationKeyDataPropertySpec(),
-                getAuthenticationKeyExtDataPropertySpec(),
-                getAuthenticationKeyFirmwarePropertySpec(),
-                getAuthenticationKeyManagementPropertySpec(),
-                getAuthenticationKeyManufacturerPropertySpec(),
-                getAuthenticationKeyPublicPropertySpec(),
-                getEncryptionKeyDataPropertySpec(),
-                getEncryptionKeyExtDataPropertySpec(),
-                getEncryptionKeyFirmwarePropertySpec(),
-                getEncryptionKeyManagementPropertySpec(),
-                getEncryptionKeyManufacturerPropertySpec(),
-                getEncryptionKeyPublicPropertySpec(),
-                getPasswordDataPropertySpec(),
-                getPasswordExtDataPropertySpec(),
-                getPasswordFirmwarePropertySpec(),
-                getPasswordManagementPropertySpec(),
-                getPasswordManufacturerPropertySpec(),
-                getPasswordPublicPropertySpec()
-        );
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return SecurityRelationTypeName.DLMS_SECURITY_PER_CLIENT.toString();
+        return DlmsSecurityPerClientProperties.ActualFields.MANUFACTURER_PASSWORD.propertySpec(this.propertySpecService);
     }
 
     @Override
@@ -421,16 +348,6 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
                 new MessageEncryptionAndAuthenticationFirmware(),
                 new MessageEncryptionAndAuthenticationManufacturer()
         );
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        for (PropertySpec securityProperty : getSecurityPropertySpecs()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
     }
 
     @Override
@@ -588,7 +505,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.PUBLIC_CLIENT_NO_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.PUBLIC_CLIENT_NO_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
@@ -601,7 +518,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.DATA_CLIENT_NO_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.DATA_CLIENT_NO_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
@@ -614,7 +531,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.EXT_DATA_CLIENT_NO_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.EXT_DATA_CLIENT_NO_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
@@ -627,7 +544,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.MANAGEMENT_CLIENT_NO_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.MANAGEMENT_CLIENT_NO_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
@@ -640,7 +557,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.FIRMWARE_CLIENT_NO_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.FIRMWARE_CLIENT_NO_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
@@ -653,7 +570,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.MANUFACTURER_CLIENT_NO_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.MANUFACTURER_CLIENT_NO_AUTHENTICATION.getAccessLevel();
         }
         @Override
         public String getTranslation() {
@@ -665,12 +582,12 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.PUBLIC_CLIENT_LOW_LEVEL_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.PUBLIC_CLIENT_LOW_LEVEL_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.<PropertySpec>asList(getPasswordPublicPropertySpec());
+            return Collections.singletonList(getPasswordPublicPropertySpec());
         }
 
         @Override
@@ -684,12 +601,12 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.DATA_CLIENT_LOW_LEVEL_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.DATA_CLIENT_LOW_LEVEL_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.<PropertySpec>asList(getPasswordDataPropertySpec());
+            return Collections.singletonList(getPasswordDataPropertySpec());
         }
 
         @Override
@@ -703,12 +620,12 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.EXT_DATA_CLIENT_LOW_LEVEL_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.EXT_DATA_CLIENT_LOW_LEVEL_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.<PropertySpec>asList(getPasswordExtDataPropertySpec());
+            return Collections.singletonList(getPasswordExtDataPropertySpec());
         }
 
         @Override
@@ -722,12 +639,12 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.MANAGEMENT_CLIENT_LOW_LEVEL_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.MANAGEMENT_CLIENT_LOW_LEVEL_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.<PropertySpec>asList(getPasswordManagementPropertySpec());
+            return Collections.singletonList(getPasswordManagementPropertySpec());
         }
 
         @Override
@@ -741,12 +658,12 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.FIRMWARE_CLIENT_LOW_LEVEL_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.FIRMWARE_CLIENT_LOW_LEVEL_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.<PropertySpec>asList(getPasswordFirmwarePropertySpec());
+            return Collections.singletonList(getPasswordFirmwarePropertySpec());
         }
 
         @Override
@@ -760,12 +677,12 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.MANUFACTURER_CLIENT_LOW_LEVEL_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.MANUFACTURER_CLIENT_LOW_LEVEL_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.<PropertySpec>asList(getPasswordManufacturerPropertySpec());
+            return Collections.singletonList(getPasswordManufacturerPropertySpec());
         }
 
         @Override
@@ -778,12 +695,12 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.PUBLIC_CLIENT_MD5_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.PUBLIC_CLIENT_MD5_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.<PropertySpec>asList(getPasswordPublicPropertySpec());
+            return Collections.singletonList(getPasswordPublicPropertySpec());
         }
 
         @Override
@@ -796,12 +713,12 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.DATA_CLIENT_MD5_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.DATA_CLIENT_MD5_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.<PropertySpec>asList(getPasswordDataPropertySpec());
+            return Collections.singletonList(getPasswordDataPropertySpec());
         }
 
         @Override
@@ -814,12 +731,12 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.EXT_DATA_CLIENT_MD5_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.EXT_DATA_CLIENT_MD5_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.<PropertySpec>asList(getPasswordExtDataPropertySpec());
+            return Collections.singletonList(getPasswordExtDataPropertySpec());
         }
 
         @Override
@@ -832,12 +749,12 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.MANAGEMENT_CLIENT_MD5_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.MANAGEMENT_CLIENT_MD5_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.<PropertySpec>asList(getPasswordManagementPropertySpec());
+            return Collections.singletonList(getPasswordManagementPropertySpec());
         }
 
         @Override
@@ -850,12 +767,12 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.FIRMWARE_CLIENT_MD5_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.FIRMWARE_CLIENT_MD5_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.<PropertySpec>asList(getPasswordFirmwarePropertySpec());
+            return Collections.singletonList(getPasswordFirmwarePropertySpec());
         }
 
         @Override
@@ -868,12 +785,12 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.MANUFACTURER_CLIENT_MD5_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.MANUFACTURER_CLIENT_MD5_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.<PropertySpec>asList(getPasswordManufacturerPropertySpec());
+            return Collections.singletonList(getPasswordManufacturerPropertySpec());
         }
 
 
@@ -887,12 +804,12 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.PUBLIC_CLIENT_SHA1_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.PUBLIC_CLIENT_SHA1_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.<PropertySpec>asList(getPasswordPublicPropertySpec());
+            return Collections.singletonList(getPasswordPublicPropertySpec());
         }
 
         @Override
@@ -905,12 +822,12 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.DATA_CLIENT_SHA1_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.DATA_CLIENT_SHA1_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.<PropertySpec>asList(getPasswordDataPropertySpec());
+            return Collections.singletonList(getPasswordDataPropertySpec());
         }
 
         @Override
@@ -923,12 +840,12 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.EXT_DATA_CLIENT_SHA1_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.EXT_DATA_CLIENT_SHA1_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.<PropertySpec>asList(getPasswordExtDataPropertySpec());
+            return Collections.singletonList(getPasswordExtDataPropertySpec());
         }
 
         @Override
@@ -941,12 +858,12 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.MANAGEMENT_CLIENT_SHA1_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.MANAGEMENT_CLIENT_SHA1_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.<PropertySpec>asList(getPasswordManagementPropertySpec());
+            return Collections.singletonList(getPasswordManagementPropertySpec());
         }
 
         @Override
@@ -959,12 +876,12 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.FIRMWARE_CLIENT_SHA1_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.FIRMWARE_CLIENT_SHA1_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.<PropertySpec>asList(getPasswordFirmwarePropertySpec());
+            return Collections.singletonList(getPasswordFirmwarePropertySpec());
         }
 
         @Override
@@ -977,12 +894,12 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.MANUFACTURER_CLIENT_SHA1_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.MANUFACTURER_CLIENT_SHA1_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.<PropertySpec>asList(getPasswordManufacturerPropertySpec());
+            return Collections.singletonList(getPasswordManufacturerPropertySpec());
         }
 
         @Override
@@ -995,7 +912,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.PUBLIC_CLIENT_GMAC_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.PUBLIC_CLIENT_GMAC_AUTHENTICATION.getAccessLevel();
         }
 
 
@@ -1017,7 +934,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.DATA_CLIENT_GMAC_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.DATA_CLIENT_GMAC_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
@@ -1038,7 +955,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.EXT_DATA_CLIENT_GMAC_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.EXT_DATA_CLIENT_GMAC_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
@@ -1059,7 +976,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.MANAGEMENT_CLIENT_GMAC_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.MANAGEMENT_CLIENT_GMAC_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
@@ -1080,7 +997,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.FIRMWARE_CLIENT_GMAC_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.FIRMWARE_CLIENT_GMAC_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
@@ -1101,7 +1018,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.MANUFACTURER_CLIENT_GMAC_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.MANUFACTURER_CLIENT_GMAC_AUTHENTICATION.getAccessLevel();
         }
 
         @Override

@@ -1,23 +1,27 @@
 package com.energyict.protocolimplv2.security;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.EncryptedStringFactory;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.protocols.mdc.services.impl.TranslationKeys;
 
 import javax.inject.Inject;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Copyrights EnergyICT
@@ -41,7 +45,7 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
     /**
      * Summarizes the used ID for the Encryption- and AuthenticationLevels.
      */
-    protected enum AccessLevelIds {
+    private enum AccessLevelIds {
         KEYT(0, TranslationKeys.MTU155SECURITYSUPPORT_ENCRYPTIONLEVEL_0),
         KEYC(1,TranslationKeys.MTU155SECURITYSUPPORT_ENCRYPTIONLEVEL_1),
         KEYF(2, TranslationKeys.MTU155SECURITYSUPPORT_ENCRYPTIONLEVEL_2);
@@ -49,52 +53,33 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
         private final int accessLevel;
         private final TranslationKey translationKey;
 
-        private AccessLevelIds(int accessLevel, TranslationKey translationKey) {
+        AccessLevelIds(int accessLevel, TranslationKey translationKey) {
             this.accessLevel = accessLevel;
             this.translationKey = translationKey;
         }
 
-        protected int getAccessLevel() {
+        int getAccessLevel() {
             return this.accessLevel;
         }
 
-        public TranslationKey getTranslationKey() {
+        TranslationKey getTranslationKey() {
             return translationKey;
         }
     }
 
     @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        return Arrays.asList(
-                DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService),
-                getEncryptionKeyCPropertySpec(),
-                getEncryptionKeyFPropertySpec(),
-                getEncryptionKeyTPropertySpec());
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return SecurityRelationTypeName.MTU155_SECURITY.toString();
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+        return Optional.of(new MTU155SecuritySupportCustomPropertySet(this.thesaurus, this.propertySpecService));
     }
 
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return Arrays.<AuthenticationDeviceAccessLevel>asList(new SimpleAuthentication());
+        return Collections.<AuthenticationDeviceAccessLevel>singletonList(new SimpleAuthentication());
     }
 
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         return Arrays.asList(new KeyCEncryption(), new KeyFEncryption(), new KeyTEncryption());
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        for (PropertySpec securityProperty : getSecurityPropertySpecs()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
     }
 
     @Override
@@ -151,9 +136,13 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
     @Override
     public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
         String securityLevelProperty = typedProperties.getStringProperty(SECURITY_LEVEL_PROPERTY_NAME);
-        final int encryptionDeviceAccessLevel = securityLevelProperty != null ?
-                getSecurityLevelIntegerValue(securityLevelProperty) :
-                new KeyCEncryption().getId();
+        final int encryptionDeviceAccessLevel;
+        if (securityLevelProperty != null) {
+            encryptionDeviceAccessLevel = getSecurityLevelIntegerValue(securityLevelProperty);
+        }
+        else {
+            encryptionDeviceAccessLevel = new KeyCEncryption().getId();
+        }
 
         final TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, 0, getAuthenticationAccessLevels()));
@@ -187,28 +176,20 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
         }
     }
 
+    private PropertySpec getPasswordPropertySpec() {
+        return MTU155SecurityProperties.ActualFields.PASSWORD.propertySpec(this.propertySpecService);
+    }
+
     private PropertySpec getEncryptionKeyTPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
-                .name(SecurityPropertySpecName.ENCRYPTION_KEY_1.toString())
-                .setDefaultValue("")
-                .markRequired()
-                .finish();
+        return MTU155SecurityProperties.ActualFields.TEMPORARY_ENCRYPTION_KEY.propertySpec(this.propertySpecService);
     }
 
     private PropertySpec getEncryptionKeyCPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
-                .name(SecurityPropertySpecName.ENCRYPTION_KEY_2.toString())
-                .setDefaultValue("")
-                .markRequired()
-                .finish();
+        return MTU155SecurityProperties.ActualFields.SERVICE_ENCRYPTION_KEY.propertySpec(this.propertySpecService);
     }
 
     private PropertySpec getEncryptionKeyFPropertySpec() {
-        return this.propertySpecService.newPropertySpecBuilder(EncryptedStringFactory.class)
-                .name(SecurityPropertySpecName.ENCRYPTION_KEY_3.toString())
-                .setDefaultValue("")
-                .markRequired()
-                .finish();
+        return MTU155SecurityProperties.ActualFields.FACTORY_ENCRYPTION_KEY.propertySpec(this.propertySpecService);
     }
 
     /**
@@ -228,7 +209,7 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
+            return Collections.singletonList(getPasswordPropertySpec());
         }
     }
 
@@ -246,7 +227,7 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.<PropertySpec>asList(getEncryptionKeyCPropertySpec());
+            return Collections.singletonList(getEncryptionKeyCPropertySpec());
         }
     }
 
@@ -254,7 +235,7 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
 
         @Override
         public int getId() {
-            return AccessLevelIds.KEYT.accessLevel;
+            return AccessLevelIds.KEYT.getAccessLevel();
         }
 
         @Override
@@ -264,7 +245,7 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.<PropertySpec>asList(getEncryptionKeyTPropertySpec());
+            return Collections.singletonList(getEncryptionKeyTPropertySpec());
         }
     }
 
@@ -272,7 +253,7 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
 
         @Override
         public int getId() {
-            return AccessLevelIds.KEYF.accessLevel;
+            return AccessLevelIds.KEYF.getAccessLevel();
         }
 
         @Override
@@ -282,7 +263,8 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.<PropertySpec>asList(getEncryptionKeyFPropertySpec());
+            return Collections.singletonList(getEncryptionKeyFPropertySpec());
         }
     }
+
 }

@@ -1,10 +1,12 @@
 package com.energyict.protocolimplv2.security;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.common.TypedProperties;
 import com.elster.jupiter.properties.PropertySpec;
-
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.protocols.mdc.services.impl.TranslationKeys;
@@ -13,6 +15,7 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides general security <b>capabilities</b> for an Ansi C12 protocol with
@@ -33,20 +36,8 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
     }
 
     @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        return Arrays.asList(
-                DeviceSecurityProperty.PASSWORD.getPropertySpec(this.getPropertySpecService()),
-                DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(this.getPropertySpecService()),
-                DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(this.getPropertySpecService()),
-                DeviceSecurityProperty.ANSI_CALLED_AP_TITLE.getPropertySpec(this.getPropertySpecService()),
-                DeviceSecurityProperty.BINARY_PASSWORD.getPropertySpec(this.getPropertySpecService()),
-                DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(this.getPropertySpecService())
-        );
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return SecurityRelationTypeName.EXTENDED_ANSI_C12_SECURITY.toString();
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+        return Optional.of(new ExtendedAnsiC12SecuritySupportCustomPropertySet(this.thesaurus, this.getPropertySpecService()));
     }
 
     @Override
@@ -71,9 +62,13 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
     public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
         final DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet = super.convertFromTypedProperties(typedProperties);
         String encryptionDeviceAccessLevelProperty = typedProperties.getStringProperty("SecurityKey");
-        final int encryptionDeviceAccessLevel=encryptionDeviceAccessLevelProperty!=null?
-                Integer.valueOf(encryptionDeviceAccessLevelProperty):
-                new NoMessageEncryption().getId();
+        final int encryptionDeviceAccessLevel;
+        if (encryptionDeviceAccessLevelProperty != null) {
+            encryptionDeviceAccessLevel = Integer.valueOf(encryptionDeviceAccessLevelProperty);
+        }
+        else {
+            encryptionDeviceAccessLevel = new NoMessageEncryption().getId();
+        }
         final TypedProperties securityRelatedTypedProperties = deviceProtocolSecurityPropertySet.getSecurityProperties();
         securityRelatedTypedProperties.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(typedProperties, encryptionDeviceAccessLevel, getEncryptionAccessLevels()));
 

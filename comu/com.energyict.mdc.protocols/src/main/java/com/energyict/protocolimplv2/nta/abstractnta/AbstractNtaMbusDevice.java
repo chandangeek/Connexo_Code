@@ -1,5 +1,8 @@
 package com.energyict.protocolimplv2.nta.abstractnta;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -13,6 +16,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
@@ -28,21 +32,20 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
+import com.energyict.protocols.exception.UnsupportedMethodException;
 
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
 import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccessLevel;
 import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
-import com.energyict.protocols.exception.UnsupportedMethodException;
 
 import javax.inject.Provider;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.logging.Logger;
@@ -86,7 +89,6 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
      *
      * @return the DeviceMessageSupport message protocol
      */
-
     public abstract DeviceMessageSupport getDeviceMessageSupport();
 
     protected PropertySpecService getPropertySpecService() {
@@ -99,7 +101,7 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
-        return Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_SLAVE);
+        return Collections.singletonList(DeviceProtocolCapabilities.PROTOCOL_SLAVE);
     }
 
     @Override
@@ -129,7 +131,7 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.asList((DeviceProtocolDialect) new NoParamsDeviceProtocolDialect(propertySpecService));
+        return Collections.singletonList((DeviceProtocolDialect) new NoParamsDeviceProtocolDialect(propertySpecService));
     }
 
     /**
@@ -178,13 +180,8 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        return getMeterProtocol().getSecurityPropertySpecs();
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return getMeterProtocol().getSecurityRelationTypeName();
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+        return this.getMeterProtocol().getCustomPropertySet();
     }
 
     /**
@@ -209,11 +206,6 @@ public abstract class AbstractNtaMbusDevice implements DeviceProtocol {
         encryptionAccessLevels.addAll(getMeterProtocol().getEncryptionAccessLevels());
         encryptionAccessLevels.add(encryptionDeviceAccessLevelProvider.get());
         return encryptionAccessLevels;
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        return getMeterProtocol().getSecurityPropertySpec(name);
     }
 
     //############## Unsupported methods ##############//

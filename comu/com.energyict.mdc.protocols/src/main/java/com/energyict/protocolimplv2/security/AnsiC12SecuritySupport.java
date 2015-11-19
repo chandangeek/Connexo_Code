@@ -1,10 +1,13 @@
 package com.energyict.protocolimplv2.security;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
@@ -17,6 +20,7 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides general security <b>capabilities</b> for an Ansi C12 protocol
@@ -39,22 +43,13 @@ public class AnsiC12SecuritySupport implements DeviceProtocolSecurityCapabilitie
         this.thesaurus = thesaurus;
     }
 
-    protected PropertySpecService getPropertySpecService() {
+    PropertySpecService getPropertySpecService() {
         return propertySpecService;
     }
 
     @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        return Arrays.asList(
-                DeviceSecurityProperty.PASSWORD.getPropertySpec(getPropertySpecService()),
-                DeviceSecurityProperty.ANSI_C12_USER.getPropertySpec(getPropertySpecService()),
-                DeviceSecurityProperty.ANSI_C12_USER_ID.getPropertySpec(getPropertySpecService())
-        );
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return SecurityRelationTypeName.ANSI_C12_SECURITY.toString();
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+        return Optional.of(new AnsiC12SecuritySupportCustomPropertySet(this.thesaurus, this.propertySpecService));
     }
 
     @Override
@@ -69,16 +64,6 @@ public class AnsiC12SecuritySupport implements DeviceProtocolSecurityCapabilitie
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         return Collections.emptyList();
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        for (PropertySpec securityProperty : getSecurityPropertySpecs()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
     }
 
     @Override
@@ -101,9 +86,13 @@ public class AnsiC12SecuritySupport implements DeviceProtocolSecurityCapabilitie
     @Override
     public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
         String authenticationDeviceAccessLevelProperty = typedProperties.getStringProperty(SECURITY_LEVEL_PROPERTY_NAME);
-        final int authenticationDeviceAccessLevel=authenticationDeviceAccessLevelProperty!=null?
-                Integer.valueOf(authenticationDeviceAccessLevelProperty):
-                new RestrictedAuthentication().getId();
+        final int authenticationDeviceAccessLevel;
+        if (authenticationDeviceAccessLevelProperty != null) {
+            authenticationDeviceAccessLevel = Integer.valueOf(authenticationDeviceAccessLevelProperty);
+        }
+        else {
+            authenticationDeviceAccessLevel = new RestrictedAuthentication().getId();
+        }
 
         final TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
 

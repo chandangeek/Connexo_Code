@@ -1,0 +1,53 @@
+package com.energyict.protocolimplv2.security;
+
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.security.SecurityCustomPropertySet;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+/**
+ * Provides an implementation for the {@link CustomPropertySet} interface for {@link DlmsSecuritySupportPerClient}.
+ *
+ * @author Rudi Vankeirsbilck (rudi)
+ * @since 2015-11-19 (17:39)
+ */
+public class MTU155SecuritySupportCustomPropertySet extends SecurityCustomPropertySet<MTU155SecurityProperties> {
+
+    private final Thesaurus thesaurus;
+    private final PropertySpecService propertySpecService;
+
+    public MTU155SecuritySupportCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+        super();
+        this.thesaurus = thesaurus;
+        this.propertySpecService = propertySpecService;
+    }
+
+    @Override
+    public MTU155SecuritySupportPersistenceSupport getPersistenceSupport() {
+        return new MTU155SecuritySupportPersistenceSupport();
+    }
+
+    @Override
+    public String getId() {
+        return CustomPropertySetTranslationKeys.MTU155_CUSTOM_PROPERTY_SET_NAME.getKey();
+    }
+
+    @Override
+    public String getName() {
+        return this.thesaurus.getFormat(CustomPropertySetTranslationKeys.MTU155_CUSTOM_PROPERTY_SET_NAME).format();
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        return Stream
+                .of(MTU155SecurityProperties.ActualFields.values())
+                .map(field -> field.propertySpec(this.propertySpecService))
+                .collect(Collectors.toList());
+    }
+
+}

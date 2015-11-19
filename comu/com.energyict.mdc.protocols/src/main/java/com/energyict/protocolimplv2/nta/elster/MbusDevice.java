@@ -2,16 +2,8 @@ package com.energyict.protocolimplv2.nta.elster;
 
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.io.SerialComponentService;
-import com.energyict.mdc.io.SocketService;
-import com.energyict.mdc.issues.IssueService;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
-import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
-import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.tasks.support.DeviceMessageSupport;
 
-import com.elster.jupiter.metering.MeteringService;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractNtaMbusDevice;
 import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MbusMessaging;
@@ -20,13 +12,12 @@ import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLeve
 
 import javax.inject.Inject;
 import javax.inject.Provider;
-import java.time.Clock;
 
 /**
- *  The MBus device used for the AM100 implementation of the NTA spec
+ * The MBus device used for the AM100 implementation of the NTA spec.
  *
- * @author: sva
- * @since: 2/11/12 (11:26)
+ * @author sva
+ * @since 2/11/12 (11:26)
  */
 public class MbusDevice extends AbstractNtaMbusDevice {
 
@@ -37,8 +28,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
                       TopologyService topologyService,
                       Provider<InheritedAuthenticationDeviceAccessLevel> authenticationDeviceAccessLevelProvider,
                       Provider<InheritedEncryptionDeviceAccessLevel> encryptionDeviceAccessLevelProvider, WebRTUKP webRtuKp) {
-        super(propertySpecService, topologyService,
-                authenticationDeviceAccessLevelProvider, encryptionDeviceAccessLevelProvider, webRtuKp);
+        super(propertySpecService, topologyService, authenticationDeviceAccessLevelProvider, encryptionDeviceAccessLevelProvider, webRtuKp);
     }
 
     @Override
@@ -58,4 +48,5 @@ public class MbusDevice extends AbstractNtaMbusDevice {
     public String getVersion() {
         return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
+
 }
