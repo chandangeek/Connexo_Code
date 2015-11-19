@@ -2,7 +2,7 @@ package com.elster.jupiter.systemadmin.rest.imp.response;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.system.ComponentStatus;
-import com.elster.jupiter.system.ComponentStatusTranslationKeys;
+import com.elster.jupiter.systemadmin.rest.imp.resource.ComponentStatusTranslationKeys;
 
 import javax.inject.Inject;
 

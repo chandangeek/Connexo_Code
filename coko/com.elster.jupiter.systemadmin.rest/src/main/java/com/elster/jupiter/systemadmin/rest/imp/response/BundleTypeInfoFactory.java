@@ -2,7 +2,7 @@ package com.elster.jupiter.systemadmin.rest.imp.response;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.system.BundleType;
-import com.elster.jupiter.system.BundleTypeTranslationKeys;
+import com.elster.jupiter.systemadmin.rest.imp.resource.BundleTypeTranslationKeys;
 
 import javax.inject.Inject;
 

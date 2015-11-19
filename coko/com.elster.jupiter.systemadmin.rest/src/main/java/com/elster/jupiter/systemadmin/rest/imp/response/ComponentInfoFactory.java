@@ -3,8 +3,9 @@ package com.elster.jupiter.systemadmin.rest.imp.response;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.system.Component;
 import com.elster.jupiter.system.RuntimeComponent;
-import com.elster.jupiter.system.BundleTypeTranslationKeys;
-import com.elster.jupiter.system.ComponentStatusTranslationKeys;
+import com.elster.jupiter.systemadmin.rest.imp.resource.BundleTypeTranslationKeys;
+import com.elster.jupiter.systemadmin.rest.imp.resource.ComponentStatusTranslationKeys;
+
 import javax.inject.Inject;
 
 public class ComponentInfoFactory {
@@ -17,13 +18,13 @@ public class ComponentInfoFactory {
 
     public ComponentInfo asInfo(RuntimeComponent runtimeComponent) {
         ComponentInfo info = new ComponentInfo();
-        Component component = runtimeComponent.getComponent();
-        info.id = String.valueOf(runtimeComponent.getId());
-        info.application = component.getSubsystem().getName();
-        info.bundleType = thesaurus.getFormat(BundleTypeTranslationKeys.getTranslatedName(component.getBundleType())).format();
+        info.id = runtimeComponent.getId();
+        info.application = runtimeComponent.getSubsystem().getName();
         info.name = runtimeComponent.getName();
-        info.version = component.getVersion();
         info.status = thesaurus.getFormat(ComponentStatusTranslationKeys.getTranslatedName(runtimeComponent.getStatus())).format();
+        Component component = runtimeComponent.getComponent();
+        info.bundleType = thesaurus.getFormat(BundleTypeTranslationKeys.getTranslatedName(component.getBundleType())).format();
+        info.version = component.getVersion();
         return info;
     }
 }
