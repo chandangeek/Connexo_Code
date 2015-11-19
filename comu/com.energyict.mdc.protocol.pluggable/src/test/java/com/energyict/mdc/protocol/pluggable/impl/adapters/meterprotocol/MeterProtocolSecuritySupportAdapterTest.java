@@ -1,5 +1,7 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.impl.BasicPropertySpec;
@@ -10,17 +12,13 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolSecurityService;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactoryImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDeviceSecuritySupport;
-
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-
-import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 
 import java.util.List;
 
@@ -30,8 +28,8 @@ import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doThrow;
@@ -171,7 +169,7 @@ public class MeterProtocolSecuritySupportAdapterTest {
         String securityRelationTypeName = meterProtocolSecuritySupportAdapter.getSecurityRelationTypeName();
 
         // asserts
-        assertEquals(SimpleTestDeviceSecuritySupport.DUMMY_RELATION_TYPE_NAME, securityRelationTypeName);
+        assertThat(securityRelationTypeName).isEqualTo(SimpleTestDeviceSecuritySupport.DUMMY_RELATION_TYPE_NAME);
     }
 
     @Test
@@ -185,9 +183,9 @@ public class MeterProtocolSecuritySupportAdapterTest {
                 this.securitySupportAdapterMappingFactory);
 
         // asserts
-        assertThat(meterProtocolSecuritySupportAdapter.getSecurityPropertySpec(SimpleTestDeviceSecuritySupport.FIRST_PROPERTY_NAME)).isNotNull();
-        assertThat(meterProtocolSecuritySupportAdapter.getSecurityPropertySpec(SimpleTestDeviceSecuritySupport.SECOND_PROPERTY_NAME)).isNotNull();
-        assertThat(meterProtocolSecuritySupportAdapter.getSecurityPropertySpec(SimpleTestDeviceSecuritySupport.THIRD_PROPERTY_NAME)).isNotNull();
+        assertThat(meterProtocolSecuritySupportAdapter.getSecurityPropertySpec(SimpleTestDeviceSecuritySupport.FIRST_PROPERTY_NAME)).isPresent();
+        assertThat(meterProtocolSecuritySupportAdapter.getSecurityPropertySpec(SimpleTestDeviceSecuritySupport.SECOND_PROPERTY_NAME)).isPresent();
+        assertThat(meterProtocolSecuritySupportAdapter.getSecurityPropertySpec(SimpleTestDeviceSecuritySupport.THIRD_PROPERTY_NAME)).isPresent();
     }
 
     @Test
@@ -205,7 +203,7 @@ public class MeterProtocolSecuritySupportAdapterTest {
 
         // asserts
         assertThat(authenticationAccessLevels).hasSize(1);
-        assertEquals(SimpleTestDeviceSecuritySupport.AUTHENTICATION_DEVICE_ACCESS_LEVEL_ID, authenticationAccessLevels.get(0).getId());
+        assertThat(authenticationAccessLevels.get(0).getId()).isEqualTo(SimpleTestDeviceSecuritySupport.AUTHENTICATION_DEVICE_ACCESS_LEVEL_ID);
     }
 
     @Test
@@ -223,7 +221,7 @@ public class MeterProtocolSecuritySupportAdapterTest {
 
         // asserts
         assertThat(encryptionAccessLevels).hasSize(1);
-        assertEquals(SimpleTestDeviceSecuritySupport.ENCRYPTION_DEVICE_ACCESS_LEVEL_ID, encryptionAccessLevels.get(0).getId());
+        assertThat(encryptionAccessLevels.get(0).getId()).isEqualTo(SimpleTestDeviceSecuritySupport.ENCRYPTION_DEVICE_ACCESS_LEVEL_ID);
     }
 
     @Test

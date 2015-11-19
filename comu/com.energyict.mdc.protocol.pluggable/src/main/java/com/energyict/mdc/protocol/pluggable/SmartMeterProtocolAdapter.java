@@ -1,5 +1,8 @@
 package com.energyict.mdc.protocol.pluggable;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
@@ -53,14 +56,11 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.Sma
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolRegisterAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolSecuritySupportAdapter;
 
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.PropertySpec;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.logging.Logger;
@@ -484,7 +484,7 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
     }
 
     @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
+    public Optional<PropertySpec> getSecurityPropertySpec(String name) {
         if (this.delegateSecurityToActualProtocol()) {
             return getDeviceSecuritySupport().getSecurityPropertySpec(name);
         }

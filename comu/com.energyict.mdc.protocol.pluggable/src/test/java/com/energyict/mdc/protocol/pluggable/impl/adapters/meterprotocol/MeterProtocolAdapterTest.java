@@ -1,5 +1,12 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecBuilder;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.TimeZoneFactory;
+import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.TypedProperties;
@@ -46,32 +53,26 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.Hhu
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.mock.RegisterSupportedMeterProtocol;
 import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocol;
 
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecBuilder;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.properties.TimeZoneFactory;
-import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
-import org.fest.assertions.core.Condition;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.TimeZone;
+import java.util.stream.Collectors;
 
+import org.assertj.core.api.Condition;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Matchers;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
@@ -83,7 +84,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
-
 
 /**
  * Tests the adapter between a standard {@link MeterProtocol} and the new {@link DeviceProtocol}.
@@ -211,10 +211,10 @@ public class MeterProtocolAdapterTest {
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         MeterProtocolAdapterImpl meterProtocolAdapter = newMeterProtocolAdapter(meterProtocol);
         meterProtocolAdapter.init(offlineDevice, getMockedComChannel());
-        assertNotNull(meterProtocolAdapter.getMeterProtocolClockAdapter());
-        assertNotNull(meterProtocolAdapter.getMeterProtocolLoadProfileAdapter());
-        assertNotNull(meterProtocolAdapter.getMeterProtocolRegisterAdapter());
-        assertNotNull(meterProtocolAdapter.getDeviceProtocolTopologyAdapter());
+        assertThat(meterProtocolAdapter.getMeterProtocolClockAdapter()).isNotNull();
+        assertThat(meterProtocolAdapter.getMeterProtocolLoadProfileAdapter()).isNotNull();
+        assertThat(meterProtocolAdapter.getMeterProtocolRegisterAdapter()).isNotNull();
+        assertThat(meterProtocolAdapter.getDeviceProtocolTopologyAdapter()).isNotNull();
     }
 
     @Test
@@ -223,7 +223,7 @@ public class MeterProtocolAdapterTest {
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         MeterProtocolAdapterImpl meterProtocolAdapter = newMeterProtocolAdapter(meterProtocol);
         meterProtocolAdapter.init(offlineDevice, getMockedComChannel());
-        assertTrue(meterProtocolAdapter.getMeterProtocolRegisterAdapter().getRegisterProtocol() instanceof DeviceRegisterReadingNotSupported);
+        assertThat(meterProtocolAdapter.getMeterProtocolRegisterAdapter().getRegisterProtocol()).isInstanceOf(DeviceRegisterReadingNotSupported.class);
     }
 
     @Test
@@ -232,8 +232,8 @@ public class MeterProtocolAdapterTest {
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         MeterProtocolAdapterImpl meterProtocolAdapter = newMeterProtocolAdapter(meterProtocol);
         meterProtocolAdapter.init(offlineDevice, getMockedComChannel());
-        assertFalse(meterProtocolAdapter.getMeterProtocolRegisterAdapter().getRegisterProtocol() instanceof DeviceRegisterReadingNotSupported);
-        assertTrue(meterProtocolAdapter.getMeterProtocolRegisterAdapter().getRegisterProtocol() instanceof RegisterSupportedMeterProtocol);
+        assertThat(meterProtocolAdapter.getMeterProtocolRegisterAdapter().getRegisterProtocol()).isNotInstanceOf(DeviceRegisterReadingNotSupported.class);
+        assertThat(meterProtocolAdapter.getMeterProtocolRegisterAdapter().getRegisterProtocol()).isInstanceOf(RegisterSupportedMeterProtocol.class);
     }
 
     /**
@@ -289,36 +289,25 @@ public class MeterProtocolAdapterTest {
         List<PropertySpec> optionalPropertiesFromSet = getOptionalPropertiesFromSet(meterProtocolAdapter.getPropertySpecs());
         assertThat(optionalPropertiesFromSet).isNotEmpty(); // the optional properties are replaced by the hardcoded legacy values
         assertThat(optionalPropertiesFromSet).hasSize(4);
-        assertThat(optionalPropertiesFromSet).has(new Condition<List<PropertySpec>>() {
-            @Override
-            public boolean matches(List<PropertySpec> propertySpecs) {
-                int count = 0;
-                for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.getName().equals(MeterProtocol.NODEID)) {
-                        count |= 0b0001;
-                    } else if (propertySpec.getName().equals(MeterProtocol.ADDRESS)) {
-                        count |= 0b0010;
-                    } else if (propertySpec.getName().equals(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName())) {
-                        count |= 0b0100;
-                    } else if (propertySpec.getName().equals(DeviceProtocolProperty.DEVICE_TIME_ZONE.javaFieldName())) {
-                        count |= 0b1000;
-                    } else {
-                        count = -1;
-                    }
-                }
-                return count == 0b1111;
+        int count = 0;
+        for (PropertySpec propertySpec : meterProtocolAdapter.getPropertySpecs()) {
+            if (propertySpec.getName().equals(MeterProtocol.NODEID)) {
+                count |= 0b0001;
+            } else if (propertySpec.getName().equals(MeterProtocol.ADDRESS)) {
+                count |= 0b0010;
+            } else if (propertySpec.getName().equals(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName())) {
+                count |= 0b0100;
+            } else if (propertySpec.getName().equals(DeviceProtocolProperty.DEVICE_TIME_ZONE.javaFieldName())) {
+                count |= 0b1000;
+            } else {
+                count = -1;
             }
-        });
+        }
+        assertThat(count).isEqualTo(0b1111);
     }
 
     private List<PropertySpec> getOptionalPropertiesFromSet(List<PropertySpec> propertySpecs) {
-        List<PropertySpec> requiredProperties = new ArrayList<>();
-        for (PropertySpec propertySpec : propertySpecs) {
-            if (!propertySpec.isRequired()) {
-                requiredProperties.add(propertySpec);
-            }
-        }
-        return requiredProperties;
+        return propertySpecs.stream().filter(propertySpec -> !propertySpec.isRequired()).collect(Collectors.toList());
     }
 
     @Test
@@ -363,7 +352,7 @@ public class MeterProtocolAdapterTest {
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         MeterProtocolAdapterImpl meterProtocolAdapter = newMeterProtocolAdapter(meterProtocol);
         meterProtocolAdapter.init(offlineDevice, getMockedComChannel());
-        assertEquals(version, meterProtocolAdapter.getVersion());
+        assertThat(meterProtocolAdapter.getVersion()).isEqualTo(version);
     }
 
     @Test(expected = LegacyProtocolException.class)
@@ -402,7 +391,7 @@ public class MeterProtocolAdapterTest {
         when(offlineDevice.getSerialNumber()).thenReturn(meterSerialNumber);
         MeterProtocolAdapterImpl meterProtocolAdapter = newMeterProtocolAdapter(meterProtocol);
         meterProtocolAdapter.init(offlineDevice, getMockedComChannel());
-        assertEquals(meterSerialNumber, meterProtocolAdapter.getSerialNumber());
+        assertThat(meterProtocolAdapter.getSerialNumber()).isEqualTo(meterSerialNumber);
     }
 
     @Test
@@ -526,8 +515,8 @@ public class MeterProtocolAdapterTest {
         byte[] hhuDataReadout = meterProtocolAdapter.getHHUDataReadout();
 
         // verify that we received an empty byteArray
-        assertNotNull(hhuDataReadout);
-        assertEquals(0, hhuDataReadout.length);
+        assertThat(hhuDataReadout).isNotNull();
+        assertThat(hhuDataReadout.length).isZero();
     }
 
     @Test
@@ -575,12 +564,13 @@ public class MeterProtocolAdapterTest {
         MeterProtocolAdapterImpl adapter = new TestMeterProtocolAdapter(adaptedProtocol, this.inMemoryPersistence.getPropertySpecService(), this.protocolPluggableService, this.securitySupportAdapterMappingFactory);
 
         // Business method
-        PropertySpec whatEverPropertySpec = adapter.getSecurityPropertySpec(PROPERTY_SPEC_NAME);
-        PropertySpec firstPropertySpec = adapter.getSecurityPropertySpec(SimpleTestDeviceSecuritySupport.FIRST_PROPERTY_NAME);
+        Optional<PropertySpec> whatEverPropertySpec = adapter.getSecurityPropertySpec(PROPERTY_SPEC_NAME);
+        Optional<PropertySpec> firstPropertySpec = adapter.getSecurityPropertySpec(SimpleTestDeviceSecuritySupport.FIRST_PROPERTY_NAME);
 
         // Asserts
-        assertThat(whatEverPropertySpec).isNull();
-        assertThat(firstPropertySpec).isEqualTo(new PropertySpecServiceImpl().basicPropertySpec(SimpleTestDeviceSecuritySupport.FIRST_PROPERTY_NAME, false, new StringFactory()));
+        assertThat(whatEverPropertySpec).isEmpty();
+        assertThat(firstPropertySpec).isPresent();
+        assertThat(firstPropertySpec.get()).isEqualTo(new PropertySpecServiceImpl().basicPropertySpec(SimpleTestDeviceSecuritySupport.FIRST_PROPERTY_NAME, false, new StringFactory()));
     }
 
     @Test

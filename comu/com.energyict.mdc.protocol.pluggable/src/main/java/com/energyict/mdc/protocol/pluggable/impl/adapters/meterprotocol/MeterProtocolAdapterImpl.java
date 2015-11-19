@@ -1,5 +1,10 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.io.ComChannel;
@@ -20,6 +25,7 @@ import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedData;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
@@ -55,14 +61,11 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterM
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.PropertySpec;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.logging.Logger;
@@ -385,10 +388,6 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
         return meterProtocolLoadProfileAdapter;
     }
 
-    protected MeterProtocolMessageAdapter getMeterProtocolMessageAdapter() {
-        return meterProtocolMessageAdapter;
-    }
-
     protected DeviceProtocolTopologyAdapter getDeviceProtocolTopologyAdapter() {
         return deviceProtocolTopologyAdapter;
     }
@@ -495,23 +494,12 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
         }
     }
 
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
         if (this.delegateSecurityToActualProtocol()) {
-            return getDeviceSecuritySupport().getSecurityPropertySpec(name);
+            return this.getDeviceSecuritySupport().getCustomPropertySet();
         }
         else {
-            return this.meterProtocolSecuritySupportAdapter.getSecurityPropertySpec(name);
-        }
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        if (this.delegateSecurityToActualProtocol()) {
-            return getDeviceSecuritySupport().getSecurityRelationTypeName();
-        }
-        else {
-            return this.meterProtocolSecuritySupportAdapter.getSecurityRelationTypeName();
+            return this.meterProtocolSecuritySupportAdapter.getCustomPropertySet();
         }
     }
 
@@ -586,4 +574,5 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
         }
         return firmwareVersionsCollectedData;
     }
+
 }

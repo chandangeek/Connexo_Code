@@ -1,5 +1,8 @@
 package com.energyict.mdc.protocol.pluggable.mocks;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.io.ComChannel;
 import com.energyict.mdc.protocol.api.ConnectionType;
@@ -11,6 +14,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
@@ -26,13 +30,12 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
-import com.elster.jupiter.properties.PropertySpec;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -169,13 +172,8 @@ public class MockDeviceProtocol implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return null;
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+        return Optional.empty();
     }
 
     @Override
@@ -185,11 +183,6 @@ public class MockDeviceProtocol implements DeviceProtocol {
 
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return null;
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
         return null;
     }
 

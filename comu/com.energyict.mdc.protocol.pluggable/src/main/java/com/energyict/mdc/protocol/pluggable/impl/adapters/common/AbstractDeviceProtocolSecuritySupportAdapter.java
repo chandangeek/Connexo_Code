@@ -10,12 +10,13 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Abstract class for implementing the {@link DeviceSecuritySupport} interface
@@ -99,11 +100,11 @@ public abstract class AbstractDeviceProtocolSecuritySupportAdapter implements De
     }
 
     @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
+    public Optional<PropertySpec> getSecurityPropertySpec(String name) {
         if (checkExistingSecuritySupport()) {
             return this.legacySecuritySupport.getSecurityPropertySpec(name);
         } else {
-            return null;
+            return Optional.empty();
         }
     }
 

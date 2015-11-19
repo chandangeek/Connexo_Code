@@ -1,12 +1,14 @@
 package com.energyict.mdc.protocol.pluggable.mocks;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.Quantity;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.InvalidPropertyException;
 import com.energyict.mdc.protocol.api.MissingPropertyException;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedMessageList;
 import com.energyict.mdc.protocol.api.device.data.ProfileData;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
@@ -28,6 +30,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
@@ -181,13 +184,8 @@ public class MockMeterProtocol implements MeterProtocol, DeviceSecuritySupport, 
     }
 
     @Override
-    public List<com.elster.jupiter.properties.PropertySpec> getSecurityPropertySpecs() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return "MockRelationType";
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+        return Optional.empty();
     }
 
     @Override
@@ -198,11 +196,6 @@ public class MockMeterProtocol implements MeterProtocol, DeviceSecuritySupport, 
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         return Collections.emptyList();
-    }
-
-    @Override
-    public com.elster.jupiter.properties.PropertySpec getSecurityPropertySpec(String name) {
-        return null;
     }
 
     @Override

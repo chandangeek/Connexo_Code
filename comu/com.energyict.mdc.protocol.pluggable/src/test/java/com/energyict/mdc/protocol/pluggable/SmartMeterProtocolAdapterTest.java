@@ -1,5 +1,13 @@
 package com.energyict.mdc.protocol.pluggable;
 
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecBuilder;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.TimeZoneFactory;
+import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.energyict.mdc.common.BusinessException;
 import com.energyict.mdc.common.IdBusinessObjectFactory;
 import com.energyict.mdc.common.TypedProperties;
@@ -42,32 +50,23 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.Sim
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolSecuritySupportAdapter;
 import com.energyict.mdc.protocol.pluggable.mocks.MockDeviceProtocol;
 
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.PropertySpecBuilder;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.properties.TimeZoneFactory;
-import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
-import org.fest.assertions.api.Assertions;
-import org.fest.assertions.core.Condition;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.TimeZone;
 
+import org.assertj.core.api.Condition;
 import org.junit.*;
 import org.junit.runner.*;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.fest.assertions.api.Assertions.assertThat;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Fail.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
@@ -222,11 +221,11 @@ public class SmartMeterProtocolAdapterTest {
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         SmartMeterProtocolAdapter smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
         smartMeterProtocolAdapter.init(offlineDevice, getMockedComChannel());
-        assertNotNull(smartMeterProtocolAdapter.getSmartMeterProtocolClockAdapter());
-        assertNotNull(smartMeterProtocolAdapter.getSmartMeterProtocolLoadProfileAdapter());
-        assertNotNull(smartMeterProtocolAdapter.getDeviceProtocolTopologyAdapter());
-        assertNotNull(smartMeterProtocolAdapter.getSmartMeterProtocolLogBookAdapter());
-        assertNotNull(smartMeterProtocolAdapter.getSmartMeterProtocolRegisterAdapter());
+        assertThat(smartMeterProtocolAdapter.getSmartMeterProtocolClockAdapter()).isNotNull();
+        assertThat(smartMeterProtocolAdapter.getSmartMeterProtocolLoadProfileAdapter()).isNotNull();
+        assertThat(smartMeterProtocolAdapter.getDeviceProtocolTopologyAdapter()).isNotNull();
+        assertThat(smartMeterProtocolAdapter.getSmartMeterProtocolLogBookAdapter()).isNotNull();
+        assertThat(smartMeterProtocolAdapter.getSmartMeterProtocolRegisterAdapter()).isNotNull();
     }
 
     @Test(expected = LegacyProtocolException.class)
@@ -247,7 +246,7 @@ public class SmartMeterProtocolAdapterTest {
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         SmartMeterProtocolAdapter smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
         smartMeterProtocolAdapter.init(offlineDevice, getMockedComChannel());
-        assertEquals(meterSerialNumber, smartMeterProtocolAdapter.getSerialNumber());
+        assertThat(smartMeterProtocolAdapter.getSerialNumber()).isEqualTo(meterSerialNumber);
     }
 
     @Test(expected = LegacyProtocolException.class)
@@ -289,26 +288,21 @@ public class SmartMeterProtocolAdapterTest {
         assertThat(getRequiredPropertiesFromSet(smartMeterProtocolAdapter.getPropertySpecs())).isEmpty(); // the optional properties are replaced by the hardcoded legacy values
         assertThat(getOptionalPropertiesFromSet(smartMeterProtocolAdapter.getPropertySpecs())).isNotEmpty(); // the optional properties are replaced by the hardcoded legacy values
         assertThat(smartMeterProtocolAdapter.getPropertySpecs()).hasSize(4);
-        assertThat(smartMeterProtocolAdapter.getPropertySpecs()).has(new Condition<List<PropertySpec>>() {
-            @Override
-            public boolean matches(List<PropertySpec> propertySpecs) {
-                int count = 0;
-                for (PropertySpec propertySpec : propertySpecs) {
-                    if (propertySpec.getName().equals(MeterProtocol.NODEID)) {
-                        count |= 0b0001;
-                    } else if (propertySpec.getName().equals(MeterProtocol.ADDRESS)) {
-                        count |= 0b0010;
-                    } else if (propertySpec.getName().equals(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName())) {
-                        count |= 0b0100;
-                    } else if (propertySpec.getName().equals(DeviceProtocolProperty.DEVICE_TIME_ZONE.javaFieldName())) {
-                        count |= 0b1000;
-                    } else {
-                        count = -1;
-                    }
-                }
-                return count == 0b1111;
+        int count = 0;
+        for (PropertySpec propertySpec : smartMeterProtocolAdapter.getPropertySpecs()) {
+            if (propertySpec.getName().equals(MeterProtocol.NODEID)) {
+                count |= 0b0001;
+            } else if (propertySpec.getName().equals(MeterProtocol.ADDRESS)) {
+                count |= 0b0010;
+            } else if (propertySpec.getName().equals(DeviceProtocolProperty.CALL_HOME_ID.javaFieldName())) {
+                count |= 0b0100;
+            } else if (propertySpec.getName().equals(DeviceProtocolProperty.DEVICE_TIME_ZONE.javaFieldName())) {
+                count |= 0b1000;
+            } else {
+                count = -1;
             }
-        });
+        }
+        assertThat(count).isEqualTo(0b1111);
     }
 
     @Test
@@ -353,7 +347,7 @@ public class SmartMeterProtocolAdapterTest {
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         SmartMeterProtocolAdapter smartMeterProtocolAdapter = newSmartMeterProtocolAdapter(smartMeterProtocol);
         smartMeterProtocolAdapter.init(offlineDevice, getMockedComChannel());
-        assertEquals(version, smartMeterProtocolAdapter.getVersion());
+        assertThat(smartMeterProtocolAdapter.getVersion()).isEqualTo(version);
     }
 
     @Test
@@ -486,8 +480,8 @@ public class SmartMeterProtocolAdapterTest {
         byte[] hhuDataReadout = meterProtocolAdapter.getHHUDataReadout();
 
         // verify that we received an empty byteArray
-        assertNotNull(hhuDataReadout);
-        assertEquals(0, hhuDataReadout.length);
+        assertThat(hhuDataReadout).isNotNull();
+        assertThat(hhuDataReadout.length).isEqualTo(0);
     }
 
     @Test
@@ -547,12 +541,13 @@ public class SmartMeterProtocolAdapterTest {
                         this.collectedDataFactory);
 
         // Business method
-        PropertySpec whatEverPropertySpec = adapter.getSecurityPropertySpec(PROPERTY_SPEC_NAME);
-        PropertySpec firstPropertySpec = adapter.getSecurityPropertySpec(SimpleTestDeviceSecuritySupport.FIRST_PROPERTY_NAME);
+        Optional<PropertySpec> whatEverPropertySpec = adapter.getSecurityPropertySpec(PROPERTY_SPEC_NAME);
+        Optional<PropertySpec> firstPropertySpec = adapter.getSecurityPropertySpec(SimpleTestDeviceSecuritySupport.FIRST_PROPERTY_NAME);
 
         // Asserts
-        assertThat(whatEverPropertySpec).isNull();
-        assertThat(firstPropertySpec).isEqualTo(new PropertySpecServiceImpl().basicPropertySpec(SimpleTestDeviceSecuritySupport.FIRST_PROPERTY_NAME, false, new StringFactory()));
+        assertThat(whatEverPropertySpec).isEmpty();
+        assertThat(firstPropertySpec).isPresent();
+        assertThat(firstPropertySpec.get()).isEqualTo(new PropertySpecServiceImpl().basicPropertySpec(SimpleTestDeviceSecuritySupport.FIRST_PROPERTY_NAME, false, new StringFactory()));
     }
 
     @Test
@@ -647,7 +642,7 @@ public class SmartMeterProtocolAdapterTest {
                         this.collectedDataFactory);
 
         // Asserts
-        Assertions.assertThat(SimpleTestDeviceSecuritySupport.DUMMY_RELATION_TYPE_NAME).isEqualTo(adapter.getSecurityRelationTypeName());
+        assertThat(SimpleTestDeviceSecuritySupport.DUMMY_RELATION_TYPE_NAME).isEqualTo(adapter.getSecurityRelationTypeName());
     }
 
     @Test
