@@ -350,16 +350,9 @@ public class AppServerImpl implements AppServer {
         public void activate() {
             if (!active) {
                 active = true;
-                Optional<ImportFolderForAppServer> path = dataModel.mapper(ImportFolderForAppServer.class).getOptional(name);
-                if (path.isPresent()) {
-                    if (path.get().getImportFolder().isPresent()) {
-                        fileImportService.setBasePath(path.get().getImportFolder().get());
-                    }
-                    for(ImportScheduleOnAppServer importScheduleOnAppServer: getImportSchedulesOnAppServer()){
-                        importScheduleOnAppServer.getImportSchedule().ifPresent(s -> fileImportService.schedule(s));
-                    }
+                for(ImportScheduleOnAppServer importScheduleOnAppServer: getImportSchedulesOnAppServer()){
+                    importScheduleOnAppServer.getImportSchedule().ifPresent(s -> fileImportService.schedule(s));
                 }
-
             }
         }
 

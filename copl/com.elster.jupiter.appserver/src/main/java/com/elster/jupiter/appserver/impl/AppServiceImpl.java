@@ -242,6 +242,16 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
     }
 
     private void reconfigure() {
+        Optional<ImportFolderForAppServer> appServerImportFolder = dataModel.mapper(ImportFolderForAppServer.class).getOptional(appServer.getName());
+        if (appServerImportFolder.isPresent() && appServerImportFolder.get().getImportFolder().isPresent()) {
+            appServerImportFolder.flatMap(ImportFolderForAppServer::getImportFolder)
+                    .ifPresent(fileImportService::setBasePath);
+        } else if (!appServerImportFolder.isPresent()) {
+            LOGGER.log(Level.WARNING, "AppServer with name " + appServer.getName() + " has no import folder configured.");
+        } else if (!appServerImportFolder.get().getImportFolder().isPresent()) {
+            LOGGER.log(Level.WARNING, "AppServer with name " + appServer.getName() + " import folder is configured but cannot be resolved as path.");
+        }
+
         Set<ImportSchedule> shouldServe = importSchedulesOnCurrentAppServer().collect(Collectors.toSet());
         synchronized (reconfigureLock) {
             servedImportSchedules.stream()
@@ -393,7 +403,7 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
         List<AppServer> appServers = dataModel.mapper(AppServer.class).select(where("name").isEqualToIgnoreCase(name));
         return appServers.isEmpty() ? Optional.<AppServer>empty() : Optional.of(appServers.get(0));
     }
-    
+
     @Override
     public Optional<AppServer> findAndLockAppServerByNameAndVersion(String name, long version) {
         return dataModel.mapper(AppServer.class).lockObjectIfVersion(version, name);
