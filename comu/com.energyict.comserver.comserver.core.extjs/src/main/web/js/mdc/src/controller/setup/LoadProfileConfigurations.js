@@ -2,12 +2,12 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
     extend: 'Ext.app.Controller',
 
     views: [
-        'setup.loadprofileconfiguration.LoadProfileConfigurationSetup',
-        'setup.loadprofileconfiguration.LoadProfileConfigurationSorting',
-        'setup.loadprofileconfiguration.LoadProfileConfigurationFiltering',
-        'setup.loadprofileconfiguration.LoadProfileConfigurationGrid',
-        'setup.loadprofileconfiguration.LoadProfileConfigurationPreview',
-        'setup.loadprofileconfiguration.LoadProfileConfigurationForm',
+        'Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSetup',
+        'Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationSorting',
+        'Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationFiltering',
+        'Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationGrid',
+        'Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationPreview',
+        'Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationForm',
         'Cfg.view.validation.RulePreview'
     ],
 
@@ -39,11 +39,20 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
         {ref: 'loadConfigurationEmptyListContainer', selector: '#loadProfileConfigurationEmptyListContainer'},
         {ref: 'loadProfileConfigurationPreview', selector: 'loadProfileConfigurationSetup loadProfileConfigurationPreview'},
         {ref: 'editPage', selector: 'loadProfileConfigurationForm'},
-        {ref: 'loadProfileConfigPreviewForm', selector: '#loadProfileConfigPreviewForm'}
+        {ref: 'loadProfileConfigPreviewForm', selector: '#loadProfileConfigPreviewForm'},
+        {
+            ref: 'obisCodeField',
+            selector: '#LoadProfileConfigurationFormId #obis-code-field'
+        },
+        {
+            ref: 'restoreObisCodeBtn',
+            selector: '#LoadProfileConfigurationFormId #mdc-restore-obiscode-btn'
+        }
     ],
 
     deviceTypeId: null,
     deviceConfigurationId: null,
+    originalObisCode: null,
 
     init: function () {
         this.control({
@@ -58,6 +67,12 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
             },
             'menu menuitem[action=deleteloadprofileconfigurationondeviceonfiguration]': {
                 click: this.showConfirmationPanel
+            },
+            '#LoadProfileConfigurationFormId #obis-code-field': {
+                change: this.onObisCodeChange
+            },
+            '#LoadProfileConfigurationFormId #mdc-restore-obiscode-btn': {
+                click: this.onRestoreObisCodeBtnClicked
             }
         });
     },
@@ -150,6 +165,7 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
             mainView.setLoading();
             models.loadProfileConfiguration.load(loadProfileConfigurationId, {
                 success: function (record) {
+                    me.originalObisCode = record.get('obisCode');
                     Ext.suspendLayouts();
                     widget.down('#LoadProfileConfigurationFormId').setTitle(Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'",[record.get('name')]));
                     form.loadRecord(record);
@@ -165,7 +181,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
             availableConfigurations.load();
             Ext.suspendLayouts();
             form.loadRecord(Ext.create('Mdc.model.LoadProfileConfiguration'));
-            form.down('[name=obisCode]').setValue(Uni.I18n.translate('general.selectLoadProfileType','MDC','Select a load profile type first'));
             Ext.resumeLayouts(true);
         }
 
@@ -271,5 +286,21 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurations', {
         } else {
             formErrorsPanel.show();
         }
+    },
+
+    onObisCodeChange: function(obisCodeField, newValue) {
+        var me = this;
+        me.getRestoreObisCodeBtn().setDisabled(newValue === me.originalObisCode);
+        me.getRestoreObisCodeBtn().setTooltip(
+            newValue === me.originalObisCode
+                ? null
+                : Uni.I18n.translate('general.obisCode.reset.tooltip2', 'MDC', 'Reset to {0}, the OBIS code of the load profile type', me.originalObisCode)
+        );
+    },
+
+    onRestoreObisCodeBtnClicked: function() {
+        var me = this;
+        me.getObisCodeField().setValue(me.originalObisCode);
+        me.onObisCodeChange(me.getObisCodeField(), me.originalObisCode);
     }
 });

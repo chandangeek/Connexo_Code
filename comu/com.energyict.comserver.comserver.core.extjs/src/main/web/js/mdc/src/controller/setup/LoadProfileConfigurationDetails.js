@@ -659,27 +659,27 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             useMultiplier = multiplierRadioGroup.getValue().useMultiplier,
             isCumulative = selectedRegisterType.get('isCumulative'),
             calculatedReadingType = selectedRegisterType.get('calculatedReadingType'),
-            multipliedReadingTypes = selectedRegisterType.get('multipliedCalculatedReadingType');
+            possibleCalculatedReadingTypes = selectedRegisterType.get('possibleCalculatedReadingTypes');
 
         collectedReadingTypeField.setValue(selectedRegisterType.get('readingType'));
         collectedReadingTypeField.setVisible(selectedRegisterType);
         if (useMultiplier) {
-            if (!multipliedReadingTypes || multipliedReadingTypes.length === 0) { // should never be the case
+            if (!possibleCalculatedReadingTypes || possibleCalculatedReadingTypes.length === 0) { // should never be the case
                 calculatedReadingTypeField.setVisible(false);
                 calculatedReadingTypeCombo.setVisible(false);
             } else {
-                if (multipliedReadingTypes.length === 1) {
-                    calculatedReadingTypeField.setValue(multipliedReadingTypes[0]);
+                if (possibleCalculatedReadingTypes.length === 1) {
+                    calculatedReadingTypeField.setValue(possibleCalculatedReadingTypes[0]);
                 } else {
                     var readingTypesStore = Ext.create('Ext.data.Store', {model: 'Mdc.model.ReadingType'});
-                    Ext.Array.forEach(multipliedReadingTypes, function(item) {
+                    Ext.Array.forEach(possibleCalculatedReadingTypes, function(item) {
                         readingTypesStore.add(item);
                     });
                     calculatedReadingTypeCombo.bindStore(readingTypesStore, true);
                     calculatedReadingTypeCombo.setValue(readingTypesStore.getAt(0));
                 }
-                calculatedReadingTypeField.setVisible(multipliedReadingTypes.length === 1);
-                calculatedReadingTypeCombo.setVisible(multipliedReadingTypes.length > 1);
+                calculatedReadingTypeField.setVisible(possibleCalculatedReadingTypes.length === 1);
+                calculatedReadingTypeCombo.setVisible(possibleCalculatedReadingTypes.length > 1);
             }
         } else if (!isCumulative) {
             calculatedReadingTypeField.setVisible(false);

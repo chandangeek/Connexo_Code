@@ -11,8 +11,9 @@ Ext.define('Mdc.model.RegisterType', {
         {name: 'isLinkedByInactiveRegisterConfig', type: 'boolean', useNull: true},
         {name: 'isCumulative', type: 'boolean', useNull: true},
         'readingType',
+        'collectedReadingType',
         'calculatedReadingType',
-        'multipliedCalculatedReadingType',
+        'possibleCalculatedReadingTypes',
         {name: 'name', type: 'string', persist: false, mapping: 'readingType.fullAliasName'}
     ],
     idProperty: 'id',
@@ -27,19 +28,22 @@ Ext.define('Mdc.model.RegisterType', {
             foreignKey: 'readingType'
         },
         {
-            name: 'calculatedReadingType',
-            //associationKey: 'calculatedReadingType',
+            name: 'collectedReadingType',
             type: 'hasOne',
             model: 'Mdc.model.ReadingType',
-            //getterName: 'getCalculatedReadingType',
-            //setterName: 'setCalculatedReadingType',
+            foreignKey: 'collectedReadingType'
+        },
+        {
+            name: 'calculatedReadingType',
+            type: 'hasOne',
+            model: 'Mdc.model.ReadingType',
             foreignKey: 'calculatedReadingType'
         },
         {
-            name: 'multipliedCalculatedReadingType',
+            name: 'possibleCalculatedReadingTypes',
             type: 'hasMany',
             model: 'Mdc.model.ReadingType',
-            foreignKey: 'multipliedCalculatedReadingType'
+            foreignKey: 'possibleCalculatedReadingTypes'
         }
     ],
     proxy: {

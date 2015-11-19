@@ -59,6 +59,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
 
     deviceTypeId: null,
     deviceConfigId: null,
+    registerConfigurationBeingEdited: null,
     registerTypesObisCode: null, // The OBIS code of the selected register type
 
     init: function () {
@@ -134,17 +135,17 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         location.href = '#/administration/devicetypes/' + this.deviceTypeId + '/deviceconfigurations/' + this.deviceConfigId + '/registerconfigurations/add';
     },
 
-    previewRegisterConfig: function (grid, record) {
-        var me = this,
-            registerConfigs = this.getRegisterConfigGrid().getSelectionModel().getSelection();
+    previewRegisterConfig: function (selectionModel, selectedRegisterConfigs) {
+        var me = this;
 
-        if (registerConfigs.length === 1) {
-            var registerConfig = registerConfigs[0];
+        if (selectedRegisterConfigs.length === 1) {
+            var registerConfig = selectedRegisterConfigs[0];
 
+            console.log(registerConfig);
             me.getRegisterConfigPreview().updateRegisterConfig(registerConfig);
 
             me.getRegisterConfigValidationRulesStore().getProxy().extraParams =
-                ({deviceType: this.deviceTypeId, deviceConfig: this.deviceConfigId, registerConfig: registerConfigs[0].getId()});
+                ({deviceType: this.deviceTypeId, deviceConfig: this.deviceConfigId, registerConfig: registerConfig.getId()});
 
             me.getRulesForRegisterConfigGrid().down('pagingtoolbartop').totalCount = -1;
             if (registerConfig.get('asText')) {
@@ -154,8 +155,11 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             } else {
                 me.getRegisterConfigPreviewOverflowField().show();
                 me.getRegisterConfigPreviewFractionDigitsField().show();
-                // TODO: hide this field when there is not calculated reading type to show:
-                me.getRegisterConfigPreviewCalculatedReadingTypeField().show();
+                if (registerConfig.get('calculatedReadingType') === undefined || registerConfig.get('calculatedReadingType') === '') {
+                    me.getRegisterConfigPreviewCalculatedReadingTypeField().hide();
+                } else {
+                    me.getRegisterConfigPreviewCalculatedReadingTypeField().show();
+                }
             }
             if (Cfg.privileges.Validation.canUpdateDeviceValidation()) {
                 me.getRulesForRegisterConfigPreview().setTitle(
@@ -170,13 +174,16 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
     },
 
     showRegisterConfigs: function (deviceTypeId, deviceConfigId) {
-        var me = this;
-        this.deviceTypeId = deviceTypeId;
-        this.deviceConfigId = deviceConfigId;
-        var widget = Ext.widget('registerConfigSetup', {deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigId});
+        var me = this,
+            widget = Ext.widget('registerConfigSetup', {deviceTypeId: deviceTypeId, deviceConfigId: deviceConfigId});
 
-        if (me.getCreateRegisterConfigBtn())
-            me.getCreateRegisterConfigBtn().href = '#/administration/devicetypes/' + deviceTypeId + '/deviceconfigurations/' + deviceConfigId + '/registerconfigurations/add';
+        me.deviceTypeId = deviceTypeId;
+        me.deviceConfigId = deviceConfigId;
+
+        if (me.getCreateRegisterConfigBtn()) {
+            me.getCreateRegisterConfigBtn().href =
+                '#/administration/devicetypes/' + deviceTypeId + '/deviceconfigurations/' + deviceConfigId + '/registerconfigurations/add';
+        }
         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
             success: function (deviceType) {
                 me.getApplication().fireEvent('loadDeviceType', deviceType);
@@ -187,7 +194,6 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfig);
                         widget.down('#stepsMenu #deviceConfigurationOverviewLink').setText(deviceConfig.get('name'));
                         me.getApplication().fireEvent('changecontentevent', widget);
-                        me.getRegisterConfigGrid().getSelectionModel().doSelect(0);
                     }
                 });
             }
@@ -241,18 +247,20 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         });
     },
 
-    onRegisterTypeChange: function (field, value, options) {
+    onRegisterTypeChange: function (field, value) {
         var me = this,
-            view = me.getRegisterConfigEditForm();
+            view = me.getRegisterConfigEditForm(),
+            registerType = undefined,
+            useMultiplier = undefined;
+
         if (field.name === 'registerType') {
-            var registerType = me.getAvailableRegisterTypesForDeviceConfigurationStore().findRecord('id', value);
-            if (registerType != null) {
-                me.updateReadingTypeFields(registerType);
-                me.registerTypesObisCode = registerType.get('obisCode');
-                view.down('#editObisCodeField').setValue(me.registerTypesObisCode);
-                me.getOverruledObisCodeField().setValue(me.registerTypesObisCode);
-                me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), me.registerTypesObisCode);
-            }
+            registerType = me.getAvailableRegisterTypesForDeviceConfigurationStore().findRecord('id', value);
+            useMultiplier = view.down('#multiplierRadioGroup').getValue().useMultiplier;
+            me.updateReadingTypeFields(registerType, useMultiplier);
+            me.registerTypesObisCode = registerType.get('obisCode');
+            view.down('#editObisCodeField').setValue(me.registerTypesObisCode);
+            me.getOverruledObisCodeField().setValue(me.registerTypesObisCode);
+            me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), me.registerTypesObisCode);
         }
     },
 
@@ -265,6 +273,9 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             values = form.getValues(),
             newObisCode = form.down('#editObisCodeField').getValue(),
             originalObisCode = form.down('#editOverruledObisCodeField').getValue(),
+            useMultiplier = form.down('#multiplierRadioGroup').getValue().useMultiplier,
+            calculatedReadingTypeField = form.down('#mdc-calculated-readingType-field'),
+            calculatedReadingTypeCombo = form.down('#mdc-calculated-readingType-combo'),
             router = this.getController('Uni.controller.history.Router');
 
         Ext.suspendLayouts();
@@ -275,8 +286,26 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             if (record) {
                 record.set(values);
                 if (newObisCode === originalObisCode) {
-                    record.overruledObisCode = null;
+                    record.set('overruledObisCode', null);
                 }
+                if (useMultiplier) {
+                    if (calculatedReadingTypeField.isVisible()) {
+                        record.set('calculatedReadingType', calculatedReadingTypeField.getValue());
+                    } else if (calculatedReadingTypeCombo.isVisible()) {
+                        var possibleCalculatedReadingTypes = calculatedReadingTypeCombo.getStore().getRange(),
+                            calculatedReadingType = null;
+                        Ext.Array.forEach(possibleCalculatedReadingTypes, function(item) {
+                            if (item.get('mRID') === calculatedReadingTypeCombo.getValue()) {
+                                calculatedReadingType = item;
+                                return false; // stop iterating
+                            }
+                        });
+                        record.setCalculatedReadingType(calculatedReadingType);
+                    }
+                } else {
+                    record.setCalculatedReadingType(null);
+                }
+
                 record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigId});
                 form.setLoading();
                 record.save({
@@ -361,6 +390,7 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                 model.getProxy().extraParams = ({deviceType: deviceTypeId, deviceConfig: deviceConfigurationId});
                 model.load(registerConfigurationId, {
                     success: function (registerConfiguration) {
+                        me.registerConfigurationBeingEdited = registerConfiguration;
                         Ext.ModelManager.getModel('Mdc.model.DeviceType').load(deviceTypeId, {
                             success: function (deviceType) {
                                 me.getApplication().fireEvent('loadDeviceType', deviceType);
@@ -370,20 +400,20 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                                     success: function (deviceConfiguration) {
                                         me.getApplication().fireEvent('loadDeviceConfiguration', deviceConfiguration);
                                         widget.down('form').loadRecord(registerConfiguration);
-                                        me.getApplication().fireEvent('loadRegisterConfiguration', registerConfiguration);
-                                        me.getRegisterConfigEditForm().setTitle(
-                                            Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", registerConfiguration.get('readingType').fullAliasName)
-                                        );
-                                        me.getRegisterTypeCombo().setValue(registerConfiguration.get('registerType'));
+                                        // Don't know why this isn't set when loading the record:
                                         if (registerConfiguration.get('asText') === true) {
                                             widget.down('#textRadio').setValue(true);
                                         } else {
                                             widget.down('#numberRadio').setValue(true);
                                         }
-                                        widget.down('#valueTypeRadioGroup').setDisabled(deviceConfiguration.get('active'));
-                                        widget.down('#multiplierRadioGroup').setDisabled(deviceConfiguration.get('active'));
+                                        me.getApplication().fireEvent('loadRegisterConfiguration', registerConfiguration);
+                                        me.getRegisterConfigEditForm().setTitle(
+                                            Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", registerConfiguration.get('collectedReadingType').fullAliasName)
+                                        );
                                         me.registerTypesObisCode = registerConfiguration.get('obisCode');
-                                        me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), me.registerTypesObisCode);
+                                        widget.down('#editObisCodeField').setValue(me.registerTypesObisCode);
+                                        me.getOverruledObisCodeField().setValue(registerConfiguration.get('overruledObisCode'));
+                                        me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), registerConfiguration.get('overruledObisCode'));
                                         widget.setLoading(false);
                                     }
                                 });
@@ -404,7 +434,10 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
             values = form.getValues(),
             router = me.getController('Uni.controller.history.Router'),
             newObisCode = form.down('#editObisCodeField').getValue(),
-            originalObisCode = form.down('#editOverruledObisCodeField').getValue();
+            originalObisCode = form.down('#editOverruledObisCodeField').getValue(),
+            useMultiplier = form.down('#multiplierRadioGroup').getValue().useMultiplier,
+            calculatedReadingTypeField = form.down('#mdc-calculated-readingType-field'),
+            calculatedReadingTypeCombo = form.down('#mdc-calculated-readingType-combo');
 
         Ext.suspendLayouts();
         baseForm.clearInvalid();
@@ -416,6 +449,24 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                 if (newObisCode === originalObisCode) {
                     record.overruledObisCode = null;
                 }
+                if (useMultiplier) {
+                    if (calculatedReadingTypeField.isVisible()) {
+                        record.set('calculatedReadingType', calculatedReadingTypeField.getValue());
+                    } else if (calculatedReadingTypeCombo.isVisible()) {
+                        var possibleCalculatedReadingTypes = calculatedReadingTypeCombo.getStore().getRange(),
+                            calculatedReadingType = null;
+                        Ext.Array.forEach(possibleCalculatedReadingTypes, function(item) {
+                            if (item.get('mRID') === calculatedReadingTypeCombo.getValue()) {
+                                calculatedReadingType = item;
+                                return false; // stop iterating
+                            }
+                        });
+                        record.setCalculatedReadingType(calculatedReadingType);
+                    }
+                } else {
+                    record.setCalculatedReadingType(null);
+                }
+
                 record.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigId});
                 form.setLoading();
                 record.save({
@@ -447,38 +498,69 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
     },
 
     hideShowNumberFields: function (radioGroup) {
-        var visible = !(radioGroup.getValue().asText);
-        this.getRegisterConfigEditForm().down('#editNumberOfFractionDigitsField').setVisible(visible);
-        this.getRegisterConfigEditForm().down('#editOverflowValueField').setVisible(visible);
-        this.getRegisterConfigEditForm().down('#multiplierRadioGroup').setVisible(visible);
-        if (visible) {
+        if (radioGroup.getValue().asText === undefined) {
+            return;
+        }
+        var me = this,
+            asNumber = !(radioGroup.getValue().asText),
+            overflowValueField = me.getRegisterConfigEditForm().down('#editOverflowValueField'),
+            numberOfFractionDigitsField = me.getRegisterConfigEditForm().down('#editNumberOfFractionDigitsField'),
+            multiplierRadioGroup = me.getRegisterConfigEditForm().down('#multiplierRadioGroup'),
+            dataContainer,
+            useMultiplier;
+
+        numberOfFractionDigitsField.setVisible(asNumber);
+        overflowValueField.setVisible(asNumber);
+        multiplierRadioGroup.setVisible(asNumber);
+        if (asNumber) {
             var values = this.getRegisterConfigEditForm().getValues();
             if (values.numberOfFractionDigits === '') {
-                this.getRegisterConfigEditForm().down('#editNumberOfFractionDigitsField').setValue(0);
+                numberOfFractionDigitsField.setValue(0);
             }
         }
-        this.getRegisterConfigEditForm().down('#editOverflowValueField').allowBlank = radioGroup.getValue().asText;
+        overflowValueField.allowBlank = radioGroup.getValue().asText;
+
+        if (me.getRegisterConfigEditForm().up('#registerConfigEdit').isEdit()) { // Busy editing a register config
+            dataContainer = me.registerConfigurationBeingEdited;
+        } else { // Busy adding a register config
+            dataContainer = me.getAvailableRegisterTypesForDeviceConfigurationStore().findRecord('id', me.getRegisterTypeCombo().getValue());
+        }
+        useMultiplier = !asNumber
+            ? false
+            : me.getRegisterConfigEditForm().down('#multiplierRadioGroup').getValue().useMultiplier;
+        me.updateReadingTypeFields(dataContainer, useMultiplier);
     },
 
     onMultiplierChange: function(radioGroup) {
-        this.updateReadingTypeFields(
-            this.getAvailableRegisterTypesForDeviceConfigurationStore().findRecord('id', this.getRegisterTypeCombo().getValue())
-        );
+        var me = this,
+            contentContainer = this.getRegisterConfigEditForm().up('#registerConfigEdit');
+
+        if (contentContainer.isEdit()) { // Busy editing a register config
+            me.updateReadingTypeFields(me.registerConfigurationBeingEdited, radioGroup.getValue().useMultiplier);
+        } else { // Busy adding a register config
+            me.updateReadingTypeFields(
+                me.getAvailableRegisterTypesForDeviceConfigurationStore().findRecord('id', me.getRegisterTypeCombo().getValue()),
+                radioGroup.getValue().useMultiplier
+            );
+        }
     },
 
-    updateReadingTypeFields: function(selectedRegisterType) {
+    updateReadingTypeFields: function(dataContainer, useMultiplier) {
         var me = this,
             form = this.getRegisterConfigEditForm(),
             multiplierRadioGroup = form.down('#multiplierRadioGroup'),
             collectedReadingTypeField = form.down('#mdc-collected-readingType-field'),
             calculatedReadingTypeField = form.down('#mdc-calculated-readingType-field'),
             calculatedReadingTypeCombo = form.down('#mdc-calculated-readingType-combo'),
-            useMultiplier = multiplierRadioGroup.getValue().useMultiplier,
-            multipliedReadingTypes = selectedRegisterType.get('multipliedCalculatedReadingType');
+            possibleCalculatedReadingTypes = dataContainer.get('possibleCalculatedReadingTypes');
 
-        collectedReadingTypeField.setValue(selectedRegisterType.get('readingType'));
-        collectedReadingTypeField.setVisible(selectedRegisterType);
-        if (!multipliedReadingTypes || multipliedReadingTypes.length === 0) {
+        if (dataContainer.get('collectedReadingType') !== undefined) {
+            collectedReadingTypeField.setValue(dataContainer.get('collectedReadingType'));
+        } else {
+            collectedReadingTypeField.setValue(dataContainer.get('readingType'));
+        }
+        collectedReadingTypeField.setVisible(dataContainer);
+        if (!possibleCalculatedReadingTypes || possibleCalculatedReadingTypes.length === 0) {
             multiplierRadioGroup.setValue({ useMultiplier : false });
             useMultiplier = multiplierRadioGroup.getValue().useMultiplier
             multiplierRadioGroup.setDisabled(true);
@@ -487,17 +569,21 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
         }
 
         if (useMultiplier) {
-            if (multipliedReadingTypes.length === 1) {
-                calculatedReadingTypeField.setValue(multipliedReadingTypes[0]);
+            if (possibleCalculatedReadingTypes.length === 1) {
+                calculatedReadingTypeField.setValue(possibleCalculatedReadingTypes[0]);
                 calculatedReadingTypeField.setVisible(true);
                 calculatedReadingTypeCombo.setVisible(false);
             } else {
                 var readingTypesStore = Ext.create('Ext.data.Store', {model: 'Mdc.model.ReadingType'});
-                Ext.Array.forEach(multipliedReadingTypes, function(item) {
+                Ext.Array.forEach(possibleCalculatedReadingTypes, function(item) {
                     readingTypesStore.add(item);
                 });
                 calculatedReadingTypeCombo.bindStore(readingTypesStore, true);
-                calculatedReadingTypeCombo.setValue(readingTypesStore.getAt(0));
+                if (dataContainer.get('calculatedReadingType') !== undefined && dataContainer.get('calculatedReadingType') !== '') {
+                    calculatedReadingTypeCombo.setValue(dataContainer.get('calculatedReadingType').mRID);
+                } else {
+                    calculatedReadingTypeCombo.setValue(readingTypesStore.getAt(0));
+                }
                 calculatedReadingTypeCombo.setVisible(true);
                 calculatedReadingTypeField.setVisible(false);
             }

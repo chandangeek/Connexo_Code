@@ -122,7 +122,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                         fieldLabel: Uni.I18n.translate('registerConfig.overflowValue', 'MDC', 'Overflow value'),
                         itemId: 'editOverflowValueField',
                         width: 450,
-                        maxValue: 100000000,
+                        maxValue: 2147483647,
                         hideTrigger: true,
                         maxLength: 22,
                         enforceMaxLength: true,
@@ -184,7 +184,6 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
                     {
                         xtype: 'reading-type-combo',
                         itemId: 'mdc-calculated-readingType-combo',
-                        name: 'calculatedReadingType',
                         fieldLabel: Uni.I18n.translate('general.calculatedReadingType', 'MDC', 'Calculated reading type'),
                         tpl: null,
                         displayTpl: null,

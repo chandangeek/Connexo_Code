@@ -49,7 +49,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
                         },
                         defaults: {
                             xtype: 'displayfield',
-                            labelWidth: 150
+                            labelWidth: 160
                         },
                         items: [
                             {
@@ -73,7 +73,7 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
                         },
                         defaults: {
                             xtype: 'displayfield',
-                            labelWidth: 150
+                            labelWidth: 160
                         },
                         items: [
                             {
@@ -98,12 +98,12 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
                             {
                                 xtype: 'reading-type-displayfield',
                                 fieldLabel: Uni.I18n.translate('general.collectedReadingType', 'MDC', 'Collected reading type'),
-                                name: 'readingType'
+                                name: 'collectedReadingType'
                             },
                             {
                                 xtype: 'reading-type-displayfield',
                                 fieldLabel: Uni.I18n.translate('general.calculatedReadingType', 'MDC', 'Calculated reading type'),
-                                name: 'readingType',
+                                name: 'calculatedReadingType',
                                 itemId: 'mdc-register-config-preview-calculated',
                                 hidden: true
                             }
