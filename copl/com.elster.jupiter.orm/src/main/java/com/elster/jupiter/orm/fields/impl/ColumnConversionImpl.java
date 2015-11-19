@@ -235,6 +235,23 @@ public enum ColumnConversionImpl {
 			return Integer.valueOf(in);
 		}
 	},
+	NUMBER2LONGWRAPPER {
+		@Override
+		public Object convertToDb(ColumnImpl column, Object value) {
+			return  value;
+		}
+
+		@Override
+		public Object convertFromDb(ColumnImpl column, ResultSet rs, int index) throws SQLException {
+			long result = rs.getLong(index);
+			return rs.wasNull() ? null : result;
+		}
+
+		@Override
+		public Object convert(ColumnImpl column, String in) {
+			return Long.valueOf(in);
+		}
+	},
 	CHAR2UNIT { // 14
 		@Override
 		public Object convertToDb(ColumnImpl column, Object value) {

@@ -386,7 +386,8 @@ public class ForeignKeyConstraintImpl extends TableConstraintImpl implements For
 
         @Override
         public Builder references(Class apiClass) {
-            TableImpl<?> table = constraint.getTable().getDataModel().getOrmService().getTable(apiClass);
+            TableImpl<?> table = constraint.getTable().getDataModel().getTable(apiClass)
+                .orElseGet(() -> constraint.getTable().getDataModel().getOrmService().getTable(apiClass));
             constraint.setReferencedTable(table);
             return this;
         }
