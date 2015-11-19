@@ -222,16 +222,11 @@ public class AppServerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
-    public Response activateAppServer(@PathParam("appserverName") String appServerName) {
+    public Response activateAppServer(@PathParam("appserverName") String appServerName, AppServerInfo info) {
         AppServer appServer = fetchAppServer(appServerName);
         if (!appServer.isActive()) {
             try (TransactionContext context = transactionService.getContext()) {
-                appServer = appService.findAndLockAppServerByNameAndVersion(appServerName, appServer.getVersion())
-                        .orElseThrow(conflictFactory.conflict()
-                                .withActualVersion(() -> appService.findAppServer(appServerName).map(AppServer::getVersion).orElse(null))
-                                .withMessageTitle(MessageSeeds.APP_SERVER_FAIL_ACTIVATE_TITLE, appServerName)
-                                .withMessageBody(MessageSeeds.APP_SERVER_FAIL_ACTIVATE_BODY, appServerName)
-                                .supplier());
+                appServer = fetchAndLockAppServer(appServerName, info);
                 appServer.activate();
                 context.commit();
             }
@@ -244,16 +239,11 @@ public class AppServerResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_APPSEVER})
-    public Response deactivateAppServer(@PathParam("appserverName") String appServerName) {
+    public Response deactivateAppServer(@PathParam("appserverName") String appServerName, AppServerInfo info) {
         AppServer appServer = fetchAppServer(appServerName);
         if (appServer.isActive()) {
             try (TransactionContext context = transactionService.getContext()) {
-                appServer = appService.findAndLockAppServerByNameAndVersion(appServerName, appServer.getVersion())
-                        .orElseThrow(conflictFactory.conflict()
-                                .withActualVersion(() -> appService.findAppServer(appServerName).map(AppServer::getVersion).orElse(null))
-                                .withMessageTitle(MessageSeeds.APP_SERVER_FAIL_DEACTIVATE_TITLE, appServerName)
-                                .withMessageBody(MessageSeeds.APP_SERVER_FAIL_DEACTIVATE_BODY, appServerName)
-                                .supplier());
+                appServer = fetchAndLockAppServer(appServerName, info);
                 appServer.deactivate();
                 context.commit();
             }
