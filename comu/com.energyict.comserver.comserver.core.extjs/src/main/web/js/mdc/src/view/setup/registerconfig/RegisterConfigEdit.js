@@ -4,7 +4,8 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigEdit', {
     itemId: 'registerConfigEdit',
     requires: [
         'Uni.form.field.Obis',
-        'Uni.form.field.ReadingTypeDisplay'
+        'Uni.form.field.ReadingTypeDisplay',
+        'Uni.form.field.ReadingTypeCombo'
     ],
     edit: false,
 

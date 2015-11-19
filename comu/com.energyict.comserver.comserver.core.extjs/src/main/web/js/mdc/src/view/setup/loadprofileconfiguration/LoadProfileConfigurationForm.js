@@ -5,8 +5,7 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationForm
     deviceTypeId: null,
     deviceConfigurationId: null,
     requires: [
-        'Uni.form.field.Obis',
-        'Uni.form.field.ObisDisplay'
+        'Uni.form.field.Obis'
     ],
     edit: false,
     cancelLink: undefined,
@@ -91,17 +90,6 @@ Ext.define('Mdc.view.setup.loadprofileconfiguration.LoadProfileConfigurationForm
                             }
                         ]
                     },
-                    //{
-                    //    xtype: 'obis-displayfield',
-                    //    name: 'obisCode'
-                    //},
-                    //{
-                    //    xtype: 'obis-field',
-                    //    itemId: 'obis-code-field',
-                    //    required: false,
-                    //    fieldLabel: Uni.I18n.translate('general.overruledObisCode', 'MDC', 'Overruled OBIS code'),
-                    //    name: 'overruledObisCode'
-                    //},
                     {
                         xtype: 'fieldcontainer',
                         ui: 'actions',

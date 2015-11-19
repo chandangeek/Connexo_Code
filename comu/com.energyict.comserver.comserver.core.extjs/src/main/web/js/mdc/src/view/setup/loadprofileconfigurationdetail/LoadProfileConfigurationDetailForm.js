@@ -7,7 +7,6 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
     deviceTypeId: null,
     requires: [
         'Uni.form.field.Obis',
-        'Uni.form.field.ObisDisplay',
         'Uni.form.field.ReadingTypeDisplay',
         'Uni.form.field.ReadingTypeCombo'
     ],
