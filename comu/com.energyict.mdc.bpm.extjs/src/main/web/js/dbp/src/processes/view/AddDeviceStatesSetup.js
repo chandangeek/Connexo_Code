@@ -1,7 +1,7 @@
 Ext.define('Dbp.processes.view.AddDeviceStatesSetup', {
     extend: 'Uni.view.container.ContentContainer',
     xtype: 'dbp-add-device-states-setup',
-
+    overflowY: true,
     requires: [
         'Uni.view.notifications.NoItemsFoundPanel',
         'Dbp.processes.view.AddDeviceStates'

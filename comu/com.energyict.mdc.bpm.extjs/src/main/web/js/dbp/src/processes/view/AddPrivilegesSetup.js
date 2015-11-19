@@ -1,7 +1,7 @@
 Ext.define('Dbp.processes.view.AddPrivilegesSetup', {
     extend: 'Uni.view.container.ContentContainer',
     xtype: 'dbp-add-privileges-setup',
-
+    overflowY: true,
     requires: [
         'Uni.view.notifications.NoItemsFoundPanel',
         'Dbp.processes.view.AddPrivileges'

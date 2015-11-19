@@ -18,6 +18,14 @@ Ext.define('Dbp.processes.view.EditProcess', {
                 ui: 'large',
                 items: [
                     {
+                        itemId: 'form-errors',
+                        xtype: 'uni-form-error-message',
+                        name: 'form-errors',
+                        width: 600,
+                        margin: '0 0 10 0',
+                        hidden: true
+                    },
+                    {
                         xtype: 'combobox',
                         itemId: 'cbo-associated-to',
                         name: 'associatedTo',
@@ -44,31 +52,54 @@ Ext.define('Dbp.processes.view.EditProcess', {
                         itemId: 'device-states-form',
                         items: [
                             {
-                                xtype: 'preview-container',
-                                margin: '0 0 0 250',
-                                itemId: 'device-states-grid-preview-container',
-                                grid: {
-                                    xtype: 'device-states-grid',
-                                    itemId: 'dbp-device-states-grid',
-                                    processId: me.processId,
-                                    store: me.processModel.deviceStates()
-                                },
-								emptyComponent: {
-									xtype: 'no-items-found-panel',
-									title: Uni.I18n.translate('editProcess.noDeviceStateFound','DBP','No device state found'),
-									reasons: [
-										Uni.I18n.translate('editProcess.noDeviceState.reason1','DBP','No device states have been defined yet.')
-									],
-									stepItems: [
-										{
-											text: Uni.I18n.translate('DBP.addDeviceStates','DBP','Add device states'),
-                                            privileges: Dbp.privileges.DeviceProcesses.administrateProcesses,
-											itemId: 'device-state-grid-add-link',
-											href: ''
-										}
-									]
-								}//,
-                                //hidden:true
+                                xtype: 'fieldcontainer',
+                                fieldLabel: Uni.I18n.translate('editProcess.deviceStates', 'DBP', 'Device states'),
+                                itemId: 'ctn-device-states',
+                                required: true,
+                                width: 600,
+                                labelWidth: 234,
+                                layout: 'vbox',
+                                items: [
+                                    {
+                                        xtype: 'container',
+                                        width: '100%',
+                                        layout: {
+                                            type: 'hbox',
+                                            align: 'stretch'
+                                        },
+                                        items: [
+                                            {
+                                                xtype: 'component',
+                                                html: Uni.I18n.translate('editProcess.noDeviceStates', 'DBP', 'No device states have been added'),
+                                                itemId: 'empty-device-states-grid',
+                                                style: {
+                                                    'font': 'italic 13px/17px Lato',
+                                                    'color': '#686868',
+                                                    'margin-top': '6px',
+                                                    'margin-right': '10px'
+                                                },
+                                                hidden: true
+                                            },
+                                            {
+                                                xtype: 'component',
+                                                itemId: 'dbp-add-device-states-to-right-component',
+                                                flex: 1
+                                            },
+                                            {
+                                                itemId: 'add-device-states-button',
+                                                xtype: 'button',
+                                                margin: '0 0 10 0',
+                                                text: Uni.I18n.translate('editProcess.addDeviceStates', 'DBP', 'Add device states')
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        xtype: 'device-states-grid',
+                                        itemId: 'dbp-device-states-grid',
+                                        processId: me.processId,
+                                        store: me.processModel.deviceStates()
+                                    }
+                                ]
                             }
                         ]
                     },
@@ -83,32 +114,55 @@ Ext.define('Dbp.processes.view.EditProcess', {
                         itemId: 'processes-form',
                         items: [
                             {
-                                xtype: 'preview-container',
-                                margin: '0 0 0 250',
-                                itemId: 'privileges-grid-preview-container',
-                                grid: {
-                                    xtype: 'privileges-grid',
-                                    itemId: 'dbp-privileges-grid',
-                                    processId: me.processId,
-                                    store: me.processModel.privileges()
-                                },
-								emptyComponent: {
-									xtype: 'no-items-found-panel',
-									title: Uni.I18n.translate('editProcess.noPrivilegeFound','DBP','No privileges found'),
-									reasons: [
-										Uni.I18n.translate('editProcess.noPrivilege.reason1','DBP','No privileges have been defined yet.')
-									],
-									stepItems: [
-										{
-											text: Uni.I18n.translate('editProcess.addPrivileges','DBP','Add privileges'),
-											privileges: Dbp.privileges.DeviceProcesses.administrateProcesses,
-											itemId: 'privileges-grid-add-link',
-                                            href: ''
-                                        }
-									]
-								}
+                                xtype: 'fieldcontainer',
+                                fieldLabel: Uni.I18n.translate('editProcess.privileges', 'DBP', 'Privileges'),
+                                itemId: 'ctn-privileges',
+                                required: true,
+                                width: 600,
+                                labelWidth: 234,
+                                layout: 'vbox',
+                                items: [
+                                    {
+                                        xtype: 'container',
+                                        width: '100%',
+                                        layout: {
+                                            type: 'hbox',
+                                            align: 'stretch'
+                                        },
+                                        items: [
+                                            {
+                                                xtype: 'component',
+                                                html: Uni.I18n.translate('editProcess.noDeviceStates', 'DBP', 'No privileges have been added'),
+                                                itemId: 'empty-privileges-grid',
+                                                style: {
+                                                    'font': 'italic 13px/17px Lato',
+                                                    'color': '#686868',
+                                                    'margin-top': '6px',
+                                                    'margin-right': '10px'
+                                                },
+                                                hidden: true
+                                            },
+                                            {
+                                                xtype: 'component',
+                                                itemId: 'dbp-add-privileges-to-right-component',
+                                                flex: 1
+                                            },
+                                            {
+                                                itemId: 'add-privileges-button',
+                                                xtype: 'button',
+                                                margin: '0 0 10 0',
+                                                text: Uni.I18n.translate('editProcess.addPrivileges', 'DBP', 'Add privileges')
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        xtype: 'privileges-grid',
+                                        itemId: 'dbp-privileges-grid',
+                                        processId: me.processId,
+                                        store: me.processModel.privileges()
+                                    }
+                                ]
                             }
-
                         ]
                     },
                     {
@@ -135,7 +189,6 @@ Ext.define('Dbp.processes.view.EditProcess', {
             }
         ];
         me.callParent(arguments);
-       // me.setEdit(me.edit, me.returnLink);
     }
 });
 

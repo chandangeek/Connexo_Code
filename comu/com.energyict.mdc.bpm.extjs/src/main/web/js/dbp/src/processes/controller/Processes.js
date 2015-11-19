@@ -37,6 +37,14 @@ Ext.define('Dbp.processes.controller.Processes', {
             selector: 'dbp-processes #dbp-processes-form'
         },
         {
+            ref: 'editProcessPage',
+            selector: 'dbp-edit-process'
+        },
+        {
+            ref: 'editProcessForm',
+            selector: '#frm-edit-process'
+        },
+        {
             ref: 'deviceStatesGrid',
             selector: 'dbp-edit-process #dbp-device-states-grid'
         },
@@ -60,8 +68,6 @@ Ext.define('Dbp.processes.controller.Processes', {
             ref: 'privilegesGridPreviewContainer',
             selector: '#privileges-grid-preview-container'
         }
-
-
     ],
 
     editProcessModel: null,
@@ -75,22 +81,16 @@ Ext.define('Dbp.processes.controller.Processes', {
                 show: this.onMenuShow,
                 click: this.chooseAction
             },
-            'dbp-device-states-action-menu': {
-                click: this.chooseEditProcessAction
-            },
-            'dbp-privileges-action-menu': {
-                click: this.chooseEditProcessAction
-            },
             '#dbp-device-states-grid button[action=addDeviceState]': {
-                click: this.addDeviceStatesButton
-            },
-            '#device-state-grid-add-link': {
                 click: this.addDeviceStatesButton
             },
             '#dbp-privileges-grid button[action=addPrivileges]': {
                 click: this.addPrivilegesButton
             },
-            '#privileges-grid-add-link': {
+            '#add-device-states-button': {
+                click: this.addDeviceStatesButton
+            },
+            '#add-privileges-button': {
                 click: this.addPrivilegesButton
             },
             '#btn-add-deviceStates': {
@@ -98,6 +98,15 @@ Ext.define('Dbp.processes.controller.Processes', {
             },
             '#btn-add-privileges': {
                 click: this.addSelectedPrivileges
+            },
+            '#dbp-device-states-grid': {
+                msgRemoveDeviceState: this.removeDeviceState
+            },
+            '#dbp-privileges-grid': {
+                msgRemovePrivilege: this.removePrivileges
+            },
+            '#frm-edit-process #btn-save': {
+                click: this.saveProcess
             }
         });
     },
@@ -152,41 +161,6 @@ Ext.define('Dbp.processes.controller.Processes', {
         });
     },
 
-    changeProcessActivation: function (record) {
-        var me = this,
-            router = this.getController('Uni.controller.history.Router'),
-            processesForm = me.getProcessesForm();
-
-        record.beginEdit();
-        record.set('active', record.get('active') === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE');
-        record.endEdit(true);
-
-        processesForm.setLoading();
-
-        record.save({
-            success: function (rec, operation) {
-
-                if (operation.getResultSet().records) {
-                    record.beginEdit();
-                    record.set('associatedTo', operation.getResultSet().records[0].get('associatedTo'));
-                    record.endEdit(true);
-                    me.getMainGrid().getView().refresh();
-                    processesForm.down('#frm-preview-process').loadRecord(record);
-                }
-
-                if (record.get('active') === 'INACTIVE') {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('dbp.process.deactivate', 'DBP', 'Process deactivated'));
-                } else {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('dbp.process.activate', 'DBP', 'Process activated'));
-                }
-            },
-            callback: function () {
-                processesForm.setLoading(false);
-            }
-        });
-
-    },
-
     applyNewState: function (queryString) {
         var me = this,
             href = Uni.util.QueryString.buildHrefWithQueryString(queryString, false);
@@ -202,15 +176,7 @@ Ext.define('Dbp.processes.controller.Processes', {
     editProcess: function (processId, activate) {
         var me = this,
             router = me.getController('Uni.controller.history.Router');
-       //     queryString = Uni.util.QueryString.getQueryStringValues(false);
 
-     //   if (!activate && queryString.activate == undefined)  {
-     //       queryString.activate = activate;
-    //        me.applyNewState(queryString);
-    //    }
-   //     else{
-    //        activate = queryString.activate;
-    //    }
         //me.editProcessModel = me.editProcessModel  || me.getModel('Dbp.processes.model.EditProcess');
 
 
@@ -219,17 +185,17 @@ Ext.define('Dbp.processes.controller.Processes', {
         {
 
             var record = me.createDummyProcessData(processId);
-            me.getApplication().fireEvent(activate? 'activateProcesses':'editProcesses', record);
+            me.getApplication().fireEvent(activate ? 'activateProcesses' : 'editProcesses', record);
 
             view = Ext.widget('dbp-edit-process', {processId: processId, processModel: record});
             var editProcessForm = view.down('#frm-edit-process');
             if (router.arguments.activate) {
-                editProcessForm.down('#device-state-grid-add-link').href = router.getRoute('administration/managementprocesses/activate/deviceStates').buildUrl({processId: processId})
-                editProcessForm.down('#privileges-grid-add-link').href = router.getRoute('administration/managementprocesses/activate/privileges').buildUrl({processId: processId})
+                editProcessForm.down('#add-device-states-button').href = router.getRoute('administration/managementprocesses/activate/deviceStates').buildUrl({processId: processId})
+                editProcessForm.down('#add-privileges-button').href = router.getRoute('administration/managementprocesses/activate/privileges').buildUrl({processId: processId})
             }
             else {
-                editProcessForm.down('#device-state-grid-add-link').href = router.getRoute('administration/managementprocesses/edit/deviceStates').buildUrl({processId: processId})
-                editProcessForm.down('#privileges-grid-add-link').href = router.getRoute('administration/managementprocesses/edit/privileges').buildUrl({processId: processId})
+                editProcessForm.down('#add-device-states-button').href = router.getRoute('administration/managementprocesses/edit/deviceStates').buildUrl({processId: processId})
+                editProcessForm.down('#add-privileges-button').href = router.getRoute('administration/managementprocesses/edit/privileges').buildUrl({processId: processId})
 
             }
 
@@ -242,44 +208,74 @@ Ext.define('Dbp.processes.controller.Processes', {
             }
 
             editProcessForm.loadRecord(record);
-
             me.getApplication().fireEvent('changecontentevent', view);
 
-            me.refreshDeviceStatesGrid(record.deviceStates());
-            me.refreshPrivilegesGrid(record.privileges());
-            me.getDeviceStatesGridPreviewContainer().onChange(me.editProcessModel.deviceStates());
-            me.getPrivilegesGridPreviewContainer().onChange(me.editProcessModel.privileges());
+            me.refreshDeviceStatesGrid();
+            me.refreshPrivilegesGrid();
         }
         //    });
 
     },
 
-    refreshDeviceStatesGrid: function (store) {
+    saveProcess: function (button) {
         var me = this,
-            deviceStatesGrid = me.getDeviceStatesGrid();
+            editProcessPage = me.getEditProcessPage(),
+            form = editProcessPage.down('#frm-edit-process'),
+            editProcessRecord = editProcessPage.processModel,
+            editProcessForm = editProcessPage.down('#frm-edit-process'),
+            formErrorsPanel = editProcessForm.down('#form-errors');
 
-        //deviceStatesGrid.store = store;
-        //deviceStatesGrid.getView().bindStore(store);
-        //deviceStatesGrid.down('pagingtoolbartop').store = store;
-        //deviceStatesGrid.down('pagingtoolbartop').store.totalCount = store.getCount();
-        deviceStatesGrid.down('pagingtoolbartop').displayMsg =
-            Uni.I18n.translatePlural('deviceStates.pagingtoolbartop.displayMsg', store.getCount(), 'DBP',
-                'No device states', '{0} device state', '{0} device states');
-        deviceStatesGrid.down('pagingtoolbartop').updateInfo();
+        if (form.isValid()) {
+            if (!formErrorsPanel.isHidden()) {
+                formErrorsPanel.hide();
+            }
+
+            editProcessForm.updateRecord(editProcessRecord);
+
+            editProcessRecord.save({
+                success: function () {
+                    me.getController('Uni.controller.history.Router').getRoute('administration/managementprocesses').forward();
+
+                    if (button.action === 'edit') {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('userDirectories.successMsg.saved', 'USR', 'User directory saved'));
+                    } else {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('userDirectories.successMsg.added', 'USR', 'User directory added'));
+                    }
+                },
+                failure: function (record, operation) {
+                    var json = Ext.decode(operation.response.responseText, true);
+                    if (json && json.errors) {
+                        editProcessForm.getForm().markInvalid(json.errors);
+                    }
+                    formErrorsPanel.show();
+                }
+            })
+        } else {
+            formErrorsPanel.show();
+        }
+
     },
 
-    refreshPrivilegesGrid: function (store) {
+    refreshDeviceStatesGrid: function () {
         var me = this,
-            privilegesGrid = me.getPrivilegesGrid();
+            deviceStatesGrid = me.getDeviceStatesGrid(),
+            editProcessForm = me.getEditProcessForm(),
+            visibility = deviceStatesGrid.store.getCount() != 0;
 
-        //privilegesGrid.store = store;
-        //privilegesGrid.getView().bindStore(store);
-        privilegesGrid.down('pagingtoolbartop').store = store;
-        privilegesGrid.down('pagingtoolbartop').store.totalCount = store.getCount();
-        privilegesGrid.down('pagingtoolbartop').displayMsg =
-            Uni.I18n.translatePlural('privileges.pagingtoolbartop.displayMsg', store.getCount(), 'DBP',
-                'No privileges', '{0} privilege', '{0} privileges');
-        privilegesGrid.down('pagingtoolbartop').updateInfo();
+        editProcessForm.down('#dbp-device-states-grid').setVisible(visibility);
+        editProcessForm.down('#dbp-add-device-states-to-right-component').setVisible(visibility);
+        editProcessForm.down('#empty-device-states-grid').setVisible(!visibility);
+    },
+
+    refreshPrivilegesGrid: function () {
+        var me = this,
+            privilegesGrid = me.getPrivilegesGrid(),
+            editProcessForm = me.getEditProcessForm(),
+            visibility = privilegesGrid.store.getCount() != 0;
+
+        editProcessForm.down('#dbp-privileges-grid').setVisible(visibility);
+        editProcessForm.down('#dbp-add-privileges-to-right-component').setVisible(visibility);
+        editProcessForm.down('#empty-privileges-grid').setVisible(!visibility);
     },
 
     addDeviceStatesButton: function () {
@@ -291,7 +287,7 @@ Ext.define('Dbp.processes.controller.Processes', {
         deviceStatesGridStore.each(function (record) {
             deviceStates.push(record.get('deviceStateId'));
         });
-        if (router.arguments.activate){
+        if (router.arguments.activate) {
             router.getRoute('administration/managementprocesses/activate/deviceStates').forward({processId: router.arguments.processId}, {deviceState: deviceStates});
         }
         else {
@@ -306,7 +302,7 @@ Ext.define('Dbp.processes.controller.Processes', {
             deviceStatesStore = me.getStore('Dbp.processes.store.DeviceStates'),
             allDeviceStatesView = Ext.create('Dbp.processes.view.AddDeviceStatesSetup', {processId: processId});
 
-        if (router.arguments.activate){
+        if (router.arguments.activate) {
             allDeviceStatesView.down('#btn-cancel-add-deviceStates').href = router.getRoute('administration/managementprocesses/activate').buildUrl({processId: processId});
         }
         else {
@@ -332,7 +328,6 @@ Ext.define('Dbp.processes.controller.Processes', {
                         }
                     });
                 }
-
                 allDeviceStatesView.setLoading(false);
             }
         });
@@ -372,8 +367,8 @@ Ext.define('Dbp.processes.controller.Processes', {
                 me.editProcessModel.deviceStates().add(deviceState);
             }
         });
-        if (router.arguments.activate){
-        router.getRoute('administration/managementprocesses/activate').forward({processId: router.arguments.processId});
+        if (router.arguments.activate) {
+            router.getRoute('administration/managementprocesses/activate').forward({processId: router.arguments.processId});
         }
         else {
             router.getRoute('administration/managementprocesses/edit').forward({processId: router.arguments.processId});
@@ -390,7 +385,7 @@ Ext.define('Dbp.processes.controller.Processes', {
             privileges.push(record.get('name'));
         });
 
-        if (router.arguments.activate){
+        if (router.arguments.activate) {
             router.getRoute('administration/managementprocesses/activate/privileges').forward({processId: router.arguments.processId}, {privilege: privileges});
         }
         else {
@@ -405,7 +400,7 @@ Ext.define('Dbp.processes.controller.Processes', {
             privilegesStore = me.getStore('Dbp.processes.store.Privileges'),
             allPrivilegesView = Ext.create('Dbp.processes.view.AddPrivilegesSetup', {processId: processId});
 
-        if (router.arguments.activate){
+        if (router.arguments.activate) {
             allPrivilegesView.down('#btn-cancel-add-privileges').href = router.getRoute('administration/managementprocesses/activate').buildUrl({processId: processId});
         }
         else {
@@ -431,9 +426,6 @@ Ext.define('Dbp.processes.controller.Processes', {
                         }
                     });
                 }
-
-                //allPrivilegesView.down('#grd-add-privileges').store = privilegesStore;
-                //allPrivilegesView.down('#grd-add-privileges').getView().bindStore(privilegesStore);
 
                 allPrivilegesView.setLoading(false);
             }
@@ -474,8 +466,8 @@ Ext.define('Dbp.processes.controller.Processes', {
 
             }
         });
-        if (router.arguments.activate){
-        router.getRoute('administration/managementprocesses/activate').forward({processId: router.arguments.processId});
+        if (router.arguments.activate) {
+            router.getRoute('administration/managementprocesses/activate').forward({processId: router.arguments.processId});
         }
         else {
             router.getRoute('administration/managementprocesses/edit').forward({processId: router.arguments.processId});
@@ -522,20 +514,6 @@ Ext.define('Dbp.processes.controller.Processes', {
         }
     },
 
-    chooseEditProcessAction: function (menu, item) {
-        var me = this,
-           record = menu.record;
-
-        switch (item.action) {
-            case 'removeDeviceState':
-                me.removeDeviceState(record);
-                break;
-            case 'removePrivileges':
-               me.removePrivileges(record);
-                break;
-        }
-    },
-
     removeDeviceState: function (record) {
         var me = this;
 
@@ -553,7 +531,7 @@ Ext.define('Dbp.processes.controller.Processes', {
     createDummyProcessData: function (processId) {
         var me = this;
 
-        if (me.editProcessModel){
+        if (me.editProcessModel) {
             return me.editProcessModel;
         }
         me.editProcessModel = Ext.create('Dbp.processes.model.EditProcess', {
@@ -591,11 +569,11 @@ Ext.define('Dbp.processes.controller.Processes', {
         var o2 = {};
         o2.name = 'Colectiv #';
         arr.push(o2);
-             privileges.add({
-              'name': 'Execute processes (level #1)',
-               'userRoles': arr
-             });
-            me.editProcessModel.set('privileges', privileges);
+        privileges.add({
+            'name': 'Execute processes (level #1)',
+            'userRoles': arr
+        });
+        me.editProcessModel.set('privileges', privileges);
         return me.editProcessModel;
     }
 });

@@ -123,6 +123,5 @@ Ext.define('Dbp.controller.History', {
             }
         }
     }
-
 });
 
