@@ -74,4 +74,13 @@ public class DeviceContactorResourceTest extends MultisensePublicApiJerseyTest {
         assertThat(model.<String>get("link.href")).isEqualTo("http://localhost:9998/devices/X01/messages/111");
     }
 
+    @Test
+    public void testUpdateContactorWithoutStatus() throws Exception {
+        ContactorInfo info = new ContactorInfo();
+        info.status = null; // no status
+
+        Response response = target("/devices/X01/contacter").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
+    }
+
 }
