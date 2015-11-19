@@ -3,8 +3,6 @@ package com.elster.jupiter.system.impl;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
-import com.elster.jupiter.system.Component;
-import com.elster.jupiter.system.ComponentStatus;
 import com.elster.jupiter.system.RuntimeComponent;
 import com.elster.jupiter.system.Subsystem;
 import com.elster.jupiter.system.SubsystemService;
@@ -14,20 +12,30 @@ import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Reference;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @org.osgi.service.component.annotations.Component(name = "com.elster.jupiter.system.impl", service = {SubsystemService.class, PrivilegesProvider.class, TranslationKeyProvider.class},
-        property = {"name=" + SubsystemService.COMPONENTNAME},immediate = true)
+        property = {"name=" + SubsystemService.COMPONENTNAME}, immediate = true)
 public class SubsystemServiceImpl implements SubsystemService, PrivilegesProvider, TranslationKeyProvider {
-    private List<Subsystem> subsystems = new ArrayList<>();
+
+    private static final Logger LOGGER = Logger.getLogger(SubsystemServiceImpl.class.getName());
+
     private volatile UserService userService;
+    private BundleContext bundleContext;
+
+    private List<Subsystem> subsystems = new ArrayList<>();
 
     @Override
     public List<Subsystem> getSubsystems() {
@@ -40,41 +48,32 @@ public class SubsystemServiceImpl implements SubsystemService, PrivilegesProvide
     }
 
     @Override
-    public List<RuntimeComponent> getComponents(BundleContext bundleContext) {
-        SubsystemServiceUtils utils = new SubsystemServiceUtils();
-        List<RuntimeComponent> runtimeComponents = new ArrayList<>();
-        for (Subsystem subsystem: this.getSubsystems()) {
-            for (Bundle bundle: bundleContext.getBundles()) {
-                for (Component component: subsystem.getComponents()) {
-                    if (component.getVersion() != null && (bundle.getHeaders().get("Bundle-SymbolicName").equals(component.getName())
-                            || bundle.getHeaders().get("Bundle-SymbolicName").equals(component.getArtifactId()))
-                            && bundle.getHeaders().get("Bundle-Version").equals(utils.getVersion(component.getVersion()))) {
-                        RuntimeComponent runtimeComponent = new RuntimeComponent(bundle.getBundleId(), bundle.getHeaders().get("Bundle-Name"), this.bundleStateToComponentStatus(bundle.getState()), component);
-                        runtimeComponents.add(runtimeComponent);
-                    }
-                }
-            }
-        }
-        return runtimeComponents;
+    public void unregisterSubsystem(Subsystem subsystem) {
+        this.subsystems.remove(subsystem);
     }
 
-    private ComponentStatus bundleStateToComponentStatus(int state) {
-        switch (state) {
-            case 1:
-                return ComponentStatus.UNINSTALLED;
-            case 2:
-                return ComponentStatus.INSTALLED;
-            case 4:
-                return ComponentStatus.RESOLVED;
-            case 8:
-                return ComponentStatus.STARTING;
-            case 16:
-                return ComponentStatus.STOPPING;
-            case 32:
-                return ComponentStatus.ACTIVE;
-            default:
-                return null;
+    @Override
+    public List<RuntimeComponent> getRuntimeComponents() {
+        List<RuntimeComponent> resultList = new ArrayList<>();
+        Map<String, Bundle> bundles = Stream.of(bundleContext.getBundles()).collect(Collectors.toMap(Bundle::getSymbolicName, Function.identity(), (bundle, bundle2) -> bundle));
+        for (Subsystem subsystem : subsystems) {
+            List<RuntimeComponent> runtimeComponents = subsystem.getComponents().stream()
+                    .map(component -> {
+                        String symbolicName = component.getSymbolicName();
+                        String version = component.getVersion();
+                        Bundle bundle = bundles.get(symbolicName);
+                        if (bundle != null && bundle.getHeaders().get("Bundle-Version").equals(version)) {
+                            return new RuntimeComponentImpl(bundle, component, subsystem);
+                        } else {
+                            LOGGER.log(Level.FINE, "Bundle with symbolic name '" + symbolicName + "' and version '" + version + "' not found for " + subsystem.getId());
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+            resultList.addAll(runtimeComponents);
         }
+        return resultList;
     }
 
     @Override
@@ -112,5 +111,10 @@ public class SubsystemServiceImpl implements SubsystemService, PrivilegesProvide
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Activate
+    public void activate(BundleContext context) {
+        this.bundleContext = context;
     }
 }

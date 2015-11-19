@@ -26,12 +26,12 @@
             <artifactId>domain.util</artifactId>
         </dependency>
         <dependency>
-            <groupId>biz.aQute.bnd</groupId>
-            <artifactId>bndlib</artifactId>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>users</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>users</artifactId>
+            <artifactId>util</artifactId>
         </dependency>
     </dependencies>
 </project>

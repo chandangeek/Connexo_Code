@@ -1,31 +1,17 @@
 package com.elster.jupiter.system;
 
-public class RuntimeComponent {
-    private long id;
-    private String name;
-    private ComponentStatus status;
-    private Component component;
+import aQute.bnd.annotation.ProviderType;
 
-    public RuntimeComponent(long id, String name, ComponentStatus status, Component component) {
-        this.id = id;
-        this.name = name;
-        this.status = status;
-        this.component = component;
-    }
+@ProviderType
+public interface RuntimeComponent {
 
-    public ComponentStatus getStatus() {
-        return status;
-    }
+    long getId();
 
-    public Component getComponent() {
-        return component;
-    }
+    String getName();
 
-    public long getId() {
-        return id;
-    }
+    ComponentStatus getStatus();
 
-    public String getName() {
-        return name;
-    }
+    Component getComponent();
+
+    Subsystem getSubsystem();
 }

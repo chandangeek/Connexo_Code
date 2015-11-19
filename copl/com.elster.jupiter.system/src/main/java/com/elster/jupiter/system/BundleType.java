@@ -1,8 +1,9 @@
 package com.elster.jupiter.system;
 
 public enum BundleType {
+    NOT_APPLICABLE("notApplicable"),
     APPLICATION_SPECIFIC("appSpecific"),
-    THIRDPARTY("thirdParty");
+    THIRD_PARTY("thirdParty");
 
     private final String id;
 

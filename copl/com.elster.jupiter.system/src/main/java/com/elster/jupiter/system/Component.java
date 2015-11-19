@@ -1,10 +1,13 @@
 package com.elster.jupiter.system;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public interface Component {
-    String getArtifactId();
-    String getName();
-    void setName(String name);
+
+    String getSymbolicName();
+
     String getVersion();
+
     BundleType getBundleType();
-    Subsystem getSubsystem();
 }
