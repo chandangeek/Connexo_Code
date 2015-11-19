@@ -224,7 +224,6 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
         when(registerType.getId()).thenReturn(id);
         when(registerType.getObisCode()).thenReturn(obisCode);
         when(registerType.getTimeOfUse()).thenReturn(0);
-        when(registerType.getUnit()).thenReturn(Unit.get("kWh"));
         ReadingType readingType = mockReadingType();
         when(registerType.getReadingType()).thenReturn(readingType);
         when(readingType.getAliasName()).thenReturn(name);
@@ -238,7 +237,6 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
         when(channelType.getId()).thenReturn(id);
         when(channelType.getObisCode()).thenReturn(obisCode);
         when(channelType.getTimeOfUse()).thenReturn(0);
-        when(channelType.getUnit()).thenReturn(Unit.get("kWh"));
         ReadingType readingType = mockReadingType();
         when(readingType.getAliasName()).thenReturn(name);
         when(channelType.getReadingType()).thenReturn(readingType);

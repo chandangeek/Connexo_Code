@@ -63,7 +63,6 @@ public class RegisterTypeResourceTest extends MasterDataApplicationJerseyTest {
         when(registerType.getId()).thenReturn(13L);
         when(registerType.getObisCode()).thenReturn(new ObisCode(1, 2, 3, 4, 5, 6));
         when(deviceConfigurationService.isRegisterTypeUsedByDeviceType(registerType)).thenReturn(true);
-        when(registerType.getUnit()).thenReturn(Unit.get("kWh"));
         when(registerType.getReadingType()).thenReturn(readingType);
         when(readingType.getAliasName()).thenReturn("register type");
         when(readingType.getMRID()).thenReturn("mrid");

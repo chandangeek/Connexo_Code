@@ -24,7 +24,6 @@ public class RegisterTypeInfo {
     public boolean isLinkedByDeviceType;
     public Boolean isLinkedByActiveRegisterConfig; // This property makes no sense if the register mapping was retrieved outside the scope of a device type. It will be null.
     public Boolean isLinkedByInactiveRegisterConfig; // This property makes no sense if the register mapping was retrieved outside the scope of a device type. It will be null.
-    public String unitOfMeasure;
     public ReadingTypeInfo readingType;
     public ReadingTypeInfo calculatedReadingType;
     public long version;
@@ -46,9 +45,6 @@ public class RegisterTypeInfo {
             readingType.getCalculatedReadingType().ifPresent(
                     rt -> this.calculatedReadingType = new ReadingTypeInfo(rt)
             );
-        }
-        if (measurementType.getUnit() != null) {
-            this.unitOfMeasure = measurementType.getUnit().toString();
         }
         this.version = measurementType.getVersion();
     }
