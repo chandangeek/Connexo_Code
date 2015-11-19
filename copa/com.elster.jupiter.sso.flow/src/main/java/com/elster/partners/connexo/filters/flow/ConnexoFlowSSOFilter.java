@@ -2,17 +2,17 @@ package com.elster.partners.connexo.filters.flow;
 
 import com.elster.partners.connexo.filters.flow.authorization.ConnexoAuthorizationManager;
 import com.elster.partners.connexo.filters.flow.identity.ConnexoRestProxyManager;
-import com.elster.partners.connexo.filters.generic.ConnexoAuthenticationSSOFilter;
+import com.elster.partners.connexo.filters.generic.ConnexoAbstractSSOFilter;
 import com.elster.partners.connexo.filters.generic.ConnexoPrincipal;
 import org.jboss.solder.core.Veto;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.uberfire.security.Role;
 import org.uberfire.security.impl.RoleImpl;
 import org.uberfire.security.server.cdi.SecurityFactory;
 
-import javax.servlet.*;
-import javax.servlet.http.Cookie;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -26,15 +26,7 @@ import static org.uberfire.security.server.SecurityConstants.LOGOUT_URI;
  */
 
 @Veto
-public class ConnexoFlowSSOFilter implements Filter {
-    FilterConfig filterConfig;
-
-    private final String CONNEXO_URL = System.getProperty("com.elster.connexo.url");
-
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        this.filterConfig = filterConfig;
-    }
+public class ConnexoFlowSSOFilter extends ConnexoAbstractSSOFilter {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
@@ -42,9 +34,19 @@ public class ConnexoFlowSSOFilter implements Filter {
         final HttpServletRequest request = (HttpServletRequest) servletRequest;
         final HttpServletResponse response = (HttpServletResponse) servletResponse;
 
+        String token = "123456789";
+        /*String token = null;
+        Cookie cookies[] = request.getCookies();
+        for(Cookie cookie : cookies) {
+            if(cookie.getName().equals("X-CONNEXO_TOKEN")) {
+                token = cookie.getValue();
+                break;
+            }
+        }*/
+
         ConnexoPrincipal principal = (ConnexoPrincipal) request.getUserPrincipal();
 
-        if(principal == null){
+        if(principal == null || token == null){
             // Not authenticated; redirect to login
             redirectToLogin(request, response);
         }
@@ -53,15 +55,6 @@ public class ConnexoFlowSSOFilter implements Filter {
                 redirectToLogout(request, response);
             }
             else {
-                String token = null;
-                Cookie cookies[] = request.getCookies();
-                for(Cookie cookie : cookies) {
-                    if(cookie.getName().equals("X-CONNEXO_TOKEN")) {
-                        token = cookie.getValue();
-                        break;
-                    }
-                }
-
                 ConnexoRestProxyManager.getInstance(getConnexoUrl(), token);
 
                 List<Role> roles = new ArrayList<>();
@@ -84,37 +77,7 @@ public class ConnexoFlowSSOFilter implements Filter {
         }
     }
 
-    @Override
-    public void destroy() {
-    }
-
-    private void redirectToLogin(final HttpServletRequest httpRequest,
-                                 final HttpServletResponse httpResponse) throws IOException {
-        login(httpRequest, httpResponse, getConnexoLoginUrl());
-    }
-
-    private void redirectToLogout(final HttpServletRequest httpRequest,
-                                 final HttpServletResponse httpResponse) throws IOException {
-        login(httpRequest, httpResponse, getConnexoLogoutUrl());
-    }
-
-    private void login(final HttpServletRequest httpRequest, final HttpServletResponse httpResponse, String url) throws IOException {
-        httpResponse.sendRedirect(url);
-    }
-
     private boolean isLogoutRequest( final HttpServletRequest request ) {
         return request.getRequestURI().contains( LOGOUT_URI );
-    }
-
-    private String getConnexoUrl() {
-        return (CONNEXO_URL != null) ? CONNEXO_URL : "http://localhost:8080";
-    }
-
-    private String getConnexoLoginUrl() {
-         return getConnexoUrl() + "/apps/login/index.html";
-    }
-
-    private String getConnexoLogoutUrl() {
-        return getConnexoUrl() + "/apps/login/index.html?logout";
     }
 }

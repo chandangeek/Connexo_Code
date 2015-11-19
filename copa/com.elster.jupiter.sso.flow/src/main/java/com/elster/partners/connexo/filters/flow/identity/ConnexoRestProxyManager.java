@@ -40,17 +40,17 @@ public class ConnexoRestProxyManager {
     }
 
     boolean findUser(String userId) {
-        // TODO: use real URLs here
+        // TODO: implement this URL
         return (getEntities("api/usr/finduser/" + userId, false) != null);
     }
 
     boolean findGroup(String groupId) {
-        // TODO: use real URLs here
+        // TODO: implement this URL
         return (getEntities("api/usr/findgroup/" + groupId, false) != null);
     }
 
     List<String> getMembersOf(String groupId) {
-        // TODO: use real URLs here
+        // TODO: implement this URL
         List<String> members = new ArrayList<>();
         JSONArray array = (JSONArray) getEntities("api/usr/findgroup/" + groupId, true);
         for(int i=0; i<array.length(); i++) {
@@ -65,7 +65,7 @@ public class ConnexoRestProxyManager {
     }
 
     public List<String> getGroupsOf(String userId) {
-        // TODO: use real URLs here
+        // TODO: implement this URL
         List<String> members = new ArrayList<>();
         JSONArray array = (JSONArray) getEntities("api/usr/finduser/" + userId + "/groups", true);
         for(int i=0; i<array.length(); i++) {
@@ -80,8 +80,8 @@ public class ConnexoRestProxyManager {
     }
 
     String getLanguageOf(String userId) {
-        // TODO: use real URLs here
-        JSONObject object = (JSONObject) getEntity("api/usr/users/" + userId + "/language");
+        // TODO: implement this URL
+        JSONObject object = (JSONObject) getEntity("api/usr/finduser/" + userId + "/language");
         return (object != null) ? object.toString() : "en_US";
     }
 
