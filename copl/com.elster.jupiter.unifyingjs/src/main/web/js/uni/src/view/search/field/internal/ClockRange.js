@@ -14,11 +14,11 @@ Ext.define('Uni.view.search.field.internal.ClockRange', {
                 itemId: 'from',
                 listeners: {
                     change: function(field) {
-                        me.down('#to').setMinValue(new Date(field.getValue()));
+                        me.down('#to datefield').setMinValue(new Date(field.getValue()));
                         me.fireEvent('change', me, me.getValue());
                     },
                     reset: function() {
-                        me.down('#to').setMinValue(null);
+                        me.down('#to datefield').setMinValue(null);
                     }
                 }
             },
@@ -27,11 +27,11 @@ Ext.define('Uni.view.search.field.internal.ClockRange', {
                 itemId: 'to',
                 listeners: {
                     change: function(field) {
-                        me.down('#from').setMaxValue(new Date(field.getValue()));
+                        me.down('#from datefield').setMaxValue(new Date(field.getValue()));
                         me.fireEvent('change', me, me.getValue());
                     },
                     reset: function() {
-                        me.down('#from').setMaxValue(null);
+                        me.down('#from datefield').setMaxValue(null);
                     }
                 }
             }
