@@ -64,11 +64,11 @@ public class ComTaskInfoFactory extends SelectableFieldFactory<ComTaskInfo, ComT
         return info;
     }
 
-
     @Override
     protected Map<String, PropertyCopier<ComTaskInfo, ComTask>> buildFieldMap() {
         Map<String, PropertyCopier<ComTaskInfo, ComTask>> map = new HashMap<>();
         map.put("id", (comTaskInfo, comTask, uriInfo) -> comTaskInfo.id = comTask.getId());
+        map.put("version", (comTaskInfo, comTask, uriInfo) -> comTaskInfo.version = comTask.getVersion());
         map.put("name", (comTaskInfo, comTask, uriInfo) -> comTaskInfo.name = comTask.getName());
         map.put("commands", (comTaskInfo, comTask, uriInfo) ->
             comTaskInfo.commands = protocolTaskInfoFactoryProvider.get().asLink(comTask.getProtocolTasks(), Relation.REF_RELATION, uriInfo));

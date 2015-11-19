@@ -38,20 +38,20 @@ public class DeviceContactorResourceTest extends MultisensePublicApiJerseyTest {
 
     @Before
     public void setup() {
-        DeviceType deviceType = mockDeviceType(1L, "device type");
+        DeviceType deviceType = mockDeviceType(1L, "device type", 3333L);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(2L, "Default", deviceType);
         DeviceMessageSpec arm = mockDeviceMessageSpec(DeviceMessageId.CONTACTOR_ARM, "arm");
         DeviceMessageSpec connect = mockDeviceMessageSpec(DeviceMessageId.CONTACTOR_CLOSE, "close");
         DeviceMessageSpec disconnect = mockDeviceMessageSpec(DeviceMessageId.CONTACTOR_OPEN, "open");
         DeviceMessageCategory category = mockDeviceMessageCategory(33, "category", arm , connect, disconnect);
         MessagesTask messagesTask = mockMessagesTask(3, category);
-        ComTask comTask = mockComTask(4, "com task", messagesTask);
-        ComTaskEnablement comTaskEnablement = mockComTaskEnablement(comTask, deviceConfiguration);
+        ComTask comTask = mockComTask(4, "com task", 3333L, messagesTask);
+        ComTaskEnablement comTaskEnablement = mockComTaskEnablement(comTask, deviceConfiguration, 3333L);
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.singletonList(comTaskEnablement));
-        mockDevice = mockDevice("X01", "1001", deviceConfiguration);
+        mockDevice = mockDevice("X01", "1001", deviceConfiguration, 3333L);
         DeviceMessageSpec messageSpec = mockDeviceMessageSpec(DeviceMessageId.CLOCK_SET_DST, "dst");
         when(messageSpec.getCategory()).thenReturn(category);
-        DeviceMessage deviceMessage = mockDeviceMessage(31L, mockDevice, messageSpec, Optional.of(now));
+        DeviceMessage deviceMessage = mockDeviceMessage(31L, mockDevice, messageSpec, Optional.of(now), 3333L);
         when(mockDevice.getMessages()).thenReturn(Arrays.asList(deviceMessage));
     }
 
@@ -60,7 +60,7 @@ public class DeviceContactorResourceTest extends MultisensePublicApiJerseyTest {
         ContactorInfo info = new ContactorInfo();
         info.status = Status.connected;
         DeviceMessageSpec messageSpec = mockDeviceMessageSpec(DeviceMessageId.CONTACTOR_CLOSE, "fire in the hole");
-        DeviceMessage deviceMessage = mockDeviceMessage(111L, mockDevice, messageSpec, Optional.of(now));
+        DeviceMessage deviceMessage = mockDeviceMessage(111L, mockDevice, messageSpec, Optional.of(now), 3333L);
         Device.DeviceMessageBuilder deviceMessageBuilder = FakeBuilder.initBuilderStub(deviceMessage, Device.DeviceMessageBuilder.class);
         when(mockDevice.newDeviceMessage(DeviceMessageId.CONTACTOR_CLOSE)).thenReturn(deviceMessageBuilder);
         ManuallyScheduledComTaskExecution comtaskExecution = mock(ManuallyScheduledComTaskExecution.class);

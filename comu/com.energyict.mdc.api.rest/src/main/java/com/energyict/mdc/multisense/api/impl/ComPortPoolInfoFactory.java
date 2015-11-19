@@ -56,6 +56,7 @@ public class ComPortPoolInfoFactory extends SelectableFieldFactory<ComPortPoolIn
         Map<String, PropertyCopier<ComPortPoolInfo,ComPortPool>> map = new HashMap<>();
         map.put("id", ((comPortPoolInfo, comPortPool, uriInfo) -> comPortPoolInfo.id = comPortPool.getId()));
         map.put("link", ((comPortPoolInfo, comPortPool, uriInfo) -> comPortPoolInfo.link = link(comPortPool, Relation.REF_SELF, uriInfo)));
+        map.put("version", ((comPortPoolInfo, comPortPool, uriInfo) -> comPortPoolInfo.version = comPortPool.getVersion()));
         map.put("name", ((comPortPoolInfo, comPortPool, uriInfo) -> comPortPoolInfo.name = comPortPool.getName()));
         map.put("active", ((comPortPoolInfo, comPortPool, uriInfo) -> comPortPoolInfo.active = comPortPool.isActive()));
         map.put("description", ((comPortPoolInfo, comPortPool, uriInfo) -> comPortPoolInfo.description = comPortPool.getDescription()));

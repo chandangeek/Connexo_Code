@@ -14,6 +14,7 @@ import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,7 @@ public class AuthenticationDeviceAccessLevelInfoFactory extends SelectableFieldF
 
     public LinkInfo asLink(DeviceProtocolPluggableClass protocolPluggableClass, DeviceAccessLevel deviceAccessLevel, Relation relation, UriInfo uriInfo) {
         DeviceAccessLevelInfo info = new DeviceAccessLevelInfo();
-        copySelectedFields(info, Pair.of(protocolPluggableClass,deviceAccessLevel),uriInfo , Arrays.asList("id","version"));
+        copySelectedFields(info, Pair.of(protocolPluggableClass,deviceAccessLevel),uriInfo , Collections.singletonList("id"));
         info.link = link(protocolPluggableClass,deviceAccessLevel,relation,uriInfo);
         return info;
     }

@@ -24,12 +24,12 @@ public class PartialConnectionTaskResourceTest extends MultisensePublicApiJersey
 
     @Before
     public void setup() {
-        DeviceType deviceType = mockDeviceType(112L, "device type");
+        DeviceType deviceType = mockDeviceType(112L, "device type", 3333L);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(113L, "Default configuration", deviceType);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
-        PartialConnectionTask partialConnectionTask1 = mockPartialInboundConnectionTask(114L, "partial conn task 114", deviceConfiguration);
-        PartialConnectionTask partialConnectionTask2 = mockPartialInboundConnectionTask(124L, "partial conn task 124", deviceConfiguration);
-        PartialConnectionTask partialConnectionTask3 = mockPartialOutboundConnectionTask(134L, "partial conn task 134", deviceConfiguration);
+        PartialConnectionTask partialConnectionTask1 = mockPartialInboundConnectionTask(114L, "partial conn task 114", deviceConfiguration, 3333L);
+        PartialConnectionTask partialConnectionTask2 = mockPartialInboundConnectionTask(124L, "partial conn task 124", deviceConfiguration, 3333L);
+        PartialConnectionTask partialConnectionTask3 = mockPartialOutboundConnectionTask(134L, "partial conn task 134", deviceConfiguration, 3333L);
         when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask1, partialConnectionTask2, partialConnectionTask3));
     }
 
@@ -38,7 +38,7 @@ public class PartialConnectionTaskResourceTest extends MultisensePublicApiJersey
         Response response = target("/devicetypes/112/deviceconfigurations/113/partialconnectiontasks").request().accept(MediaType.APPLICATION_JSON).method("PROPFIND", Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
-        assertThat(jsonModel.<JSONArray>get("$")).containsOnly("id", "name", "link", "direction", "comWindow", "rescheduleRetryDelay", "nextExecutionSpecs",
+        assertThat(jsonModel.<JSONArray>get("$")).containsOnly("id", "version", "name", "link", "direction", "comWindow", "rescheduleRetryDelay", "nextExecutionSpecs",
                 "connectionType", "comPortPool", "isDefault", "connectionStrategy", "allowSimultaneousConnections", "properties");
     }
 

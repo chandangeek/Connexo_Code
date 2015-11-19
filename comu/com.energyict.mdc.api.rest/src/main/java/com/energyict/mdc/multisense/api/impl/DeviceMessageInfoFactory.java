@@ -73,6 +73,7 @@ public class DeviceMessageInfoFactory extends SelectableFieldFactory<DeviceMessa
     protected Map<String, PropertyCopier<DeviceMessageInfo, DeviceMessage<?>>> buildFieldMap() {
         Map<String, PropertyCopier<DeviceMessageInfo, DeviceMessage<?>>> map = new HashMap<>();
         map.put("id", (deviceMessageInfo, deviceMessage, uriInfo) -> deviceMessageInfo.id = deviceMessage.getId());
+        map.put("version", (deviceMessageInfo, deviceMessage, uriInfo) -> deviceMessageInfo.version = deviceMessage.getVersion());
         map.put("link", ((deviceMessageInfo, deviceMessage, uriInfo) ->
                 deviceMessageInfo.link = link(deviceMessage, Relation.REF_SELF, uriInfo)));
         map.put("device", ((deviceMessageInfo, deviceMessage, uriInfo) ->

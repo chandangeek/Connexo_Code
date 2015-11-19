@@ -75,6 +75,8 @@ public class DeviceConfigurationInfoFactory extends SelectableFieldFactory<Devic
         Map<String, PropertyCopier<DeviceConfigurationInfo, DeviceConfiguration>> map = new HashMap<>();
         map.put("id", (deviceConfigurationInfo, deviceConfiguration, uriInfo) ->
             deviceConfigurationInfo.id = deviceConfiguration.getId());
+        map.put("version", (deviceConfigurationInfo, deviceConfiguration, uriInfo) ->
+            deviceConfigurationInfo.version = deviceConfiguration.getVersion());
         map.put("name", (deviceConfigurationInfo, deviceConfiguration, uriInfo) ->
             deviceConfigurationInfo.name = deviceConfiguration.getName());
         map.put("link", (deviceConfigurationInfo, deviceConfiguration, uriInfo) ->

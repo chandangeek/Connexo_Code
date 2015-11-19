@@ -31,7 +31,7 @@ public class DeviceMessageCategoryInfoFactory extends SelectableFieldFactory<Dev
 
     public LinkInfo asLink(DeviceMessageCategory deviceMessageCategory, Relation relation, UriInfo uriInfo) {
         DeviceMessageCategoryInfo info = new DeviceMessageCategoryInfo();
-        copySelectedFields(info,deviceMessageCategory,uriInfo, Arrays.asList("id","version"));
+        copySelectedFields(info,deviceMessageCategory,uriInfo, Arrays.asList("id"));
         info.link = link(deviceMessageCategory,relation,uriInfo);
         return info;
     }

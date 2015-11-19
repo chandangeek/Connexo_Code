@@ -28,7 +28,7 @@ public class DeviceMessageEnablementInfoFactory extends SelectableFieldFactory<D
 
     public LinkInfo asLink(DeviceMessageEnablement deviceMessageEnablement, Relation relation, UriInfo uriInfo) {
         DeviceMessageEnablementInfo info = new DeviceMessageEnablementInfo();
-        copySelectedFields(info,deviceMessageEnablement,uriInfo, Arrays.asList("id","version"));
+        copySelectedFields(info,deviceMessageEnablement,uriInfo, Arrays.asList("id"));
         info.link = link(deviceMessageEnablement,relation,uriInfo);
         return info;
     }

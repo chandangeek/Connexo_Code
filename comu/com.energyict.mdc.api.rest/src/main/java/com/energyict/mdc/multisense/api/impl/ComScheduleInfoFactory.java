@@ -57,6 +57,7 @@ public class ComScheduleInfoFactory extends SelectableFieldFactory<ComScheduleIn
     protected Map<String, PropertyCopier<ComScheduleInfo, ComSchedule>> buildFieldMap() {
         Map<String, PropertyCopier<ComScheduleInfo, ComSchedule>> map = new HashMap<>();
         map.put("id", (comScheduleInfo, comSchedule, uriInfo) -> comScheduleInfo.id = comSchedule.getId());
+        map.put("version", (comScheduleInfo, comSchedule, uriInfo) -> comScheduleInfo.version = comSchedule.getVersion());
         map.put("link", ((comScheduleInfo, comSchedule, uriInfo) -> comScheduleInfo.link = link(comSchedule, Relation.REF_SELF, uriInfo)));
         map.put("name", (comScheduleInfo, comSchedule, uriInfo) -> comScheduleInfo.name = comSchedule.getName());
         map.put("temporalExpression", (comScheduleInfo, comSchedule, uriInfo) -> comScheduleInfo.temporalExpression = comSchedule.getTemporalExpression());

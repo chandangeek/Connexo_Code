@@ -99,6 +99,7 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
     protected Map<String, PropertyCopier<ComTaskExecutionInfo, ComTaskExecution>> buildFieldMap() {
         Map<String, PropertyCopier<ComTaskExecutionInfo, ComTaskExecution>> map = new HashMap<>();
         map.put("id", (comTaskExecutionInfo, comTaskExecution, uriInfo) -> comTaskExecutionInfo.id = comTaskExecution.getId());
+        map.put("version", (comTaskExecutionInfo, comTaskExecution, uriInfo) -> comTaskExecutionInfo.version = comTaskExecution.getVersion());
         map.put("link", ((comTaskExecutionInfo, comTaskExecution, uriInfo) ->
             comTaskExecutionInfo.link = link(comTaskExecution, Relation.REF_SELF, uriInfo)));
         map.put("device", ((comTaskExecutionInfo, comTaskExecution, uriInfo) ->

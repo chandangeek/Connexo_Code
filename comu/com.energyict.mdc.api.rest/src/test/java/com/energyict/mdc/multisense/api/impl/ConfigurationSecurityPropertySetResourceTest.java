@@ -28,7 +28,7 @@ public class ConfigurationSecurityPropertySetResourceTest extends MultisensePubl
 
     @Test
     public void testSingleGetSecurityPropertySet() throws IOException {
-        DeviceType deviceType = mockDeviceType(123, "sampleDeviceType");
+        DeviceType deviceType = mockDeviceType(123, "sampleDeviceType", 3333L);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(456, "Default", deviceType);
         when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
@@ -61,7 +61,7 @@ public class ConfigurationSecurityPropertySetResourceTest extends MultisensePubl
 
     @Test
     public void testGetSecurityPropertySetList() throws IOException {
-        DeviceType deviceType = mockDeviceType(123, "sampleDeviceType");
+        DeviceType deviceType = mockDeviceType(123, "sampleDeviceType", 3333L);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(456, "Default", deviceType);
         when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
 
@@ -114,8 +114,8 @@ public class ConfigurationSecurityPropertySetResourceTest extends MultisensePubl
     public void testFields() throws Exception {
         Response response = target("/devicetypes/x/deviceconfigurations/x/securitypropertysets").request("application/json").method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<List>get("$")).hasSize(6);
-        assertThat(model.<List<String>>get("$")).containsOnly("id", "name", "link", "authenticationAccessLevel", "encryptionAccessLevel", "properties");
+        assertThat(model.<List>get("$")).hasSize(7);
+        assertThat(model.<List<String>>get("$")).containsOnly("id","version", "name", "link", "authenticationAccessLevel", "encryptionAccessLevel", "properties");
     }
 
 }

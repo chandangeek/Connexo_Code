@@ -74,6 +74,7 @@ public class PartialConnectionTaskInfoFactory extends SelectableFieldFactory<Par
     protected Map<String, PropertyCopier<PartialConnectionTaskInfo, PartialConnectionTask>> buildFieldMap() {
         HashMap<String, PropertyCopier<PartialConnectionTaskInfo, PartialConnectionTask>> map = new HashMap<>();
         map.put("id",(partialConnectionTaskInfo, partialConnectionTask, uriInfo) -> partialConnectionTaskInfo.id = partialConnectionTask.getId());
+        map.put("version",(partialConnectionTaskInfo, partialConnectionTask, uriInfo) -> partialConnectionTaskInfo.version = partialConnectionTask.getVersion());
         map.put("name",(partialConnectionTaskInfo, partialConnectionTask, uriInfo) -> partialConnectionTaskInfo.name = partialConnectionTask.getName());
         map.put("direction",(partialConnectionTaskInfo, partialConnectionTask, uriInfo) -> partialConnectionTaskInfo.direction = ConnectionTaskType.from(partialConnectionTask));
         map.put("link",(partialConnectionTaskInfo, partialConnectionTask, uriInfo) -> partialConnectionTaskInfo.link = link(partialConnectionTask, Relation.REF_SELF, uriInfo));

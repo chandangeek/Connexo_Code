@@ -76,6 +76,7 @@ public class DeviceLifecycleActionInfoFactory extends SelectableFieldFactory<Lif
     protected Map<String, PropertyCopier<LifeCycleActionInfo, DeviceAction>> buildFieldMap() {
         Map<String, PropertyCopier<LifeCycleActionInfo, DeviceAction>> map = new HashMap<>();
         map.put("id", (deviceLifeCycleActionInfo, deviceAction, uriInfo) -> deviceLifeCycleActionInfo.id = deviceAction.action.getId());
+        map.put("version", (deviceLifeCycleActionInfo, deviceAction, uriInfo) -> deviceLifeCycleActionInfo.version = deviceAction.action.getVersion());
         map.put("name", (deviceLifeCycleActionInfo, deviceAction, uriInfo) -> deviceLifeCycleActionInfo.name = deviceAction.action.getName());
         map.put("link", (deviceLifeCycleActionInfo, deviceAction, uriInfo) -> deviceLifeCycleActionInfo.link = link(deviceAction.device, deviceAction.action, Relation.REF_SELF, uriInfo));
         map.put("properties", (deviceLifeCycleActionInfo, deviceAction, uriInfo) -> {

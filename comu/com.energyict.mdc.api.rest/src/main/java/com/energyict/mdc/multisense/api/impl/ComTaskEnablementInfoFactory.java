@@ -72,6 +72,7 @@ public class ComTaskEnablementInfoFactory extends SelectableFieldFactory<ComTask
     protected Map<String, PropertyCopier<ComTaskEnablementInfo, ComTaskEnablement>> buildFieldMap() {
         Map<String, PropertyCopier<ComTaskEnablementInfo, ComTaskEnablement>> map = new HashMap<>();
         map.put("id", (comTaskEnablementInfo, comTaskEnablement, uriInfo) -> comTaskEnablementInfo.id = comTaskEnablement.getId());
+        map.put("version", (comTaskEnablementInfo, comTaskEnablement, uriInfo) -> comTaskEnablementInfo.version = comTaskEnablement.getVersion());
         map.put("priority", (comTaskEnablementInfo, comTaskEnablement, uriInfo) -> comTaskEnablementInfo.priority = comTaskEnablement.getPriority());
         map.put("suspended", (comTaskEnablementInfo, comTaskEnablement, uriInfo) -> comTaskEnablementInfo.suspended = comTaskEnablement.isSuspended());
         map.put("link", ((comTaskEnablementInfo, comTaskEnablement, uriInfo) -> comTaskEnablementInfo.link = link(comTaskEnablement, Relation.REF_SELF,uriInfo)));

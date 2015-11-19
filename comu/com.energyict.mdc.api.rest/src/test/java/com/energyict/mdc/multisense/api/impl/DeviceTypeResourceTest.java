@@ -29,21 +29,21 @@ public class DeviceTypeResourceTest extends MultisensePublicApiJerseyTest {
     public void setUp() throws Exception {
         super.setUp();
 
-        DeviceType water = mockDeviceType(10, "water");
-        DeviceType gas = mockDeviceType(11, "gas");
-        DeviceType elec1 = mockDeviceType(101, "Electricity 1");
-        DeviceType elec2 = mockDeviceType(101, "Electricity 2");
-        DeviceType elec3 = mockDeviceType(101, "Electricity 3");
-        DeviceType elec4 = mockDeviceType(101, "Electricity 4");
-        DeviceType elec5 = mockDeviceType(101, "Electricity 5");
+        DeviceType water = mockDeviceType(10, "water", 3333L);
+        DeviceType gas = mockDeviceType(11, "gas", 3333L);
+        DeviceType elec1 = mockDeviceType(101, "Electricity 1", 3333L);
+        DeviceType elec2 = mockDeviceType(101, "Electricity 2", 3333L);
+        DeviceType elec3 = mockDeviceType(101, "Electricity 3", 3333L);
+        DeviceType elec4 = mockDeviceType(101, "Electricity 4", 3333L);
+        DeviceType elec5 = mockDeviceType(101, "Electricity 5", 3333L);
         Finder<DeviceType> deviceTypeFinder = mockFinder(Arrays.asList(water, gas, elec1, elec2, elec3, elec4, elec5));
         when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(deviceTypeFinder);
 
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(13L, "Default configuration", elec1);
-        Device device = mockDevice("DAV", "65749846514", deviceConfiguration);
-        Device deviceXas = mockDevice("XAS", "5544657642", deviceConfiguration);
+        Device device = mockDevice("DAV", "65749846514", deviceConfiguration, 3333L);
+        Device deviceXas = mockDevice("XAS", "5544657642", deviceConfiguration, 3333L);
         DeviceConfiguration deviceConfiguration2 = mockDeviceConfiguration(23L, "Default configuration", elec2);
-        Device device3 = mockDevice("PIO", "54687651356", deviceConfiguration2);
+        Device device3 = mockDevice("PIO", "54687651356", deviceConfiguration2, 3333L);
         Finder<Device> deviceFinder = mockFinder(Arrays.asList(device, deviceXas, device3));
         when(this.deviceService.findAllDevices(any(Condition.class))).thenReturn(deviceFinder);
     }

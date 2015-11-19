@@ -27,9 +27,9 @@ public class ComTaskResourceTest extends MultisensePublicApiJerseyTest {
         DeviceMessageCategory cat4 = mockDeviceMessageCategory(111, "cat4");
         MessagesTask protocolTask = mock(MessagesTask.class);
         when(protocolTask.getDeviceMessageCategories()).thenReturn(Collections.singletonList(cat4));
-        ComTask comTask31 = mockComTask(31, "Last");
+        ComTask comTask31 = mockComTask(31, "Last", 3333L);
         when(comTask31.getProtocolTasks()).thenReturn(Collections.singletonList(protocolTask));
-        ComTask comTask32 = mockComTask(32, "Avante");
+        ComTask comTask32 = mockComTask(32, "Avante", 3333L);
         when(comTask32.getProtocolTasks()).thenReturn(Collections.emptyList());
         Finder<ComTask> comTaskFinder = mockFinder(Arrays.asList(comTask31, comTask32));
         when(taskService.findAllComTasks()).thenReturn(comTaskFinder);

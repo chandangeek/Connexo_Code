@@ -26,7 +26,7 @@ public class EncryptionDeviceAccessLevelInfoFactory extends SelectableFieldFacto
 
     public LinkInfo asLink(DeviceProtocolPluggableClass protocolPluggableClass, DeviceAccessLevel deviceAccessLevel, Relation relation, UriInfo uriInfo) {
         DeviceAccessLevelInfo info = new DeviceAccessLevelInfo();
-        copySelectedFields(info, Pair.of(protocolPluggableClass, deviceAccessLevel), uriInfo, Arrays.asList("id", "version"));
+        copySelectedFields(info, Pair.of(protocolPluggableClass, deviceAccessLevel), uriInfo, Arrays.asList("id"));
         info.link = link(protocolPluggableClass, deviceAccessLevel, relation, uriInfo);
         return info;
     }

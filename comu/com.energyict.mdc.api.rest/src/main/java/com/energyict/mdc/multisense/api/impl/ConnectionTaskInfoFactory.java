@@ -94,6 +94,7 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
     protected Map<String, PropertyCopier<ConnectionTaskInfo, ConnectionTask<?, ?>>> buildFieldMap() {
         Map<String, PropertyCopier<ConnectionTaskInfo, ConnectionTask<?,?>>> map = new HashMap<>();
         map.put("id", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.id = connectionTask.getId());
+        map.put("version", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.version = connectionTask.getVersion());
         map.put("connectionMethod", (connectionTaskInfo, connectionTask, uriInfo)->
             connectionTaskInfo.connectionMethod = partialConnectionTaskInfoFactoryProvider.get().asLink(connectionTask.getPartialConnectionTask(), Relation.REF_PARENT, uriInfo));
         map.put("direction", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.direction = ConnectionTaskType.from(connectionTask));

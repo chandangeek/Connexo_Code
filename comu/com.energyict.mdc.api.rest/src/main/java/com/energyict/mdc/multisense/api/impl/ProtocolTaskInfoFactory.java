@@ -25,7 +25,7 @@ public class ProtocolTaskInfoFactory extends SelectableFieldFactory<ProtocolTask
 
     public LinkInfo asLink(ProtocolTask protocolTask, Relation relation, UriInfo uriInfo) {
         ProtocolTaskInfo info = new ProtocolTaskInfo();
-        copySelectedFields(info,protocolTask,uriInfo, Arrays.asList("id","version"));
+        copySelectedFields(info,protocolTask,uriInfo, Arrays.asList("id"));
         info.link = link(protocolTask,relation,uriInfo);
         return info;
     }

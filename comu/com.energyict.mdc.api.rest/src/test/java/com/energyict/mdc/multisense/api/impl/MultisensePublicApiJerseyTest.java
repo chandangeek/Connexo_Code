@@ -170,10 +170,11 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(readingType.getCurrency()).thenReturn(Currency.getInstance("EUR"));
         when(readingType.getCalculatedReadingType()).thenReturn(Optional.<ReadingType>empty());
         when(readingType.isCumulative()).thenReturn(true);
+        when(readingType.getVersion()).thenReturn(3333L);
         return readingType;
     }
 
-    Device mockDevice(String mrid, String serial, DeviceConfiguration deviceConfiguration) {
+    Device mockDevice(String mrid, String serial, DeviceConfiguration deviceConfiguration, long version) {
         Device mock = mock(Device.class);
         when(mock.getmRID()).thenReturn(mrid);
         when(mock.getName()).thenReturn(mrid);
@@ -195,10 +196,11 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(topologyService.getPhysicalGateway(mock)).thenReturn(Optional.empty());
         when(this.deviceService.findByUniqueMrid(mrid)).thenReturn(Optional.of(mock));
         when(this.deviceService.findAndLockDeviceByIdAndVersion(deviceId, 333L)).thenReturn(Optional.of(mock));
+        when(mock.getVersion()).thenReturn(version);
         return mock;
     }
 
-    DeviceType mockDeviceType(long id, String name) {
+    DeviceType mockDeviceType(long id, String name, long version) {
         DeviceType mock = mock(DeviceType.class);
         when(mock.getId()).thenReturn(id);
         when(mock.getName()).thenReturn(name);
@@ -208,19 +210,21 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(pluggableClass.getId()).thenReturn(id * id);
         when(mock.getDeviceProtocolPluggableClass()).thenReturn(pluggableClass);
         when(deviceConfigurationService.findDeviceType(id)).thenReturn(Optional.of(mock));
+        when(mock.getVersion()).thenReturn(version);
         return mock;
     }
 
-    DeviceConfiguration mockDeviceConfiguration(long id, String name) {
+    DeviceConfiguration mockDeviceConfiguration(long id, String name, long version) {
         DeviceConfiguration mock = mock(DeviceConfiguration.class);
         when(mock.getId()).thenReturn(id);
         when(mock.getName()).thenReturn(name);
+        when(mock.getVersion()).thenReturn(version);
 
         return mock;
     }
 
     DeviceConfiguration mockDeviceConfiguration(long id, String name, DeviceType deviceType) {
-        DeviceConfiguration mock = mockDeviceConfiguration(id, name);
+        DeviceConfiguration mock = mockDeviceConfiguration(id, name, 3333L);
         when(mock.getDeviceType()).thenReturn(deviceType);
         return mock;
     }
@@ -273,65 +277,71 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         return propertySpec;
     }
 
-    ScheduledConnectionTask mockScheduledConnectionTask(long id, String name) {
-        ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
-        when(connectionTask.getId()).thenReturn(id);
-        when(connectionTask.getName()).thenReturn(name);
-        when(connectionTaskService.findConnectionTask(id)).thenReturn(Optional.of(connectionTask));
-        return connectionTask;
+    ScheduledConnectionTask mockScheduledConnectionTask(long id, String name, long version) {
+        ScheduledConnectionTask mock = mock(ScheduledConnectionTask.class);
+        when(mock.getId()).thenReturn(id);
+        when(mock.getName()).thenReturn(name);
+        when(connectionTaskService.findConnectionTask(id)).thenReturn(Optional.of(mock));
+        when(mock.getVersion()).thenReturn(version);
+        return mock;
     }
 
-    ScheduledConnectionTask mockScheduledConnectionTask(long id, String name, Device deviceXas, OutboundComPortPool comPortPool, PartialScheduledConnectionTask partial) {
-        ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
-        when(connectionTask.getId()).thenReturn(id);
-        when(connectionTask.getName()).thenReturn(name);
-        when(connectionTask.isDefault()).thenReturn(true);
-        when(connectionTask.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
-        when(connectionTask.getDevice()).thenReturn(deviceXas);
-        when(connectionTask.isSimultaneousConnectionsAllowed()).thenReturn(true);
-        when(connectionTask.getComPortPool()).thenReturn(comPortPool);
-        when(connectionTask.getPartialConnectionTask()).thenReturn(partial);
+    ScheduledConnectionTask mockScheduledConnectionTask(long id, String name, Device deviceXas, OutboundComPortPool comPortPool, PartialScheduledConnectionTask partial, long version) {
+        ScheduledConnectionTask mock = mock(ScheduledConnectionTask.class);
+        when(mock.getId()).thenReturn(id);
+        when(mock.getName()).thenReturn(name);
+        when(mock.isDefault()).thenReturn(true);
+        when(mock.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
+        when(mock.getDevice()).thenReturn(deviceXas);
+        when(mock.isSimultaneousConnectionsAllowed()).thenReturn(true);
+        when(mock.getComPortPool()).thenReturn(comPortPool);
+        when(mock.getPartialConnectionTask()).thenReturn(partial);
         ConnectionType connectionType = mock(ConnectionType.class);
         PropertySpec propertySpec = mockStringPropertySpec();
         when(connectionType.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
-        when(connectionTask.getConnectionType()).thenReturn(connectionType);
-        when(connectionTask.getTypedProperties()).thenReturn(TypedProperties.empty());
-        when(connectionTask.getRescheduleDelay()).thenReturn(TimeDuration.minutes(60));
-        when(connectionTask.getCommunicationWindow()).thenReturn(new ComWindow(PartialTime.fromHours(2), PartialTime.fromHours(4)));
-        when(connectionTaskService.findConnectionTask(id)).thenReturn(Optional.of(connectionTask));
-        return connectionTask;
+        when(mock.getConnectionType()).thenReturn(connectionType);
+        when(mock.getTypedProperties()).thenReturn(TypedProperties.empty());
+        when(mock.getRescheduleDelay()).thenReturn(TimeDuration.minutes(60));
+        when(mock.getCommunicationWindow()).thenReturn(new ComWindow(PartialTime.fromHours(2), PartialTime.fromHours(4)));
+        when(mock.getVersion()).thenReturn(version);
+        when(connectionTaskService.findConnectionTask(id)).thenReturn(Optional.of(mock));
+        return mock;
     }
 
-    InboundConnectionTask mockInboundConnectionTask(long id, String name, Device deviceXas, InboundComPortPool comPortPool, PartialInboundConnectionTask partial) {
-        InboundConnectionTask connectionTask = mock(InboundConnectionTask.class);
-        when(connectionTask.getId()).thenReturn(id);
-        when(connectionTask.getName()).thenReturn(name);
-        when(connectionTask.isDefault()).thenReturn(true);
-        when(connectionTask.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
-        when(connectionTask.getDevice()).thenReturn(deviceXas);
-        when(connectionTask.getComPortPool()).thenReturn(comPortPool);
-        when(connectionTask.getPartialConnectionTask()).thenReturn(partial);
+    InboundConnectionTask mockInboundConnectionTask(long id, String name, Device deviceXas, InboundComPortPool comPortPool, PartialInboundConnectionTask partial, long version) {
+        InboundConnectionTask mock = mock(InboundConnectionTask.class);
+        when(mock.getId()).thenReturn(id);
+        when(mock.getName()).thenReturn(name);
+        when(mock.isDefault()).thenReturn(true);
+        when(mock.getStatus()).thenReturn(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE);
+        when(mock.getDevice()).thenReturn(deviceXas);
+        when(mock.getComPortPool()).thenReturn(comPortPool);
+        when(mock.getPartialConnectionTask()).thenReturn(partial);
         ConnectionType connectionType = mock(ConnectionType.class);
         PropertySpec propertySpec = mockStringPropertySpec();
         when(connectionType.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
-        when(connectionTask.getConnectionType()).thenReturn(connectionType);
-        when(connectionTask.getTypedProperties()).thenReturn(TypedProperties.empty());
-        when(connectionTaskService.findConnectionTask(id)).thenReturn(Optional.of(connectionTask));
-        return connectionTask;
+        when(mock.getConnectionType()).thenReturn(connectionType);
+        when(mock.getTypedProperties()).thenReturn(TypedProperties.empty());
+        when(mock.getVersion()).thenReturn(version);
+
+        when(connectionTaskService.findConnectionTask(id)).thenReturn(Optional.of(mock));
+        return mock;
     }
 
-    PartialScheduledConnectionTask mockPartialScheduledConnectionTask(long id, String name, PropertySpec... propertySpecs) {
-        PartialScheduledConnectionTask partial = mock(PartialScheduledConnectionTask.class);
+    PartialScheduledConnectionTask mockPartialScheduledConnectionTask(long id, String name, long version, PropertySpec... propertySpecs) {
+        PartialScheduledConnectionTask mock = mock(PartialScheduledConnectionTask.class);
         ConnectionTypePluggableClass connectionTaskPluggeableClass = mock(ConnectionTypePluggableClass.class);
-        when(partial.getPluggableClass()).thenReturn(connectionTaskPluggeableClass);
-        when(partial.getName()).thenReturn(name);
-        when(partial.getId()).thenReturn(id);
+        when(mock.getPluggableClass()).thenReturn(connectionTaskPluggeableClass);
+        when(mock.getName()).thenReturn(name);
+        when(mock.getId()).thenReturn(id);
         when(connectionTaskPluggeableClass.getName()).thenReturn("outbound pluggeable class");
         when(connectionTaskPluggeableClass.getPropertySpecs()).thenReturn(Arrays.asList(propertySpecs));
-        return partial;
+        when(mock.getVersion()).thenReturn(version);
+
+        return mock;
     }
 
-    PartialInboundConnectionTask mockPartialInboundConnectionTask(long id, String name, DeviceConfiguration deviceConfig) {
+    PartialInboundConnectionTask mockPartialInboundConnectionTask(long id, String name, DeviceConfiguration deviceConfig, long version) {
         PartialInboundConnectionTask mock = mock(PartialInboundConnectionTask.class);
         when(mock.getName()).thenReturn(name);
         ConnectionTypePluggableClass connectionTaskPluggeableClass = mock(ConnectionTypePluggableClass.class);
@@ -339,18 +349,19 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(mock.getId()).thenReturn(id);
         when(mock.getConfiguration()).thenReturn(deviceConfig);
         when(connectionTaskPluggeableClass.getName()).thenReturn("inbound pluggeable class");
-        InboundComPortPool comPortPool = mockInboundComPortPool(65L);
+        InboundComPortPool comPortPool = mockInboundComPortPool(65L, 3333L);
         when(mock.getComPortPool()).thenReturn(comPortPool);
         ConnectionType connectionType = mock(ConnectionType.class);
         PropertySpec propertySpec = mockStringPropertySpec();
         when(connectionType.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
         when(mock.getConnectionType()).thenReturn(connectionType);
         when(mock.getTypedProperties()).thenReturn(TypedProperties.empty());
+        when(mock.getVersion()).thenReturn(version);
 
         return mock;
     }
 
-    PartialScheduledConnectionTask mockPartialOutboundConnectionTask(long id, String name, DeviceConfiguration deviceConfig) {
+    PartialScheduledConnectionTask mockPartialOutboundConnectionTask(long id, String name, DeviceConfiguration deviceConfig, long version) {
         PartialScheduledConnectionTask mock = mock(PartialScheduledConnectionTask.class);
         when(mock.getName()).thenReturn(name);
         ConnectionTypePluggableClass connectionTaskPluggeableClass = mock(ConnectionTypePluggableClass.class);
@@ -369,22 +380,27 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(mock.isSimultaneousConnectionsAllowed()).thenReturn(true);
         when(mock.getRescheduleDelay()).thenReturn(TimeDuration.minutes(60));
         when(mock.getCommunicationWindow()).thenReturn(new ComWindow(PartialTime.fromHours(2), PartialTime.fromHours(4)));
+        when(mock.getVersion()).thenReturn(version);
 
         return mock;
     }
 
-    private InboundComPortPool mockInboundComPortPool(long id) {
+    private InboundComPortPool mockInboundComPortPool(long id, long version) {
         InboundComPortPool mock = mock(InboundComPortPool.class);
         when(mock.getId()).thenReturn(id);
+        when(mock.getVersion()).thenReturn(version);
+
         return mock;
     }
 
-    ComTask mockComTask(long id, String name, ProtocolTask... protocolTasks) {
+    ComTask mockComTask(long id, String name, long version, ProtocolTask... protocolTasks) {
         ComTask mock = mock(ComTask.class);
         when(mock.getId()).thenReturn(id);
         when(mock.getName()).thenReturn(name);
         when(mock.getProtocolTasks()).thenReturn(Arrays.asList(protocolTasks));
         when(taskService.findComTask(id)).thenReturn(Optional.of(mock));
+        when(mock.getVersion()).thenReturn(version);
+
         return mock;
     }
 
@@ -397,23 +413,26 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
             when(mock.getMessageSpecifications()).thenReturn(Arrays.asList(specs));
         }
         when(deviceMessageSpecificationService.findCategoryById(id)).thenReturn(Optional.of(mock));
+
         return mock;
     }
 
     DeviceMessageSpec mockDeviceMessageSpec(DeviceMessageId deviceMessageId, String name) {
-        DeviceMessageSpec deviceMessageSpec = mock(DeviceMessageSpec.class);
-        when(deviceMessageSpec.getId()).thenReturn(deviceMessageId);
-        when(deviceMessageSpec.getName()).thenReturn(name);
-        when(deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue())).thenReturn(Optional.of(deviceMessageSpec));
-        return deviceMessageSpec;
+        DeviceMessageSpec mock = mock(DeviceMessageSpec.class);
+        when(mock.getId()).thenReturn(deviceMessageId);
+        when(mock.getName()).thenReturn(name);
+
+        when(deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue())).thenReturn(Optional.of(mock));
+        return mock;
     }
 
     ClockTask mockClockTask(long id) {
-        ClockTask protocolTask = mock(ClockTask.class);
-        when(protocolTask.getId()).thenReturn(id);
-        when(protocolTask.getClockTaskType()).thenReturn(ClockTaskType.SETCLOCK);
-        when(taskService.findProtocolTask(id)).thenReturn(Optional.of(protocolTask));
-        return protocolTask;
+        ClockTask mock = mock(ClockTask.class);
+        when(mock.getId()).thenReturn(id);
+        when(mock.getClockTaskType()).thenReturn(ClockTaskType.SETCLOCK);
+
+        when(taskService.findProtocolTask(id)).thenReturn(Optional.of(mock));
+        return mock;
     }
 
     DeviceProtocolPluggableClass mockPluggableClass(long id, String name, String version) {
@@ -465,31 +484,37 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         return mock;
     }
 
-    ComTaskEnablement mockComTaskEnablement(ComTask comTask, DeviceConfiguration deviceConfiguration) {
+    ComTaskEnablement mockComTaskEnablement(ComTask comTask, DeviceConfiguration deviceConfiguration, long version) {
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
         when(comTaskEnablement.getComTask()).thenReturn(comTask);
         when(comTaskEnablement.getPriority()).thenReturn(-19);
         when(comTaskEnablement.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(comTaskEnablement.getVersion()).thenReturn(version);
+
         return comTaskEnablement;
     }
 
-    ComSchedule mockComSchedule(long scheduleId, String name) {
+    ComSchedule mockComSchedule(long scheduleId, String name, long version) {
         ComSchedule comSchedule = mock(ComSchedule.class);
         when(comSchedule.getId()).thenReturn(scheduleId);
         when(comSchedule.getName()).thenReturn(name);
         when(comSchedule.getmRID()).thenReturn(Optional.<String>empty());
         when(comSchedule.getPlannedDate()).thenReturn(Optional.empty());
+        when(comSchedule.getVersion()).thenReturn(version);
+
         when(schedulingService.findSchedule(scheduleId)).thenReturn(Optional.of(comSchedule));
         return comSchedule;
     }
 
-    ComSchedule mockComSchedule(long scheduleId, String name, Optional<String> mRID, Optional<Instant> plannedDate) {
+    ComSchedule mockComSchedule(long scheduleId, String name, Optional<String> mRID, Optional<Instant> plannedDate, long version) {
         ComSchedule comSchedule = mock(ComSchedule.class);
         when(comSchedule.getId()).thenReturn(scheduleId);
         when(comSchedule.getName()).thenReturn(name);
         when(comSchedule.getmRID()).thenReturn(mRID);
         when(comSchedule.getPlannedDate()).thenReturn(plannedDate);
         when(comSchedule.getPlannedDate()).thenReturn(plannedDate);
+        when(comSchedule.getVersion()).thenReturn(version);
+
         when(schedulingService.findSchedule(scheduleId)).thenReturn(Optional.of(comSchedule));
         return comSchedule;
     }
@@ -512,6 +537,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(mock.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(mock.getDeviceMessageId()).thenReturn(deviceMessageId);
         when(mock.getUserActions()).thenReturn(Collections.singleton(DeviceMessageUserAction.EXECUTEDEVICEMESSAGE1));
+
         return mock;
     }
 
@@ -524,13 +550,15 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         return messagesTask;
     }
 
-    protected DeviceMessage mockDeviceMessage(long id, Device mockDevice, DeviceMessageSpec specification, Optional<Instant> now) {
+    protected DeviceMessage mockDeviceMessage(long id, Device mockDevice, DeviceMessageSpec specification, Optional<Instant> now, long version) {
         DeviceMessage deviceMessage = mock(DeviceMessage.class);
         when(deviceMessage.getId()).thenReturn(id);
         when(deviceMessage.getStatus()).thenReturn(DeviceMessageStatus.CONFIRMED);
         when(deviceMessage.getSentDate()).thenReturn(now);
         when(deviceMessage.getDevice()).thenReturn(mockDevice);
         when(deviceMessage.getSpecification()).thenReturn(specification);
+        when(deviceMessage.getVersion()).thenReturn(version);
+
         return deviceMessage;
     }
 }

@@ -24,7 +24,7 @@ public class DeviceMessageEnablementResourceTest extends MultisensePublicApiJers
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        DeviceType deviceType = mockDeviceType(10, "some type");
+        DeviceType deviceType = mockDeviceType(10, "some type", 3333L);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(11, "some config", deviceType);
         when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
         DeviceMessageEnablement deviceMessageEnablement = mockDeviceMessageEnablement(31L, deviceConfiguration, DeviceMessageId.ACTIVITY_CALENDAR_READ);

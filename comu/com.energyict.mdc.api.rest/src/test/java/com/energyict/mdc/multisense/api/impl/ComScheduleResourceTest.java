@@ -17,8 +17,8 @@ public class ComScheduleResourceTest extends MultisensePublicApiJerseyTest {
 
     @Test
     public void testAllGetComSchedulesPaged() throws Exception {
-        ComSchedule comSchedule1 = mockComSchedule(10, "schedule 1");
-        ComSchedule comSchedule2 = mockComSchedule(11, "schedule 2");
+        ComSchedule comSchedule1 = mockComSchedule(10, "schedule 1", 3333L);
+        ComSchedule comSchedule2 = mockComSchedule(11, "schedule 2", 3333L);
         Finder<ComSchedule> finder = mockFinder(Arrays.asList(comSchedule1, comSchedule2));
         when(schedulingService.findAllSchedules()).thenReturn(finder);
         Response response = target("/comschedules").queryParam("start",0).queryParam("limit",10).request().get();
@@ -37,7 +37,7 @@ public class ComScheduleResourceTest extends MultisensePublicApiJerseyTest {
 
     @Test
     public void testGetSingleComScheduleWithFields() throws Exception {
-        ComSchedule comSchedule1 = mockComSchedule(31, "schedule 1");
+        ComSchedule comSchedule1 = mockComSchedule(31, "schedule 1", 3333L);
         Response response = target("/comschedules/31").queryParam("fields","id,name").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
@@ -52,8 +52,8 @@ public class ComScheduleResourceTest extends MultisensePublicApiJerseyTest {
     public void testComScheduleFields() throws Exception {
         Response response = target("/comschedules").request("application/json").method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<List>get("$")).hasSize(9);
-        assertThat(model.<List<String>>get("$")).containsOnly("comTasks","id","isInUse","link","mRID","name","plannedDate","startDate","temporalExpression");
+        assertThat(model.<List>get("$")).hasSize(10);
+        assertThat(model.<List<String>>get("$")).containsOnly("comTasks","id","version","isInUse","link","mRID","name","plannedDate","startDate","temporalExpression");
     }
 
 

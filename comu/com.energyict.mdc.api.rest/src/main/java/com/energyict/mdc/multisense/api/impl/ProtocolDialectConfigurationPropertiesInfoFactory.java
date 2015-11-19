@@ -52,8 +52,12 @@ public class ProtocolDialectConfigurationPropertiesInfoFactory extends Selectabl
     @Override
     protected Map<String, PropertyCopier<ProtocolDialectConfigurationPropertiesInfo, ProtocolDialectConfigurationProperties>> buildFieldMap() {
         Map<String, PropertyCopier<ProtocolDialectConfigurationPropertiesInfo, ProtocolDialectConfigurationProperties>> map = new HashMap<>();
-        map.put("id", (protocolDialectConfigurationPropertiesInfo, protocolDialectConfigurationProperties, uriInfo) -> protocolDialectConfigurationPropertiesInfo.id = protocolDialectConfigurationProperties.getId());
-        map.put("name", (protocolDialectConfigurationPropertiesInfo, protocolDialectConfigurationProperties, uriInfo) -> protocolDialectConfigurationPropertiesInfo.name = protocolDialectConfigurationProperties.getName());
+        map.put("id", (protocolDialectConfigurationPropertiesInfo, protocolDialectConfigurationProperties, uriInfo) ->
+                protocolDialectConfigurationPropertiesInfo.id = protocolDialectConfigurationProperties.getId());
+        map.put("version", (protocolDialectConfigurationPropertiesInfo, protocolDialectConfigurationProperties, uriInfo) ->
+                protocolDialectConfigurationPropertiesInfo.version = protocolDialectConfigurationProperties.getVersion());
+        map.put("name", (protocolDialectConfigurationPropertiesInfo, protocolDialectConfigurationProperties, uriInfo) ->
+                protocolDialectConfigurationPropertiesInfo.name = protocolDialectConfigurationProperties.getName());
         map.put("link", ((protocolDialectConfigurationPropertiesInfo, protocolDialectConfigurationProperties, uriInfo) ->
                 protocolDialectConfigurationPropertiesInfo.link = link(protocolDialectConfigurationProperties, Relation.REF_SELF, uriInfo)));
         return map;

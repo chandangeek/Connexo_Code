@@ -37,7 +37,7 @@ public class DeviceProtocolPluggableClassInfoFactory extends SelectableFieldFact
 
     public LinkInfo asLink(DeviceProtocolPluggableClass deviceProtocolPluggableClass, Relation relation, UriInfo uriInfo) {
         DeviceProtocolPluggableClassInfo info = new DeviceProtocolPluggableClassInfo();
-        copySelectedFields(info,deviceProtocolPluggableClass,uriInfo, Arrays.asList("id","version"));
+        copySelectedFields(info,deviceProtocolPluggableClass,uriInfo, Arrays.asList("id"));
         info.link = link(deviceProtocolPluggableClass,relation,uriInfo);
         return info;
     }

@@ -33,7 +33,7 @@ public class DeviceMessageSpecificationInfoFactory extends SelectableFieldFactor
 
     public LinkInfo asLink(DeviceMessageSpec deviceMessageSpecification, Relation relation, UriInfo uriInfo) {
         DeviceMessageSpecificationInfo info = new DeviceMessageSpecificationInfo();
-        copySelectedFields(info,deviceMessageSpecification,uriInfo, Arrays.asList("id","version"));
+        copySelectedFields(info,deviceMessageSpecification,uriInfo, Arrays.asList("id"));
         info.link = link(deviceMessageSpecification,relation,uriInfo);
         return info;
     }

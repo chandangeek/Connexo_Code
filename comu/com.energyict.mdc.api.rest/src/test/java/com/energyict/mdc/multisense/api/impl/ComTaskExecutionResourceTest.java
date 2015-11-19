@@ -35,11 +35,11 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
 
     @Test
     public void testAllGetManuallyScheduledComTaskExecutionsPaged() throws Exception {
-        DeviceType deviceType = mockDeviceType(21, "Some type");
+        DeviceType deviceType = mockDeviceType(21, "Some type", 3333L);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType);
-        Device device = mockDevice("SPE001", "01011", deviceConfiguration);
+        Device device = mockDevice("SPE001", "01011", deviceConfiguration, 3333L);
         ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = mock(ManuallyScheduledComTaskExecution.class);
-        ComTask comTask = mockComTask(23, "Com task");
+        ComTask comTask = mockComTask(23, "Com task", 3333L);
 
         when(manuallyScheduledComTaskExecution.getId()).thenReturn(102L);
         when(manuallyScheduledComTaskExecution.getExecutionPriority()).thenReturn(-20);
@@ -66,9 +66,9 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         Instant now = Instant.now();
         Instant later = now.plusSeconds(1000);
         Instant end = later.plusSeconds(1000);
-        DeviceType deviceType = mockDeviceType(21, "Some type");
+        DeviceType deviceType = mockDeviceType(21, "Some type", 3333L);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType);
-        Device device = mockDevice("SPE001", "01011", deviceConfiguration);
+        Device device = mockDevice("SPE001", "01011", deviceConfiguration, 3333L);
         ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = mock(ManuallyScheduledComTaskExecution.class);
         when(manuallyScheduledComTaskExecution.getId()).thenReturn(102L);
         when(manuallyScheduledComTaskExecution.getPlannedPriority()).thenReturn(-20);
@@ -86,13 +86,13 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         Instant now = Instant.now();
         Instant later = now.plusSeconds(1000);
         Instant end = later.plusSeconds(1000);
-        DeviceType deviceType = mockDeviceType(21, "Some type");
+        DeviceType deviceType = mockDeviceType(21, "Some type", 3333L);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType);
-        Device device = mockDevice("SPE001", "01011", deviceConfiguration);
+        Device device = mockDevice("SPE001", "01011", deviceConfiguration, 3333L);
         ManuallyScheduledComTaskExecution manuallyScheduledComTaskExecution = mock(ManuallyScheduledComTaskExecution.class);
         when(manuallyScheduledComTaskExecution.getId()).thenReturn(102L);
         when(manuallyScheduledComTaskExecution.getPlannedPriority()).thenReturn(-20);
-        ComTask comTask = mockComTask(23, "doIt");
+        ComTask comTask = mockComTask(23, "doIt", 3333L);
         when(manuallyScheduledComTaskExecution.getDevice()).thenReturn(device);
         when(manuallyScheduledComTaskExecution.getComTask()).thenReturn(comTask);
         when(manuallyScheduledComTaskExecution.getNextExecutionTimestamp()).thenReturn(now);
@@ -102,7 +102,7 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         when(manuallyScheduledComTaskExecution.isAdHoc()).thenReturn(false);
         when(manuallyScheduledComTaskExecution.isScheduledManually()).thenReturn(true);
         when(manuallyScheduledComTaskExecution.usesSharedSchedule()).thenReturn(false);
-        ScheduledConnectionTask scheduledConnectionTask = mockScheduledConnectionTask(24, "Scheduled task");
+        ScheduledConnectionTask scheduledConnectionTask = mockScheduledConnectionTask(24, "Scheduled task", 3333L);
         when(manuallyScheduledComTaskExecution.getConnectionTask()).thenReturn(Optional.of(scheduledConnectionTask));
         when(scheduledConnectionTask.getDevice()).thenReturn(device);
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(manuallyScheduledComTaskExecution));
@@ -128,13 +128,13 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         Instant now = Instant.now();
         Instant later = now.plusSeconds(1000);
         Instant end = later.plusSeconds(1000);
-        DeviceType deviceType = mockDeviceType(21, "Some type");
+        DeviceType deviceType = mockDeviceType(21, "Some type", 3333L);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType);
-        Device device = mockDevice("SPE001", "01011", deviceConfiguration);
+        Device device = mockDevice("SPE001", "01011", deviceConfiguration, 3333L);
         SingleComTaskComTaskExecution comTaskExecution = mock(SingleComTaskComTaskExecution.class);
         when(comTaskExecution.getId()).thenReturn(102L);
         when(comTaskExecution.getPlannedPriority()).thenReturn(-20);
-        ComTask comTask = mockComTask(23, "doIt");
+        ComTask comTask = mockComTask(23, "doIt", 3333L);
         when(comTaskExecution.getDevice()).thenReturn(device);
         when(comTaskExecution.getComTask()).thenReturn(comTask);
         when(comTaskExecution.getNextExecutionTimestamp()).thenReturn(null);
@@ -144,7 +144,7 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         when(comTaskExecution.isAdHoc()).thenReturn(true);
         when(comTaskExecution.isScheduledManually()).thenReturn(true);
         when(comTaskExecution.usesSharedSchedule()).thenReturn(false);
-        ScheduledConnectionTask scheduledConnectionTask = mockScheduledConnectionTask(24, "Scheduled task");
+        ScheduledConnectionTask scheduledConnectionTask = mockScheduledConnectionTask(24, "Scheduled task", 3333L);
         when(scheduledConnectionTask.getDevice()).thenReturn(device);
         when(comTaskExecution.getConnectionTask()).thenReturn(Optional.of(scheduledConnectionTask));
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
@@ -170,13 +170,13 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         Instant now = Instant.now();
         Instant later = now.plusSeconds(1000);
         Instant end = later.plusSeconds(1000);
-        DeviceType deviceType = mockDeviceType(21, "Some type");
+        DeviceType deviceType = mockDeviceType(21, "Some type", 3333L);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType);
-        Device device = mockDevice("SPE001", "01011", deviceConfiguration);
+        Device device = mockDevice("SPE001", "01011", deviceConfiguration, 3333L);
         ScheduledComTaskExecution comTaskExecution = mock(ScheduledComTaskExecution.class);
         when(comTaskExecution.getId()).thenReturn(102L);
         when(comTaskExecution.getPlannedPriority()).thenReturn(-20);
-        ComTask comTask = mockComTask(23, "doIt");
+        ComTask comTask = mockComTask(23, "doIt", 3333L);
         when(comTaskExecution.getDevice()).thenReturn(device);
         ComSchedule comSchedule = mock(ComSchedule.class);
         when(comSchedule.getId()).thenReturn(24L);
@@ -191,7 +191,7 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         when(comTaskExecution.isScheduledManually()).thenReturn(false);
         when(comTaskExecution.usesSharedSchedule()).thenReturn(true);
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
-        ScheduledConnectionTask scheduledConnectionTask = mockScheduledConnectionTask(25, "Scheduled task");
+        ScheduledConnectionTask scheduledConnectionTask = mockScheduledConnectionTask(25, "Scheduled task", 3333L);
         when(scheduledConnectionTask.getDevice()).thenReturn(device);
         when(comTaskExecution.getConnectionTask()).thenReturn(Optional.of(scheduledConnectionTask));
 
@@ -224,9 +224,9 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         info.comTask.id = 24L;
         info.type = ComTaskExecutionType.AdHoc;
 
-        DeviceType deviceType = mockDeviceType(21, "Some type");
+        DeviceType deviceType = mockDeviceType(21, "Some type", 3333L);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType);
-        mockDevice("SPE001", "01011", deviceConfiguration);
+        mockDevice("SPE001", "01011", deviceConfiguration, 3333L);
 
         Response response = target("/devices/SPE001/comtaskexecutions").request().post(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
@@ -244,12 +244,12 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         info.comTask.id = comTaskId;
         info.type = ComTaskExecutionType.AdHoc;
 
-        DeviceType deviceType = mockDeviceType(21, "Some type");
+        DeviceType deviceType = mockDeviceType(21, "Some type", 3333L);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType);
-        Device device = mockDevice("SPE001", "01011", deviceConfiguration);
-        ComTask comTask = mockComTask(comTaskId, "Com task");
-        ComTaskEnablement comTaskEnablement = mockComTaskEnablement(comTask, deviceConfiguration);
-        mockScheduledConnectionTask(connectionTaskId, "conntask");
+        Device device = mockDevice("SPE001", "01011", deviceConfiguration, 3333L);
+        ComTask comTask = mockComTask(comTaskId, "Com task", 3333L);
+        ComTaskEnablement comTaskEnablement = mockComTaskEnablement(comTask, deviceConfiguration, 3333L);
+        mockScheduledConnectionTask(connectionTaskId, "conntask", 3333L);
         when(deviceConfiguration.getComTaskEnablementFor(comTask)).thenReturn(Optional.of(comTaskEnablement));
         ComTaskExecutionBuilder builder = mock(ComTaskExecutionBuilder.class);
         when(device.newAdHocComTaskExecution(comTaskEnablement)).thenReturn(builder);
@@ -280,13 +280,13 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         info.schedule.id = scheduleId;
         info.type = ComTaskExecutionType.SharedSchedule;
 
-        DeviceType deviceType = mockDeviceType(21, "Some type");
-        ComSchedule comSchedule = mockComSchedule(scheduleId, "Some schedule");
+        DeviceType deviceType = mockDeviceType(21, "Some type", 3333L);
+        ComSchedule comSchedule = mockComSchedule(scheduleId, "Some schedule", 3333L);
 
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType);
-        Device device = mockDevice("SPE001", "01011", deviceConfiguration);
-        ComTask comTask = mockComTask(comTaskId, "Com task");
-        ComTaskEnablement comTaskEnablement = mockComTaskEnablement(comTask, deviceConfiguration);
+        Device device = mockDevice("SPE001", "01011", deviceConfiguration, 3333L);
+        ComTask comTask = mockComTask(comTaskId, "Com task", 3333L);
+        ComTaskEnablement comTaskEnablement = mockComTaskEnablement(comTask, deviceConfiguration, 3333L);
 
         when(deviceConfiguration.getComTaskEnablementFor(comTask)).thenReturn(Optional.of(comTaskEnablement));
         ComTaskExecutionBuilder builder = mock(ComTaskExecutionBuilder.class);
@@ -311,13 +311,13 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         info.useDefaultConnectionTask = true;
         info.type = ComTaskExecutionType.SharedSchedule;
 
-        DeviceType deviceType = mockDeviceType(21, "Some type");
-        ComSchedule comSchedule = mockComSchedule(scheduleId, "Some schedule");
+        DeviceType deviceType = mockDeviceType(21, "Some type", 3333L);
+        ComSchedule comSchedule = mockComSchedule(scheduleId, "Some schedule", 3333L);
 
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType);
-        Device device = mockDevice("SPE001", "01011", deviceConfiguration);
-        ComTask comTask = mockComTask(comTaskId, "Com task");
-        ComTaskEnablement comTaskEnablement = mockComTaskEnablement(comTask, deviceConfiguration);
+        Device device = mockDevice("SPE001", "01011", deviceConfiguration, 3333L);
+        ComTask comTask = mockComTask(comTaskId, "Com task", 3333L);
+        ComTaskEnablement comTaskEnablement = mockComTaskEnablement(comTask, deviceConfiguration, 3333L);
 
         when(deviceConfiguration.getComTaskEnablementFor(comTask)).thenReturn(Optional.of(comTaskEnablement));
         ComTaskExecutionBuilder builder = mock(ComTaskExecutionBuilder.class);
@@ -345,12 +345,12 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
         info.useDefaultConnectionTask = true;
         info.type = ComTaskExecutionType.SharedSchedule;
 
-        DeviceType deviceType = mockDeviceType(21, "Some type");
-        ComSchedule comSchedule = mockComSchedule(scheduleId, "Some schedule");
+        DeviceType deviceType = mockDeviceType(21, "Some type", 3333L);
+        ComSchedule comSchedule = mockComSchedule(scheduleId, "Some schedule", 3333L);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType);
-        Device device = mockDevice("SPE001", "01011", deviceConfiguration);
-        ComTask comTask = mockComTask(comTaskId, "Com task");
-        ComTaskEnablement comTaskEnablement = mockComTaskEnablement(comTask, deviceConfiguration);
+        Device device = mockDevice("SPE001", "01011", deviceConfiguration, 3333L);
+        ComTask comTask = mockComTask(comTaskId, "Com task", 3333L);
+        ComTaskEnablement comTaskEnablement = mockComTaskEnablement(comTask, deviceConfiguration, 3333L);
 
 
         ScheduledComTaskExecution scheduledComTaskExecution = mockScheduledComTaskExecution(999L, comSchedule, device);
@@ -380,8 +380,8 @@ public class ComTaskExecutionResourceTest extends MultisensePublicApiJerseyTest 
     public void testComTaskExecutionFields() throws Exception {
         Response response = target("/devices/x/comtaskexecutions").request("application/json").method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<List>get("$")).hasSize(14);
-        assertThat(model.<List<String>>get("$")).containsOnly("id", "link", "comTask", "schedule", "nextExecution", "plannedNextExecution",
+        assertThat(model.<List>get("$")).hasSize(15);
+        assertThat(model.<List<String>>get("$")).containsOnly("id","version", "link", "comTask", "schedule", "nextExecution", "plannedNextExecution",
                 "priority", "type", "lastCommunicationStart", "status", "lastSuccessfulCompletion", "device", "connectionTask",
                 "ignoreNextExecutionSpecForInbound");
     }

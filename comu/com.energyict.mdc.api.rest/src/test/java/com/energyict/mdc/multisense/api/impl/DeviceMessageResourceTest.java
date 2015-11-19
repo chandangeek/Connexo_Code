@@ -30,9 +30,9 @@ public class DeviceMessageResourceTest extends MultisensePublicApiJerseyTest {
 
     @Before
     public void setup() {
-        DeviceType deviceType = mockDeviceType(1L, "device type");
+        DeviceType deviceType = mockDeviceType(1L, "device type", 3333L);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(2L, "Default", deviceType);
-        Device mockDevice = mockDevice("X01", "1001", deviceConfiguration);
+        Device mockDevice = mockDevice("X01", "1001", deviceConfiguration, 3333L);
         DeviceMessageCategory category = mockDeviceMessageCategory(33, "category");
         DeviceMessageSpec messageSpec = mockDeviceMessageSpec(DeviceMessageId.CLOCK_SET_DST, "dst");
         when(messageSpec.getCategory()).thenReturn(category);
@@ -96,8 +96,8 @@ public class DeviceMessageResourceTest extends MultisensePublicApiJerseyTest {
     public void testDeviceMessageFields() throws Exception {
         Response response = target("/devices/x/messages").request("application/json").method("PROPFIND", Response.class);
         JsonModel model = JsonModel.model((InputStream) response.getEntity());
-        assertThat(model.<List>get("$")).hasSize(12);
-        assertThat(model.<List<String>>get("$")).containsOnly("creationDate","device","id","link","messageSpecification","deviceMessageAttributes","protocolInfo",
+        assertThat(model.<List>get("$")).hasSize(13);
+        assertThat(model.<List<String>>get("$")).containsOnly("version", "creationDate","device","id","link","messageSpecification","deviceMessageAttributes","protocolInfo",
                 "releaseDate","sentDate","status","trackingId","user");
     }
 }
