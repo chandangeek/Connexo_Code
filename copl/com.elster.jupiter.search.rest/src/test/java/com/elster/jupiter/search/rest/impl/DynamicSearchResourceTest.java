@@ -15,6 +15,7 @@ import com.jayway.jsonpath.JsonModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
 
 import javax.ws.rs.core.Response;
 import java.io.ByteArrayInputStream;
@@ -58,6 +59,7 @@ public class DynamicSearchResourceTest extends SearchApplicationTest {
         when(searchService.findDomain("com.devices")).thenReturn(Optional.of(devicesDomain));
 
         when(devicesDomain.getProperties()).thenReturn(Arrays.asList(mRID, deviceType, deviceConfig));
+        when(devicesDomain.getPropertiesWithConstrictions(Matchers.anyList())).thenReturn(Arrays.asList(mRID, deviceType, deviceConfig));
         when(devicesDomain.displayName()).thenReturn("devices");
         return devicesDomain;
     }

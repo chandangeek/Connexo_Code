@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 
@@ -80,20 +81,28 @@ public class DynamicSearchResource {
                                                      @BeanParam JsonQueryParameters jsonQueryParameters,
                                                      @BeanParam UriInfo uriInfo) throws InvalidValueException {
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
-        List propertyList;
-        if (jsonQueryFilter.hasFilters()) {
-            List<SearchablePropertyConstriction> searchablePropertyConstrictions = searchDomain.getProperties().stream().
-                    filter(SearchableProperty::affectsAvailableDomainProperties).
-                    map(constrainingProperty -> SearchablePropertyValueConverter.convert(constrainingProperty, jsonQueryFilter).asConstriction()).
-                    collect(toList());
-            propertyList = searchDomain.getPropertiesWithConstrictions(searchablePropertyConstrictions).stream().
-                    map(p -> searchCriterionInfoFactory.asInfoObject(p, uriInfo)).
-                    collect(toList());
-        } else {
-            propertyList = searchDomain.getProperties().stream().map(p -> searchCriterionInfoFactory.asInfoObject(p, uriInfo)).collect(toList());
-        }
+        Stream<SearchableProperty> propertyStream = getSearchableProperties(searchDomain, jsonQueryFilter);
+        List<PropertyInfo> propertyList = propertyStream
+                .map(p -> searchCriterionInfoFactory.asInfoObject(p, uriInfo))
+                .collect(toList());
         PagedInfoList pagedProperties = PagedInfoList.fromCompleteList("properties", propertyList, jsonQueryParameters);
         return Response.ok().entity(pagedProperties).build();
+    }
+
+    private Stream<SearchableProperty> getSearchableProperties(SearchDomain searchDomain, JsonQueryFilter jsonQueryFilter) {
+        Stream<SearchableProperty> propertyStream;
+        if (jsonQueryFilter.hasFilters()) {
+            List<SearchablePropertyConstriction> searchablePropertyConstrictions = searchDomain
+                    .getProperties()
+                    .stream()
+                    .filter(SearchableProperty::affectsAvailableDomainProperties)
+                    .map(constrainingProperty -> SearchablePropertyValueConverter.convert(constrainingProperty, jsonQueryFilter).asConstriction())
+                    .collect(toList());
+            propertyStream = searchDomain.getPropertiesWithConstrictions(searchablePropertyConstrictions).stream();
+        } else {
+            propertyStream = searchDomain.getProperties().stream();
+        }
+        return propertyStream;
     }
 
     @GET
@@ -170,7 +179,10 @@ public class DynamicSearchResource {
                                             @BeanParam JsonQueryParameters jsonQueryParameters,
                                             @BeanParam JsonQueryFilter jsonQueryFilter) {
         SearchDomain searchDomain = findSearchDomainOrThrowException(domainId);
-        SearchableProperty searchableProperty = findPropertyInDomainOrThrowException(property, searchDomain);
+        SearchableProperty searchableProperty = getSearchableProperties(searchDomain, jsonQueryFilter)
+                .filter(prop -> property.equals(prop.getName()))
+                .findFirst()
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_PROPERTY, property));
         List<SearchablePropertyConstriction> searchablePropertyConstrictions =
                 searchableProperty.getConstraints().stream().
                 map(constrainingProperty -> SearchablePropertyValueConverter.convert(constrainingProperty, jsonQueryFilter).asConstriction()).
@@ -187,13 +199,6 @@ public class DynamicSearchResource {
         }
         List allJsonValues = possibleValues.stream().map(v -> asJsonValueObject(searchableProperty.toDisplay(v), v)).filter(nameFilterPredicate).collect(toList());
         return Response.ok().entity(PagedInfoList.fromCompleteList("values", allJsonValues, jsonQueryParameters)).build();
-    }
-
-    private SearchableProperty findPropertyInDomainOrThrowException(@PathParam("property") String property, SearchDomain searchDomain) {
-        return searchDomain.getProperties().stream().
-                filter(p -> p.getName().equals(property)).
-                findFirst().
-                orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_PROPERTY, property));
     }
 
     private IdWithDisplayValueInfo asJsonValueObject(String name, Object valueObject) {
