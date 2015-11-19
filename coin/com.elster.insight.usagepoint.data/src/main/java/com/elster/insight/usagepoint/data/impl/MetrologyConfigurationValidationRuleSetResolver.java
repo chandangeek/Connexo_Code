@@ -28,7 +28,7 @@ public class MetrologyConfigurationValidationRuleSetResolver implements Validati
 
     @Override
     public List<ValidationRuleSet> resolve(MeterActivation meterActivation) {
-        if (!meterActivation.getUsagePoint().isPresent()) {
+        if (meterActivation.getUsagePoint().isPresent()) {
             return usagePointConfigurationService.findMetrologyConfigurationForUsagePoint(meterActivation.getUsagePoint().get())
             .map(metrologyConfiguration -> metrologyConfiguration.getValidationRuleSets())
             .orElse(Collections.emptyList());
