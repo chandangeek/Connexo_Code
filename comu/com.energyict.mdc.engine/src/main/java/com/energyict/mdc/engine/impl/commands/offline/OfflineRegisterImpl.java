@@ -100,7 +100,7 @@ public class OfflineRegisterImpl implements OfflineRegister {
         this.registerId = (int) this.register.getRegisterSpec().getId();
         this.deviceRegisterObisCode = this.register.getRegisterSpec().getDeviceObisCode();
         this.amrRegisterObisCode = this.register.getRegisterSpec().getObisCode();
-        this.registerUnit = this.register.getRegisterSpec().getUnit();
+        this.registerUnit = this.register.getRegisterSpec().getRegisterType().getUnit();
 
         // We don't use the rtuRegister.getOverruledRegisterGroup as this can be overruled!
         List<RegisterGroup> registerGroups = this.register.getRegisterSpec().getRegisterType().getRegisterGroups();

@@ -57,7 +57,7 @@ public class OfflineRegisterImplTest {
         when(registerSpec.getDeviceObisCode()).thenReturn(REGISTER_MAPPING_OBISCODE);
         when(registerSpec.getId()).thenReturn(REGISTER_SPEC_ID);
         when(registerSpec.getRegisterType()).thenReturn(mockedMeasurementType);
-        when(registerSpec.getUnit()).thenReturn(REGISTER_UNIT);
+        when(mockedMeasurementType.getUnit()).thenReturn(REGISTER_UNIT);
         return registerSpec;
     }
 
