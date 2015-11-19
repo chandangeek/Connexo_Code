@@ -11,7 +11,6 @@ Ext.define('Mdc.model.RegisterConfiguration', {
         {name: 'obisCodeDescription', type: 'string', useNull: true},
         {name: 'numberOfFractionDigits', type: 'number', useNull: true},
         {name: 'overflow', type: 'number', useNull: true},
-        {name: 'timeOfUse', type:'number', useNull: true},
         {name: 'registerType', type:'number', useNull: true},
         {name: 'readingType', persist:false},
         {name: 'collectedReadingType', persist:false},
