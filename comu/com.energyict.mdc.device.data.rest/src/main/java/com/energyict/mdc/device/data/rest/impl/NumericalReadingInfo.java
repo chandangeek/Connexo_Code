@@ -22,9 +22,6 @@ public class NumericalReadingInfo extends ReadingInfo {
     @JsonProperty("rawValue")
     @XmlJavaTypeAdapter(BigDecimalAsStringAdapter.class)
     public BigDecimal rawValue;
-    @JsonProperty("unitOfMeasure")
-    @XmlJavaTypeAdapter(UnitAdapter.class)
-    public Unit unitOfMeasure;
     @JsonProperty("validationStatus")
     public Boolean validationStatus;
     @JsonProperty("dataValidated")

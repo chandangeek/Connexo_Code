@@ -38,11 +38,6 @@ public abstract class RegisterInfo<R extends Register, RE extends Reading> {
     public ObisCode overruledObisCode;
     @JsonProperty("obisCodeDescription")
     public String obisCodeDescription;
-    @JsonProperty("unitOfMeasure")
-    @XmlJavaTypeAdapter(UnitAdapter.class)
-    public Unit unitOfMeasure;
-    @JsonProperty("timeOfUse")
-    public Integer timeOfUse;
     @JsonProperty("lastReading")
     public ReadingInfo lastReading;
     public boolean isCumulative;

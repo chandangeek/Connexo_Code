@@ -22,7 +22,6 @@ public class ChannelInfo {
     public long id;
     public String name;
     public TimeDurationInfo interval;
-    public String unitOfMeasure;
     public Instant lastReading;
     public Instant lastValueTimestamp;
     public ReadingTypeInfo readingType;
@@ -30,7 +29,6 @@ public class ChannelInfo {
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode obisCode;
     public BigDecimal overflowValue;
-    public String flowUnit;
     public Integer nbrOfFractionDigits;
     public long loadProfileId;
     public long version;
@@ -44,7 +42,6 @@ public class ChannelInfo {
         info.id = channel.getId();
         info.name = channel.getName();
         info.interval = new TimeDurationInfo(channel.getInterval());
-        info.unitOfMeasure = channel.getUnit().toString();
         info.lastReading = channel.getLastReading().orElse(null);
         info.lastValueTimestamp = channel.getLastDateTime().orElse(null);
         info.readingType = new ReadingTypeInfo(channel.getReadingType());
@@ -53,7 +50,6 @@ public class ChannelInfo {
                     rt -> info.calculatedReadingType = new ReadingTypeInfo(rt));
         }
         info.overflowValue = channel.getOverflow();
-        info.flowUnit = channel.getUnit().isFlowUnit() ? "flow" : "volume";
         info.obisCode = channel.getObisCode();
         info.nbrOfFractionDigits = channel.getChannelSpec().getNbrOfFractionDigits();
         info.loadProfileId = channel.getLoadProfile().getId();

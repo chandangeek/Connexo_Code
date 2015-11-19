@@ -19,9 +19,6 @@ public class BillingReadingInfo extends ReadingInfo {
     @JsonProperty("value")
     public BigDecimal value;
     public BigDecimal deltaValue;
-    @JsonProperty("unitOfMeasure")
-    @XmlJavaTypeAdapter(UnitAdapter.class)
-    public Unit unitOfMeasure;
     @JsonProperty("interval")
     public IntervalInfo interval;
     @JsonProperty("validationStatus")

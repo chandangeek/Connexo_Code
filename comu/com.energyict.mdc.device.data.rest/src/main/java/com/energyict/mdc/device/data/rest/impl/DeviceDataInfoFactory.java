@@ -186,7 +186,6 @@ public class DeviceDataInfoFactory {
         if (reading.getQuantity() != null) {
             billingReadingInfo.value = reading.getQuantity().getValue();
         }
-        billingReadingInfo.unitOfMeasure = registerSpec.getUnit();
         if (reading.getRange().isPresent()) {
             billingReadingInfo.interval = IntervalInfo.from(reading.getRange().get());
         }
@@ -213,8 +212,6 @@ public class DeviceDataInfoFactory {
             numericalReadingInfo.value = numericalReadingInfo.value.setScale(numberOfFractionDigits, BigDecimal.ROUND_UP);
             numericalReadingInfo.rawValue = numericalReadingInfo.value;
         }
-        numericalReadingInfo.unitOfMeasure = registerSpec.getUnit();
-
         numericalReadingInfo.validationStatus = isValidationStatusActive;
         reading.getValidationStatus().ifPresent(status -> {
             numericalReadingInfo.dataValidated = status.completelyValidated();
@@ -261,11 +258,9 @@ public class DeviceDataInfoFactory {
         registerInfo.id = registerSpec.getId();
         registerInfo.registerType = registerSpec.getRegisterType().getId();
         registerInfo.readingType = new ReadingTypeInfo(registerSpec.getRegisterType().getReadingType());
-        registerInfo.timeOfUse = registerSpec.getRegisterType().getTimeOfUse();
         registerInfo.obisCode = registerSpec.getObisCode();
         registerInfo.overruledObisCode = registerSpec.getDeviceObisCode();
         registerInfo.obisCodeDescription = registerSpec.getObisCode().getDescription();
-        registerInfo.unitOfMeasure = registerSpec.getUnit();
         registerInfo.isCumulative = registerSpec.getReadingType().isCumulative();
         registerInfo.mRID = device.getmRID();
         registerInfo.version = device.getVersion();
