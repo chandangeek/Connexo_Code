@@ -303,17 +303,20 @@ public class AppServerImpl implements AppServer {
         public ImportScheduleOnAppServerImpl addImportScheduleOnAppServer(ImportSchedule importSchedule) {
             ImportScheduleOnAppServerImpl importScheduleOnAppServer = ImportScheduleOnAppServerImpl.from(dataModel, AppServerImpl.this.fileImportService, importSchedule, AppServerImpl.this);
             getImportScheduleOnAppServerFactory().persist(importScheduleOnAppServer);
-            fileImportService.schedule(importSchedule);
+            if(active){
+                fileImportService.schedule(importSchedule);
+            }
             return importScheduleOnAppServer;
         }
 
         @Override
         public void removeImportScheduleOnAppServer(ImportScheduleOnAppServer importScheduleOnAppServer) {
             ImportScheduleOnAppServerImpl found = getImportScheduleOnAppServer(importScheduleOnAppServer);
-            found.getImportSchedule().ifPresent(s -> fileImportService.unschedule(s));
+            if(active) {
+                found.getImportSchedule().ifPresent(s -> fileImportService.unschedule(s));
+            }
             getImportScheduleOnAppServerFactory().remove(found);
             importSchedulesOnAppServer.remove(found);
-
         }
 
         @Override
@@ -333,6 +336,7 @@ public class AppServerImpl implements AppServer {
             SubscriberExecutionSpecImpl executionSpec = getSubscriberExecutionSpec(subscriberExecutionSpec);
             executionSpec.setActive(true);
             executionSpec.update();
+
         }
 
         @Override
@@ -351,6 +355,9 @@ public class AppServerImpl implements AppServer {
                     if (path.get().getImportFolder().isPresent()) {
                         fileImportService.setBasePath(path.get().getImportFolder().get());
                     }
+                    for(ImportScheduleOnAppServer importScheduleOnAppServer: getImportSchedulesOnAppServer()){
+                        importScheduleOnAppServer.getImportSchedule().ifPresent(s -> fileImportService.schedule(s));
+                    }
                 }
 
             }
@@ -360,6 +367,9 @@ public class AppServerImpl implements AppServer {
         public void deactivate() {
             if (active) {
                 active = false;
+                for(ImportScheduleOnAppServer importScheduleOnAppServer: getImportSchedulesOnAppServer()){
+                    importScheduleOnAppServer.getImportSchedule().ifPresent(s -> fileImportService.unschedule(s));
+                }
             }
         }
 
