@@ -65,6 +65,7 @@ Ext.define('Uni.service.Search', {
         'Boolean:com.elster.jupiter.properties.BooleanFactory':              'uni-search-criteria-boolean',
         'Instant:com.elster.jupiter.properties.InstantFactory':              'uni-search-criteria-datetime',
         'TimeDuration:com.elster.jupiter.properties.StringReferenceFactory': 'uni-search-criteria-timeduration',
+        'TimeDuration:com.energyict.mdc.dynamic.TimeDurationValueFactory':   'uni-search-criteria-timeduration',
         'BigDecimal:com.elster.jupiter.properties.BigDecimalFactory':        'uni-search-criteria-numeric',
         'Long:com.elster.jupiter.properties.LongFactory':                    'uni-search-criteria-numeric',
         'Date:com.energyict.mdc.dynamic.DateFactory':                        'uni-search-criteria-date',
@@ -431,7 +432,6 @@ Ext.define('Uni.service.Search', {
             store = me.getSearchPropertiesStore();
             store.clearFilter(true);
             store.addFilter(me.getFilters(), false);
-            store.load();
         }
 
         var deps = me.filters.filterBy(function(filter) {

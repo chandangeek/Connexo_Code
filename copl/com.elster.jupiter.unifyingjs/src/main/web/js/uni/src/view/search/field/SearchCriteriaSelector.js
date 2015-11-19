@@ -57,7 +57,7 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
         me.bindStore(me.store, true);
 
         listeners.push(me.store.on('beforeload', function() {
-            me.setLoading(true);
+            me.setDisabled(true);
         }, me, {
             destroyable: true
         }));
@@ -71,6 +71,11 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
                 i.destroy()
             });
         });
+
+        me.on('menushow', function() {
+            me.store.load();
+            me.menu.setLoading(true);
+        })
     },
 
     onReset: function() {
@@ -139,6 +144,7 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
     onStoreLoad: function (store) {
         var me = this,
             groups;
+
         me.setDisabled(!store.count());
         Ext.suspendLayouts();
         me.menu.removeAll();
@@ -177,9 +183,11 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
                 }
             });
         }
-        Ext.resumeLayouts(true);
 
-        me.setLoading(false);
+        me.menu.setLoading(false);
+        me.updateLayout();
+
+        Ext.resumeLayouts(true);
     },
 
     setValue: function(value, suspendEvent) {
