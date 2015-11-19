@@ -11,6 +11,7 @@ import javax.inject.Provider;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -31,22 +32,21 @@ public class DeviceMessageSpecificationInfoFactory extends SelectableFieldFactor
     }
 
     public LinkInfo asLink(DeviceMessageSpec deviceMessageSpecification, Relation relation, UriInfo uriInfo) {
-        return asLink(deviceMessageSpecification, relation, getUriBuilder(uriInfo));
+        DeviceMessageSpecificationInfo info = new DeviceMessageSpecificationInfo();
+        copySelectedFields(info,deviceMessageSpecification,uriInfo, Arrays.asList("id","version"));
+        info.link = link(deviceMessageSpecification,relation,uriInfo);
+        return info;
     }
 
     public List<LinkInfo> asLink(Collection<DeviceMessageSpec> deviceMessageSpecifications, Relation relation, UriInfo uriInfo) {
-        UriBuilder uriBuilder = getUriBuilder(uriInfo);
-        return deviceMessageSpecifications.stream().map(i-> asLink(i, relation, uriBuilder)).collect(toList());
+        return deviceMessageSpecifications.stream().map(i-> asLink(i, relation, uriInfo)).collect(toList());
     }
 
-    private LinkInfo asLink(DeviceMessageSpec deviceMessageSpecification, Relation relation, UriBuilder uriBuilder) {
-        LinkInfo info = new LinkInfo();
-        info.id = deviceMessageSpecification.getId().dbValue();
-        info.link = Link.fromUriBuilder(uriBuilder)
+    private Link link(DeviceMessageSpec deviceMessageSpecification, Relation relation, UriInfo uriInfo) {
+        return Link.fromUriBuilder(getUriBuilder(uriInfo))
                 .rel(relation.rel())
                 .title("Device message specification")
                 .build(deviceMessageSpecification.getCategory().getId(), deviceMessageSpecification.getId().dbValue());
-        return info;
     }
 
     private UriBuilder getUriBuilder(UriInfo uriInfo) {
@@ -67,7 +67,7 @@ public class DeviceMessageSpecificationInfoFactory extends SelectableFieldFactor
         Map<String, PropertyCopier<DeviceMessageSpecificationInfo, DeviceMessageSpec>> map = new HashMap<>();
         map.put("id", (deviceMessageSpecificationInfo, deviceMessageSpecification, uriInfo) -> deviceMessageSpecificationInfo.id = deviceMessageSpecification.getId().dbValue());
         map.put("link", ((deviceMessageSpecificationInfo, deviceMessageSpecification, uriInfo) ->
-                deviceMessageSpecificationInfo.link = asLink(deviceMessageSpecification, Relation.REF_SELF, uriInfo).link));
+                deviceMessageSpecificationInfo.link = link(deviceMessageSpecification, Relation.REF_SELF, uriInfo)));
         map.put("name", (deviceMessageSpecificationInfo, deviceMessageSpecification, uriInfo) -> deviceMessageSpecificationInfo.name = deviceMessageSpecification.getName());
         map.put("deviceMessageId", (deviceMessageSpecificationInfo, deviceMessageSpecification, uriInfo) -> deviceMessageSpecificationInfo.deviceMessageId = deviceMessageSpecification.getId().name());
         map.put("propertySpecs", (deviceMessageSpecificationInfo, deviceMessageSpecification, uriInfo) -> {

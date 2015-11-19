@@ -27,6 +27,7 @@ import javax.ws.rs.core.Link;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -62,23 +63,23 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
         this.comTaskInfoFactoryProvider = comTaskInfoFactoryProvider;
         this.comScheduleInfoFactoryProvider = comScheduleInfoFactoryProvider;
     }
+
     public LinkInfo asLink(ComTaskExecution comTaskExecution, Relation relation, UriInfo uriInfo) {
-        return asLink(comTaskExecution, relation, getUriBuilder(uriInfo));
+        ComTaskExecutionInfo info = new ComTaskExecutionInfo();
+        copySelectedFields(info,comTaskExecution,uriInfo, Arrays.asList("id","version"));
+        info.link = link(comTaskExecution,relation,uriInfo);
+        return info;
     }
 
     public List<LinkInfo> asLink(Collection<ComTaskExecution> comTaskExecutions, Relation relation, UriInfo uriInfo) {
-        UriBuilder uriBuilder = getUriBuilder(uriInfo);
-        return comTaskExecutions.stream().map(i-> asLink(i, relation, uriBuilder)).collect(toList());
+        return comTaskExecutions.stream().map(i-> asLink(i, relation, uriInfo)).collect(toList());
     }
 
-    private LinkInfo asLink(ComTaskExecution comTaskExecution, Relation relation, UriBuilder uriBuilder) {
-        LinkInfo info = new LinkInfo();
-        info.id = comTaskExecution.getId();
-        info.link = Link.fromUriBuilder(uriBuilder)
+    private Link link(ComTaskExecution comTaskExecution, Relation relation, UriInfo uriInfo) {
+        return Link.fromUriBuilder(getUriBuilder(uriInfo))
                 .rel(relation.rel())
                 .title("ComTask execution")
                 .build(comTaskExecution.getDevice().getmRID(), comTaskExecution.getId());
-        return info;
     }
 
     private UriBuilder getUriBuilder(UriInfo uriInfo) {
@@ -99,7 +100,7 @@ public class ComTaskExecutionInfoFactory extends SelectableFieldFactory<ComTaskE
         Map<String, PropertyCopier<ComTaskExecutionInfo, ComTaskExecution>> map = new HashMap<>();
         map.put("id", (comTaskExecutionInfo, comTaskExecution, uriInfo) -> comTaskExecutionInfo.id = comTaskExecution.getId());
         map.put("link", ((comTaskExecutionInfo, comTaskExecution, uriInfo) ->
-            comTaskExecutionInfo.link = asLink(comTaskExecution, Relation.REF_SELF, uriInfo).link));
+            comTaskExecutionInfo.link = link(comTaskExecution, Relation.REF_SELF, uriInfo)));
         map.put("device", ((comTaskExecutionInfo, comTaskExecution, uriInfo) ->
             comTaskExecutionInfo.device = deviceInfoFactoryProvider.get().asLink(comTaskExecution.getDevice(), Relation.REF_PARENT, uriInfo)));
         map.put("connectionTask", ((comTaskExecutionInfo, comTaskExecution, uriInfo) -> {

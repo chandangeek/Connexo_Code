@@ -7,6 +7,7 @@ import com.energyict.mdc.multisense.api.impl.utils.SelectableFieldFactory;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -17,24 +18,23 @@ import static java.util.stream.Collectors.toList;
 public class ProtocolDialectConfigurationPropertiesInfoFactory extends SelectableFieldFactory<ProtocolDialectConfigurationPropertiesInfo, ProtocolDialectConfigurationProperties> {
 
     public LinkInfo asLink(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, Relation relation, UriInfo uriInfo) {
-        return asLink(protocolDialectConfigurationProperties, relation, getUriBuilder(uriInfo));
+        ProtocolDialectConfigurationPropertiesInfo info = new ProtocolDialectConfigurationPropertiesInfo();
+        copySelectedFields(info,protocolDialectConfigurationProperties,uriInfo, Arrays.asList("id","version"));
+        info.link = link(protocolDialectConfigurationProperties,relation,uriInfo);
+        return info;
     }
 
     public List<LinkInfo> asLink(Collection<ProtocolDialectConfigurationProperties> protocolDialectConfigurationPropertiess, Relation relation, UriInfo uriInfo) {
-        UriBuilder uriBuilder = getUriBuilder(uriInfo);
-        return protocolDialectConfigurationPropertiess.stream().map(i-> asLink(i, relation, uriBuilder)).collect(toList());
+        return protocolDialectConfigurationPropertiess.stream().map(i-> asLink(i, relation, uriInfo)).collect(toList());
     }
 
-    private LinkInfo asLink(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, Relation relation, UriBuilder uriBuilder) {
-        LinkInfo info = new LinkInfo();
-        info.id = protocolDialectConfigurationProperties.getId();
-        info.link = Link.fromUriBuilder(uriBuilder)
+    private Link link(ProtocolDialectConfigurationProperties protocolDialectConfigurationProperties, Relation relation, UriInfo uriInfo) {
+        return Link.fromUriBuilder(getUriBuilder(uriInfo))
                 .rel(relation.rel())
                 .title("Protocol dialect configuration properties").
                 build(protocolDialectConfigurationProperties.getDeviceConfiguration().getDeviceType().getId(),
                         protocolDialectConfigurationProperties.getDeviceConfiguration().getId(),
                         protocolDialectConfigurationProperties.getId());
-        return info;
     }
 
     private UriBuilder getUriBuilder(UriInfo uriInfo) {
@@ -55,7 +55,7 @@ public class ProtocolDialectConfigurationPropertiesInfoFactory extends Selectabl
         map.put("id", (protocolDialectConfigurationPropertiesInfo, protocolDialectConfigurationProperties, uriInfo) -> protocolDialectConfigurationPropertiesInfo.id = protocolDialectConfigurationProperties.getId());
         map.put("name", (protocolDialectConfigurationPropertiesInfo, protocolDialectConfigurationProperties, uriInfo) -> protocolDialectConfigurationPropertiesInfo.name = protocolDialectConfigurationProperties.getName());
         map.put("link", ((protocolDialectConfigurationPropertiesInfo, protocolDialectConfigurationProperties, uriInfo) ->
-                protocolDialectConfigurationPropertiesInfo.link = asLink(protocolDialectConfigurationProperties, Relation.REF_SELF, uriInfo).link));
+                protocolDialectConfigurationPropertiesInfo.link = link(protocolDialectConfigurationProperties, Relation.REF_SELF, uriInfo)));
         return map;
     }
 }

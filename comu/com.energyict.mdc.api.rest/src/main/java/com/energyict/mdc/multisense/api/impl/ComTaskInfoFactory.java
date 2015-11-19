@@ -11,6 +11,7 @@ import javax.inject.Provider;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -34,22 +35,21 @@ public class ComTaskInfoFactory extends SelectableFieldFactory<ComTaskInfo, ComT
     }
 
     public LinkInfo asLink(ComTask comTask, Relation relation, UriInfo uriInfo) {
-        return asLink(comTask, relation, getUriBuilder(uriInfo));
+        ComTaskInfo info = new ComTaskInfo();
+        copySelectedFields(info,comTask,uriInfo, Arrays.asList("id","version"));
+        info.link = link(comTask,relation,uriInfo);
+        return info;
     }
 
     public List<LinkInfo> asLink(Collection<ComTask> comTasks, Relation relation, UriInfo uriInfo) {
-        UriBuilder uriBuilder = getUriBuilder(uriInfo);
-        return comTasks.stream().map(i-> asLink(i, relation, uriBuilder)).collect(toList());
+        return comTasks.stream().map(i-> asLink(i, relation, uriInfo)).collect(toList());
     }
 
-    private LinkInfo asLink(ComTask comTask, Relation relation, UriBuilder uriBuilder) {
-        LinkInfo info = new LinkInfo();
-        info.id = comTask.getId();
-        info.link = Link.fromUriBuilder(uriBuilder)
+    private Link link(ComTask comTask, Relation relation, UriInfo uriInfo) {
+        return Link.fromUriBuilder(getUriBuilder(uriInfo))
                 .rel(relation.rel())
                 .title("Scheduled communication task")
                 .build(comTask.getId());
-        return info;
     }
 
     private UriBuilder getUriBuilder(UriInfo uriInfo) {

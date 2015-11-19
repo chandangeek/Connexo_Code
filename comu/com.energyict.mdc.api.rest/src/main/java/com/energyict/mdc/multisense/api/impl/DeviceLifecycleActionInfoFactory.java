@@ -15,6 +15,7 @@ import javax.inject.Provider;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -39,17 +40,20 @@ public class DeviceLifecycleActionInfoFactory extends SelectableFieldFactory<Lif
     }
 
     public LinkInfo asLink(Device device, AuthorizedTransitionAction action, Relation relation, UriInfo uriInfo) {
-        return asLink(device, action, relation, getUriBuilder(uriInfo));
+        LifeCycleActionInfo info = new LifeCycleActionInfo();
+        DeviceAction deviceAction = new DeviceAction();
+        deviceAction.action = action;
+        deviceAction.device = device;
+        copySelectedFields(info, deviceAction, uriInfo, Arrays.asList("id", "version"));
+        info.link = link(device,action,relation,uriInfo);
+        return info;
     }
 
-    private LinkInfo asLink(Device device, AuthorizedTransitionAction action, Relation relation, UriBuilder uriBuilder) {
-        LinkInfo info = new LinkInfo();
-        info.id = action.getId();
-        info.link = Link.fromUriBuilder(uriBuilder)
+    private Link link(Device device, AuthorizedTransitionAction action, Relation relation, UriInfo uriInfo) {
+        return Link.fromUriBuilder(getUriBuilder(uriInfo))
                 .rel(relation.rel())
                 .title("Device lifecycle action")
                 .build(device.getmRID(), action.getId());
-        return info;
     }
 
     private UriBuilder getUriBuilder(UriInfo uriInfo) {
@@ -73,7 +77,7 @@ public class DeviceLifecycleActionInfoFactory extends SelectableFieldFactory<Lif
         Map<String, PropertyCopier<LifeCycleActionInfo, DeviceAction>> map = new HashMap<>();
         map.put("id", (deviceLifeCycleActionInfo, deviceAction, uriInfo) -> deviceLifeCycleActionInfo.id = deviceAction.action.getId());
         map.put("name", (deviceLifeCycleActionInfo, deviceAction, uriInfo) -> deviceLifeCycleActionInfo.name = deviceAction.action.getName());
-        map.put("link", (deviceLifeCycleActionInfo, deviceAction, uriInfo) -> deviceLifeCycleActionInfo.link = asLink(deviceAction.device, deviceAction.action, Relation.REF_SELF, uriInfo).link);
+        map.put("link", (deviceLifeCycleActionInfo, deviceAction, uriInfo) -> deviceLifeCycleActionInfo.link = link(deviceAction.device, deviceAction.action, Relation.REF_SELF, uriInfo));
         map.put("properties", (deviceLifeCycleActionInfo, deviceAction, uriInfo) -> {
             List<PropertySpec> uniquePropertySpecsForMicroActions =
                     DecoratedStream.decorate(deviceAction.action.getActions().stream())

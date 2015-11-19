@@ -11,6 +11,7 @@ import javax.inject.Provider;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -37,26 +38,26 @@ public class ConfigurationSecurityPropertySetInfoFactory extends SelectableField
         this.encryptionDeviceAccessLevelInfoFactoryProvider = encryptionDeviceAccessLevelInfoFactoryProvider;
     }
 
-    public LinkInfo asLink(SecurityPropertySet securityPropertySet, Relation relation, UriInfo uriInfo) {
-        return asLink(securityPropertySet, relation, getUriBuilder(uriInfo));
+    public LinkInfo asLink(SecurityPropertySet configurationSecurityPropertySet, Relation relation, UriInfo uriInfo) {
+        ConfigurationSecurityPropertySetInfo info = new ConfigurationSecurityPropertySetInfo();
+        copySelectedFields(info,configurationSecurityPropertySet,uriInfo, Arrays.asList("id","version"));
+        info.link = link(configurationSecurityPropertySet,relation,uriInfo);
+        return info;
     }
 
-    public List<LinkInfo> asLink(Collection<SecurityPropertySet> securityPropertySets, Relation relation, UriInfo uriInfo) {
-        UriBuilder uriBuilder = getUriBuilder(uriInfo);
-        return securityPropertySets.stream().map(i-> asLink(i, relation, uriBuilder)).collect(toList());
+    public List<LinkInfo> asLink(Collection<SecurityPropertySet> configurationSecurityPropertySets, Relation relation, UriInfo uriInfo) {
+        return configurationSecurityPropertySets.stream().map(i-> asLink(i, relation, uriInfo)).collect(toList());
     }
 
-    private LinkInfo asLink(SecurityPropertySet securityPropertySet, Relation relation, UriBuilder uriBuilder) {
-        LinkInfo info = new LinkInfo();
-        info.id = securityPropertySet.getId();
-        info.link = Link.fromUriBuilder(uriBuilder)
+    private Link link(SecurityPropertySet securityPropertySet, Relation relation, UriInfo uriInfo) {
+        return Link.fromUriBuilder(getUriBuilder(uriInfo))
                 .rel(relation.rel())
                 .title("Configuration security set")
                 .build(securityPropertySet.getDeviceConfiguration().getDeviceType().getId(),
                         securityPropertySet.getDeviceConfiguration().getId(),
                         securityPropertySet.getId());
-        return info;
     }
+
 
     private UriBuilder getUriBuilder(UriInfo uriInfo) {
         return uriInfo.getBaseUriBuilder()
@@ -91,7 +92,7 @@ public class ConfigurationSecurityPropertySetInfoFactory extends SelectableField
             ));
         map.put("properties", (configurationSecurityPropertySetInfo, securityPropertySet, uriInfo) -> configurationSecurityPropertySetInfo.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(securityPropertySet.getPropertySpecs(), TypedProperties.empty()));
         map.put("link", (configurationSecurityPropertySetInfo, securityPropertySet, uriInfo) ->
-            configurationSecurityPropertySetInfo.link = asLink(securityPropertySet, Relation.REF_SELF, uriInfo).link);
+            configurationSecurityPropertySetInfo.link = link(securityPropertySet, Relation.REF_SELF, uriInfo));
         return map;
     }
 

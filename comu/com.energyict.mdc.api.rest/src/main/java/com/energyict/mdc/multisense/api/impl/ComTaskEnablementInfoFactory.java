@@ -9,6 +9,7 @@ import javax.inject.Provider;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -35,24 +36,23 @@ public class ComTaskEnablementInfoFactory extends SelectableFieldFactory<ComTask
     }
 
     public LinkInfo asLink(ComTaskEnablement comTaskEnablement, Relation relation, UriInfo uriInfo) {
-        return asLink(comTaskEnablement, relation, getUriBuilder(uriInfo));
+        ComTaskEnablementInfo info = new ComTaskEnablementInfo();
+        copySelectedFields(info, comTaskEnablement, uriInfo, Arrays.asList("id", "version"));
+        info.link = link(comTaskEnablement,relation,uriInfo);
+        return info;
     }
 
     public List<LinkInfo> asLink(Collection<ComTaskEnablement> comTaskEnablements, Relation relation, UriInfo uriInfo) {
-        UriBuilder uriBuilder = getUriBuilder(uriInfo);
-        return comTaskEnablements.stream().map(i-> asLink(i, relation, uriBuilder)).collect(toList());
+        return comTaskEnablements.stream().map(i-> asLink(i, relation, uriInfo)).collect(toList());
     }
 
-    private LinkInfo asLink(ComTaskEnablement comTaskEnablement, Relation relation, UriBuilder uriBuilder) {
-        LinkInfo info = new LinkInfo();
-        info.id = comTaskEnablement.getId();
-        info.link = Link.fromUriBuilder(uriBuilder)
+    private Link link(ComTaskEnablement comTaskEnablement, Relation relation, UriInfo uriInfo) {
+        return Link.fromUriBuilder(getUriBuilder(uriInfo))
                 .rel(relation.rel())
                 .title("Communication task enablement")
                 .build(comTaskEnablement.getDeviceConfiguration().getDeviceType().getId(),
                         comTaskEnablement.getDeviceConfiguration().getId(),
                         comTaskEnablement.getId());
-        return info;
     }
 
     private UriBuilder getUriBuilder(UriInfo uriInfo) {
@@ -74,7 +74,7 @@ public class ComTaskEnablementInfoFactory extends SelectableFieldFactory<ComTask
         map.put("id", (comTaskEnablementInfo, comTaskEnablement, uriInfo) -> comTaskEnablementInfo.id = comTaskEnablement.getId());
         map.put("priority", (comTaskEnablementInfo, comTaskEnablement, uriInfo) -> comTaskEnablementInfo.priority = comTaskEnablement.getPriority());
         map.put("suspended", (comTaskEnablementInfo, comTaskEnablement, uriInfo) -> comTaskEnablementInfo.suspended = comTaskEnablement.isSuspended());
-        map.put("link", ((comTaskEnablementInfo, comTaskEnablement, uriInfo) -> comTaskEnablementInfo.link = asLink(comTaskEnablement, Relation.REF_SELF,uriInfo).link));
+        map.put("link", ((comTaskEnablementInfo, comTaskEnablement, uriInfo) -> comTaskEnablementInfo.link = link(comTaskEnablement, Relation.REF_SELF,uriInfo)));
         map.put("partialConnectionTask", ((comTaskEnablementInfo, comTaskEnablement, uriInfo) -> {
                     if (comTaskEnablement.hasPartialConnectionTask()) {
                         comTaskEnablementInfo.partialConnectionTask = partialConnectionTaskInfoFactoryProvider.get().asLink(comTaskEnablement.getPartialConnectionTask().get(), Relation.REF_RELATION, uriInfo);

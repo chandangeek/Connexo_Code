@@ -15,6 +15,7 @@ import javax.inject.Provider;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -37,25 +38,25 @@ public class PartialConnectionTaskInfoFactory extends SelectableFieldFactory<Par
     }
 
     public LinkInfo asLink(PartialConnectionTask partialConnectionTask, Relation relation, UriInfo uriInfo) {
-        return asLink(partialConnectionTask, relation, getUriBuilder(uriInfo));
+        PartialConnectionTaskInfo info = new PartialConnectionTaskInfo();
+        copySelectedFields(info,partialConnectionTask,uriInfo, Arrays.asList("id","version"));
+        info.link = link(partialConnectionTask,relation,uriInfo);
+        return info;
     }
 
     public List<LinkInfo> asLink(Collection<PartialConnectionTask> partialConnectionTasks, Relation relation, UriInfo uriInfo) {
-        UriBuilder uriBuilder = getUriBuilder(uriInfo);
-        return partialConnectionTasks.stream().map(i-> asLink(i, relation, uriBuilder)).collect(toList());
+        return partialConnectionTasks.stream().map(i-> asLink(i, relation, uriInfo)).collect(toList());
     }
 
-    private LinkInfo asLink(PartialConnectionTask partialConnectionTask, Relation relation, UriBuilder uriBuilder) {
-        LinkInfo info = new LinkInfo();
-        info.id = partialConnectionTask.getId();
-        info.link = Link.fromUriBuilder(uriBuilder)
+    private Link link(PartialConnectionTask partialConnectionTask, Relation relation, UriInfo uriInfo) {
+        return Link.fromUriBuilder(getUriBuilder(uriInfo))
                 .rel(relation.rel())
                 .title("Partial connection task")
                 .build(partialConnectionTask.getConfiguration().getDeviceType().getId(),
                         partialConnectionTask.getConfiguration().getId(),
                         partialConnectionTask.getId());
-        return info;
     }
+
 
     private UriBuilder getUriBuilder(UriInfo uriInfo) {
         return uriInfo.getBaseUriBuilder()
@@ -75,7 +76,7 @@ public class PartialConnectionTaskInfoFactory extends SelectableFieldFactory<Par
         map.put("id",(partialConnectionTaskInfo, partialConnectionTask, uriInfo) -> partialConnectionTaskInfo.id = partialConnectionTask.getId());
         map.put("name",(partialConnectionTaskInfo, partialConnectionTask, uriInfo) -> partialConnectionTaskInfo.name = partialConnectionTask.getName());
         map.put("direction",(partialConnectionTaskInfo, partialConnectionTask, uriInfo) -> partialConnectionTaskInfo.direction = ConnectionTaskType.from(partialConnectionTask));
-        map.put("link",(partialConnectionTaskInfo, partialConnectionTask, uriInfo) -> partialConnectionTaskInfo.link = asLink(partialConnectionTask, Relation.REF_SELF, uriInfo).link);
+        map.put("link",(partialConnectionTaskInfo, partialConnectionTask, uriInfo) -> partialConnectionTaskInfo.link = link(partialConnectionTask, Relation.REF_SELF, uriInfo));
         map.put("connectionType", (partialConnectionTaskInfo, partialConnectionTask, uriInfo) -> partialConnectionTaskInfo.connectionType = partialConnectionTask.getPluggableClass().getName());
         map.put("comPortPool", (partialConnectionTaskInfo, partialConnectionTask, uriInfo) ->
                 partialConnectionTaskInfo.comPortPool = comPortPoolInfoFactoryProvider.get().asLink(partialConnectionTask.getComPortPool(), Relation.REF_RELATION, uriInfo));

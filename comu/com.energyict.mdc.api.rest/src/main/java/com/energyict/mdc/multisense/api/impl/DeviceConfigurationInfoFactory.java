@@ -9,6 +9,7 @@ import javax.inject.Provider;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -41,22 +42,21 @@ public class DeviceConfigurationInfoFactory extends SelectableFieldFactory<Devic
     }
 
     public LinkInfo asLink(DeviceConfiguration deviceConfiguration, Relation relation, UriInfo uriInfo) {
-        return asLink(deviceConfiguration, relation, getUriBuilder(uriInfo));
+        DeviceConfigurationInfo info = new DeviceConfigurationInfo();
+        copySelectedFields(info,deviceConfiguration,uriInfo, Arrays.asList("id","version"));
+        info.link = link(deviceConfiguration,relation,uriInfo);
+        return info;
     }
 
     public List<LinkInfo> asLink(Collection<DeviceConfiguration> deviceConfigurations, Relation relation, UriInfo uriInfo) {
-        UriBuilder uriBuilder = getUriBuilder(uriInfo);
-        return deviceConfigurations.stream().map(i-> asLink(i, relation, uriBuilder)).collect(toList());
+        return deviceConfigurations.stream().map(i-> asLink(i, relation, uriInfo)).collect(toList());
     }
 
-    private LinkInfo asLink(DeviceConfiguration deviceConfiguration, Relation relation, UriBuilder uriBuilder) {
-        LinkInfo info = new LinkInfo();
-        info.id = deviceConfiguration.getId();
-        info.link = Link.fromUriBuilder(uriBuilder)
+    private Link link(DeviceConfiguration deviceConfiguration, Relation relation, UriInfo uriInfo) {
+        return Link.fromUriBuilder(getUriBuilder(uriInfo))
                 .rel(relation.rel())
                 .title("Device configuration")
                 .build(deviceConfiguration.getDeviceType().getId(), deviceConfiguration.getId());
-        return info;
     }
 
     private UriBuilder getUriBuilder(UriInfo uriInfo) {
@@ -78,7 +78,7 @@ public class DeviceConfigurationInfoFactory extends SelectableFieldFactory<Devic
         map.put("name", (deviceConfigurationInfo, deviceConfiguration, uriInfo) ->
             deviceConfigurationInfo.name = deviceConfiguration.getName());
         map.put("link", (deviceConfigurationInfo, deviceConfiguration, uriInfo) ->
-            deviceConfigurationInfo.link = asLink(deviceConfiguration, Relation.REF_SELF, uriInfo).link);
+            deviceConfigurationInfo.link = link(deviceConfiguration, Relation.REF_SELF, uriInfo));
         map.put("description", (deviceConfigurationInfo, deviceConfiguration, uriInfo) ->
             deviceConfigurationInfo.description = deviceConfiguration.getDescription());
         map.put("deviceType", (deviceConfigurationInfo, deviceConfiguration, uriInfo) ->

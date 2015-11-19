@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -24,22 +25,22 @@ public class EncryptionDeviceAccessLevelInfoFactory extends SelectableFieldFacto
     private final MdcPropertyUtils mdcPropertyUtils;
 
     public LinkInfo asLink(DeviceProtocolPluggableClass protocolPluggableClass, DeviceAccessLevel deviceAccessLevel, Relation relation, UriInfo uriInfo) {
-        return asLink(protocolPluggableClass, deviceAccessLevel, relation, getUriBuilder(uriInfo));
+        DeviceAccessLevelInfo info = new DeviceAccessLevelInfo();
+        copySelectedFields(info, Pair.of(protocolPluggableClass, deviceAccessLevel), uriInfo, Arrays.asList("id", "version"));
+        info.link = link(protocolPluggableClass, deviceAccessLevel, relation, uriInfo);
+        return info;
     }
 
     public List<LinkInfo> asLink(Collection<Pair<DeviceProtocolPluggableClass, DeviceAccessLevel>> pairs, Relation relation, UriInfo uriInfo) {
         UriBuilder uriBuilder = getUriBuilder(uriInfo);
-        return pairs.stream().map(i-> asLink(i.getFirst(), i.getLast(), relation, uriBuilder)).collect(toList());
+        return pairs.stream().map(i-> asLink(i.getFirst(), i.getLast(), relation, uriInfo)).collect(toList());
     }
 
-    private LinkInfo asLink(DeviceProtocolPluggableClass protocolPluggableClass, DeviceAccessLevel deviceAccessLevel, Relation relation, UriBuilder uriBuilder) {
-        LinkInfo info = new LinkInfo();
-        info.id = (long)deviceAccessLevel.getId();
-        info.link = Link.fromUriBuilder(uriBuilder)
+    private Link link(DeviceProtocolPluggableClass protocolPluggableClass, DeviceAccessLevel deviceAccessLevel, Relation relation, UriInfo uriInfo) {
+        return Link.fromUriBuilder(getUriBuilder(uriInfo))
                 .rel(relation.rel())
                 .title("Encryption access level").
                 build(protocolPluggableClass.getId(),deviceAccessLevel.getId());
-        return info;
     }
 
     private UriBuilder getUriBuilder(UriInfo uriInfo) {
@@ -67,7 +68,7 @@ public class EncryptionDeviceAccessLevelInfoFactory extends SelectableFieldFacto
         map.put("name", (deviceAccessLevelInfo, pair, uriInfo) -> deviceAccessLevelInfo.name = pair.getLast().getTranslation());
         map.put("properties", (deviceAccessLevelInfo, pair, uriInfo) -> deviceAccessLevelInfo.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(pair.getLast().getSecurityProperties(), TypedProperties.empty()));
         map.put("link", ((deviceAccessLevelInfo, deviceAccessLevel, uriInfo) ->
-            deviceAccessLevelInfo.link = asLink(deviceAccessLevel.getFirst(), deviceAccessLevel.getLast(), Relation.REF_SELF, uriInfo).link));
+            deviceAccessLevelInfo.link = link(deviceAccessLevel.getFirst(), deviceAccessLevel.getLast(), Relation.REF_SELF, uriInfo)));
 
         return map;
     }

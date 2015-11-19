@@ -26,6 +26,7 @@ import javax.inject.Provider;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -60,22 +61,21 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
     }
 
     public LinkInfo asLink(ConnectionTask connectionTask, Relation relation, UriInfo uriInfo) {
-        return asLink(connectionTask, relation, getUriBuilder(uriInfo));
+        ConnectionTaskInfo info = new ConnectionTaskInfo();
+        copySelectedFields(info,connectionTask,uriInfo, Arrays.asList("id","version"));
+        info.link = link(connectionTask,relation,uriInfo);
+        return info;
     }
 
     public List<LinkInfo> asLink(Collection<ConnectionTask> connectionTasks, Relation relation, UriInfo uriInfo) {
-        UriBuilder uriBuilder = getUriBuilder(uriInfo);
-        return connectionTasks.stream().map(i-> asLink(i, relation, uriBuilder)).collect(toList());
+        return connectionTasks.stream().map(i-> asLink(i, relation, uriInfo)).collect(toList());
     }
 
-    private LinkInfo asLink(ConnectionTask connectionTask, Relation relation, UriBuilder uriBuilder) {
-        LinkInfo info = new LinkInfo();
-        info.id = connectionTask.getId();
-        info.link = Link.fromUriBuilder(uriBuilder)
+    private Link link(ConnectionTask connectionTask, Relation relation, UriInfo uriInfo) {
+        return Link.fromUriBuilder(getUriBuilder(uriInfo))
                 .rel(relation.rel())
                 .title("Connection task")
                 .build(connectionTask.getDevice().getmRID(), connectionTask.getId());
-        return info;
     }
 
     private UriBuilder getUriBuilder(UriInfo uriInfo) {
@@ -97,7 +97,7 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
         map.put("connectionMethod", (connectionTaskInfo, connectionTask, uriInfo)->
             connectionTaskInfo.connectionMethod = partialConnectionTaskInfoFactoryProvider.get().asLink(connectionTask.getPartialConnectionTask(), Relation.REF_PARENT, uriInfo));
         map.put("direction", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.direction = ConnectionTaskType.from(connectionTask));
-        map.put("link", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.link = this.asLink(connectionTask, Relation.REF_SELF, uriInfo).link);
+        map.put("link", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.link = link(connectionTask, Relation.REF_SELF, uriInfo));
         map.put("status", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.status = connectionTask.getStatus());
         map.put("connectionType", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.connectionType = connectionTask.getPartialConnectionTask().getPluggableClass().getName());
         map.put("comPortPool", (connectionTaskInfo, connectionTask, uriInfo)->

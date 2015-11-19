@@ -9,6 +9,7 @@ import javax.inject.Provider;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -29,22 +30,21 @@ public class DeviceMessageCategoryInfoFactory extends SelectableFieldFactory<Dev
     }
 
     public LinkInfo asLink(DeviceMessageCategory deviceMessageCategory, Relation relation, UriInfo uriInfo) {
-        return asLink(deviceMessageCategory, relation, getUriBuilder(uriInfo));
+        DeviceMessageCategoryInfo info = new DeviceMessageCategoryInfo();
+        copySelectedFields(info,deviceMessageCategory,uriInfo, Arrays.asList("id","version"));
+        info.link = link(deviceMessageCategory,relation,uriInfo);
+        return info;
     }
 
     public List<LinkInfo> asLink(Collection<DeviceMessageCategory> deviceMessageCategorys, Relation relation, UriInfo uriInfo) {
-        UriBuilder uriBuilder = getUriBuilder(uriInfo);
-        return deviceMessageCategorys.stream().map(i-> asLink(i, relation, uriBuilder)).collect(toList());
+        return deviceMessageCategorys.stream().map(i-> asLink(i, relation, uriInfo)).collect(toList());
     }
 
-    private LinkInfo asLink(DeviceMessageCategory deviceMessageCategory, Relation relation, UriBuilder uriBuilder) {
-        LinkInfo info = new LinkInfo();
-        info.id = (long)deviceMessageCategory.getId();
-        info.link = Link.fromUriBuilder(uriBuilder)
+    private Link link(DeviceMessageCategory deviceMessageCategory, Relation relation, UriInfo uriInfo) {
+        return Link.fromUriBuilder(getUriBuilder(uriInfo))
                 .rel(relation.rel())
                 .title("Device message category")
                 .build(deviceMessageCategory.getId());
-        return info;
     }
 
     private UriBuilder getUriBuilder(UriInfo uriInfo) {

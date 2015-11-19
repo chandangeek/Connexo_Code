@@ -15,6 +15,7 @@ import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -39,22 +40,21 @@ public class DeviceMessageInfoFactory extends SelectableFieldFactory<DeviceMessa
     }
 
     public LinkInfo asLink(DeviceMessage deviceMessage, Relation relation, UriInfo uriInfo) {
-        return asLink(deviceMessage, relation, getUriBuilder(uriInfo));
+        DeviceMessageInfo info = new DeviceMessageInfo();
+        copySelectedFields(info,deviceMessage,uriInfo, Arrays.asList("id","version"));
+        info.link = link(deviceMessage,relation,uriInfo);
+        return info;
     }
 
     public List<LinkInfo> asLink(Collection<DeviceMessage> deviceMessages, Relation relation, UriInfo uriInfo) {
-        UriBuilder uriBuilder = getUriBuilder(uriInfo);
-        return deviceMessages.stream().map(i-> asLink(i, relation, uriBuilder)).collect(toList());
+        return deviceMessages.stream().map(i-> asLink(i, relation, uriInfo)).collect(toList());
     }
 
-    private LinkInfo asLink(DeviceMessage deviceMessage, Relation relation, UriBuilder uriBuilder) {
-        LinkInfo info = new LinkInfo();
-        info.id = deviceMessage.getId();
-        info.link = Link.fromUriBuilder(uriBuilder)
+    private Link link(DeviceMessage deviceMessage, Relation relation, UriInfo uriInfo) {
+        return Link.fromUriBuilder(getUriBuilder(uriInfo))
                 .rel(relation.rel())
                 .title("Device message")
                 .build(((Device)deviceMessage.getDevice()).getmRID(), deviceMessage.getId());
-        return info;
     }
 
     private UriBuilder getUriBuilder(UriInfo uriInfo) {
@@ -74,7 +74,7 @@ public class DeviceMessageInfoFactory extends SelectableFieldFactory<DeviceMessa
         Map<String, PropertyCopier<DeviceMessageInfo, DeviceMessage<?>>> map = new HashMap<>();
         map.put("id", (deviceMessageInfo, deviceMessage, uriInfo) -> deviceMessageInfo.id = deviceMessage.getId());
         map.put("link", ((deviceMessageInfo, deviceMessage, uriInfo) ->
-                deviceMessageInfo.link = asLink(deviceMessage, Relation.REF_SELF, uriInfo).link));
+                deviceMessageInfo.link = link(deviceMessage, Relation.REF_SELF, uriInfo)));
         map.put("device", ((deviceMessageInfo, deviceMessage, uriInfo) ->
                 deviceMessageInfo.device = deviceInfoFactoryProvider.get().asLink((Device) deviceMessage.getDevice(), Relation.REF_PARENT, uriInfo)));
         map.put("status", (deviceMessageInfo, deviceMessage, uriInfo) -> deviceMessageInfo.status = deviceMessage.getStatus());
