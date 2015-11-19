@@ -216,7 +216,7 @@ public class LoadProfileImpl implements LoadProfile {
 
         @Override
         public Unit getUnit() {
-            return this.channelSpec.getChannelType().getUnit();
+            return channelSpec.getChannelType().getUnit();
         }
 
         @Override
