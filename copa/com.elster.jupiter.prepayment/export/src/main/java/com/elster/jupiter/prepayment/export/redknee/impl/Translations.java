@@ -39,7 +39,7 @@ public class Translations implements TranslationKeyProvider, MessageSeedProvider
     }
 
     enum Labels implements TranslationKey {
-        CSV_PROCESSSOR(ReadingDataFormatterFactory.NAME, "RedKnee reading formatter"),
+        CSV_PROCESSSOR(ReadingDataFormatterFactory.NAME, "Prepayment specific formatter"),
         AND("des.processor.and", "and");
 
         private final String key;
