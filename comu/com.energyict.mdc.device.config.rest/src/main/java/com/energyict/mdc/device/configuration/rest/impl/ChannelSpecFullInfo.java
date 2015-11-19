@@ -1,5 +1,7 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
@@ -13,6 +15,7 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @XmlRootElement
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -25,18 +28,21 @@ public class ChannelSpecFullInfo extends ChannelSpecInfo {
     public String unitOfMeasure;
     public int nbrOfFractionDigits;
     public Boolean isLinkedByActiveDeviceConfiguration;
+    @JsonProperty("useMultiplier")
+    public Boolean useMultiplier;
+    @JsonProperty("calculatedReadingType")
+    public ReadingTypeInfo calculatedReadingType;
+    public List<ReadingTypeInfo> possibleCalculatedReadingTypes = new ArrayList<>();
+    @JsonProperty("collectedReadingType")
+    public ReadingTypeInfo collectedReadingType;
     public long version;
     public VersionInfo<Long> parent;
 
-    public static List<ChannelSpecInfo> from(List<ChannelSpec> channelSpecList){
-        List<ChannelSpecInfo> infos = new ArrayList<>(channelSpecList.size());
-        for (ChannelSpec channelSpec : channelSpecList) {
-            infos.add(ChannelSpecFullInfo.from(channelSpec));
-        }
-        return infos;
+    public static List<ChannelSpecInfo> from(List<ChannelSpec> channelSpecList) {
+        return channelSpecList.stream().map(ChannelSpecFullInfo::from).collect(Collectors.toList());
     }
 
-    public static ChannelSpecFullInfo from(ChannelSpec channelSpec){
+    public static ChannelSpecFullInfo from(ChannelSpec channelSpec, ReadingType collectedReadingType, List<ReadingType> multipliedCalculatedRegisterTypes, boolean isLinkedByActiveDeviceConfiguration) {
         ChannelSpecFullInfo info = new ChannelSpecFullInfo();
         info.id = channelSpec.getId();
         info.name = channelSpec.getReadingType().getFullAliasName();
@@ -46,13 +52,14 @@ public class ChannelSpecFullInfo extends ChannelSpecInfo {
         // TODO check that it is truth (true for isLinkedByDeviceType)
         info.registerTypeInfo = new RegisterTypeInfo(channelSpec.getChannelType(), true, false);
         info.unitOfMeasure = channelSpec.getChannelType().getUnit().toString();
+        info.useMultiplier = channelSpec.isUseMultiplier();
+        if (info.useMultiplier) {
+            info.calculatedReadingType = new ReadingTypeInfo(channelSpec.getCalculatedReadingType().get());
+        }
+        info.collectedReadingType = new ReadingTypeInfo(collectedReadingType);
+        multipliedCalculatedRegisterTypes.forEach(readingTypeConsumer -> info.possibleCalculatedReadingTypes.add(new ReadingTypeInfo(readingTypeConsumer)));
         info.parent = new VersionInfo<>(channelSpec.getLoadProfileSpec().getId(), channelSpec.getLoadProfileSpec().getVersion());
         info.version = channelSpec.getVersion();
-        return info;
-    }
-
-    public static ChannelSpecFullInfo from(ChannelSpec channelSpec, boolean isLinkedByActiveDeviceConfiguration){
-        ChannelSpecFullInfo info = ChannelSpecFullInfo.from(channelSpec);
         info.isLinkedByActiveDeviceConfiguration = isLinkedByActiveDeviceConfiguration;
         return info;
     }

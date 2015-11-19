@@ -90,6 +90,9 @@ public class RegisterConfigurationResource {
             if (registerConfigInfo.useMultiplier != null && registerConfigInfo.useMultiplier) {
                 builder.useMultiplier(registerConfigInfo.useMultiplier);
                 builder.calculatedReadingType(findCalculatedReadingType(registerConfigInfo).orElse(null));
+            } else {
+                builder.useMultiplier(false);
+                builder.calculatedReadingType(null);
             }
             registerSpec = builder.add();
         }

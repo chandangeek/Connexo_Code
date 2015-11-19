@@ -62,7 +62,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
-import com.google.common.collect.Sets;
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -417,14 +416,15 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
 
         Map<String, Object> jsonRegisterConfiguration = target("/devicetypes/6/deviceconfigurations/113/registerconfigurations/1").request().get(Map.class);
         assertThat(jsonRegisterConfiguration.keySet()).containsOnly("id", "name", "readingType", "registerType", "obisCode", "overruledObisCode",
-                "obisCodeDescription", "unitOfMeasure", "numberOfDigits", "numberOfFractionDigits", "overflow", "timeOfUse", "asText", "version", "parent")
+                "obisCodeDescription", "unitOfMeasure", "numberOfFractionDigits", "overflow", "timeOfUse", "asText", "useMultiplier",
+                "possibleCalculatedReadingTypes", "collectedReadingType", "version", "parent")
                 .describedAs("JSon representation of a field, JavaScript impact if it changed");
     }
 
     private NumericalRegisterSpec mockNumericalRegister(long id, DeviceConfiguration deviceConfiguration) {
         ReadingType readingType = mockReadingType();
         when(readingType.getAliasName()).thenReturn("alias");
-
+        when(readingType.getCalculatedReadingType()).thenReturn(Optional.empty());
         RegisterType registerType = mock(RegisterType.class);
         when(registerType.getReadingType()).thenReturn(readingType);
 
@@ -441,6 +441,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(registerSpec.getObisCode()).thenReturn(obisCode);
         when(registerSpec.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(registerSpec.getVersion()).thenReturn(OK_VERSION);
+        when(registerSpec.getReadingType()).thenReturn(readingType);
         deviceConfiguration.getRegisterSpecs().add(registerSpec);
 
         doReturn(Optional.of(registerSpec)).when(deviceConfigurationService).findRegisterSpec(id);
@@ -1071,6 +1072,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(registerSpec.getObisCode()).thenReturn(obisCode);
         when(registerSpec.getUnit()).thenReturn(unit);
         when(registerSpec.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(registerSpec.getReadingType()).thenReturn(readingType);
 
         NumericalRegisterSpec.Builder registerSpecBuilder = mock(NumericalRegisterSpec.Builder.class, Answers.RETURNS_SELF);
         when(deviceConfiguration.createNumericalRegisterSpec(Matchers.<RegisterType>any())).thenReturn(registerSpecBuilder);
@@ -1089,6 +1091,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         ArgumentCaptor<RegisterType> registerTypeArgumentCaptor = ArgumentCaptor.forClass(RegisterType.class);
         verify(registerSpecBuilder).numberOfFractionDigits(6);
         verify(registerSpecBuilder).overflowValue(BigDecimal.TEN);
+        verify(registerSpecBuilder).useMultiplier(false);
         verify(deviceConfiguration).createNumericalRegisterSpec(registerTypeArgumentCaptor.capture());
         assertThat(registerTypeArgumentCaptor.getValue()).isEqualTo(registerType);
     }
@@ -1117,6 +1120,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         when(registerSpec.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(registerSpec.getUnit()).thenReturn(unit);
         when(registerSpec.getVersion()).thenReturn(OK_VERSION);
+        when(registerSpec.getReadingType()).thenReturn(readingType);
         deviceConfiguration.getRegisterSpecs().add(registerSpec);
 
         NumericalRegisterSpec.Builder registerSpecBuilder = mock(NumericalRegisterSpec.Builder.class, Answers.RETURNS_SELF);
@@ -1144,6 +1148,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
         assertThat(obisCodeArgumentCaptor.getValue().toString()).isEqualTo(obisCode.toString());
         verify(registerSpec).setOverflowValue(BigDecimal.valueOf(123));
         verify(registerSpec).setNumberOfFractionDigits(6);
+        verify(registerSpec).setUseMultiplier(false);
         verify(deviceConfiguration).getRegisterSpecUpdaterFor(registerSpec);
         verify(updater).update();
     }
@@ -1511,8 +1516,7 @@ public class DeviceTypeResourceTest extends DeviceConfigurationApplicationJersey
     }
 
     private ReadingType mockReadingType() {
-        ReadingType readingType = super.mockReadingType("mrid");
-        return readingType;
+        return mockReadingType("mrid");
     }
 
     class SomeLocalizedException extends LocalizedException {

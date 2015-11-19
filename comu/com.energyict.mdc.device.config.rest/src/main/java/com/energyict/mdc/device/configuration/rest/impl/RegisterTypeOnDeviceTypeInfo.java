@@ -29,7 +29,7 @@ public class RegisterTypeOnDeviceTypeInfo {
     /* The ReadingType from the RegisterType */
     public ReadingTypeInfo readingType;
 
-    /* In case of a Channel, we need to add the interval ... */
+    //TODO is this one really required?
     public ReadingTypeInfo collectedReadingType;
 
     /* A list of possible readingTypes where the 'multiplied' value can be stored */

@@ -1,5 +1,6 @@
 package com.energyict.mdc.device.configuration.rest.impl;
 
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -29,12 +30,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class LoadProfileConfigurationResource {
@@ -171,7 +167,16 @@ public class LoadProfileConfigurationResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         ChannelSpec channelSpec = resourceHelper.findChannelSpecOrThrowException(channelId);
 
-        return Response.ok(ChannelSpecFullInfo.from(channelSpec, deviceConfiguration.isActive())).build();
+        ReadingType collectedReadingTypeFromChannelSpec = getCollectedReadingTypeFromChannelSpec(channelSpec);
+        return Response.ok(ChannelSpecFullInfo.from(
+                channelSpec,
+                collectedReadingTypeFromChannelSpec,
+                getPossibleMultiplyReadingTypesFor(collectedReadingTypeFromChannelSpec),
+                deviceConfiguration.isActive())).build();
+    }
+
+    private ReadingType getCollectedReadingTypeFromChannelSpec(ChannelSpec channelSpec) {
+        return channelSpec.getReadingType().getCalculatedReadingType().orElse(channelSpec.getReadingType());
     }
 
     @POST
@@ -184,7 +189,6 @@ public class LoadProfileConfigurationResource {
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @PathParam("loadProfileSpecId") long loadProfileSpecId,
             ChannelSpecFullInfo info) {
-
         ChannelType channelType = resourceHelper.findChannelTypeByIdOrThrowException(info.registerTypeInfo.id);
         LoadProfileSpec loadProfileSpec = resourceHelper.findLoadProfileSpecOrThrowException(loadProfileSpecId);
         DeviceConfiguration deviceConfiguration = loadProfileSpec.getDeviceConfiguration();
@@ -193,9 +197,25 @@ public class LoadProfileConfigurationResource {
         channelBuilder.overflow(info.overflowValue);
         channelBuilder.overruledObisCode(info.overruledObisCode);
         channelBuilder.nbrOfFractionDigits(info.nbrOfFractionDigits);
-
+        if(info.useMultiplier != null && info.useMultiplier){
+            channelBuilder.useMultiplier(info.useMultiplier);
+            channelBuilder.calculatedReadingType(findCalculatedReadingType(info).orElse(null));
+        }
         ChannelSpec newChannelSpec = channelBuilder.add();
-        return Response.ok(ChannelSpecFullInfo.from(newChannelSpec, deviceConfiguration.isActive())).build();
+        ReadingType collectedReadingTypeFromChannelSpec = getCollectedReadingTypeFromChannelSpec(newChannelSpec);
+        return Response.ok(ChannelSpecFullInfo.from(
+                newChannelSpec,
+                collectedReadingTypeFromChannelSpec,
+                getPossibleMultiplyReadingTypesFor(collectedReadingTypeFromChannelSpec),
+                deviceConfiguration.isActive())).build();
+    }
+
+    private Optional<ReadingType> findCalculatedReadingType(ChannelSpecFullInfo info) {
+        if(info.calculatedReadingType != null){
+            return resourceHelper.findReadingType(info.calculatedReadingType.mRID);
+        } else {
+            return Optional.empty();
+        }
     }
 
     @PUT
@@ -218,8 +238,21 @@ public class LoadProfileConfigurationResource {
         specUpdater.overruledObisCode(info.overruledObisCode);
         specUpdater.overflow(info.overflowValue);
         specUpdater.nbrOfFractionDigits(info.nbrOfFractionDigits);
+        if(info.useMultiplier != null && info.useMultiplier){
+            specUpdater.useMultiplier(info.useMultiplier);
+            specUpdater.calculatedReadingType(findCalculatedReadingType(info).orElse(null));
+        } else {
+            specUpdater.useMultiplier(false);
+            specUpdater.calculatedReadingType(null);
+        }
         specUpdater.update();
-        return Response.ok(ChannelSpecFullInfo.from(channelSpec, deviceConfiguration.isActive())).build();
+        ReadingType collectedReadingTypeFromChannelSpec = getCollectedReadingTypeFromChannelSpec(channelSpec);
+        return Response.ok(ChannelSpecFullInfo.from(
+                channelSpec,
+                collectedReadingTypeFromChannelSpec,
+                getPossibleMultiplyReadingTypesFor(collectedReadingTypeFromChannelSpec),
+                deviceConfiguration.isActive()
+        )).build();
     }
 
     @DELETE
@@ -252,7 +285,17 @@ public class LoadProfileConfigurationResource {
         for (ChannelSpec channelSpec : channelSpecs) {
             channelTypes.remove(channelSpec.getChannelType().getId());
         }
-        return Response.ok(PagedInfoList.fromPagedList("data", MeasurementTypeShortInfo.from(channelTypes.values()), queryParameters)).build();
+        List<MeasurementTypeShortInfo> measurementTypeShortInfos = channelTypes.values().stream()
+                .map(channelType -> new MeasurementTypeShortInfo(
+                        channelType,
+                        getPossibleMultiplyReadingTypesFor(channelType.getReadingType()),
+                        channelType.getReadingType().getCalculatedReadingType()
+                                .orElse(channelType.getReadingType()))).collect(Collectors.toList());
+        return Response.ok(PagedInfoList.fromPagedList("data", measurementTypeShortInfos, queryParameters)).build();
+    }
+
+    private List<ReadingType> getPossibleMultiplyReadingTypesFor(ReadingType readingType) {
+        return masterDataService.getPossibleMultiplyReadingTypesFor(readingType);
     }
 
     public Collection<LoadProfileType> findAvailableLoadProfileTypesForDeviceConfiguration(DeviceType deviceType, DeviceConfiguration deviceConfiguration){

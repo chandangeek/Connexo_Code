@@ -128,6 +128,7 @@ public class DeviceConfigurationApplicationJerseyTest extends FelixRestApplicati
         when(readingType.getCalculatedReadingType()).thenReturn(Optional.<ReadingType>empty());
         when(readingType.isCumulative()).thenReturn(true);
         when(readingType.getAliasName()).thenReturn("abcde");
+        when(readingType.getCalculatedReadingType()).thenReturn(Optional.empty());
         return readingType;
     }
 
