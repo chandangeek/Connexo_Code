@@ -1,7 +1,9 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
+import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.impl.CustomPropertySetsModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
@@ -70,6 +72,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
@@ -490,13 +493,8 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
         }
 
         @Override
-        public List<PropertySpec> getSecurityPropertySpecs() {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public String getSecurityRelationTypeName() {
-            return null;
+        public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+            return Optional.empty();
         }
 
         @Override
@@ -506,11 +504,6 @@ public class ProtocolDialectConfigurationPropertiesImplTest {
 
         @Override
         public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-            return null;
-        }
-
-        @Override
-        public PropertySpec getSecurityPropertySpec(String name) {
             return null;
         }
 

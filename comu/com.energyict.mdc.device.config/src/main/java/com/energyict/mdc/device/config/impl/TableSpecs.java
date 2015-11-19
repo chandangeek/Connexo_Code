@@ -32,12 +32,16 @@ import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationSer
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.pluggable.PluggableService;
+import com.energyict.mdc.protocol.api.security.SecurityPropertySpecProvider;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 
 import java.util.List;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 
@@ -519,7 +523,10 @@ public enum TableSpecs {
     DTC_SECURITYPROPERTYSET {
         @Override
         public void addTo(DataModel dataModel) {
-            Table<SecurityPropertySet> table = dataModel.addTable(name(), SecurityPropertySet.class);
+            Table<SecurityPropertySet> table =
+                    dataModel
+                        .addTable(name(), SecurityPropertySet.class)
+                        .alsoReferredToAs(SecurityPropertySpecProvider.class);
             table.map(SecurityPropertySetImpl.class);
             Column id = table.addAutoIdColumn();
             Column name = table.column("NAME").varChar().notNull().map("name").add();

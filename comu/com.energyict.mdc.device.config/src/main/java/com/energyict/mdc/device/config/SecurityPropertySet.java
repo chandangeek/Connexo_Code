@@ -1,13 +1,14 @@
 package com.energyict.mdc.device.config;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.HasId;
-import com.energyict.mdc.dynamic.relation.RelationParticipant;
+import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
+import com.energyict.mdc.protocol.api.security.SecurityPropertySpecProvider;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.Set;
 
@@ -23,17 +24,17 @@ import java.util.Set;
  * @since 2012-12-14 (10:29)
  */
 @ProviderType
-public interface SecurityPropertySet extends HasName, HasId, RelationParticipant {
+public interface SecurityPropertySet extends HasName, HasId, SecurityPropertySpecProvider {
 
-    public void setName (String name);
+    void setName(String name);
 
-    public AuthenticationDeviceAccessLevel getAuthenticationDeviceAccessLevel();
+    AuthenticationDeviceAccessLevel getAuthenticationDeviceAccessLevel();
 
-    public EncryptionDeviceAccessLevel getEncryptionDeviceAccessLevel();
+    EncryptionDeviceAccessLevel getEncryptionDeviceAccessLevel();
 
-    public DeviceConfiguration getDeviceConfiguration();
+    DeviceConfiguration getDeviceConfiguration();
 
-    public Set<DeviceSecurityUserAction> getUserActions ();
+    Set<DeviceSecurityUserAction> getUserActions();
 
     /**
      * Gets the Set of {@link PropertySpec}s that are the result
@@ -42,7 +43,7 @@ public interface SecurityPropertySet extends HasName, HasId, RelationParticipant
      *
      * @return The Set of PropertySpecs
      */
-    public Set<PropertySpec> getPropertySpecs();
+    Set<PropertySpec> getPropertySpecs();
 
     /**
      * Tests if the User that is currently
@@ -51,7 +52,7 @@ public interface SecurityPropertySet extends HasName, HasId, RelationParticipant
      *
      * @return A flag that indicates if the current User has sufficient privileges to edit this SecurityPropertySet
      */
-    public boolean currentUserIsAllowedToEditDeviceProperties ();
+    boolean currentUserIsAllowedToEditDeviceProperties();
 
     /**
      * Tests if the User that is currently
@@ -60,11 +61,11 @@ public interface SecurityPropertySet extends HasName, HasId, RelationParticipant
      *
      * @return A flag that indicates if the current User has sufficient privileges to view this SecurityPropertySet
      */
-    public boolean currentUserIsAllowedToViewDeviceProperties ();
+    boolean currentUserIsAllowedToViewDeviceProperties();
 
-    public void addUserAction(DeviceSecurityUserAction userAction);
+    void addUserAction(DeviceSecurityUserAction userAction);
 
-    public void removeUserAction(DeviceSecurityUserAction userAction);
+    void removeUserAction(DeviceSecurityUserAction userAction);
 
     void setAuthenticationLevel(int authenticationLevelId);
 
