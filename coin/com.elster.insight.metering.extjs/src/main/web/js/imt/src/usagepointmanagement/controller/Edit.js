@@ -128,7 +128,7 @@ Ext.define('Imt.usagepointmanagement.controller.Edit', {
         return model;
     },
     buildMC: function(mc) {
-       if(mc == null || mc.id == 0) {
+       if(mc == null || mc == '' || mc.id == 0) {
            return undefined;
        }
        var o = Object();

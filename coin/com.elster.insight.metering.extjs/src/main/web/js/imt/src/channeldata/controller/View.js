@@ -157,13 +157,15 @@ Ext.define('Imt.channeldata.controller.View', {
 //    }
 
         if (dataStore.getCount() > 0) {
-            dataStore.each(function (record) {
-                if (record.get('value')) {
-                    seriesObject['data'].unshift([record.get('interval').start, parseFloat(record.get('value'))]);
-                } else {
-                    seriesObject['data'].unshift([record.get('interval').start, null]);
-                }
-            });
+            var data = me.formatData(dataStore);
+            seriesObject['data'] = data;
+//            dataStore.each(function (record) {
+//                if (record.get('value')) {
+//                    seriesObject['data'].unshift([record.get('interval').start, parseFloat(record.get('value'))]);
+//                } else {
+//                    seriesObject['data'].unshift([record.get('interval').start, null]);
+//                }
+//            });
             series.push(seriesObject);
             Ext.suspendLayouts();
             container.down('#graphContainer').show();
@@ -177,6 +179,47 @@ Ext.define('Imt.channeldata.controller.View', {
             Ext.resumeLayouts(true);
         }
         me.getPage().doLayout();        
+    },
+    // Color code bars based on validation status
+    formatData: function (store) {
+        var me = this,
+            data = [],
+            okColor = "#70BB51",
+            suspectColor = 'rgba(235, 86, 66, 1)',
+            informativeColor = "#dedc49",
+            notValidatedColor = "#71adc7",
+            tooltipOkColor = 'rgba(255, 255, 255, 0.85)',
+            tooltipSuspectColor = 'rgba(235, 86, 66, 0.3)',
+            tooltipInformativeColor = 'rgba(222, 220, 73, 0.3)',
+            tooltipNotValidatedColor = 'rgba(0, 131, 200, 0.3)';
+
+        store.each(function (record) {
+            var point = {},
+                interval = record.get('interval'),
+                valRes = record.get('validationResult');
+
+            point.x = interval.start;
+            point.id = point.x;
+            point.y = record.get('value') ? parseFloat(record.get('value')) : null;
+            point.intervalEnd = interval.end;
+            point.color = okColor;
+            point.tooltipColor = tooltipOkColor;
+            point.validationResult = valRes;
+            if (valRes == 'validationStatus.notValidated') {
+                point.color = notValidatedColor;
+                point.tooltipColor = tooltipNotValidatedColor
+            } else if (valRes == 'validationStatus.suspect') {
+                point.color = suspectColor;
+                point.tooltipColor = tooltipSuspectColor
+            } else if (valRes == 'validationStatus.informative') {
+                point.color = informativeColor;
+                point.tooltipColor = tooltipInformativeColor;
+            }
+
+            data.unshift(point);
+
+        });
+        return data;
     }
 });
 

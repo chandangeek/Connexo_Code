@@ -4,7 +4,8 @@ Ext.define('Imt.channeldata.view.DataGrid', {
     itemId: 'channelDataGrid',
     store: 'Imt.channeldata.store.ChannelData',
     requires: [
-        'Uni.view.toolbar.PagingTop'
+        'Uni.view.toolbar.PagingTop',
+        'Uni.grid.column.IntervalFlags'
     ],
     plugins: [
         'bufferedrenderer'
@@ -38,9 +39,18 @@ Ext.define('Imt.channeldata.view.DataGrid', {
             {
                 header: Uni.I18n.translate('channeldata.label.channel.value', 'IMT', 'Value') + ' (' + measurementType + ')',
                 dataIndex: 'value',
-                //align: 'right',
-                flex: 1
-            }
+                align: 'right',
+                flex: 1,
+                renderer: function (v, metaData, record) {
+                    return me.formatColumn(v, metaData, record);
+                }
+            },
+            {
+                xtype: 'interval-flags-column',
+                dataIndex: 'intervalFlags',
+                align: 'right',
+                width: 150
+            }            
         ];
 
         me.dockedItems = [
@@ -70,5 +80,18 @@ Ext.define('Imt.channeldata.view.DataGrid', {
         ];
 
         me.callParent(arguments);
+    },
+    formatColumn: function (v, metaData, record) {
+        var cls = 'icon-validation-cell',
+            status = record.get('validationResult');
+
+        if (status == 'validationStatus.notValidated') {
+            cls += ' icon-validation-black';
+        } else if (status == 'validationStatus.suspect') {
+            cls += ' icon-validation-red';
+        }
+
+        metaData.tdCls = cls;
+        return v;
     }
 });

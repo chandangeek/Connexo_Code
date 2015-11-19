@@ -17,6 +17,7 @@ Ext.define('Imt.channeldata.model.ChannelData', {
             mapping: 'interval.end',
             dateFormat: 'time',
             type: 'date'
-        }
+        },
+        'validationResult'
     ]
 });

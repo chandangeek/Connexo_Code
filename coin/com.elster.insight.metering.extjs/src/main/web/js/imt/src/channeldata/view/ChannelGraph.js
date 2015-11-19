@@ -89,6 +89,11 @@ Ext.define('Imt.channeldata.view.ChannelGraph', {
 
             tooltip: {
                 useHTML: true,
+                style: {
+                    color: '#333333',
+                    fontSize: '12px',
+                    padding: '0px'
+                },
                 positioner: function (labelWidth, labelHeight, point){
                     var xValue,
                         yValue;
@@ -98,7 +103,17 @@ Ext.define('Imt.channeldata.view.ChannelGraph', {
                     return {x: xValue, y: yValue}
                 },
                 formatter: function () {
-                    var s = '<b>' + Highcharts.dateFormat('%A, %e %B %Y', this.x) + '</b>';
+                    var s = '<b>' + Highcharts.dateFormat('%A, %e %B %Y', this.x) + '</b>',
+                        point = this.points[0].point,
+                        icon,
+                        iconSpan = '<span class="{icon}" ' + 'style="height: 16px; ' + 'width: 16px; ' +
+                        'display: inline-block; ' + 'vertical-align: top; ' + 'margin-left: 4px"></span>',
+                        valRes = point.validationResult;
+                    if (valRes == 'validationStatus.notValidated') {
+                        icon = 'icon-validation-black';
+                    } else if (valRes == 'validationStatus.suspect') {
+                        icon = 'icon-validation-red';
+                    }
                     if (intervalLength < 86400000) {
                         s += '<br/>Interval ' + Highcharts.dateFormat('%H:%M', this.x);
                         s += ' - ' + Highcharts.dateFormat('%H:%M', this.x + intervalLength) + '<br>';
@@ -110,12 +125,16 @@ Ext.define('Imt.channeldata.view.ChannelGraph', {
                         s += '<td style="padding-right: 10px; text-align: right"><b>' + channelName + '</b></td>';
                         s += '<td style="padding-right: 1px; text-align: right">' + this.points[0].y + '</td>';
                         s += '<td style="padding-left: 1px; text-align: left">' + unitOfMeasure + '</td>';
+                        if (icon) {
+                            s += '<td style="padding-left: 1px; text-align: left">' + iconSpan.replace('{icon}', icon) + '</td>';
+                        }
                         s += '</tr>'
                     s += '</tbody></table>';
-                    return s;
+                    var html = '<div style="background-color: ' + point.tooltipColor + '; padding: 8px">' + s + '</div>';
+                    return html;
                 },
                 followPointer: true,
-                followTouchMove: true
+                followTouchMove: false
             },
 
             legend: {
