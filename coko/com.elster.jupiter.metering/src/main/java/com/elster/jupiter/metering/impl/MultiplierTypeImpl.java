@@ -1,12 +1,20 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.metering.MultiplierType;
+import com.elster.jupiter.orm.DataModel;
 
-class MultiplierTypeImpl implements MultiplierType {
+import javax.inject.Inject;
+import java.util.Objects;
+
+final class MultiplierTypeImpl implements MultiplierType {
+
+    private final DataModel dataModel;
 
     private String name;
 
-    MultiplierTypeImpl() {
+    @Inject
+    MultiplierTypeImpl(DataModel dataModel) {
+        this.dataModel = dataModel;
     }
 
     MultiplierTypeImpl init(String name) {
@@ -14,12 +22,29 @@ class MultiplierTypeImpl implements MultiplierType {
         return this;
     }
 
-    static MultiplierTypeImpl from(String name) {
-        return new MultiplierTypeImpl().init(name);
+    static MultiplierTypeImpl from(DataModel dataModel, String name) {
+        return new MultiplierTypeImpl(dataModel).init(name);
     }
 
     @Override
     public String getName() {
         return name;
+    }
+
+    void save() {
+        dataModel.mapper(MultiplierType.class).persist(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MultiplierTypeImpl that = (MultiplierTypeImpl) o;
+        return Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
     }
 }

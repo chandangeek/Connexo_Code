@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.PurgeConfiguration;
 import com.elster.jupiter.metering.ReadingStorer;
 import com.elster.jupiter.metering.ReadingType;
@@ -594,5 +595,22 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
     @Override
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
+    }
+
+    @Override
+    public MultiplierType createMultiplierType(String name) {
+        MultiplierTypeImpl multiplierType = MultiplierTypeImpl.from(dataModel, name);
+        multiplierType.save();
+        return multiplierType;
+    }
+
+    @Override
+    public Optional<MultiplierType> getMultiplierType(String name) {
+        return dataModel.mapper(MultiplierType.class).getOptional(name);
+    }
+
+    @Override
+    public List<MultiplierType> getMultiplierTypes() {
+        return dataModel.mapper(MultiplierType.class).find();
     }
 }

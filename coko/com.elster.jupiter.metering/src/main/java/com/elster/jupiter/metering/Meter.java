@@ -25,4 +25,34 @@ public interface Meter extends EndDevice, ReadingContainer {
 
     List<? extends ReadingQualityRecord> getReadingQualities(Range<Instant> range);
 
+    MeterConfigurationBuilder startingConfigurationOn(Instant startTime);
+
+    Optional<MeterConfiguration> getConfiguration(Instant time);
+
+    interface MeterConfigurationBuilder {
+
+        MeterConfigurationBuilder endingAt(Instant endTime);
+
+        MeterReadingTypeConfigurationBuilder configureReadingType(ReadingType readingType);
+
+        MeterConfiguration create();
+    }
+
+    interface MeterReadingTypeConfigurationBuilder {
+
+        MeterReadingTypeConfigurationBuilder withOverflowValue(long digits);
+
+        MeterReadingTypeConfigurationBuilder withNumberOfFractionDigits(int digits);
+
+        MeterConfiguration create();
+
+        MeterReadingTypeMultiplierConfigurationBuilder withMultiplierOfType(MultiplierType multiplierOfType);
+
+    }
+
+    interface MeterReadingTypeMultiplierConfigurationBuilder {
+
+        MeterConfigurationBuilder calculating(ReadingType readingType);
+    }
+
 }

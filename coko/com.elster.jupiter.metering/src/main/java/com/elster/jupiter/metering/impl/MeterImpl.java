@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeterAlreadyActive;
+import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingQualityRecord;
@@ -43,6 +44,7 @@ final class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter 
     @SuppressWarnings("unused")
     private Reference<AmrSystem> amrSystem = ValueReference.absent();
     private List<MeterActivationImpl> meterActivations = new ArrayList<>();
+    private List<MeterConfigurationImpl> meterConfigurations = new ArrayList<>();
 
     private final MeteringService meteringService;
     private final Thesaurus thesaurus;
@@ -216,5 +218,22 @@ final class MeterImpl extends AbstractEndDeviceImpl<MeterImpl> implements Meter 
         return meterActivations.stream()
                 .flatMap(meterActivation -> meterActivation.getReadingQualities(readingQualityType, readingType, interval).stream())
                 .collect(Collectors.toList());
+    }
+
+    void addConfiguration(MeterConfigurationImpl meterConfiguration) {
+        meterConfigurations.add(meterConfiguration);
+    }
+
+    @Override
+    public MeterConfigurationBuilder startingConfigurationOn(Instant startTime) {
+        return new MeterConfigurationBuilderImpl(getDataModel(), this, startTime);
+    }
+
+    @Override
+    public Optional<MeterConfiguration> getConfiguration(Instant time) {
+        return meterConfigurations.stream()
+                .filter(meterConfiguration -> meterConfiguration.isEffectiveAt(time))
+                .map(MeterConfiguration.class::cast)
+                .findAny();
     }
 }

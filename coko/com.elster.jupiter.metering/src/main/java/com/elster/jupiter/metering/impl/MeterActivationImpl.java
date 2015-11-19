@@ -219,13 +219,17 @@ public final class MeterActivationImpl implements MeterActivation {
 
     public void save() {
         if (id == 0) {
-            dataModel.mapper(MeterActivation.class).persist(this);
+            getDataMapper().persist(this);
         } else {
-            dataModel.mapper(MeterActivation.class).update(this);
+            getDataMapper().update(this);
         }
     }
-	
-	private Channel getChannel(ReadingType readingType) {
+
+    private DataMapper<MeterActivation> getDataMapper() {
+        return dataModel.mapper(MeterActivation.class);
+    }
+
+    private Channel getChannel(ReadingType readingType) {
 		for (Channel channel : getChannels()) {
 			if (channel.getReadingTypes().contains(readingType)) {
 				return channel;
@@ -444,16 +448,19 @@ public final class MeterActivationImpl implements MeterActivation {
 
     @Override
     public void setMultiplier(MultiplierType type, BigDecimal value) {
+        getDataMapper().lockObjectIfVersion(version, getId());
         multipliers.stream()
                 .filter(multiplierValue -> multiplierValue.getType().equals(type))
                 .findFirst()
                 .map(multiplierValue -> {
                     multiplierValue.setValue(value);
+                    dataModel.touch(this);
                     return multiplierValue;
                 })
                 .orElseGet(() -> {
                     MultiplierValueImpl newMultiplier = MultiplierValueImpl.from(this, type, value);
                     multipliers.add(newMultiplier);
+                    dataModel.touch(this);
                     return newMultiplier;
                 });
     }
@@ -471,7 +478,13 @@ public final class MeterActivationImpl implements MeterActivation {
         multipliers.stream()
                 .filter(multiplierValue -> multiplierValue.getType().equals(type))
                 .findFirst()
-                .ifPresent(multipliers::remove);
+                .ifPresent(this::doRemoveMultiplier);
+    }
+
+    private void doRemoveMultiplier(MultiplierValue multiplierValue) {
+        getDataMapper().lockObjectIfVersion(version, getId());
+        multipliers.remove(multiplierValue);
+        dataModel.touch(this);
     }
 
     @Override
