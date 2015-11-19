@@ -1,5 +1,12 @@
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.users.Group;
+import com.elster.jupiter.users.User;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceType;
@@ -16,6 +23,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfileConfiguration;
@@ -34,12 +42,6 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
-
-import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.users.Group;
-import com.elster.jupiter.users.User;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -646,13 +648,8 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         }
 
         @Override
-        public List<PropertySpec> getSecurityPropertySpecs() {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public String getSecurityRelationTypeName() {
-            return null;
+        public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+            return Optional.empty();
         }
 
         @Override
@@ -663,11 +660,6 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         @Override
         public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
             return Collections.emptyList();
-        }
-
-        @Override
-        public PropertySpec getSecurityPropertySpec(String name) {
-            return null;
         }
 
         @Override
