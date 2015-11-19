@@ -1,8 +1,5 @@
 package com.energyict.mdc.common;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
 import static com.elster.jupiter.util.Checks.is;
 
 /**
@@ -29,17 +26,6 @@ public class Password implements Nullable {
 
     public void setValue(String value) {
         this.value = value;
-    }
-
-    public byte[] calculateHash(int saltPara) {
-        MessageDigest md;
-        try {
-            md = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException ex) {
-            throw new ApplicationException(ex);
-        }
-        String source = "" + (saltPara / 3) + value + saltPara;
-        return md.digest(source.getBytes());
     }
 
     @Override
