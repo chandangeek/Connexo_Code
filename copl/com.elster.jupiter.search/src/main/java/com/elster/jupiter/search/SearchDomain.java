@@ -2,6 +2,7 @@ package com.elster.jupiter.search;
 
 import com.elster.jupiter.domain.util.Finder;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
@@ -27,7 +28,29 @@ public interface SearchDomain {
      *
      * @return The unique identifier
      */
-    public String getId();
+    String getId();
+
+    /**
+     * Gets the name of this SearchDomain.
+     * It is recommended to use a Thesaurus so that
+     * the name is translated to the user's language.
+     *
+     * @return The name of this SearchDomain
+     */
+    String displayName();
+
+    /**
+     * Gets the list of applications for which
+     * this SearchDomain was intended to be used
+     * or an empty Collection if this SearchDomain
+     * is intended to be used by all available applications.
+     *
+     * @return The List of target applications
+     * @see SearchService#getDomains(String)
+     */
+    default List<String> targetApplications() {
+        return Collections.emptyList();
+    }
 
     /**
      * Tests if this SearchDomain supports
@@ -41,7 +64,7 @@ public interface SearchDomain {
      *
      * @return true iff this SearchDomain searches for objects of the specified java class
      */
-    public boolean supports(Class domainClass);
+    boolean supports(Class domainClass);
 
     /**
      * Gets the List of {@link SearchableProperty}
@@ -50,7 +73,7 @@ public interface SearchDomain {
      *
      * @return The list of SearchableProperty
      */
-    public List<SearchableProperty> getProperties();
+    List<SearchableProperty> getProperties();
 
     /**
      * Gets the List of {@link SearchableProperty}
@@ -73,7 +96,7 @@ public interface SearchDomain {
      * @param constrictions The List of SearchablePropertyConstriction
      * @return The list of SearchableProperty
      */
-    public List<SearchableProperty> getPropertiesWithConstrictions(List<SearchablePropertyConstriction> constrictions);
+    List<SearchableProperty> getPropertiesWithConstrictions(List<SearchablePropertyConstriction> constrictions);
 
     List<SearchablePropertyValue> getPropertiesValues(Function<SearchableProperty, SearchablePropertyValue> mapper);
     /**
@@ -88,7 +111,6 @@ public interface SearchDomain {
      * @return The Finder
      * @throws IllegalArgumentException
      */
-    public Finder<?> finderFor(List<SearchablePropertyCondition> conditions);
+    Finder<?> finderFor(List<SearchablePropertyCondition> conditions);
 
-    String displayName();
 }
