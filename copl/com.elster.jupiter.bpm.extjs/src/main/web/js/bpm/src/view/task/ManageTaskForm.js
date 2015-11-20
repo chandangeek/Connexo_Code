@@ -12,44 +12,53 @@ Ext.define('Bpm.view.task.ManageTaskForm', {
     padding: 0,
     alias: 'widget.task-manage-form',
     items: [
-        {
-            xtype: 'panel',
-            layout: {
-                type: 'vbox',
-                align: 'left'
-            },
-            items: {
-                itemId: 'form-errors',
-                xtype: 'uni-form-error-message',
-                name: 'form-errors',
-                hidden: true
-            }
-        },
+
         {
             defaults: {
                 width: 500
             },
             items: [
                 {
-                    xtype: 'combobox',
-                    fieldLabel: Uni.I18n.translate('general.assignee','BPM','Assignee'),
-                    required: true,
-                    queryMode: 'local',
-                    valueField: 'id',
-                    allowBlank: false,
-                    validateOnChange: false,
-                    name: 'assigneeCombo',
-                    emptyText: Uni.I18n.translate('bpm.task.startTypingForUsers','BPM','Start typing for users'),
-                    displayField: 'name'
+                    xtype: 'fieldcontainer',
+                    name:'assign',
+                    hidden: true,
+                    width: 800,
+                    layout: 'vbox',
+                    items: [
+                        {
+                            xtype: 'combobox',
+                            fieldLabel: Uni.I18n.translate('general.assignee', 'BPM', 'Assignee'),
+                            required: true,
+                            queryMode: 'local',
+                            margin: '0 10 0 0',
+                            valueField: 'id',
+                            allowBlank: false,
+                            validateOnChange: false,
+                            name: 'assigneeCombo',
+                            emptyText: Uni.I18n.translate('bpm.task.startTypingForUsers', 'BPM', 'Start typing for users'),
+                            displayField: 'name'
+                        },
+                        {
+                            xtype: 'component',
+                            itemId: 'user-selection-error',
+                            cls: 'x-form-invalid-under',
+                            margin: '0 0 0 40',
+                            html: Uni.I18n.translate('task.bulk.MgmtAsignneSelectionError', 'BPM', 'You must choose user before you can proceed'),
+                            hidden: true
+                        }
+                    ]
                 },
                 {
                     xtype: 'fieldcontainer',
                     fieldLabel: Uni.I18n.translate('tasks.bulk.dueDate', 'BPM', 'Due date'),
+                    name:'setDueDate',
+                    hidden: true,
+                    margin: '20 0 10 0',
                     layout: 'hbox',
                     items: [
                         {
                             xtype: 'date-time',
-                            itemId: 'start-on',
+                            itemId: 'task-due-date',
                             layout: 'hbox',
                             name: 'start-on',
                             dateConfig: {
@@ -71,13 +80,61 @@ Ext.define('Bpm.view.task.ManageTaskForm', {
                         }
                     ]
                 },
+                {
+                    itemId: 'priority-values',
+                    xtype: 'fieldcontainer',
+                    fieldLabel: Uni.I18n.translate('bpm.task.priority', 'BPM', 'Priority'),
+                    name: 'setPriority',
+                    hidden: true,
+                    margin: '20 0 10 0',
+                    layout: 'hbox',
+
+                    items: [
+                        {
+                            itemId: 'num-priority-number',
+                            xtype: 'numberfield',
+                            name: 'recurrence-number',
+                            allowDecimals: false,
+                            minValue: 0,
+                            maxValue: 10,
+                            value: 0,
+                            width: 65,
+                            margin: '0 10 0 0',
+                            listeners: {
+                                change: function(numberfield, value) {
+                                    var labelString;
+
+
+                                    if (value <= 3) {
+                                        labelString = Uni.I18n.translate('bpm.task.priority.high', 'BPM', 'High');
+                                    }
+                                    else if (value <= 6) {
+                                        labelString =  Uni.I18n.translate('bpm.task.priority.medium', 'BPM', 'Medium');
+                                    }
+                                    else {
+                                        labelString = Uni.I18n.translate('bpm.task.priority.low', 'BPM', 'Low');
+                                    }
+                                    this.up('form').down('#txt-priority').setText(labelString);
+                                }
+                            }
+                        },
+                        {
+                            xtype : 'label',
+                            layout : 'fit',
+                            width: '100%',
+                            itemId: 'txt-priority',
+                            text: Uni.I18n.translate('bpm.task.priority.high', 'BPM', 'High')
+                        }
+
+
+                    ]
+                }
             ]
         }
     ],
     initComponent: function() {
         var me = this,
             userStore = Ext.getStore('Bpm.store.task.TasksUsers'),
-            step3 = Ext.ComponentQuery.query('bulk-step3')[0],
             assigneeCombo;
 
         me.callParent(arguments);
@@ -88,32 +145,9 @@ Ext.define('Bpm.view.task.ManageTaskForm', {
                 assigneeCombo.bindStore(userStore);
             }
         });
+
+        me.down('fieldcontainer[name=assign]').setVisible(false);
+        me.down('fieldcontainer[name=setPriority]').setVisible(false);
+        me.down('fieldcontainer[name=setDueDate]').setVisible(false);
     }
-
-/*
-    initComponent: function(){
-
-        var me = this,
-            //userStore = Ext.getStore('Isu.store.UserList'),
-            step3 = Ext.ComponentQuery.query('bulk-step3')[0],
-            assigneeCombo;
-
-        me.callParent(arguments);
-        assigneeCombo = me.down('combobox[name=assigneeCombo]');
-        Ext.getBody().mask( Uni.I18n.translate('general.loading', 'ISU', 'Loading...') );
-
-        userStore.load(function (records) {
-            Ext.getBody().unmask();
-            if (!Ext.isEmpty(records)) {
-                assigneeCombo.bindStore(userStore);
-            }
-        });
-    },
-
-    loadRecord: function (record) {
-        var title = 'Assign issue "' + record.get('title') + '"';
-        this.setTitle(title);
-        this.callParent(arguments)
-    }
-*/
 });

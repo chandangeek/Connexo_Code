@@ -172,10 +172,15 @@ Ext.define('Bpm.controller.Task', {
     },
 
     forwardToBulk: function () {
-        var router = this.getController('Uni.controller.history.Router');
-        //alert();
+        var me = this,
+            router = me.getController('Uni.controller.history.Router'),
+            route;
+        //var router = this.getController('Uni.controller.history.Router');
+        //router.getRoute('workspace/taksmanagementtasks/bulkaction').forward(router.arguments);
+        route ='workspace/taksmanagementtasks/bulkaction';
 
-        router.getRoute('workspace/taksmanagementtasks/bulkaction').forward(router.arguments);
+        route && (route = router.getRoute(route));
+        route && route.forward(router.arguments);
     }
 
 });

@@ -16,27 +16,38 @@ Ext.define('Bpm.view.task.bulk.Step3', {
             html: ''
         },
         {
+            xtype: 'uni-form-error-message',
+            itemId: 'step3-error-message',
+            width: 400,
+            hidden: true
+        },
+        {
             xtype: 'task-manage-form',
             itemId: 'bpm-tasks-bulk-attributes-form',
             isMultiEdit: true,
-            editButtonTooltip: Uni.I18n.translate('task.bulk.attribute.edit', 'BPM', 'Edit connection attribute'),
-            removeButtonTooltip: Uni.I18n.translate('task.bulk.attribute.unchanged', 'BPM' ,'Leave connection attribute unchanged'),
+            editButtonTooltip: Uni.I18n.translate('task.bulk.attribute.edit', 'BPM', 'Edit task attribute'),
+            removeButtonTooltip: Uni.I18n.translate('task.bulk.attribute.unchanged', 'BPM' ,'Leave task attribute unchanged'),
             width: '100%'
         }
     ],
-    setConnectionType: function(connectionType) {
-        var text = Ext.String.format(
-            Uni.I18n.translate('connection.bulk.attributes.title', 'DSH', 'Enter new attribute values for the selected connections of connection type {0}'),
-            connectionType);
-        this.down('#dsh-text-message3').update(text);
+
+    setControls: function(taskActions) {
+        var me = this;
+        Ext.each(taskActions, function (item) {
+            me.down('fieldcontainer[name=' + item + ']').setVisible(true);
+        });
+    },
+    resetControls: function()
+    {   var me = this;
+        me.down('fieldcontainer[name=assign]').setVisible(false);
+        me.down('fieldcontainer[name=setDueDate]').setVisible(false);
+        me.down('fieldcontainer[name=setPriority]').setVisible(false);
     },
     getForm: function() {
-        return this.down('#dsh-connections-bulk-attributes-form');
+        return this.down('#bpm-tasks-bulk-attributes-form');
     },
     setProperties: function(properties) {
         this.getForm().loadRecordAsNotRequired(properties);
-    },
-    updateRecord: function() {
-        return this.getForm().updateRecord();
     }
+
 });

@@ -83,20 +83,8 @@ Ext.define('Bpm.view.task.bulk.Step1', {
                             }
                             return result;
                         }
-                    },
-                    {
-                        header: Uni.I18n.translate('bpm.task.assignee', 'BPM', 'Assignee'),
-                        dataIndex: 'actualOwner',
-                        flex: 1,
-                        renderer: function (value, metaData, record, rowIndex, colIndex) {
-                            var result = '';
-                            if (!Ext.isEmpty(value)) {
-                                result = '<span class="isu-icon-USER isu-assignee-type-icon" data-qtip="' + Uni.I18n.translate('bpm.view.assignee.tooltip.user', 'BPM', 'User') + '"></span> ';
-                                result += Ext.String.htmlEncode(value);
-                            }
-                            return result;
-                        }
                     }
+
                 ]
             },
             {

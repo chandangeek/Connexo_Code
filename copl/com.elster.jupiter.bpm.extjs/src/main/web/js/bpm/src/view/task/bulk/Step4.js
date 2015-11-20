@@ -8,20 +8,22 @@ Ext.define('Bpm.view.task.bulk.Step4', {
         var text = '';
 
         switch (action) {
-            case 'run':
+            case 'taskmanagement':
                 text = '<h3>'
-                + Uni.I18n.translate('task.bulk.confirmation.runTitle', 'BPM', 'Run the selected tasks?')
+                + Uni.I18n.translate('task.bulk.confirmation.taskmanagementTitle', 'BPM', 'Save the selected tasks?')
                 + '</h3><br>'
-                + Uni.I18n.translate('task.bulk.confirmation.runDescription', 'BPM', 'The selected tasks will be queued for the next scheduled run. Status will be available in the column \'Current state\'.');
+                + Uni.I18n.translate('task.bulk.confirmation.taskmanagementDescription', 'BPM', 'The selected tasks will be modified.');
                 break;
-            case 'runNow':
+            case 'taskexecute':
                 text = '<h3>'
-                + Uni.I18n.translate('task.bulk.confirmation.runNowTitle', 'BPM', 'Run the selected tasks now?')
+                + Uni.I18n.translate('task.bulk.confirmation.taskexecuteTitle', 'BPM', 'Execute selected tasks now?')
                 + '</h3><br>'
-                + Uni.I18n.translate('task.bulk.confirmation.runNowDescription', 'BPM', 'The selected tasks will be queued for an immediate run. Status will be available in the column \'Current state\'.');
+                + Uni.I18n.translate('task.bulk.confirmation.taskexecuteDescription', 'BPM', 'The selected tasks will be excuted.');
                 break;
         }
 
         this.add({xtype: 'box', width: '100%', html: text, itemId: 'text-message3', text: text});
+
     }
+
 });

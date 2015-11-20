@@ -82,7 +82,7 @@ Ext.define('Bpm.view.task.TasksGrid', {
                 items: [
                     {
                         xtype: 'button',
-                        itemId: 'tasks-bulk-action',
+                        itemId: 'btn-tasks-bulk-action',
                         text: Uni.I18n.translate('bpm.task.bulkActions', 'BPM', 'Bulk action'),
                         privileges: Bpm.privileges.BpmManagement.commentOrAssing,
                         action: 'tasksBulkAction',

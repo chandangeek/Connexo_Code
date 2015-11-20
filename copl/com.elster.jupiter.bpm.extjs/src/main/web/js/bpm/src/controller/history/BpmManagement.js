@@ -55,8 +55,7 @@ Ext.define('Bpm.controller.history.BpmManagement', {
                             route: 'bulkaction',
                             controller: 'Bpm.controller.TaskBulk',
                             privileges: Mdc.privileges.Device.viewOrAdministrateOrOperateDeviceCommunication,
-                            action: 'showOverview'//,
-                            //filter: 'Dsh.model.Filter'
+                            action: 'showOverview'
                         }
                     }					
                 }

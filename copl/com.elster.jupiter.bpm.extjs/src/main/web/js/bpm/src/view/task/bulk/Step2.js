@@ -3,6 +3,12 @@ Ext.define('Bpm.view.task.bulk.Step2', {
     alias: 'widget.tasks-bulk-step2',
     items: [
         {
+            xtype: 'uni-form-error-message',
+            itemId: 'step2-error-message',
+            width: 400,
+            hidden: true
+        },
+        {
             xtype: 'radiogroup',
             itemId: 'tasks-bulk-action-radiogroup',
             columns: 1,
@@ -12,6 +18,7 @@ Ext.define('Bpm.view.task.bulk.Step2', {
                 padding: '0 0 16 0'
             },
             items: [
+
                 {
                     name: 'action',
                     boxLabel: '<b>' + Uni.I18n.translate('general.taskManagement', 'BPM', 'Task management') + '</b>',
@@ -30,10 +37,30 @@ Ext.define('Bpm.view.task.bulk.Step2', {
                     vertical: true,
                     labelAlign: 'top',
                     items: [
-                        { boxLabel: 'Assign tasks', name: 'rb', inputValue: '1' },
-                        { boxLabel: 'Set due date', name: 'rb', inputValue: '2' },
-                        { boxLabel: 'Set priority', name: 'rb', inputValue: '3' }
+                        {
+                            xtype: 'checkbox',
+                            boxLabel: 'Assign tasks',
+                            name: 'rbTaskManagement',
+                            inputValue: 'assign' },
+                        {
+                            xtype: 'checkbox',
+                            boxLabel: 'Set due date',
+                            name: 'rbTaskManagement',
+                            inputValue: 'setDueDate' },
+                        {
+                            xtype: 'checkbox',
+                            boxLabel: 'Set priority',
+                            name: 'rbTaskManagement',
+                            inputValue: 'setPriority' }
                     ]
+                },
+                {
+                    xtype: 'component',
+                    itemId: 'action-selection-error',
+                    cls: 'x-form-invalid-under',
+                    margin: '0 0 0 40',
+                    html: Uni.I18n.translate('task.bulk.MgmtActionSelectionError', 'BPM', 'Select at least one action!'),
+                    hidden: true
                 },
                 {
                     name: 'action',
@@ -42,20 +69,53 @@ Ext.define('Bpm.view.task.bulk.Step2', {
                     + Uni.I18n.translate('task.bulk.actionRadioGroup.taskExecutionDescription', 'BPM', 'The selected tasks will be executed.')
                     + '</span>',
                     inputValue: 'taskexecute'
+                },
+                {
+                    xtype: 'radiogroup',
+                    itemId: 'tasks-bulk-execute-radiogroup',
+                    columns: 1,
+                    vertical: true,
+                    submitValue: false,
+                    disabled:true,
+                    defaults: {
+                        padding: '0 0 0 40'
+                    },
+                    items: [
+                        {
+                            name: 'execute-action',
+                            boxLabel: Uni.I18n.translate('task.bulk.completeTask', 'BPM', 'Complete task'),
+                            inputValue: 'complete',
+                            checked: true
+                        },
+                    ]
                 }
+
             ],
             listeners: {
                 change: function(radiogroup, radio) {
                     if (radio.action == 'taskexecute'){
                         this.down('#chkg-task-bulk').disable();
+                        this.down('#tasks-bulk-execute-radiogroup').enable();
+
                     }
                     else{
                         this.down('#chkg-task-bulk').enable();
+                        this.down('#tasks-bulk-execute-radiogroup').disable();
                     }
 
                 }
             }
         }
 
-    ]
+    ],
+    getManagementActions: function() {
+        var arrActions = [];
+        if(this.down('#chkg-task-bulk').disabled === false) {
+            var arrChk = this.down('#chkg-task-bulk').getChecked();
+            Ext.each(arrChk, function (item) {
+                arrActions.push(item.inputValue)
+            });
+        }
+        return arrActions;
+    }
 });
