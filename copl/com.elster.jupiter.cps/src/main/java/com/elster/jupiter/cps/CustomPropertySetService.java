@@ -1,5 +1,7 @@
 package com.elster.jupiter.cps;
 
+import com.elster.jupiter.util.conditions.Condition;
+
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
@@ -104,7 +106,6 @@ public interface CustomPropertySetService {
      *
      * @param customPropertySet The CustomPropertySet
      * @param businesObject The businesObject object
-     * @param additionalPrimaryKeyValues Values for the addition primary keys defined by the CustomPropertySet
      * @param <D> The businesObject class
      * @param <T> The class that holds persistent values for this CustomPropertySet
      * @return The CustomPropertySetValues
@@ -149,7 +150,6 @@ public interface CustomPropertySetService {
      * @param customPropertySet The CustomPropertySet
      * @param businesObject The businesObject object
      * @param effectiveTimestamp The point in time
-     * @param additionalPrimaryKeyValues Values for the addition primary keys defined by the CustomPropertySet
      * @param <D> The businesObject class
      * @param <T> The class that holds persistent values for this CustomPropertySet
      * @return The CustomPropertySetValues
@@ -202,6 +202,24 @@ public interface CustomPropertySetService {
     <D, T extends PersistentDomainExtension<D>> Optional<T> getValuesEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Object... additionalPrimaryKeyValues);
 
     /**
+     * Gets the values for the {@link CustomPropertySet} that match the specified Condition.
+     * <p>
+     * Note that this will throw an UnsupportedOperationException
+     * when the CustomPropertySet is versioned because in that case
+     * you need to specify an instant in time when the values are effective.
+     * </p>
+     *
+     * @param customPropertySet The CustomPropertySet
+     * @param condition The Condition
+     * @param <D> The domain class
+     * @param <T> The class that holds persistent values for this CustomPropertySet
+     * @return The CustomPropertySetValues
+     * @see CustomPropertySet#isVersioned()
+     * @throws UnsupportedOperationException Thrown when the CustomPropertySet is versioned
+     */
+    <D, T extends PersistentDomainExtension<D>> List<T> getValuesEntitiesFor(CustomPropertySet<D, T> customPropertySet, Condition condition);
+
+    /**
      * Gets the values for the {@link CustomPropertySet} that were saved for
      * the specified businesObject object at the specified point in time.
      * <p>
@@ -221,6 +239,25 @@ public interface CustomPropertySetService {
      * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
      */
     <D, T extends PersistentDomainExtension<D>> Optional<T> getValuesEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues);
+
+    /**
+     * Gets the values for the {@link CustomPropertySet} that match the condition at the specified point in time.
+     * <p>
+     * Note that this will throw an UnsupportedOperationException
+     * when the CustomPropertySet is <strong>NOT</strong> versioned because in that case
+     * you do not need to specify an instant in time when the values are effective.
+     * </p>
+     *
+     * @param customPropertySet The CustomPropertySet
+     * @param effectiveTimestamp The point in time
+     * @param condition The Condition
+     * @param <D> The businesObject class
+     * @param <T> The class that holds persistent values for this CustomPropertySet
+     * @return The CustomPropertySetValues
+     * @see CustomPropertySet#isVersioned()
+     * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
+     */
+    <D, T extends PersistentDomainExtension<D>> List<T> getValuesEntitiesFor(CustomPropertySet<D, T> customPropertySet, Instant effectiveTimestamp, Condition condition);
 
     /**
      * Removes all the values for the {@link CustomPropertySet} that
