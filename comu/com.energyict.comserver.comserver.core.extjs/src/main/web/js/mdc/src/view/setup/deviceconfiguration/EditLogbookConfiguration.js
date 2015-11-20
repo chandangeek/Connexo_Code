@@ -4,8 +4,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.EditLogbookConfiguration', {
     deviceConfigurationId: null,
     logbookConfigurationId: null,
     requires: [
-        'Uni.form.field.Obis',
-        'Uni.form.field.ObisDisplay'
+        'Uni.form.field.Obis'
     ],
     deviceTypeId: null,
     content: [
@@ -35,19 +34,29 @@ Ext.define('Mdc.view.setup.deviceconfiguration.EditLogbookConfiguration', {
                     width: 500
                 },
                 {
-                    xtype: 'obis-displayfield',
-                    allowBlank: false,
+                    xtype: 'fieldcontainer',
                     required: true,
+                    width: 450,
+                    layout: 'hbox',
                     fieldLabel: Uni.I18n.translate('logbooktype.obis', 'MDC', 'OBIS code'),
-                    name: 'obisCode',
-                    width: 500
-                },
-                {
-                    xtype: 'obis-field',
-                    fieldLabel: 'Overruled OBIS code',
-                    required: false,
-                    name: 'overruledObisCode',
-                    width: 700
+                    items: [
+                        {
+                            xtype: 'obis-field',
+                            name: 'overruledObisCode',
+                            itemId: 'obis-code-field',
+                            fieldLabel: '',
+                            required: false,
+                            afterSubTpl: null,
+                            allowBlank: false,
+                            width: 150
+                        },
+                        {
+                            xtype: 'uni-default-button',
+                            itemId: 'mdc-restore-obiscode-btn',
+                            hidden: false,
+                            disabled: true
+                        }
+                    ]
                 },
                 {
                     xtype: 'fieldcontainer',
