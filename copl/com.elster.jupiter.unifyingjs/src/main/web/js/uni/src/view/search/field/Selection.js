@@ -145,7 +145,10 @@ Ext.define('Uni.view.search.field.Selection', {
                                 xtype: 'uni-search-internal-operator',
                                 value: '==',
                                 margin: '0 5 0 0',
-                                operators: ['==', '!='],
+                                operators: [
+                                    '=='
+                                    //'!='
+                                ],
                                 listeners: {
                                     change: {
                                         fn: me.onChange,
