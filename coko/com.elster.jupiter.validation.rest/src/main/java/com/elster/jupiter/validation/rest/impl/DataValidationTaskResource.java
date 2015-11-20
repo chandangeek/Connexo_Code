@@ -107,7 +107,7 @@ public class DataValidationTaskResource {
             Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION})
     public KorePagedInfoList getDataValidationTasks(@Context UriInfo uriInfo) {
         QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-        List<DataValidationTask> list = getValidationTaskRestQuery().select(queryParameters, Order.ascending("name").toLowerCase());
+        List<DataValidationTask> list = getValidationTaskRestQuery().select(queryParameters, Order.descending("lastRun").nullsLast());
         return KorePagedInfoList.asJson("dataValidationTasks", list.stream().map(dataValidationTask ->
                 new DataValidationTaskInfo(dataValidationTask, thesaurus, timeService)).collect(Collectors.toList())
                 , queryParameters);
