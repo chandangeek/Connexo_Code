@@ -42,7 +42,7 @@ public class SimpleEndDeviceQueryProvider implements EndDeviceQueryProvider {
         int from = start + 1;
         int to = from + limit;
         Optional<Condition> condition = conditions.stream().map(SearchablePropertyCondition::getCondition).reduce(Condition::and);
-        if (start > 0) {
+        if (start > -1) {
             return meteringService.getEndDeviceQuery().select(condition.orElse(Condition.TRUE), from, to);
         } else {
             return meteringService.getEndDeviceQuery().select(condition.orElse(Condition.TRUE));

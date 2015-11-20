@@ -29,6 +29,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements QueryEndDeviceGroup {
 
@@ -101,12 +102,12 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
     }
 
     void save() {
-        Save.CREATE.save(dataModel, this);
+        Save.CREATE.save(getDataModel(), this);
     }
 
     @Override
     public void update() {
-        Save.UPDATE.save(dataModel, this);
+        Save.UPDATE.save(getDataModel(), this);
     }
 
     @Override
@@ -121,11 +122,11 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
 
     @Override
     public List<SearchablePropertyValue> getSearchablePropertyValues() {
-        return findSearchDomainOrThrowException().getPropertiesValues(this::mapper);
+        return getSearchDomain().getPropertiesValues(this::mapper);
     }
 
     private SearchBuilder<?> getSearchBuilder() {
-        SearchDomain searchDomain = findSearchDomainOrThrowException();
+        SearchDomain searchDomain = getSearchDomain();
         SearchBuilder<?> searchBuilder = this.searchService.search(searchDomain);
         searchDomain.getPropertiesValues(this::mapper).forEach(value -> {
             try {
@@ -135,11 +136,6 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
             }
         });
         return searchBuilder;
-    }
-
-    private SearchDomain findSearchDomainOrThrowException() {
-        return this.searchService.pollSearchDomain(this.searchDomain, Duration.ofMinutes(1))
-                .orElseThrow(() -> new InvalidQueryDeviceGroupException(thesaurus, MessageSeeds.SEARCH_DOMAIN_NOT_FOUND, this.searchDomain));
     }
 
     private SearchablePropertyValue mapper(SearchableProperty searchableProperty) {
@@ -174,7 +170,14 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
 
     @Override
     public SearchDomain getSearchDomain() {
-        return this.searchService.pollSearchDomain(this.searchDomain, Duration.ofMinutes(1)).get();
+        Supplier<InvalidQueryDeviceGroupException> noSuchDomainException =
+                () -> new InvalidQueryDeviceGroupException(thesaurus, MessageSeeds.SEARCH_DOMAIN_NOT_FOUND, this.searchDomain);
+        try {
+            return this.searchService.pollSearchDomain(this.searchDomain, Duration.ofMinutes(1)).orElseThrow(noSuchDomainException);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw noSuchDomainException.get();
+        }
     }
 
     List<QueryEndDeviceGroupCondition> getConditions() {

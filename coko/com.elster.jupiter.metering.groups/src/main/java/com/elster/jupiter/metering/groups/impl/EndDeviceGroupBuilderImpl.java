@@ -12,6 +12,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.stream.Stream;
 
 class EndDeviceGroupBuilderImpl implements EndDeviceGroupBuilder {
 
@@ -123,9 +124,7 @@ class EndDeviceGroupBuilderImpl implements EndDeviceGroupBuilder {
 
         @Override
         public QueryEndDeviceGroupBuilder withConditions(SearchablePropertyValue... conditions) {
-            for(SearchablePropertyValue condition : conditions) {
-                underConstruction.addQueryEndDeviceGroupCondition(condition);
-            }
+            Stream.of(conditions).forEach(underConstruction::addQueryEndDeviceGroupCondition);
             return this;
         }
 

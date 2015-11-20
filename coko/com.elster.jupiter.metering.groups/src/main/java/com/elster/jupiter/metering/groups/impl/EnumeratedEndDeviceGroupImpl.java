@@ -44,7 +44,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup implements EnumeratedEndDeviceGroup {
 
     private final QueryService queryService;
-    
+
     private List<EntryImpl> entries;
 
     private final List<EndDeviceMembershipImpl> memberships = new ArrayList<>();
@@ -61,7 +61,7 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
 
     private List<EntryImpl> doGetEntries() {
         if (entries == null) {
-            List<Entry> entryList = dataModel.mapper(Entry.class).find("endDeviceGroup", this);
+            List<Entry> entryList = getDataModel().mapper(Entry.class).find("endDeviceGroup", this);
             entries = new ArrayList<>(entryList.size());
             for (Entry entry : entryList) {
                 entries.add((EntryImpl) entry);
@@ -90,7 +90,7 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
             getEntries();
         }
         return memberships;
-    }  
+    }
 
     static class EntryImpl implements Entry {
 
@@ -117,11 +117,11 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
         static EntryImpl from(DataModel dataModel, EnumeratedEndDeviceGroup endDeviceGroup, EndDevice endDevice, Range<Instant> range) {
             return dataModel.getInstance(EntryImpl.class).init(endDeviceGroup, endDevice, range);
         }
-        
+
         public void setEndDevice(EndDevice endDevice) {
             this.endDevice.set(endDevice);
         }
-        
+
         public void setEndDeviceGroup(EnumeratedEndDeviceGroup endDeviceGroup) {
             this.endDeviceGroup.set(endDeviceGroup);
         }
@@ -170,7 +170,7 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
             getMemberships().add(membership);
         }
         membership.addRange(range);
-        EntryImpl entry = EntryImpl.from(dataModel, this, endDevice, membership.resultingRange(range));
+        EntryImpl entry = EntryImpl.from(getDataModel(), this, endDevice, membership.resultingRange(range));
         doGetEntries().add(entry);
         return entry;
     }
@@ -208,7 +208,7 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
         entryDiff.clear();
         for (EndDeviceMembership membership : memberships) {
             for (Range<Instant> range : membership.getRanges().asRanges()) {
-                entryDiff.add(EntryImpl.from(dataModel, this, membership.getEndDevice(), range));
+                entryDiff.add(EntryImpl.from(getDataModel(), this, membership.getEndDevice(), range));
             }
         }
         entryFactory().remove(FluentIterable.from(entryDiff.getRemovals()).toList());
@@ -217,11 +217,11 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
     }
 
     private DataMapper<EnumeratedEndDeviceGroup> factory() {
-        return dataModel.mapper(EnumeratedEndDeviceGroup.class);
+        return getDataModel().mapper(EnumeratedEndDeviceGroup.class);
     }
 
     private DataMapper<Entry> entryFactory() {
-        return dataModel.mapper(Entry.class);
+        return getDataModel().mapper(Entry.class);
     }
 
     @Override
@@ -240,7 +240,7 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
 
     @Override
     public List<EndDevice> getMembers(Instant instant, int start, int limit) {
-        Query<Entry> query = queryService.wrap(dataModel.query(Entry.class, EndDeviceGroup.class, EndDevice.class));
+        Query<Entry> query = queryService.wrap(getDataModel().query(Entry.class, EndDeviceGroup.class, EndDevice.class));
         query.setEager();
         Condition condition = where("endDeviceGroup").isEqualTo(this).and(where("interval").isEffective(instant));
         int from = start + 1;
@@ -248,7 +248,7 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
         List<Entry> entryList = query.select(condition, from, to, Order.ascending("endDevice.mRID").toUpperCase());
         return entryList.stream().map(Entry::getEndDevice).collect(Collectors.toList());
     }
-    
+
     @Override
     public List<EndDeviceMembership> getMembers(Range<Instant> range) {
         return getMemberships().stream()
@@ -275,10 +275,10 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
 
     @Override
     public Subquery getAmrIdSubQuery(AmrSystem... amrSystems) {
-        MeteringService service = dataModel.getInstance(MeteringService.class);
+        MeteringService service = getDataModel().getInstance(MeteringService.class);
         Query<EndDevice> endDeviceQuery = service.getEndDeviceQuery();
 
-        QueryExecutor<EntryImpl> query = dataModel.query(EntryImpl.class);
+        QueryExecutor<EntryImpl> query = getDataModel().query(EntryImpl.class);
         Subquery subQueryEndDeviceIdInGroup = query.asSubquery(where("endDeviceGroup").isEqualTo(this), "endDevice");
         Condition condition = ListOperator.IN.contains(subQueryEndDeviceIdInGroup, "id");
         if (amrSystems.length > 0) {

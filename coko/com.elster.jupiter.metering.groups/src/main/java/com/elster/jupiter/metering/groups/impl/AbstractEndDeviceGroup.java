@@ -19,30 +19,37 @@ public abstract class AbstractEndDeviceGroup extends AbstractGroup implements En
 
     private String label;
 
-    protected final DataModel dataModel;
+    private final DataModel dataModel;
     private final EventService eventService;
 
-    protected AbstractEndDeviceGroup(EventService eventService, DataModel dataModel) {
+    AbstractEndDeviceGroup(EventService eventService, DataModel dataModel) {
         this.eventService = eventService;
         this.dataModel = dataModel;
     }
 
-    String getQueryProviderName() {
+    final String getQueryProviderName() {
         return queryProviderName;
     }
 
-    void setQueryProviderName(String queryProviderName) {
+    final DataModel getDataModel() {
+        return dataModel;
+    }
+
+    final void setQueryProviderName(String queryProviderName) {
         this.queryProviderName = queryProviderName;
     }
 
+    @Override
     public boolean isDynamic() {
         return this instanceof QueryEndDeviceGroup;
     }
 
+    @Override
     public void setLabel(String label) {
         this.label = label;
     }
 
+    @Override
     public String getLabel() {
         return label;
     }
