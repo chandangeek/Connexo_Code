@@ -4,7 +4,9 @@ Ext.define('Imt.channeldata.model.ChannelData', {
     fields: [
         {name: 'value', type: 'auto'},
         {name: 'interval', type: 'auto'},
+        {name: 'readingTime', dateFormat: 'time', type: 'date'},
         'mainValidationInfo',
+        'readingQualities',
         {
             name: 'interval_start',
             persist: false,

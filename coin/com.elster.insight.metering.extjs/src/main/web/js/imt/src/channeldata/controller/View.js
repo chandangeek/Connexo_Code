@@ -29,13 +29,17 @@ Ext.define('Imt.channeldata.controller.View', {
         {ref: 'channelList', selector: '#channelList'},
         {ref: 'overviewLink', selector: '#usage-point-overview-link'},
         {ref: 'channelListSetup', selector: '#channel-list-setup'},
-        {ref: 'usagePointChannelGraphView', selector: '#usagePointChannelGraphView'}
+        {ref: 'usagePointChannelGraphView', selector: '#usagePointChannelGraphView'},
+        {ref: 'deviceLoadProfileChannelDataPreview', selector: '#channelDataPreview'}
     ],
     init: function () {
         var me = this;
         me.control({
             '#channelList': {
                 select: me.onChannelListSelect
+            },
+            '#channel-data-setup #channelDataGrid': {
+                select: this.showPreview
             }
         });        
     },
@@ -220,6 +224,15 @@ Ext.define('Imt.channeldata.controller.View', {
 
         });
         return data;
+    },
+    showPreview: function (selectionModel, record) {
+        var me = this,
+            previewPanel;
+
+        if (selectionModel.getSelection().length === 1) {
+            previewPanel = me.getDeviceLoadProfileChannelDataPreview();
+            previewPanel.updateForm(record);
+        }
     }
 });
 

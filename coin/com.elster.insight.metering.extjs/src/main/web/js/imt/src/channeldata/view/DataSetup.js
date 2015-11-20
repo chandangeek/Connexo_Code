@@ -5,9 +5,11 @@ Ext.define('Imt.channeldata.view.DataSetup', {
     requires: [
         'Imt.channeldata.view.ChannelGraph',
         'Imt.channeldata.view.DataGrid',
-        'Imt.channeldata.view.ChannelTopFilter'
+        'Imt.channeldata.view.ChannelTopFilter',
+        'Imt.channeldata.view.TableView'
     ],
     router: null,
+    
     channel: null,
     initComponent: function () {
         var me = this;
@@ -49,7 +51,7 @@ Ext.define('Imt.channeldata.view.DataSetup', {
                             router: me.router
                         },
                         {
-                            xtype: 'channel-data-grid',
+                            xtype: 'channelTableView',
                             router: me.router,
                             channelRecord: me.channel,
                             height: 600
