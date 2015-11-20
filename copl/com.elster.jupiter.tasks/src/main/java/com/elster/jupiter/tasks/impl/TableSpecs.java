@@ -31,7 +31,7 @@ enum TableSpecs {
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
             table.addAuditColumns();
             table.primaryKey("TSK_PK_RECURRENTTASK").on(idColumn).add();
-            table.unique("TSK_UK_RECURRENTTASK").on(nameColumn).add();
+            table.unique("TSK_UK_RECURRENTTASK").on(applicationColumn, nameColumn).add();
         }
     },
     TSK_TASK_OCCURRENCE {

@@ -16,6 +16,7 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -286,5 +287,11 @@ class RecurrentTaskImpl implements RecurrentTask {
     @Override
     public String getApplication() {
         return application;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+        this.save();
     }
 }

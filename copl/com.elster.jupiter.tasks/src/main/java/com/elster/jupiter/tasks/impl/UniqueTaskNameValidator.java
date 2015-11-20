@@ -2,6 +2,9 @@ package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.util.conditions.Where;
+
+import java.util.List;
 import java.util.Optional;
 import javax.inject.Inject;
 import javax.validation.ConstraintValidator;
@@ -27,11 +30,17 @@ public class UniqueTaskNameValidator implements ConstraintValidator<UniqueName, 
 
     @Override
     public boolean isValid(RecurrentTask recurrentTask, ConstraintValidatorContext context) {
-        Optional<RecurrentTask> taskOptional = taskService.getRecurrentTask(recurrentTask.getName());
-        if (taskOptional.isPresent() && taskOptional.get().getId()!=recurrentTask.getId()) {
-                context.buildConstraintViolationWithTemplate(message).addPropertyNode("name").addConstraintViolation().disableDefaultConstraintViolation();
-                return false;
+        List<? extends RecurrentTask> existing =
+                taskService.getTaskQuery().select(
+                        Where.where("name").isEqualTo(recurrentTask.getName()).and(
+                                Where.where("application").isEqualTo(recurrentTask.getApplication())));
+        if (existing.isEmpty()) {
+            return true;
+        } else if (existing.size() == 1 && recurrentTask.getId() == existing.get(0).getId()) {
+            return true;
         }
-        return true;
+        context.disableDefaultConstraintViolation();
+        context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate()).addPropertyNode("name").addConstraintViolation();
+        return false;
     }
 }
