@@ -2,6 +2,7 @@ package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.Fetcher;
@@ -16,7 +17,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -92,15 +92,13 @@ public class DeviceFinder implements Finder<Device> {
     public int count() {
         try (Connection conn = dataModel.getConnection(false)) {
             PreparedStatement statement = asFragment("count(*)").prepare(conn);
-            try(ResultSet resultSet = statement.executeQuery()) {
-                if (resultSet.next()) {
-                    return resultSet.getInt(1);
-                }
+            try (ResultSet resultSet = statement.executeQuery()) {
+                resultSet.next();
+                return resultSet.getInt(1);
             }
         } catch (SQLException e) {
-            LOGGER.log(Level.SEVERE, e.getLocalizedMessage(), e);
+            throw new UnderlyingSQLFailedException(e);
         }
-        return 0;
     }
 
     private interface Pager {
