@@ -81,34 +81,22 @@ public class UserResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE,Privileges.Constants.VIEW_USER_ROLE})
     public UserInfos getUser(@PathParam("id") long id) {
-        try (TransactionContext context = transactionService.getContext()) {
-            Optional<User> party = userService.getUser(id);
-            if (!party.isPresent()) {
-                throw new WebApplicationException(Response.Status.NOT_FOUND);
-            }
-            try {
-                return new UserInfos(thesaurus, party.get());
-            } finally {
-                context.commit();
-            }
+        Optional<User> user = userService.getUser(id);
+        if (!user.isPresent()) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
+            return new UserInfos(thesaurus, user.get());
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE,Privileges.Constants.VIEW_USER_ROLE})
     public UserInfos getUsers(@Context UriInfo uriInfo) {
-        try (TransactionContext context = transactionService.getContext()) {
-            QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
-            List<User> list = getUserRestQuery().select(queryParameters, Order.ascending("authenticationName").toLowerCase());
-            UserInfos infos = new UserInfos(thesaurus, queryParameters.clipToLimit(list));
-            infos.total = queryParameters.determineTotal(list.size());
-            try {
-                return infos;
-            } finally {
-                context.commit();
-            }
-        }
+        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters());
+        List<User> list = getUserRestQuery().select(queryParameters, Order.ascending("authenticationName").toLowerCase());
+        UserInfos infos = new UserInfos(thesaurus, queryParameters.clipToLimit(list));
+        infos.total = queryParameters.determineTotal(list.size());
+        return infos;
     }
 
     @GET
