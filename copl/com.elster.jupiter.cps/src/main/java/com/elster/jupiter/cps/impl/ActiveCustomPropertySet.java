@@ -7,17 +7,23 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Interval;
 
+import com.google.common.collect.Iterators;
 import com.google.common.collect.Range;
 
+import java.text.MessageFormat;
 import java.time.Instant;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -52,10 +58,14 @@ class ActiveCustomPropertySet {
     }
 
     @SuppressWarnings("unchecked")
-    <T extends PersistentDomainExtension<D>, D> Optional<T> getValuesEntityFor(D businessObject) {
+    <T extends PersistentDomainExtension<D>, D> Optional<T> getNonVersionedValuesEntityFor(D businessObject, Object... additionalPrimaryKeyColumnValues) {
         if (this.registeredCustomPropertySet.isViewableByCurrentUser()) {
-            Condition condition =    where(this.customPropertySet.getPersistenceSupport().domainFieldName()).isEqualTo(businessObject)
-                                .and(where(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName()).isEqualTo(this.registeredCustomPropertySet));
+            this.validateAdditionalPrimaryKeyValues(additionalPrimaryKeyColumnValues);
+            Condition condition =
+                    this.addAdditionalPrimaryKeyColumnConditionsTo(
+                                 where(this.customPropertySet.getPersistenceSupport().domainFieldName()).isEqualTo(businessObject)
+                            .and(where(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName()).isEqualTo(this.registeredCustomPropertySet)),
+                            additionalPrimaryKeyColumnValues);
             return this.getValuesEntityFor(condition, () -> "There should only be one set of property values for custom property set " + this.customPropertySet.getId() + " against business object " + businessObject);
         }
         else {
@@ -63,12 +73,61 @@ class ActiveCustomPropertySet {
         }
     }
 
+    private void validateAdditionalPrimaryKeyValues(Object... additionalPrimaryKeyValues) {
+        long requiredNumberOfAdditionalPrimaryKeyValues = this.getAdditionalPrimaryKeyColumns().count();
+        if (requiredNumberOfAdditionalPrimaryKeyValues != additionalPrimaryKeyValues.length) {
+            throw new IllegalArgumentException(MessageFormat.format("Custom property set " + this.customPropertySet.getId() + " has {0} additional primay key column(s), you must specify a value for all but got only {1}", requiredNumberOfAdditionalPrimaryKeyValues, additionalPrimaryKeyValues.length));
+        }
+    }
+
+    private Stream<? extends Column> getAdditionalPrimaryKeyColumns() {
+        return this.customPropertySetDataModel
+                .getTable(this.customPropertySet.getPersistenceSupport().tableName())
+                .getPrimaryKeyColumns()
+                .stream()
+                .filter(pkColumn -> !pkColumn.getFieldName().equals(this.customPropertySet.getPersistenceSupport().domainFieldName()));
+    }
+
+    private Condition addAdditionalPrimaryKeyColumnConditionsTo(Condition mainCondition, Object... additionalPrimaryKeyColumnValues) {
+        Iterator<Object> pkValueInterator = Iterators.forArray(additionalPrimaryKeyColumnValues);
+        return mainCondition.and(
+                this.getAdditionalPrimaryKeyColumns()
+                        .map(pkColumn -> where(pkColumn.getFieldName()).isEqualTo(pkValueInterator.next()))
+                        .reduce(
+                                Condition.TRUE,
+                                Condition::and));
+    }
+
     @SuppressWarnings("unchecked")
-    <T extends PersistentDomainExtension<D>, D> Optional<T> getValuesEntityFor(D businessObject, Instant effectiveTimestamp) {
+    <T extends PersistentDomainExtension<D>, D> List<T> getNonVersionedValuesEntityFor(Condition condition) {
         if (this.registeredCustomPropertySet.isViewableByCurrentUser()) {
-            Condition condition =    where(this.customPropertySet.getPersistenceSupport().domainFieldName()).isEqualTo(businessObject)
-                                .and(where(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName()).isEqualTo(this.registeredCustomPropertySet))
-                                .and(where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(effectiveTimestamp));
+            return this.getMapper().select(condition);
+        }
+        else {
+            return Collections.emptyList();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    <T extends PersistentDomainExtension<D>, D> List<T> getVersionedValuesEntityFor(Condition condition, Instant effectiveTimestamp) {
+        if (this.registeredCustomPropertySet.isViewableByCurrentUser()) {
+            return this.getMapper().select(condition.and(where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(effectiveTimestamp)));
+        }
+        else {
+            return Collections.emptyList();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    <T extends PersistentDomainExtension<D>, D> Optional<T> getVersionedValuesEntityFor(D businessObject, Instant effectiveTimestamp, Object... additionalPrimaryKeyColumnValues) {
+        if (this.registeredCustomPropertySet.isViewableByCurrentUser()) {
+            this.validateAdditionalPrimaryKeyValues(additionalPrimaryKeyColumnValues);
+            Condition condition =
+                    this.addAdditionalPrimaryKeyColumnConditionsTo(
+                                 where(this.customPropertySet.getPersistenceSupport().domainFieldName()).isEqualTo(businessObject)
+                            .and(where(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName()).isEqualTo(this.registeredCustomPropertySet))
+                            .and(where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(effectiveTimestamp)),
+                            additionalPrimaryKeyColumnValues);
             return this.getValuesEntityFor(condition, () -> "There should only be one set of property values for custom property set " + this.customPropertySet.getId() + " at " + effectiveTimestamp + " against business object " + businessObject);
         }
         else {
@@ -98,7 +157,7 @@ class ActiveCustomPropertySet {
     }
 
     <T extends PersistentDomainExtension<D>, D> void setValuesEntityFor(D businessObject, CustomPropertySetValues values) {
-        Optional<T> domainExtension = this.getValuesEntityFor(businessObject);
+        Optional<T> domainExtension = this.getNonVersionedValuesEntityFor(businessObject);
         if (domainExtension.isPresent()) {
             this.updateExtension(domainExtension.get(), businessObject, values);
         }
@@ -133,7 +192,7 @@ class ActiveCustomPropertySet {
     }
 
     <T extends PersistentDomainExtension<D>, D> void setValuesEntityFor(D businessObject, CustomPropertySetValues values, Instant effectiveTimestamp) {
-        Optional<T> domainExtension = this.getValuesEntityFor(businessObject, effectiveTimestamp);
+        Optional<T> domainExtension = this.getVersionedValuesEntityFor(businessObject, effectiveTimestamp);
         if (domainExtension.isPresent()) {
             Interval interval = DomainExtensionAccessor.getInterval(domainExtension.get());
             Range<Instant> range = interval.toClosedOpenRange();
@@ -154,7 +213,7 @@ class ActiveCustomPropertySet {
             this.getMapper().remove(this.getAllValuesEntityFor(businessObject));
         }
         else {
-            this.getValuesEntityFor(businessObject).ifPresent(this::delete);
+            this.getNonVersionedValuesEntityFor(businessObject).ifPresent(this::delete);
         }
     }
 

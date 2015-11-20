@@ -96,8 +96,9 @@ public interface CustomPropertySetService {
     Optional<RegisteredCustomPropertySet> findActiveCustomPropertySet(String id);
 
     /**
-     * Gets the values for the {@link CustomPropertySet} that were saved for
-     * the specified businesObject object.
+     * Gets the unique set of values for the {@link CustomPropertySet}
+     * that were saved for the specified businesObject object
+     * and (optionally) the additional primary key columns.
      * <p>
      * Note that this will throw an UnsupportedOperationException
      * when the CustomPropertySet is versioned because in that case
@@ -106,13 +107,14 @@ public interface CustomPropertySetService {
      *
      * @param customPropertySet The CustomPropertySet
      * @param businesObject The businesObject object
+     * @param additionalPrimaryKeyValues The values for the additional primary key columns as defined by the CustomPropertySet
      * @param <D> The businesObject class
      * @param <T> The class that holds persistent values for this CustomPropertySet
      * @return The CustomPropertySetValues
      * @see CustomPropertySet#isVersioned()
      * @throws UnsupportedOperationException Thrown when the CustomPropertySet is versioned
      */
-    <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Object additionalPrimayKeyValues);
+    <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getUniqueValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Object... additionalPrimaryKeyValues);
 
     /**
      * Sets the values for the {@link CustomPropertySet} that were saved for
@@ -139,7 +141,7 @@ public interface CustomPropertySetService {
     <D, T extends PersistentDomainExtension<D>> void setValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values);
 
     /**
-     * Gets the values for the {@link CustomPropertySet} that were saved for
+     * Gets the unique set of values for the {@link CustomPropertySet} that were saved for
      * the specified businesObject object at the specified point in time.
      * <p>
      * Note that this will throw an UnsupportedOperationException
@@ -150,13 +152,14 @@ public interface CustomPropertySetService {
      * @param customPropertySet The CustomPropertySet
      * @param businesObject The businesObject object
      * @param effectiveTimestamp The point in time
+     * @param additionalPrimaryKeyValues The values for the additional primary key columns as defined by the CustomPropertySet
      * @param <D> The businesObject class
      * @param <T> The class that holds persistent values for this CustomPropertySet
      * @return The CustomPropertySetValues
      * @see CustomPropertySet#isVersioned()
      * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
      */
-    <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp, Object additionalPrimayKeyValues);
+    <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getUniqueValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues);
 
     /**
      * Sets the values for the {@link CustomPropertySet} against
@@ -192,32 +195,32 @@ public interface CustomPropertySetService {
      *
      * @param customPropertySet The CustomPropertySet
      * @param businesObject The domain object
-     * @param additionalPrimaryKeyValues Values for the addition primary keys defined by the CustomPropertySet
+     * @param additionalPrimaryKeyValues The values for the additional primary key columns as defined by the CustomPropertySet
      * @param <D> The domain class
      * @param <T> The class that holds persistent values for this CustomPropertySet
      * @return The CustomPropertySetValues
      * @see CustomPropertySet#isVersioned()
      * @throws UnsupportedOperationException Thrown when the CustomPropertySet is versioned
      */
-    <D, T extends PersistentDomainExtension<D>> Optional<T> getValuesEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Object... additionalPrimaryKeyValues);
+    <D, T extends PersistentDomainExtension<D>> Optional<T> getUniqueValuesEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Object... additionalPrimaryKeyValues);
 
     /**
-     * Gets the values for the {@link CustomPropertySet} that match the specified Condition.
+     * Gets the values for the {@link CustomPropertySet} that match the Condition
+     * specified with the {@link NonVersionedValuesEntityCustomConditionMatcher}.
      * <p>
      * Note that this will throw an UnsupportedOperationException
      * when the CustomPropertySet is versioned because in that case
-     * you need to specify an instant in time when the values are effective.
+     * you need to use {@link #getVersionedValuesEntitiesFor(CustomPropertySet)}.
      * </p>
      *
      * @param customPropertySet The CustomPropertySet
-     * @param condition The Condition
      * @param <D> The domain class
      * @param <T> The class that holds persistent values for this CustomPropertySet
      * @return The CustomPropertySetValues
      * @see CustomPropertySet#isVersioned()
      * @throws UnsupportedOperationException Thrown when the CustomPropertySet is versioned
      */
-    <D, T extends PersistentDomainExtension<D>> List<T> getValuesEntitiesFor(CustomPropertySet<D, T> customPropertySet, Condition condition);
+    <D, T extends PersistentDomainExtension<D>> NonVersionedValuesEntityCustomConditionMatcher<D, T> getNonVersionedValuesEntitiesFor(CustomPropertySet<D, T> customPropertySet);
 
     /**
      * Gets the values for the {@link CustomPropertySet} that were saved for
@@ -238,10 +241,12 @@ public interface CustomPropertySetService {
      * @see CustomPropertySet#isVersioned()
      * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
      */
-    <D, T extends PersistentDomainExtension<D>> Optional<T> getValuesEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues);
+    <D, T extends PersistentDomainExtension<D>> Optional<T> getUniqueValuesEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues);
 
     /**
-     * Gets the values for the {@link CustomPropertySet} that match the condition at the specified point in time.
+     * Gets the values for the {@link CustomPropertySet} that match the condition
+     * specified with the {@link VersionedValuesEntityCustomConditionMatcher}
+     * and are affective at the timestamp specified with the {@link VersionedValuesEntityEffectivityMatcher}.
      * <p>
      * Note that this will throw an UnsupportedOperationException
      * when the CustomPropertySet is <strong>NOT</strong> versioned because in that case
@@ -249,15 +254,13 @@ public interface CustomPropertySetService {
      * </p>
      *
      * @param customPropertySet The CustomPropertySet
-     * @param effectiveTimestamp The point in time
-     * @param condition The Condition
      * @param <D> The businesObject class
      * @param <T> The class that holds persistent values for this CustomPropertySet
-     * @return The CustomPropertySetValues
+     * @return The VersionedValuesEntityCustomConditionMatcher
      * @see CustomPropertySet#isVersioned()
      * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
      */
-    <D, T extends PersistentDomainExtension<D>> List<T> getValuesEntitiesFor(CustomPropertySet<D, T> customPropertySet, Instant effectiveTimestamp, Condition condition);
+    <D, T extends PersistentDomainExtension<D>> VersionedValuesEntityCustomConditionMatcher<D, T> getVersionedValuesEntitiesFor(CustomPropertySet<D, T> customPropertySet);
 
     /**
      * Removes all the values for the {@link CustomPropertySet} that
@@ -271,5 +274,35 @@ public interface CustomPropertySetService {
      * @see #setValuesFor(CustomPropertySet, Object, CustomPropertySetValues, Instant)
      */
     <D, T extends PersistentDomainExtension<D>> void removeValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject);
+
+    /**
+     * Supports specifying a search for values with a custom
+     * Condition for a non-versioned CustomPropertySet.
+     * @param <D> The businesObject class
+     * @param <T> The class that holds persistent values for this CustomPropertySet
+     */
+    interface NonVersionedValuesEntityCustomConditionMatcher<D, T extends PersistentDomainExtension<D>> {
+        List<T> matching(Condition condition);
+    }
+
+    /**
+     * Supports specifying a search for values with a custom
+     * Condition for a versioned CustomPropertySet.
+     * @param <D> The businesObject class
+     * @param <T> The class that holds persistent values for this CustomPropertySet
+     */
+    interface VersionedValuesEntityCustomConditionMatcher<D, T extends PersistentDomainExtension<D>> {
+        VersionedValuesEntityEffectivityMatcher<D, T> matching(Condition condition);
+    }
+
+    /**
+     * Finalizes the search for values of a versioned {@link CustomPropertySet}
+     * by specifiying the point in time when the values should be effective.
+     * @param <D> The businesObject class
+     * @param <T> The class that holds persistent values for this CustomPropertySet
+     */
+    interface VersionedValuesEntityEffectivityMatcher<D, T extends PersistentDomainExtension<D>> {
+        List<T> andEffectiveAt(Instant effectiveTimestamp);
+    }
 
 }

@@ -24,6 +24,7 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.util.time.Interval;
 
@@ -399,13 +400,13 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     @Override
-    public <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject) {
-        return this.toCustomPropertySetValues(customPropertySet, this.getValuesEntityFor(customPropertySet, businesObject));
+    public <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getUniqueValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Object... additionalPrimaryKeyValues) {
+        return this.toCustomPropertySetValues(customPropertySet, this.getUniqueValuesEntityFor(customPropertySet, businesObject, additionalPrimaryKeyValues));
     }
 
     @Override
-    public <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp) {
-        return this.toCustomPropertySetValues(customPropertySet, this.getValuesEntityFor(customPropertySet, businesObject, effectiveTimestamp));
+    public <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getUniqueValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues) {
+        return this.toCustomPropertySetValues(customPropertySet, this.getUniqueValuesEntityFor(customPropertySet, businesObject, effectiveTimestamp, additionalPrimaryKeyValues));
     }
 
     private <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues toCustomPropertySetValues(CustomPropertySet<D, T> customPropertySet, Optional<T> customPropertyValuesEntity) {
@@ -443,28 +444,28 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     @Override
-    public <D, T extends PersistentDomainExtension<D>> Optional<T> getValuesEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject) {
+    public <D, T extends PersistentDomainExtension<D>> Optional<T> getUniqueValuesEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Object... additionalPrimaryKeyValues) {
         ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
         this.validateCustomPropertySetIsNotVersioned(customPropertySet, activeCustomPropertySet);
-        return activeCustomPropertySet.getValuesEntityFor(businesObject);
+        return activeCustomPropertySet.getNonVersionedValuesEntityFor(businesObject, additionalPrimaryKeyValues);
     }
 
     private <D, T extends PersistentDomainExtension<D>> void validateCustomPropertySetIsNotVersioned(CustomPropertySet<D, T> customPropertySet, ActiveCustomPropertySet activeCustomPropertySet) {
         if (activeCustomPropertySet.getCustomPropertySet().isVersioned()) {
-            throw new UnsupportedOperationException("Custom property set " + customPropertySet.getId() + " is versioned, you need to call CustomPropertySetService#getPersistentValuesFor(CustomPropertySet, Class<Domain>, Instant)");
+            throw new UnsupportedOperationException("Custom property set " + customPropertySet.getId() + " is versioned, you need to call CustomPropertySetService#getUniqueValuesFor(CustomPropertySet, Class<Domain>, Instant)");
         }
     }
 
     @Override
-    public <D, T extends PersistentDomainExtension<D>> Optional<T> getValuesEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp) {
+    public <D, T extends PersistentDomainExtension<D>> Optional<T> getUniqueValuesEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues) {
         ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
         this.validateCustomPropertySetIsVersioned(customPropertySet, activeCustomPropertySet);
-        return activeCustomPropertySet.getValuesEntityFor(businesObject, effectiveTimestamp);
+        return activeCustomPropertySet.getVersionedValuesEntityFor(businesObject, effectiveTimestamp, additionalPrimaryKeyValues);
     }
 
     private <D, T extends PersistentDomainExtension<D>> void validateCustomPropertySetIsVersioned(CustomPropertySet<D, T> customPropertySet, ActiveCustomPropertySet activeCustomPropertySet) {
         if (!activeCustomPropertySet.getCustomPropertySet().isVersioned()) {
-            throw new UnsupportedOperationException("Custom property set " + customPropertySet.getId() + " is NOT versioned, you need to call CustomPropertySetService#getPersistentValuesFor(CustomPropertySet, Class<Domain>)");
+            throw new UnsupportedOperationException("Custom property set " + customPropertySet.getId() + " is NOT versioned, you need to call CustomPropertySetService#getUniqueValuesFor(CustomPropertySet, Class<Domain>)");
         }
     }
 
@@ -480,6 +481,67 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     public <D, T extends PersistentDomainExtension<D>> void removeValuesFor(CustomPropertySet<D, T> customPropertySet, D businessObject) {
         ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
         activeCustomPropertySet.deleteExtensions(businessObject);
+    }
+
+    @Override
+    public <D, T extends PersistentDomainExtension<D>> NonVersionedValuesEntityCustomConditionMatcher<D, T> getNonVersionedValuesEntitiesFor(CustomPropertySet<D, T> customPropertySet) {
+        ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
+        this.validateCustomPropertySetIsNotVersioned(customPropertySet, activeCustomPropertySet);
+        return new NonVersionedValuesEntityCustomConditionMatcherImpl<>(activeCustomPropertySet);
+    }
+
+    @Override
+    public <D, T extends PersistentDomainExtension<D>> VersionedValuesEntityCustomConditionMatcher<D, T> getVersionedValuesEntitiesFor(CustomPropertySet<D, T> customPropertySet) {
+        ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
+        this.validateCustomPropertySetIsVersioned(customPropertySet, activeCustomPropertySet);
+        return new VersionedValuesEntityCustomConditionMatcherImpl(activeCustomPropertySet);
+    }
+
+    private class NonVersionedValuesEntityCustomConditionMatcherImpl<DD, TT extends PersistentDomainExtension<DD>> implements NonVersionedValuesEntityCustomConditionMatcher<DD, TT> {
+        private final ActiveCustomPropertySet activeCustomPropertySet;
+
+        private NonVersionedValuesEntityCustomConditionMatcherImpl(ActiveCustomPropertySet activeCustomPropertySet) {
+            super();
+            this.activeCustomPropertySet = activeCustomPropertySet;
+        }
+
+        @Override
+        public List<TT> matching(Condition condition) {
+            return this.activeCustomPropertySet.getNonVersionedValuesEntityFor(condition);
+        }
+
+    }
+
+    private class VersionedValuesEntityCustomConditionMatcherImpl<DD, TT extends PersistentDomainExtension<DD>> implements VersionedValuesEntityCustomConditionMatcher<DD, TT> {
+        private final ActiveCustomPropertySet activeCustomPropertySet;
+
+        private VersionedValuesEntityCustomConditionMatcherImpl(ActiveCustomPropertySet activeCustomPropertySet) {
+            super();
+            this.activeCustomPropertySet = activeCustomPropertySet;
+        }
+
+        @Override
+        public VersionedValuesEntityEffectivityMatcher<DD, TT> matching(Condition condition) {
+            return new VersionedValuesEntityEffectivityMatcherImpl<>(this.activeCustomPropertySet, condition);
+        }
+
+    }
+
+    private class VersionedValuesEntityEffectivityMatcherImpl<DD, TT extends PersistentDomainExtension<DD>> implements VersionedValuesEntityEffectivityMatcher<DD, TT> {
+        private final ActiveCustomPropertySet activeCustomPropertySet;
+        private final Condition condition;
+
+        private VersionedValuesEntityEffectivityMatcherImpl(ActiveCustomPropertySet activeCustomPropertySet, Condition condition) {
+            super();
+            this.activeCustomPropertySet = activeCustomPropertySet;
+            this.condition = condition;
+        }
+
+        @Override
+        public List<TT> andEffectiveAt(Instant effectiveTimestamp) {
+            return this.activeCustomPropertySet.getVersionedValuesEntityFor(this.condition, effectiveTimestamp);
+        }
+
     }
 
     private class TableBuilder {
