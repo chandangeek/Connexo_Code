@@ -22,11 +22,11 @@ Ext.define('Uni.view.search.field.TimeOfDay', {
             },
             operatorMap: {
                 '==': 'uni-search-internal-timeOfDayField',
-                '!=': 'uni-search-internal-timeOfDayField',
-                '>': 'uni-search-internal-timeOfDayField',
-                '>=': 'uni-search-internal-timeOfDayField',
-                '<': 'uni-search-internal-timeOfDayField',
-                '<=': 'uni-search-internal-timeOfDayField',
+                //'!=': 'uni-search-internal-timeOfDayField',
+                //'>': 'uni-search-internal-timeOfDayField',
+                //'>=': 'uni-search-internal-timeOfDayField',
+                //'<': 'uni-search-internal-timeOfDayField',
+                //'<=': 'uni-search-internal-timeOfDayField',
                 'BETWEEN': 'uni-search-internal-timeOfDayRange'
             },
             listeners: {
