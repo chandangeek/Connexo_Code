@@ -48,13 +48,11 @@ import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.DUPLICATE_EXPORT_TASK + "}")
 final class ExportTaskImpl implements IExportTask {
     private final TaskService taskService;
     private final DataModel dataModel;
     private final IDataExportService dataExportService;
     private final Thesaurus thesaurus;
-
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + "}")
     protected String name;
@@ -323,7 +321,7 @@ final class ExportTaskImpl implements IExportTask {
 
     @Override
     public String getName() {
-        return name;
+        return (recurrentTask.isPresent()) ? recurrentTask.get().getName() : name;
     }
 
     @Override
@@ -335,19 +333,22 @@ final class ExportTaskImpl implements IExportTask {
     }
 
     private void doUpdate() {
+        Save.UPDATE.save(dataModel, this);
+        if (!recurrentTask.get().getName().equals(this.name)) {
+            recurrentTask.get().setName(name);
+        }
         if (recurrentTaskDirty) {
             recurrentTask.get().save();
         }
         if (propertiesDirty) {
             properties.forEach(DataExportProperty::save);
         }
-        Save.UPDATE.save(dataModel, this);
     }
 
     private void persist() {
         RecurrentTask task = taskService.newBuilder()
                 .setApplication("Pulse")
-                .setName(UUID.randomUUID().toString())
+                .setName(name)
                 .setScheduleExpression(scheduleExpression)
                 .setDestination(dataExportService.getDestination())
                 .setPayLoad(getName())
@@ -429,7 +430,7 @@ final class ExportTaskImpl implements IExportTask {
     }
 
     private ExportTaskImpl init(String name, String dataFormatter, String dataSelector, ScheduleExpression scheduleExpression, Instant nextExecution) {
-        setName(name);
+        this.name = name;
         this.dataFormatter = dataFormatter;
         this.dataSelector = dataSelector;
         this.scheduleExpression = scheduleExpression;
