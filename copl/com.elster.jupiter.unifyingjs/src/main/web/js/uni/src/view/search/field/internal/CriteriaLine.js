@@ -49,7 +49,7 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
                     },
                     reset: function() {
                         me.fireEvent('reset')
-                    },
+                    }
                 }
             });
 

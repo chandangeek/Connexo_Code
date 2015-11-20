@@ -64,11 +64,11 @@ Ext.define('Uni.view.search.field.DateTime', {
             },
             operatorMap: {
                 '==': 'uni-search-internal-datetimefield',
-                '!=': 'uni-search-internal-datetimefield',
-                '>': 'uni-search-internal-datetimefield',
-                '>=': 'uni-search-internal-datetimefield',
-                '<': 'uni-search-internal-datetimefield',
-                '<=': 'uni-search-internal-datetimefield',
+                //'!=': 'uni-search-internal-datetimefield',
+                //'>': 'uni-search-internal-datetimefield',
+                //'>=': 'uni-search-internal-datetimefield',
+                //'<': 'uni-search-internal-datetimefield',
+                //'<=': 'uni-search-internal-datetimefield',
                 'BETWEEN': 'uni-search-internal-daterange'
             },
             listeners: {

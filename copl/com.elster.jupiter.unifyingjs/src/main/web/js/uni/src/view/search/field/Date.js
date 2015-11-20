@@ -22,11 +22,11 @@ Ext.define('Uni.view.search.field.Date', {
             },
             operatorMap: {
                 '==': 'uni-search-internal-datefield',
-                '!=': 'uni-search-internal-datefield',
-                '>': 'uni-search-internal-datefield',
-                '>=': 'uni-search-internal-datefield',
-                '<': 'uni-search-internal-datefield',
-                '<=': 'uni-search-internal-datefield',
+                //'!=': 'uni-search-internal-datefield',
+                //'>': 'uni-search-internal-datefield',
+                //'>=': 'uni-search-internal-datefield',
+                //'<': 'uni-search-internal-datefield',
+                //'<=': 'uni-search-internal-datefield',
                 'BETWEEN': 'uni-search-internal-single-daterange'
             },
             listeners: {
