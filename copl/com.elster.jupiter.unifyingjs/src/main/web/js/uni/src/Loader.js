@@ -69,7 +69,8 @@ Ext.define('Uni.Loader', {
         'Uni.view.grid.BulkSelection',
         'Uni.override.ColumnOverride',
         'Uni.override.DisplayFieldOverride',
-        'Uni.override.Date'
+        'Uni.override.Date',
+        'Uni.override.ComponentOverride'
     ],
 
     /**
