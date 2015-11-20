@@ -22,8 +22,6 @@ public interface JoinClauseBuilder {
 
     JoinClauseBuilder addFiniteState();
 
-    JoinClauseBuilder addConnectionTask();
-
     JoinClauseBuilder addBatch();
 
     JoinClauseBuilder addUsagePoint();

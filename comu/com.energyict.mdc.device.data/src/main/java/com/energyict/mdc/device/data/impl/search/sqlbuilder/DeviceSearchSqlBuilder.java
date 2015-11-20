@@ -109,12 +109,6 @@ public class DeviceSearchSqlBuilder implements JoinClauseBuilder {
     }
 
     @Override
-    public JoinClauseBuilder addConnectionTask() {
-        this.joins.add(Joins.ConnectionTask);
-        return this;
-    }
-
-    @Override
     public JoinClauseBuilder addUsagePoint() {
         this.joins.add(Joins.EndDevice);
         this.joins.add(Joins.MeterActivation);
