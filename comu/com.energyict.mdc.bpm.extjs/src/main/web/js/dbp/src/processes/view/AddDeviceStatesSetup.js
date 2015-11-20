@@ -7,7 +7,7 @@ Ext.define('Dbp.processes.view.AddDeviceStatesSetup', {
         'Dbp.processes.view.AddDeviceStates'
     ],
 
-    userDirectoryId: null,
+    editProcessRecord: null,
     initComponent: function () {
         var me = this;
 

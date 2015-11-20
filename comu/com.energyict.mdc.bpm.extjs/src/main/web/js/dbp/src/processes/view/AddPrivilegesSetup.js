@@ -7,7 +7,7 @@ Ext.define('Dbp.processes.view.AddPrivilegesSetup', {
         'Dbp.processes.view.AddPrivileges'
     ],
 
-    userDirectoryId: null,
+    editProcessRecord: null,
     initComponent: function () {
         var me = this;
 

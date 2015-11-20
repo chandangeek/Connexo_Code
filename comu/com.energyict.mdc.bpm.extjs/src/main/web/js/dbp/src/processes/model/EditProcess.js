@@ -15,6 +15,10 @@ Ext.define('Dbp.processes.model.EditProcess', {
             type: 'string'
         },
         {
+            name: 'version',
+            type: 'string'
+        },
+        {
             name: 'associatedTo',
             type: 'string'
         },

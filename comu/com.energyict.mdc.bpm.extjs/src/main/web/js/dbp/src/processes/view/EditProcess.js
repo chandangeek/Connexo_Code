@@ -7,8 +7,7 @@ Ext.define('Dbp.processes.view.EditProcess', {
         'Dbp.processes.view.PrivilegesGrid'
     ],
 
-    processModel: null,
-    processId: null,
+    editProcessRecord: null,
     initComponent: function () {
         var me = this;
         me.content = [
@@ -96,8 +95,7 @@ Ext.define('Dbp.processes.view.EditProcess', {
                                     {
                                         xtype: 'device-states-grid',
                                         itemId: 'dbp-device-states-grid',
-                                        processId: me.processId,
-                                        store: me.processModel.deviceStates()
+                                        store: me.editProcessRecord.deviceStates()
                                     }
                                 ]
                             }
@@ -158,8 +156,7 @@ Ext.define('Dbp.processes.view.EditProcess', {
                                     {
                                         xtype: 'privileges-grid',
                                         itemId: 'dbp-privileges-grid',
-                                        processId: me.processId,
-                                        store: me.processModel.privileges()
+                                        store: me.editProcessRecord.privileges()
                                     }
                                 ]
                             }

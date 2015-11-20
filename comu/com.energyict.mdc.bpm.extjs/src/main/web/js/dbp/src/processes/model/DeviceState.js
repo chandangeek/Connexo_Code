@@ -12,6 +12,10 @@ Ext.define('Dbp.processes.model.DeviceState', {
         {
             name: 'deviceStateId',
             type: 'number'
+        },
+        {
+            name: 'deviceLifeCycleId',
+            type: 'number'
         }
     ]
 });

@@ -41,7 +41,7 @@ Ext.define('Dbp.controller.History', {
 					items: {
                         edit: {
                             title: Uni.I18n.translate('bpm.editprocess.title', 'DBP', 'Edit process'),
-                            route: '{processId}/edit',
+                            route: '{name}/{version}/edit',
                             controller: 'Dbp.processes.controller.Processes',
                             privileges: Dbp.privileges.DeviceProcesses.administrateProcesses,
                             action: 'editProcess',
@@ -49,8 +49,8 @@ Ext.define('Dbp.controller.History', {
                                 activate: false
                             },
                             callback: function (route) {
-                                this.getApplication().on('editProcesses', function (record) {
-                                    route.setTitle(Uni.I18n.translate('editProcess.edit', 'DBP', "Edit '{0}'", record.get('name')));
+                                this.getApplication().on('editProcesses', function (name) {
+                                    route.setTitle(Uni.I18n.translate('editProcess.edit', 'DBP', "Edit '{0}'", name));
                                     return true;
                                 }, {single: true});
                                 return this;
@@ -81,7 +81,7 @@ Ext.define('Dbp.controller.History', {
                         },
                         activate: {
                             title: Uni.I18n.translate('bpm.editprocess.title', 'DBP', 'Edit process'),
-                            route: '{processId}/activate',
+                            route: '{name}/{version}/activate',
                             controller: 'Dbp.processes.controller.Processes',
                             privileges: Dbp.privileges.DeviceProcesses.administrateProcesses,
                             action: 'editProcess',
@@ -89,8 +89,8 @@ Ext.define('Dbp.controller.History', {
                                 activate: true
                             },
                             callback: function (route) {
-                                this.getApplication().on('activateProcesses', function (record) {
-                                    route.setTitle(Uni.I18n.translate('editProcess.activate', 'DBP', "Activate '{0}'", record.get('name')));
+                                this.getApplication().on('activateProcesses', function (name) {
+                                    route.setTitle(Uni.I18n.translate('editProcess.activate', 'DBP', "Activate '{0}'", name));
                                     return true;
                                 }, {single: true});
                                 return this;

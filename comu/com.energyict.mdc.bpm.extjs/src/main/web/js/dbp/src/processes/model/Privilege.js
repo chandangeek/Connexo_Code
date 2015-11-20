@@ -9,6 +9,10 @@ Ext.define('Dbp.processes.model.Privilege', {
             type: 'string'
         },
         {
+            name: 'applicationName',
+            type: 'string'
+        },
+        {
             name: 'name',
             type: 'string'
         },
