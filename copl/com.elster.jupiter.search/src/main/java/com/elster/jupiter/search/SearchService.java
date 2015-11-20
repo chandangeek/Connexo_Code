@@ -59,7 +59,7 @@ public interface SearchService {
      * @param timeout The timeout
      * @return The SearchDomain
      */
-    Optional<SearchDomain> pollSearchDomain(String id, Duration timeout);
+    Optional<SearchDomain> pollSearchDomain(String id, Duration timeout) throws InterruptedException;
 
     /**
      * Starts the building process of a search for instances of the specified domain class.

@@ -15,9 +15,9 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * Provides an implementation for the {@link SearchService} interface.
@@ -44,21 +44,21 @@ public class SearchServiceImpl implements SearchService, MessageSeedProvider {
 
     @Override
     public List<SearchDomain> getDomains() {
-        return Collections.unmodifiableList(this.searchProviders.getServices());
+        return this.searchProviders.getServices();
     }
 
     @Override
     public Optional<SearchDomain> findDomain(String id) {
-        return getDomains().stream().filter(searchDomain -> searchDomain.getId().equals(id)).findAny();
+        return getDomains().stream().filter(isEqual(id)).findAny();
     }
 
     @Override
-    public Optional<SearchDomain> pollSearchDomain(String id, Duration timeout) {
-        try {
-            return searchProviders.get(searchDomain -> searchDomain.getId().equals(id), timeout);
-        } catch (InterruptedException e) {
-            return Optional.empty();
-        }
+    public Optional<SearchDomain> pollSearchDomain(String id, Duration timeout) throws InterruptedException {
+        return searchProviders.get(isEqual(id), timeout);
+    }
+
+    private Predicate<SearchDomain> isEqual(String id) {
+        return searchDomain -> searchDomain.getId().equals(id);
     }
 
     @Override
