@@ -276,6 +276,7 @@ final class ExportTaskImpl implements IExportTask {
     @Override
     public void setName(String name) {
         this.name = (name != null ? name.trim() : "");
+        recurrentTaskDirty = true;
     }
 
     @Override
@@ -334,10 +335,10 @@ final class ExportTaskImpl implements IExportTask {
 
     private void doUpdate() {
         Save.UPDATE.save(dataModel, this);
-        if (!recurrentTask.get().getName().equals(this.name)) {
-            recurrentTask.get().setName(name);
-        }
         if (recurrentTaskDirty) {
+            if (!recurrentTask.get().getName().equals(this.name)) {
+                recurrentTask.get().setName(name);
+            }
             recurrentTask.get().save();
         }
         if (propertiesDirty) {
