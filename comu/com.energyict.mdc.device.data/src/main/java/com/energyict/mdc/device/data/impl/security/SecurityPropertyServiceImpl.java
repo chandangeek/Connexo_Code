@@ -20,7 +20,6 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
-import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -45,7 +44,6 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
 
     private volatile Clock clock;
     private volatile CustomPropertySetService customPropertySetService;
-    private volatile ProtocolPluggableService protocolPluggableService;
     private volatile Thesaurus thesaurus;
 
     // For OSGi framework
@@ -55,10 +53,9 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
 
     // For unit testing purposes
     @Inject
-    public SecurityPropertyServiceImpl(Clock clock, ProtocolPluggableService protocolPluggableService, CustomPropertySetService customPropertySetService, NlsService nlsService) {
+    public SecurityPropertyServiceImpl(Clock clock, CustomPropertySetService customPropertySetService, NlsService nlsService) {
         this();
         this.setClock(clock);
-        this.setProtocolPluggableService(protocolPluggableService);
         this.setCustomPropertySetService(customPropertySetService);
         this.setNlsService(nlsService);
     }
@@ -66,11 +63,6 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
-    }
-
-    @Reference
-    public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
-        this.protocolPluggableService = protocolPluggableService;
     }
 
     @Reference
@@ -95,7 +87,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
 
     private List<SecurityProperty> getSecurityPropertiesIgnoringPrivileges(Device device, Instant when, SecurityPropertySet securityPropertySet) {
         return this.findActiveProperties(device, securityPropertySet, when)
-                .map(values -> this.toSecurityProperties(v, device, securityPropertySet))
+                .map(values -> this.toSecurityProperties(values, device, securityPropertySet))
                 .orElse(Collections.emptyList());
     }
 
