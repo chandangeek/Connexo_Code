@@ -105,32 +105,6 @@ enum Joins implements JoinType {
         }
     },
 
-    ComTaskEnablement{
-        @Override
-        public void appendTo(SqlBuilder sqlBuilder) {
-            sqlBuilder.append(" join DTC_COMTASKENABLEMENT ");
-            sqlBuilder.append(JoinClauseBuilder.Aliases.COM_TASK_ENABLEMENT);
-            sqlBuilder.append(" on ");
-            sqlBuilder.append(JoinClauseBuilder.Aliases.COM_TASK_ENABLEMENT);
-            sqlBuilder.append(".DEVICECOMCONFIG = ");
-            sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE);
-            sqlBuilder.append(".DEVICECONFIGID ");
-        }
-    },
-
-    ComTask{
-        @Override
-        public void appendTo(SqlBuilder sqlBuilder) {
-            sqlBuilder.append(" join CTS_COMTASK ");
-            sqlBuilder.append(JoinClauseBuilder.Aliases.COM_TASK);
-            sqlBuilder.append(" on ");
-            sqlBuilder.append(JoinClauseBuilder.Aliases.COM_TASK);
-            sqlBuilder.append(".ID = ");
-            sqlBuilder.append(JoinClauseBuilder.Aliases.COM_TASK_ENABLEMENT);
-            sqlBuilder.append(".COMTASK ");
-        }
-    },
-
     PluggableClass {
         @Override
         public void appendTo(SqlBuilder sqlBuilder) {
