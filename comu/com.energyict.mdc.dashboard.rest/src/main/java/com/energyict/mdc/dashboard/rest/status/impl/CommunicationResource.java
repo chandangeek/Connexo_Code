@@ -39,6 +39,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
@@ -93,14 +94,19 @@ public class CommunicationResource {
         if (!queryParameters.getStart().isPresent() || !queryParameters.getLimit().isPresent()) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        List<ComTaskExecution> communicationTasks = communicationTaskService.findComTaskExecutionsByFilter(filter, queryParameters.getStart().get(), queryParameters.getLimit().get() + 1);
-        List<ComTaskExecutionInfo> comTaskExecutionInfos =
-                communicationTasks
-                        .stream()
-                        .map(this::toComTaskExecutionInfo)
-                        .collect(Collectors.toList());
+        try {
+            List<ComTaskExecution> communicationTasks = communicationTaskService.findComTaskExecutionsByFilter(filter, queryParameters.getStart().get(), queryParameters.getLimit().get() + 1);
+            List<ComTaskExecutionInfo> comTaskExecutionInfos =
+                    communicationTasks
+                            .stream()
+                            .map(this::toComTaskExecutionInfo)
+                            .collect(Collectors.toList());
+            return Response.ok(PagedInfoList.fromPagedList("communicationTasks", comTaskExecutionInfos, queryParameters)).build();
 
-        return Response.ok(PagedInfoList.fromPagedList("communicationTasks", comTaskExecutionInfos, queryParameters)).build();
+        } catch (IllegalArgumentException e){
+            throw new WebApplicationException(Response.status(Response.Status.BAD_REQUEST).entity(
+                    "{\"success\": false, \"message\": \"" + e.getMessage() + "\",\"errors\": [{\"message\": \"" + e.getMessage() + "\"}]}").build());
+        }
     }
 
     private ComTaskExecutionInfo toComTaskExecutionInfo(ComTaskExecution comTaskExecution) {
