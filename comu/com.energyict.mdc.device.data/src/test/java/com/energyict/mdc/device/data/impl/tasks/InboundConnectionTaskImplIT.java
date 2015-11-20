@@ -600,7 +600,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>> customPropertySet = inboundIpConnectionTypePluggableClass.getConnectionType()
                 .getCustomPropertySet()
                 .get();
-        assertThat(inMemoryPersistence.getCustomPropertySetService().getValuesFor(customPropertySet, connectionTask, now).isEmpty()).isTrue();
+        assertThat(inMemoryPersistence.getCustomPropertySetService().getUniqueValuesFor(customPropertySet, connectionTask, now).isEmpty()).isTrue();
         // Todo: assert that old values were journalled properly but need support from CustomPropertySetService first
     }
 
@@ -633,7 +633,7 @@ public class InboundConnectionTaskImplIT extends ConnectionTaskImplIT {
         CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>> customPropertySet = inboundIpConnectionTypePluggableClass.getConnectionType()
                 .getCustomPropertySet()
                 .get();
-        assertThat(inMemoryPersistence.getCustomPropertySetService().getValuesFor(customPropertySet, connectionTask, now).isEmpty()).isTrue();
+        assertThat(inMemoryPersistence.getCustomPropertySetService().getUniqueValuesFor(customPropertySet, connectionTask, now).isEmpty()).isTrue();
         // Todo: assert that old values were journalled properly but need support from CustomPropertySetService first
     }
 

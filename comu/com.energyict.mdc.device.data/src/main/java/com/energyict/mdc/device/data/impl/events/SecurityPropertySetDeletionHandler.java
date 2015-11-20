@@ -93,16 +93,19 @@ public class SecurityPropertySetDeletionHandler implements TopicHandler {
     /**
      * Vetos the deletion of the {@link SecurityPropertySet}
      * by throwing an exception when the SecurityPropertySet
-     * is used by at least on Device, i.e. at least one
-     * Relation that uses it on a Device.
+     * is used by at least one Device, i.e. at least one
+     * PersistentDomainExtension that references the Device.
      *
      * @param securityPropertySet The SecurityPropertySet that is about to be deleted
      */
     private void validateNotUsedByDevice(SecurityPropertySet securityPropertySet, CustomPropertySet customPropertySet) {
         DeviceProtocol protocol = this.getDeviceProtocol(securityPropertySet);
         Condition condition = where(CommonBaseDeviceSecurityProperties.Fields.PROPERTY_SPEC_PROVIDER.javaName()).isEqualTo(securityPropertySet);
-        List valueEntities = this.customPropertySetService.getValuesEntitiesFor(customPropertySet, this.clock.instant(), condition);
-        if (!valueEntities.isEmpty()) {
+        List valuesEntities = this.customPropertySetService
+                .getVersionedValuesEntitiesFor(customPropertySet)
+                .matching(condition)
+                .andEffectiveAt(this.clock.instant());
+        if (!valuesEntities.isEmpty()) {
             throw new VetoDeleteSecurityPropertySetException(this.thesaurus, securityPropertySet);
         }
     }

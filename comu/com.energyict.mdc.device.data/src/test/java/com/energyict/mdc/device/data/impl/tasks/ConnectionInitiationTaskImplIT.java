@@ -250,7 +250,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>> customPropertySet = inboundIpConnectionTypePluggableClass.getConnectionType()
                 .getCustomPropertySet()
                 .get();
-        assertThat(inMemoryPersistence.getCustomPropertySetService().getValuesFor(customPropertySet, connectionTask, now).isEmpty()).isTrue();
+        assertThat(inMemoryPersistence.getCustomPropertySetService().getUniqueValuesFor(customPropertySet, connectionTask, now).isEmpty()).isTrue();
         // Todo: assert that old values were journalled properly but need support from CustomPropertySetService first
     }
 
@@ -356,7 +356,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         CustomPropertySet<ConnectionProvider, ? extends PersistentDomainExtension<ConnectionProvider>> customPropertySet = outboundIpConnectionTypePluggableClass.getConnectionType()
                 .getCustomPropertySet()
                 .get();
-        CustomPropertySetValues values = inMemoryPersistence.getCustomPropertySetService().getValuesFor(customPropertySet, connectionTask, now);
+        CustomPropertySetValues values = inMemoryPersistence.getCustomPropertySetService().getUniqueValuesFor(customPropertySet, connectionTask, now);
         assertThat(values.size()).isEqualTo(2); // Remember that we set both ip address and the port
 
         // Asserts
@@ -370,7 +370,7 @@ public class ConnectionInitiationTaskImplIT extends ConnectionTaskImplIT {
         assertThat(connectionTask.getObsoleteDate()).isNotNull();
         assertThat(connectionTask.isObsolete()).isTrue();
 
-        assertThat(inMemoryPersistence.getCustomPropertySetService().getValuesFor(customPropertySet, connectionTask, now).isEmpty()).isTrue();
+        assertThat(inMemoryPersistence.getCustomPropertySetService().getUniqueValuesFor(customPropertySet, connectionTask, now).isEmpty()).isTrue();
         // Todo: assert that old values were journalled properly but need support from CustomPropertySetService first
     }
 

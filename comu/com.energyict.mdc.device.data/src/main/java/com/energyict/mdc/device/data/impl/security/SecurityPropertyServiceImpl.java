@@ -100,7 +100,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
                     .getCustomPropertySet();
         if (customPropertySet.isPresent()) {
             return Optional.of(
-                    this.customPropertySetService.getValuesFor(
+                    this.customPropertySetService.getUniqueValuesFor(
                             customPropertySet.get(),
                             device,
                             activeDate,
