@@ -18,12 +18,12 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
     FIELD_TOO_LONG(2, Keys.FIELD_TOO_LONG, "Field must not exceed {max} characters"),
     EDIT_HISTORICAL_VALUES_NOT_SUPPORTED(3, Keys.EDIT_HISTORICAL_VALUES_NOT_SUPPORTED, "Editing of historical values is currently not supported"),
     CAN_NOT_BE_NULL(4, Keys.CAN_NOT_BE__NULL, "This field can not be null"),
-    RANGE_OVERLAP_UPDATE_START(5, Keys.RANGE_OVERLAP_UPDATE_START, "Found time interval overlap. Value time interval start can be updated"),
-    RANGE_OVERLAP_UPDATE_END(6, Keys.RANGE_OVERLAP_UPDATE_END, "Found time interval overlap. Value time interval end can be updated"),
-    RANGE_OVERLAP_DELETE(7, Keys.RANGE_OVERLAP_DELETE, "Found time interval overlap. Value can be removed"),
-    RANGE_GAP_BEFORE(8, Keys.RANGE_GAP_BEFORE, "Found gap in time interval."),
-    RANGE_GAP_AFTER(9, Keys.RANGE_GAP_AFTER, "Found gap in time interval."),
-    RANGE_INSERT(10, Keys.RANGE_INSERT, "Insert value in time interval.");
+    RANGE_OVERLAP_UPDATE_START(5, Keys.RANGE_OVERLAP_UPDATE_START, "Updated"),
+    RANGE_OVERLAP_UPDATE_END(6, Keys.RANGE_OVERLAP_UPDATE_END, "Updated"),
+    RANGE_OVERLAP_DELETE(7, Keys.RANGE_OVERLAP_DELETE, "Removed"),
+    RANGE_GAP_BEFORE(8, Keys.RANGE_GAP_BEFORE, "Gap"),
+    RANGE_GAP_AFTER(9, Keys.RANGE_GAP_AFTER, "Gap"),
+    RANGE_INSERT(10, Keys.RANGE_INSERT, "Insert");
 
     private final int number;
 
