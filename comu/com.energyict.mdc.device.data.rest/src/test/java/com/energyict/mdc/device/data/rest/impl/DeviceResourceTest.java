@@ -4,6 +4,9 @@ import com.elster.jupiter.cbo.EndDeviceDomain;
 import com.elster.jupiter.cbo.EndDeviceEventorAction;
 import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.elster.jupiter.cbo.EndDeviceType;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.devtools.ExtjsFilter;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.State;
@@ -22,6 +25,8 @@ import com.elster.jupiter.metering.readings.ProfileStatus;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.VersionInfo;
+import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyOperator;
 import com.elster.jupiter.search.SearchablePropertyValue;
@@ -29,8 +34,11 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -59,6 +67,7 @@ import com.energyict.mdc.engine.config.InboundComPortPool;
 import com.energyict.mdc.engine.config.OutboundComPortPool;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.masterdata.LogBookType;
+import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
@@ -90,11 +99,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
@@ -111,6 +120,11 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     public static final Instant NOW = Instant.ofEpochMilli(1409738114);
     public ReadingType readingType;
+    public static final long startTimeFirst = 1416403197000L;
+    public static final long endTimeFirst = 1479561597000L;
+    public static final long endTimeSecond = 1489561597000L;
+    public static final long startTimeNew = 1469561597000L;
+    public static final long endTimeNew = 1499561597000L;
 
     @Before
     public void setupStubs() {
@@ -1527,5 +1541,157 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         verify(deviceService).findAllDevices(conditionArgumentCaptor.capture());
         System.out.println(conditionArgumentCaptor.getValue());
 
+    }
+
+    public CustomPropertySet mockCustomPropertySet() {
+        Device device = mock(Device.class);
+        when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceByIdAndVersion(anyLong(), anyLong())).thenReturn(Optional.of(device));
+        DeviceType deviceType = mock(DeviceType.class);
+        RegisteredCustomPropertySet registeredCustomPropertySet = mock(RegisteredCustomPropertySet.class);
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(customPropertySet.getName()).thenReturn("testCps");
+        when(customPropertySet.isVersioned()).thenReturn(true);
+        when(device.getDeviceType()).thenReturn(deviceType);
+        when(deviceType.getDeviceTypeCustomPropertySetUsage()).thenReturn(Collections.singletonList(registeredCustomPropertySet));
+        when(registeredCustomPropertySet.isViewableByCurrentUser()).thenReturn(true);
+        when(registeredCustomPropertySet.isEditableByCurrentUser()).thenReturn(true);
+        when(registeredCustomPropertySet.getId()).thenReturn(1L);
+        when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        MdcPropertyUtils mdcPropertyUtils = mock(MdcPropertyUtils.class);
+        PropertyInfo propertyInfo = mock(PropertyInfo.class);
+        PropertyValueInfo propertyValueInfo = mock(PropertyValueInfo.class);
+        when(propertyValueInfo.getValue()).thenReturn("testValue");
+        when(propertyInfo.getPropertyValueInfo()).thenReturn(propertyValueInfo);
+        when(mdcPropertyUtils.convertPropertySpecsToPropertyInfos(anyObject(), anyObject())).thenReturn(Arrays.asList(propertyInfo));
+        CustomPropertySetValues customPropertySetValues = CustomPropertySetValues.emptyDuring(Interval.of(Range.closedOpen(Instant.ofEpochMilli(startTimeFirst), Instant.ofEpochMilli(endTimeFirst))));
+        customPropertySetValues.setProperty("testname", "testValue");
+        CustomPropertySetValues customPropertySetValues2 = CustomPropertySetValues.emptyDuring(Interval.of(Range.closedOpen(Instant.ofEpochMilli(endTimeFirst), Instant.ofEpochMilli(endTimeSecond))));
+        customPropertySetValues2.setProperty("testname2", "testValue2");
+        when(customPropertySetService.getValuesFor(customPropertySet, device)).thenReturn(customPropertySetValues);
+        when(customPropertySetService.getValuesFor(eq(customPropertySet), eq(device), any(Instant.class))).thenReturn(customPropertySetValues);
+        when(customPropertySetService.getValuesHistoryFor(customPropertySet, device)).thenReturn(Arrays.asList(customPropertySetValues, customPropertySetValues2));
+        MessageSeed messageUpdate = mock(MessageSeed.class);
+        when(messageUpdate.getKey()).thenReturn("edit.historical.values.overlap.can.update.end");
+        when(messageUpdate.getDefaultFormat()).thenReturn("update");
+        MessageSeed messageDelete = mock(MessageSeed.class);
+        when(messageDelete.getKey()).thenReturn("edit.historical.values.overlap.can.delete");
+        when(messageDelete.getDefaultFormat()).thenReturn("delete");
+        HashMap<CustomPropertySetValues, MessageSeed> conflicts = new HashMap<>();
+        conflicts.put(customPropertySetValues, messageUpdate);
+        conflicts.put(customPropertySetValues2, messageDelete);
+        when(customPropertySetService.getValuesRangeOverlapFor(eq(customPropertySet), anyObject(), any(Interval.class), any(Instant.class), eq(false)))
+                .thenReturn(conflicts);
+        return customPropertySet;
+    }
+
+    @Test
+    public void testGetDeviceCustomProperties() throws Exception {
+        CustomPropertySet customPropertySet = mockCustomPropertySet();
+        when(customPropertySet.isVersioned()).thenReturn(false);
+
+        String response = target("devices/1/customproperties").request().get(String.class);
+        JsonModel jsonModel = JsonModel.model(response);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(1);
+        assertThat(jsonModel.<List<?>>get("$.customproperties")).hasSize(1);
+        assertThat(jsonModel.<Integer>get("$.customproperties[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.customproperties[0].name")).isEqualTo("testCps");
+        assertThat(jsonModel.<Boolean>get("$.customproperties[0].timesliced")).isEqualTo(false);
+    }
+
+    @Test
+    public void testGetDeviceCustomPropertiesVersioned() throws Exception {
+        mockCustomPropertySet();
+        String response = target("devices/1/customproperties/1/versions").request().get(String.class);
+        JsonModel jsonModel = JsonModel.model(response);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(2);
+        assertThat(jsonModel.<List<?>>get("$.versions")).hasSize(2);
+        assertThat(jsonModel.<Integer>get("$.versions[0].id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.versions[0].name")).isEqualTo("testCps");
+        assertThat(jsonModel.<Boolean>get("$.versions[0].timesliced")).isEqualTo(true);
+        assertThat(jsonModel.<Long>get("$.versions[0].versionId")).isEqualTo(startTimeFirst);
+        assertThat(jsonModel.<Long>get("$.versions[0].startTime")).isEqualTo(startTimeFirst);
+        assertThat(jsonModel.<Long>get("$.versions[0].endTime")).isEqualTo(endTimeFirst);
+        assertThat(jsonModel.<Integer>get("$.versions[1].id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.versions[1].name")).isEqualTo("testCps");
+        assertThat(jsonModel.<Boolean>get("$.versions[1].timesliced")).isEqualTo(true);
+        assertThat(jsonModel.<Long>get("$.versions[0].versionId")).isEqualTo(startTimeFirst);
+        assertThat(jsonModel.<Long>get("$.versions[1].startTime")).isEqualTo(endTimeFirst);
+        assertThat(jsonModel.<Long>get("$.versions[1].endTime")).isEqualTo(endTimeSecond);
+    }
+
+    @Test
+    public void testGetCurrentTimeInterval() throws Exception {
+        mockCustomPropertySet();
+        String response = target("devices/1/customproperties/1/currentinterval").request().get(String.class);
+        JsonModel jsonModel = JsonModel.model(response);
+        assertThat(jsonModel.<Long>get("$.start")).isGreaterThan(startTimeFirst);
+        assertThat(jsonModel.<Long>get("$.end")).isEqualTo(endTimeFirst);
+    }
+
+    @Test
+    public void testGetConflictsCreate() throws Exception {
+        mockCustomPropertySet();
+        String response = target("devices/1/customproperties/1/conflicts").queryParam("startTime", startTimeNew).queryParam("endTime", endTimeNew).request().get(String.class);
+        JsonModel jsonModel = JsonModel.model(response);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(3);
+        assertThat(jsonModel.<List<?>>get("$.conflicts")).hasSize(3);
+        assertThat(jsonModel.<Integer>get("$.conflicts[0].customPropertySet.id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.conflicts[0].customPropertySet.name")).isEqualTo("testCps");
+        assertThat(jsonModel.<String>get("$.conflicts[0].conflictType")).isEqualTo("edit.historical.values.overlap.can.update.end");
+        assertThat(jsonModel.<Boolean>get("$.conflicts[0].customPropertySet.timesliced")).isEqualTo(true);
+        assertThat(jsonModel.<Boolean>get("$.conflicts[0].conflictAtStart")).isEqualTo(false);
+        assertThat(jsonModel.<Boolean>get("$.conflicts[0].conflictAtEnd")).isEqualTo(true);
+        assertThat(jsonModel.<Long>get("$.conflicts[0].customPropertySet.versionId")).isEqualTo(startTimeFirst);
+        assertThat(jsonModel.<Long>get("$.conflicts[0].customPropertySet.startTime")).isEqualTo(startTimeFirst);
+        assertThat(jsonModel.<Long>get("$.conflicts[0].customPropertySet.endTime")).isEqualTo(endTimeFirst);
+        assertThat(jsonModel.<Long>get("$.conflicts[1].customPropertySet.startTime")).isEqualTo(startTimeNew);
+        assertThat(jsonModel.<Long>get("$.conflicts[1].customPropertySet.endTime")).isEqualTo(endTimeNew);
+        assertThat(jsonModel.<Integer>get("$.conflicts[2].customPropertySet.id")).isEqualTo(1);
+        assertThat(jsonModel.<String>get("$.conflicts[2].customPropertySet.name")).isEqualTo("testCps");
+        assertThat(jsonModel.<String>get("$.conflicts[2].conflictType")).isEqualTo("edit.historical.values.overlap.can.delete");
+        assertThat(jsonModel.<Boolean>get("$.conflicts[2].customPropertySet.timesliced")).isEqualTo(true);
+        assertThat(jsonModel.<Long>get("$.conflicts[2].customPropertySet.versionId")).isEqualTo(endTimeFirst);
+        assertThat(jsonModel.<Long>get("$.conflicts[2].customPropertySet.startTime")).isEqualTo(endTimeFirst);
+        assertThat(jsonModel.<Long>get("$.conflicts[2].customPropertySet.endTime")).isEqualTo(endTimeSecond);
+        assertThat(jsonModel.<Boolean>get("$.conflicts[2].conflictAtStart")).isEqualTo(true);
+        assertThat(jsonModel.<Boolean>get("$.conflicts[2].conflictAtEnd")).isEqualTo(true);
+    }
+
+    @Test
+    public void testEditDeviceCustomAttribute() throws Exception {
+        CustomPropertySet customPropertySet = mockCustomPropertySet();
+        when(customPropertySet.isVersioned()).thenReturn(false);
+        CustomPropertySetInfo info = new CustomPropertySetInfo();
+        info.id = 1L;
+        info.isActive = true;
+        info.parent = 1L;
+        info.version = 5L;
+        info.timesliced = false;
+        info.properties = new ArrayList<>();
+        Response response = target("devices/1/customproperties/1").request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(200);
+    }
+
+    @Test
+    public void testEditDeviceCustomAttributeVersioned() throws Exception {
+        mockCustomPropertySet();
+        CustomPropertySetInfo info = new CustomPropertySetInfo();
+        info.id = 1L;
+        info.isActive = true;
+        info.startTime = endTimeFirst;
+        info.endTime = startTimeFirst;
+        info.parent = 1L;
+        info.version = 5L;
+        info.timesliced = true;
+        info.versionId = info.startTime;
+        info.properties = new ArrayList<>();
+        Response response = target("devices/1/customproperties/1/versions/1416403197000").queryParam("forced", true).request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(400);
+        info.startTime = startTimeNew;
+        info.endTime = endTimeFirst;
+        info.versionId = info.startTime;
+        response = target("devices/1/customproperties/1/versions/1416403197000").queryParam("forced", true).request().put(Entity.json(info));
+        assertThat(response.getStatus()).isEqualTo(200);
     }
 }

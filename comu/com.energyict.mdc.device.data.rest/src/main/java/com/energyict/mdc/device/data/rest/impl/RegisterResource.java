@@ -5,6 +5,8 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
@@ -13,21 +15,12 @@ import com.energyict.mdc.device.data.security.Privileges;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class RegisterResource {
@@ -77,7 +70,7 @@ public class RegisterResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
     public PagedInfoList getDeviceCustomProperties(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @BeanParam JsonQueryParameters queryParameters) {
         Register<?> register = doGetRegister(mRID, registerId);
-        CustomPropertySetInfo customPropertySetInfo = resourceHelper.getRegisterCustomPropertySetInfo(register);
+        CustomPropertySetInfo customPropertySetInfo = resourceHelper.getRegisterCustomPropertySetInfo(register, Instant.now());
         return PagedInfoList.fromCompleteList("customproperties", customPropertySetInfo != null ? Arrays.asList(customPropertySetInfo) : new ArrayList<>(), queryParameters);
     }
 
@@ -87,11 +80,77 @@ public class RegisterResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
     public CustomPropertySetInfo getDeviceCustomProperties(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId) {
         Register<?> register = doGetRegister(mRID, registerId);
-        CustomPropertySetInfo customPropertySetInfo = resourceHelper.getRegisterCustomPropertySetInfo(register);
+        CustomPropertySetInfo customPropertySetInfo = resourceHelper.getRegisterCustomPropertySetInfo(register, Instant.now());
         if (customPropertySetInfo.id != cpsId) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId);
         }
         return customPropertySetInfo;
+    }
+
+    @GET @Transactional
+    @Path("/{registerId}/customproperties/{cpsId}/versions/{timeStamp}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public CustomPropertySetInfo getRegisterCustomProperties(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") Long timeStamp) {
+        Register<?> register = doGetRegister(mRID, registerId);
+        CustomPropertySetInfo customPropertySetInfo = resourceHelper.getRegisterCustomPropertySetInfo(register, Instant.ofEpochMilli(timeStamp));
+        if (customPropertySetInfo.id != cpsId) {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId);
+        }
+        return customPropertySetInfo;
+    }
+
+    @GET @Transactional
+    @Path("/{registerId}/customproperties/{cpsId}/versions")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public PagedInfoList getRegisterCustomPropertiesHistory(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, @BeanParam JsonQueryParameters queryParameters) {
+        Register<?> register = doGetRegister(mRID, registerId);
+        return PagedInfoList.fromCompleteList("versions", resourceHelper.getVersionedCustomPropertySetHistoryInfos(register, cpsId), queryParameters);
+    }
+
+    @GET @Transactional
+    @Path("/{registerId}/customproperties/{cpsId}/currentinterval")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public IntervalInfo getCurrentTimeInterval(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId) {
+        Register<?> register = doGetRegister(mRID, registerId);
+        Interval interval = resourceHelper.getCurrentTimeInterval(register, cpsId);
+
+        return IntervalInfo.from(interval.toClosedOpenRange());
+    }
+
+    @GET @Transactional
+    @Path("/{registerId}/customproperties/{cpsId}/conflicts")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getOverlaps(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, @QueryParam("startTime") long startTime, @QueryParam("endTime") long endTime, @BeanParam JsonQueryParameters queryParameters) {
+        Register<?> register = doGetRegister(mRID, registerId);
+        List<CustomPropertySetIntervalConflictInfo> overlapInfos = resourceHelper.getOverlapsWhenCreate(register, cpsId, startTime, endTime);
+        if (overlapInfos.size() > 0) {
+            CustomPropertySetInfo insertedValuesStub = new CustomPropertySetInfo();
+            insertedValuesStub.startTime = startTime;
+            insertedValuesStub.versionId = startTime;
+            insertedValuesStub.endTime = endTime;
+            overlapInfos.add(new CustomPropertySetIntervalConflictInfo(MessageSeeds.CUSTOMPROPRTTYSET_TIMESLICED_INSERT, insertedValuesStub, true));
+            Collections.sort(overlapInfos, resourceHelper.getConflictInfosComparator());
+        }
+        return PagedInfoList.fromCompleteList("conflicts", overlapInfos, queryParameters);
+    }
+
+    @GET @Transactional
+    @Path("/{registerId}/customproperties/{cpsId}/conflicts/{timeStamp}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getOverlaps(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") long timeStamp, @QueryParam("startTime") long startTime, @QueryParam("endTime") long endTime, @BeanParam JsonQueryParameters queryParameters) {
+        Register<?> register = doGetRegister(mRID, registerId);
+        List<CustomPropertySetIntervalConflictInfo> overlapInfos = resourceHelper.getOverlapsWhenUpdate(register, cpsId, startTime, endTime, Instant.ofEpochMilli(timeStamp));
+        if (overlapInfos.size() > 0) {
+            CustomPropertySetInfo insertedValuesStub = new CustomPropertySetInfo();
+            insertedValuesStub.startTime = startTime;
+            insertedValuesStub.versionId = startTime;
+            insertedValuesStub.endTime = endTime;
+            overlapInfos.add(new CustomPropertySetIntervalConflictInfo(MessageSeeds.CUSTOMPROPRTTYSET_TIMESLICED_INSERT, insertedValuesStub, true));
+            Collections.sort(overlapInfos, resourceHelper.getConflictInfosComparator());
+        }
+        return PagedInfoList.fromCompleteList("conflicts", overlapInfos, queryParameters);
     }
 
     @PUT @Transactional
@@ -103,6 +162,36 @@ public class RegisterResource {
         Register<?> register = doGetRegister(mRID, registerId);
         resourceHelper.lockRegisterSpecOrThrowException(customPropertySetInfo.parent, customPropertySetInfo.version, register);
         resourceHelper.setRegisterCustomPropertySet(register, customPropertySetInfo);
+        return Response.ok().build();
+    }
+
+    @POST @Transactional
+    @Path("/{registerId}/customproperties/{cpsId}/versions")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public Response addRegisterCustomAttributeVersioned(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, @QueryParam("forced") boolean forced, CustomPropertySetInfo customPropertySetInfo) {
+        Register<?> register = doGetRegister(mRID, registerId);
+        resourceHelper.lockRegisterSpecOrThrowException(customPropertySetInfo.parent, customPropertySetInfo.version, register);
+        Optional<IntervalErrorInfos> intervalErrors = resourceHelper.verifyInterval(customPropertySetInfo.startTime, customPropertySetInfo.endTime);
+        if (intervalErrors.isPresent()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(intervalErrors.get()).build();
+        }
+        resourceHelper.addRegisterCustomPropertySetVersioned(register, cpsId, customPropertySetInfo, forced);
+        return Response.ok().build();
+    }
+
+    @PUT @Transactional
+    @Path("/{registerId}/customproperties/{cpsId}/versions/{timeStamp}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public Response editRegisterCustomAttributeVersioned(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") long timeStamp, @QueryParam("forced") boolean forced, CustomPropertySetInfo customPropertySetInfo) {
+        Register<?> register = doGetRegister(mRID, registerId);
+        resourceHelper.lockRegisterSpecOrThrowException(customPropertySetInfo.parent, customPropertySetInfo.version, register);
+        Optional<IntervalErrorInfos> intervalErrors = resourceHelper.verifyInterval(customPropertySetInfo.startTime, customPropertySetInfo.endTime);
+        if (intervalErrors.isPresent()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(intervalErrors.get()).build();
+        }
+        resourceHelper.setRegisterCustomPropertySetVersioned(register, cpsId, customPropertySetInfo, Instant.ofEpochMilli(timeStamp), forced);
         return Response.ok().build();
     }
 

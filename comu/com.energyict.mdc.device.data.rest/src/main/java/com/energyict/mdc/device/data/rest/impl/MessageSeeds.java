@@ -68,6 +68,15 @@ public enum MessageSeeds implements MessageSeed {
     AT_LEAST_ONE_SEARCH_CRITERIA(249, "AtLeastOneCriteria" , "At least one search criterion has to be provided"),
     NO_SUCH_REQUIRED_PROPERTY(250, "NoSuchProperty", "No custom property required value"),
     SEARCHABLE_PROPERTY_INVALID_VALUE(251, "SearchablePropertyInvalidValue", "Invalid value"),
+    OVERLAP_CUSTOMPROPRTTYSET(252, "overlapCPSvalue", "Custom property set overlap with another sets in timeline"),
+    GAP_CUSTOMPROPRTTYSET(253, "gapCPSvalue", "Custom property set gap with another sets in timeline"),
+    CUSTOMPROPRTTYSET_TIMESLICED_INSERT(254, "edit.historical.values.insert", "Insert"),
+    INTERVAL_INVALID(255, "wrongInterval", "Invalid interval [{0},{1})"),
+    INTERVAL_EMPTY(256, "emptyInterval", "Empty intervals are not allowed"),
+    INTERVAL_START_EXCEEDS_END(257, "intervalStratExceedsEnd", "Start time exceeds end time"),
+    INTERVAL_END_BENEATH_START(258, "intervalEndBeneathStart", "End time beneath start time"),
+    NO_SUCH_CUSTOMPROPERTYSET_FOR_REGISTER(259, "noSuchCPSforRegister", "No custom property set with ID {0} for Register with ID {1}"),
+    NO_SUCH_CUSTOMPROPERTYSET_FOR_CHANNEL(260, "noSuchCPSforChannel", "No custom property set with ID {0} for Channel with ID {1}"),
     ;
     private final int number;
     private final String key;

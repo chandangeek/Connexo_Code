@@ -7,8 +7,10 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.rest.IdWithNameInfo;
 import com.elster.jupiter.rest.util.Transactional;
+import com.energyict.mdc.common.rest.IntervalInfo;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -27,25 +29,15 @@ import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.inject.Provider;
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.time.Instant;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
@@ -285,6 +277,74 @@ public class DeviceResource {
         return customPropertySetInfo;
     }
 
+    @GET @Transactional
+    @Path("/{mRID}/customproperties/{cpsId}/versions")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
+    public PagedInfoList getDeviceCustomPropertyVersioned(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        List<CustomPropertySetInfo> customPropertySetInfoList = resourceHelper.getVersionedCustomPropertySetHistoryInfos(device, cpsId);
+        return PagedInfoList.fromCompleteList("versions", customPropertySetInfoList, queryParameters);
+    }
+
+    @GET @Transactional
+    @Path("/{mRID}/customproperties/{cpsId}/versions/{timeStamp}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE})
+    public CustomPropertySetInfo getDeviceCustomPropertyVersionedHistory(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") Long timeStamp) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        CustomPropertySetInfo customPropertySetInfo = resourceHelper.getDeviceCustomPropertySetInfos(device, Instant.ofEpochMilli(timeStamp))
+                .stream()
+                .filter(f -> f.id == cpsId)
+                .findFirst()
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId));
+        return customPropertySetInfo;
+    }
+
+    @GET @Transactional
+    @Path("/{mRID}/customproperties/{cpsId}/currentinterval")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public IntervalInfo getCurrentTimeInterval(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        Interval interval = resourceHelper.getCurrentTimeInterval(device, cpsId);
+
+        return IntervalInfo.from(interval.toClosedOpenRange());
+    }
+
+    @GET @Transactional
+    @Path("/{mRID}/customproperties/{cpsId}/conflicts")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getOverlaps(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId, @QueryParam("startTime") long startTime, @QueryParam("endTime") long endTime, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        List<CustomPropertySetIntervalConflictInfo> overlapInfos = resourceHelper.getOverlapsWhenCreate(device, cpsId, startTime, endTime);
+        if (overlapInfos.size() > 0) {
+            CustomPropertySetInfo insertedValuesStub = new CustomPropertySetInfo();
+            insertedValuesStub.startTime = startTime;
+            insertedValuesStub.versionId = startTime;
+            insertedValuesStub.endTime = endTime;
+            overlapInfos.add(new CustomPropertySetIntervalConflictInfo(MessageSeeds.CUSTOMPROPRTTYSET_TIMESLICED_INSERT, insertedValuesStub, true));
+            Collections.sort(overlapInfos, resourceHelper.getConflictInfosComparator());
+        }
+        return PagedInfoList.fromCompleteList("conflicts", overlapInfos, queryParameters);
+    }
+
+    @GET @Transactional
+    @Path("/{mRID}/customproperties/{cpsId}/conflicts/{timeStamp}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public PagedInfoList getOverlaps(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") long timeStamp, @QueryParam("startTime") long startTime, @QueryParam("endTime") long endTime, @BeanParam JsonQueryParameters queryParameters) {
+        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
+        List<CustomPropertySetIntervalConflictInfo> overlapInfos = resourceHelper.getOverlapsWhenUpdate(device, cpsId, startTime, endTime, Instant.ofEpochMilli(timeStamp));
+        if (overlapInfos.size() > 0) {
+            CustomPropertySetInfo insertedValuesStub = new CustomPropertySetInfo();
+            insertedValuesStub.startTime = startTime;
+            insertedValuesStub.versionId = startTime;
+            insertedValuesStub.endTime = endTime;
+            overlapInfos.add(new CustomPropertySetIntervalConflictInfo(MessageSeeds.CUSTOMPROPRTTYSET_TIMESLICED_INSERT, insertedValuesStub, true));
+            Collections.sort(overlapInfos, resourceHelper.getConflictInfosComparator());
+        }
+        return PagedInfoList.fromCompleteList("conflicts", overlapInfos, queryParameters);
+    }
+
     @PUT @Transactional
     @Path("/{mRID}/customproperties/{cpsId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -292,6 +352,34 @@ public class DeviceResource {
     public Response editDeviceCustomAttribute(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId, CustomPropertySetInfo customPropertySetInfo) {
         Device lockedDevice = resourceHelper.lockDeviceOrThrowException(customPropertySetInfo.parent, mRID, customPropertySetInfo.version);
         resourceHelper.setDeviceCustomPropertySetInfo(lockedDevice, cpsId, customPropertySetInfo);
+        return Response.ok().build();
+    }
+
+    @POST @Transactional
+    @Path("/{mRID}/customproperties/{cpsId}/versions")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public Response addDeviceCustomAttributeVersioned(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId, @QueryParam("forced") boolean forced, CustomPropertySetInfo customPropertySetInfo) {
+        Device lockedDevice = resourceHelper.lockDeviceOrThrowException(customPropertySetInfo.parent, mRID, customPropertySetInfo.version);
+        Optional<IntervalErrorInfos> intervalErrors = resourceHelper.verifyInterval(customPropertySetInfo.startTime, customPropertySetInfo.endTime);
+        if (intervalErrors.isPresent()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(intervalErrors.get()).build();
+        }
+        resourceHelper.addDeviceCustomPropertySetVersioned(lockedDevice, cpsId, customPropertySetInfo, forced);
+        return Response.ok().build();
+    }
+
+    @PUT @Transactional
+    @Path("/{mRID}/customproperties/{cpsId}/versions/{timeStamp}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public Response editDeviceCustomAttributeVersioned(@PathParam("mRID") String mRID, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") long timeStamp, @QueryParam("forced") boolean forced, CustomPropertySetInfo customPropertySetInfo) {
+        Device lockedDevice = resourceHelper.lockDeviceOrThrowException(customPropertySetInfo.parent, mRID, customPropertySetInfo.version);
+        Optional<IntervalErrorInfos> intervalErrors = resourceHelper.verifyInterval(customPropertySetInfo.startTime, customPropertySetInfo.endTime);
+        if (intervalErrors.isPresent()) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(intervalErrors.get()).build();
+        }
+        resourceHelper.setDeviceCustomPropertySetVersioned(lockedDevice, cpsId, customPropertySetInfo, Instant.ofEpochMilli(timeStamp), forced);
         return Response.ok().build();
     }
 
