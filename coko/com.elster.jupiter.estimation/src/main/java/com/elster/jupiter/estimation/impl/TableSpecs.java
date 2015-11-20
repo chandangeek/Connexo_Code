@@ -96,7 +96,6 @@ public enum TableSpecs {
             table.map(EstimationTaskImpl.class);
             table.setJournalTableName("EST_ESTIMATIONTASKJRNL");
             Column idColumn = table.addAutoIdColumn();
-            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             Column endDeviceGroupId = table.column("ENDDEVICEGROUP").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             Column relativePeriod = table.column("PERIOD").number().add();
@@ -120,7 +119,6 @@ public enum TableSpecs {
                     .map("period")
                     .add();
             table.primaryKey("EST_PK_ESTIMATIONTASK").on(idColumn).add();
-            table.unique("EST_U_TASK_NAME").on(nameColumn).add();
         }
     };
 

@@ -26,7 +26,6 @@ import java.util.UUID;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_ESTIMATION_TASK + "}")
 public class EstimationTaskImpl implements IEstimationTask {
 
     private final IEstimationService estimationService;
@@ -103,7 +102,7 @@ public class EstimationTaskImpl implements IEstimationTask {
     private void persist() {
         RecurrentTask task = taskService.newBuilder()
                 .setApplication("Pulse")
-                .setName(UUID.randomUUID().toString())
+                .setName(name)
                 .setScheduleExpression(scheduleExpression)
                 .setDestination(estimationService.getDestination())
                 .setPayLoad(getName())
@@ -114,10 +113,13 @@ public class EstimationTaskImpl implements IEstimationTask {
     }
 
     private void update() {
+        Save.UPDATE.save(dataModel, this);
         if (recurrentTaskDirty) {
+            if (!recurrentTask.get().getName().equals(this.name)) {
+                recurrentTask.get().setName(name);
+            }
             recurrentTask.get().save();
         }
-        Save.UPDATE.save(dataModel, this);
     }
 
     @Override
@@ -155,6 +157,7 @@ public class EstimationTaskImpl implements IEstimationTask {
     @Override
     public void setName(String name) {
         this.name = (name != null ? name.trim() : "");
+        recurrentTaskDirty = true;
     }
 
     @Override
@@ -195,7 +198,7 @@ public class EstimationTaskImpl implements IEstimationTask {
 
     @Override
     public String getName() {
-        return name;
+        return (recurrentTask.isPresent()) ? recurrentTask.get().getName() : name;
     }
 
     @Override
