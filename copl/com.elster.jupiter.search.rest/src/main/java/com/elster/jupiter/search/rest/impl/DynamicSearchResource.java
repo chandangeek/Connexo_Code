@@ -204,6 +204,7 @@ public class DynamicSearchResource {
     private IdWithDisplayValueInfo asJsonValueObject(String name, Object valueObject) {
         IdWithDisplayValueInfo info = new IdWithDisplayValueInfo();
         info.displayValue = name;
+        info.id = name; // support for dynamic attributes, whose possible values don't match these classes
         if (HasId.class.isAssignableFrom(valueObject.getClass())) {
             info.id = ((HasId)valueObject).getId();
         } else if (Enum.class.isAssignableFrom(valueObject.getClass())) {
