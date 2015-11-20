@@ -40,6 +40,13 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationListSetup', {
                         title: Uni.I18n.translate('metrologyconfiguration.list.empty', 'IMT', 'No metrology configurations found'),
                         reasons: [
                             Uni.I18n.translate('metrologyconfiguration.list.undefined', 'IMT', 'No metrology configurations have been defined yet.')
+                        ],
+                        stepItems: [
+                            {
+                                text: Uni.I18n.translate('metrologyconfiguration.general.add', 'CFG', 'Add metrology configuration'),
+//                                privileges : Cfg.privileges.Validation.admin,
+                                href: '#/administration/metrologyconfiguration/add'
+                            }
                         ]
                     },
                     previewComponent: {
