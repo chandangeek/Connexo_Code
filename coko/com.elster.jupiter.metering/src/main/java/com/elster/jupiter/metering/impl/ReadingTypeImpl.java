@@ -62,6 +62,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
     // persistent fields
 	private String mRID;
 	private String aliasName;
+	private String fullAliasName;
     private String description;
     private boolean active;
 	private long version;
@@ -271,6 +272,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
     @Override
     public void setAliasName(String aliasName) {
         this.aliasName = aliasName;
+        setFullAliasName();
     }
 
     public void persist() {
@@ -469,6 +471,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 
     @Override
     public void update() {
+        setFullAliasName();
         dataModel.mapper(ReadingType.class).update(this);
     }
 
@@ -488,8 +491,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
     	}
     }
 
-    @Override
-    public String getFullAliasName() {
+    private void setFullAliasName() {
         StringBuilder fullAlias = new StringBuilder();
         if (!this.getMeasuringPeriod().equals(TimeAttribute.NOTAPPLICABLE)) {
             fullAlias.append("[").append(getTranslationWithDefault(this.getMeasuringPeriod().getDescription())).append("] ");
@@ -506,7 +508,12 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
         if (this.getTou() != 0) {
             fullAlias.append(" ").append(getTranslationWithDefault("ToU")).append(" ").append(this.getTou());
         }
-        return fullAlias.toString();
+        fullAliasName =  fullAlias.toString();
+    }
+
+    @Override
+    public String getFullAliasName() {
+        return fullAliasName;
     }
 
     private String getTranslationWithDefault(String value) {
