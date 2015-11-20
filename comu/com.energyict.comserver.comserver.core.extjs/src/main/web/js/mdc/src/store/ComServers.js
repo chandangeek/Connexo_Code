@@ -5,10 +5,10 @@ Ext.define('Mdc.store.ComServers',{
     ],
     model: 'Mdc.model.ComServer',
     storeId: 'ComServers',
-    sorters: [{
+    /*sorters: [{
        property: 'name',
        direction: 'ASC'
-    }],
+    }],*/
     remoteSort: true,
     proxy: {
         type: 'rest',
@@ -16,7 +16,7 @@ Ext.define('Mdc.store.ComServers',{
         reader: {
             type: 'json',
             root: 'data'
-        },
-        simpleSortMode: true
+        }/*,
+        simpleSortMode: true*/
     }
 });
