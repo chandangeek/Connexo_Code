@@ -100,4 +100,29 @@ public interface UsagePoint extends IdentifiedObject, ReadingContainer {
     
     List<? extends BaseReadingRecord> getReadingsWithFill(Range<Instant> range, ReadingType readingType);
 
+    UsagePointConfigurationBuilder startingConfigurationOn(Instant startTime);
+
+    Optional<UsagePointConfiguration> getConfiguration(Instant time);
+
+    interface UsagePointConfigurationBuilder {
+
+        UsagePointConfigurationBuilder endingAt(Instant endTime);
+
+        UsagePointReadingTypeConfigurationBuilder configureReadingType(ReadingType readingType);
+
+        UsagePointConfiguration create();
+    }
+
+    interface UsagePointReadingTypeConfigurationBuilder {
+
+        UsagePointConfiguration create();
+
+        UsagePointReadingTypeMultiplierConfigurationBuilder withMultiplierOfType(MultiplierType multiplierOfType);
+
+    }
+
+    interface UsagePointReadingTypeMultiplierConfigurationBuilder {
+
+        UsagePointConfigurationBuilder calculating(ReadingType readingType);
+    }
 }

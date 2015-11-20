@@ -19,6 +19,7 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
+import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointDetail;
 import com.elster.jupiter.metering.WaterDetailBuilder;
 import com.elster.jupiter.orm.DataModel;
@@ -75,6 +76,7 @@ public class UsagePointImpl implements UsagePoint {
     private final Reference<ServiceLocation> serviceLocation = ValueReference.absent();
     private final List<MeterActivationImpl> meterActivations = new ArrayList<>();
     private final List<UsagePointAccountability> accountabilities = new ArrayList<>();
+    private List<UsagePointConfigurationImpl> usagePointConfigurations = new ArrayList<>();
 
     private final DataModel dataModel;
     private final EventService eventService;
@@ -519,4 +521,21 @@ public class UsagePointImpl implements UsagePoint {
 				.flatMap(meterActivation -> meterActivation.getReadingQualities(readingQualityType, readingType, interval).stream())
 				.collect(Collectors.toList());
 	}
+
+    void addConfiguration(UsagePointConfigurationImpl usagePointConfiguration) {
+        usagePointConfigurations.add(usagePointConfiguration);
+    }
+
+    @Override
+    public UsagePointConfigurationBuilder startingConfigurationOn(Instant startTime) {
+        return new UsagePointConfigurationBuilderImpl(dataModel, this, startTime);
+    }
+
+    @Override
+    public Optional<UsagePointConfiguration> getConfiguration(Instant time) {
+        return usagePointConfigurations.stream()
+                .filter(usagePointConfiguration -> usagePointConfiguration.isEffectiveAt(time))
+                .map(UsagePointConfiguration.class::cast)
+                .findAny();
+    }
 }

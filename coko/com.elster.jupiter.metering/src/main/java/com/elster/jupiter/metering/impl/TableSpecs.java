@@ -16,7 +16,9 @@ import com.elster.jupiter.metering.ServiceCategory;
 import com.elster.jupiter.metering.ServiceLocation;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointAccountability;
+import com.elster.jupiter.metering.UsagePointConfiguration;
 import com.elster.jupiter.metering.UsagePointDetail;
+import com.elster.jupiter.metering.UsagePointReadingTypeConfiguration;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.orm.Column;
@@ -599,7 +601,14 @@ public enum TableSpecs {
             table.addAuditColumns();
 
             table.primaryKey("MTR_PK_METER_CONFIG").on(idColumn).add();
-            table.foreignKey("MTR_FK_METER_CONFIG").references(MTR_ENDDEVICE.name()).composition().onDelete(RESTRICT).map("meter").reverseMap("meterConfigurations").reverseMapOrder("interval.start").on(meterIdColumn).add();
+            table.foreignKey("MTR_FK_METER_CONFIG")
+                    .references(EndDevice.class)
+                    .composition()
+                    .onDelete(RESTRICT)
+                    .map("meter")
+                    .reverseMap("meterConfigurations")
+                    .reverseMapOrder("interval.start")
+                    .on(meterIdColumn).add();
 
         }
     },
@@ -613,7 +622,7 @@ public enum TableSpecs {
             Column meterConfig = table.column("METER_CONFIG").number().notNull().add();
             Column measured = table.column("MEASURED").varChar(NAME_LENGTH).notNull().add();
             Column calculated = table.column("CALCULATED").varChar(NAME_LENGTH).add();
-            Column multipliertype = table.column("MULTIPLIERTYPE").varChar(NAME_LENGTH).add();
+            Column multiplierType = table.column("MULTIPLIERTYPE").varChar(NAME_LENGTH).add();
             table.addAuditColumns();
             table.column("OVERFLOW").number().conversion(ColumnConversion.NUMBER2LONGWRAPPER).map("overflowValue").add();
             table.column("FRACTIONDIGITS").number().conversion(ColumnConversion.NUMBER2INTWRAPPER).map("numberOfFractionDigits").add();
@@ -638,11 +647,75 @@ public enum TableSpecs {
                     .add();
             table.foreignKey("MTR_FK_RTMC_MULTTP")
                     .references(MultiplierType.class)
-                    .on(multipliertype)
+                    .on(multiplierType)
                     .map("multiplierType")
                     .add();
         }
-    };
+    },
+    MTR_UP_CONFIG {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<UsagePointConfiguration> table = dataModel.addTable(name(), UsagePointConfiguration.class);
+            table.map(UsagePointConfigurationImpl.class);
+
+            table.setJournalTableName(name() + Constants.JOURNAL_TABLE_SUFFIX);
+            Column idColumn = table.addAutoIdColumn();
+            Column usagePointIdColumn = table.column("USAGEPOINTID").type("number").conversion(NUMBER2LONG).add();
+            table.addIntervalColumns("interval");
+            table.addAuditColumns();
+
+            table.primaryKey("MTR_PK_UP_CONFIG").on(idColumn).add();
+            table.foreignKey("MTR_FK_UP_CONFIG")
+                    .references(UsagePoint.class)
+                    .composition()
+                    .onDelete(RESTRICT)
+                    .map("usagePoint")
+                    .reverseMap("usagePointConfigurations")
+                    .reverseMapOrder("interval.start")
+                    .on(usagePointIdColumn).add();
+
+        }
+    },
+    MTR_RT_UP_CONFIG {
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<UsagePointReadingTypeConfiguration> table = dataModel.addTable(name(), UsagePointReadingTypeConfiguration.class);
+            table.map(UsagePointReadingTypeConfigurationImpl.class);
+
+            table.setJournalTableName(name() + Constants.JOURNAL_TABLE_SUFFIX);
+            Column usagePointConfig = table.column("USAGEPOINT_CONFIG").number().notNull().add();
+            Column measured = table.column("MEASURED").varChar(NAME_LENGTH).notNull().add();
+            Column calculated = table.column("CALCULATED").varChar(NAME_LENGTH).add();
+            Column multiplierType = table.column("MULTIPLIERTYPE").varChar(NAME_LENGTH).add();
+            table.addAuditColumns();
+
+            table.primaryKey("MTR_PK_RT_UP_CONFIG").on(usagePointConfig, measured).add();
+            table.foreignKey("MTR_FK_RTUPC_UP_CONFIG")
+                    .references(UsagePointConfiguration.class)
+                    .on(usagePointConfig)
+                    .composition()
+                    .map("usagePointConfiguration")
+                    .reverseMap("readingTypeConfigs")
+                    .add();
+            table.foreignKey("MTR_FK_RTUPC_MEASUREDRT")
+                    .references(ReadingType.class)
+                    .on(measured)
+                    .map("measured")
+                    .add();
+            table.foreignKey("MTR_FK_RTUPC_CALCULATEDRT")
+                    .references(ReadingType.class)
+                    .on(calculated)
+                    .map("calculated")
+                    .add();
+            table.foreignKey("MTR_FK_RTUPC_MULTTP")
+                    .references(MultiplierType.class)
+                    .on(multiplierType)
+                    .map("multiplierType")
+                    .add();
+        }
+    },
+
+    ;
 
     abstract void addTo(DataModel dataModel);
 
