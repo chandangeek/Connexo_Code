@@ -39,6 +39,17 @@ public abstract class CommonBaseDeviceSecurityProperties implements PersistentDo
             public String databaseName() {
                 return "PROPERTYSPECPROVIDER";
             }
+        },
+        COMPLETE {
+            @Override
+            public String javaName() {
+                return "complete";
+            }
+
+            @Override
+            public String databaseName() {
+                return "COMPLETE";
+            }
         };
 
         public abstract String javaName();
@@ -50,6 +61,7 @@ public abstract class CommonBaseDeviceSecurityProperties implements PersistentDo
     private Reference<BaseDevice> device = Reference.empty();
     @NotNull
     private Reference<SecurityPropertySpecProvider> propertySpecProvider = Reference.empty();
+    private boolean complete = false;
     @SuppressWarnings("unused")
     private Interval interval;
 
@@ -58,6 +70,13 @@ public abstract class CommonBaseDeviceSecurityProperties implements PersistentDo
         this.device.set(device);
         SecurityPropertySpecProvider propertySpecProvider = (SecurityPropertySpecProvider) propertyValues.getProperty(Fields.PROPERTY_SPEC_PROVIDER.javaName());
         this.propertySpecProvider.set(propertySpecProvider);
+        Boolean complete = (Boolean) propertyValues.getProperty(Fields.COMPLETE.javaName());
+        if (complete != null) {
+            this.complete = complete;
+        }
+        else {
+            this.complete = false;
+        }
         this.copyActualPropertiesFrom(propertyValues);
     }
 
@@ -66,6 +85,7 @@ public abstract class CommonBaseDeviceSecurityProperties implements PersistentDo
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues) {
         propertySetValues.setProperty(Fields.PROPERTY_SPEC_PROVIDER.javaName(), this.propertySpecProvider.get());
+        propertySetValues.setProperty(Fields.COMPLETE.javaName(), this.complete);
         this.copyActualPropertiesTo(propertySetValues);
     }
 
