@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.eict.rtuplusserver.idis;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
@@ -18,6 +20,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
@@ -256,7 +259,7 @@ public class RtuPlusServer implements DeviceProtocol {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Arrays.<ConnectionType>asList(new OutboundTcpIpConnectionType(this.thesaurus, getPropertySpecService(), getSocketService()));
+        return Collections.<ConnectionType>singletonList(new OutboundTcpIpConnectionType(this.thesaurus, getPropertySpecService(), getSocketService()));
     }
 
     private SocketService getSocketService() {
@@ -269,7 +272,7 @@ public class RtuPlusServer implements DeviceProtocol {
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        return Arrays.<DeviceProtocolDialect>asList(new TcpDeviceProtocolDialect(propertySpecService));
+        return Collections.<DeviceProtocolDialect>singletonList(new TcpDeviceProtocolDialect(propertySpecService));
     }
 
         @Override
@@ -284,28 +287,18 @@ public class RtuPlusServer implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        return getDlmsSecuritySupport().getSecurityPropertySpecs();
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return getDlmsSecuritySupport().getSecurityRelationTypeName();
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+        return this.getDsmrSecuritySupport().getCustomPropertySet();
     }
 
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return getDlmsSecuritySupport().getAuthenticationAccessLevels();
+        return getDsmrSecuritySupport().getAuthenticationAccessLevels();
     }
 
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return getDlmsSecuritySupport().getEncryptionAccessLevels();
-    }
-
-    @Override
-    public Optional<PropertySpec> getSecurityPropertySpec(String name) {
-        return getDlmsSecuritySupport().getSecurityPropertySpec(name);
+        return getDsmrSecuritySupport().getEncryptionAccessLevels();
     }
 
     public DlmsSession getDlmsSession() {
@@ -333,7 +326,7 @@ public class RtuPlusServer implements DeviceProtocol {
         return this.idisGatewayMessages;
     }
 
-    public DsmrSecuritySupport getDlmsSecuritySupport() {
+    public DsmrSecuritySupport getDsmrSecuritySupport() {
         if (this.dlmsSecuritySupport == null) {
             this.dlmsSecuritySupport = dmsrSecuritySupportProvider.get();
         }

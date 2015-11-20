@@ -69,7 +69,7 @@ public class Mtu155SecuritySupport implements DeviceProtocolSecurityCapabilities
 
     @Override
     public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
-        return Optional.of(new MTU155SecuritySupportCustomPropertySet(this.thesaurus, this.propertySpecService));
+        return Optional.of(new MTU155CustomPropertySet(this.thesaurus, this.propertySpecService));
     }
 
     @Override

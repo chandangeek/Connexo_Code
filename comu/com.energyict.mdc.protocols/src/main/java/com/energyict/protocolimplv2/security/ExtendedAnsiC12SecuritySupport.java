@@ -37,7 +37,7 @@ public class ExtendedAnsiC12SecuritySupport extends AnsiC12SecuritySupport {
 
     @Override
     public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
-        return Optional.of(new ExtendedAnsiC12SecuritySupportCustomPropertySet(this.thesaurus, this.getPropertySpecService()));
+        return Optional.of(new ExtendedAnsiC12CustomPropertySet(this.thesaurus, this.getPropertySpecService()));
     }
 
     @Override

@@ -14,38 +14,38 @@ import java.util.stream.Stream;
  * Provides an implementation for the {@link CustomPropertySet} interface for {@link DlmsSecuritySupportPerClient}.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-11-19 (15:27)
+ * @since 2015-11-19 (17:39)
  */
-public class DlmsSecurityPerClientSupportCustomPropertySet extends SecurityCustomPropertySet<DlmsSecurityPerClientProperties> {
+public class MTU155CustomPropertySet extends SecurityCustomPropertySet<MTU155SecurityProperties> {
 
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
 
-    public DlmsSecurityPerClientSupportCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    public MTU155CustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super();
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
     }
 
     @Override
-    public DlmsSecurityPerClientSupportPersistenceSupport getPersistenceSupport() {
-        return new DlmsSecurityPerClientSupportPersistenceSupport();
+    public MTU155PersistenceSupport getPersistenceSupport() {
+        return new MTU155PersistenceSupport();
     }
 
     @Override
     public String getId() {
-        return CustomPropertySetTranslationKeys.DLMS_SECURITY_PER_CLIENT_CUSTOM_PROPERTY_SET_NAME.getKey();
+        return CustomPropertySetTranslationKeys.MTU155_CUSTOM_PROPERTY_SET_NAME.getKey();
     }
 
     @Override
     public String getName() {
-        return this.thesaurus.getFormat(CustomPropertySetTranslationKeys.DLMS_SECURITY_PER_CLIENT_CUSTOM_PROPERTY_SET_NAME).format();
+        return this.thesaurus.getFormat(CustomPropertySetTranslationKeys.MTU155_CUSTOM_PROPERTY_SET_NAME).format();
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Stream
-                .of(DlmsSecurityPerClientProperties.ActualFields.values())
+                .of(MTU155SecurityProperties.ActualFields.values())
                 .map(field -> field.propertySpec(this.propertySpecService))
                 .collect(Collectors.toList());
     }

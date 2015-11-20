@@ -67,7 +67,7 @@ public class IEC1107SecuritySupport implements DeviceProtocolSecurityCapabilitie
 
     @Override
     public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
-        return Optional.of(new IEC1107SecuritySupportCustomPropertySet(this.thesaurus, this.propertySpecService));
+        return Optional.of(new IEC1107CustomPropertySet(this.thesaurus, this.propertySpecService));
     }
 
     @Override

@@ -49,7 +49,7 @@ public class AnsiC12SecuritySupport implements DeviceProtocolSecurityCapabilitie
 
     @Override
     public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
-        return Optional.of(new AnsiC12SecuritySupportCustomPropertySet(this.thesaurus, this.propertySpecService));
+        return Optional.of(new AnsiC12CustomPropertySet(this.thesaurus, this.propertySpecService));
     }
 
     @Override

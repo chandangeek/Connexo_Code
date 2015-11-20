@@ -14,38 +14,38 @@ import java.util.stream.Stream;
  * Provides an implementation for the {@link CustomPropertySet} interface for {@link DlmsSecuritySupportPerClient}.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-11-19 (17:39)
+ * @since 2015-11-19 (15:27)
  */
-public class MTU155SecuritySupportCustomPropertySet extends SecurityCustomPropertySet<MTU155SecurityProperties> {
+public class DlmsSecurityPerClientCustomPropertySet extends SecurityCustomPropertySet<DlmsSecurityPerClientProperties> {
 
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
 
-    public MTU155SecuritySupportCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    public DlmsSecurityPerClientCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super();
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
     }
 
     @Override
-    public MTU155SecuritySupportPersistenceSupport getPersistenceSupport() {
-        return new MTU155SecuritySupportPersistenceSupport();
+    public DlmsSecurityPerClientPersistenceSupport getPersistenceSupport() {
+        return new DlmsSecurityPerClientPersistenceSupport();
     }
 
     @Override
     public String getId() {
-        return CustomPropertySetTranslationKeys.MTU155_CUSTOM_PROPERTY_SET_NAME.getKey();
+        return CustomPropertySetTranslationKeys.DLMS_SECURITY_PER_CLIENT_CUSTOM_PROPERTY_SET_NAME.getKey();
     }
 
     @Override
     public String getName() {
-        return this.thesaurus.getFormat(CustomPropertySetTranslationKeys.MTU155_CUSTOM_PROPERTY_SET_NAME).format();
+        return this.thesaurus.getFormat(CustomPropertySetTranslationKeys.DLMS_SECURITY_PER_CLIENT_CUSTOM_PROPERTY_SET_NAME).format();
     }
 
     @Override
     public List<PropertySpec> getPropertySpecs() {
         return Stream
-                .of(MTU155SecurityProperties.ActualFields.values())
+                .of(DlmsSecurityPerClientProperties.ActualFields.values())
                 .map(field -> field.propertySpec(this.propertySpecService))
                 .collect(Collectors.toList());
     }

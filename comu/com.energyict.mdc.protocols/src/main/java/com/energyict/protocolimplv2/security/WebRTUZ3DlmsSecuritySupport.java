@@ -18,4 +18,5 @@ public class WebRTUZ3DlmsSecuritySupport extends DlmsSecuritySupport {
     protected String getDataTransportEncryptionKeyLegacyPropertyName() {
         return DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME;
     }
+
 }

@@ -3,24 +3,23 @@ package com.energyict.protocolimplv2.security;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
+import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 
 import com.google.inject.Module;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Provides an implementation for the {@link PersistenceSupport} interface for {@link DlmsSecuritySupportPerClient}.
+ * Provides an implementation for the {@link PersistenceSupport} interface for {@link WavenisSecuritySupport}.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-11-19 (15:08)
+ * @since 2015-11-20 (11:31)
  */
-public class DlmsSecurityPerClientSupportPersistenceSupport implements PersistenceSupport<BaseDevice, DlmsSecurityPerClientProperties> {
+public class WavenisPersistenceSupport extends CommonBaseDeviceSecuritySupport<WavenisSecurityProperties> {
 
     @Override
     public String componentName() {
@@ -29,7 +28,7 @@ public class DlmsSecurityPerClientSupportPersistenceSupport implements Persisten
 
     @Override
     public String tableName() {
-        return "PR1_DLMS_SECURITY_PER_CLIENT";
+        return DeviceProtocolService.COMPONENT_NAME + "_WAVENIS_SECURITY";
     }
 
     @Override
@@ -39,12 +38,12 @@ public class DlmsSecurityPerClientSupportPersistenceSupport implements Persisten
 
     @Override
     public String domainForeignKeyName() {
-        return "PR1_FK_DLMSSEC_PERCLIENT_DEV";
+        return DeviceProtocolService.COMPONENT_NAME + "_FK_WAVENIS_DEV";
     }
 
     @Override
-    public Class<DlmsSecurityPerClientProperties> persistenceClass() {
-        return DlmsSecurityPerClientProperties.class;
+    public Class<WavenisSecurityProperties> persistenceClass() {
+        return WavenisSecurityProperties.class;
     }
 
     @Override
@@ -53,14 +52,9 @@ public class DlmsSecurityPerClientSupportPersistenceSupport implements Persisten
     }
 
     @Override
-    public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
+    public void addCustomPropertyColumnsTo(Table table, Column completeColumn, List<Column> customPrimaryKeyColumns) {
         Stream
-            .of(DlmsSecurityPerClientProperties.ActualFields.values())
+            .of(WavenisSecurityProperties.ActualFields.values())
             .forEach(field -> field.addTo(table));
     }
 

@@ -1,8 +1,9 @@
-package com.energyict.protocolimplv2.elster.garnet;
+package com.energyict.protocolimplv2.security;
 
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
+import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 
@@ -13,12 +14,12 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Provides an implementation for the {@link PersistenceSupport} interface for {@link SecuritySupport}.
+ * Provides an implementation for the {@link PersistenceSupport} interface for {@link AnsiC12SecuritySupport}.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-11-19 (16:32)
+ * @since 2015-11-19 (13:35)
  */
-public class GarnetSecuritySupportPersistenceSupport extends CommonBaseDeviceSecuritySupport<GarnetSecurityProperties> {
+public class AnsiC12PersistenceSupport extends CommonBaseDeviceSecuritySupport<AnsiC12SecurityProperties> {
 
     @Override
     public String componentName() {
@@ -27,17 +28,22 @@ public class GarnetSecuritySupportPersistenceSupport extends CommonBaseDeviceSec
 
     @Override
     public String tableName() {
-        return "PR1_GARNET_SECURITY";
+        return DeviceProtocolService.COMPONENT_NAME + "_ANSI_C12_SECURITY";
+    }
+
+    @Override
+    public String domainFieldName() {
+        return CommonBaseDeviceSecurityProperties.Fields.DEVICE.javaName();
     }
 
     @Override
     public String domainForeignKeyName() {
-        return "PR1_FK_GARNETSEC_DEV";
+        return DeviceProtocolService.COMPONENT_NAME + "_FK_ANSIC12_DEV";
     }
 
     @Override
-    public Class<GarnetSecurityProperties> persistenceClass() {
-        return GarnetSecurityProperties.class;
+    public Class<AnsiC12SecurityProperties> persistenceClass() {
+        return AnsiC12SecurityProperties.class;
     }
 
     @Override
@@ -48,7 +54,7 @@ public class GarnetSecuritySupportPersistenceSupport extends CommonBaseDeviceSec
     @Override
     public void addCustomPropertyColumnsTo(Table table, Column completeColumn, List<Column> customPrimaryKeyColumns) {
         Stream
-            .of(GarnetSecurityProperties.ActualFields.values())
+            .of(AnsiC12SecurityProperties.ActualFields.values())
             .forEach(field -> field.addTo(table));
     }
 

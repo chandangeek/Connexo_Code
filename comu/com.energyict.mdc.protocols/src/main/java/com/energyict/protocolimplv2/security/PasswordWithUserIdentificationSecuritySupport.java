@@ -1,21 +1,26 @@
 package com.energyict.protocolimplv2.security;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.common.Password;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
+import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.protocols.mdc.services.impl.TranslationKeys;
 
 import javax.inject.Inject;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides general security <b>capabilities</b> for DeviceProtocols
@@ -43,35 +48,18 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceProt
     }
 
     @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        return Arrays.asList(
-                DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService),
-                DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return SecurityRelationTypeName.PASSWORD_AND_USER.toString();
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+        return Optional.of(new BasicAuthenticationCustomPropertySet(this.thesaurus, this.propertySpecService));
     }
 
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return Arrays.<AuthenticationDeviceAccessLevel>asList(new StandardAuthenticationAccessLevel());
+        return Collections.<AuthenticationDeviceAccessLevel>singletonList(new StandardAuthenticationAccessLevel());
     }
 
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return Arrays.<EncryptionDeviceAccessLevel>asList(new StandardEncryptionAccessLevel());
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        for (PropertySpec securityProperty : getSecurityPropertySpecs()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
+        return Collections.<EncryptionDeviceAccessLevel>singletonList(new StandardEncryptionAccessLevel());
     }
 
     @Override
@@ -117,10 +105,10 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceProt
 
     private void overrideDeviceAccessIdentifierPropertyIfAbsent(TypedProperties typedProperties) {
         Object deviceAccessIdentifier = typedProperties.getProperty(DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService).getName());
-        if(deviceAccessIdentifier == null){
-            deviceAccessIdentifier =typedProperties.getProperty(MeterProtocol.NODEID);
+        if (deviceAccessIdentifier == null) {
+            deviceAccessIdentifier = typedProperties.getProperty(MeterProtocol.NODEID);
         }
-        if (deviceAccessIdentifier!=null) {
+        if (deviceAccessIdentifier != null) {
             typedProperties.setProperty(DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService).getName(), deviceAccessIdentifier);
         }
     }
@@ -143,8 +131,8 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceProt
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService),
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
+                    BasicAuthenticationSecurityProperties.ActualFields.USER_NAME.propertySpec(propertySpecService),
+                    BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.propertySpec(propertySpecService));
         }
     }
 
@@ -167,8 +155,8 @@ public class PasswordWithUserIdentificationSecuritySupport implements DeviceProt
         @Override
         public List<PropertySpec> getSecurityProperties() {
             return Arrays.asList(
-                    DeviceSecurityProperty.DEVICE_ACCESS_IDENTIFIER.getPropertySpec(propertySpecService),
-                    DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
+                    BasicAuthenticationSecurityProperties.ActualFields.USER_NAME.propertySpec(propertySpecService),
+                    BasicAuthenticationSecurityProperties.ActualFields.PASSWORD.propertySpec(propertySpecService));
         }
     }
 

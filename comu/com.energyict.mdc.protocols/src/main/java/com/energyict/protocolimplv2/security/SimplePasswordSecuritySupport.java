@@ -1,10 +1,13 @@
 package com.energyict.protocolimplv2.security;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.common.Password;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
@@ -14,9 +17,9 @@ import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 import com.energyict.protocols.mdc.services.impl.TranslationKeys;
 
 import javax.inject.Inject;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides general security <b>capabilities</b> for DeviceProtocols
@@ -40,32 +43,18 @@ public class SimplePasswordSecuritySupport implements DeviceProtocolSecurityCapa
     }
 
     @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        return Arrays.asList(DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService));
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return SecurityRelationTypeName.SIMPLE_PASSWORD.toString();
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+        return Optional.of(new NoOrPasswordCustomPropertySet(this.thesaurus, this.propertySpecService));
     }
 
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return Arrays.<AuthenticationDeviceAccessLevel>asList(new SimpleAuthentication());
+        return Collections.<AuthenticationDeviceAccessLevel>singletonList(new SimpleAuthentication());
     }
 
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         return Collections.emptyList();
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        if (DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService).getName().equals(name)) {
-            return DeviceSecurityProperty.PASSWORD.getPropertySpec(this.propertySpecService);
-        } else {
-            return null;
-        }
     }
 
     @Override
@@ -123,7 +112,7 @@ public class SimplePasswordSecuritySupport implements DeviceProtocolSecurityCapa
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
+            return Collections.singletonList(DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService));
         }
     }
 

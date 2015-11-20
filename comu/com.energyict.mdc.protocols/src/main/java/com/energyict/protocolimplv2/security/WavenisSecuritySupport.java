@@ -1,10 +1,13 @@
 package com.energyict.protocolimplv2.security;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.Thesaurus;
-import com.energyict.mdc.common.Password;
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.common.Password;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
@@ -14,12 +17,14 @@ import com.energyict.protocols.mdc.services.impl.TranslationKeys;
 
 import javax.inject.Inject;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Provides general security <b>capabilities</b> for Wavenis (DLMS) protocols
- * that use a single password for authentication and an encryptionKey for data encryption
- * <p/>
+ * that use a single password for authentication and an encryptionKey for data encryption.
+ *
  * Copyrights EnergyICT
  * Date: 11/01/13
  * Time: 16:13
@@ -40,35 +45,18 @@ public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilitie
     }
 
     @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        return Arrays.asList(
-                DeviceSecurityProperty.PASSWORD.getPropertySpec(propertySpecService),
-                DeviceSecurityProperty.ENCRYPTION_KEY.getPropertySpec(propertySpecService));
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return SecurityRelationTypeName.WAVENIS_SECURITY.toString();
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+        return Optional.of(new WavenisCustomPropertySet(this.thesaurus, this.propertySpecService));
     }
 
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return Arrays.<AuthenticationDeviceAccessLevel>asList(new StandardAuthenticationAccessLevel());
+        return Collections.<AuthenticationDeviceAccessLevel>singletonList(new StandardAuthenticationAccessLevel());
     }
 
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return Arrays.<EncryptionDeviceAccessLevel>asList(new StandardEncryptionAccessLevel());
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        for (PropertySpec securityProperty : getSecurityPropertySpecs()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
+        return Collections.<EncryptionDeviceAccessLevel>singletonList(new StandardEncryptionAccessLevel());
     }
 
     @Override
@@ -93,14 +81,22 @@ public class WavenisSecuritySupport implements DeviceProtocolSecurityCapabilitie
     @Override
     public DeviceProtocolSecurityPropertySet convertFromTypedProperties(TypedProperties typedProperties) {
         String authenticationDeviceAccessLevelProperty = typedProperties.getTypedProperty(SECURITY_LEVEL_PROPERTY_NAME);
-        final int authenticationDeviceAccessLevel=authenticationDeviceAccessLevelProperty!=null?
-                Integer.valueOf(authenticationDeviceAccessLevelProperty):
-                new StandardAuthenticationAccessLevel().getId();
+        final int authenticationDeviceAccessLevel;
+        if (authenticationDeviceAccessLevelProperty != null) {
+            authenticationDeviceAccessLevel = Integer.valueOf(authenticationDeviceAccessLevelProperty);
+        }
+        else {
+            authenticationDeviceAccessLevel = new StandardAuthenticationAccessLevel().getId();
+        }
 
         String encryptionKeyProperty = typedProperties.getStringProperty(ENCRYPTION_KEY_PROPERTY_NAME);
-        final int encryptionDeviceAccessLevel = encryptionKeyProperty!=null?
-                Integer.valueOf(encryptionKeyProperty):
-                new StandardEncryptionAccessLevel().getId();
+        final int encryptionDeviceAccessLevel;
+        if (encryptionKeyProperty != null) {
+            encryptionDeviceAccessLevel = Integer.valueOf(encryptionKeyProperty);
+        }
+        else {
+            encryptionDeviceAccessLevel = new StandardEncryptionAccessLevel().getId();
+        }
 
         final TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
         if (authenticationDeviceAccessLevelProperty!=null) {

@@ -15,20 +15,20 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-19 (13:50)
  */
-public class ExtendedAnsiC12SecuritySupportCustomPropertySet extends SecurityCustomPropertySet<AnsiC12SecurityProperties> {
+public class ExtendedAnsiC12CustomPropertySet extends SecurityCustomPropertySet<AnsiC12SecurityProperties> {
 
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
 
-    public ExtendedAnsiC12SecuritySupportCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    public ExtendedAnsiC12CustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super();
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
     }
 
     @Override
-    public AnsiC12SecuritySupportPersistenceSupport getPersistenceSupport() {
-        return new AnsiC12SecuritySupportPersistenceSupport();
+    public AnsiC12PersistenceSupport getPersistenceSupport() {
+        return new AnsiC12PersistenceSupport();
     }
 
     @Override

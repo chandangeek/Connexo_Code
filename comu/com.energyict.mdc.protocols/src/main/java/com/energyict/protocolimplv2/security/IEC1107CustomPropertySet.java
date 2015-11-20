@@ -10,35 +10,35 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * Provides an implementation for the {@link CustomPropertySet} interface for {@link NoOrPasswordSecuritySupport}.
+ * Provides an implementation for the {@link CustomPropertySet} interface for {@link IEC1107SecuritySupport}.
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-18 (14:25)
  */
-public class NoOrPasswordSecuritySupportCustomPropertySet extends SecurityCustomPropertySet<NoOrPasswordSecurityProperties> {
+public class IEC1107CustomPropertySet extends SecurityCustomPropertySet<IEC1107SecurityProperties> {
 
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
 
-    public NoOrPasswordSecuritySupportCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    public IEC1107CustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super();
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
     }
 
     @Override
-    public NoOrPasswordSecuritySupportPersistenceSupport getPersistenceSupport() {
-        return new NoOrPasswordSecuritySupportPersistenceSupport();
+    public IEC1107PersistenceSupport getPersistenceSupport() {
+        return new IEC1107PersistenceSupport();
     }
 
     @Override
     public String getId() {
-        return CustomPropertySetTranslationKeys.NO_OR_PASSWORD_CUSTOM_PROPERTY_SET_NAME.getKey();
+        return CustomPropertySetTranslationKeys.IEC1107_CUSTOM_PROPERTY_SET_NAME.getKey();
     }
 
     @Override
     public String getName() {
-        return this.thesaurus.getFormat(CustomPropertySetTranslationKeys.NO_OR_PASSWORD_CUSTOM_PROPERTY_SET_NAME).format();
+        return this.thesaurus.getFormat(CustomPropertySetTranslationKeys.IEC1107_CUSTOM_PROPERTY_SET_NAME).format();
     }
 
     @Override

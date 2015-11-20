@@ -51,7 +51,7 @@ public class NoOrPasswordSecuritySupport implements DeviceProtocolSecurityCapabi
 
     @Override
     public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
-        return Optional.of(new NoOrPasswordSecuritySupportCustomPropertySet(this.thesaurus, this.propertySpecService));
+        return Optional.of(new NoOrPasswordCustomPropertySet(this.thesaurus, this.propertySpecService));
     }
 
     @Override

@@ -3,24 +3,23 @@ package com.energyict.protocolimplv2.security;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
+import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 
 import com.google.inject.Module;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Provides an implementation for the {@link PersistenceSupport} interface for {@link DlmsSecuritySupport}.
+ * Provides an implementation for the {@link PersistenceSupport} interface for {@link Mtu155SecuritySupport}.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-11-19 (13:35)
+ * @since 2015-11-19 (17:36)
  */
-public class DlmsSecuritySupportPersistenceSupport implements PersistenceSupport<BaseDevice, DlmsSecurityProperties> {
+public class MTU155PersistenceSupport extends CommonBaseDeviceSecuritySupport<MTU155SecurityProperties> {
 
     @Override
     public String componentName() {
@@ -29,7 +28,7 @@ public class DlmsSecuritySupportPersistenceSupport implements PersistenceSupport
 
     @Override
     public String tableName() {
-        return "PR1_DLMS_SECURITY";
+        return DeviceProtocolService.COMPONENT_NAME + "_MTU155_SECURITY_PER_CLIENT";
     }
 
     @Override
@@ -39,12 +38,12 @@ public class DlmsSecuritySupportPersistenceSupport implements PersistenceSupport
 
     @Override
     public String domainForeignKeyName() {
-        return "PR1_FK_DLMSSEC_DEV";
+        return DeviceProtocolService.COMPONENT_NAME + "_FK_MTU155SEC_DEV";
     }
 
     @Override
-    public Class<DlmsSecurityProperties> persistenceClass() {
-        return DlmsSecurityProperties.class;
+    public Class<MTU155SecurityProperties> persistenceClass() {
+        return MTU155SecurityProperties.class;
     }
 
     @Override
@@ -53,14 +52,9 @@ public class DlmsSecuritySupportPersistenceSupport implements PersistenceSupport
     }
 
     @Override
-    public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
+    public void addCustomPropertyColumnsTo(Table table, Column completeColumn, List<Column> customPrimaryKeyColumns) {
         Stream
-            .of(DlmsSecurityProperties.ActualFields.values())
+            .of(MTU155SecurityProperties.ActualFields.values())
             .forEach(field -> field.addTo(table));
     }
 

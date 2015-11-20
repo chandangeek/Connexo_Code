@@ -15,20 +15,20 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-11-19 (14:23)
  */
-public class DlmsSecuritySupportCustomPropertySet extends SecurityCustomPropertySet<DlmsSecurityProperties> {
+public class DlmsSecurityCustomPropertySet extends SecurityCustomPropertySet<DlmsSecurityProperties> {
 
     private final Thesaurus thesaurus;
     private final PropertySpecService propertySpecService;
 
-    public DlmsSecuritySupportCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
+    public DlmsSecurityCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService) {
         super();
         this.thesaurus = thesaurus;
         this.propertySpecService = propertySpecService;
     }
 
     @Override
-    public DlmsSecuritySupportPersistenceSupport getPersistenceSupport() {
-        return new DlmsSecuritySupportPersistenceSupport();
+    public DlmsSecurityPersistenceSupport getPersistenceSupport() {
+        return new DlmsSecurityPersistenceSupport();
     }
 
     @Override

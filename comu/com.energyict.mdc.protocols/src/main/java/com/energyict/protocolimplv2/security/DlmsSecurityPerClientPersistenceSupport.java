@@ -3,24 +3,23 @@ package com.energyict.protocolimplv2.security;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
-import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
+import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecuritySupport;
 import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 
 import com.google.inject.Module;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
- * Provides an implementation for the {@link PersistenceSupport} interface for {@link AnsiC12SecuritySupport}.
+ * Provides an implementation for the {@link PersistenceSupport} interface for {@link DlmsSecuritySupportPerClient}.
  *
  * @author Rudi Vankeirsbilck (rudi)
- * @since 2015-11-19 (13:35)
+ * @since 2015-11-19 (15:08)
  */
-public class AnsiC12SecuritySupportPersistenceSupport implements PersistenceSupport<BaseDevice, AnsiC12SecurityProperties> {
+public class DlmsSecurityPerClientPersistenceSupport extends CommonBaseDeviceSecuritySupport<DlmsSecurityPerClientProperties> {
 
     @Override
     public String componentName() {
@@ -29,7 +28,7 @@ public class AnsiC12SecuritySupportPersistenceSupport implements PersistenceSupp
 
     @Override
     public String tableName() {
-        return "PR1_ANSI_C12_SECURITY";
+        return DeviceProtocolService.COMPONENT_NAME + "_DLMS_SECURITY_PER_CLIENT";
     }
 
     @Override
@@ -39,12 +38,12 @@ public class AnsiC12SecuritySupportPersistenceSupport implements PersistenceSupp
 
     @Override
     public String domainForeignKeyName() {
-        return "PR1_FK_ANSIC12_DEV";
+        return DeviceProtocolService.COMPONENT_NAME + "_FK_DLMSSEC_PERCLIENT_DEV";
     }
 
     @Override
-    public Class<AnsiC12SecurityProperties> persistenceClass() {
-        return AnsiC12SecurityProperties.class;
+    public Class<DlmsSecurityPerClientProperties> persistenceClass() {
+        return DlmsSecurityPerClientProperties.class;
     }
 
     @Override
@@ -53,14 +52,9 @@ public class AnsiC12SecuritySupportPersistenceSupport implements PersistenceSupp
     }
 
     @Override
-    public List<Column> addCustomPropertyPrimaryKeyColumnsTo(Table table) {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public void addCustomPropertyColumnsTo(Table table, List<Column> customPrimaryKeyColumns) {
+    public void addCustomPropertyColumnsTo(Table table, Column completeColumn, List<Column> customPrimaryKeyColumns) {
         Stream
-            .of(AnsiC12SecurityProperties.ActualFields.values())
+            .of(DlmsSecurityPerClientProperties.ActualFields.values())
             .forEach(field -> field.addTo(table));
     }
 

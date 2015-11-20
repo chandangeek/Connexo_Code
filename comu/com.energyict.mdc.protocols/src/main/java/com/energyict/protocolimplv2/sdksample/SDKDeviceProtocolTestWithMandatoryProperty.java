@@ -26,10 +26,7 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDeviceMessage;
 import com.energyict.mdc.protocol.api.device.offline.OfflineRegister;
 import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
-import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.api.services.UnableToCreateConnectionType;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -45,7 +42,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -70,11 +66,6 @@ public class SDKDeviceProtocolTestWithMandatoryProperty extends SDKDeviceProtoco
      */
     private ComChannel comChannel;
     /**
-     * Will group this protocols' security features.
-     * As an example the {@link com.energyict.protocolimplv2.security.DlmsSecuritySupport} component is used
-     */
-    private DeviceProtocolSecurityCapabilities deviceProtocolSecurityCapabilities;
-    /**
      * Will hold the cache object of the Device related to this protocol
      */
     private DeviceProtocolCache deviceProtocolCache;
@@ -96,7 +87,6 @@ public class SDKDeviceProtocolTestWithMandatoryProperty extends SDKDeviceProtoco
         this.identificationService = identificationService;
         this.collectedDataFactory = collectedDataFactory;
         this.protocolPluggableService = protocolPluggableService;
-        this.deviceProtocolSecurityCapabilities = dlmsSecuritySupport;
     }
 
     @Override
@@ -288,26 +278,6 @@ public class SDKDeviceProtocolTestWithMandatoryProperty extends SDKDeviceProtoco
     @Override
     public void setSecurityPropertySet(DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet) {
         this.logger.log(Level.INFO, "Adding the deviceProtocolSecurity properties to the DeviceProtocol instance.");
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return this.deviceProtocolSecurityCapabilities.getSecurityRelationTypeName();
-    }
-
-    @Override
-    public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return this.deviceProtocolSecurityCapabilities.getAuthenticationAccessLevels();
-    }
-
-    @Override
-    public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return this.deviceProtocolSecurityCapabilities.getEncryptionAccessLevels();
-    }
-
-    @Override
-    public Optional<PropertySpec> getSecurityPropertySpec(String name) {
-        return this.deviceProtocolSecurityCapabilities.getSecurityPropertySpec(name);
     }
 
     @Override

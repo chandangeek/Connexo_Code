@@ -209,7 +209,7 @@ public class DlmsSecuritySupportPerClient implements DeviceProtocolSecurityCapab
 
     @Override
     public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
-        return Optional.of(new DlmsSecurityPerClientSupportCustomPropertySet(this.thesaurus, this.propertySpecService));
+        return Optional.of(new DlmsSecurityPerClientCustomPropertySet(this.thesaurus, this.propertySpecService));
     }
 
     private PropertySpec getEncryptionKeyPublicPropertySpec() {
