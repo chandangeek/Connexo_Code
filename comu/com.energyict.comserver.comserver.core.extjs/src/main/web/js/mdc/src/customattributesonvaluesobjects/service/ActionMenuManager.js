@@ -7,21 +7,28 @@ Ext.define('Mdc.customattributesonvaluesobjects.service.ActionMenuManager', {
 
     addAction: function (xtype, record, router, attributeSetType) {
         var actionMenusArray = Ext.ComponentQuery.query(xtype),
-            route = Mdc.customattributesonvaluesobjects.service.RouteMap.getRoute(attributeSetType),
+            route = Mdc.customattributesonvaluesobjects.service.RouteMap.getRoute(attributeSetType, record.get('timesliced'), 'edit'),
             routeArguments = router.arguments;
 
-        Ext.each(actionMenusArray, function (menu) {
-            menu.add({
-                itemId: 'action-menu-custom-attribute' + record.get('id'),
-                menuItemClass: 'customAttributeSet',
-                privileges: Mdc.privileges.Device.administrateDeviceData,
-                text: Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [Ext.String.htmlEncode(record.get('name'))]),
-                handler: function () {
-                    routeArguments.customAttributeSetId = record.get('id');
-                    router.getRoute(route).forward();
-                }
-            })
-        });
+        Ext.suspendLayouts();
+        if (!record.get('timesliced') || record.get('isActive')) {
+            Ext.each(actionMenusArray, function (menu) {
+                menu.add({
+                    itemId: 'action-menu-custom-attribute' + record.get('id'),
+                    menuItemClass: 'customAttributeSet',
+                    privileges: Mdc.privileges.Device.administrateDeviceData,
+                    text: Uni.I18n.translate('general.editx', 'MDC', "Edit '{0}'", [Ext.String.htmlEncode(record.get('name'))]),
+                    handler: function () {
+                        routeArguments.customAttributeSetId = record.get('id');
+                        if (record.get('timesliced')) {
+                            routeArguments.versionId = record.get('startTime').getTime();
+                        }
+                        router.getRoute(route).forward(routeArguments);
+                    }
+                })
+            });
+        }
+        Ext.resumeLayouts(true);
     },
 
     removePrevious: function (xtype) {

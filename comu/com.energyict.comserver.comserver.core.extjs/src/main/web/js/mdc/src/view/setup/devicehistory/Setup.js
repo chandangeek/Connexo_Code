@@ -27,9 +27,42 @@ Ext.define('Mdc.view.setup.devicehistory.Setup', {
         me.content = {
             ui: 'large',
             title: Uni.I18n.translate('general.history', 'MDC', 'History'),
-            itemId: 'history-panel'
+            itemId: 'history-panel',
+            items: [
+                {
+                    xtype: 'tabpanel',
+                    margin: '20 0 0 20',
+                    itemId: 'device-history-tab-panel',
+                    activeTab: 0,
+                    width: '100%',
+                    items: [
+                        {
+                            title: Uni.I18n.translate('general.deviceLifeCycle', 'MDC', 'Device life cycle'),
+                            itemId: 'device-history-life-cycle-tab'
+                        }
+                    ]
+                }
+            ]
         };
 
         me.callParent(arguments);
+    },
+
+    loadCustomAttributeSets: function (customAttributeSetsStore) {
+        var me = this;
+
+        Ext.suspendLayouts();
+        customAttributeSetsStore.each(function (customAttributeSet) {
+            if (customAttributeSet.get('timesliced')) {
+                me.down('#device-history-tab-panel').add(
+                    {
+                        title: customAttributeSet.get('name'),
+                        itemId: 'custom-attribute-set-' +  customAttributeSet.get('id'),
+                        customAttributeSetId: customAttributeSet.get('id')
+                    }
+                )
+            }
+        });
+        Ext.resumeLayouts(true);
     }
 });

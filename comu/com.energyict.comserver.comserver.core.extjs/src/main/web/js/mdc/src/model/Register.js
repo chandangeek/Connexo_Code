@@ -65,6 +65,7 @@ Ext.define('Mdc.model.Register', {
         type: 'rest',
         timeout: 120000,
         url: '/api/ddr/devices/{mRID}/registers',
+        urlTpl: '/api/ddr/devices/{mRID}/registers',
         reader: {
             type: 'json'
         },
