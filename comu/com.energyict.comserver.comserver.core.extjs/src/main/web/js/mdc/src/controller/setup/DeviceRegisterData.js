@@ -74,59 +74,67 @@ Ext.define('Mdc.controller.setup.DeviceRegisterData', {
     showDeviceRegisterDataView: function (mRID, registerId, tabController) {
         var me = this,
             contentPanel = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
-            registersOfDeviceStore = me.getStore('RegisterConfigsOfDevice'),
-            router = me.getController('Uni.controller.history.Router');
-        contentPanel.setLoading(true);
-        Ext.ModelManager.getModel('Mdc.model.Device').load(mRID, {
-            success: function (device) {
-                me.getApplication().fireEvent('loadDevice', device);
-                var model = Ext.ModelManager.getModel('Mdc.model.Register');
-                model.getProxy().setExtraParam('mRID', encodeURIComponent(mRID));
+            registerModel = me.getModel('Mdc.model.Register'),
+            router = me.getController('Uni.controller.history.Router'),
+            dependenciesCount = 2,
+            onDependenciesLoad = function () {
+                var widget,
+                    type,
+                    dataStore;
 
-                model.load(registerId, {
-                    success: function (register) {
-                        var type = register.get('type'),
-                            dataStore = me.getStore(type.charAt(0).toUpperCase() + type.substring(1) + 'RegisterData');
+                dependenciesCount--;
+                if (!dependenciesCount) {
+                    widget = Ext.widget('tabbedDeviceRegisterView', {
+                        device: device,
+                        router: router
+                    });
+                    type = register.get('type');
+                    dataStore = me.getStore(type.charAt(0).toUpperCase() + type.substring(1) + 'RegisterData');
 
-                        var widget = Ext.widget('tabbedDeviceRegisterView', {
-                            device: device,
-                            router: router
-                        });
-                        widget.down('#registerTabPanel').setTitle(register.get('readingType').fullAliasName);
-                        me.getApplication().fireEvent('loadRegisterConfiguration', register);
-                        var func = function () {
-                            me.getApplication().fireEvent('changecontentevent', widget);
-                            tabController.showTab(1);
-                            var dataReport = Ext.widget('deviceregisterreportsetup-' + type, {
-                                mRID: encodeURIComponent(mRID),
-                                registerId: registerId
-                            });
-                            widget.down('#register-data').add(dataReport);
-                            var valueColumn = widget.down('grid').down('[dataIndex=value]');
-                            valueColumn.setText(Uni.I18n.translate('device.registerData.value', 'MDC', 'Value') + ' (' + register.get('lastReading')['unitOfMeasure'] + ')');
+                    me.getApplication().fireEvent('changecontentevent', widget);
 
-                            me.getFilterPanel().bindStore(dataStore);
-                            if (type === 'billing' || type === 'numerical') {
-                                var deltaValueColumn = widget.down('grid').down('[dataIndex=deltaValue]');
-                                deltaValueColumn.setText(Uni.I18n.translate('device.registerData.deltaValue', 'MDC', 'Delta value') + ' (' + register.get('lastReading')['unitOfMeasure'] + ')');
-                                deltaValueColumn.setVisible(register.get('isCumulative'));
-                            }
+                    Ext.suspendLayouts();
+                    widget.down('#registerTabPanel').setTitle(register.get('readingType').fullAliasName);
 
-                            dataStore.load();
-                        };
-                        if (registersOfDeviceStore.getTotalCount() === 0) {
-                            registersOfDeviceStore.getProxy().url = registersOfDeviceStore.getProxy().url.replace('{mRID}', encodeURIComponent(mRID));
-                            registersOfDeviceStore.load(function () {
-                                func();
-                            });
-                        } else {
-                            func();
-                        }
-                    },
-                    callback: function () {
-                        contentPanel.setLoading(false);
+                    tabController.showTab(1);
+
+                    widget.down('#register-data').add(Ext.widget('deviceregisterreportsetup-' + type, {
+                        mRID: encodeURIComponent(mRID),
+                        registerId: registerId
+                    }));
+
+                    widget.down('grid').down('[dataIndex=value]').setText(Uni.I18n.translate('device.registerData.value', 'MDC', 'Value') + ' (' + register.get('lastReading')['unitOfMeasure'] + ')');
+
+                    me.getFilterPanel().bindStore(dataStore);
+
+                    if (type === 'billing' || type === 'numerical') {
+                        var deltaValueColumn = widget.down('grid').down('[dataIndex=deltaValue]');
+                        deltaValueColumn.setText(Uni.I18n.translate('device.registerData.deltaValue', 'MDC', 'Delta value') + ' (' + register.get('lastReading')['unitOfMeasure'] + ')');
+                        deltaValueColumn.setVisible(register.get('isCumulative'));
                     }
-                });
+                    Ext.resumeLayouts(true);
+
+                    contentPanel.setLoading(false);
+                    dataStore.load();
+                }
+            },
+            device,
+            register;
+
+        contentPanel.setLoading();
+        me.getModel('Mdc.model.Device').load(mRID, {
+            success: function (record) {
+                device = record;
+                me.getApplication().fireEvent('loadDevice', device);
+                onDependenciesLoad();
+            }
+        });
+        registerModel.getProxy().setExtraParam('mRID', encodeURIComponent(mRID));
+        registerModel.load(registerId, {
+            success: function (record) {
+                register = record;
+                me.getApplication().fireEvent('loadRegisterConfiguration', register);
+                onDependenciesLoad();
             }
         });
     },
