@@ -29,7 +29,6 @@ import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationParticipant;
 import com.energyict.mdc.dynamic.relation.RelationService;
-import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableClassType;
@@ -87,7 +86,6 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterM
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactoryImpl;
 import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationSupport;
-import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationTypeSupport;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -537,20 +535,6 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                         .mapper(PluggableClassRelationAttributeTypeUsage.class)
                         .find("relationAttributeTypeId", attributeType.getId());
         return !usages.isEmpty();
-    }
-
-    @Override
-    public RelationType findSecurityPropertyRelationType(DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
-        DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
-        SecurityPropertySetRelationTypeSupport relationTypeSupport =
-                new SecurityPropertySetRelationTypeSupport(
-                        this.dataModel,
-                        this,
-                        this.relationService,
-                        this.propertySpecService,
-                        deviceProtocol,
-                        deviceProtocolPluggableClass);
-        return relationTypeSupport.findRelationType();
     }
 
     @Override

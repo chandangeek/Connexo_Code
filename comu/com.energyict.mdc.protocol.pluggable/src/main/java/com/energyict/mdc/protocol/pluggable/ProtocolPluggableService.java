@@ -1,11 +1,9 @@
 package com.energyict.mdc.protocol.pluggable;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
 import com.energyict.mdc.dynamic.relation.RelationParticipant;
-import com.energyict.mdc.dynamic.relation.RelationType;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ConnectionType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
@@ -17,9 +15,7 @@ import com.energyict.mdc.protocol.api.services.DeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.InboundDeviceProtocolService;
 import com.energyict.mdc.protocol.api.services.LicensedProtocolService;
 
-import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,14 +30,14 @@ import java.util.Optional;
 @ProviderType
 public interface ProtocolPluggableService {
 
-    public static String COMPONENTNAME = "PPC";
+    String COMPONENTNAME = "PPC";
 
-    public void addLicensedProtocolService(LicensedProtocolService licensedProtocolService);
-    public void addDeviceProtocolService(DeviceProtocolService deviceProtocolService);
-    public void addInboundDeviceProtocolService(InboundDeviceProtocolService inboundDeviceProtocolService);
-    public void addConnectionTypeService(ConnectionTypeService connectionTypeService);
+    void addLicensedProtocolService(LicensedProtocolService licensedProtocolService);
+    void addDeviceProtocolService(DeviceProtocolService deviceProtocolService);
+    void addInboundDeviceProtocolService(InboundDeviceProtocolService inboundDeviceProtocolService);
+    void addConnectionTypeService(ConnectionTypeService connectionTypeService);
 
-    public ProtocolDeploymentListenerRegistration register(ProtocolDeploymentListener listener);
+    ProtocolDeploymentListenerRegistration register(ProtocolDeploymentListener listener);
 
     /**
      * Creates an instance of the pluggable protocol class with the specified name
@@ -54,7 +50,7 @@ public interface ProtocolPluggableService {
      * @param className the fully qualified Class name
      * @return the newly created DeviceProtocol
      */
-    public Object createProtocol(String className);
+    Object createProtocol(String className);
 
     /**
      * Create a DeviceProtocol messages related object
@@ -67,7 +63,7 @@ public interface ProtocolPluggableService {
      * @param javaClassName the javaClassName to use as model for the DeviceProtocol messages related object
      * @return the created message related object
      */
-    public Object createDeviceProtocolMessagesFor(String javaClassName);
+    Object createDeviceProtocolMessagesFor(String javaClassName);
 
     /**
      * Creates a DeviceProtocol security related object
@@ -80,14 +76,14 @@ public interface ProtocolPluggableService {
      * @param javaClassName the javaClassName to use as model for the DeviceProtocol security related object
      * @return the created security related object
      */
-    public Object createDeviceProtocolSecurityFor(String javaClassName);
+    Object createDeviceProtocolSecurityFor(String javaClassName);
 
     /**
      * Finds all device protocols that are covered by the license.
      *
      * @return a list of all available licensed protocols.
      */
-    public List<LicensedProtocol> getAllLicensedProtocols();
+    List<LicensedProtocol> getAllLicensedProtocols();
 
     /**
      * Tests if the specified java class name is covered by the license.
@@ -95,7 +91,7 @@ public interface ProtocolPluggableService {
      * @param javaClassName The name of the java class
      * @return A flag that indicates if the java class is covered by the license
      */
-    public boolean isLicensedProtocolClassName (String javaClassName);
+    boolean isLicensedProtocolClassName(String javaClassName);
 
     /**
      * Finds all {@link DeviceProtocolPluggableClass}es that are defined
@@ -103,17 +99,17 @@ public interface ProtocolPluggableService {
      *
      * @return The List of all DeviceProtocolPluggableClasses
      */
-    public Finder<DeviceProtocolPluggableClass> findAllDeviceProtocolPluggableClasses();
+    Finder<DeviceProtocolPluggableClass> findAllDeviceProtocolPluggableClasses();
 
-    public LicensedProtocol findLicensedProtocolFor(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
+    LicensedProtocol findLicensedProtocolFor(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
 
     Optional<DeviceProtocolPluggableClass> findDeviceProtocolPluggableClass(long id);
 
     Optional<DeviceProtocolPluggableClass> findAndLockDeviceProtocolPluggableClassByIdAndVersion(long id, long version);
 
-    public Optional<DeviceProtocolPluggableClass> findDeviceProtocolPluggableClassByName(String name);
+    Optional<DeviceProtocolPluggableClass> findDeviceProtocolPluggableClassByName(String name);
 
-    public List<DeviceProtocolPluggableClass> findDeviceProtocolPluggableClassesByClassName(String className);
+    List<DeviceProtocolPluggableClass> findDeviceProtocolPluggableClassesByClassName(String className);
 
     /**
      * Deletes the {@link DeviceProtocolPluggableClass} that is uniquely
@@ -121,7 +117,7 @@ public interface ProtocolPluggableService {
      *
      * @param id The id of the obsolete DeviceProtocolPluggableClass
      */
-    public void deleteDeviceProtocolPluggableClass (long id);
+    void deleteDeviceProtocolPluggableClass(long id);
 
     /**
      * Creates a new {@link DeviceProtocolPluggableClass} with the specified name
@@ -131,7 +127,7 @@ public interface ProtocolPluggableService {
      * @param className The name of java class that implements the DeviceProtocolPluggableClass
      * @return The newly created DeviceProtocolPluggableClass
      */
-    public DeviceProtocolPluggableClass newDeviceProtocolPluggableClass(String name, String className);
+    DeviceProtocolPluggableClass newDeviceProtocolPluggableClass(String name, String className);
 
     /**
      * Creates a new {@link DeviceProtocolPluggableClass} with the specified name
@@ -142,15 +138,15 @@ public interface ProtocolPluggableService {
      * @param typedProperties The TypedProperties
      * @return The newly created DeviceProtocolPluggableClass
      */
-    public DeviceProtocolPluggableClass newDeviceProtocolPluggableClass(String name, String className, TypedProperties typedProperties);
+    DeviceProtocolPluggableClass newDeviceProtocolPluggableClass(String name, String className, TypedProperties typedProperties);
 
-    public List<InboundDeviceProtocolPluggableClass> findInboundDeviceProtocolPluggableClassByClassName(String javaClassName);
+    List<InboundDeviceProtocolPluggableClass> findInboundDeviceProtocolPluggableClassByClassName(String javaClassName);
 
     Optional<InboundDeviceProtocolPluggableClass> findInboundDeviceProtocolPluggableClass(long id);
 
     Optional<InboundDeviceProtocolPluggableClass> findAndLockInboundDeviceProtocolPluggableClassByIdAndVersion(long id, long version);
 
-    public List<InboundDeviceProtocolPluggableClass> findAllInboundDeviceProtocolPluggableClass();
+    List<InboundDeviceProtocolPluggableClass> findAllInboundDeviceProtocolPluggableClass();
 
     /**
      * Returns a new {@link InboundDeviceProtocolPluggableClass} who's properties can be completed
@@ -168,7 +164,7 @@ public interface ProtocolPluggableService {
      * @see PluggableClass#setProperty(com.elster.jupiter.properties.PropertySpec, Object)
      * @see PluggableClass#save()
      */
-    public InboundDeviceProtocolPluggableClass newInboundDeviceProtocolPluggableClass (String name, String javaClassName);
+    InboundDeviceProtocolPluggableClass newInboundDeviceProtocolPluggableClass(String name, String javaClassName);
 
     /**
      * Returns a new {@link InboundDeviceProtocolPluggableClass} that is already saved to the database.
@@ -189,16 +185,16 @@ public interface ProtocolPluggableService {
      * @see PluggableClass#save()
      * @see com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol#getPropertySpecs()
      */
-    public InboundDeviceProtocolPluggableClass newInboundDeviceProtocolPluggableClass (String name, String javaClassName, TypedProperties properties);
+    InboundDeviceProtocolPluggableClass newInboundDeviceProtocolPluggableClass(String name, String javaClassName, TypedProperties properties);
 
-    public void deleteInboundDeviceProtocolPluggableClass(long id);
+    void deleteInboundDeviceProtocolPluggableClass(long id);
 
-    public List<ConnectionTypePluggableClass> findConnectionTypePluggableClassByClassName(String javaClassName);
-    public Optional<ConnectionTypePluggableClass> findConnectionTypePluggableClassByName(String name);
+    List<ConnectionTypePluggableClass> findConnectionTypePluggableClassByClassName(String javaClassName);
+    Optional<ConnectionTypePluggableClass> findConnectionTypePluggableClassByName(String name);
 
-    public Optional<ConnectionTypePluggableClass> findConnectionTypePluggableClass(long id);
+    Optional<ConnectionTypePluggableClass> findConnectionTypePluggableClass(long id);
 
-    public List<ConnectionTypePluggableClass> findAllConnectionTypePluggableClasses();
+    List<ConnectionTypePluggableClass> findAllConnectionTypePluggableClasses();
 
     /**
      * Returns a new {@link ConnectionTypePluggableClass} who's properties can be completed
@@ -216,7 +212,7 @@ public interface ProtocolPluggableService {
      * @see PluggableClass#setProperty(com.elster.jupiter.properties.PropertySpec, Object)
      * @see PluggableClass#save()
      */
-    public ConnectionTypePluggableClass newConnectionTypePluggableClass (String name, String javaClassName);
+    ConnectionTypePluggableClass newConnectionTypePluggableClass(String name, String javaClassName);
 
     /**
      * Returns a new {@link ConnectionTypePluggableClass} that is already saved to the database.
@@ -237,13 +233,13 @@ public interface ProtocolPluggableService {
      * @see PluggableClass#save()
      * @see com.energyict.mdc.protocol.api.ConnectionType#getPropertySpecs()
      */
-    public ConnectionTypePluggableClass newConnectionTypePluggableClass (String name, String javaClassName, TypedProperties properties);
+    ConnectionTypePluggableClass newConnectionTypePluggableClass(String name, String javaClassName, TypedProperties properties);
 
-    public String createOriginalAndConformRelationNameBasedOnJavaClassname (Class<?> clazz);
+    String createOriginalAndConformRelationNameBasedOnJavaClassname(Class<?> clazz);
 
-    public String createConformRelationTypeName (String name);
+    String createConformRelationTypeName(String name);
 
-    public String createConformRelationAttributeName (String name);
+    String createConformRelationAttributeName(String name);
 
     /**
      * Returns a {@link DeviceProtocolDialectUsagePluggableClass} for the
@@ -253,18 +249,9 @@ public interface ProtocolPluggableService {
      * @param dialectName The name of the dialect
      * @return The DeviceProtocolDialectUsagePluggableClass
      */
-    public DeviceProtocolDialectUsagePluggableClass getDeviceProtocolDialectUsagePluggableClass (DeviceProtocolPluggableClass pluggableClass, String dialectName);
+    DeviceProtocolDialectUsagePluggableClass getDeviceProtocolDialectUsagePluggableClass(DeviceProtocolPluggableClass pluggableClass, String dialectName);
 
-    public boolean isDefaultAttribute(RelationAttributeType attributeType);
-
-    /**
-     * Finds the {@link RelationType} that holds the security properties
-     * for the specified {@link DeviceProtocolPluggableClass}.
-     *
-     * @param deviceProtocolPluggableClass The DeviceProtocolPluggableClass
-     * @return The RelationType
-     */
-    public RelationType findSecurityPropertyRelationType(DeviceProtocolPluggableClass deviceProtocolPluggableClass);
+    boolean isDefaultAttribute(RelationAttributeType attributeType);
 
     /**
      * Load the jsoned Cache object for the given string.
@@ -275,13 +262,13 @@ public interface ProtocolPluggableService {
      * @param jsonCache the json representation of the cache
      * @return the unmarshalled object
      */
-    public Optional<Object> unMarshallDeviceProtocolCache(String jsonCache);
+    Optional<Object> unMarshallDeviceProtocolCache(String jsonCache);
 
-    public String marshallDeviceProtocolCache(Object legacyCache);
+    String marshallDeviceProtocolCache(Object legacyCache);
 
-    public ConnectionType createConnectionType(String javaClassName);
+    ConnectionType createConnectionType(String javaClassName);
 
-    public InboundDeviceProtocol createInboundDeviceProtocolFor(PluggableClass pluggableClass);
+    InboundDeviceProtocol createInboundDeviceProtocolFor(PluggableClass pluggableClass);
 
     /**
      * Tests if the SecurityPropertySet has any {@link com.energyict.mdc.dynamic.relation.Relation}s
@@ -292,6 +279,6 @@ public interface ProtocolPluggableService {
      * @param deviceProtocol The DeviceProtocol
      * @return A flag that indicates if the SecurityPropertySet is in use on Devices
      */
-    public boolean hasSecurityRelations(RelationParticipant securityPropertySet, DeviceProtocol deviceProtocol);
+    boolean hasSecurityRelations(RelationParticipant securityPropertySet, DeviceProtocol deviceProtocol);
 
 }
