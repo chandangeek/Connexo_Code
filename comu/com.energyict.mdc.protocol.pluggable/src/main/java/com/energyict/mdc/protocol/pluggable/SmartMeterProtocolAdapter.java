@@ -1,5 +1,7 @@
 package com.energyict.mdc.protocol.pluggable;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
@@ -21,6 +23,7 @@ import com.energyict.mdc.protocol.api.HHUEnabler;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
@@ -454,12 +457,12 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
     }
 
     @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
         if (this.delegateSecurityToActualProtocol()) {
-            return getDeviceSecuritySupport().getSecurityPropertySpecs();
+            return this.getDeviceSecuritySupport().getCustomPropertySet();
         }
         else {
-            return this.smartMeterProtocolSecuritySupportAdapter.getSecurityPropertySpecs();
+            return this.smartMeterProtocolSecuritySupportAdapter.getCustomPropertySet();
         }
     }
 
@@ -490,16 +493,6 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
         }
         else {
             return this.smartMeterProtocolSecuritySupportAdapter.getSecurityPropertySpec(name);
-        }
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        if (this.delegateSecurityToActualProtocol()) {
-            return getDeviceSecuritySupport().getSecurityRelationTypeName();
-        }
-        else {
-            return this.smartMeterProtocolSecuritySupportAdapter.getSecurityRelationTypeName();
         }
     }
 

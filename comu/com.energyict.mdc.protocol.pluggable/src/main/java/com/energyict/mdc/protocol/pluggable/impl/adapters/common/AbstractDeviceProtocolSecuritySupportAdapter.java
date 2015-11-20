@@ -1,9 +1,11 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
-import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.exceptions.DeviceProtocolAdapterCodingExceptions;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
@@ -64,20 +66,12 @@ public abstract class AbstractDeviceProtocolSecuritySupportAdapter implements De
     }
 
     @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
         if (checkExistingSecuritySupport()) {
-            return this.legacySecuritySupport.getSecurityPropertySpecs();
-        } else {
-            return Collections.emptyList();
+            return this.legacySecuritySupport.getCustomPropertySet();
         }
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        if (checkExistingSecuritySupport()) {
-            return this.legacySecuritySupport.getSecurityRelationTypeName();
-        } else {
-            return "";
+        else {
+            return Optional.empty();
         }
     }
 
@@ -96,15 +90,6 @@ public abstract class AbstractDeviceProtocolSecuritySupportAdapter implements De
             return this.legacySecuritySupport.getEncryptionAccessLevels();
         } else {
             return Collections.emptyList();
-        }
-    }
-
-    @Override
-    public Optional<PropertySpec> getSecurityPropertySpec(String name) {
-        if (checkExistingSecuritySupport()) {
-            return this.legacySecuritySupport.getSecurityPropertySpec(name);
-        } else {
-            return Optional.empty();
         }
     }
 
@@ -151,4 +136,5 @@ public abstract class AbstractDeviceProtocolSecuritySupportAdapter implements De
             this.propertiesAdapter.copyProperties(getLegacySecurityPropertyConverter().convertToTypedProperties(deviceProtocolSecurityPropertySet));
         }
     }
+
 }

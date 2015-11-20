@@ -1,5 +1,14 @@
 package com.energyict.mdc.protocol.pluggable.impl;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.relation.RelationService;
@@ -9,6 +18,7 @@ import com.energyict.mdc.pluggable.PluggableClassType;
 import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.exceptions.ProtocolCreationException;
 import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
@@ -22,14 +32,6 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.CapabilityAdapt
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.MeterProtocolAdapterImpl;
-import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationTypeSupport;
-
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.properties.PropertySpec;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -49,6 +51,7 @@ import java.util.List;
 @HasValidProperties(groups = { Save.Update.class, Save.Create.class })
 public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrapper<DeviceProtocol> implements DeviceProtocolPluggableClass {
 
+    private final CustomPropertySetService customPropertySetService;
     private final PropertySpecService propertySpecService;
     private final ProtocolPluggableService protocolPluggableService;
     private final SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory;
@@ -61,13 +64,14 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     private final MeteringService meteringService;
 
     @Inject
-    public DeviceProtocolPluggableClassImpl(EventService eventService, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, RelationService relationService, DataModel dataModel, Thesaurus thesaurus, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory, MessageAdapterMappingFactory messageAdapterMappingFactory, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
+    public DeviceProtocolPluggableClassImpl(EventService eventService, PropertySpecService propertySpecService, ProtocolPluggableService protocolPluggableService, SecuritySupportAdapterMappingFactory securitySupportAdapterMappingFactory, RelationService relationService, DataModel dataModel, Thesaurus thesaurus, CustomPropertySetService customPropertySetService, CapabilityAdapterMappingFactory capabilityAdapterMappingFactory, MessageAdapterMappingFactory messageAdapterMappingFactory, IssueService issueService, CollectedDataFactory collectedDataFactory, MeteringService meteringService) {
         super(eventService, thesaurus);
         this.propertySpecService = propertySpecService;
         this.protocolPluggableService = protocolPluggableService;
         this.securitySupportAdapterMappingFactory = securitySupportAdapterMappingFactory;
         this.relationService = relationService;
         this.dataModel = dataModel;
+        this.customPropertySetService = customPropertySetService;
         this.capabilityAdapterMappingFactory = capabilityAdapterMappingFactory;
         this.messageAdapterMappingFactory = messageAdapterMappingFactory;
         this.issueService = issueService;
@@ -141,16 +145,20 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     public void save() {
         Save.action(this.getId()).validate(dataModel, this);
         super.save();
+        this.registerSecurityCustomPropertySet();
         this.createRelationTypes();
     }
 
-    private void createRelationTypes () {
-        this.createSecurityPropertiesRelationType();
-        this.createDialectRelationTypes();
+    private void registerSecurityCustomPropertySet() {
+        this.newInstance().getCustomPropertySet().ifPresent(this::register);
     }
 
-    private void createSecurityPropertiesRelationType () {
-        DeviceProtocolSecurityRelationTypeCreator.createRelationType(this.dataModel, this.protocolPluggableService, this.relationService, this, this.propertySpecService);
+    private void register(CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>> customPropertySet) {
+        this.customPropertySetService.addSystemCustomPropertySet(customPropertySet);
+    }
+
+    private void createRelationTypes () {
+        this.createDialectRelationTypes();
     }
 
     private void createDialectRelationTypes () {
@@ -165,7 +173,7 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
     public void delete() {
         super.delete();
         this.deleteDialectRelationTypes();
-        this.deleteSecurityRelationTypes();
+        this.unregisterSecurityCustomPropertySet();
     }
 
     private void deleteDialectRelationTypes() {
@@ -176,17 +184,12 @@ public final class DeviceProtocolPluggableClassImpl extends PluggableClassWrappe
         }
     }
 
-    private void deleteSecurityRelationTypes() {
-        DeviceProtocol deviceProtocol = this.newInstance();
-        SecurityPropertySetRelationTypeSupport relationTypeSupport =
-                new SecurityPropertySetRelationTypeSupport(
-                        this.dataModel,
-                        this.protocolPluggableService,
-                        this.relationService,
-                        this.propertySpecService,
-                        deviceProtocol,
-                        this);
-        relationTypeSupport.deleteRelationType();
+    private void unregisterSecurityCustomPropertySet() {
+        this.newInstance().getCustomPropertySet().ifPresent(this::unregister);
+    }
+
+    private void unregister(CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>> customPropertySet) {
+        this.customPropertySetService.removeSystemCustomPropertySet(customPropertySet);
     }
 
     @Override

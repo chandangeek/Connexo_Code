@@ -1,20 +1,23 @@
 package com.energyict.mdc.protocol.pluggable.impl.adapters.common;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.DeviceSecuritySupport;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-
 import javax.inject.Inject;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Simple implementation of a {@link DeviceSecuritySupport} component.
@@ -26,53 +29,30 @@ import java.util.List;
  */
 public class SimpleTestDeviceSecuritySupport implements DeviceProtocolSecurityCapabilities, LegacySecurityPropertyConverter {
 
-    public static final String DUMMY_RELATION_TYPE_NAME = "DummySRTN";
-    public static final String FIRST_PROPERTY_NAME = "FirstPropertyName";
-    public static final String SECOND_PROPERTY_NAME = "SecondPropertyName";
-    public static final String THIRD_PROPERTY_NAME = "ThirdPropertyName";
     public static final int AUTHENTICATION_DEVICE_ACCESS_LEVEL_ID = 1000;
     public static final int ENCRYPTION_DEVICE_ACCESS_LEVEL_ID = 2000;
 
-    public PropertySpec firstPropSpec;
-    public PropertySpec secondPropSpec;
-    public PropertySpec thirdPropSpec;
+    private final PropertySpecService propertySpecService;
 
     @Inject
     public SimpleTestDeviceSecuritySupport(PropertySpecService propertySpecService) {
         super();
-        this.firstPropSpec = propertySpecService.basicPropertySpec(FIRST_PROPERTY_NAME, false, StringFactory.class);
-        this.secondPropSpec = propertySpecService.basicPropertySpec(SECOND_PROPERTY_NAME, false, StringFactory.class);
-        this.thirdPropSpec = propertySpecService.basicPropertySpec(THIRD_PROPERTY_NAME, false, StringFactory.class);
+        this.propertySpecService = propertySpecService;
     }
 
     @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        return Arrays.asList(firstPropSpec, secondPropSpec, thirdPropSpec);
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return DUMMY_RELATION_TYPE_NAME;
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+        return Optional.of(new SimpleTestDeviceCustomPropertySet(this.propertySpecService));
     }
 
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return Arrays.<AuthenticationDeviceAccessLevel>asList(new SimpleTestAuthenticationDeviceAccessLevel());
+        return Collections.<AuthenticationDeviceAccessLevel>singletonList(new SimpleTestAuthenticationDeviceAccessLevel());
     }
 
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return Arrays.<EncryptionDeviceAccessLevel>asList(new SimpleTestEncryptionDeviceAccessLevel());
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        for (PropertySpec securityProperty : getSecurityPropertySpecs()) {
-            if (securityProperty.getName().equals(name)) {
-                return securityProperty;
-            }
-        }
-        return null;
+        return Collections.<EncryptionDeviceAccessLevel>singletonList(new SimpleTestEncryptionDeviceAccessLevel());
     }
 
     @Override
@@ -99,7 +79,7 @@ public class SimpleTestDeviceSecuritySupport implements DeviceProtocolSecurityCa
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(firstPropSpec);
+            return Collections.singletonList(SimpleTestDeviceSecurityProperties.ActualFields.FIRST.propertySpec(propertySpecService));
         }
     }
 
@@ -117,7 +97,10 @@ public class SimpleTestDeviceSecuritySupport implements DeviceProtocolSecurityCa
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(secondPropSpec, thirdPropSpec);
+            return Arrays.asList(
+                    SimpleTestDeviceSecurityProperties.ActualFields.SECOND.propertySpec(propertySpecService),
+                    SimpleTestDeviceSecurityProperties.ActualFields.THIRD.propertySpec(propertySpecService));
         }
     }
+
 }

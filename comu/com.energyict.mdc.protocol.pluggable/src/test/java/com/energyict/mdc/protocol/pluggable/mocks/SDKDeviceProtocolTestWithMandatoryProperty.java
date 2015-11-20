@@ -1,5 +1,11 @@
 package com.energyict.mdc.protocol.pluggable.mocks;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -13,6 +19,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedFirmwareVersion;
 import com.energyict.mdc.protocol.api.device.data.CollectedLoadProfile;
@@ -29,11 +36,6 @@ import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.time.TimeDuration;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -41,6 +43,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -273,32 +276,18 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
     }
 
     @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return "MockedSecurity";
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+        return Optional.empty();
     }
 
     @Override
     public List<AuthenticationDeviceAccessLevel> getAuthenticationAccessLevels() {
-        return Arrays.asList(new NoAuthentication());
+        return Collections.singletonList(new NoAuthentication());
     }
 
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
-        return Arrays.asList(new NoMessageEncryption());
-    }
-
-    @Override
-    public PropertySpec getSecurityPropertySpec(String name) {
-        return this.getSecurityPropertySpecs()
-                .stream()
-                .filter(p -> p.getName().equals(name))
-                .findFirst()
-                .orElse(null);
+        return Collections.singletonList(new NoMessageEncryption());
     }
 
     @Override
@@ -372,7 +361,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
 
         private final int accessLevel;
 
-        private AuthenticationAccessLevelIds(int accessLevel) {
+        AuthenticationAccessLevelIds(int accessLevel) {
             this.accessLevel = accessLevel;
         }
 
@@ -390,7 +379,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
 
         private final int accessLevel;
 
-        private EncryptionAccessLevelIds(int accessLevel) {
+        EncryptionAccessLevelIds(int accessLevel) {
             this.accessLevel = accessLevel;
         }
 
@@ -403,7 +392,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
 
         @Override
         public int getId() {
-            return AuthenticationAccessLevelIds.NO_AUTHENTICATION.accessLevel;
+            return AuthenticationAccessLevelIds.NO_AUTHENTICATION.getAccessLevel();
         }
 
         @Override
@@ -413,7 +402,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(clientMacAddressPropertySpec());
+            return Collections.singletonList(clientMacAddressPropertySpec());
         }
 
     }
@@ -430,7 +419,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
 
         @Override
         public int getId() {
-            return EncryptionAccessLevelIds.NO_MESSAGE_ENCRYPTION.accessLevel;
+            return EncryptionAccessLevelIds.NO_MESSAGE_ENCRYPTION.getAccessLevel();
         }
 
         @Override
@@ -440,7 +429,7 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
 
         @Override
         public List<PropertySpec> getSecurityProperties() {
-            return Arrays.asList(clientMacAddressPropertySpec());
+            return Collections.singletonList(clientMacAddressPropertySpec());
         }
 
     }
