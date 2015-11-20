@@ -66,7 +66,7 @@ public class DeviceEndDeviceQueryProvider implements EndDeviceQueryProvider {
     @Override
     public List<EndDevice> findEndDevices(Instant instant, List<SearchablePropertyCondition> conditions, int start, int limit) {
         DeviceSearchDomain deviceSearchDomain = (DeviceSearchDomain) searchService.findDomain(Device.class.getName()).get();
-    	Subquery subQuery = () -> deviceSearchDomain.finderFor(conditions).asFragment("id");
+    	Subquery subQuery = () -> deviceSearchDomain.finderFor(conditions).asFragment("'' || id");//number to char convertion
     	Condition amrCondition = where("amrSystemId").isEqualTo(KnownAmrSystem.MDC.getId()).and(ListOperator.IN.contains(subQuery, "amrId"));
         Order order = Order.ascending("mRID");
         if (start > -1) {
