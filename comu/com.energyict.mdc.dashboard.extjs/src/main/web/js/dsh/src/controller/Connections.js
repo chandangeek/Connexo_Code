@@ -43,7 +43,7 @@ Ext.define('Dsh.controller.Connections', {
         },
         {
             ref: 'filterPanel',
-            selector: '#connectionsdetails filter-top-panel'
+            selector: '#connectionsdetails dsh-view-widget-connectionstopfilter'
         },
         {
             ref: 'sideFilterForm',
@@ -91,6 +91,9 @@ Ext.define('Dsh.controller.Connections', {
             },
             'connections-list #generate-report': {
                 click: this.onGenerateReport
+            },
+            'connections-list #btn-connections-bulk-action': {
+                click: this.navigateToBulk
             },
             'connections-details uni-actioncolumn': {
                 run: this.connectionRun,
@@ -217,7 +220,7 @@ Ext.define('Dsh.controller.Connections', {
         var me = this;
         var router = this.getController('Uni.controller.history.Router');
         var fieldsToFilterNameMap = {};
-        fieldsToFilterNameMap['deviceGroup'] = 'GROUPNAME';
+        fieldsToFilterNameMap['deviceGroups'] = 'GROUPNAME';
         fieldsToFilterNameMap['currentStates'] = 'STATUS';
         fieldsToFilterNameMap['latestResults'] = null;
         fieldsToFilterNameMap['comSchedules'] = 'SCHEDULENAME';
@@ -226,34 +229,20 @@ Ext.define('Dsh.controller.Connections', {
         fieldsToFilterNameMap['comPortPools'] = 'PORTPOOLNAME';
         fieldsToFilterNameMap['connectionTypes'] = 'CONNECTIONTYPE';
 
-        var reportFilter = false;
+        var reportFilter = {};
 
-        var fields = me.getSideFilterForm().getForm().getFields();
-        fields.each(function (field) {
-            reportFilter = reportFilter || {};
-            var filterName = fieldsToFilterNameMap[field.getName()];
-            if (filterName) {
-                var fieldValue = field.getRawValue();
-                if (field.getXType() == 'side-filter-combo') {
-                    fieldValue = Ext.isString(fieldValue) && fieldValue.split(', ') || fieldValue;
-                    fieldValue = _.isArray(fieldValue) && _.compact(fieldValue) || fieldValue;
+        Ext.iterate(me.getFilterPanel().getFilterParams(), function (filterKey, filterValue) {
+            var filterName = fieldsToFilterNameMap[filterKey];
+
+            if (filterName && !Ext.isEmpty(filterValue)) {
+                reportFilter[filterName] = filterValue;
+            } else if (filterKey === 'startIntervalFrom' || filterKey === 'startIntervalTo') {
+                if (!reportFilter['CONNECTIONDATE']) {
+                    reportFilter['CONNECTIONDATE'] = {};
                 }
+                reportFilter['CONNECTIONDATE'][filterKey === 'startIntervalFrom' ? 'from' : 'to'] = Ext.Date.format(new Date(filterValue), 'Y-m-d H:i:s');
             }
-            reportFilter[filterName] = fieldValue;
         });
-
-        //handle special startBetween and finishBetween;
-
-        if(router.filter && router.filter.startedBetween){
-            var from = router.filter.startedBetween.get('from');
-            var to = router.filter.startedBetween.get('to');
-            reportFilter['CONNECTIONDATE'] ={
-                'from':from && Ext.Date.format(from,"Y-m-d H:i:s"),
-                'to':to && Ext.Date.format(to,"Y-m-d H:i:s")
-            };
-        }
-
-
 
         //handle special startBetween and finishBetween;
         //router.filter.startedBetween
@@ -262,7 +251,9 @@ Ext.define('Dsh.controller.Connections', {
         router.getRoute('generatereport').forward(null, {
             category: 'MDC',
             subCategory: 'Device Connections',
-            filter: reportFilter
+            filter: !Ext.Object.isEmpty(reportFilter)
+                ? Ext.JSON.encode(reportFilter)
+                : false
         });
     },
 
@@ -340,5 +331,4 @@ Ext.define('Dsh.controller.Connections', {
     doFilterLatestStatus: function(record, id) {
         return record.get('successIndicator') !== 'NOT_APPLICABLE';
     }
-
 });
