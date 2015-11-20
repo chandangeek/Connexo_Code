@@ -71,10 +71,6 @@ Ext.define('Uni.view.search.field.Numeric', {
             width: '455',
             operator: '==',
             removable: false,
-            onRemove: function() {
-                me.menu.remove(this);
-                me.onInputChange();
-            },
             operatorMap: {
                 '==': 'uni-search-internal-numberfield',
                 //'!=': 'uni-search-internal-numberfield',

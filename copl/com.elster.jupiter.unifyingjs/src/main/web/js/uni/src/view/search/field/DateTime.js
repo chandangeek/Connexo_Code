@@ -58,10 +58,6 @@ Ext.define('Uni.view.search.field.DateTime', {
             width: '455',
             operator: '==',
             removable: false,
-            onRemove: function() {
-                me.menu.remove(this);
-                me.onInputChange();
-            },
             operatorMap: {
                 '==': 'uni-search-internal-datetimefield',
                 //'!=': 'uni-search-internal-datetimefield',

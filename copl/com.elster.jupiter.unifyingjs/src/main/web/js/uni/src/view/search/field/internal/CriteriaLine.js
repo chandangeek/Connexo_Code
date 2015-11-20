@@ -39,8 +39,9 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
 
         if (xtype) {
             Ext.suspendLayouts();
-            me.items.removeAll();
-            me.add({
+
+            me.remove(me.getField());
+            me.field = me.add({
                 xtype: xtype,
                 itemsDefaultConfig: me.itemsDefaultConfig,
                 listeners: {
@@ -58,7 +59,7 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
     },
 
     getField: function () {
-        return this.items.getAt(0);
+        return this.field;
     },
 
     getValue: function() {
@@ -109,7 +110,8 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
         }];
 
         if (me.removable) {
-            me.rbar = {
+            me.dockedItems.push({
+                dock: 'right',
                 width: 15,
                 items: {
                     xtype: 'button',
@@ -121,10 +123,10 @@ Ext.define('Uni.view.search.field.internal.CriteriaLine', {
                     style: {
                         fontSize: '16px'
                     },
-                    handler: me.onRemove,
+                    handler: me.destroy,
                     scope: me
                 }
-            };
+            });
         }
 
         me.callParent(arguments);

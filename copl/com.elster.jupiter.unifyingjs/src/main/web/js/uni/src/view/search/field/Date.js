@@ -16,10 +16,6 @@ Ext.define('Uni.view.search.field.Date', {
             width: '455',
             operator: '==',
             removable: false,
-            onRemove: function() {
-                me.menu.remove(this);
-                me.onInputChange();
-            },
             operatorMap: {
                 '==': 'uni-search-internal-datefield',
                 //'!=': 'uni-search-internal-datefield',

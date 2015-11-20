@@ -16,10 +16,6 @@ Ext.define('Uni.view.search.field.TimeOfDay', {
             width: '455',
             operator: '==',
             removable: false,
-            onRemove: function() {
-                me.menu.remove(this);
-                me.onInputChange();
-            },
             operatorMap: {
                 '==': 'uni-search-internal-timeOfDayField',
                 //'!=': 'uni-search-internal-timeOfDayField',
