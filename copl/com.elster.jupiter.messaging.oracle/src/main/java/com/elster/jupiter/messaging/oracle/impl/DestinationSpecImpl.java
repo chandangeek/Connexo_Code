@@ -377,7 +377,7 @@ class DestinationSpecImpl implements DestinationSpec {
         try {
             try (Connection connection = dataModel.getConnection(false)) {
                 try (PreparedStatement statement = connection.prepareStatement(countSql)) {
-                    statement.setString(1, name);
+                    statement.setString(1, name.toUpperCase());
                     try (ResultSet resultSet = statement.executeQuery()) {
                         if (resultSet.next()) {
                             return resultSet.getLong(1);
