@@ -256,12 +256,12 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
                 failure: function (record, operation) {
                     var json = Ext.decode(operation.response.responseText, true);
 
-                    Ext.suspendLayouts();
-                    warningMsg.show();
-                    if (json && json.errors) {
+                    if (json && !Ext.isEmpty(json.errors)) {
+                        Ext.suspendLayouts();
+                        warningMsg.show();
                         baseForm.markInvalid(json.errors);
+                        Ext.resumeLayouts(true);
                     }
-                    Ext.resumeLayouts(true);
                 },
                 callback: function () {
                     form.setLoading(false);
