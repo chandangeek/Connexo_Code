@@ -143,7 +143,7 @@ public final class ConnectionTypePluggableClassImpl extends PluggableClassWrappe
     public CustomPropertySetValues getPropertiesFor(ConnectionProvider connectionProvider, Instant effectiveTimestamp) {
         return this.newInstance()
                 .getCustomPropertySet()
-                .map(propertySet -> this.customPropertySetService.getValuesFor(propertySet, connectionProvider, effectiveTimestamp))
+                .map(propertySet -> this.customPropertySetService.getUniqueVersionedValuesFor(propertySet, connectionProvider, effectiveTimestamp))
                 .orElseGet(() -> CustomPropertySetValues.emptyFrom(effectiveTimestamp));
     }
 
