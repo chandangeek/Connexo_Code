@@ -44,14 +44,14 @@ Ext.define('Apr.view.appservers.MessageServicesGrid', {
             {
                 xtype: 'actioncolumn',
                 privileges: Apr.privileges.AppServer.admin,
-                header: Uni.I18n.translate('general.actions', 'UNI', 'Actions'),
+                header: Uni.I18n.translate('general.actions', 'APR', 'Actions'),
                 align: 'right',
                 itemId: 'apr-remove-message-service-column',
                 items: [
                     {
                         iconCls: 'uni-icon-delete',
                         itemId: 'apr-remove-message-service-btn',
-                        tooltip: Uni.I18n.translate('general.remove', 'UNI', 'Remove'),
+                        tooltip: Uni.I18n.translate('general.remove', 'APR', 'Remove'),
                         handler: function (grid, rowIndex, colIndex, column, event, messageServiceRecord) {
                             me.fireEvent('msgServiceRemoveEvent', messageServiceRecord);
                         }

@@ -52,7 +52,7 @@ Ext.define('Apr.view.messagequeues.Setup', {
                                     },
                                     {
                                         xtype: 'button',
-                                        text: Uni.I18n.translate('general.saveSettings', 'APR', 'Undo'),
+                                        text: Uni.I18n.translate('general.undo', 'APR', 'Undo'),
                                         itemId: 'undo-message-queues-changes-button',
                                         privileges: Apr.privileges.AppServer.admin,
                                         disabled: true
