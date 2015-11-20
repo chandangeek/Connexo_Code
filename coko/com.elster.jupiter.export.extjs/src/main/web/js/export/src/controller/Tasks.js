@@ -1708,6 +1708,32 @@ Ext.define('Dxp.controller.Tasks', {
                             offsetSeconds: 0
                         });
                         break;
+                    case 'hours':
+                        record.set('schedule', {
+                            count: form.down('#recurrence-number').getValue(),
+                            timeUnit: timeUnitValue,
+                            offsetMonths: 0,
+                            offsetDays: 0,
+                            lastDayOfMonth: lastDayOfMonth,
+                            dayOfWeek: null,
+                            offsetHours: hours,
+                            offsetMinutes: minutes,
+                            offsetSeconds: 0
+                        });
+                        break;
+                    case 'minutes':
+                        record.set('schedule', {
+                            count: form.down('#recurrence-number').getValue(),
+                            timeUnit: timeUnitValue,
+                            offsetMonths: 0,
+                            offsetDays: 0,
+                            lastDayOfMonth: lastDayOfMonth,
+                            dayOfWeek: null,
+                            offsetHours: hours,
+                            offsetMinutes: minutes,
+                            offsetSeconds: 0
+                        });
+                        break;
                 }
             } else {
                 record.set('schedule', null);
