@@ -26,6 +26,7 @@ import com.elster.jupiter.validation.DataValidationTaskStatus;
 import com.elster.jupiter.validation.ValidationService;
 
 import javax.inject.Inject;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.List;
@@ -35,14 +36,12 @@ import java.util.UUID;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_VALIDATION_TASK + "}")
 public final class DataValidationTaskImpl implements DataValidationTask {
 
     private long id;
-    private final String uuid = UUID.randomUUID().toString().replaceAll("-", "");
 
-    @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY + "}")
-    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+    @NotNull(message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY  + "}")
+    @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
     private String name;
 
     private final TaskService taskService;
@@ -168,12 +167,13 @@ public final class DataValidationTaskImpl implements DataValidationTask {
 
     @Override
     public String getName() {
-        return name;
+        return (recurrentTask.isPresent()) ? recurrentTask.get().getName() : name;
     }
 
     @Override
     public void setName(String name) {
-        this.name = name;
+        this.name = (name != null ? name.trim() : "");
+        recurrentTaskDirty = true;
     }
 
     @Override
@@ -262,6 +262,9 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private void update() {
         if (recurrentTaskDirty) {
             if(recurrentTask.isPresent()) {
+                if (!recurrentTask.get().getName().equals(this.name)) {
+                    recurrentTask.get().setName(name);
+                }
                 recurrentTask.get().save();
             }
             else{
@@ -279,10 +282,10 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     private void persistRecurrentTask() {
         RecurrentTask task = taskService.newBuilder()
                 .setApplication("Pulse")
-                .setName(uuid)
+                .setName(name)
                 .setScheduleExpression(scheduleExpression)
                 .setDestination(dataValidationService.getDestination())
-                .setPayLoad(uuid)
+                .setPayLoad(getName())
                 .scheduleImmediately(scheduleImmediately)
                 .setFirstExecution(nextExecution).build();
         recurrentTask.set(task);

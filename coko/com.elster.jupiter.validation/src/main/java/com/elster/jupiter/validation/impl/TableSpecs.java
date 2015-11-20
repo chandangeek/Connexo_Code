@@ -166,7 +166,6 @@ public enum TableSpecs {
             table.map(DataValidationTaskImpl.class);
             table.setJournalTableName("VAL_DATAVALIDATIONTASKJRNL");
             Column idColumn = table.addAutoIdColumn();
-            Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             Column endDeviceGroupId = table.column("ENDDEVICEGROUP").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
@@ -184,7 +183,6 @@ public enum TableSpecs {
                     .references(TaskService.COMPONENTNAME, "TSK_RECURRENT_TASK")
                     .map("recurrentTask")
                     .add();
-            table.unique("VAL_UQ_TASK_NAME").on(nameColumn).add();
         }
     },
     VAL_OCCURRENCE{

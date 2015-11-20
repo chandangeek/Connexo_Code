@@ -618,7 +618,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
 
     @Override
     public List<DataValidationTask> findValidationTasks() {
-        return findValidationTasksQuery().select(Condition.TRUE, Order.ascending("upper(name)"));
+        return findValidationTasksQuery().select(Condition.TRUE, Order.descending("lastRun").nullsLast());
     }
 
     @Override
