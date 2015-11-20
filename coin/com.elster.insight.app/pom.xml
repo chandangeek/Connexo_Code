@@ -70,7 +70,22 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>validation</artifactId>
         </dependency>
-        
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>fileimport</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>time</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cps</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster</groupId>
+            <artifactId>insight.usagepoint.config</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.elster</groupId>
             <artifactId>insight.metering.extjs</artifactId>

@@ -14,6 +14,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
+//import com.elster.jupiter.license.License;
 import com.elster.insight.app.InsightAppService;
 import com.elster.jupiter.http.whiteboard.App;
 import com.elster.jupiter.http.whiteboard.BundleResolver;
@@ -25,15 +26,17 @@ import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.callback.InstallService;
+import com.elster.jupiter.users.ApplicationPrivilegesProvider;
+import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
 @Component(
         name = "com.elster.insight.app",
-        service = {InsightAppService.class, InstallService.class, TranslationKeyProvider.class},
-        property = "name=" + InsightAppService.COMPONENTNAME,
+        service = {InsightAppService.class, ApplicationPrivilegesProvider.class, TranslationKeyProvider.class},
+//        property = "name=" + InsightAppService.COMPONENTNAME,
         immediate = true)
-public class InsightAppServiceImpl implements InsightAppService, InstallService, TranslationKeyProvider {
+public class InsightAppServiceImpl implements InsightAppService, ApplicationPrivilegesProvider, TranslationKeyProvider {
     private static final Logger LOGGER = Logger.getLogger(InsightAppServiceImpl.class.getName());
     public static final String HTTP_RESOURCE_ALIAS = "/insight";
     public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/insight";
@@ -44,7 +47,8 @@ public class InsightAppServiceImpl implements InsightAppService, InstallService,
 
     private volatile ServiceRegistration<App> registration;
     private volatile UserService userService;
-
+    //private volatile License license;
+    
     public InsightAppServiceImpl() {
     }
 
@@ -68,48 +72,49 @@ public class InsightAppServiceImpl implements InsightAppService, InstallService,
     public void stop(BundleContext context) throws Exception {
         registration.unregister();
     }
-
-    @Override
-    public void install() {
-        assignPrivilegesToDefaultRoles();
-    }
-
-    @Override
-    public List<String> getPrerequisiteModules() {
-        return Arrays.asList(UserService.COMPONENTNAME, MeteringService.COMPONENTNAME);
-    }
-
+    
+//    @Reference(target = "(com.elster.jupiter.license.application.key=" + APPLICATION_KEY + ")")
+//    public void setLicense(License license) {
+//        this.license = license;
+//    }
+    
     @Reference
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
 
-    private void assignPrivilegesToDefaultRoles() {
-        List<String> availablePrivileges = getApplicationPrivileges();
-        userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, MeteringService.COMPONENTNAME, availablePrivileges.stream().toArray(String[]::new));
-        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, MeteringService.COMPONENTNAME, availablePrivileges.stream().toArray(String[]::new));
-    }
-
     private boolean isAllowed(User user) {
-        return true;
-        //List<Privilege> appPrivileges = getApplicationPrivileges();
-        //return user.getPrivileges().stream().anyMatch(appPrivileges::contains);
+   //     return true;
+    	List<? super Privilege> appPrivileges = getDBApplicationPrivileges();
+        return user.getPrivileges(APPLICATION_KEY).stream().anyMatch(appPrivileges::contains);
     }
-    private List<String> getApplicationPrivileges(){
-        return Arrays.asList(
-            //validation
-            com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
-            com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
-            com.elster.jupiter.validation.security.Privileges.Constants.VALIDATE_MANUAL,
-            com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE,
-            com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION,
-            //com.elster.jupiter.metering.security - usage points
-            com.elster.jupiter.metering.security.Privileges.Constants.ADMIN_ANY,
-            com.elster.jupiter.metering.security.Privileges.Constants.ADMIN_OWN,
-            com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_ANY,
-            com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_OWN);
+    
+    private List<? super Privilege> getDBApplicationPrivileges() {
+        return userService.getPrivileges(APPLICATION_KEY);
     }
+    
+    @Override
+    public List<String> getApplicationPrivileges() {
+        return InsightAppPrivileges.getApplicationPrivileges();
+    }
+    
+	@Override
+	public String getApplicationName() {
+		// TODO Auto-generated method stub
+		return APPLICATION_KEY;
+	}
 
+    @Override
+    public String getComponentName() {
+        //TODO: Change to COMPONENT_NAME after pulling the extjs stuff into a new bundle, etc.
+        return APPLICATION_KEY;
+    }
+    
+    @Override
+    public Layer getLayer() {
+        return Layer.REST;
+    }
+    
     @Override
     public List<TranslationKey> getKeys() {
         try {
@@ -118,16 +123,47 @@ public class InsightAppServiceImpl implements InsightAppService, InstallService,
             LOGGER.severe("Failed to load translations for the '" + COMPONENTNAME + "' component bundle.");
         }
         return null;
+        
+//        List<TranslationKey> translationKeys = new ArrayList<>();
+//        translationKeys.add(new SimpleTranslationKey(APPLICATION_KEY, APPLICATION_NAME));
+//        return translationKeys;
+        
     }
 
-    @Override
-    public String getComponentName() {
-        //TODO: Change to COMPONENT_NAME after pulling the extjs stuff into a new bundle, etc.
-        return "INS";
-    }
+    
+//    @Override
+//    public void install() {
+//        assignPrivilegesToDefaultRoles();
+//    }
+//
+//    @Override
+//    public List<String> getPrerequisiteModules() {
+//        return Arrays.asList(UserService.COMPONENTNAME, MeteringService.COMPONENTNAME);
+//    }
+//
+//
+//
+//    private void assignPrivilegesToDefaultRoles() {
+//        List<String> availablePrivileges = getApplicationPrivileges();
+//        userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, MeteringService.COMPONENTNAME, availablePrivileges.stream().toArray(String[]::new));
+//        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, MeteringService.COMPONENTNAME, availablePrivileges.stream().toArray(String[]::new));
+//    }
+//
+//
+//    private List<String> getApplicationPrivileges(){
+//        return Arrays.asList(
+//            //validation
+//            com.elster.jupiter.validation.security.Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,
+//            com.elster.jupiter.validation.security.Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
+//            com.elster.jupiter.validation.security.Privileges.Constants.VALIDATE_MANUAL,
+//            com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE,
+//            com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION,
+//            //com.elster.jupiter.metering.security - usage points
+//            com.elster.jupiter.metering.security.Privileges.Constants.ADMIN_ANY,
+//            com.elster.jupiter.metering.security.Privileges.Constants.ADMIN_OWN,
+//            com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_ANY,
+//            com.elster.jupiter.metering.security.Privileges.Constants.BROWSE_OWN);
+//    }
 
-    @Override
-    public Layer getLayer() {
-        return Layer.REST;
-    }
+
 }
