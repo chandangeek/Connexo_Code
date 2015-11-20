@@ -104,13 +104,14 @@ public interface CustomPropertySetService {
      *
      * @param customPropertySet The CustomPropertySet
      * @param businesObject The businesObject object
+     * @param additionalPrimaryKeyValues Values for the addition primary keys defined by the CustomPropertySet
      * @param <D> The businesObject class
      * @param <T> The class that holds persistent values for this CustomPropertySet
      * @return The CustomPropertySetValues
      * @see CustomPropertySet#isVersioned()
      * @throws UnsupportedOperationException Thrown when the CustomPropertySet is versioned
      */
-    <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject);
+    <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Object additionalPrimayKeyValues);
 
     /**
      * Sets the values for the {@link CustomPropertySet} that were saved for
@@ -148,13 +149,14 @@ public interface CustomPropertySetService {
      * @param customPropertySet The CustomPropertySet
      * @param businesObject The businesObject object
      * @param effectiveTimestamp The point in time
+     * @param additionalPrimaryKeyValues Values for the addition primary keys defined by the CustomPropertySet
      * @param <D> The businesObject class
      * @param <T> The class that holds persistent values for this CustomPropertySet
      * @return The CustomPropertySetValues
      * @see CustomPropertySet#isVersioned()
      * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
      */
-    <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp);
+    <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp, Object additionalPrimayKeyValues);
 
     /**
      * Sets the values for the {@link CustomPropertySet} against
@@ -190,13 +192,14 @@ public interface CustomPropertySetService {
      *
      * @param customPropertySet The CustomPropertySet
      * @param businesObject The domain object
+     * @param additionalPrimaryKeyValues Values for the addition primary keys defined by the CustomPropertySet
      * @param <D> The domain class
      * @param <T> The class that holds persistent values for this CustomPropertySet
      * @return The CustomPropertySetValues
      * @see CustomPropertySet#isVersioned()
      * @throws UnsupportedOperationException Thrown when the CustomPropertySet is versioned
      */
-    <D, T extends PersistentDomainExtension<D>> Optional<T> getValuesEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject);
+    <D, T extends PersistentDomainExtension<D>> Optional<T> getValuesEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Object... additionalPrimaryKeyValues);
 
     /**
      * Gets the values for the {@link CustomPropertySet} that were saved for
@@ -210,13 +213,14 @@ public interface CustomPropertySetService {
      * @param customPropertySet The CustomPropertySet
      * @param businesObject The businesObject object
      * @param effectiveTimestamp The point in time
+     * @param additionalPrimaryKeyValues Values for the addition primary keys defined by the CustomPropertySet
      * @param <D> The businesObject class
      * @param <T> The class that holds persistent values for this CustomPropertySet
      * @return The CustomPropertySetValues
      * @see CustomPropertySet#isVersioned()
      * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
      */
-    <D, T extends PersistentDomainExtension<D>> Optional<T> getValuesEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp);
+    <D, T extends PersistentDomainExtension<D>> Optional<T> getValuesEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues);
 
     /**
      * Removes all the values for the {@link CustomPropertySet} that
