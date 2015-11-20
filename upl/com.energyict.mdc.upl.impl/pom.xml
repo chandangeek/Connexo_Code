@@ -9,7 +9,7 @@
 
     <artifactId>protocols</artifactId>
     <packaging>pom</packaging>
-    <version>9.1.26-SNAPSHOT</version>
+    <version>9.1-FEAT03.0-SNAPSHOT</version>
     <name>protocols</name>
 
     <dependencies>
