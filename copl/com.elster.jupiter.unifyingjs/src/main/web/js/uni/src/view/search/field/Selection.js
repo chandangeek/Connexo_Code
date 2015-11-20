@@ -263,12 +263,12 @@ Ext.define('Uni.view.search.field.Selection', {
                 onStoreLoad: function (store) {
                     this.superclass.onStoreLoad.apply(this);
                     if (me.value && me.value[0]) {
-                        _.map(me.value[0].get('criteria'), function(id) {
-                            var record = store.getById(id);
-                            if (record) {
-                                selection.add(record);
-                            }
+                        var records = _.map(me.value[0].get('criteria'), function(id) {
+                            return store.getById(id);
                         });
+                        selection.suspendEvents();
+                        selection.add(_.filter(records, function(r){return r !== null}));
+                        selection.resumeEvents();
                     }
                     this.select(selection.getRange(), true, true);
                     this.updateHeaderState();

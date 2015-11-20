@@ -58,6 +58,7 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
 
         listeners.push(me.store.on('beforeload', function() {
             me.setDisabled(true);
+            me.menu.setLoading(true);
         }, me, {
             destroyable: true
         }));
@@ -71,11 +72,6 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
                 i.destroy()
             });
         });
-
-        me.on('menushow', function() {
-            me.store.load();
-            me.menu.setLoading(true);
-        })
     },
 
     onReset: function() {

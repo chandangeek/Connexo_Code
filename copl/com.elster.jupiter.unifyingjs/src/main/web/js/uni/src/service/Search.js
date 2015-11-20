@@ -432,6 +432,7 @@ Ext.define('Uni.service.Search', {
             store = me.getSearchPropertiesStore();
             store.clearFilter(true);
             store.addFilter(me.getFilters(), false);
+            store.load();
         }
 
         var deps = me.filters.filterBy(function(filter) {
