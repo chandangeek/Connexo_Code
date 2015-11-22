@@ -3,6 +3,7 @@ package com.elster.jupiter.cps;
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Interval;
+import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
@@ -183,7 +184,7 @@ public interface CustomPropertySetService {
     <D, T extends PersistentDomainExtension<D>> Optional<T> getValuesEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp);
     <D, T extends PersistentDomainExtension<D>> List<T> getValuesEntitiesFor(CustomPropertySet<D, T> customPropertySet, D businesObject);
     <D, T extends PersistentDomainExtension<D>> List<CustomPropertySetValues> getValuesHistoryFor(CustomPropertySet<D, T> customPropertySet, D businesObject);
-    <D, T extends PersistentDomainExtension<D>> Map<CustomPropertySetValues, MessageSeed> getValuesRangeOverlapFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Interval interval, Instant effectiveTimestamp, boolean isUpdate);
-    <D, T extends PersistentDomainExtension<D>> void setValuesVersionFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values, Interval interval, Instant effectiveTimestamp, boolean isUpdate);
+    <D, T extends PersistentDomainExtension<D>> Map<CustomPropertySetValues, MessageSeed> getValuesRangeOverlapFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Range<Instant> newRange, Instant effectiveTimestamp, boolean isUpdate);
+    <D, T extends PersistentDomainExtension<D>> void setValuesVersionFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values, Range<Instant> newRange, Instant effectiveTimestamp, boolean isUpdate);
 
 }

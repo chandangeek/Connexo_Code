@@ -104,8 +104,8 @@ class ActiveCustomPropertySet {
         this.customPropertySetDataModel.update(domainExtension);
     }
 
-    private <T extends PersistentDomainExtension<D>, D> void updateInterval(T domainExtension, Interval newInterval) {
-        DomainExtensionAccessor.setInterval(domainExtension, newInterval);
+    private <T extends PersistentDomainExtension<D>, D> void updateInterval(T domainExtension, Range<Instant> range) {
+        DomainExtensionAccessor.setInterval(domainExtension, Interval.of(range));
         Save.UPDATE.validate(this.customPropertySetDataModel, domainExtension);
         this.customPropertySetDataModel.update(domainExtension);
     }
@@ -130,11 +130,11 @@ class ActiveCustomPropertySet {
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends PersistentDomainExtension<D>, D> void createExtension(D businessObject, CustomPropertySetValues values, Interval interval) {
+    private <T extends PersistentDomainExtension<D>, D> void createExtension(D businessObject, CustomPropertySetValues values, Range<Instant> range) {
         T domainExtension = (T) this.customPropertySetDataModel.getInstance(this.customPropertySet.getPersistenceSupport().persistenceClass());
         DomainExtensionAccessor.setRegisteredCustomPropertySet(domainExtension, this.registeredCustomPropertySet);
         domainExtension.copyFrom(businessObject, values);
-        DomainExtensionAccessor.setInterval(domainExtension, interval);
+        DomainExtensionAccessor.setInterval(domainExtension, Interval.of(range));
         Save.CREATE.validate(this.customPropertySetDataModel, domainExtension);
         this.customPropertySetDataModel.persist(domainExtension);
     }
@@ -161,25 +161,25 @@ class ActiveCustomPropertySet {
         this.createExtension(businessObject, values, effectiveTimestamp);
     }
 
-    <T extends PersistentDomainExtension<D>, D> void setValuesEntityFor(D businessObject, CustomPropertySetValues values, Instant effectiveTimestamp, Interval interval) {
+    <T extends PersistentDomainExtension<D>, D> void setValuesEntityFor(D businessObject, CustomPropertySetValues values, Instant effectiveTimestamp, Range<Instant> range) {
         Optional<T> domainExtension = this.getValuesEntityFor(businessObject, effectiveTimestamp);
         if (domainExtension.isPresent()) {
-            DomainExtensionAccessor.setInterval(domainExtension.get(), interval);
+            DomainExtensionAccessor.setInterval(domainExtension.get(), Interval.of(range));
             this.customPropertySetDataModel.remove(domainExtension.get());
         }
-        this.createExtension(businessObject, values, interval);
+        this.createExtension(businessObject, values, range);
     }
 
-    <T extends PersistentDomainExtension<D>, D> void alignTimeSlicedValues(D businessObject, Instant effectiveTimestamp, Interval interval) {
+    <T extends PersistentDomainExtension<D>, D> void alignTimeSlicedValues(D businessObject, Instant effectiveTimestamp, Range<Instant> range) {
         Optional<T> domainExtension = this.getValuesEntityFor(businessObject, effectiveTimestamp);
         if (domainExtension.isPresent()) {
-            Instant oldStartTime = interval.toClosedOpenRange().hasLowerBound() ? interval.toClosedOpenRange().lowerEndpoint() : Instant.EPOCH;
+            Instant oldStartTime = range.hasLowerBound() ? range.lowerEndpoint() : Instant.EPOCH;
             if(effectiveTimestamp.equals(oldStartTime)) {
-                this.updateInterval(domainExtension.get(), interval);
+                this.updateInterval(domainExtension.get(), range);
             }
             else{
                 this.customPropertySetDataModel.remove(domainExtension.get());
-                DomainExtensionAccessor.setInterval(domainExtension.get(), interval);
+                DomainExtensionAccessor.setInterval(domainExtension.get(), Interval.of(range));
                 this.createExtension(domainExtension.get());
             }
         }
