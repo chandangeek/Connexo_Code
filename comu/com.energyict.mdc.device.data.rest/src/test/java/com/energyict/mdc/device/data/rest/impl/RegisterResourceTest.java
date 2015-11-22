@@ -41,6 +41,7 @@ public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     public CustomPropertySet mockCustomPropertySet() {
+        when(clock.instant()).thenReturn(Instant.ofEpochMilli(1448191220000L));
         Device device = mock(Device.class);
         DeviceType deviceType = mock(DeviceType.class);
         Register register = mock(Register.class);

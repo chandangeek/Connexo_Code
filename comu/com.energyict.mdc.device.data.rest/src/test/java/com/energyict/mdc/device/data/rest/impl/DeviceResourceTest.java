@@ -1544,6 +1544,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
     }
 
     public CustomPropertySet mockCustomPropertySet() {
+        when(clock.instant()).thenReturn(Instant.ofEpochMilli(1448191220000L));
         Device device = mock(Device.class);
         when(deviceService.findByUniqueMrid(anyString())).thenReturn(Optional.of(device));
         when(deviceService.findAndLockDeviceByIdAndVersion(anyLong(), anyLong())).thenReturn(Optional.of(device));

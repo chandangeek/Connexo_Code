@@ -41,6 +41,7 @@ import javax.inject.Inject;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import java.time.Clock;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -64,9 +65,10 @@ public class ResourceHelper {
     private final EstimationService estimationService;
     private final MdcPropertyUtils mdcPropertyUtils;
     private final CustomPropertySetService customPropertySetService;
+    private final Clock clock;
 
     @Inject
-    public ResourceHelper(DeviceService deviceService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory, DeviceConfigurationService deviceConfigurationService, LoadProfileService loadProfileService, CommunicationTaskService communicationTaskService, MeteringGroupsService meteringGroupsService, ConnectionTaskService connectionTaskService, DeviceMessageService deviceMessageService, ProtocolPluggableService protocolPluggableService, DataCollectionKpiService dataCollectionKpiService, EstimationService estimationService, MdcPropertyUtils mdcPropertyUtils, CustomPropertySetService customPropertySetService) {
+    public ResourceHelper(DeviceService deviceService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory, DeviceConfigurationService deviceConfigurationService, LoadProfileService loadProfileService, CommunicationTaskService communicationTaskService, MeteringGroupsService meteringGroupsService, ConnectionTaskService connectionTaskService, DeviceMessageService deviceMessageService, ProtocolPluggableService protocolPluggableService, DataCollectionKpiService dataCollectionKpiService, EstimationService estimationService, MdcPropertyUtils mdcPropertyUtils, CustomPropertySetService customPropertySetService, Clock clock) {
         super();
         this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
@@ -82,6 +84,7 @@ public class ResourceHelper {
         this.estimationService = estimationService;
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.customPropertySetService = customPropertySetService;
+        this.clock = clock;
     }
 
     public DeviceConfiguration findDeviceConfigurationByIdOrThrowException(long id) {
@@ -527,10 +530,10 @@ public class ResourceHelper {
                         ) :
                         new CustomPropertySetInfo(registeredCustomPropertySet, mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
                                 registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs(),
-                                getCustomProperties(customPropertySetService.getValuesFor(registeredCustomPropertySet.getCustomPropertySet(), device, Instant.now()))
+                                getCustomProperties(customPropertySetService.getValuesFor(registeredCustomPropertySet.getCustomPropertySet(), device, this.clock.instant()))
                         ),
                                 device.getId(), device.getVersion(),
-                                customPropertySetService.getValuesFor(registeredCustomPropertySet.getCustomPropertySet(), device, Instant.now()).getEffectiveRange()
+                                customPropertySetService.getValuesFor(registeredCustomPropertySet.getCustomPropertySet(), device, this.clock.instant()).getEffectiveRange()
                         )
         ));
         return customPropertySetInfos;
@@ -817,8 +820,8 @@ public class ResourceHelper {
     public <D> Range<Instant> getCurrentTimeInterval(RegisteredCustomPropertySet registeredCustomPropertySet, D businessObject, long businessObjectId, long businessObjectVersion, long cpsId) {
         List<CustomPropertySetInfo> customPropertySetInfo = this.getVersionedCustomPropertySetHistoryInfos(registeredCustomPropertySet, businessObject, businessObjectId, businessObjectVersion, cpsId)
                 .stream().filter(e -> e.id == cpsId).collect(Collectors.toList());
-        Instant now = Instant.now();
-        Optional<CustomPropertySetInfo> curentInterval = customPropertySetInfo.stream().filter(e -> getTimeRange(e.startTime, e.endTime).contains(Instant.now())).findFirst();
+        Instant now = this.clock.instant();
+        Optional<CustomPropertySetInfo> curentInterval = customPropertySetInfo.stream().filter(e -> getTimeRange(e.startTime, e.endTime).contains(this.clock.instant())).findFirst();
         if (curentInterval.isPresent()) {
             return getTimeRange(now.toEpochMilli(), curentInterval.get().endTime);
         }
