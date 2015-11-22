@@ -114,7 +114,7 @@ public class RegisterResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public IntervalInfo getCurrentTimeInterval(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId) {
         Register<?> register = doGetRegister(mRID, registerId);
-        Interval interval = resourceHelper.getCurrentTimeInterval(register, cpsId);
+        Interval interval = Interval.of(resourceHelper.getCurrentTimeInterval(register, cpsId));
 
         return IntervalInfo.from(interval.toClosedOpenRange());
     }
@@ -172,7 +172,7 @@ public class RegisterResource {
     public Response addRegisterCustomAttributeVersioned(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, @QueryParam("forced") boolean forced, CustomPropertySetInfo customPropertySetInfo) {
         Register<?> register = doGetRegister(mRID, registerId);
         resourceHelper.lockRegisterSpecOrThrowException(customPropertySetInfo.parent, customPropertySetInfo.version, register);
-        Optional<IntervalErrorInfos> intervalErrors = resourceHelper.verifyInterval(customPropertySetInfo.startTime, customPropertySetInfo.endTime);
+        Optional<IntervalErrorInfos> intervalErrors = resourceHelper.verifyTimeRange(customPropertySetInfo.startTime, customPropertySetInfo.endTime);
         if (intervalErrors.isPresent()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(intervalErrors.get()).build();
         }
@@ -187,7 +187,7 @@ public class RegisterResource {
     public Response editRegisterCustomAttributeVersioned(@PathParam("mRID") String mRID, @PathParam("registerId") long registerId, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") long timeStamp, @QueryParam("forced") boolean forced, CustomPropertySetInfo customPropertySetInfo) {
         Register<?> register = doGetRegister(mRID, registerId);
         resourceHelper.lockRegisterSpecOrThrowException(customPropertySetInfo.parent, customPropertySetInfo.version, register);
-        Optional<IntervalErrorInfos> intervalErrors = resourceHelper.verifyInterval(customPropertySetInfo.startTime, customPropertySetInfo.endTime);
+        Optional<IntervalErrorInfos> intervalErrors = resourceHelper.verifyTimeRange(customPropertySetInfo.startTime, customPropertySetInfo.endTime);
         if (intervalErrors.isPresent()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(intervalErrors.get()).build();
         }

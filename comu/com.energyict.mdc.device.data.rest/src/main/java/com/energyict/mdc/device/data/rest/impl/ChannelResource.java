@@ -142,7 +142,7 @@ public class ChannelResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public IntervalInfo getCurrentTimeInterval(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
-        Interval interval = resourceHelper.getCurrentTimeInterval(channel, cpsId);
+        Interval interval = Interval.of(resourceHelper.getCurrentTimeInterval(channel, cpsId));
 
         return IntervalInfo.from(interval.toClosedOpenRange());
     }
@@ -200,7 +200,7 @@ public class ChannelResource {
     public Response addChannelCustomAttributeVersioned(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId, @QueryParam("forced") boolean forced, CustomPropertySetInfo customPropertySetInfo) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
         resourceHelper.lockChannelSpecOrThrowException(customPropertySetInfo.parent, customPropertySetInfo.version, channel);
-        Optional<IntervalErrorInfos> intervalErrors = resourceHelper.verifyInterval(customPropertySetInfo.startTime, customPropertySetInfo.endTime);
+        Optional<IntervalErrorInfos> intervalErrors = resourceHelper.verifyTimeRange(customPropertySetInfo.startTime, customPropertySetInfo.endTime);
         if (intervalErrors.isPresent()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(intervalErrors.get()).build();
         }
@@ -215,7 +215,7 @@ public class ChannelResource {
     public Response editChannelCustomAttributeVersioned(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") long timeStamp, @QueryParam("forced") boolean forced, CustomPropertySetInfo customPropertySetInfo) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
         resourceHelper.lockChannelSpecOrThrowException(customPropertySetInfo.parent, customPropertySetInfo.version, channel);
-        Optional<IntervalErrorInfos> intervalErrors = resourceHelper.verifyInterval(customPropertySetInfo.startTime, customPropertySetInfo.endTime);
+        Optional<IntervalErrorInfos> intervalErrors = resourceHelper.verifyTimeRange(customPropertySetInfo.startTime, customPropertySetInfo.endTime);
         if (intervalErrors.isPresent()) {
             return Response.status(Response.Status.BAD_REQUEST).entity(intervalErrors.get()).build();
         }

@@ -88,7 +88,7 @@ public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
         HashMap<CustomPropertySetValues, MessageSeed> conflicts = new HashMap<>();
         conflicts.put(customPropertySetValues, messageUpdate);
         conflicts.put(customPropertySetValues2, messageDelete);
-        when(customPropertySetService.getValuesRangeOverlapFor(eq(customPropertySet), anyObject(), any(Interval.class), any(Instant.class), eq(false)))
+        when(customPropertySetService.getValuesRangeOverlapFor(eq(customPropertySet), anyObject(), any(Range.class), any(Instant.class), eq(false)))
                 .thenReturn(conflicts);
         return customPropertySet;
     }
