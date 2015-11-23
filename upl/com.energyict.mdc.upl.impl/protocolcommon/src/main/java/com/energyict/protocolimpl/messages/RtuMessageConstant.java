@@ -418,4 +418,14 @@ public class RtuMessageConstant {
     public static final String SET_ENGINEER_PIN = "Change_Engineer_PIN";
     public static final String ENGINEER_PIN = "PIN";
     public static final String ENGINEER_PIN_TIMEOUT = "Timeout";
+
+    public static final String MBUS_CLIENT_REMOTE_COMMISSION = "MBus_Client_Remote_Commission";
+
+    public static final String CHANGE_MBUS_CLIENT_ATTRIBUTES = "Change_MBus_Client_Attributes";
+    public static final String MBUS_CLIENT_IDENTIFICATION_NUMBER = "MBus_Client_Identification_Number";
+    public static final String MBUS_CLIENT_MANUFACTURER_ID = "MBus_Client_Manufacturer_Id";
+    public static final String MBUS_CLIENT_VERSION = "MBus_Client_Version";
+    public static final String MBUS_CLIENT_DEVICE_TYPE = "MBus_Client_Device_Type";
+    public static final String MBUS_REMOTE_COMMISSION = "MBus_Remote_Commission";
+    public static final String MBUS_SHORT_ID = "MBus_Short_Id";
 }

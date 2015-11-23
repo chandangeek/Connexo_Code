@@ -1,11 +1,14 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.messages;
 
+import com.energyict.protocol.MessageEntry;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.messaging.*;
 import com.energyict.protocolimpl.generic.MessageParser;
 import com.energyict.protocolimpl.generic.messages.GenericMessaging;
-import com.energyict.protocol.*;
-import com.energyict.protocol.messaging.MessageCategorySpec;
-import com.energyict.protocol.messaging.MessageSpec;
-import com.energyict.protocolimpl.messages.*;
+import com.energyict.protocolimpl.messages.RtuMessageCategoryConstants;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
+import com.energyict.protocolimpl.messages.RtuMessageKeyIdConstants;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -89,8 +92,10 @@ public class Dsmr23Messaging extends GenericMessaging implements MessageProtocol
         MessageCategorySpec catFirmware = getFirmwareCategory();
         MessageCategorySpec catP1Messages = getP1Category();
         if (supportMBus) {
-            MessageCategorySpec installMbusCategory = getSimpleInstallMbusCategory(supportClearMBusClient);
-            categories.add(installMbusCategory);
+            MessageCategorySpec mbusCategory = getSimpleInstallMbusCategory(supportClearMBusClient);
+            mbusCategory.addMessageSpec(addMBusClientRemoteMessage(RtuMessageKeyIdConstants.MBUS_CLIENT_REMOTE_COMMISSION, RtuMessageConstant.MBUS_REMOTE_COMMISSION, false));
+            mbusCategory.addMessageSpec(addChangeMBusAttributesMessage(RtuMessageKeyIdConstants.CHANGE_MBUS_CLIENT_ATTRIBUTES, RtuMessageConstant.CHANGE_MBUS_CLIENT_ATTRIBUTES, false));
+            categories.add(mbusCategory);
         }
         if (supportsLimiter) {
         MessageCategorySpec catLoadLimit = getLoadLimitCategory();
@@ -240,5 +245,51 @@ public class Dsmr23Messaging extends GenericMessaging implements MessageProtocol
 
     public void setSupportClearMBusClient(boolean supportClearMBusClient) {
         this.supportClearMBusClient = supportClearMBusClient;
+    }
+
+    private MessageSpec addMBusClientRemoteMessage(String keyId, String tagName, boolean advanced) {
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);;
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
+                RtuMessageConstant.MBUS_INSTALL_CHANNEL, true);
+        tagSpec.add(msgAttrSpec);
+        tagSpec.add(msgVal);
+        msgAttrSpec = new MessageAttributeSpec(
+                RtuMessageConstant.MBUS_SHORT_ID, true);
+        tagSpec.add(msgAttrSpec);
+        tagSpec.add(msgVal);
+        msgSpec.add(tagSpec);
+        return msgSpec;
+    }
+
+    private MessageSpec addChangeMBusAttributesMessage(String keyId, String tagName, boolean advanced) {
+        MessageSpec msgSpec = new MessageSpec(keyId, advanced);
+        MessageTagSpec tagSpec = new MessageTagSpec(tagName);
+        MessageValueSpec msgVal = new MessageValueSpec();
+        msgVal.setValue(" ");
+        MessageAttributeSpec msgAttrSpec = new MessageAttributeSpec(
+                RtuMessageConstant.MBUS_INSTALL_CHANNEL, true);
+        tagSpec.add(msgAttrSpec);
+        tagSpec.add(msgVal);
+        msgAttrSpec = new MessageAttributeSpec(
+                RtuMessageConstant.MBUS_CLIENT_MANUFACTURER_ID, true);
+        tagSpec.add(msgAttrSpec);
+        tagSpec.add(msgVal);
+        msgAttrSpec = new MessageAttributeSpec(
+                RtuMessageConstant.MBUS_CLIENT_IDENTIFICATION_NUMBER, true);
+        tagSpec.add(msgAttrSpec);
+        tagSpec.add(msgVal);
+        msgAttrSpec = new MessageAttributeSpec(
+                RtuMessageConstant.MBUS_CLIENT_DEVICE_TYPE, true);
+        tagSpec.add(msgAttrSpec);
+        tagSpec.add(msgVal);
+        msgAttrSpec = new MessageAttributeSpec(
+                RtuMessageConstant.MBUS_CLIENT_VERSION, true);
+        tagSpec.add(msgAttrSpec);
+        tagSpec.add(msgVal);
+        msgSpec.add(tagSpec);
+        return msgSpec;
     }
 }
