@@ -63,7 +63,7 @@ public class RegisterConfigurationResource {
     }
 
     private List<ReadingType> getPossibleMultiplyReadingTypesFor(ReadingType readingType) {
-        return masterDataService.getPossibleMultiplyReadingTypesFor(readingType);
+        return masterDataService.getOrCreatePossibleMultiplyReadingTypesFor(readingType);
     }
 
     @POST

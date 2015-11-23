@@ -372,7 +372,7 @@ public class DeviceTypeResource {
         return new RegisterTypeOnDeviceTypeInfo(registerType,
                 false, false, false,
                 deviceType.getRegisterTypeTypeCustomPropertySet(registerType),
-                masterDataService.getPossibleMultiplyReadingTypesFor(registerType.getReadingType()),
+                masterDataService.getOrCreatePossibleMultiplyReadingTypesFor(registerType.getReadingType()),
                 registerType.getReadingType().getCalculatedReadingType().orElse(registerType.getReadingType()));
     }
 
@@ -494,8 +494,8 @@ public class DeviceTypeResource {
                     isLinkedByActiveRegisterSpec,
                     isLinkedByInactiveRegisterSpec,
                     deviceType.getRegisterTypeTypeCustomPropertySet(registerType),
-                    masterDataService.getPossibleMultiplyReadingTypesFor(registerType.getReadingType()),
-                    registerType.getReadingType().getCalculatedReadingType().orElse(registerType.getReadingType()));
+                    masterDataService.getOrCreatePossibleMultiplyReadingTypesFor(registerType.getReadingType()),
+                    registerType.getReadingType());
             if (isLinkedByDeviceType){
                 info.parent = new VersionInfo<>(deviceType.getId(), deviceType.getVersion());
             }

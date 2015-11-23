@@ -61,7 +61,7 @@ public class RegisterConfigInfo {
         this.overruledObisCode = registerSpec.getDeviceObisCode();
         this.obisCodeDescription = registerSpec.getObisCode().getDescription();
         this.asText = registerSpec.isTextual();
-        this.collectedReadingType = new ReadingTypeInfo(registerSpec.getReadingType().getCalculatedReadingType().orElse(registerSpec.getReadingType()));
+        this.collectedReadingType = new ReadingTypeInfo(registerSpec.getReadingType());
         this.version = registerSpec.getVersion();
         this.parent = new VersionInfo<>(registerSpec.getDeviceConfiguration().getId(), registerSpec.getDeviceConfiguration().getVersion());
         this.numberOfFractionDigits = registerSpec.getNumberOfFractionDigits();
@@ -73,7 +73,7 @@ public class RegisterConfigInfo {
         multipliedCalculatedRegisterTypes.forEach(readingTypeConsumer -> possibleCalculatedReadingTypes.add(new ReadingTypeInfo(readingTypeConsumer)));
     }
 
-    public RegisterConfigInfo(TextualRegisterSpec registerSpec) {
+    public RegisterConfigInfo(TextualRegisterSpec registerSpec, List<ReadingType> multipliedCalculatedRegisterTypes) {
         this.id = registerSpec.getId();
         this.name = registerSpec.getRegisterType().getReadingType().getAliasName();
         this.registerType = registerSpec.getRegisterType().getId();
@@ -82,16 +82,17 @@ public class RegisterConfigInfo {
         this.overruledObisCode = registerSpec.getDeviceObisCode();
         this.obisCodeDescription = registerSpec.getObisCode().getDescription();
         this.asText = registerSpec.isTextual();
-        this.collectedReadingType = new ReadingTypeInfo(registerSpec.getReadingType().getCalculatedReadingType().orElse(registerSpec.getReadingType()));
+        this.collectedReadingType = new ReadingTypeInfo(registerSpec.getReadingType());
         this.version = registerSpec.getVersion();
         this.parent = new VersionInfo<>(registerSpec.getDeviceConfiguration().getId(), registerSpec.getDeviceConfiguration().getVersion());
         this.numberOfFractionDigits = null;
         this.overflow = null;
+        multipliedCalculatedRegisterTypes.forEach(readingTypeConsumer -> possibleCalculatedReadingTypes.add(new ReadingTypeInfo(readingTypeConsumer)));
     }
 
     public static RegisterConfigInfo from(RegisterSpec registerSpec, List<ReadingType> multipliedCalculatedRegisterTypes) {
         if (registerSpec.isTextual()) {
-            return new RegisterConfigInfo((TextualRegisterSpec) registerSpec);
+            return new RegisterConfigInfo((TextualRegisterSpec) registerSpec, multipliedCalculatedRegisterTypes);
         } else {
             return new RegisterConfigInfo((NumericalRegisterSpec) registerSpec, multipliedCalculatedRegisterTypes);
         }

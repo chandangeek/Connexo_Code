@@ -189,8 +189,8 @@ public class LoadProfileConfigurationResource {
             @PathParam("deviceConfigurationId") long deviceConfigurationId,
             @PathParam("loadProfileSpecId") long loadProfileSpecId,
             ChannelSpecFullInfo info) {
-        ChannelType channelType = resourceHelper.findChannelTypeByIdOrThrowException(info.measurementType.id);
         LoadProfileSpec loadProfileSpec = resourceHelper.findLoadProfileSpecOrThrowException(loadProfileSpecId);
+        ChannelType channelType = resourceHelper.findChannelTypeByIdOrThrowException(info.measurementType.id);
         DeviceConfiguration deviceConfiguration = loadProfileSpec.getDeviceConfiguration();
 
         ChannelSpec.ChannelSpecBuilder channelBuilder = deviceConfiguration.createChannelSpec(channelType, loadProfileSpec);
@@ -286,16 +286,20 @@ public class LoadProfileConfigurationResource {
             channelTypes.remove(channelSpec.getChannelType().getId());
         }
         List<MeasurementTypeShortInfo> measurementTypeShortInfos = channelTypes.values().stream()
-                .map(channelType -> new MeasurementTypeShortInfo(
-                        channelType,
-                        getPossibleMultiplyReadingTypesFor(channelType.getReadingType()),
-                        channelType.getReadingType().getCalculatedReadingType()
-                                .orElse(channelType.getReadingType()))).collect(Collectors.toList());
+                .map(channelType -> {
+                    ReadingType collectedReadingType = channelType.getReadingType().getCalculatedReadingType()
+                            .orElse(channelType.getReadingType());
+                    return new MeasurementTypeShortInfo(
+                            channelType,
+                            collectedReadingType,
+                            getPossibleMultiplyReadingTypesFor(collectedReadingType)
+                    );
+                }).collect(Collectors.toList());
         return Response.ok(PagedInfoList.fromPagedList("data", measurementTypeShortInfos, queryParameters)).build();
     }
 
     private List<ReadingType> getPossibleMultiplyReadingTypesFor(ReadingType readingType) {
-        return masterDataService.getPossibleMultiplyReadingTypesFor(readingType);
+        return masterDataService.getOrCreatePossibleMultiplyReadingTypesFor(readingType);
     }
 
     public Collection<LoadProfileType> findAvailableLoadProfileTypesForDeviceConfiguration(DeviceType deviceType, DeviceConfiguration deviceConfiguration){

@@ -5,6 +5,7 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.rest.ObisCodeAdapter;
+import com.energyict.mdc.masterdata.ChannelType;
 import com.energyict.mdc.masterdata.MeasurementType;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -23,6 +24,7 @@ public class MeasurementTypeShortInfo {
     /* The ReadingType from the RegisterType */
     public ReadingTypeInfo readingType;
 
+    /* This will be the actual readingType which is collected  */
     public ReadingTypeInfo collectedReadingType;
 
     /* A list of possible readingTypes where the 'multiplied' value can be stored */
@@ -34,10 +36,11 @@ public class MeasurementTypeShortInfo {
     public MeasurementTypeShortInfo() {
     }
 
-    public MeasurementTypeShortInfo(MeasurementType measurementType,
-                                    List<ReadingType> multipliedCalculatedRegisterTypes,
-                                    ReadingType collectedReadingType){
-        this.id = measurementType.getId();
+    public MeasurementTypeShortInfo(ChannelType channelType,
+                                    ReadingType collectedReadingType,
+                                    List<ReadingType> multipliedCalculatedRegisterTypes){
+        this.id = channelType.getId();
+        MeasurementType measurementType = channelType.getTemplateRegister();
         this.obisCode = measurementType.getObisCode();
         ReadingType readingType = measurementType.getReadingType();
         this.readingType = new ReadingTypeInfo(readingType);

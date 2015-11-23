@@ -48,7 +48,7 @@ public class ChannelSpecFullInfo extends ChannelSpecInfo {
         info.overflowValue = channelSpec.getOverflow();
         info.nbrOfFractionDigits = channelSpec.getNbrOfFractionDigits();
         // TODO check that it is truth (true for isLinkedByDeviceType)
-        info.measurementType = new MeasurementTypeShortInfo(channelSpec.getChannelType(), multipliedCalculatedRegisterTypes,  collectedReadingType);
+        info.measurementType = new MeasurementTypeShortInfo(channelSpec.getChannelType(), collectedReadingType, multipliedCalculatedRegisterTypes);
         info.useMultiplier = channelSpec.isUseMultiplier();
         if (info.useMultiplier) {
             info.calculatedReadingType = new ReadingTypeInfo(channelSpec.getCalculatedReadingType().get());
