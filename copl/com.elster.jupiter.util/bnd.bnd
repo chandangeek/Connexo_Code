@@ -9,6 +9,7 @@ Export-Package: com.elster.jupiter.util.conditions,\
 	com.elster.jupiter.util.cron,\
 	com.elster.jupiter.util.exception,\
 	com.elster.jupiter.util.geo,\
+	com.elster.jupiter.util.graph,\
 	com.elster.jupiter.util.logging,\
 	com.elster.jupiter.util.json,\
 	com.elster.jupiter.util.proxy,\
