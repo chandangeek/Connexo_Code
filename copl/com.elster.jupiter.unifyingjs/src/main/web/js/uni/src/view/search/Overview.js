@@ -34,7 +34,8 @@ Ext.define('Uni.view.search.Overview', {
     },
 
     initComponent: function () {
-        var me = this;
+        var me = this,
+            store = Ext.getStore('Uni.store.search.Properties');
 
         me.items = [
             {
@@ -205,5 +206,23 @@ Ext.define('Uni.view.search.Overview', {
         ];
 
         this.callParent(arguments);
+
+        var panel = me.down('#search-main-container');
+        var listeners = store.on({
+            beforeload:  function() {
+                panel.setLoading(true);
+            },
+            load: function() {
+                panel.setLoading(false);
+            },
+            scope: me,
+            destroyable: true
+        });
+
+        me.on('destroy', function () {
+            listeners.map(function (i) {
+                i.destroy()
+            });
+        });
     }
 });
