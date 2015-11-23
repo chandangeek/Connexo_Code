@@ -53,6 +53,13 @@ Ext.define('Sam.controller.history.Administration', {
                     privileges: Sam.privileges.DeploymentInfo.view,
                     controller: 'Sam.controller.systeminfo.SystemInfo',
                     action: 'showSystemInfo'
+                },
+                componentslist: {
+                    title: Uni.I18n.translate('general.componentsList', 'SAM', 'Components list'),
+                    route: 'componentslist',
+                    privileges: Sam.privileges.DeploymentInfo.view,
+                    controller: 'Sam.controller.componentslist.ComponentsList',
+                    action: 'showComponentsList'
                 }
             }
         }

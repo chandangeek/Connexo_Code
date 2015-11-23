@@ -16,6 +16,7 @@ Ext.define('Sam.controller.Main', {
         'Sam.controller.datapurge.Log',
         'Sam.controller.history.About',
         'Sam.controller.about.About',
+        'Sam.controller.componentslist.ComponentsList',
         'Sam.controller.systeminfo.SystemInfo'
     ],
 
@@ -95,6 +96,10 @@ Ext.define('Sam.controller.Main', {
                     title: Uni.I18n.translate('general.deploymentInfo', 'SAM', 'Deployment information'),
                     portal: 'administration',
                     items: [
+                        {
+                            text: Uni.I18n.translate('general.componentsList', 'SAM', 'Components list'),
+                            href: router.getRoute('administration/componentslist').buildUrl()
+                        },
                         {
                             text: Uni.I18n.translate('general.systemInfo', 'SAM', 'System information'),
                             href: router.getRoute('administration/systeminfo').buildUrl()
