@@ -260,6 +260,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     }
 
     private void update() {
+        Save.UPDATE.save(dataModel, this);
         if (recurrentTaskDirty) {
             if(recurrentTask.isPresent()) {
                 if (!recurrentTask.get().getName().equals(this.name)) {
@@ -271,7 +272,6 @@ public final class DataValidationTaskImpl implements DataValidationTask {
                 persistRecurrentTask();
             }
         }
-        Save.UPDATE.save(dataModel, this);
     }
 
     private void persist() {

@@ -115,6 +115,7 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
         when(taskService.newBuilder()).thenReturn(taskBuilder);
         when(recurrentTask.getLastOccurrence()).thenReturn(Optional.empty());
 
+
         doNothing().when(recurrentTask).setNextExecution(any(Instant.class));
         doNothing().when(recurrentTask).save();
 
@@ -123,6 +124,7 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
         when(validator.validate(any(), any())).thenReturn(Collections.emptySet());
 
         when(dataValidationService.getDestination()).thenReturn(destinationSpec);
+
     }
 
     @Test
@@ -141,6 +143,7 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
         testUpdateDataValidationTask.setEndDeviceGroup(endDeviceGroup);
         testUpdateDataValidationTask.setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)));
         field("id").ofType(Long.TYPE).in(testUpdateDataValidationTask).set(ID);
+        when(recurrentTask.getName()).thenReturn("taskname");
         testUpdateDataValidationTask.save();
         verify(dataModel).update(testUpdateDataValidationTask);
     }
@@ -149,7 +152,6 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
     public void testDelete() {
         DataValidationTaskImpl task = newTask();
         task.setEndDeviceGroup(endDeviceGroup);
-        task.setName("taskname");
         field("id").ofType(Long.TYPE).in(task).set(ID);
         task.save();
         verify(dataModel).update(task);
