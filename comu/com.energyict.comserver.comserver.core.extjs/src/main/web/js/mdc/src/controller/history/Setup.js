@@ -1627,6 +1627,7 @@ Ext.define('Mdc.controller.history.Setup', {
                             route: 'loadprofiles',
                             controller: 'Mdc.controller.setup.DeviceLoadProfiles',
                             privileges: Mdc.privileges.Device.viewDeviceCommunication,
+                            dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
                             action: 'showView',
                             items: {
                                 loadprofile: {
@@ -1634,6 +1635,7 @@ Ext.define('Mdc.controller.history.Setup', {
                                     route: '{loadProfileId}',
                                     controller: 'Mdc.controller.setup.DeviceLoadProfileTab',
                                     privileges: Mdc.privileges.Device.viewDeviceCommunication,
+                                    dynamicPrivilegeStores: Mdc.dynamicprivileges.Stores.deviceStateStore,
                                     action: 'initTabDeviceLoadProfileDetailsView',
                                     callback: function (route) {
                                         this.getApplication().on('loadProfileOfDeviceLoad', function (record) {

@@ -89,11 +89,19 @@ Ext.define('Mdc.controller.setup.DeviceLoadProfiles', {
             success: function (rec) {
                 if (!preview.isDestroyed) {
                     if (!rec.data.validationInfo.validationActive) {
-                        preview.down('#validateNowLoadProfile').hide();
-                        Ext.ComponentQuery.query('#loadProfileActionMenu #validateNowLoadProfile')[0].hide();
+                        if (preview.down('#validateNowLoadProfile')) {
+                            preview.down('#validateNowLoadProfile').hide();
+                        }
+                        if (Ext.ComponentQuery.query('#loadProfileActionMenu #validateNowLoadProfile')[0]) {
+                            Ext.ComponentQuery.query('#loadProfileActionMenu #validateNowLoadProfile')[0].hide();
+                        }
                     } else {
-                        preview.down('#validateNowLoadProfile').show();
-                        Ext.ComponentQuery.query('#loadProfileActionMenu #validateNowLoadProfile')[0].show();
+                        if (preview.down('#validateNowLoadProfile')) {
+                            preview.down('#validateNowLoadProfile').show();
+                        }
+                        if (Ext.ComponentQuery.query('#loadProfileActionMenu #validateNowLoadProfile')[0]) {
+                            Ext.ComponentQuery.query('#loadProfileActionMenu #validateNowLoadProfile')[0].show();
+                        }
                     }
                     preview.down('#deviceLoadProfilesPreviewForm').loadRecord(rec);
                     preview.setLoading(false);
