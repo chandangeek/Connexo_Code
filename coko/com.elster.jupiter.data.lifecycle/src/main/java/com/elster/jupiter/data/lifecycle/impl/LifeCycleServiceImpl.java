@@ -226,6 +226,7 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService, T
 	public List<TranslationKey> getKeys() {
 		List<TranslationKey> translationKeys = new ArrayList<>(Arrays.asList(TranslationKeys.values()));
 		translationKeys.add(new SimpleTranslationKey(Installer.DATA_LIFE_CYCLE_DESTINATION_NAME, Installer.DATA_LIFE_CYCLE_DISPLAY_NAME));
+		Arrays.stream(Privileges.values()).forEach(translationKeys::add);
 		return translationKeys;
 	}
 
@@ -237,8 +238,8 @@ public class LifeCycleServiceImpl implements LifeCycleService, InstallService, T
 	@Override
 	public List<ResourceDefinition> getModuleResources() {
 		List<ResourceDefinition> resources = new ArrayList<>();
-		resources.add(userService.createModuleResourceWithPrivileges(LifeCycleService.COMPONENTNAME, "dataPurge.dataPurge", "dataPurge.dataPurge.description",
-				Arrays.asList(Privileges.ADMINISTRATE_DATA_PURGE, Privileges.VIEW_DATA_PURGE)));
+		resources.add(userService.createModuleResourceWithPrivileges(LifeCycleService.COMPONENTNAME, Privileges.RESOURCE_DATA_PURGE.getKey(), Privileges.RESOURCE_DATA_PURGE_DESCRIPTION.getKey(),
+				Arrays.asList(Privileges.Constants.ADMINISTRATE_DATA_PURGE, Privileges.Constants.VIEW_DATA_PURGE)));
 		return resources;
 	}
 
