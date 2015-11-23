@@ -30,11 +30,15 @@ public class ChannelSpecMultiplierConfigurationValidator implements ConstraintVa
             if (calculatedReadingTypeIsNotPresent(constraintValidatorContext, channelSpec)){
                 return false;
             }
-            if (invalidCalculatedReadingType(constraintValidatorContext, channelSpecReadingType, channelSpec.getCalculatedReadingType().get())){
+            if (invalidCalculatedReadingType(constraintValidatorContext, getReadingTypeToCompare(channelSpecReadingType), channelSpec.getCalculatedReadingType().get())){
                 return false;
             }
         }
         return true;
+    }
+
+    private ReadingType getReadingTypeToCompare(ReadingType channelSpecReadingType) {
+        return channelSpecReadingType.getCalculatedReadingType().orElse(channelSpecReadingType);
     }
 
     private boolean invalidCalculatedReadingType(ConstraintValidatorContext constraintValidatorContext, ReadingType channelSpecReadingType, ReadingType calculatedReadingType) {

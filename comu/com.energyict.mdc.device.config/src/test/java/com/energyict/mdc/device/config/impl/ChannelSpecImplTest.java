@@ -67,8 +67,8 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     private ChannelType channelType;
     private final String activeEnergySecondary = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.BULKQUANTITY).code();
     private final ReadingType readingTypeActiveEnergySecondaryMetered = inMemoryPersistence.getMeteringService().getReadingType(activeEnergySecondary).get();
-    private final String activeDailyEnergyPrimary = ReadingTypeCodeBuilder.of(ELECTRICITY_PRIMARY_METERED).period(MacroPeriod.DAILY).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.BULKQUANTITY).code();
-    private final ReadingType readingTypeActiveDailyEnergyPrimaryMetered = inMemoryPersistence.getMeteringService().getReadingType(activeDailyEnergyPrimary).get();
+    private final String activeDailyEnergyPrimaryDelta = ReadingTypeCodeBuilder.of(ELECTRICITY_PRIMARY_METERED).period(MacroPeriod.DAILY).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.DELTADELTA).code();
+    private final ReadingType readingTypeActiveDailyEnergyPrimaryMeteredDelta = inMemoryPersistence.getMeteringService().getReadingType(activeDailyEnergyPrimaryDelta).get();
 
     private final String invalidActiveEnergyPrimary = ReadingTypeCodeBuilder.of(ELECTRICITY_PRIMARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.BULKQUANTITY).code();
     private final ReadingType invalidReadingTypeActiveEnergyPrimaryMetered = inMemoryPersistence.getMeteringService().getReadingType(invalidActiveEnergyPrimary).get();
@@ -413,7 +413,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
         channelSpecBuilder.useMultiplier(true);
-        channelSpecBuilder.calculatedReadingType(readingTypeActiveDailyEnergyPrimaryMetered);
+        channelSpecBuilder.calculatedReadingType(readingTypeActiveDailyEnergyPrimaryMeteredDelta);
         channelSpecBuilder.add();
     }
 
@@ -426,7 +426,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
         ChannelSpec.ChannelSpecUpdater channelSpecUpdater = getReloadedDeviceConfiguration().getChannelSpecUpdaterFor(channelSpec);
         channelSpecUpdater.useMultiplier(true);
-        channelSpecUpdater.calculatedReadingType(readingTypeActiveDailyEnergyPrimaryMetered);
+        channelSpecUpdater.calculatedReadingType(readingTypeActiveDailyEnergyPrimaryMeteredDelta);
         channelSpecUpdater.update();
     }
     @Test
@@ -461,7 +461,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
         channelSpecBuilder.useMultiplier(true);
-        channelSpecBuilder.calculatedReadingType(readingTypeActiveDailyEnergyPrimaryMetered);
+        channelSpecBuilder.calculatedReadingType(readingTypeActiveDailyEnergyPrimaryMeteredDelta);
         channelSpecBuilder.add();
     }
 }
