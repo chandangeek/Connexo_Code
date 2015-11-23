@@ -372,6 +372,7 @@ public class ChannelResource {
     @Path("{channelid}/validate")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(com.elster.jupiter.validation.security.Privileges.Constants.VALIDATE_MANUAL)
+    @DeviceStatesRestricted({DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED})
     public Response validateDeviceData(LoadProfileTriggerValidationInfo info, @PathParam("mRID") String mRID, @PathParam("channelid") long channelId) {
         Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(device, channelId);
