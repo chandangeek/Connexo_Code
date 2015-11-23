@@ -18,7 +18,7 @@ Ext.define('Mdc.view.setup.deviceconfiguration.DeviceConfigurationLogbooks', {
     content: [
         {
             xtype: 'panel',
-            title: Uni.I18n.translate('deviceconfiguration.logbookConfiguration', 'MDC', 'Logbook configuration'),
+            title: Uni.I18n.translate('general.logbookConfigurations', 'MDC', 'Logbook configurations'),
             ui: 'large',
             items: [
                 {
