@@ -22,9 +22,11 @@ public abstract class ConnexoAbstractSSOFilter implements Filter {
     public void init(FilterConfig filterConfig) throws ServletException {
         this.filterConfig = filterConfig;
         String excludePatterns = this.filterConfig.getInitParameter("excludePatterns");
-        String[] exclude = excludePatterns.split(";");
-        for(String url : exclude) {
-            excludedUrls.add(url.replace("*", ".*?"));
+        if(excludePatterns != null) {
+            String[] exclude = excludePatterns.split(";");
+            for (String url : exclude) {
+                excludedUrls.add(url.replace("*", ".*?").trim());
+            }
         }
     }
 
