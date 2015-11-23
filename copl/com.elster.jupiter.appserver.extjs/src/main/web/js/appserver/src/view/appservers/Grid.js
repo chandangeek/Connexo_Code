@@ -14,6 +14,10 @@ Ext.define('Apr.view.appservers.Grid', {
             {
                 header: Uni.I18n.translate('general.name', 'APR', 'Name'),
                 dataIndex: 'name',
+                renderer: function (value, metaData, record) {
+                    var url = me.router.getRoute('administration/appservers/overview').buildUrl({appServerName: record.get('name')});
+                    return '<a href="' + url + '">' + Ext.String.htmlEncode(value) + '</a>';
+                },
                 flex: 1
             },
             {

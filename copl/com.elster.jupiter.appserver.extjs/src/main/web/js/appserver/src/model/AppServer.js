@@ -3,6 +3,10 @@ Ext.define('Apr.model.AppServer', {
     fields: [
         'name', 'active', 'executionSpecs', 'importServices',
         {
+            name: 'version',
+            defaultValue: 0
+        },
+        {
             name: 'id',
             persist: false,
             mapping: function (data) {
@@ -10,12 +14,10 @@ Ext.define('Apr.model.AppServer', {
             }
         },
         {
-            name: 'exportPath',
-            persist: false
+            name: 'exportDirectory'
         },
         {
-            name: 'importPath',
-            persist: false
+            name: 'importDirectory'
         },
         {
             name: 'status',
@@ -25,6 +27,28 @@ Ext.define('Apr.model.AppServer', {
                     return Uni.I18n.translate('general.active', 'APR', 'Active');
                 } else {
                     return Uni.I18n.translate('general.inactive', 'APR', 'Inactive');
+                }
+            }
+        },
+        {
+            name: 'importServicesCount',
+            persist: false,
+            mapping: function(data){
+                if (data.importServices !== undefined || data.importServices != null) {
+                    return data.importServices.length;
+                } else {
+                    return '';
+                }
+            }
+        },
+        {
+            name: 'messageServicesCount',
+            persist: false,
+            mapping: function(data){
+                if (data.executionSpecs !== undefined || data.executionSpecs != null) {
+                    return data.executionSpecs.length;
+                } else {
+                    return '';
                 }
             }
         }

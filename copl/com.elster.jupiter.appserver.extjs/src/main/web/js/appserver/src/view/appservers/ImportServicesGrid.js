@@ -6,19 +6,9 @@ Ext.define('Apr.view.appservers.ImportServicesGrid', {
     ],
     width: '100%',
     maxHeight: 300,
-    overflowY: 'auto',
-    plugins: [
-        'showConditionalToolTip',
-        {
-            ptype: 'cellediting',
-            clicksToEdit: 1,
-            pluginId: 'cellplugin'
-        }
-    ],
-
     columns: [
         {
-            header: Uni.I18n.translate('general.name', 'APR', 'Name'),
+            header: Uni.I18n.translate('general.importService', 'APR', 'Import service'),
             dataIndex: 'importService',
             flex: 1
         },
@@ -28,11 +18,19 @@ Ext.define('Apr.view.appservers.ImportServicesGrid', {
             flex: 0.8
         },
         {
-            xtype: 'uni-actioncolumn',
-            menu: {
-                xtype: 'apr-import-services-action-menu',
-                itemId: 'apr-import-services-action-menu'
-            }
-        }
+            xtype: 'actioncolumn',
+            align: 'right',
+            header: Uni.I18n.translate('general.actions', 'APR', 'Actions'),
+            items: [
+                {
+                    iconCls: 'uni-icon-delete',
+                    itemId: 'apr-remove-import-service-btn',
+                    tooltip: Uni.I18n.translate('general.remove', 'APR', 'Remove'),
+                    handler: function (grid, rowIndex, colIndex, column, event, record) {
+                        this.fireEvent('removeEvent', record);
+                    }
+                }
+            ]
+         }
     ]
 });

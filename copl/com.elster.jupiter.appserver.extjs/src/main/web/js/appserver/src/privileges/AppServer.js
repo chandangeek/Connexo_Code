@@ -19,6 +19,8 @@ Ext.define('Apr.privileges.AppServer', {
     },
     canView: function () {
         return Uni.Auth.checkPrivileges(Apr.privileges.AppServer.view);
+    },
+    canAdministrate: function() {
+        return Uni.Auth.checkPrivileges(Apr.privileges.AppServer.admin);
     }
-
 });
