@@ -113,13 +113,13 @@ public class EstimationTaskImpl implements IEstimationTask {
     }
 
     private void update() {
-        Save.UPDATE.save(dataModel, this);
         if (recurrentTaskDirty) {
             if (!recurrentTask.get().getName().equals(this.name)) {
                 recurrentTask.get().setName(name);
             }
             recurrentTask.get().save();
         }
+        Save.UPDATE.save(dataModel, this);
     }
 
     @Override
