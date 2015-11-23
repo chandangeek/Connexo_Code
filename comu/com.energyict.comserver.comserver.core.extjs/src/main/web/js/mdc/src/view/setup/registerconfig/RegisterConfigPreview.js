@@ -96,6 +96,15 @@ Ext.define('Mdc.view.setup.registerconfig.RegisterConfigPreview', {
                                 itemId: 'mdc-register-config-preview-fractionDigits'
                             },
                             {
+                                fieldLabel: Uni.I18n.translate('registerConfig.useMultiplier', 'MDC', 'Use multiplier'),
+                                name: 'useMultiplier',
+                                renderer: function (value) {
+                                    return value
+                                        ? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
+                                        : Uni.I18n.translate('general.no', 'MDC', 'No')
+                                }
+                            },
+                            {
                                 xtype: 'reading-type-displayfield',
                                 fieldLabel: Uni.I18n.translate('general.collectedReadingType', 'MDC', 'Collected reading type'),
                                 name: 'collectedReadingType'
