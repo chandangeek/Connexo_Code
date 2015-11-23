@@ -1,0 +1,4 @@
+-classpath: target/classes
+-dsannotations: *
+Export-Package:  \
+	com.energyict.mdc.device.config.custom

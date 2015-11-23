@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.energyict</groupId>
+        <artifactId>mdc.parent</artifactId>
+        <version>1.1.0-SNAPSHOT</version>
+        <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>mdc.device.config.custom</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>bundle</packaging>
+    <name>[MDC] mdc.device.config.custom</name>
+    <description>
+        Contains custom device configuration components.
+    </description>
+
+
+
+     <dependencies>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.osgi</groupId>
+      <artifactId>org.osgi.compendium</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.oxo42</groupId>
+      <artifactId>stateless4j</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>orm</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>properties</artifactId>
+    </dependency>
+         <dependency>
+             <groupId>com.elster.jupiter</groupId>
+             <artifactId>domain.util</artifactId>
+         </dependency>
+         <dependency>
+             <groupId>com.elster.jupiter</groupId>
+             <artifactId>util</artifactId>
+         </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>bootstrap.oracle</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.validation</groupId>
+      <artifactId>validation-api</artifactId>
+    </dependency>
+         <dependency>
+             <groupId>com.elster.jupiter</groupId>
+             <artifactId>cps</artifactId>
+             <version>1.0.0-SNAPSHOT</version>
+         </dependency>
+         <dependency>
+             <groupId>com.energyict</groupId>
+             <artifactId>mdc.device.config</artifactId>
+         </dependency>
+         <dependency>
+             <groupId>com.energyict</groupId>
+             <artifactId>mdc.device.data</artifactId>
+         </dependency>
+         <dependency>
+             <groupId>com.energyict</groupId>
+             <artifactId>mdc.protocols.api</artifactId>
+         </dependency>
+         <dependency>
+             <groupId>com.energyict</groupId>
+             <artifactId>mdc.masterdata</artifactId>
+         </dependency>
+
+    <!-- Testing -->
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>bootstrap.h2</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>devtools.persistence</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.elster.jupiter</groupId>
+      <artifactId>devtools</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
+
+</project>
