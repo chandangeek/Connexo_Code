@@ -3,4 +3,5 @@
 Private-Package:  \
 	com.elster.insight.usagepoint.data.impl.*
 Export-Package:  \
-	com.elster.insight.usagepoint.data
+	com.elster.insight.usagepoint.data,\
+        com.elster.insight.usagepoint.data.exceptions
