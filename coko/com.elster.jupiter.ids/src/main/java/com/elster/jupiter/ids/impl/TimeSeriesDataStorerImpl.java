@@ -1,6 +1,5 @@
 package com.elster.jupiter.ids.impl;
 
-import com.elster.jupiter.ids.FieldSpec;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.StorerStats;
 import com.elster.jupiter.ids.TimeSeries;
@@ -278,7 +277,6 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
                         storer.add(rs);
                     }
                 }
-                storers.forEach(SingleTimeSeriesStorer::prepare);
             }
         }
 
@@ -374,10 +372,6 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
         int bindWhere(PreparedStatement statement, int offset) throws SQLException {
             Instant first = newEntries.firstKey();
             Instant last = newEntries.lastKey();
-            if (timeSeries.isRegular() && timeSeries.getRecordSpec().derivedFieldCount() > 0) {
-                first = timeSeries.next(first, -1);
-                last = timeSeries.next(last, 1);
-            }
             statement.setLong(offset++, getTimeSeries().getId());
             statement.setLong(offset++, first.toEpochMilli());
             statement.setLong(offset++, last.toEpochMilli());
@@ -387,46 +381,6 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
         void add(ResultSet rs) throws SQLException {
             TimeSeriesEntryImpl oldEntry = new TimeSeriesEntryImpl(getTimeSeries(), rs);
             oldEntries.put(oldEntry.getTimeStamp(), oldEntry);
-        }
-
-        void prepare() {
-            if (!timeSeries.isRegular() || timeSeries.getRecordSpec().derivedFieldCount() == 0) {
-                return;
-            }
-            newEntries.values().stream().reduce(
-                    null,
-                    (guess, current) -> {
-                        TimeSeriesEntryImpl previous = previous(current, guess);
-                        if (previous != null) {
-                            updateFromPrevious(current, previous);
-                        }
-                        return current;
-                    });
-            for (TimeSeriesEntryImpl entry : oldEntries.values()) {
-                if (!newEntries.containsKey(entry.getTimeStamp())) {
-                    TimeSeriesEntryImpl previous = previous(entry, null);
-                    if (previous != null) {
-                        TimeSeriesEntryImpl current = entry.copy();
-                        if (updateFromPrevious(current, previous)) {
-                            newEntries.put(current.getTimeStamp(), current);
-                        }
-                    }
-                }
-            }
-        }
-
-        private boolean updateFromPrevious(TimeSeriesEntryImpl current, TimeSeriesEntryImpl previous) {
-            boolean result = false;
-            for (int i = 0; i < timeSeries.getRecordSpec().getFieldSpecs().size(); i++) {
-                FieldSpec fieldSpec = timeSeries.getRecordSpec().getFieldSpecs().get(i);
-                if (fieldSpec.isDerived() && isABigDecimal(current.getValues()[i + 1]) && isABigDecimal(previous.getValues()[i + 1])) {
-                    BigDecimal currentValue = current.getBigDecimal(i + 1);
-                    BigDecimal previousValue = previous.getBigDecimal(i + 1);
-                    current.set(i, currentValue.subtract(previousValue));
-                    result = true;
-                }
-            }
-            return result;
         }
 
         private boolean isABigDecimal(Object o) {

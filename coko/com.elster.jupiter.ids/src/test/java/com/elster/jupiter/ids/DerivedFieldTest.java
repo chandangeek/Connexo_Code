@@ -10,27 +10,19 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.UtilModule;
-import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.event.EventAdmin;
 
-import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.time.Duration;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -72,47 +64,48 @@ public class DerivedFieldTest {
     	inMemoryBootstrapModule.deactivate();
     }
 
-    @Test
-    public void testDelta()  {
-        IdsService idsService = injector.getInstance(IdsService.class);
-        TimeSeries ts = null;
-        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-        	RecordSpec recordSpec = idsService.createRecordSpec("XXX", 1, "Delta")
-                    .addDerivedFieldSpec("Delta", "Total" , FieldType.NUMBER , FieldDerivationRule.DELTAFROMPREVIOUS)
-                    .create();
-        	Vault vault = idsService.getVault("IDS", 1).get();
-	        ts = vault.createRegularTimeSeries(recordSpec, defaultZone, Duration.ofMinutes(15), 0);
-	        TimeSeriesDataStorer storer = idsService.createOverrulingStorer();
-	        ZonedDateTime dateTime = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, defaultZone);
-	        storer.add(ts, dateTime, null, BigDecimal.valueOf(10));
-	        ZonedDateTime last = dateTime.plusMinutes(45);
-	        storer.add(ts, last, null, BigDecimal.valueOf(500));
-	        storer.execute();
-	        storer = idsService.createOverrulingStorer();
-	        dateTime = dateTime.plus(ts.interval());
-	        storer.add(ts, dateTime, null, BigDecimal.valueOf(100));
-	        dateTime = dateTime.plus(ts.interval());
-	        storer.add(ts, dateTime, null, BigDecimal.valueOf(200));
-	        storer.execute();
-	        ctx.commit();
-        }
-        ZonedDateTime dateTime = ZonedDateTime.of(2014,1,1,0,0,0,0,defaultZone);
-        List<TimeSeriesEntry> entries = ts.getEntries(Range.openClosed(dateTime.minusMinutes(15).toInstant(),dateTime.plusMinutes(60).toInstant()));
-        assertThat(entries).hasSize(4);
-        assertThat(entries.get(0).getBigDecimal(0)).isNull();
-        assertThat(entries.get(1).getBigDecimal(0)).isEqualTo(BigDecimal.valueOf(90));
-        assertThat(entries.get(2).getBigDecimal(0)).isEqualTo(BigDecimal.valueOf(100));
-        assertThat(entries.get(3).getBigDecimal(0)).isEqualTo(BigDecimal.valueOf(300));
-        assertThat(entries.get(3).getVersion()).isEqualTo(2);
-        try(TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-        	TimeSeriesDataStorer storer = idsService.createOverrulingStorer();
-            dateTime = dateTime.plusMinutes(15);
-	        storer.add(ts, dateTime, null, BigDecimal.valueOf(50));
-	        dateTime = dateTime.plusMinutes(15);
-	        storer.execute();
-	        ctx.commit();
-        }
-    }
+    // TODO move this test to metering in a metering appropriate form
+//    @Test
+//    public void testDelta()  {
+//        IdsService idsService = injector.getInstance(IdsService.class);
+//        TimeSeries ts = null;
+//        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+//        	RecordSpec recordSpec = idsService.createRecordSpec("XXX", 1, "Delta")
+//                    .addDerivedFieldSpec("Delta", "Total" , FieldType.NUMBER , FieldDerivationRule.DELTAFROMPREVIOUS)
+//                    .create();
+//        	Vault vault = idsService.getVault("IDS", 1).get();
+//	        ts = vault.createRegularTimeSeries(recordSpec, defaultZone, Duration.ofMinutes(15), 0);
+//	        TimeSeriesDataStorer storer = idsService.createOverrulingStorer();
+//	        ZonedDateTime dateTime = ZonedDateTime.of(2014, 1, 1, 0, 0, 0, 0, defaultZone);
+//	        storer.add(ts, dateTime, null, BigDecimal.valueOf(10));
+//	        ZonedDateTime last = dateTime.plusMinutes(45);
+//	        storer.add(ts, last, null, BigDecimal.valueOf(500));
+//	        storer.execute();
+//	        storer = idsService.createOverrulingStorer();
+//	        dateTime = dateTime.plus(ts.interval());
+//	        storer.add(ts, dateTime, null, BigDecimal.valueOf(100));
+//	        dateTime = dateTime.plus(ts.interval());
+//	        storer.add(ts, dateTime, null, BigDecimal.valueOf(200));
+//	        storer.execute();
+//	        ctx.commit();
+//        }
+//        ZonedDateTime dateTime = ZonedDateTime.of(2014,1,1,0,0,0,0,defaultZone);
+//        List<TimeSeriesEntry> entries = ts.getEntries(Range.openClosed(dateTime.minusMinutes(15).toInstant(),dateTime.plusMinutes(60).toInstant()));
+//        assertThat(entries).hasSize(4);
+//        assertThat(entries.get(0).getBigDecimal(0)).isNull();
+//        assertThat(entries.get(1).getBigDecimal(0)).isEqualTo(BigDecimal.valueOf(90));
+//        assertThat(entries.get(2).getBigDecimal(0)).isEqualTo(BigDecimal.valueOf(100));
+//        assertThat(entries.get(3).getBigDecimal(0)).isEqualTo(BigDecimal.valueOf(300));
+//        assertThat(entries.get(3).getVersion()).isEqualTo(2);
+//        try(TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+//        	TimeSeriesDataStorer storer = idsService.createOverrulingStorer();
+//            dateTime = dateTime.plusMinutes(15);
+//	        storer.add(ts, dateTime, null, BigDecimal.valueOf(50));
+//	        dateTime = dateTime.plusMinutes(15);
+//	        storer.execute();
+//	        ctx.commit();
+//        }
+//    }
    
     
    

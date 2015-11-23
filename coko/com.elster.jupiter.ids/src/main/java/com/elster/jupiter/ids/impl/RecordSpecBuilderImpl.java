@@ -1,6 +1,5 @@
 package com.elster.jupiter.ids.impl;
 
-import com.elster.jupiter.ids.FieldDerivationRule;
 import com.elster.jupiter.ids.FieldType;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.RecordSpecBuilder;
@@ -17,12 +16,6 @@ public class RecordSpecBuilderImpl implements RecordSpecBuilder {
     @Override
     public RecordSpecBuilderImpl addFieldSpec(String name, FieldType fieldType) {
         underConstruction.addFieldSpec(name, fieldType);
-        return this;
-    }
-
-    @Override
-    public RecordSpecBuilderImpl addDerivedFieldSpec(String derivedName, String rawName, FieldType fieldType, FieldDerivationRule rule) {
-        underConstruction.addDerivedFieldSpec(derivedName, rawName, fieldType, rule);
         return this;
     }
 

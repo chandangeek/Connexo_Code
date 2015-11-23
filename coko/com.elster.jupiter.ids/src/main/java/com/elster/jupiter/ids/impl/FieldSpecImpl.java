@@ -1,6 +1,5 @@
 package com.elster.jupiter.ids.impl;
 
-import com.elster.jupiter.ids.FieldDerivationRule;
 import com.elster.jupiter.ids.FieldSpec;
 import com.elster.jupiter.ids.FieldType;
 import com.elster.jupiter.ids.RecordSpec;
@@ -20,7 +19,6 @@ public class FieldSpecImpl implements FieldSpec {
 	private int position;
 	private String name;
 	private FieldType fieldType;
-	private FieldDerivationRule derivationRule;
 	@SuppressWarnings("unused")
 	private Instant createTime;
 	@SuppressWarnings("unused")
@@ -33,16 +31,11 @@ public class FieldSpecImpl implements FieldSpec {
 	FieldSpecImpl()  {
 	}
 	
-	FieldSpecImpl init(RecordSpec recordSpec , String name , FieldType fieldType, FieldDerivationRule derivationRule) {
+	FieldSpecImpl init(RecordSpec recordSpec, String name, FieldType fieldType) {
 		this.recordSpec.set(recordSpec);
 		this.name = name;
 		this.fieldType = fieldType;
-		this.derivationRule = derivationRule;
 		return this;
-	}
-	
-	FieldSpecImpl init(RecordSpec recordSpec, String name, FieldType fieldType) {
-		return init (recordSpec, name, fieldType, FieldDerivationRule.NODERIVATION);
 	}
 	
 	private FieldType getFieldSpecType() {
@@ -64,16 +57,6 @@ public class FieldSpecImpl implements FieldSpec {
 		return fieldType;
 	} 
 
-	@Override
-	public FieldDerivationRule getDerivationRule() {
-		return derivationRule;
-	}
-
-	@Override
-	public boolean isDerived() {
-		return getDerivationRule() != FieldDerivationRule.NODERIVATION;
-	}
-	
 	Object getValue(ResultSet resultSet, int i) throws SQLException {
 		return getFieldSpecType().getValue(resultSet,i);
 	}

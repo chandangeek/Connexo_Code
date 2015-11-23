@@ -4,10 +4,6 @@ import com.elster.jupiter.ids.FieldSpec;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.Vault;
-import com.elster.jupiter.ids.impl.FieldSpecImpl;
-import com.elster.jupiter.ids.impl.RecordSpecImpl;
-import com.elster.jupiter.ids.impl.TimeSeriesImpl;
-import com.elster.jupiter.ids.impl.VaultImpl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
@@ -15,7 +11,7 @@ import com.elster.jupiter.orm.Table;
 import static com.elster.jupiter.orm.ColumnConversion.*;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
-import static com.elster.jupiter.orm.Table.*;
+import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
 public enum TableSpecs {
 	IDS_VAULT {
@@ -65,7 +61,6 @@ public enum TableSpecs {
 			Column positionColumn = table.column("POSITION").type("number").notNull().conversion(NUMBER2INT).map("position").add();
 			Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
 			table.column("FIELDTYPE").type("number").notNull().conversion(NUMBER2ENUM).map("fieldType").add();
-			table.column("DERIVATIONRULE").type("number").notNull().conversion(NUMBER2ENUM).map("derivationRule").add();
 			table.addCreateTimeColumn("CREATETIME", "createTime");
 			table.addModTimeColumn("MODTIME", "modTime");
 			table.primaryKey("IDS_PK_FIELDSPECS").on(componentName, recordSpecIdColumn , positionColumn ).add();

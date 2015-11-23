@@ -1,11 +1,9 @@
 package com.elster.jupiter.ids.impl;
 
-import com.elster.jupiter.ids.FieldDerivationRule;
 import com.elster.jupiter.ids.FieldSpec;
 import com.elster.jupiter.ids.FieldType;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.Pair;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Provider;
 
@@ -75,13 +73,6 @@ public final class RecordSpecImpl implements RecordSpec {
 		return fieldSpec;
 	}
 	
-	@Override
-	public Pair<FieldSpecImpl,FieldSpecImpl> addDerivedFieldSpec(String derivedName, String rawName, FieldType fieldType, FieldDerivationRule rule) {
-		FieldSpecImpl derived = fieldSpecProvider.get().init(this,derivedName,fieldType,rule);
-		fieldSpecs.add(derived);
-		return Pair.of(derived, addFieldSpec(rawName,fieldType));
-	}
-	
 	void persist() {
 		dataModel.persist(this);
 	}
@@ -104,10 +95,6 @@ public final class RecordSpecImpl implements RecordSpec {
     @Override
     public int hashCode() {
         return Objects.hash(id, componentName);
-    }
-    
-    int derivedFieldCount() {
-    	return getFieldSpecs().stream().filter(FieldSpec::isDerived).mapToInt(field -> 1).sum();
     }
     
     List<String> columnNames() {
