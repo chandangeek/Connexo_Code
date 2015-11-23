@@ -9,6 +9,7 @@ import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.util.time.Interval;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.LogBook;
@@ -49,7 +50,7 @@ public class LogBookResource {
         this.thesaurus = thesaurus;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response getAllLogBooks(@PathParam("mRID") String mrid, @BeanParam JsonQueryParameters queryParameters) {
@@ -60,7 +61,7 @@ public class LogBookResource {
         return Response.ok(PagedInfoList.fromPagedList("data", logBookInfos, queryParameters)).build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("{lbid}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -70,7 +71,7 @@ public class LogBookResource {
         return Response.ok(LogBookInfo.from(logBook, thesaurus)).build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("{lbid}/data")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -81,7 +82,7 @@ public class LogBookResource {
         }, jsonQueryFilter, queryParameters);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/data")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
@@ -111,7 +112,7 @@ public class LogBookResource {
         if (jsonQueryFilter.hasProperty(INTERVAL_END)) {
             intervalEnd = jsonQueryFilter.getInstant(INTERVAL_END);
         }
-        filter.range = Interval.of(intervalStart, intervalEnd).toOpenClosedRange();
+        filter.range = Interval.of(intervalStart, intervalEnd).toClosedOpenRange();
         if (jsonQueryFilter.hasProperty(DOMAIN)) {
             filter.domain = jsonQueryFilter.getProperty(DOMAIN, new EndDeviceDomainAdapter());
         }
