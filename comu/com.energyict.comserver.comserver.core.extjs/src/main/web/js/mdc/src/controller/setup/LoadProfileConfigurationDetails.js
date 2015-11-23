@@ -321,7 +321,11 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                     formValues.calculatedReadingType = calculatedReadingType;
                 }
             } else {
-                formValues.calculatedReadingType = null;
+                if (calculatedReadingTypeField.isVisible()) {
+                    formValues.calculatedReadingType = calculatedReadingTypeField.getValue();
+                } else {
+                    formValues.calculatedReadingType = null;
+                }
             }
 
             jsonValues = Ext.JSON.encode(formValues);
@@ -710,7 +714,6 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             collectedReadingTypeField = form.down('#mdc-channel-config-collected-readingType-field'),
             calculatedReadingTypeField = form.down('#mdc-channel-config-calculated-readingType-field'),
             calculatedReadingTypeCombo = form.down('#mdc-channel-config-calculated-readingType-combo'),
-            isCumulative = dataContainer.get('isCumulative'),
             collectedReadingType = dataContainer.get('collectedReadingType'),
             calculatedReadingType = dataContainer.get('calculatedReadingType'),
             possibleCalculatedReadingTypes = dataContainer.get('possibleCalculatedReadingTypes');
