@@ -5,7 +5,8 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationList', {
         'Imt.metrologyconfiguration.store.MetrologyConfiguration',
         'Uni.view.toolbar.PagingTop',
         'Uni.view.toolbar.PagingBottom',
-        'Imt.metrologyconfiguration.view.MetrologyConfigurationActionMenu'
+        'Imt.metrologyconfiguration.view.MetrologyConfigurationActionMenu',
+        'Imt.privileges.MetrologyConfig'
     ],
     store: 'Imt.metrologyconfiguration.store.MetrologyConfiguration',
     overflowY: 'auto',
@@ -48,8 +49,10 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationList', {
             }
         },
         {
+        	privileges: Imt.privileges.MetrologyConfig.admin,
             xtype: 'uni-actioncolumn',
             menu: {
+            	privileges: Imt.privileges.MetrologyConfig.admin,
                 xtype: 'metrology-configuration-action-menu'
             }
         }
@@ -67,6 +70,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationList', {
                         	  text: Uni.I18n.translate('metrologyconfiguration.button.add', 'IMT', 'Add metrology configuration'),
                         	  itemId: 'createMetrologyConfiguration',
                         	  xtype: 'button',
+                        	  privileges: Imt.privileges.MetrologyConfig.admin,
                         	  action: 'createMetrologyConfiguration',
                           }
                   ]
