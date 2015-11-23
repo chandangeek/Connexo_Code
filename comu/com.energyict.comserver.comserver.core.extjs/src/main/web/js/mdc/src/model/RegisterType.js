@@ -29,18 +29,21 @@ Ext.define('Mdc.model.RegisterType', {
         },
         {
             name: 'collectedReadingType',
+            associationKey: 'collectedReadingType',
             type: 'hasOne',
             model: 'Mdc.model.ReadingType',
             foreignKey: 'collectedReadingType'
         },
         {
             name: 'calculatedReadingType',
+            associationKey: 'calculatedReadingType',
             type: 'hasOne',
             model: 'Mdc.model.ReadingType',
             foreignKey: 'calculatedReadingType'
         },
         {
             name: 'possibleCalculatedReadingTypes',
+            associationKey: 'possibleCalculatedReadingTypes',
             type: 'hasMany',
             model: 'Mdc.model.ReadingType',
             foreignKey: 'possibleCalculatedReadingTypes'

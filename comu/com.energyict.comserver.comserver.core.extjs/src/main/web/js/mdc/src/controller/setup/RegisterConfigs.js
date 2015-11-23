@@ -533,21 +533,22 @@ Ext.define('Mdc.controller.setup.RegisterConfigs', {
 
     onMultiplierChange: function(radioGroup) {
         var me = this,
-            contentContainer = this.getRegisterConfigEditForm().up('#registerConfigEdit');
+            contentContainer = this.getRegisterConfigEditForm().up('#registerConfigEdit'),
+            useMultiplier = radioGroup.getValue().useMultiplier;
 
         if (contentContainer.isEdit()) { // Busy editing a register config
-            me.updateReadingTypeFields(me.registerConfigurationBeingEdited, radioGroup.getValue().useMultiplier);
+            me.updateReadingTypeFields(me.registerConfigurationBeingEdited, useMultiplier);
         } else { // Busy adding a register config
             me.updateReadingTypeFields(
                 me.getAvailableRegisterTypesForDeviceConfigurationStore().findRecord('id', me.getRegisterTypeCombo().getValue()),
-                radioGroup.getValue().useMultiplier
+                useMultiplier
             );
         }
     },
 
     updateReadingTypeFields: function(dataContainer, useMultiplier) {
         var me = this,
-            form = this.getRegisterConfigEditForm(),
+            form = me.getRegisterConfigEditForm(),
             multiplierRadioGroup = form.down('#multiplierRadioGroup'),
             collectedReadingTypeField = form.down('#mdc-collected-readingType-field'),
             calculatedReadingTypeField = form.down('#mdc-calculated-readingType-field'),

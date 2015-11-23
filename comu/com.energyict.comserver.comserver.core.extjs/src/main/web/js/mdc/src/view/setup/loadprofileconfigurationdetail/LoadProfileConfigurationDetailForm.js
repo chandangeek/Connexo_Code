@@ -1,6 +1,7 @@
 Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurationDetailForm', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.loadProfileConfigurationDetailForm',
+    itemId: 'mdc-loadProfileConfigurationDetailForm',
     loadProfileConfigurationChannelAction: null,
     loadProfileConfigurationId: null,
     deviceConfigurationId: null,
@@ -40,7 +41,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     },
                     {
                         xtype: 'combobox',
-                        name: 'registerType',
+                        name: 'measurementType',
                         fieldLabel: Uni.I18n.translate('registerConfig.registerType', 'MDC', 'Register type'),
                         itemId: 'mdc-channel-config-registerTypeComboBox',
                         queryMode: 'local',
@@ -53,13 +54,6 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                         editable: false,
                         msgTarget: 'under'
                     },
-                    //{
-                    //    xtype: 'reading-type-combo',
-                    //    itemId: 'reading-type-field',
-                    //    required: true,
-                    //    allowBlank: false,
-                    //    submitValue: false
-                    //},
                     {
                         xtype: 'fieldcontainer',
                         required: true,
@@ -84,25 +78,6 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                             }
                         ]
                     },
-                    //{
-                    //    xtype: 'reading-type-displayfield',
-                    //    name: 'calculatedReadingType',
-                    //    fieldLabel: Uni.I18n.translate('channelConfig.channelConfigForm.calculatedReadingType', 'MDC', 'Calculated reading type'),
-                    //    required: true,
-                    //    submitValue: false,
-                    //    hidden: true
-                    //},
-                    //{
-                    //    xtype: 'obis-displayfield',
-                    //    name: 'obiscode',
-                    //    value: Uni.I18n.translate('channelConfig.channelConfigForm.obisCodeEmptyTxt', 'MDC', 'Select a reading type first')
-                    //},
-                    //{
-                    //    xtype: 'obis-field',
-                    //    required: false,
-                    //    name: 'overruledObisCode',
-                    //    fieldLabel: Uni.I18n.translate('general.overruledObisCode', 'MDC', 'Overruled OBIS code')
-                    //},
                     {
                         xtype: 'numberfield',
                         name: 'overflowValue',
@@ -171,7 +146,6 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     {
                         xtype: 'reading-type-combo',
                         itemId: 'mdc-channel-config-calculated-readingType-combo',
-                        name: 'calculatedReadingType',
                         tpl: null,
                         displayTpl: null,
                         fieldLabel: Uni.I18n.translate('general.calculatedReadingType', 'MDC', 'Calculated reading type'),
@@ -230,6 +204,10 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
             case 'Save': return Uni.I18n.translate('general.save', 'MDC', 'Save');
             default:     return this.loadProfileConfigurationChannelAction;
         }
+    },
+
+    isEdit: function() {
+        return this.loadProfileConfigurationChannelAction === 'Save';
     }
 });
 
