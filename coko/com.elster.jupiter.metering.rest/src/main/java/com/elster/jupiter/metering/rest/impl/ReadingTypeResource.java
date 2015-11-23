@@ -115,7 +115,6 @@ public class ReadingTypeResource {
             }
 
             List<String> codes = new ReadingTypeListFactory(createReadingTypeInfo).getCodeStringList();
-            System.err.println(codes);
             final List<String> existsMrids = meteringService.findReadingTypes(codes).stream().map(ReadingType::getMRID).collect(Collectors.toList());
             count = codes.size() - (int) codes.stream().filter(existsMrids::contains).count();
         }
@@ -138,11 +137,8 @@ public class ReadingTypeResource {
             if (countVariations > 1000) {
                 throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.TOO_MANY_READINGTYPES, countVariations);
             }
-
             List<String> codes = new ReadingTypeListFactory(createReadingTypeInfo).getCodeStringList();
-
-            codes.stream().filter(c -> !meteringService.getReadingType(c).isPresent()).collect(Collectors.toList());
-            System.out.println(codes);
+            codes = codes.stream().filter(c -> !meteringService.getReadingType(c).isPresent()).collect(Collectors.toList());
             final List<String> existsMrids = meteringService.findReadingTypes(codes).stream().map(ReadingType::getMRID).collect(Collectors.toList());
             mRIDs = codes.stream().filter(e -> !existsMrids.contains(e)).collect(Collectors.toList());
         }
@@ -173,7 +169,6 @@ public class ReadingTypeResource {
 
             readingType = activate(readingType, readingTypeInfo.active);
 
-            System.out.println("updated active for rt " + readingType.getMRID());
             context.commit();
 
             return readingType;
@@ -229,7 +224,6 @@ public class ReadingTypeResource {
 
             readingType.setAliasName(readingTypeInfo.aliasName);
             readingType.update();
-            System.out.println("updated alias for rt " + readingType.getMRID());
             context.commit();
 
             return readingType;
@@ -252,7 +246,6 @@ public class ReadingTypeResource {
             for (ReadingType readingType : readingTypes) {
                 readingType.setAliasName(readingTypeBulkEditInfo.aliasName);
                 readingType.update();
-                System.out.println("updated alias for rt " + readingType.getMRID());
             }
             context.commit();
         } catch (UnderlyingSQLFailedException | CommitException ex) {

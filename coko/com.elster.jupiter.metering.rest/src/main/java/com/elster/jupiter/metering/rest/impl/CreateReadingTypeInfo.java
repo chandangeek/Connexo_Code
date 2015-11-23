@@ -47,7 +47,6 @@ public class CreateReadingTypeInfo {
                 , metricMultiplier.size()
                 , unit.size()
                 , currency.size()};
-        System.out.println(Arrays.stream(sizes).filter(e -> e > 0).reduce((a, b) -> a * b).getAsLong());
         return Arrays.stream(sizes).filter(e -> e > 0).reduce((a, b) -> a * b).getAsLong();
     }
 }
