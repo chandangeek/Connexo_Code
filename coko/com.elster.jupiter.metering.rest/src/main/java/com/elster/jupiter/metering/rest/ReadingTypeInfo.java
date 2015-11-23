@@ -45,7 +45,7 @@ public class ReadingTypeInfo {
         this.mRID = readingType.getMRID();
         this.aliasName = readingType.getAliasName();
         this.name = readingType.getName();
-        this.active = readingType.getActive();
+        this.active = readingType.isActive();
         this.macroPeriod = readingType.getMacroPeriod().getDescription();
         this.aggregate = readingType.getAggregate().getDescription();
         this.measuringPeriod = readingType.getMeasuringPeriod().getDescription();

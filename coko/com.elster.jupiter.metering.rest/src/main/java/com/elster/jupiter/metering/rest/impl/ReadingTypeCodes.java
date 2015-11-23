@@ -5,83 +5,64 @@ import com.elster.jupiter.cbo.*;
 import java.util.Arrays;
 import java.util.Currency;
 import java.util.List;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ReadingTypeCodes {
+public enum ReadingTypeCodes {
+    MACRO_PERIOD("macroPeriod",
+            () -> Arrays.stream(MacroPeriod.values()).map(e -> new ReadingTypeCodeInfo(e.getId(), e.getDescription())).collect(Collectors.toList())),
+    AGGREAGTE("aggregate",
+            () -> Arrays.stream(Aggregate.values()).map(e -> new ReadingTypeCodeInfo(e.getId(), e.getDescription())).collect(Collectors.toList())),
+    MEASUREMENT_PERIOD("measurementPeriod",
+            () -> Arrays.stream(TimeAttribute.values()).map(e -> new ReadingTypeCodeInfo(e.getId(), e.getDescription())).collect(Collectors.toList())),
+    ACCUMULATION("accumulation",
+            () -> Arrays.stream(Accumulation.values()).map(e -> new ReadingTypeCodeInfo(e.getId(), e.getDescription())).collect(Collectors.toList())),
+    FLOW_DIRECTION("flowDirection",
+            () -> Arrays.stream(FlowDirection.values()).map(e -> new ReadingTypeCodeInfo(e.getId(), e.getDescription())).collect(Collectors.toList())),
+    COMMODITY("commodity",
+            () -> Arrays.stream(Commodity.values()).map(e -> new ReadingTypeCodeInfo(e.getId(), e.getDescription())).collect(Collectors.toList())),
+    MEASUREMENT_KIND("measurementKind",
+            () -> Arrays.stream(MeasurementKind.values()).map(e -> new ReadingTypeCodeInfo(e.getId(), e.getDescription())).collect(Collectors.toList())),
+    INTERHARMONIC_NUMERATOR("interHarmonicNumerator",
+            () -> Stream.of(1, 2, 3, 4, 5, 6, 7).map(ReadingTypeCodeInfo::new).collect(Collectors.toList())),
+    INTERHARMONIC_DENOMINATOR("interHarmonicDenominator",
+            () -> Stream.of(1, 2).map(ReadingTypeCodeInfo::new).collect(Collectors.toList())),
+    ARGUMENT_NUMERATOR("argumentNumerator",
+            () -> Stream.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 30, 45, 60, 12, 155, 240, 305, 360, 480, 720)
+                    .map(ReadingTypeCodeInfo::new).collect(Collectors.toList())),
+    ARGUMENT_DENOMINATOR("argumentDenominator",
+            () -> Stream.of(1, 60, 120, 180, 240, 360).map(ReadingTypeCodeInfo::new).collect(Collectors.toList())),
+    TIME_OF_USE("timeOfUse",
+            () -> Arrays.stream(TimeOfUse.values()).map(e -> new ReadingTypeCodeInfo(e.getId(), e.getDescription())).collect(Collectors.toList())),
+    CPP("criticalPeakPeriod",
+            () -> Arrays.stream(CriticalPeakPeriod.values()).map(e -> new ReadingTypeCodeInfo(e.getId(), e.getDescription())).collect(Collectors.toList())),
+    CONSUMPTION_TIER("consumptionTier",
+            () -> Arrays.stream(ConsumptionTier.values()).map(e -> new ReadingTypeCodeInfo(e.getId(), e.getDescription())).collect(Collectors.toList())),
+    PHASES("phases",
+            () -> Arrays.stream(Phase.values()).map(e -> new ReadingTypeCodeInfo(e.getId(), e.getDescription())).collect(Collectors.toList())),
+    MULTIPLIER("multiplier",
+            () -> Arrays.stream(MetricMultiplier.values()).map(e -> new ReadingTypeCodeInfo(e.getId(), e.getSymbol())).collect(Collectors.toList())),
+    UNIT("unit",
+            () -> Arrays.stream(ReadingTypeUnit.values()).map(e -> new ReadingTypeCodeInfo(e.getId(), e.getSymbol())).collect(Collectors.toList())),
+    CURRENCY("currency",
+            () -> Currency.getAvailableCurrencies().stream().map(e -> new ReadingTypeCodeInfo(e.getNumericCode(), e.getDisplayName())).collect(Collectors.toList()));
 
-    public static List<ReadingTypeCodeInfo> getMacroPeriod() {
-        return Arrays.stream(MacroPeriod.values()).map(e -> new ReadingTypeCodeInfo(e.getId(), e.getDescription())).collect(Collectors.toList());
+    private final String name;
+    private final Supplier<List<ReadingTypeCodeInfo>> values;
 
+    ReadingTypeCodes(String name, Supplier<List<ReadingTypeCodeInfo>> values) {
+        this.name = name;
+        this.values = values;
     }
 
-    public static List<ReadingTypeCodeInfo> getAggregate() {
-        return Arrays.stream(Aggregate.values()).map(e -> new ReadingTypeCodeInfo(e.getId(), e.getDescription())).collect(Collectors.toList());
+    public String getName() {
+        return name;
     }
 
-    public static List<ReadingTypeCodeInfo> getMeasurementPeriod() {
-        return Arrays.stream(TimeAttribute.values()).map(e -> new ReadingTypeCodeInfo(e.getId(), e.getDescription())).collect(Collectors.toList());
-    }
-
-    public static List<ReadingTypeCodeInfo> getAccumulation() {
-        return Arrays.stream(Accumulation.values()).map(e -> new ReadingTypeCodeInfo(e.getId(), e.getDescription())).collect(Collectors.toList());
-    }
-
-    public static List<ReadingTypeCodeInfo> getFlowDirection() {
-        return Arrays.stream(FlowDirection.values()).map(e -> new ReadingTypeCodeInfo(e.getId(), e.getDescription())).collect(Collectors.toList());
-    }
-
-    public static List<ReadingTypeCodeInfo> getCommodity() {
-        return Arrays.stream(Commodity.values()).map(e -> new ReadingTypeCodeInfo(e.getId(), e.getDescription())).collect(Collectors.toList());
-    }
-
-    public static List<ReadingTypeCodeInfo> getMeasurementKind() {
-        return Arrays.stream(MeasurementKind.values()).map(e -> new ReadingTypeCodeInfo(e.getId(), e.getDescription())).collect(Collectors.toList());
-    }
-
-    public static List<ReadingTypeCodeInfo> getInterHarmonicNumerator() {
-        return Stream.of(1, 2, 3, 4, 5, 6, 7).map(ReadingTypeCodeInfo::new).collect(Collectors.toList());
-    }
-
-    public static List<ReadingTypeCodeInfo> getInterHarmonicDenominator() {
-        return Stream.of(1, 2).map(ReadingTypeCodeInfo::new).collect(Collectors.toList());
-    }
-
-    public static List<ReadingTypeCodeInfo> getArgumentNumerator() {
-        return Stream.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 30, 45, 60, 12, 155, 240, 305, 360, 480, 720)
-                .map(ReadingTypeCodeInfo::new).collect(Collectors.toList());
-    }
-
-    public static List<ReadingTypeCodeInfo> getArgumentDenominator() {
-        return Stream.of(1, 60, 120, 180, 240, 360).map(ReadingTypeCodeInfo::new).collect(Collectors.toList());
-    }
-
-    public static List<ReadingTypeCodeInfo> getTou() {
-        return Arrays.stream(TimeOfUse.values()).map(e -> new ReadingTypeCodeInfo(e.getId(), e.getDescription())).collect(Collectors.toList());
-    }
-
-    public static List<ReadingTypeCodeInfo> getCpp() {
-        return Arrays.stream(CriticalPeakPeriod.values()).map(e -> new ReadingTypeCodeInfo(e.getId(), e.getDescription())).collect(Collectors.toList());
-    }
-
-    public static List<ReadingTypeCodeInfo> getConsumptionTier() {
-        return Arrays.stream(ConsumptionTier.values()).map(e -> new ReadingTypeCodeInfo(e.getId(), e.getDescription())).collect(Collectors.toList());
-    }
-
-    public static List<ReadingTypeCodeInfo> getPhases() {
-        return Arrays.stream(Phase.values()).map(e -> new ReadingTypeCodeInfo(e.getId(), e.getDescription())).collect(Collectors.toList());
-    }
-
-    public static List<ReadingTypeCodeInfo> getMultiplier() {
-        return Arrays.stream(MetricMultiplier.values()).map(e -> new ReadingTypeCodeInfo(e.getId(), e.getSymbol())).collect(Collectors.toList());
-    }
-
-    public static List<ReadingTypeCodeInfo> getUnit() {
-        return Arrays.stream(ReadingTypeUnit.values()).map(e -> new ReadingTypeCodeInfo(e.getId(), e.getSymbol())).collect(Collectors.toList());
-    }
-
-    public static List<ReadingTypeCodeInfo> getCurrency() {
-        return Currency.getAvailableCurrencies().stream().map(e -> new ReadingTypeCodeInfo(e.getNumericCode(), e.getDisplayName())).collect(Collectors.toList());
+    public List<ReadingTypeCodeInfo> getCodeInfo() {
+        return values.get();
     }
 
     private enum TimeOfUse {

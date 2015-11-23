@@ -28,6 +28,7 @@ import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -84,65 +85,11 @@ public class ReadingTypeResource {
     @Path("/codes/{field}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getCodes(@PathParam("field") String field, @BeanParam JsonQueryParameters queryParameters) {
-        List<ReadingTypeCodeInfo> infoList;
-        switch (field) {
-            case "macroPeriod":
-                infoList = ReadingTypeCodes.getMacroPeriod();
-                break;
-            case "aggregate":
-                infoList = ReadingTypeCodes.getAggregate();
-                break;
-            case "measuringPeriod":
-                infoList = ReadingTypeCodes.getMeasurementPeriod();
-                break;
-            case "accumulation":
-                infoList = ReadingTypeCodes.getAccumulation();
-                break;
-            case "flowDirection":
-                infoList = ReadingTypeCodes.getFlowDirection();
-                break;
-            case "commodity":
-                infoList = ReadingTypeCodes.getCommodity();
-                break;
-            case "measurementKind":
-                infoList = ReadingTypeCodes.getMeasurementKind();
-                break;
-            case "interHarmonicNumerator":
-                infoList = ReadingTypeCodes.getInterHarmonicNumerator();
-                break;
-            case "interHarmonicDenominator":
-                infoList = ReadingTypeCodes.getInterHarmonicDenominator();
-                break;
-            case "argumentNumerator":
-                infoList = ReadingTypeCodes.getArgumentNumerator();
-                break;
-            case "argumentDenominator":
-                infoList = ReadingTypeCodes.getArgumentDenominator();
-                break;
-            case "tou":
-                infoList = ReadingTypeCodes.getTou();
-                break;
-            case "cpp":
-                infoList = ReadingTypeCodes.getCpp();
-                break;
-            case "consumptionTier":
-                infoList = ReadingTypeCodes.getConsumptionTier();
-                break;
-            case "phases":
-                infoList = ReadingTypeCodes.getPhases();
-                break;
-            case "metricMultiplier":
-                infoList = ReadingTypeCodes.getMultiplier();
-                break;
-            case "unit":
-                infoList = ReadingTypeCodes.getUnit();
-                break;
-            case "currency":
-                infoList = ReadingTypeCodes.getCurrency();
-                break;
-            default:
-                throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.FIELD_NOT_FOUND, field);
-        }
+        List<ReadingTypeCodeInfo> infoList = Arrays.stream(ReadingTypeCodes.values())
+                .filter(candidate -> candidate.getName().equalsIgnoreCase(field))
+                .map(ReadingTypeCodes::getCodeInfo)
+                .findFirst()
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.BAD_REQUEST, MessageSeeds.FIELD_NOT_FOUND, field));
         return PagedInfoList.fromCompleteList(field + "Codes", infoList, queryParameters);
     }
 
