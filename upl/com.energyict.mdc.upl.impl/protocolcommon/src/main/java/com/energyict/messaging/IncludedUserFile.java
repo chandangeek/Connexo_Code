@@ -362,4 +362,12 @@ final class IncludedUserFile implements UserFile {
 			throw new ApplicationException("IO error while closing byte stream : [" + e.getMessage() + "]", e);
 		}
 	}
+
+    /**
+     * {@inheritDoc}
+     */
+	@Override
+	public final long getFileSize() throws SQLException {
+		return this.contents.getBytes().length;
+	}
 }
