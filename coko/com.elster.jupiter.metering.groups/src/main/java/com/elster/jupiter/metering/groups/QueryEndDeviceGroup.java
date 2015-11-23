@@ -15,7 +15,7 @@ public interface QueryEndDeviceGroup extends EndDeviceGroup {
 
     EndDeviceQueryProvider getEndDeviceQueryProvider();
 
-    SqlFragment toFragment(String... fieldNames);
+    SqlFragment toFragment();
 
     List<SearchablePropertyValue> getSearchablePropertyValues();
 

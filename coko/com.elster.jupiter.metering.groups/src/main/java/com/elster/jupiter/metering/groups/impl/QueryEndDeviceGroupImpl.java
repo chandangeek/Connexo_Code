@@ -1,6 +1,5 @@
 package com.elster.jupiter.metering.groups.impl;
 
-import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.EndDevice;
@@ -116,9 +115,8 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
     }
 
     @Override
-    public SqlFragment toFragment(String... fieldNames) {
-        Finder<?> finder = getSearchBuilder().toFinder();
-        return fieldNames.length > 0 ? finder.asFragment(fieldNames) : finder.asFragment("id");
+    public SqlFragment toFragment() {
+        return getSearchBuilder().toFinder().asFragment("id");
     }
 
     @Override
