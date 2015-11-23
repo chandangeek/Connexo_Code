@@ -46,8 +46,8 @@ public class InsightAppInstaller implements InstallService {
 
     private void assignPrivilegesToDefaultRoles() {
         List<String> privilegesMeterExpert =  getPrivilegesMeterExpert();
-        userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, MeteringService.COMPONENTNAME, privilegesMeterExpert.stream().toArray(String[]::new));
-        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, MeteringService.COMPONENTNAME, privilegesMeterExpert.stream().toArray(String[]::new));
+        userService.grantGroupWithPrivilege(UserService.DEFAULT_ADMIN_ROLE, InsightAppService.APPLICATION_KEY, privilegesMeterExpert.stream().toArray(String[]::new));
+        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, InsightAppService.APPLICATION_KEY, privilegesMeterExpert.stream().toArray(String[]::new));
 
         userService.grantGroupWithPrivilege(InsightAppService.Roles.METER_OPERATOR.value(), InsightAppService.APPLICATION_KEY, getPrivilegesMeterOperator().stream().toArray(String[]::new));
         userService.grantGroupWithPrivilege(InsightAppService.Roles.METER_EXPERT.value(), InsightAppService.APPLICATION_KEY, privilegesMeterExpert.stream().toArray(String[]::new));
