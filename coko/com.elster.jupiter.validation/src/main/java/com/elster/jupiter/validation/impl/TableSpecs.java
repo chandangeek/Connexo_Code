@@ -84,7 +84,7 @@ public enum TableSpecs {
                     .map("ruleSetVersion").reverseMap("rules").composition().reverseMapOrder("position").add();
             table.foreignKey("VAL_FK_RULESET").references("VAL_VALIDATIONRULESET").on(ruleSetIdColumn).onDelete(RESTRICT)
                     .map("ruleSet").reverseMap("rules").composition().add();
-            table.unique("VAL_UQ_RULE_NAME").on(nameColumn, obsoleteColumn).add();
+            table.unique("VAL_UQ_RULE_NAME").on(ruleSetVersionIdColumn, nameColumn, obsoleteColumn).add();
         }
     },
     VAL_VALIDATIONRULEPROPS {
