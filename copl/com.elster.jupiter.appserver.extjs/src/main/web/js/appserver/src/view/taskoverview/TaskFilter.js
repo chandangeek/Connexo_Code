@@ -30,7 +30,7 @@ Ext.define('Apr.view.taskoverview.TaskFilter', {
             dataIndex: 'startedBetween',
             dataIndexFrom: 'startedOnFrom',
             dataIndexTo: 'startedOnTo',
-            text: Uni.I18n.translate('validationtask.historyFilter.startedBetween', 'CFG', 'Started between')
+            text: Uni.I18n.translate('validationtask.historyFilter.startedBetween', 'APR', 'Started between')
         }
     ]
 });
