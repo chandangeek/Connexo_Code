@@ -123,6 +123,7 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
         );
         when(taskService.newBuilder()).thenReturn(taskBuilder);
         when(recurrentTask.getLastOccurrence()).thenReturn(Optional.empty());
+        when(recurrentTask.getName()).thenReturn("testname");
 
 
         doNothing().when(recurrentTask).setNextExecution(any(Instant.class));
