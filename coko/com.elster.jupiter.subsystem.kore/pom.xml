@@ -16,7 +16,6 @@
     <description>This POM details all versions of bundles related to business intelligence (e.g. Metering, Issues,...)
     </description>
 
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -30,13 +29,30 @@
     </dependencyManagement>
 
     <dependencies>
-
         <dependency>
             <groupId>com.elster.jupiter.subsystem</groupId>
             <artifactId>platform</artifactId>
             <version>1.1.0-SNAPSHOT</version>
             <type>zip</type>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter.subsystem</groupId>
+            <artifactId>platform</artifactId>
+            <version>1.1.0-SNAPSHOT</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>kore.bom</artifactId>
+            <version>1.1.0-SNAPSHOT</version>
+            <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>platform.bom</artifactId>
+            <version>1.1.0-SNAPSHOT</version>
+            <type>pom</type>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -194,35 +210,41 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>connexo-kore</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
+    <profiles>
+        <profile>
+            <id>default</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>connexo-kore</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
 
-                <configuration>
-                    <archiverConfig>
-                        <duplicateBehavior>skip</duplicateBehavior>
-                    </archiverConfig>
+                        <configuration>
+                            <archiverConfig>
+                                <duplicateBehavior>skip</duplicateBehavior>
+                            </archiverConfig>
 
-                    <descriptors>
-                        <descriptor>assembly/assembly.xml</descriptor>
-                    </descriptors>
+                            <descriptors>
+                                <descriptor>assembly/assembly.xml</descriptor>
+                            </descriptors>
 
-                    <finalName>connexo-kore-v${project.version}</finalName>
-                    <appendAssemblyId>false</appendAssemblyId>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
-
+                            <finalName>connexo-kore-v${project.version}</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

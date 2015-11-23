@@ -1,6 +1,7 @@
 -classpath: target/classes
 -dsannotations: *
 Private-Package: com.elster.jupiter.subsystem.kore.impl
-Export-Package: com.elster.jupiter.subsystem.kore
-
-
+Embed-Dependency: \
+    groupId=com.elster.jupiter;artifactId=kore.bom;type=pom,\
+    groupId=com.elster.jupiter;artifactId=platform.bom;type=pom,\
+    groupId=com.elster.jupiter.subsystem;artifactId=platform;type=pom
