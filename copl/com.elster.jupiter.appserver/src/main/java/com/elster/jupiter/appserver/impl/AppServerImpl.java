@@ -19,6 +19,8 @@ import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpression;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
@@ -28,10 +30,13 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import java.nio.file.Path;
+import java.security.Principal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @UniqueCaseInsensitive(fields = "name", groups = Save.Create.class, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
@@ -45,6 +50,8 @@ public class AppServerImpl implements AppServer {
     private final MessageService messageService;
     private final JsonService jsonService;
     private final Thesaurus thesaurus;
+    private final TransactionService transactionService;
+    private final ThreadPrincipalService threadPrincipalService;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
     @Size(max = APP_SERVER_NAME_SIZE, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_14 + "}")
     @Pattern(regexp = "[a-zA-Z0-9\\-]+", groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.APPSERVER_NAME_INVALID_CHARS + "}")
@@ -63,13 +70,15 @@ public class AppServerImpl implements AppServer {
     private String userName;
 
     @Inject
-    AppServerImpl(DataModel dataModel, CronExpressionParser cronExpressionParser, FileImportService fileImportService, MessageService messageService, JsonService jsonService, Thesaurus thesaurus) {
+    AppServerImpl(DataModel dataModel, CronExpressionParser cronExpressionParser, FileImportService fileImportService, MessageService messageService, JsonService jsonService, Thesaurus thesaurus, TransactionService transactionService, ThreadPrincipalService threadPrincipalService) {
         this.dataModel = dataModel;
         this.cronExpressionParser = cronExpressionParser;
         this.fileImportService = fileImportService;
         this.messageService = messageService;
         this.jsonService = jsonService;
         this.thesaurus = thesaurus;
+        this.transactionService = transactionService;
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     static AppServerImpl from(DataModel dataModel, String name, CronExpression scheduleFrequency) {
@@ -84,7 +93,7 @@ public class AppServerImpl implements AppServer {
     }
 
     @Override
-	public SubscriberExecutionSpecImpl createSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount) {
+    public SubscriberExecutionSpecImpl createSubscriberExecutionSpec(SubscriberSpec subscriberSpec, int threadCount) {
         try (BatchUpdateImpl updater = forBatchUpdate()) {
             return updater.createActiveSubscriberExecutionSpec(subscriberSpec, threadCount);
         }
@@ -259,18 +268,14 @@ public class AppServerImpl implements AppServer {
                 .orElseThrow(IllegalArgumentException::new);
     }
 
-    // for future use in the appserver's shut down request
     private void removeMessageQueue() {
-        Optional<DestinationSpec> allServersTopic = messageService.getDestinationSpec(AppService.ALL_SERVERS);
-        if (allServersTopic.isPresent()) {
-            allServersTopic.get().unSubscribe(AppServerImpl.this.messagingName());
-        }
+        messageService.getDestinationSpec(AppService.ALL_SERVERS)
+                .ifPresent(allServersTopic -> {
+                    allServersTopic.unSubscribe(AppServerImpl.this.messagingName());
+                });
 
-        Optional<DestinationSpec> destinationSpecRef = messageService.getDestinationSpec(AppServerImpl.this.messagingName());
-
-        if (destinationSpecRef.isPresent()) {
-            destinationSpecRef.get().delete();
-        }
+        messageService.getDestinationSpec(AppServerImpl.this.messagingName())
+                .ifPresent(DestinationSpec::delete);
     }
 
     private class BatchUpdateImpl implements BatchUpdate {
@@ -364,6 +369,18 @@ public class AppServerImpl implements AppServer {
         public void close() {
             if (deleted) {
                 dataModel.mapper(AppServer.class).remove(AppServerImpl.this);
+                Principal principal = threadPrincipalService.getPrincipal();
+                CompletableFuture.runAsync(() -> {
+                    try {
+                        TimeUnit.MINUTES.sleep(1);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                    }
+                }).thenRun(() -> {
+                    transactionService.builder()
+                            .principal(principal)
+                            .run(AppServerImpl.this::removeMessageQueue);
+                });
             } else {
                 dataModel.mapper(AppServer.class).update(AppServerImpl.this);
             }

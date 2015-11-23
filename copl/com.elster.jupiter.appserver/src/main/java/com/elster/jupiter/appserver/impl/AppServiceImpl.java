@@ -29,6 +29,7 @@ import com.elster.jupiter.orm.InvalidateCacheRequest;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.pubsub.Subscriber;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.PrivilegesProvider;
@@ -95,6 +96,7 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
     private volatile UserService userService;
     private volatile Thesaurus thesaurus;
     private volatile EventService eventService;
+    private volatile ThreadPrincipalService threadPrincipalService;
 
     private volatile AppServerImpl appServer;
     private volatile List<? extends SubscriberExecutionSpec> subscriberExecutionSpecs = Collections.emptyList();
@@ -111,8 +113,9 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
     }
 
     @Inject
-    AppServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, MessageService messageService, CronExpressionParser cronExpressionParser, JsonService jsonService, FileImportService fileImportService, TaskService taskService, UserService userService, QueryService queryService, BundleContext bundleContext) {
+    AppServiceImpl(OrmService ormService, NlsService nlsService, TransactionService transactionService, MessageService messageService, CronExpressionParser cronExpressionParser, JsonService jsonService, FileImportService fileImportService, TaskService taskService, UserService userService, QueryService queryService, BundleContext bundleContext, ThreadPrincipalService threadPrincipalService) {
         this();
+        setThreadPrincipalService(threadPrincipalService);
         setOrmService(ormService);
         setNlsService(nlsService);
         setTransactionService(transactionService);
@@ -149,6 +152,7 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
                     bind(MessageInterpolator.class).toInstance(thesaurus);
                     bind(AppService.class).toInstance(AppServiceImpl.this);
                     bind(IAppService.class).toInstance(AppServiceImpl.this);
+                    bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 }
             });
 
@@ -287,16 +291,17 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
     }
 
     private void listenForMessagesToAppServer() {
-        Optional<SubscriberSpec> subscriberSpec = messageService.getSubscriberSpec(messagingName(), messagingName());
-        if (subscriberSpec.isPresent()) {
-            SubscriberSpec appServerSubscriberSpec = subscriberSpec.get();
-            final ExecutorService executorService = new CancellableTaskExecutorService(1, new AppServerThreadFactory(threadGroup, new LoggingUncaughtExceptionHandler(thesaurus), this, () -> "This AppServer messages"));
-            final Future<?> cancellableTask = executorService.submit(new MessageHandlerTask(appServerSubscriberSpec, new CommandHandler(), transactionService, thesaurus));
-            deactivateTasks.add(() -> {
-                cancellableTask.cancel(false);
-                executorService.shutdownNow();
-            });
-        }
+        messageService.getSubscriberSpec(messagingName(), messagingName())
+                .ifPresent(this::doListenForMessagesToAppServer);
+    }
+
+    private void doListenForMessagesToAppServer(SubscriberSpec subscriberSpec) {
+        final ExecutorService executorService = new CancellableTaskExecutorService(1, new AppServerThreadFactory(threadGroup, new LoggingUncaughtExceptionHandler(thesaurus), this, () -> "This AppServer messages"));
+        final Future<?> cancellableTask = executorService.submit(new MessageHandlerTask(subscriberSpec, new CommandHandler(), transactionService, thesaurus));
+        deactivateTasks.add(() -> {
+            cancellableTask.cancel(false);
+            executorService.shutdownNow();
+        });
     }
 
     @Deactivate
@@ -401,7 +406,7 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
         List<AppServer> appServers = dataModel.mapper(AppServer.class).select(where("name").isEqualToIgnoreCase(name));
         return appServers.isEmpty() ? Optional.<AppServer>empty() : Optional.of(appServers.get(0));
     }
-    
+
     @Override
     public Optional<AppServer> findAndLockAppServerByNameAndVersion(String name, long version) {
         return dataModel.mapper(AppServer.class).lockObjectIfVersion(version, name);
@@ -461,10 +466,24 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
         this.userService = userService;
     }
 
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
+    }
+
     private class CommandHandler implements MessageHandler {
 
         @Override
         public void process(Message message) {
+            threadPrincipalService.set(() -> "AppServer Command");
+            try {
+                doProcess(message);
+            } finally {
+                threadPrincipalService.clear();
+            }
+        }
+
+        private void doProcess(Message message) {
             AppServerCommand command = jsonService.deserialize(message.getPayload(), AppServerCommand.class);
             switch (command.getCommand()) {
                 case STOP:
@@ -482,10 +501,13 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
                     fileImportService.schedule(importSchedule);
                     break;
                 case CONFIG_CHANGED:
+                    AppServerImpl currentAppServer = appServer;
                     appServer = (AppServerImpl) findAppServer(appServer.getName()).orElse(null);
                     subscriberExecutionSpecs = appServer == null ? Collections.emptyList() : appServer.getSubscriberExecutionSpecs();
                     if (appServer == null) {
+                        // AppServer has been deleted. We should stop and remove the AppServer's queues
                         stopAppServer();
+                        deleteServerQueues(currentAppServer);
                     } else {
                         reconfigure();
                     }
@@ -493,6 +515,17 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
             }
             commandListeners.forEach(listener -> listener.notify(command));
         }
+    }
+
+    private void deleteServerQueues(AppServerImpl deletedAppServer) {
+        messageService.getSubscriberSpec(deletedAppServer.messagingName(), deletedAppServer.messagingName())
+                .ifPresent(subscriberSpec -> {
+                    subscriberSpec.getDestination().delete();
+                });
+        messageService.getSubscriberSpec(ALL_SERVERS, deletedAppServer.messagingName())
+                .ifPresent(subscriberSpec -> {
+                    subscriberSpec.getDestination().unSubscribe(subscriberSpec.getName());
+                });
     }
 
     public void stop() {

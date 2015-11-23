@@ -24,6 +24,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.InvalidateCacheRequest;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
@@ -132,6 +133,8 @@ public class AppServiceImplTest {
     private NlsMessageFormat format;
     @Mock
     private QueryService queryService;
+    @Mock
+    private ThreadPrincipalService threadPrincipalService;
 
     @SuppressWarnings("unchecked")
 	@Before
@@ -168,7 +171,7 @@ public class AppServiceImplTest {
         setupBlockingCancellableSubscriberSpec();
         setupFakeTransactionService();
 
-        appService = new AppServiceImpl(ormService, nlsService, transactionService, messageService, new DefaultCronExpressionParser(), jsonService, fileImportService, taskService, userService, queryService, bundleContext);
+        appService = new AppServiceImpl(ormService, nlsService, transactionService, messageService, new DefaultCronExpressionParser(), jsonService, fileImportService, taskService, userService, queryService, bundleContext, threadPrincipalService);
     }
 
     @SuppressWarnings("unchecked")
@@ -384,7 +387,7 @@ public class AppServiceImplTest {
         }
     }
 
-    @Test
+    @Test(timeout = 10_000)
     public void testHandleStop() throws InterruptedException, SQLException, BundleException {
         when(context.getProperty(AppService.SERVER_NAME_PROPERTY_NAME)).thenReturn(APP_SERVER_NAME);
         when(appServerFactory.getOptional(APP_SERVER_NAME)).thenReturn(Optional.<AppServer>of(appServer));

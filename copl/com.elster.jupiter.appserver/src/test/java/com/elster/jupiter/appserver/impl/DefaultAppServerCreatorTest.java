@@ -9,6 +9,7 @@ import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.cron.CronExpression;
@@ -71,6 +72,8 @@ public class DefaultAppServerCreatorTest {
     private ValidatorFactory validatorFactory;
     @Mock
     private javax.validation.Validator javaxValidator;
+    @Mock
+    private ThreadPrincipalService threadPrincipalService;
 
     @Before
     public void setUp() {
@@ -79,7 +82,7 @@ public class DefaultAppServerCreatorTest {
         when(queueTableSpec.createDestinationSpec(anyString(), anyInt())).thenReturn(newDestination);
         when(messageService.getDestinationSpec(AppService.ALL_SERVERS)).thenReturn(Optional.of(allServersDestination));
         when(messageService.getDestinationSpec("AppServer_" + NAME.toUpperCase())).thenReturn(Optional.<DestinationSpec>empty());
-        when(dataModel.getInstance(AppServerImpl.class)).thenReturn(new AppServerImpl(dataModel, cronExpressionParser, fileImportService, messageService, jsonService, thesaurus));
+        when(dataModel.getInstance(AppServerImpl.class)).thenReturn(new AppServerImpl(dataModel, cronExpressionParser, fileImportService, messageService, jsonService, thesaurus, transactionService, threadPrincipalService));
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(validatorFactory.getValidator()).thenReturn(javaxValidator);
         when(javaxValidator.validate(any(javax.validation.Validator.class), any(), any())).thenReturn(new HashSet<ConstraintViolation<Validator>>());
