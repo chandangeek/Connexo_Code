@@ -1,19 +1,18 @@
 package com.elster.jupiter.metering.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.inject.Inject;
-
 import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.orm.DataModel;
-import java.util.Optional;
 import com.google.common.collect.ImmutableList;
+
+import javax.inject.Inject;
 import javax.inject.Provider;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 public class ChannelBuilderImpl implements ChannelBuilder {
 
@@ -56,7 +55,7 @@ public class ChannelBuilderImpl implements ChannelBuilder {
     		return readingTypes;
     	}
     	// special case of cumulative reading type in load profile, store delta's in first slot
-    	ReadingTypeCodeBuilder builder = ((ReadingTypeImpl) readingType).builder();
+    	ReadingTypeCodeBuilder builder = readingType.builder();
     	builder.accumulate(Accumulation.DELTADELTA);
     	Optional<ReadingTypeImpl> delta = dataModel.mapper(ReadingTypeImpl.class).getOptional(builder.code());
     	if (delta.isPresent()) {

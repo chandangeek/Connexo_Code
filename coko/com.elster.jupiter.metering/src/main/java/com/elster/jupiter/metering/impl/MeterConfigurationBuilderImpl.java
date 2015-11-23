@@ -7,6 +7,9 @@ import com.elster.jupiter.metering.MeterConfiguration;
 import com.elster.jupiter.metering.MultiplierType;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.util.graph.DiEdge;
+import com.elster.jupiter.util.graph.DiGraph;
+import com.elster.jupiter.util.graph.Node;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -25,7 +28,7 @@ class MeterConfigurationBuilderImpl implements MeterConfigurationBuilder {
         this.meter = meter;
         this.startAt = startAt;
     }
-    
+
     @Override
     public MeterConfigurationBuilder endingAt(Instant endTime) {
         endAt = endTime;
@@ -44,6 +47,16 @@ class MeterConfigurationBuilderImpl implements MeterConfigurationBuilder {
         MeterConfigurationImpl meterConfiguration = MeterConfigurationImpl.from(dataModel, meter, startAt);
         if (endAt != null) {
             meterConfiguration.setEnd(endAt);
+        }
+
+        DiGraph<ReadingType> multiplierGraph = new DiGraph<>();
+        readingTypes.stream()
+                .filter(builder -> builder.calculated != null)
+                .forEach(builder -> {
+                    multiplierGraph.addEdge(DiEdge.between(Node.of(builder.measured), Node.of(builder.calculated)));
+                });
+        if (!multiplierGraph.isForrest()) {
+            throw new IllegalArgumentException(); // TODO proper exception
         }
 
         readingTypes.stream()

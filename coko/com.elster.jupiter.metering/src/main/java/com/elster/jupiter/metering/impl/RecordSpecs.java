@@ -1,7 +1,6 @@
 package com.elster.jupiter.metering.impl;
 
 
-import com.elster.jupiter.ids.FieldDerivationRule;
 import com.elster.jupiter.ids.IdsService;
 import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.RecordSpecBuilder;
@@ -66,7 +65,8 @@ public enum RecordSpecs {
 	BULKQUANTITYINTERVAL("Bulk Quantity Interval Data",true) {
 		@Override
 		void addFieldSpecs(RecordSpecBuilder recordSpec) {
-			recordSpec.addDerivedFieldSpec("Value", "Bulk", NUMBER, FieldDerivationRule.DELTAFROMPREVIOUS);
+			recordSpec.addFieldSpec("Value", NUMBER);
+			recordSpec.addFieldSpec("Bulk", NUMBER);
 		}
 
 		@Override
