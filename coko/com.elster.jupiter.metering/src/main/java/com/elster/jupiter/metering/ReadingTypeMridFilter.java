@@ -331,8 +331,12 @@ public class ReadingTypeMridFilter {
     }
 
     public Condition getFilterCondition() {
+        return where("mRID").matches(getRegex(), "");
+    }
+
+    public String getRegex() {
         StringBuilder filter = new StringBuilder();
         Stream.of(Filters.values()).forEach(f -> filter.append(f.getFilterCriteria(this)));
-        return where("mRID").matches(filter.toString(), "");
+        return filter.toString();
     }
 }

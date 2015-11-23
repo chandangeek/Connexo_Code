@@ -596,6 +596,7 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         Arrays.stream(Privileges.values()).forEach(translationKeys::add);
         Arrays.stream(PropertyTranslationKeys.values()).forEach(translationKeys::add);
         Arrays.stream(UsagePointConnectedKind.values()).forEach(translationKeys::add);
+        Arrays.stream(ReadingTypeTranslationKeys.values()).forEach(translationKeys::add);
         return translationKeys;
     }
 

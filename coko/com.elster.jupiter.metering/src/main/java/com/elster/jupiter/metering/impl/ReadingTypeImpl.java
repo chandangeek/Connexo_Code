@@ -470,6 +470,10 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
         } else if (this.getMacroPeriod().equals(MacroPeriod.DAILY) || this.getMacroPeriod().equals(MacroPeriod.MONTHLY)) {
             fullAlias.append("[").append(getTranslationWithDefault(this.getMacroPeriod().getDescription())).append("] ");
         }
+		switch (this.getCommodity()){
+			case ELECTRICITY_PRIMARY_METERED: fullAlias.append(" ").append(this.thesaurus.getFormat(ReadingTypeTranslationKeys.PRIMARY).format()).append(" ");break;
+			case ELECTRICITY_SECONDARY_METERED: fullAlias.append(" ").append(this.thesaurus.getFormat(ReadingTypeTranslationKeys.SECONDARY).format()).append(" ");break;
+		}
         fullAlias.append(this.getAliasName());
         if (this.getUnit().isApplicable()) {
             fullAlias.append(" (").append(getTranslationWithDefault(this.getMultiplier().getSymbol())).append(getTranslationWithDefault(this.getUnit().getSymbol())).append(")");
