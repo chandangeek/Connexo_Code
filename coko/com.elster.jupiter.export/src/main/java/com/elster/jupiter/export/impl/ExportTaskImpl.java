@@ -53,8 +53,6 @@ final class ExportTaskImpl implements IExportTask {
     private final DataModel dataModel;
     private final IDataExportService dataExportService;
     private final Thesaurus thesaurus;
-    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_CAN_NOT_BE_EMPTY + "}")
-    @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_MIN_AND_MAX + "}")
     protected String name;
     @NotNull
     @IsExistingFormatter

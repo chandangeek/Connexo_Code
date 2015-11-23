@@ -471,6 +471,7 @@ public class ExportTaskImplIT {
     }
 
     @Test
+    @Ignore
     public void testHistory() throws InterruptedException {
 
         clock.setTicker(new Supplier<Instant>() {
