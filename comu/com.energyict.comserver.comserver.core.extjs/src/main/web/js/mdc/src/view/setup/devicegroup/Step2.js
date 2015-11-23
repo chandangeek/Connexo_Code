@@ -79,7 +79,7 @@ Ext.define('Mdc.view.setup.devicegroup.Step2', {
                             //hidden: true,
                             lbar: {
                                 xtype: 'label',
-                                text: Uni.I18n.translate('search.overview.criteria.label', 'UNI', 'Criteria'),
+                                text: Uni.I18n.translate('searchItems.filter.criteria', 'MDC', 'Criteria'),
                                 width: 100
                             },
                             rbar: {
