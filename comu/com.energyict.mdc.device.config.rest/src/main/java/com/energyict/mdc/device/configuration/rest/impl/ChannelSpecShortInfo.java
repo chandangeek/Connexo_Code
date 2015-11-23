@@ -48,7 +48,9 @@ public class ChannelSpecShortInfo {
         this.readingType = new ReadingTypeInfo(readingType);
         this.isCumulative = readingType.isCumulative();
         this.collectedReadingType = new ReadingTypeInfo(collectedReadingType);
-        this.calculatedReadingType = new ReadingTypeInfo(collectedReadingType.getCalculatedReadingType().orElse(null));
+        if(collectedReadingType.getCalculatedReadingType().isPresent()){
+            this.calculatedReadingType = new ReadingTypeInfo(collectedReadingType.getCalculatedReadingType().get());
+        }
         multipliedCalculatedRegisterTypes.forEach(readingTypeConsumer -> possibleCalculatedReadingTypes.add(new ReadingTypeInfo(readingTypeConsumer)));
         this.version = measurementType.getVersion();
     }
