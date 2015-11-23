@@ -1,10 +1,22 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.callback.PersistenceAware;
+import com.elster.jupiter.time.TemporalExpression;
+import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.config.ConnectionStrategy;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
 import com.energyict.mdc.device.config.TaskPriorityConstants;
 import com.energyict.mdc.device.data.ComTaskExecutionFields;
+import com.energyict.mdc.device.data.ConnectionTaskFields;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -24,18 +36,6 @@ import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
-
-import com.elster.jupiter.domain.util.Save;
-import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.associations.Reference;
-import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.orm.callback.PersistenceAware;
-import com.elster.jupiter.time.TemporalExpression;
-import com.elster.jupiter.time.TimeDuration;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -93,46 +93,12 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     @Override
-    protected void validateAndCreate() {
-        if (this.nextExecutionSpecs.isPresent()) {
-            this.getNextExecutionSpecs().update();
-        }
-        super.validateAndCreate();
-        if (this.getNextExecutionSpecs() != null) {
-            this.doUpdateNextExecutionTimestamp(PostingMode.NOW);
-        } else {
-            // ConnectionStrategy must be ASAP
-            this.updateNextExecutionTimeStampBasedOnComTask();
-        }
-    }
-
-    @Override
-    public void save() {
-        super.save();
+    public void update() {
+        this.updateStrategy.prepare();
+        Save.UPDATE.save(this.getDataModel(), this, Save.Create.class, Save.Update.class);
+        this.updateStrategy.complete();
         this.updateStrategy = new Noop();
-    }
-
-    @Override
-    protected void validateAndUpdate() {
-        this.updateStrategy.prepare();
-        super.validateAndUpdate();
-        this.updateStrategy.complete();
-    }
-
-    @Override
-    protected void update() {
-        this.updateStrategy.prepare();
-        super.update();
-        this.updateStrategy.complete();
-    }
-
-    @Override
-    protected void doDelete() {
-        NextExecutionSpecs nextExecutionSpecs = this.getNextExecutionSpecs();
-        super.doDelete();
-        if (nextExecutionSpecs != null) {
-            nextExecutionSpecs.delete();
-        }
+        this.getDataModel().touch(getDevice());
     }
 
     @Override
@@ -149,6 +115,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
             } else {
                 this.updateStrategy = this.updateStrategy.createSchedule(temporalExpression);
             }
+            this.updateStrategy.prepare();
         }
     }
 
@@ -175,6 +142,12 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     public void setConnectionStrategy(ConnectionStrategy newConnectionStrategy) {
         this.updateStrategy = this.updateStrategy.connectionStrategyChanged(this.connectionStrategy, newConnectionStrategy);
         this.connectionStrategy = newConnectionStrategy;
+    }
+
+    @Override
+    public void notifyCreated() {
+        super.notifyCreated();
+        this.updateStrategy = new Noop();
     }
 
     private void prepareStrategyChange(ConnectionStrategy oldStrategy) {
@@ -281,7 +254,6 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     @Override
     public void scheduledComTaskRescheduled(ComTaskExecution comTask) {
         if (ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(this.getConnectionStrategy())) {
-            doNotTouchParentDevice();
             this.schedule(comTask.getNextExecutionTimestamp());
         }
     }
@@ -308,7 +280,10 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             ComTaskExecutionUpdater<? extends ComTaskExecutionUpdater<?, ?>, ? extends ComTaskExecution> comTaskExecutionUpdater = comTaskExecution.getUpdater();
             comTaskExecutionUpdater.forceNextExecutionTimeStampAndPriority(nextExecutionTimestamp, priority);
-            comTaskExecutionUpdater.update();
+            comTaskExecutionUpdater.updateFields(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName(),
+                                                ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName(),
+                                                ComTaskExecutionFields.EXECUTION_PRIORITY.fieldName());
+
         }
     }
 
@@ -446,6 +421,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     private Instant schedule(Instant when, PostingMode postingMode) {
+        doNotTouchParentDevice();
         if (ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(this.getConnectionStrategy())) {
             return this.doAsSoonAsPossibleSchedule(when, postingMode);
         } else {
@@ -482,10 +458,6 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     @Override
     public Instant getNextExecutionTimestamp() {
         return this.nextExecutionTimestamp;
-    }
-
-    protected void setNextExecutionTimestamp(Instant nextExecutionTimestamp) {
-        this.nextExecutionTimestamp = nextExecutionTimestamp;
     }
 
     @Override
@@ -563,7 +535,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     private void applyNextExecutionTimestampAndPriority(Instant when, int priority, PostingMode postingMode) {
-        this.setNextExecutionTimestamp(when);
+        this.nextExecutionTimestamp = when;
         this.priority = priority;
         postingMode.executeOn(this);
     }
@@ -626,7 +598,13 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         NOW {
             @Override
             void executeOn(ScheduledConnectionTaskImpl connectionTask) {
-                connectionTask.update();
+                connectionTask.updateStrategy.prepare();
+                connectionTask.update(ConnectionTaskFields.NEXT_EXECUTION_SPECS.fieldName(),
+                                      ConnectionTaskFields.PLANNED_NEXT_EXECUTION_TIMESTAMP.fieldName(),
+                                      ConnectionTaskFields.NEXT_EXECUTION_TIMESTAMP.fieldName(),
+                                      ConnectionTaskFields.PRIORITY.fieldName());
+                connectionTask.notifyUpdated();
+                connectionTask.updateStrategy.complete();
             }
         },
 

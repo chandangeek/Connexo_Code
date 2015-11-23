@@ -3,7 +3,7 @@ package com.energyict.mdc.device.data.impl.tasks;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import java.time.Clock;import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
+import com.energyict.mdc.device.config.PartialConnectionInitiationTask;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -19,6 +19,7 @@ import com.energyict.mdc.protocol.api.dynamic.ConnectionProperty;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 
 import javax.inject.Inject;
+import java.time.Clock;
 import java.util.List;
 
 /**
@@ -81,7 +82,6 @@ public class ConnectionInitiationTaskImpl extends OutboundConnectionTaskImpl<Par
         // No implementation required
     }
 
-
     public abstract static class AbstractConnectionInitiationTaskBuilder implements Device.ConnectionInitiationTaskBuilder {
 
         private final ConnectionInitiationTaskImpl connectionInitiationTask;
@@ -100,4 +100,5 @@ public class ConnectionInitiationTaskImpl extends OutboundConnectionTaskImpl<Par
             return this;
         }
     }
+
 }

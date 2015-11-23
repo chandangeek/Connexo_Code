@@ -56,7 +56,7 @@ public class DeviceMessageIdentifierForAlreadyKnownMessage implements MessageIde
 
     @Override
     public DeviceIdentifier<?> getDeviceIdentifier() {
-        return new DeviceIdentifierForAlreadyKnownDeviceBySerialNumber(this.deviceMessage.getDevice());
+        return new DeviceIdentifierForAlreadyKnownDeviceByMrID(this.deviceMessage.getDevice());
     }
 
     @Override
