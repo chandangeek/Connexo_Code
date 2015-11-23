@@ -77,7 +77,7 @@ Ext.define('Mdc.controller.Search', {
                     me.service.setDomain(value);
                 }
             },
-            'search-criteria-selector menu menucheckitem': {
+            'uni-view-search-overview search-criteria-selector menu menucheckitem': {
                 checkchange: function(field, checked) {
                     checked
                         ? me.service.addProperty(field.criteria)

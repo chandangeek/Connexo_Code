@@ -79,7 +79,7 @@ Ext.define('Mdc.view.setup.devicegroup.Step2', {
                             //hidden: true,
                             lbar: {
                                 xtype: 'label',
-                                text: Uni.I18n.translate('searchItems.filter.criteria', 'MDC', 'Criteria'),
+                                text: Uni.I18n.translate('search.overview.criteria.label', 'UNI', 'Criteria'),
                                 width: 100
                             },
                             rbar: {
@@ -103,11 +103,7 @@ Ext.define('Mdc.view.setup.devicegroup.Step2', {
                             itemId: 'search-criteria-removable',
                             layout: 'column',
                             //hidden: true,
-                            lbar: {
-                                xtype: 'label',
-                                text: '',
-                                width: 100
-                            },
+                            margin: '0 0 0 100',
                             service: me.getService()
                         }
                     ],
