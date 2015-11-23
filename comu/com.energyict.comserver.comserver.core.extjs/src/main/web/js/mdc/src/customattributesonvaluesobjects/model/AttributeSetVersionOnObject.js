@@ -1,8 +1,7 @@
 Ext.define('Mdc.customattributesonvaluesobjects.model.AttributeSetVersionOnObject', {
     extend: 'Uni.model.ParentVersion',
     requires: [
-        'Uni.property.model.Property',
-        'Uni.DateTime.formatDateTimeShort'
+        'Uni.property.model.Property'
     ],
     idProperty: 'versionId',
     fields: [
