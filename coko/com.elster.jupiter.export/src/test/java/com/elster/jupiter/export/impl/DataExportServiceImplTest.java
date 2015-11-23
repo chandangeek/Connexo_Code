@@ -180,7 +180,6 @@ public class DataExportServiceImplTest {
                 .endSelection();
         assertThat(dataExportService.newBuilder()).isInstanceOf(DataExportTaskBuilder.class);
         assertThat(dataExportTaskBuilder.create()).isEqualTo(readingTypeDataExportTaskImpl);
-        assertThat(readingTypeDataExportTaskImpl.getName()).isEqualTo(NAME);
     }
 
     @Test

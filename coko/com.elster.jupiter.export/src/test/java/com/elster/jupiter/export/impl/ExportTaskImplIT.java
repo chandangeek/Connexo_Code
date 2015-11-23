@@ -608,7 +608,7 @@ public class ExportTaskImplIT {
         ExportTask exportTask = null;
         try (TransactionContext context = transactionService.getContext()) {
             exportTask = createExportTask(lastYear, oneYearBeforeLastYear, endDeviceGroup, name);
-
+            exportTask.setName("test");
             context.commit();
         }
         return exportTask;

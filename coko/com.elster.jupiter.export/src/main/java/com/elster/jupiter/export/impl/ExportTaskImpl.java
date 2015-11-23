@@ -334,7 +334,6 @@ final class ExportTaskImpl implements IExportTask {
     }
 
     private void doUpdate() {
-        Save.UPDATE.save(dataModel, this);
         if (recurrentTaskDirty) {
             if (!recurrentTask.get().getName().equals(this.name)) {
                 recurrentTask.get().setName(name);
@@ -344,6 +343,7 @@ final class ExportTaskImpl implements IExportTask {
         if (propertiesDirty) {
             properties.forEach(DataExportProperty::save);
         }
+        Save.UPDATE.save(dataModel, this);
     }
 
     private void persist() {
