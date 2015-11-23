@@ -315,6 +315,7 @@ Ext.define('Mdc.util.DeviceDataValidationActivation', {
                 labelAlign: 'left',
                 labelStyle: 'font-weight: normal; padding-left: 50px'
             },
+            width: 500,
             items: [
                 {
                     xtype: 'datefield',
