@@ -29,10 +29,10 @@ import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 public enum TableSpecs {
 
     VAL_VALIDATIONRULESET {
-    	@Override
+        @Override
         void addTo(DataModel dataModel) {
-        	Table<ValidationRuleSet> table = dataModel.addTable(name(), ValidationRuleSet.class);
-            table.map(ValidationRuleSetImpl.class);          
+            Table<ValidationRuleSet> table = dataModel.addTable(name(), ValidationRuleSet.class);
+            table.map(ValidationRuleSetImpl.class);
             table.setJournalTableName("VAL_VALIDATIONRULESETJRNL");
             Column idColumn = table.addAutoIdColumn();
             Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
@@ -84,14 +84,14 @@ public enum TableSpecs {
                     .map("ruleSetVersion").reverseMap("rules").composition().reverseMapOrder("position").add();
             table.foreignKey("VAL_FK_RULESET").references("VAL_VALIDATIONRULESET").on(ruleSetIdColumn).onDelete(RESTRICT)
                     .map("ruleSet").reverseMap("rules").composition().add();
-            table.unique("VAL_UQ_RULE_NAME").on(nameColumn, obsoleteColumn).add();
+            table.unique("VAL_UQ_RULE_NAME").on(ruleSetVersionIdColumn, nameColumn, obsoleteColumn).add();
         }
     },
     VAL_VALIDATIONRULEPROPS {
         @Override
         void addTo(DataModel dataModel) {
-        	Table<ValidationRuleProperties> table = dataModel.addTable(name(), ValidationRuleProperties.class);
-        	table.map(ValidationRulePropertiesImpl.class);
+            Table<ValidationRuleProperties> table = dataModel.addTable(name(), ValidationRuleProperties.class);
+            table.map(ValidationRulePropertiesImpl.class);
             table.setJournalTableName("VAL_VALIDATIONRULEPROPSJRNL");
             Column ruleIdColumn = table.column("RULEID").number().notNull().conversion(NUMBER2LONG).add();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
@@ -104,8 +104,8 @@ public enum TableSpecs {
     VAL_MA_VALIDATION {
         @Override
         void addTo(DataModel dataModel) {
-        	Table<IMeterActivationValidation> table = dataModel.addTable(name(), IMeterActivationValidation.class);
-        	table.map(MeterActivationValidationImpl.class);
+            Table<IMeterActivationValidation> table = dataModel.addTable(name(), IMeterActivationValidation.class);
+            table.map(MeterActivationValidationImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column ruleSetIdColumn = table.column("RULESETID").number().conversion(NUMBER2LONG).add();
             Column meterActivationId = table.column("METERACTIVATIONID").number().conversion(NUMBER2LONG).add();
@@ -115,13 +115,13 @@ public enum TableSpecs {
             table.primaryKey("VAL_PK_MA_VALIDATION").on(idColumn).add();
             table.foreignKey("VAL_FK_MA_VALIDATION_MA").references(MeteringService.COMPONENTNAME, "MTR_METERACTIVATION").onDelete(RESTRICT).map("meterActivation").on(meterActivationId).add();
             table.foreignKey("VAL_FK_MA_VALIDATION_VRS").references(VAL_VALIDATIONRULESET.name()).on(ruleSetIdColumn).onDelete(DeleteRule.RESTRICT)
-            	.map("ruleSet", ValidationRuleImpl.class, ReadingTypeInValidationRule.class).add();
+                    .map("ruleSet", ValidationRuleImpl.class, ReadingTypeInValidationRule.class).add();
         }
     },
     VAL_CH_VALIDATION {
         @Override
         void addTo(DataModel dataModel) {
-        	Table<IChannelValidation> table = dataModel.addTable(name(), IChannelValidation.class);
+            Table<IChannelValidation> table = dataModel.addTable(name(), IChannelValidation.class);
             table.map(ChannelValidationImpl.class);
             Column idColumn = table.addAutoIdColumn();
             Column channelRef = table.column("CHANNELID").number().notNull().conversion(NUMBER2LONG).map("channelId").add();
@@ -137,7 +137,7 @@ public enum TableSpecs {
     VAL_METER_VALIDATION {
         @Override
         void addTo(DataModel dataModel) {
-        	Table<MeterValidationImpl> table = dataModel.addTable(name(), MeterValidationImpl.class);        
+            Table<MeterValidationImpl> table = dataModel.addTable(name(), MeterValidationImpl.class);
             table.map(MeterValidationImpl.class);
             Column meterId = table.column("METERID").number().notNull().conversion(NUMBER2LONG).add();
             table.column("ACTIVE").bool().map("isActive").add();
@@ -148,25 +148,27 @@ public enum TableSpecs {
     },
 
     VAL_READINGTYPEINVALRULE {
-    	@Override
-    	void addTo(DataModel dataModel) {
-        	Table<ReadingTypeInValidationRule> table = dataModel.addTable(name(), ReadingTypeInValidationRule.class);
+        @Override
+        void addTo(DataModel dataModel) {
+            Table<ReadingTypeInValidationRule> table = dataModel.addTable(name(), ReadingTypeInValidationRule.class);
             table.map(ReadingTypeInValidationRuleImpl.class);
             Column ruleIdColumn = table.column("RULEID").number().notNull().conversion(NUMBER2LONG).add();
             Column readingTypeMRIDColumn = table.column("READINGTYPEMRID").varChar(NAME_LENGTH).notNull().map("readingTypeMRID").add();
             table.primaryKey("VAL_PK_RTYPEINVALRULE").on(ruleIdColumn, readingTypeMRIDColumn).add();
-            table.foreignKey("VAL_FK_RTYPEINVALRULE_RULE").references(VAL_VALIDATIONRULE.name()).onDelete(DeleteRule.CASCADE).map("rule").reverseMap("readingTypesInRule").composition().on(ruleIdColumn).add();
+            table.foreignKey("VAL_FK_RTYPEINVALRULE_RULE").references(VAL_VALIDATIONRULE.name()).onDelete(DeleteRule.CASCADE).map("rule").reverseMap("readingTypesInRule").composition()
+                    .on(ruleIdColumn).add();
             table.foreignKey("VAL_FK_RTYPEINVALRULE_RTYPE").references(MeteringService.COMPONENTNAME, "MTR_READINGTYPE").onDelete(RESTRICT).map("readingType").on(readingTypeMRIDColumn).add();
         }
     },
-    VAL_DATAVALIDATIONTASK{
+    VAL_DATAVALIDATIONTASK {
         @Override
-        void addTo(DataModel dataModel){
-            Table<DataValidationTask> table = dataModel.addTable(name(),DataValidationTask.class);
+        void addTo(DataModel dataModel) {
+            Table<DataValidationTask> table = dataModel.addTable(name(), DataValidationTask.class);
             table.map(DataValidationTaskImpl.class);
             table.setJournalTableName("VAL_DATAVALIDATIONTASKJRNL");
             Column idColumn = table.addAutoIdColumn();
             Column endDeviceGroupId = table.column("ENDDEVICEGROUP").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column usagePointGroupId = table.column("USAGEPOINTGROUP").number().conversion(ColumnConversion.NUMBER2LONG).add();
             Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
             table.addAuditColumns();
@@ -175,6 +177,12 @@ public enum TableSpecs {
                     .references(MeteringGroupsService.COMPONENTNAME, "MTG_ED_GROUP")
                     .map("endDeviceGroup")
                     .add();
+            table.foreignKey("VAL_FK_VALTASK2USGPNTGROUP")
+                    .on(usagePointGroupId)
+                    .references(MeteringGroupsService.COMPONENTNAME, "MTG_UP_GROUP")
+                    .map("usagePointGroup")
+                    .add();
+
             table.primaryKey("VAL_PK_DATAVALIDATIONTASK")
                     .on(idColumn)
                     .add();
@@ -185,10 +193,10 @@ public enum TableSpecs {
                     .add();
         }
     },
-    VAL_OCCURRENCE{
+    VAL_OCCURRENCE {
         @Override
-        void addTo(DataModel dataModel){
-            Table<DataValidationOccurrence> table = dataModel.addTable(name(),DataValidationOccurrence.class);
+        void addTo(DataModel dataModel) {
+            Table<DataValidationOccurrence> table = dataModel.addTable(name(), DataValidationOccurrence.class);
             table.map(DataValidationOccurrenceImpl.class);
             Column taskOccurrence = table.column("TASKOCC").number().notNull().add();
             Column dataValidationTask = table.column("DATAVALIDATIONTASK").number().notNull().add();
@@ -205,10 +213,8 @@ public enum TableSpecs {
             table.foreignKey("VAL_FK_OCC_VALIDATIONTASK").on(dataValidationTask).references(VAL_DATAVALIDATIONTASK.name())
                     .map("dataValidationTask").add();
 
-
-
         }
     };
     abstract void addTo(DataModel component);
-        
+
 }

@@ -6,7 +6,6 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.Channel;
-import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -59,7 +58,6 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Clock;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -512,11 +510,11 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     @Override
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(ValidationService.COMPONENTNAME, "validation.validations", "validation.validations.description",
+        resources.add(userService.createModuleResourceWithPrivileges(ValidationService.COMPONENTNAME, Privileges.RESOURCE_VALIDATION.getKey(), Privileges.RESOURCE_VALIDATION_DESCRIPTION.getKey(),
                 Arrays.asList(
-                        Privileges.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.VIEW_VALIDATION_CONFIGURATION,
-                        Privileges.VALIDATE_MANUAL, Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE,
-                        Privileges.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION)));
+                        Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION, Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,
+                        Privileges.Constants.VALIDATE_MANUAL, Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE,
+                        Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE_CONFIGURATION)));
         return resources;
     }
 
@@ -656,7 +654,6 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     @Override
     public Optional<SqlBuilder> getValidationResults(long endDeviceGroupId, Optional<Integer> start, Optional<Integer> limit) {
         SqlBuilder sqlBuilder = new SqlBuilder();
-        Query<EndDevice> query = meteringService.getEndDeviceQuery();
 
         Optional<EndDeviceGroup> found = meteringGroupsService.findEndDeviceGroup(endDeviceGroupId);
         if (found.isPresent()) {
@@ -665,10 +662,11 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
                 sqlBuilder.append("SELECT MED.amrid FROM (");
 
                 if (deviceGroup instanceof QueryEndDeviceGroup) {
-                    Condition condition = meteringGroupsService.pollEndDeviceQueryProvider(deviceGroup.getQueryProviderName(), Duration.ofMinutes(1)).get().getQueryCondition(((QueryEndDeviceGroup) deviceGroup).getCondition());
-                    sqlBuilder.add(query.asSubquery(condition, "amrid").toFragment());
+                    QueryEndDeviceGroup queryEndDeviceGroup = (QueryEndDeviceGroup) deviceGroup;
+                    sqlBuilder.add(queryEndDeviceGroup.getEndDeviceQueryProvider().toFragment(queryEndDeviceGroup.toFragment("'' || id"), "amrId"));
                 } else {
-                    sqlBuilder.add(((EnumeratedEndDeviceGroup) deviceGroup).getAmrIdSubQuery().toFragment());
+                    EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = (EnumeratedEndDeviceGroup) deviceGroup;
+                    sqlBuilder.add(enumeratedEndDeviceGroup.getAmrIdSubQuery().toFragment());
                 }
 
                 sqlBuilder.append(") MED  " +
@@ -726,6 +724,4 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     private Optional<DataValidationTask> getDataValidationTaskForRecurrentTask(RecurrentTask recurrentTask) {
         return dataModel.mapper(DataValidationTask.class).getUnique("recurrentTask", recurrentTask);
     }
-
-
 }

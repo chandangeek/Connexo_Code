@@ -752,7 +752,7 @@ public class ValidationServiceImplTest {
         EndDeviceGroup endDeviceGroup = mock(EndDeviceGroup.class);
         DataValidationTask task = validationService.newTaskBuilder().setName(NAME).setEndDeviceGroup(endDeviceGroup).build();
         verify(dataModel, never()).persist(task);
-        assertThat(task.getEndDeviceGroup()).isEqualTo(endDeviceGroup);
+        assertThat(task.getEndDeviceGroup().get()).isEqualTo(endDeviceGroup);
     }
 
     @Test
