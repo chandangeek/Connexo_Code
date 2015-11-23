@@ -38,7 +38,6 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.ConnectionStrategy;
@@ -73,14 +72,10 @@ import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
-import org.assertj.core.data.MapEntry;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -99,11 +94,17 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.assertj.core.data.MapEntry;
+import org.junit.*;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Matchers;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.eq;
@@ -1571,7 +1572,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         customPropertySetValues2.setProperty("testname2", "testValue2");
         when(customPropertySetService.getValuesFor(customPropertySet, device)).thenReturn(customPropertySetValues);
         when(customPropertySetService.getValuesFor(eq(customPropertySet), eq(device), any(Instant.class))).thenReturn(customPropertySetValues);
-        when(customPropertySetService.getValuesHistoryFor(customPropertySet, device)).thenReturn(Arrays.asList(customPropertySetValues, customPropertySetValues2));
+        when(customPropertySetService.getAllVersionedValuesFor(customPropertySet, device)).thenReturn(Arrays.asList(customPropertySetValues, customPropertySetValues2));
         MessageSeed messageUpdate = mock(MessageSeed.class);
         when(messageUpdate.getKey()).thenReturn("edit.historical.values.overlap.can.update.end");
         when(messageUpdate.getDefaultFormat()).thenReturn("update");

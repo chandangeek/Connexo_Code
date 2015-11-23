@@ -43,12 +43,10 @@ import com.energyict.mdc.issue.datavalidation.IssueDataValidation;
 import com.energyict.mdc.issue.datavalidation.NotEstimatedBlock;
 import com.energyict.mdc.masterdata.LoadProfileType;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mock;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
@@ -56,11 +54,24 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.*;
+import org.mockito.Mock;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -509,7 +520,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         customPropertySetValues2.setProperty("testname2", "testValue2");
         when(customPropertySetService.getValuesFor(customPropertySet, channelSpec)).thenReturn(customPropertySetValues);
         when(customPropertySetService.getValuesFor(eq(customPropertySet), eq(channelSpec), any(Instant.class))).thenReturn(customPropertySetValuesNoTimesliced);
-        when(customPropertySetService.getValuesHistoryFor(customPropertySet, channelSpec)).thenReturn(Arrays.asList(customPropertySetValues, customPropertySetValues2));
+        when(customPropertySetService.getAllVersionedValuesFor(customPropertySet, channelSpec)).thenReturn(Arrays.asList(customPropertySetValues, customPropertySetValues2));
         MessageSeed messageUpdate = mock(MessageSeed.class);
         when(messageUpdate.getKey()).thenReturn("edit.historical.values.overlap.can.update.end");
         when(messageUpdate.getDefaultFormat()).thenReturn("update");

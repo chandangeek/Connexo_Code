@@ -12,7 +12,6 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -35,6 +34,7 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import com.google.common.collect.Range;
 
 import javax.inject.Inject;
@@ -43,7 +43,13 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -580,11 +586,16 @@ public class ResourceHelper {
     }
 
     private <D> Stream<CustomPropertySetInfo> getHistoryInfo(RegisteredCustomPropertySet registeredCustomPropertySet, D businessObject, long businessObjectId, long businessObjectVersion) {
-        List<CustomPropertySetValues> values = customPropertySetService.getValuesHistoryFor(registeredCustomPropertySet.getCustomPropertySet(), businessObject);
-        return values.stream().map(CustomPropertySetValues.class::cast)
-                .map(v -> new CustomPropertySetInfo(registeredCustomPropertySet,
-                        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs(), getCustomProperties(v))
-                        , businessObjectId, businessObjectVersion, v.getEffectiveRange()));
+        List<CustomPropertySetValues> values = customPropertySetService.getAllVersionedValuesFor(registeredCustomPropertySet.getCustomPropertySet(), businessObject);
+        return values.stream()
+                .map(v -> new CustomPropertySetInfo(
+                        registeredCustomPropertySet,
+                        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
+                                registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs(),
+                                getCustomProperties(v)),
+                        businessObjectId,
+                        businessObjectVersion,
+                        v.getEffectiveRange()));
     }
 
     public void addDeviceCustomPropertySetVersioned(Device device, long cpsId, CustomPropertySetInfo info, boolean dontCheckOverlaps) {
@@ -724,9 +735,18 @@ public class ResourceHelper {
         List<CustomPropertySetIntervalConflictInfo> overlapInfos = new ArrayList<>();
         for (Map.Entry<CustomPropertySetValues, MessageSeed> entry : overlaps.entrySet()) {
             if (!isUpdate || !entry.getKey().getEffectiveRange().equals(newRange)) {
-                overlapInfos.add(new CustomPropertySetIntervalConflictInfo(entry.getValue(), new CustomPropertySetInfo(registeredCustomPropertySet,
-                        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs(), getCustomProperties(entry.getKey()))
-                        , businessObjectId, businessObjectVersion, entry.getKey().getEffectiveRange()), false));
+                overlapInfos.add(
+                        new CustomPropertySetIntervalConflictInfo(
+                                entry.getValue(),
+                                new CustomPropertySetInfo(
+                                        registeredCustomPropertySet,
+                                        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
+                                                registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs(),
+                                                getCustomProperties(entry.getKey())),
+                                        businessObjectId,
+                                        businessObjectVersion,
+                                        entry.getKey().getEffectiveRange()),
+                                false));
             }
         }
         return overlapInfos;

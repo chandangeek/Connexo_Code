@@ -13,18 +13,28 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.Register;
 import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
+
 import com.google.common.collect.Range;
 import com.jayway.jsonpath.JsonModel;
-import org.junit.Before;
-import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -79,7 +89,7 @@ public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
         customPropertySetValues2.setProperty("testname2", "testValue2");
         when(customPropertySetService.getValuesFor(customPropertySet, registerSpec)).thenReturn(customPropertySetValues);
         when(customPropertySetService.getValuesFor(eq(customPropertySet), eq(registerSpec), any(Instant.class))).thenReturn(customPropertySetValuesNoTimesliced);
-        when(customPropertySetService.getValuesHistoryFor(customPropertySet, registerSpec)).thenReturn(Arrays.asList(customPropertySetValues, customPropertySetValues2));
+        when(customPropertySetService.getAllVersionedValuesFor(customPropertySet, registerSpec)).thenReturn(Arrays.asList(customPropertySetValues, customPropertySetValues2));
         MessageSeed messageUpdate = mock(MessageSeed.class);
         when(messageUpdate.getKey()).thenReturn("edit.historical.values.overlap.can.update.end");
         when(messageUpdate.getDefaultFormat()).thenReturn("update");
