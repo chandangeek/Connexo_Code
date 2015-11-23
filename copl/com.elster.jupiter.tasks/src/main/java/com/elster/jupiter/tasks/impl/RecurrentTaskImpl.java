@@ -5,6 +5,7 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskExecutor;
@@ -17,6 +18,7 @@ import com.elster.jupiter.util.time.ScheduleExpressionParser;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -34,6 +36,9 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     private long id;
     private String application;
+    @NotNull(message = "{" + MessageSeeds.Constants.NAME_REQUIRED_KEY  + "}")
+    @Size(min = 1, max = Table.NAME_LENGTH, message = "{" + MessageSeeds.Constants.FIELD_SIZE_BETWEEN_1_AND_80 + "}")
+
     private String name;
     private transient ScheduleExpression scheduleExpression;
     private String cronString;

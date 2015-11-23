@@ -7,6 +7,7 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -32,6 +33,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.cron.CronExpressionParser;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.CompositeScheduleExpressionParser;
 import com.elster.jupiter.util.time.Never;
@@ -58,9 +60,9 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "com.elster.jupiter.tasks",
-           service = { TaskService.class, InstallService.class, TranslationKeyProvider.class },
+           service = { TaskService.class, InstallService.class, TranslationKeyProvider.class, MessageSeedProvider.class },
            property = "name=" + TaskService.COMPONENTNAME, immediate = true)
-public class TaskServiceImpl implements TaskService, InstallService, TranslationKeyProvider {
+public class TaskServiceImpl implements TaskService, InstallService, TranslationKeyProvider, MessageSeedProvider {
 
     private DueTaskFetcher dueTaskFetcher;
     private volatile Clock clock;
@@ -297,9 +299,13 @@ public class TaskServiceImpl implements TaskService, InstallService, Translation
     @Override
     public List<TranslationKey> getKeys() {
         return Stream.of(
-                Arrays.stream(MessageSeeds.values()),
                 Arrays.stream(TaskStatus.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 }
