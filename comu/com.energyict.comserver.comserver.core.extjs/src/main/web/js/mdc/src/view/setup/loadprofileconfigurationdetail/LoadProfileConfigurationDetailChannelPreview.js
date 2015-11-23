@@ -29,13 +29,9 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                     columnWidth: 0.6,
                     items: [
                         {
-                            xtype: 'reading-type-displayfield',
-                            name: 'readingType'
-                        },
-                        {
-                            xtype: 'reading-type-displayfield',
-                            name: 'calculatedReadingType',
-                            hidden: true
+                            xtype: 'displayfield',
+                            fieldLabel: Uni.I18n.translate('loadprofileconfigurationdetail.LoadProfileConfigurationDetailForm.registerType', 'MDC', 'Register type'),
+                            name: 'registerTypeName'
                         },
                         {
                             xtype: 'obis-displayfield',
@@ -59,8 +55,25 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                             name: 'nbrOfFractionDigits'
                         },
                         {
-                            fieldLabel: Uni.I18n.translate('loadprofileconfigurationdetail.LoadProfileConfigurationDetailForm.unitOfMeasure', 'MDC' ,'Unit of measure'),
-                            name: 'unitOfMeasure'
+                            fieldLabel: Uni.I18n.translate('registerConfig.useMultiplier', 'MDC', 'Use multiplier'),
+                            name: 'useMultiplier',
+                            renderer: function (value) {
+                                return value
+                                    ? Uni.I18n.translate('general.yes', 'MDC', 'Yes')
+                                    : Uni.I18n.translate('general.no', 'MDC', 'No')
+                            }
+                        },
+                        {
+                            xtype: 'reading-type-displayfield',
+                            fieldLabel: Uni.I18n.translate('general.collectedReadingType', 'MDC', 'Collected reading type'),
+                            name: 'collectedReadingType'
+                        },
+                        {
+                            xtype: 'reading-type-displayfield',
+                            fieldLabel: Uni.I18n.translate('general.calculatedReadingType', 'MDC', 'Calculated reading type'),
+                            name: 'calculatedReadingType',
+                            itemId: 'mdc-channel-config-preview-calculated',
+                            hidden: true
                         }
                     ]
                 }

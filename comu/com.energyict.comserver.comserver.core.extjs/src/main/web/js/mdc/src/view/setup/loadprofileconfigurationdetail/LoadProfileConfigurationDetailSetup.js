@@ -21,7 +21,7 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                         itemId: 'loadProfileConfigurationDetailInfo',
                         ui: 'large',
                         flex: 1,
-                        title: '&nbsp;'
+                        title: ''
                     },
                     {
                         xtype: 'button',

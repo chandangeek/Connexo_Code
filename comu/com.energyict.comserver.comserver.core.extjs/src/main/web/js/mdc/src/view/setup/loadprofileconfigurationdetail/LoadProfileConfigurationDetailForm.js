@@ -34,11 +34,11 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                         hidden: true,
                         margin: '0 0 32 0'
                     },
-                    {
-                        xtype: 'reading-type-displayfield',
-                        name: 'readingType',
-                        hidden: true
-                    },
+                    //{
+                    //    xtype: 'reading-type-displayfield',
+                    //    name: 'readingType',
+                    //    hidden: true
+                    //},
                     {
                         xtype: 'combobox',
                         name: 'measurementType',

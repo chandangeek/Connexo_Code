@@ -226,16 +226,16 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         });
     },
 
-    getAssociatedMeasurementType: function (measurementTypeId) {
-        var associatedMeasurementType = null;
-        this.availableMeasurementTypesStore.each(function (measurementType) {
-            if (measurementType.get('id') === measurementTypeId) {
-                associatedMeasurementType = measurementType;
-                return false;
-            }
-        });
-        return associatedMeasurementType;
-    },
+    //getAssociatedMeasurementType: function (measurementTypeId) {
+    //    var associatedMeasurementType = null;
+    //    this.availableMeasurementTypesStore.each(function (measurementType) {
+    //        if (measurementType.get('id') === measurementTypeId) {
+    //            associatedMeasurementType = measurementType;
+    //            return false;
+    //        }
+    //    });
+    //    return associatedMeasurementType;
+    //},
 
     //onReadingTypeChange: function (combo) {
     //    var readingType = combo.valueModels[0];
@@ -295,14 +295,35 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             form = formPanel.getForm(),
             formErrorsPanel = formPanel.down('uni-form-error-message[name=errors]'),
             formValues = form.getValues(),
-            preloader, jsonValues,
+            preloader,
+            jsonValues,
+            useMultiplier = formPanel.down('#mdc-channel-config-multiplierRadioGroup').getValue().useMultiplier,
+            collectedReadingTypeField = formPanel.down('#mdc-channel-config-collected-readingType-field'),
+            calculatedReadingTypeField = formPanel.down('#mdc-channel-config-calculated-readingType-field'),
+            calculatedReadingTypeCombo = formPanel.down('#mdc-channel-config-calculated-readingType-combo'),
             router = this.getController('Uni.controller.history.Router');
 
         if (form.isValid()) {
-            formValues.measurementType = {id: me.getRegisterTypeCombo().getValue() || null};
-                // me.getAssociatedMeasurementType(me.getRegisterTypeCombo().getValue()); // call stack size exceeded
-                // me.getRegisterTypeCombo().getStore().findRecord('id', me.getRegisterTypeCombo().getValue());
-                // me.getAssociatedMeasurementType(me.getRegisterTypeCombo().getValue());
+            formValues.measurementType = {id: me.getRegisterTypeCombo().getValue()};
+            formValues.collectedReadingType = collectedReadingTypeField.getValue();
+            if (useMultiplier) {
+                if (calculatedReadingTypeField.isVisible()) {
+                    formValues.calculatedReadingType = calculatedReadingTypeField.getValue();
+                } else if (calculatedReadingTypeCombo.isVisible()) {
+                    var possibleCalculatedReadingTypes = calculatedReadingTypeCombo.getStore().getRange(),
+                        calculatedReadingType = null;
+                    Ext.Array.forEach(possibleCalculatedReadingTypes, function(item) {
+                        if (item.get('mRID') === calculatedReadingTypeCombo.getValue()) {
+                            calculatedReadingType = item;
+                            return false; // stop iterating
+                        }
+                    });
+                    formValues.calculatedReadingType = calculatedReadingType;
+                }
+            } else {
+                formValues.calculatedReadingType = null;
+            }
+
             jsonValues = Ext.JSON.encode(formValues);
             formErrorsPanel.hide();
             switch (btn.action) {
@@ -416,29 +437,27 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
     loadGridItemDetail: function (grid, channelConfig) {
         var me = this,
             form = this.getLoadProfileConfigurationChannelDetailsForm(),
-            recordData = channelConfig.getData(),
             channelId = channelConfig.getId(),
+            channelName = channelConfig.get('readingType').fullAliasName,
             preloader = Ext.create('Ext.LoadMask', {
                 msg: Uni.I18n.translate('general.loading', 'MDC', 'Loading...'),
                 target: form
             });
-        if (this.displayedItemId != recordData.id) {
+        if (this.displayedItemId != channelId) {
             grid.clearHighlight();
             preloader.show();
-            this.displayedItemId = recordData.id;
-            this.getLoadProfileDetailChannelPreview().setTitle(recordData.readingType.fullAliasName);
+            this.displayedItemId = channelId;
+            this.getLoadProfileDetailChannelPreview().setTitle(channelName);
             form.loadRecord(channelConfig);
 
-            if (channelConfig.get('calculatedReadingType')) {
-                var readingTypeField = me.getPage().down('reading-type-displayfield[name=readingType]'),
-                    calculatedReadingTypeField = me.getPage().down('reading-type-displayfield[name=calculatedReadingType]');
-                readingTypeField.labelEl.update(Uni.I18n.translate('deviceloadprofiles.channels.readingTypeForBulk', 'MDC', 'Collected reading type'));
-                calculatedReadingTypeField.labelEl.update(Uni.I18n.translate('deviceloadprofiles.channels.calculatedReadingType', 'MDC', 'Calculated reading type'));
-                calculatedReadingTypeField.setVisible(true)
+            if (channelConfig.get('calculatedReadingType') === undefined || channelConfig.get('calculatedReadingType') === '') {
+                me.getPage().down('#mdc-channel-config-preview-calculated').hide();
+            } else {
+                me.getPage().down('#mdc-channel-config-preview-calculated').show();
             }
 
             this.getPage().down('#rulesForChannelConfig').setTitle(
-                Uni.I18n.translate('channelConfig.validationRules.list', 'MDC', '{0} validation rules', [recordData.readingType.fullAliasName])
+                Uni.I18n.translate('channelConfig.validationRules.list', 'MDC', '{0} validation rules', channelName)
             );
             if (me.getPage().down('#rulesForChannelPreviewContainer')) {
                 me.getPage().down('#rulesForChannelPreviewContainer').destroy();
@@ -698,13 +717,13 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
 
         if (collectedReadingType !== undefined) {
             collectedReadingTypeField.setValue(collectedReadingType);
-        } else {
+        } else { // fallback
             collectedReadingTypeField.setValue(dataContainer.get('readingType'));
         }
         collectedReadingTypeField.setVisible(dataContainer);
         if (!possibleCalculatedReadingTypes || possibleCalculatedReadingTypes.length === 0) {
             multiplierRadioGroup.setValue({ useMultiplier : false });
-            useMultiplier = multiplierRadioGroup.getValue().useMultiplier
+            useMultiplier = multiplierRadioGroup.getValue().useMultiplier;
             multiplierRadioGroup.setDisabled(true);
         } else {
             multiplierRadioGroup.setDisabled(false);
@@ -727,22 +746,12 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
             }
             calculatedReadingTypeField.setVisible(possibleCalculatedReadingTypes.length === 1);
             calculatedReadingTypeCombo.setVisible(possibleCalculatedReadingTypes.length > 1);
-        } else if (!isCumulative) {
-            calculatedReadingTypeField.setVisible(false);
-            calculatedReadingTypeCombo.setVisible(false);
+        } else {
             if (calculatedReadingType) {
-                collectedReadingTypeField.setValue(calculatedReadingType);
+                calculatedReadingTypeField.setValue(calculatedReadingType);
             }
-        } else if (isCumulative) {
-            calculatedReadingTypeField.setVisible(true);
+            calculatedReadingTypeField.setVisible(calculatedReadingType);
             calculatedReadingTypeCombo.setVisible(false);
-            //if (calculatedReadingType) {
-            //    calculatedReadingTypeField.setValue(calculatedReadingType);
-            //}
-            /// Temporarily replaced by this (workaround for BE bug)
-            if (collectedReadingType) {
-                calculatedReadingTypeField.setValue(collectedReadingType);
-            }
         }
     },
 
