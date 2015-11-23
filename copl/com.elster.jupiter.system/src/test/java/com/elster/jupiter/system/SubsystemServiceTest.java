@@ -15,9 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SubsystemServiceTest {
@@ -34,7 +32,7 @@ public class SubsystemServiceTest {
     }
 
     @Test
-    public void testRegistration() {
+    public void testRegisterSubsystem() {
         subsystemService.registerSubsystem(new SubsystemImpl("id", "name", "version"));
 
         List<Subsystem> subsystems = subsystemService.getSubsystems();
@@ -48,7 +46,7 @@ public class SubsystemServiceTest {
     }
 
     @Test
-    public void testUnregister() {
+    public void testUnregisterSubsystem() {
         SubsystemImpl subsystem = new SubsystemImpl("id", "name", "version");
 
         subsystemService.registerSubsystem(subsystem);
@@ -62,9 +60,12 @@ public class SubsystemServiceTest {
 
     @Test
     public void testGetRuntimeComponents() {
-        Bundle[] bundles = new Bundle[]{mockBundle("bundle1", "1.0.0"), mockBundle("bundle2", "2.0")};
+        Bundle[] bundles = new Bundle[]{
+                mockBundle("bundle1", "com.bundle1", "1.0.0"),
+                mockBundle("bundle2", "com.bundle2", "2.0")
+        };
         SubsystemImpl subsystem = new SubsystemImpl("app", "app", "1.10");
-        subsystem.addComponents(Arrays.asList(mockComponent("bundle1", "1.0.0")));
+        subsystem.addComponents(Arrays.asList(mockComponent("com.bundle1", "1.0.0")));
         subsystemService.registerSubsystem(subsystem);
         when(bundleContext.getBundles()).thenReturn(bundles);
 
@@ -73,7 +74,7 @@ public class SubsystemServiceTest {
         assertThat(runtimeComponents).hasSize(1);
         RuntimeComponent runtimeComponent = runtimeComponents.get(0);
         assertThat(runtimeComponent.getId()).isEqualTo(14L);
-        assertThat(runtimeComponent.getName()).isEqualTo("bundle1");
+        assertThat(runtimeComponent.getName()).isEqualTo("bundle1 (com.bundle1)");
         assertThat(runtimeComponent.getStatus()).isEqualTo(ComponentStatus.RESOLVED);
         assertThat(runtimeComponent.getSubsystem().getName()).isEqualTo("app");
         assertThat(runtimeComponent.getComponent().getVersion()).isEqualTo("1.0.0");
@@ -86,13 +87,14 @@ public class SubsystemServiceTest {
         return component;
     }
 
-    private Bundle mockBundle(String name, String version) {
+    private Bundle mockBundle(String name, String symbolicName, String version) {
         Bundle bundle = mock(Bundle.class, RETURNS_DEEP_STUBS);
         when(bundle.getBundleId()).thenReturn(14L);
         when(bundle.getSymbolicName()).thenReturn(name);
         when(bundle.getVersion().toString()).thenReturn(version);
         when(bundle.getHeaders().get("Bundle-Name")).thenReturn(name);
         when(bundle.getHeaders().get("Bundle-Version")).thenReturn(version);
+        when(bundle.getSymbolicName()).thenReturn(symbolicName);
         when(bundle.getState()).thenReturn(4);
         return bundle;
     }

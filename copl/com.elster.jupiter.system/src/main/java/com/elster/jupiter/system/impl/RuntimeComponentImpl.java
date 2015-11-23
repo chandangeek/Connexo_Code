@@ -17,7 +17,7 @@ public class RuntimeComponentImpl implements RuntimeComponent {
 
     public RuntimeComponentImpl(Bundle bundle, Component component, Subsystem subsystem) {
         this.id = bundle.getBundleId();
-        this.name = bundle.getHeaders().get("Bundle-Name");
+        this.name = buildBundleName(bundle);
         this.status = OsgiUtils.bundleStateToComponentStatus(bundle.getState());
         this.component = component;
         this.subsystem = subsystem;
@@ -46,5 +46,14 @@ public class RuntimeComponentImpl implements RuntimeComponent {
     @Override
     public Subsystem getSubsystem() {
         return subsystem;
+    }
+
+    private String buildBundleName(Bundle bundle) {
+        StringBuilder builder = new StringBuilder()
+                .append(bundle.getHeaders().get("Bundle-Name"))
+                .append(" (")
+                .append(bundle.getSymbolicName())
+                .append(")");
+        return builder.toString();
     }
 }
