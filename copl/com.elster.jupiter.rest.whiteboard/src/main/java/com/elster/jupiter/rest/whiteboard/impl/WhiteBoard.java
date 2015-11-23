@@ -62,7 +62,6 @@ public class WhiteBoard {
 	private AtomicReference<EventAdmin> eventAdminHolder = new AtomicReference<>();
 	private volatile WhiteBoardConfiguration configuration;
 
-    private final static String SESSION_TIMEOUT = "com.elster.jupiter.session.timeout";
     private final UrlRewriteFilter urlRewriteFilter = new UrlRewriteFilter();
 
     private int sessionTimeout = 600; // default value 10 min
@@ -210,16 +209,6 @@ public class WhiteBoard {
     @Activate
     public void activate(BundleContext bundleContext){
         if(bundleContext != null){
-            int timeout = 0;
-            String sessionTimeoutParam = bundleContext.getProperty(SESSION_TIMEOUT);
-            if(sessionTimeoutParam != null){
-                try{
-                    timeout = Integer.parseInt(sessionTimeoutParam);
-                    if (timeout>0) {
-                        httpContext.setSessionTimeout(timeout);
-                    }
-                } catch(NumberFormatException e){}
-            }
 
             urlRewriteFilter.setHost(bundleContext.getProperty("com.elster.jupiter.url.rewrite.host"));
             String portString = bundleContext.getProperty("com.elster.jupiter.url.rewrite.port");
