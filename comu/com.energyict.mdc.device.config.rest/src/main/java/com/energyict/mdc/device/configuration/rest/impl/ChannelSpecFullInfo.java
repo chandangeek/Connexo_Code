@@ -36,10 +36,6 @@ public class ChannelSpecFullInfo extends ChannelSpecInfo {
     public long version;
     public VersionInfo<Long> parent;
 
-    public static List<ChannelSpecInfo> from(List<ChannelSpec> channelSpecList) {
-        return channelSpecList.stream().map(ChannelSpecFullInfo::from).collect(Collectors.toList());
-    }
-
     public static ChannelSpecFullInfo from(ChannelSpec channelSpec, ReadingType collectedReadingType, List<ReadingType> multipliedCalculatedRegisterTypes, boolean isLinkedByActiveDeviceConfiguration) {
         ChannelSpecFullInfo info = new ChannelSpecFullInfo();
         info.id = channelSpec.getId();

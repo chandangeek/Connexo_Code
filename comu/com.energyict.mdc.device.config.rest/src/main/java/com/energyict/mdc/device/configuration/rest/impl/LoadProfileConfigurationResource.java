@@ -143,7 +143,7 @@ public class LoadProfileConfigurationResource {
 
     @GET
     @Path("{loadProfileSpecId}/channels")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public Response getAllChannelsForDeviceConfiguration(
             @PathParam("deviceTypeId") long deviceTypeId,
@@ -152,7 +152,12 @@ public class LoadProfileConfigurationResource {
             @BeanParam JsonQueryParameters queryParameters) {
         LoadProfileSpec loadProfileSpec = resourceHelper.findLoadProfileSpecOrThrowException(loadProfileSpecId);
         List<ChannelSpec> channelSpecs = loadProfileSpec.getChannelSpecs().stream().sorted(new LoadProfileChannelComparator()).collect(Collectors.toList());
-        return Response.ok(PagedInfoList.fromPagedList("data", ChannelSpecFullInfo.from(channelSpecs), queryParameters)).build();
+        List<ChannelSpecInfo> channelSpecInfos = channelSpecs.stream().map(channelSpec -> ChannelSpecFullInfo.from(
+                channelSpec,
+                channelSpec.getReadingType(),
+                getPossibleMultiplyReadingTypesFor(getCollectedReadingTypeFromChannelSpec(channelSpec)),
+                loadProfileSpec.getDeviceConfiguration().isActive())).collect(Collectors.toList());
+        return Response.ok(PagedInfoList.fromPagedList("data", channelSpecInfos, queryParameters)).build();
     }
 
     @GET
