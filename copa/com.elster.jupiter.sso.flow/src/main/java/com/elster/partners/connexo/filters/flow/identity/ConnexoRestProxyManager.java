@@ -7,9 +7,12 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 /**
@@ -39,25 +42,43 @@ public class ConnexoRestProxyManager {
         this.token = token;
     }
 
-    boolean findUser(String userId) {
-        // TODO: implement this URL
-        return (getEntities("api/usr/finduser/" + userId, false) != null);
+    public boolean existsUser(String userId) {
+        try {
+            return (getEntity("/api/usr/findusers/" + URLEncoder.encode(userId, "UTF-8")) != null);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
-    boolean findGroup(String groupId) {
-        // TODO: implement this URL
-        return (getEntities("api/usr/findgroup/" + groupId, false) != null);
+    public boolean existsGroup(String groupId) {
+        try {
+            return (getEntity("/api/usr/findgroups/" + URLEncoder.encode(groupId, "UTF-8")) != null);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
-    List<String> getMembersOf(String groupId) {
-        // TODO: implement this URL
+    public List<String> getMembersOf(String groupId) {
         List<String> members = new ArrayList<>();
-        JSONArray array = (JSONArray) getEntities("api/usr/findgroup/" + groupId, true);
-        for(int i=0; i<array.length(); i++) {
-            try {
-                members.add(array.getString(i));
-            } catch (JSONException e) {
-                e.printStackTrace();
+        JSONArray array = null;
+        try {
+            array = (JSONArray) getEntities("/api/usr/findgroups/" + URLEncoder.encode(groupId, "UTF-8") + "/users", "users");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        if(array != null) {
+            for (int i = 0; i < array.length(); i++) {
+                try {
+                    JSONObject user = (JSONObject) array.get(i);
+                    if (user != null) {
+                        members.add(user.getString("authenticationName"));
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -65,24 +86,49 @@ public class ConnexoRestProxyManager {
     }
 
     public List<String> getGroupsOf(String userId) {
-        // TODO: implement this URL
         List<String> members = new ArrayList<>();
-        JSONArray array = (JSONArray) getEntities("api/usr/finduser/" + userId + "/groups", true);
-        for(int i=0; i<array.length(); i++) {
-            try {
-                members.add(array.getString(i));
-            } catch (JSONException e) {
-                e.printStackTrace();
+        JSONArray array = null;
+        try {
+            array = (JSONArray) getEntities("/api/usr/findusers/" +  URLEncoder.encode(userId, "UTF-8") + "/groups", "groups");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        if(array != null) {
+            for (int i = 0; i < array.length(); i++) {
+                try {
+                    JSONObject group = (JSONObject) array.get(i);
+                    if (group != null) {
+                        members.add(group.getString("name"));
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
             }
         }
 
         return members;
     }
 
-    String getLanguageOf(String userId) {
-        // TODO: implement this URL
-        JSONObject object = (JSONObject) getEntity("api/usr/finduser/" + userId + "/language");
-        return (object != null) ? object.toString() : "en_US";
+    public String getLanguageOf(String userId) {
+        JSONObject object = null;
+        try {
+            object = (JSONObject) getEntity("/api/usr/findusers/" +  URLEncoder.encode(userId, "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        if(object != null) {
+            try {
+                JSONObject language = (JSONObject) object.get("language");
+                if (language != null) {
+                    return language.getString("languageTag");
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        return "en_US";
     }
 
     private Object getEntity(String targetUrl) {
@@ -111,16 +157,19 @@ public class ConnexoRestProxyManager {
         return null;
     }
 
-    private Object getEntities(String targetUrl, boolean all) {
+    private Object getEntities(String targetUrl, String element) {
         String jsonContent = null;
         JSONArray array = null;
 
         try {
             jsonContent = doGet(targetUrl);
             if (!"".equals(jsonContent)) {
-                array = new JSONObject(jsonContent).getJSONArray("result");
-                if(array != null && array.length() > 0) {
-                    return all ? array : array.get(0);
+                JSONObject object = new JSONObject(jsonContent);
+                if(object != null) {
+                    array = object.getJSONArray(element);
+                    if(array != null && array.length() > 0){
+                        return array;
+                    }
                 }
                 else {
                     throw new RuntimeException("No entity found at " + targetUrl);
@@ -146,6 +195,7 @@ public class ConnexoRestProxyManager {
             httpConnection.setRequestMethod("GET");
             // TODO: use the proper header name here
             httpConnection.setRequestProperty("X-CONNEXO-TOKEN", this.token);
+            httpConnection.setRequestProperty("Authorization", "Basic " + Base64.getEncoder().encodeToString("admin:admin".getBytes()));
             httpConnection.setRequestProperty("Accept", "application/json");
             if (httpConnection.getResponseCode() != 200) {
                 throw new RuntimeException("Failed : HTTP error code : "

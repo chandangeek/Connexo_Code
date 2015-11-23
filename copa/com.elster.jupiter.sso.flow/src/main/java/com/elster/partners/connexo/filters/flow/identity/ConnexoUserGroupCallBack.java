@@ -1,6 +1,5 @@
 package com.elster.partners.connexo.filters.flow.identity;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.jboss.solder.core.Veto;
@@ -15,12 +14,12 @@ public class ConnexoUserGroupCallBack implements UserGroupCallback {
 
 	@Override
 	public boolean existsUser(String userId) {
-		return manager.findUser(userId);
+		return manager.existsUser(userId);
 	}
 
 	@Override
 	public boolean existsGroup(String groupId) {
-		return manager.findUser(groupId);
+		return manager.existsGroup(groupId);
 	}
 
 	@Override

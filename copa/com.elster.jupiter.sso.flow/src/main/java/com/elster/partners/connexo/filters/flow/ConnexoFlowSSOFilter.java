@@ -55,7 +55,7 @@ public class ConnexoFlowSSOFilter extends ConnexoAbstractSSOFilter {
                 redirectToLogout(request, response);
             }
             else {
-                ConnexoRestProxyManager.getInstance(getConnexoUrl(), token);
+                ConnexoRestProxyManager manager = ConnexoRestProxyManager.getInstance(getConnexoUrl(), token);
 
                 List<Role> roles = new ArrayList<>();
                 for(String role : principal.getRoles()) {
