@@ -17,6 +17,8 @@ import org.osgi.service.component.annotations.Reference;
 
 import com.elster.insight.common.rest.ExceptionFactory;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
+import com.elster.jupiter.estimation.EstimationService;
+import com.elster.jupiter.estimation.rest.PropertyUtils;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
@@ -29,6 +31,8 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.validation.rest.ValidationRuleInfoFactory;
 import com.google.common.collect.ImmutableSet;
 
 @Component(name = "com.elster.insight.udr.rest", service = {Application.class, TranslationKeyProvider.class}, immediate = true, property = {"alias=/udr", "app=INS", "name=" + UsagePointApplication.COMPONENT_NAME})
@@ -50,6 +54,8 @@ public class UsagePointApplication extends Application implements TranslationKey
     private volatile MessageService messageService;
     private volatile MeteringGroupsService meteringGroupsService;
     private volatile UsagePointConfigurationService usagePointConfigurationService;
+    private volatile ValidationService validationService;
+    private volatile EstimationService estimationService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -58,7 +64,8 @@ public class UsagePointApplication extends Application implements TranslationKey
                         UsagePointResource.class,
                         RegisterResource.class,
                         DeviceResource.class, 
-                        UsagePointGroupResource.class
+                        UsagePointGroupResource.class,
+                        UsagePointValidationResource.class
         );
     }
 
@@ -134,6 +141,16 @@ public class UsagePointApplication extends Application implements TranslationKey
     public void setUsagePointConfigurationService(UsagePointConfigurationService usagePointConfigurationService) {
         this.usagePointConfigurationService = usagePointConfigurationService;
     }
+    
+    @Reference
+    public void setValidationService(ValidationService validationService) {
+        this.validationService = validationService;
+    }
+    
+    @Reference
+    public void setEstimationService(EstimationService estimationService) {
+        this.estimationService = estimationService;
+    }
 
     class HK2Binder extends AbstractBinder {
 
@@ -160,6 +177,13 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(com.elster.jupiter.validation.rest.PropertyUtils.class).to(com.elster.jupiter.validation.rest.PropertyUtils.class);
             bind(messageService).to(MessageService.class);
             bind(usagePointConfigurationService).to(UsagePointConfigurationService.class);
+            bind(UsagePointValidationResource.class).to(UsagePointValidationResource.class);
+            bind(validationService).to(ValidationService.class);
+            bind(ValidationInfoFactory.class).to(ValidationInfoFactory.class);
+            bind(EstimationRuleInfoFactory.class).to(EstimationRuleInfoFactory.class);
+            bind(ValidationRuleInfoFactory.class).to(ValidationRuleInfoFactory.class);
+            bind(PropertyUtils.class).to(PropertyUtils.class);
+            bind(estimationService).to(EstimationService.class);
         }
     }
 }

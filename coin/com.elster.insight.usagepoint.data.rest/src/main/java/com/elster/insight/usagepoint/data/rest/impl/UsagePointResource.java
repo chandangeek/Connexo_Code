@@ -29,7 +29,6 @@ import com.elster.insight.common.services.ListPager;
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.insight.usagepoint.config.UsagePointMetrologyConfiguration;
-import com.elster.insight.usagepoint.config.rest.MetrologyConfigurationInfo;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.MeteringService;
@@ -59,9 +58,15 @@ public class UsagePointResource {
     
     private final Provider<ChannelResource> channelsOnUsagePointResourceProvider;
     private final Provider<RegisterResource> registersOnUsagePointResourceProvider;
+    private final Provider<UsagePointValidationResource> usagePointValidationResourceProvider;
 
     @Inject
-    public UsagePointResource(RestQueryService queryService, MeteringService meteringService, TransactionService transactionService, Clock clock, Provider<ChannelResource> channelsOnUsagePointResourceProvider, Provider<RegisterResource> registersOnUsagePointResourceProvider, UsagePointConfigurationService usagePointConfigurationService) {
+    public UsagePointResource(RestQueryService queryService, MeteringService meteringService, 
+            TransactionService transactionService, Clock clock, 
+            Provider<ChannelResource> channelsOnUsagePointResourceProvider, 
+            Provider<RegisterResource> registersOnUsagePointResourceProvider, 
+            UsagePointConfigurationService usagePointConfigurationService, 
+            Provider<UsagePointValidationResource> usagePointValidationResourceProvider) {
         this.queryService = queryService;
         this.meteringService = meteringService;
         this.transactionService = transactionService;
@@ -69,6 +74,7 @@ public class UsagePointResource {
         this.channelsOnUsagePointResourceProvider = channelsOnUsagePointResourceProvider;
         this.registersOnUsagePointResourceProvider = registersOnUsagePointResourceProvider;
         this.usagePointConfigurationService = usagePointConfigurationService;
+        this.usagePointValidationResourceProvider = usagePointValidationResourceProvider;
     }
 
     @GET
@@ -207,6 +213,11 @@ public class UsagePointResource {
     @Path("/{mrid}/registers")
     public RegisterResource getRegisterResource() {
         return registersOnUsagePointResourceProvider.get();
+    }
+    
+    @Path("/{mrid}/validationrulesets")
+    public UsagePointValidationResource getUsagePointValidationResource() {
+        return usagePointValidationResourceProvider.get();
     }
 
     private FluentIterable<? extends MeterActivation> meterActivationsForReadingTypeWithMRID(long id, String mRID, SecurityContext securityContext) {

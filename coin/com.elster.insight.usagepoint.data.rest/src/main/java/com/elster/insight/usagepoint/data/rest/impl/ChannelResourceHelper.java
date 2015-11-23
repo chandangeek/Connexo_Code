@@ -13,11 +13,16 @@ import javax.ws.rs.core.Response;
 
 import com.elster.insight.common.rest.ExceptionFactory;
 import com.elster.insight.common.services.ListPager;
+import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
+import com.elster.insight.usagepoint.data.UsagePointValidation;
+import com.elster.insight.usagepoint.data.UsagePointValidationImpl;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.validation.ValidationService;
 
 public class ChannelResourceHelper {
 
@@ -26,12 +31,18 @@ public class ChannelResourceHelper {
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
     private final Clock clock;
+    private final Thesaurus thesaurus;
+    private final ValidationService validationService;
+    private final UsagePointConfigurationService usagePointConfigurationService;
 
     @Inject
-    public ChannelResourceHelper(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, Clock clock) {
+    public ChannelResourceHelper(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, Clock clock, Thesaurus thesaurus, ValidationService validationService, UsagePointConfigurationService usagePointConfigurationService) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.clock = clock;
+        this.thesaurus = thesaurus;
+        this.validationService = validationService;
+        this.usagePointConfigurationService = usagePointConfigurationService;
     }
 
     public Response getChannels(String mrid, JsonQueryParameters queryParameters) {
@@ -59,6 +70,10 @@ public class ChannelResourceHelper {
         Channel channel = channelSupplier.get();
         ChannelInfo channelInfo = ChannelInfo.from(channel);
         return Response.ok(channelInfo).build();
+    }
+    
+    public UsagePointValidation getUsagePointValidation(UsagePoint usagePoint) {
+        return new UsagePointValidationImpl(validationService, clock, thesaurus, usagePoint, usagePointConfigurationService);
     }
 
 }

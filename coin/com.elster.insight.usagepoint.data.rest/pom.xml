@@ -47,6 +47,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster</groupId>
+            <artifactId>insight.usagepoint.data</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster</groupId>
             <artifactId>insight.usagepoint.config</artifactId>
         </dependency>
         <dependency>
@@ -104,6 +108,18 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>search</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>estimation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>estimation.rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>tasks</artifactId>
         </dependency>
         <dependency>
             <groupId>javax.ws.rs</groupId>
