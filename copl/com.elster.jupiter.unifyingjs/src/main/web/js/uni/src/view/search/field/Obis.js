@@ -1,22 +1,10 @@
-Ext.define('Uni.view.search.field.Simple', {
-    extend: 'Uni.view.search.field.internal.CriteriaButton',
-    xtype: 'uni-search-criteria-simple',
+Ext.define('Uni.view.search.field.Obis', {
+    extend: 'Uni.view.search.field.Simple',
+    xtype: 'uni-search-criteria-obis',
     requires: [
-        'Uni.view.search.field.internal.CriteriaLine'
+        'Uni.view.search.field.internal.CriteriaLine',
+        'Uni.view.search.field.internal.InputObis'
     ],
-
-    reset: function() {
-        this.down('uni-search-internal-criterialine').reset();
-        this.callParent(arguments);
-    },
-
-    onInputChange: function() {
-        this.setValue(this.down('uni-search-internal-criterialine').getValue());
-    },
-
-    onInputReset: function () {
-        this.setText(this.emptyText);
-    },
 
     init: function () {
         var me = this;
@@ -27,7 +15,7 @@ Ext.define('Uni.view.search.field.Simple', {
             padding: 5,
             removable: false,
             operatorMap: {
-                '==': 'uni-search-internal-input'
+                '==': 'uni-search-internal-input-obis'
                 //'!=': 'uni-search-internal-input'
             },
             listeners: {
@@ -41,5 +29,12 @@ Ext.define('Uni.view.search.field.Simple', {
                 }
             }
         };
+    },
+
+    initComponent: function () {
+        var me = this;
+        this.init();
+
+        me.callParent(arguments);
     }
 });
