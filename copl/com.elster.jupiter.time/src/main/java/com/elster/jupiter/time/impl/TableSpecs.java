@@ -16,12 +16,13 @@ public enum TableSpecs {
             table.map(RelativePeriodImpl.class);
             table.setJournalTableName("TME_RELATIVEPERIODJRNL");
             Column idColumn = table.addAutoIdColumn();
-            table.column("NAME").map("name").varChar().notNull().add();
+            Column nameColumn = table.column("NAME").map("name").varChar().notNull().add();
             table.column("START_DATE").map("from.relativeDate").varChar(256).notNull().add();
             table.column("END_DATE").map("to.relativeDate").varChar(256).notNull().add();
             table.addAuditColumns();
 
             table.primaryKey("TME_PK_RELATIVE_PERIOD").on(idColumn).add();
+            table.unique("TME_UQ_R_PERIOD_NAME").on(nameColumn).add();
             //table.foreignKey("TME_FK_RELATIVEPERIODUSAGE").references("TME_RELATIVEPERIODCATEGORYUSAGE").map("relativePeriod").on(idColumn).add();
         }
     },

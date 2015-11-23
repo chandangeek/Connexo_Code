@@ -21,6 +21,7 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.impl.parser.CronExpressionDescriptorImpl;
 import com.elster.jupiter.time.impl.parser.TranslationKeys;
 import com.elster.jupiter.time.security.Privileges;
+import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
@@ -39,6 +40,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component(
         name = "com.elster.jupiter.time",
@@ -192,8 +196,8 @@ public class TimeServiceImpl implements TimeService, InstallService, PrivilegesP
     @Override
     public List<ResourceDefinition> getModuleResources() {
         List<ResourceDefinition> resources = new ArrayList<>();
-        resources.add(userService.createModuleResourceWithPrivileges(TimeService.COMPONENT_NAME, "period.periods", "period.periods.description",
-                Arrays.asList(Privileges.VIEW_RELATIVE_PERIOD, Privileges.ADMINISTRATE_RELATIVE_PERIOD)));
+        resources.add(userService.createModuleResourceWithPrivileges(TimeService.COMPONENT_NAME, Privileges.RESOURCE_RELATIVE_PERIODS.getKey(), Privileges.RESOURCE_RELATIVE_PERIODS_DESCRIPTION.getKey(),
+                Arrays.asList(Privileges.Constants.VIEW_RELATIVE_PERIOD, Privileges.Constants.ADMINISTRATE_RELATIVE_PERIOD)));
         return resources;
     }
 
@@ -246,10 +250,12 @@ public class TimeServiceImpl implements TimeService, InstallService, PrivilegesP
 
     @Override
     public List<TranslationKey> getKeys() {
-        return ImmutableList.<TranslationKey>builder()
-                .addAll(ImmutableList.copyOf(Labels.values()))
-                .addAll(ImmutableList.copyOf(TranslationKeys.values()))
-                .build();
+        return Stream.of(
+                Arrays.stream(Labels.values()),
+                Arrays.stream(TranslationKeys.values())
+                Arrays.stream(Privileges.values()))
+                .flatMap(Function.identity())
+                .collect(Collectors.toList());
     }
 
     @Override
