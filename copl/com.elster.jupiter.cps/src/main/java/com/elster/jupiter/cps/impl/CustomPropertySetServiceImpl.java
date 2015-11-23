@@ -28,6 +28,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.util.time.Interval;
+
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -40,7 +41,15 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.logging.Logger;
@@ -403,8 +412,12 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     @Override
-    public <D, T extends PersistentDomainExtension<D>> List<CustomPropertySetValues> getValuesHistoryFor(CustomPropertySet<D, T> customPropertySet, D businesObject) {
-        return this.getValuesEntitiesFor(customPropertySet,businesObject).stream().map(e -> this.toCustomPropertySetValues(customPropertySet,Optional.of(e))).collect(Collectors.toList());
+    public <D, T extends PersistentDomainExtension<D>> List<CustomPropertySetValues> getAllVersionedValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject) {
+        return this.getAllVersionedValuesEntitiesFor(customPropertySet, businesObject)
+                .stream()
+                .map(Optional::of)
+                .map(e -> this.toCustomPropertySetValues(customPropertySet, e))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -413,9 +426,14 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
                 a.hasLowerBound() && b.hasLowerBound() ? a.lowerEndpoint().compareTo(b.lowerEndpoint()) : Boolean.compare(a.hasLowerBound(), b.hasLowerBound());
         Map<CustomPropertySetValues, MessageSeed> issues = new HashMap<>();
 
-        List<Range<Instant>> ranges = this.getValuesEntitiesFor(customPropertySet, businesObject).stream()
-                .map(e -> this.toCustomPropertySetValues(customPropertySet, Optional.of(e)).getEffectiveRange())
-                .sorted(rangeComparator).collect(Collectors.toList());
+        List<Range<Instant>> ranges =
+                this.getAllVersionedValuesEntitiesFor(customPropertySet, businesObject)
+                        .stream()
+                        .map(Optional::of)
+                        .map(e -> this.toCustomPropertySetValues(customPropertySet, e))
+                        .map(CustomPropertySetValues::getEffectiveRange)
+                        .sorted(rangeComparator)
+                        .collect(Collectors.toList());
 
         Iterator<Range<Instant>> iterator = ranges.listIterator();
         List<Range<Instant>> modifiedRanges = new ArrayList<>();
@@ -474,7 +492,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
         Comparator<Range<Instant>> rangeComparator = (Range<Instant> a, Range<Instant> b) ->
                 a.hasLowerBound() && b.hasLowerBound() ? a.lowerEndpoint().compareTo(b.lowerEndpoint()) : Boolean.compare(a.hasLowerBound(), b.hasLowerBound());
 
-        List<Range<Instant>> ranges = this.getValuesEntitiesFor(customPropertySet,businesObject).stream()
+        List<Range<Instant>> ranges = this.getAllVersionedValuesEntitiesFor(customPropertySet,businesObject).stream()
                 .map(e -> this.toCustomPropertySetValues(customPropertySet,Optional.of(e)).getEffectiveRange())
                 .sorted(rangeComparator).collect(Collectors.toList());
 
@@ -520,7 +538,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     @Override
-    public <D, T extends PersistentDomainExtension<D>> List <T> getValuesEntitiesFor(CustomPropertySet<D, T> customPropertySet, D businesObject) {
+    public <D, T extends PersistentDomainExtension<D>> List <T> getAllVersionedValuesEntitiesFor(CustomPropertySet<D, T> customPropertySet, D businesObject) {
         ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
         this.validateCustomPropertySetIsVersioned(customPropertySet, activeCustomPropertySet);
         return activeCustomPropertySet.getValuesEntitiesFor(businesObject);

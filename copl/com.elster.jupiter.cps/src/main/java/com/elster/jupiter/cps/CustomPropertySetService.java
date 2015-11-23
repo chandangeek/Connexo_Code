@@ -1,8 +1,8 @@
 package com.elster.jupiter.cps;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.util.time.Interval;
+
+import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -115,6 +115,7 @@ public interface CustomPropertySetService {
      *
      * @param customPropertySet The CustomPropertySet
      * @param businesObject The businesObject object
+     * @param effectiveTimestamp The instant in time on which the values are effective
      * @param <D> The businesObject class
      * @param <T> The class that holds persistent values for this CustomPropertySet
      * @return The CustomPropertySetValues
@@ -122,6 +123,24 @@ public interface CustomPropertySetService {
      * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
      */
     <D, T extends PersistentDomainExtension<D>> CustomPropertySetValues getValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp);
+
+    /**
+     * Gets all the versioned values for the {@link CustomPropertySet}
+     * that were saved for the specified businesObject object.
+     * <p>
+     * Note that this will throw an UnsupportedOperationException
+     * when the CustomPropertySet is <strong>NOT</strong> versioned.
+     * </p>
+     *
+     * @param customPropertySet The CustomPropertySet
+     * @param businesObject The businesObject object
+     * @param <D> The businesObject class
+     * @param <T> The class that holds persistent values for this CustomPropertySet
+     * @return The CustomPropertySetValues
+     * @see CustomPropertySet#isVersioned()
+     * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
+     */
+    <D, T extends PersistentDomainExtension<D>> List<CustomPropertySetValues> getAllVersionedValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject);
 
     /**
      * Sets the values for the {@link CustomPropertySet} that were saved for
@@ -138,6 +157,7 @@ public interface CustomPropertySetService {
      * @param customPropertySet The CustomPropertySet
      * @param businesObject The businesObject object
      * @param values The CustomPropertySetValues
+     * @param effectiveTimestamp The instant in time on which the values are effective
      * @param <D> The businesObject class
      * @param <T> The class that holds persistent values for this CustomPropertySet
      * @see CustomPropertySet#isVersioned()
@@ -158,7 +178,7 @@ public interface CustomPropertySetService {
      * @param businesObject The domain object
      * @param <D> The domain class
      * @param <T> The class that holds persistent values for this CustomPropertySet
-     * @return The CustomPropertySetValues
+     * @return The instance of the peristent class that holds the values for this CustomPropertySet
      * @see CustomPropertySet#isVersioned()
      * @throws UnsupportedOperationException Thrown when the CustomPropertySet is versioned
      */
@@ -175,16 +195,58 @@ public interface CustomPropertySetService {
      *
      * @param customPropertySet The CustomPropertySet
      * @param businesObject The businesObject object
+     * @param effectiveTimestamp The instant in time on which the values are effective
      * @param <D> The businesObject class
      * @param <T> The class that holds persistent values for this CustomPropertySet
-     * @return The CustomPropertySetValues
+     * @return The instance of the peristent class that holds the values for this CustomPropertySet
      * @see CustomPropertySet#isVersioned()
      * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
      */
     <D, T extends PersistentDomainExtension<D>> Optional<T> getValuesEntityFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Instant effectiveTimestamp);
-    <D, T extends PersistentDomainExtension<D>> List<T> getValuesEntitiesFor(CustomPropertySet<D, T> customPropertySet, D businesObject);
-    <D, T extends PersistentDomainExtension<D>> List<CustomPropertySetValues> getValuesHistoryFor(CustomPropertySet<D, T> customPropertySet, D businesObject);
+
+    /**
+     * Gets all the values for the {@link CustomPropertySet} that were saved for
+     * the specified businesObject object.
+     * <p>
+     * Note that this will throw an UnsupportedOperationException
+     * when the CustomPropertySet is <strong>NOT</strong> versioned.
+     * </p>
+     *
+     * @param customPropertySet The CustomPropertySet
+     * @param businesObject The businesObject object
+     * @param <D> The businesObject class
+     * @param <T> The class that holds persistent values for this CustomPropertySet
+     * @return The List of instances of the peristent class that holds the values for this CustomPropertySet
+     * @see CustomPropertySet#isVersioned()
+     * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
+     */
+    <D, T extends PersistentDomainExtension<D>> List<T> getAllVersionedValuesEntitiesFor(CustomPropertySet<D, T> customPropertySet, D businesObject);
+
     <D, T extends PersistentDomainExtension<D>> Map<CustomPropertySetValues, MessageSeed> getValuesRangeOverlapFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Range<Instant> newRange, Instant effectiveTimestamp, boolean isUpdate);
     <D, T extends PersistentDomainExtension<D>> void setValuesVersionFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values, Range<Instant> newRange, Instant effectiveTimestamp, boolean isUpdate);
+
+    <D, T extends PersistentDomainExtension<D>> OverlapCalculatorBuilder calculateOverlapsFor(CustomPropertySet<D, T> customPropertySet, D businesObject);
+
+    interface OverlapCalculatorBuilder {
+        List<ValuesRangeConflict> whenCreating(Range<Instant> newRange);
+        List<ValuesRangeConflict> whenUpdating(Range<Instant> newRange);
+    }
+
+    enum ValuesRangeConflictType {
+        RANGE_OVERLAP_UPDATE_START,
+        RANGE_OVERLAP_UPDATE_END,
+        RANGE_OVERLAP_DELETE,
+        RANGE_GAP_BEFORE,
+        RANGE_GAP_AFTER,
+        RANGE_INSERT;
+    }
+
+    @ProviderType
+    interface ValuesRangeConflict {
+        ValuesRangeConflictType getType();
+        String getMessage();
+        Range<Instant> getConflictingRange();
+        CustomPropertySetValues getValues();
+    }
 
 }
