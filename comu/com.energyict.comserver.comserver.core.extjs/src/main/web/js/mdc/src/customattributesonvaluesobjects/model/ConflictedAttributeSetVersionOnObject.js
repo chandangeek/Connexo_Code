@@ -1,7 +1,6 @@
 Ext.define('Mdc.customattributesonvaluesobjects.model.ConflictedAttributeSetVersionOnObject', {
     extend: 'Ext.data.Model',
     requires: [
-        'Uni.DateTime.formatDateTimeShort',
         'Mdc.customattributesonvaluesobjects.model.AttributeSetVersionOnObject'
     ],
 
