@@ -9,7 +9,10 @@ import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskLogEntry;
 import com.elster.jupiter.tasks.TaskOccurrence;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.Table.DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 
@@ -24,10 +27,10 @@ enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.column("CRONSTRING").varChar(NAME_LENGTH).notNull().map("cronString").add();
-            table.column("NEXTEXECUTION").type("number").conversion(NUMBER2INSTANT).map("nextExecution").add();
+            table.column("NEXTEXECUTION").type("number").conversion(NUMBER2INSTANT).map("nextExecution").skipAuditOnFieldUpdate().add();
             table.column("PAYLOAD").varChar(NAME_LENGTH).notNull().map("payload").add();
             table.column("DESTINATION").type("varchar2(30)").notNull().map("destination").add();
-            table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
+            table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").skipAuditOnFieldUpdate().add();
             table.addAuditColumns();
             table.primaryKey("TSK_PK_RECURRENTTASK").on(idColumn).add();
             table.unique("TSK_UK_RECURRENTTASK").on(nameColumn).add();
