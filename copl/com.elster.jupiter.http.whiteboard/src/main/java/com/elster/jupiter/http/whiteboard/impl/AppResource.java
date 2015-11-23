@@ -2,6 +2,7 @@ package com.elster.jupiter.http.whiteboard.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.http.whiteboard.App;
+import com.elster.jupiter.http.whiteboard.SecurityToken;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -9,6 +10,7 @@ import com.elster.jupiter.util.json.JsonService;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -16,6 +18,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.SecurityContext;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import javax.servlet.http.Cookie;
 
 @Path("/apps")
 public class AppResource {
@@ -61,7 +68,7 @@ public class AppResource {
     @POST
     @Path("/logout")
     //public void logout(@Context HttpServletRequest request) {
-    public void logout(@Context SecurityContext securityContext) {
+    public void logout(@Context SecurityContext securityContext, @Context HttpServletRequest request, @Context HttpServletResponse response) {
         // TODO: Sessions will not be used, so logout implementation will move to the client side
         // that is, implement a javascript action to clear out the token cookie/headers
 
@@ -78,6 +85,12 @@ public class AppResource {
         User user = (User) securityContext.getUserPrincipal();
 
         userService.removeLoggedUser(user);
+
+        //invalidate
+        Optional<Cookie> tokenCookie = Arrays.asList(request.getCookies()).stream().filter(cookie -> cookie.getName().equals("X-CONNEXO-TOKEN")).findFirst();
+        if(tokenCookie.isPresent()){
+            SecurityToken.removeCookie(request,response);
+        }
     }
 
     private AppInfo appInfo(App app) {

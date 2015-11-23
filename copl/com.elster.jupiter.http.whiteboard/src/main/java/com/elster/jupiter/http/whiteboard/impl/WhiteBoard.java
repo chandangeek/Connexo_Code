@@ -54,8 +54,12 @@ public class WhiteBoard extends Application implements BinderProvider, InstallSe
 
     private AtomicReference<EventAdmin> eventAdminHolder = new AtomicReference<>();
 
-    private final static String SESSION_TIMEOUT = "com.elster.jupiter.session.timeout";
-    private int sessionTimeout = 600; // default value 10 min
+    private final static String TIMEOUT = "com.elster.jupiter.timeout";
+    private final static String TOKEN_REFRESH_MAX_COUNT = "com.elster.jupiter.token.refresh.maxcount";
+    private final static String TOKEN_EXPIRATION_TIME = "com.elster.jupiter.token.expirationtime";
+    private  static int timeout = 600; // default value 10 min
+    private  static long tokenRefreshMaxCnt = 100;
+    private static int tokenExpTime = 3000;
     private List<HttpResource> resources = new CopyOnWriteArrayList<>();
     private List<App> apps = new CopyOnWriteArrayList<>();
 
@@ -101,6 +105,7 @@ public class WhiteBoard extends Application implements BinderProvider, InstallSe
 
     @Reference(name = "ZResource", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addResource(HttpResource resource) {
+
         String alias = getAlias(resource.getAlias());
         HttpContext httpContext = new HttpContextImpl(this, resource.getResolver(), userService, transactionService, eventAdminHolder);
         try {
@@ -121,31 +126,97 @@ public class WhiteBoard extends Application implements BinderProvider, InstallSe
         apps.add(resource);
     }
 
-    @Activate
     public void activate(BundleContext context, Map<String, Object> props) {
         boolean generateEvents = props != null && Boolean.TRUE.equals(props.get("event"));
         if (!generateEvents) {
             eventAdminHolder.set(null);
         }
         if (context != null) {
-            int timeout = 0;
-            String sessionTimeoutParam = context.getProperty(SESSION_TIMEOUT);
-            if (sessionTimeoutParam != null) {
-                try {
-                    timeout = Integer.parseInt(sessionTimeoutParam);
-                } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("Cannot parse '" + sessionTimeoutParam + "' as a timeout value.", e);
+            List<String> initList = new ArrayList<>();
+            initList.add(TIMEOUT);
+            initList.add(TOKEN_REFRESH_MAX_COUNT);
+            initList.add(TOKEN_EXPIRATION_TIME);
+            for(String initElement:initList){
+                int temp=0;
+                String tempParam = context.getProperty(initElement);
+                if(tempParam!=null) {
+                    try {
+                        temp = Integer.parseInt(tempParam);
+                    } catch (NumberFormatException e) {
+                        throw new IllegalArgumentException("Cannot parse '" + tempParam + "'", e);
+                    }
+                }
+                if(temp>0) {
+                    if(initElement.equals(TIMEOUT)) timeout = temp;// *1000 since the check will be against millis
+                    else if(initElement.equals(TOKEN_REFRESH_MAX_COUNT)) tokenRefreshMaxCnt = temp;
+                    else tokenExpTime = temp;
                 }
             }
 
-            if (timeout > 0) {
-                sessionTimeout = timeout;
+        /*    if (tempTimeOut > 0) {
+                timeout = tempTimeOut;
             }
+
+            }
+            int tempTimeOut = 0;
+            String timeoutParam = context.getProperty(TIMEOUT);
+            if (timeoutParam != null) {
+                try {
+                    tempTimeOut = Integer.parseInt(timeoutParam);
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("Cannot parse '" + timeoutParam + "' as a timeout value.", e);
+                }
+            }
+
+            if (tempTimeOut > 0) {
+                timeout = tempTimeOut;
+            }
+
+            int tempTokeRefreshMaxCnt = 0;
+            String tokenRefreshMaxCntParam = context.getProperty(TOKEN_REFRESH_MAX_COUNT);
+            if (tokenRefreshMaxCntParam != null) {
+                try {
+                    tempTokeRefreshMaxCnt = Integer.parseInt(tokenRefreshMaxCntParam);
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("Cannot parse '" + tokenRefreshMaxCntParam + "' as a numeric value.", e);
+                }
+            }
+
+            if (tempTokeRefreshMaxCnt > 0) {
+                tokenRefreshMaxCnt = tempTokeRefreshMaxCnt;
+            }
+
+            if (tempTimeOut > 0) {
+                timeout = tempTimeOut;
+            }
+
+            int tempTokeExpirationTime = 0;
+            String tempTokeExpirationTimeParam = context.getProperty(TOKEN_EXPIRATION_TIME);
+            if (tempTokeExpirationTimeParam != null) {
+                try {
+                    tempTokeExpirationTime = Integer.parseInt(tempTokeExpirationTimeParam);
+                } catch (NumberFormatException e) {
+                    throw new IllegalArgumentException("Cannot parse '" + tokenRefreshMaxCntParam + "' as a numeric value.", e);
+                }
+            }
+
+            if (tempTokeExpirationTime > 0) {
+                tokenExpTime = tempTokeExpirationTime;
+            } */
+
         }
     }
 
-    int getSessionTimeout() {
-        return sessionTimeout;
+    public static int getTimeout() {
+        return timeout;
+    }
+
+    public static long getTokenRefreshMaxCnt() {
+        return tokenRefreshMaxCnt;
+    }
+
+    public static int getTokenExpTime() {
+        return tokenExpTime;
     }
 
     public void removeResource(HttpResource resource) {
@@ -166,7 +237,7 @@ public class WhiteBoard extends Application implements BinderProvider, InstallSe
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.<Class<?>>of(PageResource.class, AppResource.class, SessionResource.class);
+        return ImmutableSet.<Class<?>>of(PageResource.class, AppResource.class);
     }
 
     List<HttpResource> getResources() {
