@@ -4,6 +4,7 @@
 Ext.define('Uni.view.search.Overview', {
     extend: 'Ext.container.Container',
     xtype: 'uni-view-search-overview',
+    itemId: 'centerContainer', // added for test
     overflowY: 'auto',
 
     requires: [
@@ -115,9 +116,12 @@ Ext.define('Uni.view.search.Overview', {
                                 service: me.getService()
                             },
                             {
-                                xtype: 'toolbar',
+                                xtype: 'container',
+                                layout: {
+                                    type: 'hbox',
+                                    pack: 'end'
+                                },
                                 items: [
-                                    '->',
                                     {
                                         xtype: 'button',
                                         itemId: 'search-button',

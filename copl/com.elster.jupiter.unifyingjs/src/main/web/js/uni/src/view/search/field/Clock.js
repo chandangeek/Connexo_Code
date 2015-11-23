@@ -16,17 +16,13 @@ Ext.define('Uni.view.search.field.Clock', {
             width: '455',
             operator: '==',
             removable: false,
-            onRemove: function() {
-                me.menu.remove(this);
-                me.onInputChange();
-            },
             operatorMap: {
                 '==': 'uni-search-internal-clock',
-                '!=': 'uni-search-internal-clock',
-                '>': 'uni-search-internal-clock',
-                '>=': 'uni-search-internal-clock',
-                '<': 'uni-search-internal-clock',
-                '<=': 'uni-search-internal-clock',
+                //'!=': 'uni-search-internal-clock',
+                //'>': 'uni-search-internal-clock',
+                //'>=': 'uni-search-internal-clock',
+                //'<': 'uni-search-internal-clock',
+                //'<=': 'uni-search-internal-clock',
                 'BETWEEN': 'uni-search-internal-clockrange'
             },
             listeners: {

@@ -27,8 +27,8 @@ Ext.define('Uni.view.search.field.Simple', {
             padding: 5,
             removable: false,
             operatorMap: {
-                '==': 'uni-search-internal-input',
-                '!=': 'uni-search-internal-input'
+                '==': 'uni-search-internal-input'
+                //'!=': 'uni-search-internal-input'
             },
             listeners: {
                 change: {

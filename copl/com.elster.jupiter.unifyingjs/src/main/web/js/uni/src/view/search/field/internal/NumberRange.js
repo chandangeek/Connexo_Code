@@ -4,10 +4,16 @@ Ext.define('Uni.view.search.field.internal.NumberRange', {
     requires: [
         'Uni.view.search.field.internal.NumberField'
     ],
-    layout: 'vbox',
+    width: '455',
+    layout: {
+        type: 'vbox',
+        align: 'stretch'
+    },
     defaults: {
         margin: '0 0 5 0'
     },
+    margin: 0,
+    padding: 0,
     border: false,
     itemsDefaultConfig: {},
 

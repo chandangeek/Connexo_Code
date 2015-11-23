@@ -44,99 +44,46 @@ Ext.define('Uni.view.search.ColumnPicker', {
                 itemId: 'column-picker-restore-defaults-button',
                 text: 'Restore defaults',
                 ui: 'link',
-                handler: function() {
-                    me.setColumns(me.defaultColumns);
-                }
+                handler: Ext.bind(me.restoreColumns, me)
             }],
             buttons: [
                 {
                     text: 'Done',
                     itemId: 'column-picker-done-button',
-                    handler: function() {
-                        me.grid.reconfigure(null, _.pluck(me.menu.down('#columns-selected').items.getRange(), 'column'));
-                        me.menu.hide();
-                    }
+                    handler: Ext.bind(me.changeColumns, me)
                 },
                 {
                     text: 'Cancel',
                     itemId: 'column-picker-cancel-button',
                     ui: 'link',
                     handler: function() {
-                        Ext.suspendLayouts();
-                        me.setColumns(me.currentColumns, true);
                         me.menu.hide();
-                        Ext.resumeLayouts(true);
                     }
                 }
             ],
-            items: [
-                {
-                    xtype: 'checkboxgroup',
-                    padding: 5,
-                    itemId: 'columns-selected',
-                    columns: 1,
-                    vertical: true,
-                    //plain: true,
-                    floating: false,
-                    defaults: {
-                        checkDirty: Ext.emptyFn,
-                        listeners: {
-                            change: function(item) {
-                                var newItem = me.createMenuItem(item.column);
-                                newItem.checked = false;
-                                Ext.suspendLayouts();
-                                me.menu.down('#columns-selected').remove(item);
-                                me.menu.down('#columns-available').add(newItem);
-                                Ext.resumeLayouts(true);
-                                return false;
-                            }
-                        }
-                    }
-
-                },
-                {
-                    xtype: 'menuseparator'
-                },
-                {
-                    xtype: 'checkboxgroup',
-                    padding: 5,
-                    columns: 1,
-                    vertical: true,
-                    itemId: 'columns-available',
-                    //plain: true,
-                    floating: false,
-                    defaults: {
-                        checkDirty: Ext.emptyFn,
-                        listeners: {
-                            change: function(item) {
-                                var newItem = me.createMenuItem(item.column);
-                                newItem.checked = true;
-                                Ext.suspendLayouts();
-                                me.menu.down('#columns-selected').add(newItem);
-                                me.menu.down('#columns-available').remove(item);
-                                Ext.resumeLayouts(true);
-                                return false;
-                            }
-                        }
-                    }
+            items: {
+                xtype: 'checkboxgroup',
+                padding: 5,
+                itemId: 'columns-container',
+                columns: 1,
+                vertical: true,
+                floating: false,
+                defaults: {
+                    checkDirty: Ext.emptyFn
                 }
-            ],
+            },
             listeners: {
+                beforeshow: {
+                    scope: me,
+                    fn: me.onMenuBeforeShow
+                },
                 show: {
                     scope: me,
-                    fn: function () {
-                        var currentColumns = [];
-
-                        me.menu.down('#columns-selected').items.each(function (menuItem) {
-                            menuItem.column.isDefault = true;
-                            currentColumns.push(menuItem.column);
-                        });
-                        me.menu.down('#columns-available').items.each(function (menuItem) {
-                            menuItem.column.isDefault = false;
-                            currentColumns.push(menuItem.column);
-                        })
-                        me.currentColumns = currentColumns;
-                    }
+                    fn: me.onMenuShow
+                },
+                hide: {
+                    scope: me,
+                    fn: me.onMenuHide
                 }
             }
         };
@@ -151,33 +98,93 @@ Ext.define('Uni.view.search.ColumnPicker', {
             inputValue: column.dataIndex,
             disabled: column.disabled,
             checked: column.isDefault,
-            column: column
+            column: column,
+            handler: function (checkbox, checked) {
+                checkbox.column.isDefault = checked;
+            }
         };
     },
 
     setColumns: function (columns, restoreState) {
-        var me = this,
-            available = me.menu.down('#columns-available'),
-            selected = me.menu.down('#columns-selected')
-        ;
+        var me = this;
 
+        me.columns = columns;
         if (!restoreState) {
-            me.defaultColumns = columns;
-        }
-        Ext.suspendLayouts();
-        available.removeAll();
-        selected.removeAll();
-
-        if (columns.length) {
-            Ext.each(columns, function (item) {
-                var menuItem = me.createMenuItem(item);
-                menuItem.checked ? selected.add(menuItem) : available.add(menuItem);
-            });
-        }
-
-        if (!restoreState) {
+            me.defaultColumns = Ext.clone(columns);
+            me.currentColumns = columns;
             me.grid.reconfigure(null, _.filter(columns, function(c){return c.isDefault}));
         }
+    },
+
+    onMenuBeforeShow: function (menu) {
+        var me = this,
+            columnsContainer = menu.down('checkboxgroup'),
+            columns = me.columns,
+            sortedColumns = _.sortBy(columns, function (column) {return column.header}),
+            groups = _.groupBy(sortedColumns, function (column) {return column.isDefault ? 'checked' : 'unchecked'});
+
+        Ext.suspendLayouts();
+        columnsContainer.removeAll();
+        Ext.Array.each(groups.checked, function (column) {
+            columnsContainer.add(me.createMenuItem(column));
+        });
+        if (groups.checked
+            && groups.checked.length
+            && groups.unchecked
+            && groups.unchecked.length) {
+            columnsContainer.add({xtype: 'menuseparator'});
+        }
+        Ext.Array.each(groups.unchecked, function (column) {
+            columnsContainer.add(me.createMenuItem(column));
+        });
+        Ext.resumeLayouts(true);
+    },
+
+    onMenuShow: function () {
+        var me = this;
+
+        me.currentColumns = Ext.clone(me.columns);
+    },
+
+    onMenuHide: function () {
+        var me = this;
+
+        me.setColumns(me.currentColumns, true);
+    },
+
+    changeColumns: function() {
+        var me = this,
+            menu = me.menu,
+            grid = me.grid,
+            currentColumns = grid.getView().getHeaderCt().items,
+            newColumns = _.filter(me.columns, function (column) {return column.isDefault}),
+            toAdd = [];
+
+        if (newColumns.length) {
+            currentColumns.each(function (currentColumn) {
+                Ext.Array.every(newColumns, function (newColumn, index) {
+                    if (currentColumn.dataIndex === newColumn.dataIndex) {
+                        toAdd.push(Ext.clone(newColumn));
+                        Ext.Array.remove(newColumns, newColumn);
+                        return false;
+                    }
+                    return true;
+                })
+            });
+        }
+        Ext.Array.push(toAdd, newColumns);
+        grid.reconfigure(null, toAdd);
+        menu.suspendEvent('hide');
+        menu.hide();
+        menu.resumeEvent('hide');
+    },
+
+    restoreColumns: function() {
+        var me = this;
+
+        Ext.suspendLayouts();
+        me.setColumns(me.defaultColumns);
+        me.menu.hide();
         Ext.resumeLayouts(true);
     }
 });

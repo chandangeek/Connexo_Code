@@ -65,7 +65,9 @@ Ext.define('Uni.service.Search', {
         'Boolean:com.elster.jupiter.properties.BooleanFactory':              'uni-search-criteria-boolean',
         'Instant:com.elster.jupiter.properties.InstantFactory':              'uni-search-criteria-datetime',
         'TimeDuration:com.elster.jupiter.properties.StringReferenceFactory': 'uni-search-criteria-timeduration',
+        'TimeDuration:com.energyict.mdc.dynamic.TimeDurationValueFactory':   'uni-search-criteria-timeduration',
         'BigDecimal:com.elster.jupiter.properties.BigDecimalFactory':        'uni-search-criteria-numeric',
+        'Long:com.elster.jupiter.properties.LongFactory':                    'uni-search-criteria-numeric',
         'Date:com.energyict.mdc.dynamic.DateFactory':                        'uni-search-criteria-date',
         'Date:com.energyict.mdc.dynamic.DateAndTimeFactory':                 'uni-search-criteria-clock',
         'TimeOfDay:com.energyict.mdc.dynamic.TimeOfDayFactory':              'uni-search-criteria-timeofday'
@@ -188,8 +190,8 @@ Ext.define('Uni.service.Search', {
         me.initStoreListeners();
         Ext.suspendLayouts();
 
-        me.fireEvent('reset', me.filters);
         me.filters.removeAll();
+        me.fireEvent('reset', me.filters);
 
         me.initCriteria();
         me.saveState();
@@ -246,7 +248,7 @@ Ext.define('Uni.service.Search', {
             searchResults = me.getSearchResultsStore();
 
         searchResults.clearFilter(true);
-        searchResults.filter(me.getFilters(), true);
+        searchResults.addFilter(me.getFilters(), false);
         searchResults.load();
     },
 
