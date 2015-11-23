@@ -11,7 +11,7 @@ Ext.define('Uni.override.ApplicationOverride', {
         'Uni.controller.Navigation',
         'Uni.controller.Portal',
         'Uni.controller.Notifications',
-        'Uni.controller.Session'
+
     ],
 
     /**
