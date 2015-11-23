@@ -2,6 +2,7 @@ package com.elster.jupiter.tasks.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
+import com.elster.jupiter.devtools.tests.ProgrammableClock;
 import com.elster.jupiter.devtools.tests.assertions.JupiterAssertions;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.devtools.tests.rules.Using;
@@ -51,6 +52,7 @@ import org.osgi.service.log.LogService;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import java.time.Clock;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -61,6 +63,7 @@ import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -92,7 +95,7 @@ public class RecurrentTaskIT {
     private EventAdmin eventAdmin;
     @Mock
     private LogService logService;
-    @Mock
+    //@Mock
     private Clock clock;
 
     private class MockModule extends AbstractModule {
@@ -107,7 +110,8 @@ public class RecurrentTaskIT {
 
     @Before
     public void setUp() {
-        when(clock.instant()).thenReturn(now);
+        //when(clock.instant()).thenReturn(now);
+        clock = new ProgrammableClock(TimeZoneNeutral.getMcMurdo(), now);
 
         try {
             injector = Guice.createInjector(
@@ -158,8 +162,8 @@ public class RecurrentTaskIT {
 
     @Test
     public void testHistory() throws InterruptedException {
-
-        when (clock.instant()).thenReturn(
+        clock = mock(Clock.class);
+        when(clock.instant()).thenReturn(
                 now,
                 zonedDateTime.plusSeconds(1).toInstant(),
                 zonedDateTime.plusSeconds(2).toInstant(),
@@ -193,7 +197,6 @@ public class RecurrentTaskIT {
         JupiterAssertions.assertThat(version2).isPresent();
         assertThat(version2.get().getScheduleExpression()).isEqualTo(newSchedule);
     }
-
 
 
     @Test
@@ -323,6 +326,44 @@ public class RecurrentTaskIT {
         assertThat(entry.getTaskOccurrence()).isEqualTo(occurrence);
         assertThat(entry.getLogLevel()).isEqualTo(Level.INFO);
         assertThat(entry.getMessage()).isEqualTo("Coucou");
+
+    }
+
+    @Test
+    public void testGetVersionAt() {
+        long recurrentTaskId = createRecurrentTask(PeriodicalScheduleExpression.every(1).days().at(18, 0, 0).build());
+        RecurrentTaskImpl recurrentTask = (RecurrentTaskImpl) taskService.getRecurrentTask(recurrentTaskId).get();
+        Optional<RecurrentTask> recurrentTaskVersion = recurrentTask.getVersionAt(now.minus(Duration.ofMinutes(1)));
+        assertThat(recurrentTaskVersion).isEmpty();
+        recurrentTaskVersion = recurrentTask.getVersionAt(now);
+        assertThat(recurrentTaskVersion).isPresent();
+        assertThat(recurrentTaskVersion.get().getVersion()).isEqualTo(1);
+        recurrentTaskVersion = recurrentTask.getVersionAt(now.plus(Duration.ofMinutes(1)));
+        assertThat(recurrentTaskVersion).isPresent();
+
+        ((ProgrammableClock) clock).setTicker(() -> zonedDateTime.plusDays(1).toInstant());
+        transactionService.builder().principal(() -> "RecurrentTaskIt").run(() -> {
+            recurrentTask.updateNextExecution();
+            recurrentTask.save();
+        });
+        recurrentTaskVersion = recurrentTask.getVersionAt(zonedDateTime.plusDays(1).toInstant());
+        assertThat(recurrentTaskVersion).isPresent();
+        assertThat(recurrentTaskVersion.get().getVersion()).isEqualTo(2);
+        recurrentTaskVersion = recurrentTask.getVersionAt(now);
+        assertThat(recurrentTaskVersion).isPresent();
+        assertThat(recurrentTaskVersion.get().getVersion()).isEqualTo(1);
+
+        ((ProgrammableClock) clock).setTicker(() -> zonedDateTime.plusDays(2).toInstant());
+        transactionService.builder().principal(() -> "RecurrentTaskIt").run(() -> {
+            recurrentTask.setScheduleExpression(PeriodicalScheduleExpression.every(1).months().at(1, 20, 0, 0).build());
+            recurrentTask.save();
+        });
+        recurrentTaskVersion = recurrentTask.getVersionAt(zonedDateTime.plusDays(2).toInstant());
+        assertThat(recurrentTaskVersion).isPresent();
+        assertThat(recurrentTaskVersion.get().getVersion()).isEqualTo(3);
+        recurrentTaskVersion = recurrentTask.getVersionAt(now);
+        assertThat(recurrentTaskVersion).isPresent();
+        assertThat(recurrentTaskVersion.get().getVersion()).isEqualTo(1);
 
     }
 

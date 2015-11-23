@@ -57,4 +57,9 @@ public interface RecurrentTask extends HasName, HasAuditInfo {
      * @since v1.1
      */
     History<? extends RecurrentTask> getHistory();
+
+    /**
+     * @since v2.0
+     */
+    Optional<RecurrentTask> getVersionAt(Instant time);
 }

@@ -5,6 +5,7 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
+import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskExecutor;
@@ -14,6 +15,7 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
+import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
 import java.time.Clock;
@@ -252,6 +254,14 @@ class RecurrentTaskImpl implements RecurrentTask {
     @Override
     public History<? extends RecurrentTask> getHistory() {
         return new History<>(dataModel.mapper(RecurrentTaskImpl.class).getJournal(this.getId()), this);
+    }
+
+    @Override
+    public Optional<RecurrentTask> getVersionAt(Instant time) {
+        List<JournalEntry<RecurrentTask>> journalEntries = dataModel.mapper(RecurrentTask.class).at(time).find(ImmutableMap.of("id", this.getId()));
+        return journalEntries.stream()
+                .map(JournalEntry::get)
+                .findFirst();
     }
 
     void updateLastRun(Instant triggerTime) {
