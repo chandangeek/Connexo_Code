@@ -29,6 +29,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Optional;
 
+import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_PRIMARY_METERED;
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
 import static com.elster.jupiter.cbo.FlowDirection.REVERSE;
@@ -62,6 +63,10 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     private RegisterType calculatedRegisterType;
     private Unit unit = Unit.get("kWh");
     private ChannelType channelType;
+    private final String activeEnergySecondary = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.BULKQUANTITY).code();
+    private final ReadingType readingTypeActiveEnergySecondaryMetered = inMemoryPersistence.getMeteringService().getReadingType(activeEnergySecondary).get();
+    private final String activeEnergyPrimary = ReadingTypeCodeBuilder.of(ELECTRICITY_PRIMARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.BULKQUANTITY).code();
+    private final ReadingType readingTypeActiveEnergyPrimaryMetered = inMemoryPersistence.getMeteringService().getReadingType(activeEnergyPrimary).get();
 
     @Before
     public void initializeDatabaseAndMocks() {
@@ -69,20 +74,17 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     }
 
     private void initializeDeviceTypeWithRegisterTypeAndLoadProfileTypeAndDeviceConfiguration() {
-
-        String code = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.BULKQUANTITY).code();
-        ReadingType readingType = inMemoryPersistence.getMeteringService().getReadingType(code).get();
         Optional<RegisterType> xRegisterType =
                 inMemoryPersistence.getMasterDataService()
-                    .findRegisterTypeByReadingType(readingType);
+                    .findRegisterTypeByReadingType(readingTypeActiveEnergySecondaryMetered);
         if (xRegisterType.isPresent()) {
             this.registerType = xRegisterType.get();
         }
         else {
-            this.registerType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType, channelTypeObisCode);
+            this.registerType = inMemoryPersistence.getMasterDataService().newRegisterType(readingTypeActiveEnergySecondaryMetered, channelTypeObisCode);
             this.registerType.save();
         }
-        createOrSetCalculatedRegisterType(readingType);
+        createOrSetCalculatedRegisterType(readingTypeActiveEnergySecondaryMetered);
 
         loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME, loadProfileTypeObisCode, interval, Arrays.asList(registerType, calculatedRegisterType));
         channelType = loadProfileType.findChannelType(registerType).get();
@@ -414,7 +416,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
         channelSpecBuilder.useMultiplier(true);
-        channelSpecBuilder.calculatedReadingType(channelType.getReadingType());
+        channelSpecBuilder.calculatedReadingType(readingTypeActiveEnergyPrimaryMetered);
         channelSpecBuilder.add();
     }
 
@@ -427,7 +429,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
         ChannelSpec.ChannelSpecUpdater channelSpecUpdater = getReloadedDeviceConfiguration().getChannelSpecUpdaterFor(channelSpec);
         channelSpecUpdater.useMultiplier(true);
-        channelSpecUpdater.calculatedReadingType(channelType.getReadingType());
+        channelSpecUpdater.calculatedReadingType(readingTypeActiveEnergyPrimaryMetered);
         channelSpecUpdater.update();
     }
     @Test

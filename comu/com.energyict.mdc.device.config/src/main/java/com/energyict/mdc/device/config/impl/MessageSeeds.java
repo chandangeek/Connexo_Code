@@ -98,6 +98,8 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_CONFIGURATION_IS_ACTIVE_CAN_NOT_CHANGE_FIELD(12014, Keys.DEVICE_CONFIG_ACTIVE_FIELD_IMMUTABLE, "You can not change this field for an active configuration"),
     DEVICE_CONFIGURATION_IS_NOT_DIRECTLY_ADDRESSABLE(12015, Keys.DEVICE_CONFIGURATION_IS_NOT_DIRECTLY_ADDRESSABLE, "It is not allowed to create connection methods because the device configuration is not directly addressable"),
     DEVICE_CONFIGURATION_CALCULATED_READINGTYPE_CANNOT_BE_EMPTY(12016, Keys.CALCULATED_READINGTYPE_CANNOT_BE_EMPTY, "The calculated readingtype can not be empty when you define to use a multiplier"),
+    DEVICE_CONFIGURATION_CALCULATED_READINGTYPE_DOES_NOT_MATCH_CRITERIA(12017, Keys.CALCULATED_READINGTYPE_DOES_NOT_MATCH_CRITERIA, "The calculated readingtype does not match the criteria according to the selected value"),
+    READINGTYPE_CAN_NOT_BE_MULTIPLIED(12018, Keys.READINGTYPE_CAN_NOT_BE_MULTIPLIED, "Readingtype {0} can not be multiplied"),
     NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED(13000, Keys.NEXT_EXECUTION_SPECS_TEMPORAL_EXPRESSION_REQUIRED, "The temporal expression of a NextExecutionSpec is required"),
     TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED(13001, Keys.TEMPORAL_EXPRESSION_FREQUENCY_REQUIRED, "The frequency of a temporal expression is required"),
     TEMPORAL_EXPRESSION_UNKNOWN_UNIT(13002, Keys.TEMPORAL_EXPRESSION_UNKNOWN_UNIT, "The unit {0} is unknown or unsupported for temporal expressions"),
@@ -241,6 +243,8 @@ public enum MessageSeeds implements MessageSeed {
         public static final String DESTINATION_DATA_SOURCE_IS_EMPTY = "destinationDataSourceIsEmpty";
         public static final String MULTIPLE_SOLUTIONS_FOR_SAME_CONFLICT = "multipleSolutionsDefinedForSameConfig";
         public static final String CALCULATED_READINGTYPE_CANNOT_BE_EMPTY = "calculatedReadingType.notEmpty.whenMultiplier";
+        public static final String CALCULATED_READINGTYPE_DOES_NOT_MATCH_CRITERIA = "calculatedReadingType.does.not.match.criteria";
+        public static final String READINGTYPE_CAN_NOT_BE_MULTIPLIED = "readingtype.can.not.be.multiplied";
     }
 
 }
