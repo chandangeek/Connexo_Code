@@ -42,6 +42,11 @@ Ext.define('Login.controller.Login', {
     showOverview: function () {
         var params = Ext.urlDecode(location.search.substring(1));
         if (typeof params.expired !== 'undefined') {
+           /* window.onbeforeunload = function(){
+                window.localStorage.clear();
+               // window.sessionStorage.clear();
+            } */
+            window.localStorage.clear();
             var error = this.getLoginForm().down('#errorLabel');
             error.setValue('Your session has expired.');
             error.show();
@@ -157,7 +162,7 @@ Ext.define('Login.controller.Login', {
         var form = this.getLoginForm(),
             password = form.down('#password'),
             error = form.down('#errorLabel');
-
+        window.localStorage.removeItem('X-AUTH-TOKEN');
         form.suspendLayouts();
         password.reset();
         password.focus(false, 200);
