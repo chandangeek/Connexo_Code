@@ -252,7 +252,7 @@ public class TimeServiceImpl implements TimeService, InstallService, PrivilegesP
     public List<TranslationKey> getKeys() {
         return Stream.of(
                 Arrays.stream(Labels.values()),
-                Arrays.stream(TranslationKeys.values())
+                Arrays.stream(TranslationKeys.values()),
                 Arrays.stream(Privileges.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
