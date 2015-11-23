@@ -151,10 +151,13 @@ public interface MasterDataService {
     public List<ChannelType> findChannelTypeByTemplateRegister(RegisterType templateRegisterType);
 
     /**
-     * Finds a list of RegisterTypes which can be used when a multiplier is applied to the given RegisterType
+     * Finds a list of RegisterTypes which can be used when a multiplier is applied to the given RegisterType.
+     * In case of secondary electricity metered ReadingTypes, only primary electricity metered readingType is allowed
+     * and will be created if it doens't exist yet
      *
      * @return a list of possible registertypes
-     * @param readingType
+     * @param convertToDeltas
+     * @param readingType the readingType which we need to get the multiplyables from
      */
-    public List<ReadingType> getPossibleMultiplyReadingTypesFor(ReadingType readingType);
+    public List<ReadingType> getOrCreatePossibleMultiplyReadingTypesFor(ReadingType readingType);
 }

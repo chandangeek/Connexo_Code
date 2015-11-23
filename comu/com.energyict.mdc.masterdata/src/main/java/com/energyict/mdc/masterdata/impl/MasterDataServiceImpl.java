@@ -1,6 +1,8 @@
 package com.energyict.mdc.masterdata.impl;
 
+import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
 import com.elster.jupiter.metering.ReadingTypeMridFilter;
 import com.elster.jupiter.nls.*;
@@ -331,22 +333,47 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
     }
 
     @Override
-    public List<ReadingType> getPossibleMultiplyReadingTypesFor(ReadingType readingType) {
+    public List<ReadingType> getOrCreatePossibleMultiplyReadingTypesFor(ReadingType readingType) {
         if (readingType.getUnit().equals(ReadingTypeUnit.COUNT)) {
             return meteringService.getReadingTypesByMridFilter(createReadingTypeFilterForUnitAndMultiplier(readingType)).find()
                     .stream().filter(not(rt -> rt.getMRID().equals(readingType.getMRID()))).collect(Collectors.toList());
         } else if (readingType.getCommodity().equals(Commodity.ELECTRICITY_SECONDARY_METERED)) {
-            return meteringService.getReadingTypesByMridFilter(createPrimaryMeteredElectricityReadingType(readingType)).find();
+            ReadingTypeCodeBuilder readingTypeCodeBuilder = createReadingTypeCodeBuilderFrom(readingType);
+            readingTypeCodeBuilder.commodity(Commodity.ELECTRICITY_PRIMARY_METERED);
+            Optional<ReadingType> primaryReadingType = meteringService.getReadingType(readingTypeCodeBuilder.code());
+            if(primaryReadingType.isPresent()){
+                return Collections.singletonList(primaryReadingType.get());
+            } else {
+                return Collections.singletonList(meteringService.createReadingType(readingTypeCodeBuilder.code(), readingType.getAliasName()));
+            }
         } else {
             return Collections.emptyList();
         }
     }
 
     private ReadingTypeMridFilter createReadingTypeFilterForUnitAndMultiplier(ReadingType readingType) {
-        return ReadingTypeMridFilter.fromTemplateReadingType(readingType).anyMultiplier().anyUnit();
+        ReadingTypeMridFilter readingTypeMridFilter = ReadingTypeMridFilter.fromTemplateReadingType(readingType).anyMultiplier().anyUnit();
+        if(readingType.getCommodity().equals(Commodity.ELECTRICITY_SECONDARY_METERED)){
+            readingTypeMridFilter.setCommodity(Commodity.ELECTRICITY_PRIMARY_METERED);
+        }
+        return readingTypeMridFilter;
     }
 
-    private ReadingTypeMridFilter createPrimaryMeteredElectricityReadingType(ReadingType readingType) {
-        return ReadingTypeMridFilter.fromTemplateReadingType(readingType).setCommodity(Commodity.ELECTRICITY_PRIMARY_METERED);
+    private ReadingTypeCodeBuilder createReadingTypeCodeBuilderFrom(ReadingType readingType) {
+        return ReadingTypeCodeBuilder.of(readingType.getCommodity())
+                .period(readingType.getMacroPeriod())
+                .period(readingType.getMeasuringPeriod())
+                .accumulate(readingType.getAccumulation())
+                .aggregate(readingType.getAggregate())
+                .argument(((int) readingType.getArgument().getNumerator()), (int) readingType.getArgument().getDenominator())
+                .cpp(readingType.getCpp())
+                .currency(readingType.getCurrency())
+                .flow(readingType.getFlowDirection())
+                .harmonic(((int) readingType.getInterharmonic().getNumerator()), (int) readingType.getInterharmonic().getDenominator())
+                .in(readingType.getMultiplier(), readingType.getUnit())
+                .measure(readingType.getMeasurementKind())
+                .phase(readingType.getPhases())
+                .tier(readingType.getConsumptionTier())
+                .tou(readingType.getTou());
     }
 }
