@@ -1,11 +1,10 @@
-Ext.define('Apr.view.appservers.Preview', {
+Ext.define('Apr.view.appservers.MessageServicePreview', {
     extend: 'Ext.panel.Panel',
     frame: true,
-    alias: 'widget.appservers-preview',
-    router: null,
+    alias: 'widget.msg-service-preview',
     requires: [
-        'Apr.view.appservers.PreviewForm',
-        'Apr.view.appservers.Menu'
+        'Apr.view.appservers.MessageServicePreviewForm',
+        'Apr.view.appservers.MessageServicesActionMenu'
     ],
 
     initComponent: function () {
@@ -17,16 +16,14 @@ Ext.define('Apr.view.appservers.Preview', {
                 privileges: Apr.privileges.AppServer.admin,
                 iconCls: 'x-uni-action-iconD',
                 menu: {
-                    xtype: 'appservers-action-menu'
+                    xtype: 'message-services-action-menu'
                 }
             }
         ];
         me.items = {
-            xtype: 'appservers-preview-form',
+            xtype: 'msg-service-preview-form',
             router: me.router
         };
         me.callParent(arguments);
     }
-
 });
-

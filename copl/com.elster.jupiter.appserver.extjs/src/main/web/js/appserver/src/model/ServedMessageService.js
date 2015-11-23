@@ -1,6 +1,7 @@
 Ext.define('Apr.model.ServedMessageService', {
     extend: 'Ext.data.Model',
     fields: [
+        'active',
         'subscriberSpec',
         {name: 'numberOfThreads', type: 'int'},
         {

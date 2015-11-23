@@ -37,7 +37,7 @@ Ext.define('Apr.view.taskoverview.TaskPreview', {
                                     },
                                     items: [
                                         {
-                                            fieldLabel: Uni.I18n.translate('general.name', 'APR', 'name'),
+                                            fieldLabel: Uni.I18n.translate('general.name', 'APR', 'Name'),
                                             name: 'name'
                                         },
                                         {

@@ -21,7 +21,23 @@ Ext.define('Apr.controller.history.AppServer', {
                             route: 'add',
                             privileges: Apr.privileges.AppServer.admin,
                             controller: 'Apr.controller.AppServers',
-                            action: 'showAddEditAppServer'
+                            action: 'showAddEditAppServer',
+                            items: {
+                                addimportservices: {
+                                    route: 'addimportservices',
+                                    privileges: Apr.privileges.AppServer.admin,
+                                    title: Uni.I18n.translate('general.addImportServices', 'APR', 'Add import services'),
+                                    controller: 'Apr.controller.AppServers',
+                                    action: 'showAddImportServices'
+                                },
+                                addmessageservices: {
+                                    route: 'addmessageservices',
+                                    privileges: Apr.privileges.AppServer.admin,
+                                    title: Uni.I18n.translate('general.addMessageServices', 'APR', 'Add message services'),
+                                    controller: 'Apr.controller.AppServers',
+                                    action: 'showAddMessageServiceView'
+                                }
+                            }
                         },
                         edit: {
                             route: '{appServerName}/edit',
@@ -35,6 +51,70 @@ Ext.define('Apr.controller.history.AppServer', {
                                     return true;
                                 }, {single: true});
                                 return this;
+                            },
+                            items: {
+                                addimportservices: {
+                                    route: 'addimportservices',
+                                    privileges: Apr.privileges.AppServer.admin,
+                                    title: Uni.I18n.translate('general.addImportServices', 'APR', 'Add import services'),
+                                    controller: 'Apr.controller.AppServers',
+                                    action: 'showAddImportServices'
+                                },
+                                addmessageservices: {
+                                    route: 'addmessageservices',
+                                    privileges: Apr.privileges.AppServer.admin,
+                                    title: Uni.I18n.translate('general.addMessageServices', 'APR', 'Add message services'),
+                                    controller: 'Apr.controller.AppServers',
+                                    action: 'showAddMessageServiceView'
+                                }
+                            }
+                        },
+                        overview: {
+                            route: '{appServerName}',
+                            privileges: Apr.privileges.AppServer.view,
+                            title: Uni.I18n.translate('general.overview', 'APR', 'Overview'),
+                            controller: 'Apr.controller.AppServers',
+                            action: 'showAppServerOverview',
+                            callback: function (route) {
+                                this.getApplication().on('appserverload', function (name) {
+                                    route.setTitle(Ext.String.htmlEncode(name));
+                                    return true;
+                                }, {single: true});
+                                return this;
+                            },
+                            items: {
+                                messageservices: {
+                                    route: 'messageservices',
+                                    privileges: Apr.privileges.AppServer.view,
+                                    title: Uni.I18n.translate('general.messageServices', 'APR', 'Message services'),
+                                    controller: 'Apr.controller.AppServers',
+                                    action: 'showMessageServices',
+                                    items: {
+                                        addmessageservices: {
+                                            route: 'addmessageservices',
+                                            privileges: Apr.privileges.AppServer.admin,
+                                            title: Uni.I18n.translate('general.addMessageServices', 'APR', 'Add message services'),
+                                            controller: 'Apr.controller.AppServers',
+                                            action: 'showAddMessageServiceViewFromDetails'
+                                        }
+                                    }
+                                },
+                                importservices: {
+                                    route: 'importservices',
+                                    privileges: Apr.privileges.AppServer.view,
+                                    title: Uni.I18n.translate('general.importServices', 'APR', 'Import services'),
+                                    controller: 'Apr.controller.AppServers',
+                                    action: 'showImportServices',
+                                    items: {
+                                        addimportservices: {
+                                            route: 'addimportservices',
+                                            privileges: Apr.privileges.AppServer.admin,
+                                            title: Uni.I18n.translate('general.addImportServices', 'APR', 'Add import services'),
+                                            controller: 'Apr.controller.AppServers',
+                                            action: 'returnToShowImportServicesIfRefresh'
+                                        }
+                                    }
+                                }
                             }
                         }
                     }

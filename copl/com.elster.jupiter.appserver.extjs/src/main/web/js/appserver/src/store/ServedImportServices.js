@@ -1,6 +1,6 @@
 Ext.define('Apr.store.ServedImportServices', {
     extend: 'Ext.data.Store',
-    model: 'Apr.model.ServedImportService',
+    model: 'Apr.model.ImportService',
     autoLoad: false,
 
     proxy: {
@@ -10,6 +10,9 @@ Ext.define('Apr.store.ServedImportServices', {
             type: 'json',
             root: 'importServices'
         },
+        pageParam: undefined,
+        startParam: undefined,
+        limitParam: undefined,
 
         setUrl: function (appServerName) {
             this.url = this.urlTpl.replace('{appServerName}', appServerName);
