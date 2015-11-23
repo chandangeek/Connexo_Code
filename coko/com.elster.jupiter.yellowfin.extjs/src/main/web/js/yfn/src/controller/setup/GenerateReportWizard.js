@@ -168,8 +168,8 @@ Ext.define('Yfn.controller.setup.GenerateReportWizard', {
 
     showGenerateReportWizard: function () {
         this.generateReportWizardWidget = Ext.widget('generatereport-browse');
-        this.loadReportTypes();
         this.getApplication().fireEvent('changecontentevent', this.generateReportWizardWidget);
+        this.loadReportTypes();
     },
 
 
