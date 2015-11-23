@@ -22,6 +22,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -47,7 +49,12 @@ public class FindGroupResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE,Privileges.Constants.VIEW_USER_ROLE})
     public GroupInfo getGroup(@PathParam("group") String group) {
-        Optional<Group> found = userService.getGroup(group);
+        Optional<Group> found = null;
+        try {
+            found = userService.getGroup(URLDecoder.decode(group, "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         if(found.isPresent()){
             return new GroupInfo(thesaurus, found.get());
         }
@@ -60,7 +67,13 @@ public class FindGroupResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE,Privileges.Constants.VIEW_USER_ROLE})
     public UserInfos getGroupUsers(@PathParam("group") String group) {
-        return new UserInfos(thesaurus, userService.getGroupMembers(group));
+        try {
+            return new UserInfos(thesaurus, userService.getGroupMembers(URLDecoder.decode(group, "UTF-8")));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
 }

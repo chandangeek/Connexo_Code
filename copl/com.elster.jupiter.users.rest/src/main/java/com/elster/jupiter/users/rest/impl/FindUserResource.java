@@ -15,6 +15,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Optional;
 
 /**
@@ -39,7 +41,12 @@ public class FindUserResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE,Privileges.Constants.VIEW_USER_ROLE})
     public UserInfo getUser(@PathParam("user") String user) {
-        Optional<User> found = userService.findUser(user);
+        Optional<User> found = null;
+        try {
+            found = userService.findUser(URLDecoder.decode(user, "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         if(found.isPresent()){
             return new UserInfo(thesaurus, found.get());
         }
@@ -52,7 +59,12 @@ public class FindUserResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_USER_ROLE,Privileges.Constants.VIEW_USER_ROLE})
     public GroupInfos getUserGroups(@PathParam("user") String user) {
-        Optional<User> found = userService.findUser(user);
+        Optional<User> found = null;
+        try {
+            found = userService.findUser(URLDecoder.decode(user, "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         if(found.isPresent()){
              return new GroupInfos(thesaurus, found.get().getGroups());
         }
