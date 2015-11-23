@@ -3,7 +3,6 @@ package com.elster.jupiter.rest.whiteboard.impl;
 import java.io.IOException;
 
 import com.elster.jupiter.http.whiteboard.SecurityToken;
-import com.elster.jupiter.http.whiteboard.impl.WhiteBoard;
 import org.osgi.service.http.HttpContext;
 
 import com.elster.jupiter.users.User;
@@ -37,11 +36,10 @@ public class BasicAuthentication implements Authentication {
                     return deny(response);
             }
             user = SecurityToken.verifyToken(xsrf.get().getValue(), request, response, userService);
-        }else{
-            if (authentication != null && authentication.startsWith("Basic "))
+        }else if (authentication != null && authentication.startsWith("Basic "))
             user = userService.authenticateBase64(authentication.split(" ")[1]);
-        }
-
+        else if (authentication != null && authentication.startsWith("Bearer "))
+            user = SecurityToken.verifyToken(authentication.substring(7), request, response, userService);
 
         return user.isPresent() ? allow(request, response, user.get()) : deny(response);
     }
@@ -55,7 +53,7 @@ public class BasicAuthentication implements Authentication {
             String token = SecurityToken.createToken(user);
             response.setHeader("X-AUTH-TOKEN", token);
             response.setHeader("Authorization", "Bearer " + token);
-            SecurityToken.createCookie("X-CONNEXO-TOKEN", token, "/", WhiteBoard.getTokenExpTime()+ WhiteBoard.getTimeout(), true, response);
+            SecurityToken.createCookie("X-CONNEXO-TOKEN", token, "/",-1, true, response);
             userService.addLoggedInUser(user);
         } else{
             response.setHeader("X-AUTH-TOKEN",xsrf.get().getValue());

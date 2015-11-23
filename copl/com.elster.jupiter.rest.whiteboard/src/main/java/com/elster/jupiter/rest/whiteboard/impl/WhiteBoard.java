@@ -64,8 +64,6 @@ public class WhiteBoard {
 
     private final UrlRewriteFilter urlRewriteFilter = new UrlRewriteFilter();
 
-    private int sessionTimeout = 600; // default value 10 min
-
     private Authentication createAuthentication(String method) {
     	switch(Strings.nullToEmpty(method)) {
     		case HttpServletRequest.DIGEST_AUTH:
