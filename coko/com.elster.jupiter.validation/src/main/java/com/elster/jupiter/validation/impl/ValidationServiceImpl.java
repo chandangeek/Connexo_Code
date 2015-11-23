@@ -663,7 +663,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
 
                 if (deviceGroup instanceof QueryEndDeviceGroup) {
                     QueryEndDeviceGroup queryEndDeviceGroup = (QueryEndDeviceGroup) deviceGroup;
-                    sqlBuilder.add(queryEndDeviceGroup.getEndDeviceQueryProvider().toFragment(queryEndDeviceGroup.toFragment("'' || id"), "amrId"));
+                    sqlBuilder.add(queryEndDeviceGroup.getEndDeviceQueryProvider().toFragment(queryEndDeviceGroup.toFragment(), "amrId"));
                 } else {
                     EnumeratedEndDeviceGroup enumeratedEndDeviceGroup = (EnumeratedEndDeviceGroup) deviceGroup;
                     sqlBuilder.add(enumeratedEndDeviceGroup.getAmrIdSubQuery().toFragment());
