@@ -93,12 +93,12 @@ public class MeteringCommands {
         this.clock = clock;
     }
 
-    public void createMeter(final String amrId, final String mrId) {
+    public void createMeter(final Long amrId, final String mrId) {
         Meter meter = executeTransaction(new Transaction<Meter>() {
             @Override
             public Meter perform() {
                 AmrSystem amrSystem = meteringService.findAmrSystem(1).get();
-                Meter meter = amrSystem.newMeter(amrId)
+                Meter meter = amrSystem.newMeter(String.valueOf(amrId))
                         .setMRID(mrId)
                         .create();
                 return meter;
