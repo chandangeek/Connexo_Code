@@ -59,7 +59,9 @@ mail.from=
 
 com.elster.jupiter.bpm.user=admin
 com.elster.jupiter.bpm.password=admin
-com.elster.jupiter.session.timeout=60000
+com.elster.jupiter.timeout=300
+com.elster.jupiter.token.refresh.maxcount=100
+com.elster.jupiter.token.expirationtime=300
 
 com.elster.jupiter.yellowfin.user=admin
 com.elster.jupiter.yellowfin.password=admin
