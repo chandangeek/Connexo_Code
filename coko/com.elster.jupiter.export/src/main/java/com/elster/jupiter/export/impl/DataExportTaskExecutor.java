@@ -135,6 +135,14 @@ class DataExportTaskExecutor implements TaskExecutor {
 
         catchingUnexpected(loggingExceptions(logger, dataFormatter::endExport)).run();
 
+        if (task.hasDefaultSelector() && task.getReadingTypeDataSelector().isPresent()) {
+            try (TransactionContext context = transactionService.getContext()) {
+                task.getReadingTypeDataSelector().get().getActiveItems(occurrence).stream()
+                        .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
+                        .forEach(IReadingTypeDataExportItem::update);
+                context.commit();
+            }
+        }
     }
 
     private LoggingItemExporter getItemExporter(DataFormatter dataFormatter, Logger logger) {

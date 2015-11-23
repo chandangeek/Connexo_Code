@@ -54,8 +54,8 @@ public abstract class AbstractFtpDataExportDestination extends AbstractDataExpor
                     targetDirectory = Files.createDirectories(targetDirectory);
                 } catch (Exception e) {
                     throw new DestinationFailedException(
-                            thesaurus, MessageSeeds.FTP_DESTINATION_FAILED, e,
-                            AbstractFtpDataExportDestination.this.getResolvedUrl(tagReplacerFactory, structureMarker), e.getMessage());
+                            thesaurus, MessageSeeds.FTP_DESTINATION_CREATE_FOLDER_FAILED, e,
+                            AbstractFtpDataExportDestination.this.getResolvedUrl(tagReplacerFactory, structureMarker), e.toString() + " " + e.getMessage());
                 }
             }
             return targetDirectory.resolve(tagReplacer.replaceTags(fileName) + '.' + fileExtension);

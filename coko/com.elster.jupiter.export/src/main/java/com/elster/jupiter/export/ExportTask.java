@@ -60,6 +60,10 @@ public interface ExportTask extends HasName, HasAuditInfo {
 
     void updateLastRun(Instant triggerTime);
 
+    void setDataFormatter(String formatter);
+
+    void removeProperty(PropertySpec propertySpec);
+
     /**
      * @since v1.1
      */
@@ -69,7 +73,7 @@ public interface ExportTask extends HasName, HasAuditInfo {
 
     Optional<ScheduleExpression> getScheduleExpression(Instant at);
 
-    Optional<StandardDataSelector> getReadingTypeDataSelector();
+    Optional<? extends StandardDataSelector> getReadingTypeDataSelector();
 
     Optional<EventDataSelector> getEventDataSelector();
 

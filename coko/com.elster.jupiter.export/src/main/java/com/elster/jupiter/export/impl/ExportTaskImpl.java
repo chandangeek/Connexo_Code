@@ -293,6 +293,18 @@ final class ExportTaskImpl implements IExportTask {
         propertiesDirty = true;
     }
 
+
+    public void removeProperty(PropertySpec propertySpec) {
+        Optional<DataExportProperty> dataExportProperty = properties.stream()
+                .filter(p -> (p.instanceOfSpec(propertySpec) && p.getName().equals(propertySpec.getName())))
+                .findFirst();
+        if (dataExportProperty.isPresent()) {
+            properties.remove(dataExportProperty.get());
+            propertiesDirty = true;
+        }
+    }
+
+
     @Override
     public PropertySpec getPropertySpec(String name) {
         return getPropertySpecs().stream()
@@ -408,9 +420,8 @@ final class ExportTaskImpl implements IExportTask {
     }
 
     @Override
-    public Optional<StandardDataSelector> getReadingTypeDataSelector() {
+    public Optional<IStandardDataSelector> getReadingTypeDataSelector() {
         return readingTypeDataSelector.getOptional()
-                .map(StandardDataSelector.class::cast)
                 .filter(selector -> DataExportService.STANDARD_READINGTYPE_DATA_SELECTOR.equals(dataSelector));
     }
 
@@ -437,6 +448,11 @@ final class ExportTaskImpl implements IExportTask {
         this.scheduleExpression = scheduleExpression;
         this.nextExecution = nextExecution;
         return this;
+    }
+
+    @Override
+    public void setDataFormatter(String formatter) {
+        this.dataFormatter = formatter;
     }
 
     @Override

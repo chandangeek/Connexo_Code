@@ -1,7 +1,12 @@
 package com.elster.jupiter.export.impl;
 
 import com.elster.jupiter.domain.util.QueryService;
-import com.elster.jupiter.export.*;
+import com.elster.jupiter.export.DataExportService;
+import com.elster.jupiter.export.DataExportTaskBuilder;
+import com.elster.jupiter.export.DataFormatterFactory;
+import com.elster.jupiter.export.DataSelectorFactory;
+import com.elster.jupiter.export.EventDataSelector;
+import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.MeteringService;
@@ -49,9 +54,7 @@ import java.util.Optional;
 
 import static com.elster.jupiter.export.DataExportService.DATA_TYPE_PROPERTY;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -116,7 +119,7 @@ public class DataExportServiceImplTest {
     @Mock
     private PropertySpec propertySpec1, propertySpec2, propertySpec3;
     @Mock
-    private StandardDataSelector standardDataSelector;
+    private IStandardDataSelector standardDataSelector;
     @Mock
     private EndDeviceGroup endDeviceGroup;
     @Mock
@@ -246,9 +249,9 @@ public class DataExportServiceImplTest {
 
         dataExportService.addFormatter(nonMatch, ImmutableMap.of(DATA_TYPE_PROPERTY, "nope"));
         dataExportService.addFormatter(trivialMatch, ImmutableMap.of(DATA_TYPE_PROPERTY, requiredType));
-        dataExportService.addFormatter(complexMatch, ImmutableMap.of(DATA_TYPE_PROPERTY, new String[] {"nope", requiredType, "anotherNope"}));
+        dataExportService.addFormatter(complexMatch, ImmutableMap.of(DATA_TYPE_PROPERTY, new String[]{"nope", requiredType, "anotherNope"}));
         dataExportService.addFormatter(noDataTypes, Collections.emptyMap());
-        dataExportService.addFormatter(complexNonMatch, ImmutableMap.of(DATA_TYPE_PROPERTY, new String[] {"nope", "anotherNope", "andYetAnother"}));
+        dataExportService.addFormatter(complexNonMatch, ImmutableMap.of(DATA_TYPE_PROPERTY, new String[]{"nope", "anotherNope", "andYetAnother"}));
 
         assertThat(dataExportService.formatterFactoriesMatching(dataSelector)).hasSize(2).containsOnly(complexMatch, trivialMatch);
     }

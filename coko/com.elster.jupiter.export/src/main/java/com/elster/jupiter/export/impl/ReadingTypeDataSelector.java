@@ -52,7 +52,7 @@ class ReadingTypeDataSelector implements DataSelector {
         this.thesaurus = thesaurus;
     }
 
-    private ReadingTypeDataSelector init(StandardDataSelectorImpl selector,Logger logger) {
+    private ReadingTypeDataSelector init(StandardDataSelectorImpl selector, Logger logger) {
         this.selector = selector;
         this.logger = logger;
         return this;
@@ -76,9 +76,7 @@ class ReadingTypeDataSelector implements DataSelector {
             lastRuns = activeItems.stream()
                     .collect(Collectors.toMap(Function.identity(), ReadingTypeDataExportItem::getLastRun));
             activeItems.stream()
-                    .peek(IReadingTypeDataExportItem::activate)
-                    .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
-                    .forEach(IReadingTypeDataExportItem::update);
+                    .forEach(IReadingTypeDataExportItem::activate);
             warnIfDevicesHaveNoneOfTheReadingTypes(logger, occurrence);
             context.commit();
         }

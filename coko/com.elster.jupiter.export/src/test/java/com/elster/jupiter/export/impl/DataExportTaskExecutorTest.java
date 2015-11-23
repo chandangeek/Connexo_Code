@@ -40,6 +40,18 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
+import org.assertj.core.api.Condition;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TestRule;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -59,16 +71,6 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.assertj.core.api.Condition;
-import org.junit.*;
-import org.junit.rules.*;
-import org.junit.runner.*;
-import org.mockito.Answers;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InOrder;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static com.elster.jupiter.devtools.tests.Matcher.matches;
 import static com.elster.jupiter.export.impl.IntervalReadingImpl.intervalReading;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,14 +78,7 @@ import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DataExportTaskExecutorTest {
@@ -202,6 +197,7 @@ public class DataExportTaskExecutorTest {
         when(meter2.getMeter(any())).thenReturn(Optional.of(meter2));
         when(meter3.getMeter(any())).thenReturn(Optional.of(meter3));
         doReturn(Arrays.asList(existingItem, obsoleteItem)).when(readingTypeDataSelector).getExportItems();
+        doReturn(ImmutableSet.of(existingItem, newItem)).when(readingTypeDataSelector).getActiveItems(dataExportOccurrence);
         when(existingItem.getReadingType()).thenReturn(readingType1);
         when(existingItem.getReadingContainer()).thenReturn(meter2);
         when(meter2.getMeter(any())).thenReturn(Optional.of(meter2));
@@ -720,6 +716,30 @@ public class DataExportTaskExecutorTest {
         transactionService.assertThatTransaction(3).wasCommitted();
 
         verify(destination).send(any(), any(), any(), any());
+    }
+
+    @Test
+    public void testActiveItemsHaveLastRunUpdated() {
+        DataExportTaskExecutor executor = new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus, clock);
+
+        try (TransactionContext context = transactionService.getContext()) {
+            executor.execute(occurrence);
+        }
+        executor.postExecute(occurrence);
+
+        {
+            InOrder inOrder = inOrder(existingItem);
+
+            inOrder.verify(existingItem).setLastRun(triggerTime.toInstant());
+            inOrder.verify(existingItem).update();
+        }
+
+        {
+            InOrder inOrder = inOrder(newItem);
+
+            inOrder.verify(newItem).setLastRun(triggerTime.toInstant());
+            inOrder.verify(newItem).update();
+        }
     }
 
     private static class IntervalReadingFor extends Condition<List<? extends IntervalReading>> {

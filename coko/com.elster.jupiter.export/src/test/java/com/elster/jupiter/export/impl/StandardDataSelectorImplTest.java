@@ -199,6 +199,10 @@ public class StandardDataSelectorImplTest {
 
         assertThat(collect).hasSize(2);
 
+        task.getReadingTypeDataSelector().get().getActiveItems(occurrence).stream()
+                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
+                .forEach(IReadingTypeDataExportItem::update);
+
         collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(4);
@@ -235,6 +239,10 @@ public class StandardDataSelectorImplTest {
         List<ExportData> collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(2);
+
+        task.getReadingTypeDataSelector().get().getActiveItems(occurrence).stream()
+                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
+                .forEach(IReadingTypeDataExportItem::update);
 
         collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
@@ -301,6 +309,10 @@ public class StandardDataSelectorImplTest {
 
         assertThat(collect).hasSize(2);
 
+        task.getReadingTypeDataSelector().get().getActiveItems(occurrence).stream()
+                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
+                .forEach(IReadingTypeDataExportItem::update);
+
         collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(3);
@@ -347,6 +359,10 @@ public class StandardDataSelectorImplTest {
         List<ExportData> collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(2);
+
+        task.getReadingTypeDataSelector().get().getActiveItems(occurrence).stream()
+                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
+                .forEach(IReadingTypeDataExportItem::update);
 
         collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
@@ -401,6 +417,10 @@ public class StandardDataSelectorImplTest {
 
         assertThat(collect).hasSize(2);
 
+        task.getReadingTypeDataSelector().get().getActiveItems(occurrence).stream()
+                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
+                .forEach(IReadingTypeDataExportItem::update);
+
         collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(4);
@@ -453,6 +473,10 @@ public class StandardDataSelectorImplTest {
         List<ExportData> collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
         assertThat(collect).hasSize(1);
+
+        task.getReadingTypeDataSelector().get().getActiveItems(occurrence).stream()
+                .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
+                .forEach(IReadingTypeDataExportItem::update);
 
         collect = selector.asReadingTypeDataSelector(logger, thesaurus).selectData(occurrence).collect(Collectors.toList());
 
