@@ -455,7 +455,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	}
 
     @Override
-    public boolean getActive() {
+    public boolean isActive() {
         return active;
     }
 

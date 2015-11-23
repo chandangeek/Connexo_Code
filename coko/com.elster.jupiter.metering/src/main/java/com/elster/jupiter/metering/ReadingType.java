@@ -50,7 +50,7 @@ public interface ReadingType extends IdentifiedObject {
     void setDescription(String description);
     void setAliasName(String alias);
 
-    boolean getActive();
+    boolean isActive();
     void activate();
     void deactivate();
 
