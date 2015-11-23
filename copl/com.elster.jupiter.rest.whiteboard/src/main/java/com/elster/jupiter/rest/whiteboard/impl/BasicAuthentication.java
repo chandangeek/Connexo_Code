@@ -2,10 +2,8 @@ package com.elster.jupiter.rest.whiteboard.impl;
 
 import java.io.IOException;
 
-import javax.servlet.http.*;
-
 import com.elster.jupiter.http.whiteboard.SecurityToken;
-import com.elster.jupiter.http.whiteboard.impl.*;
+import com.elster.jupiter.http.whiteboard.impl.WhiteBoard;
 import org.osgi.service.http.HttpContext;
 
 import com.elster.jupiter.users.User;
@@ -57,7 +55,7 @@ public class BasicAuthentication implements Authentication {
             String token = SecurityToken.createToken(user);
             response.setHeader("X-AUTH-TOKEN", token);
             response.setHeader("Authorization", "Bearer " + token);
-            SecurityToken.createCookie("X-CONNEXO-TOKEN", token, "/", com.elster.jupiter.http.whiteboard.impl.WhiteBoard.getTokenExpTime()+ com.elster.jupiter.http.whiteboard.impl.WhiteBoard.getTimeout(), true, response);
+            SecurityToken.createCookie("X-CONNEXO-TOKEN", token, "/", WhiteBoard.getTokenExpTime()+ WhiteBoard.getTimeout(), true, response);
             userService.addLoggedInUser(user);
         } else{
             response.setHeader("X-AUTH-TOKEN",xsrf.get().getValue());
