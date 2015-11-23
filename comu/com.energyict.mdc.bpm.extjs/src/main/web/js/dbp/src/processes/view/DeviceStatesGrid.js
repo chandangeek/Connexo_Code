@@ -3,7 +3,7 @@ Ext.define('Dbp.processes.view.DeviceStatesGrid', {
     alias: 'widget.device-states-grid',
     selModel: {
         mode: 'SINGLE'
-   },
+    },
     width: '100%',
     maxHeight: 300,
     initComponent: function () {

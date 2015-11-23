@@ -63,20 +63,15 @@ Ext.define('Dbp.processes.view.EditProcess', {
                                         xtype: 'container',
                                         width: '100%',
                                         layout: {
-                                            type: 'hbox',
-                                            align: 'stretch'
+                                            type: 'hbox'
                                         },
                                         items: [
                                             {
-                                                xtype: 'component',
-                                                html: Uni.I18n.translate('editProcess.noDeviceStates', 'DBP', 'No device states have been added'),
+                                                xtype: 'displayfield',
+                                                margin: '0 10 0 0',
+                                                value: Uni.I18n.translate('editProcess.noDeviceStates', 'DBP', 'No device states have been added'),
                                                 itemId: 'empty-device-states-grid',
-                                                style: {
-                                                    'font': 'italic 13px/17px Lato',
-                                                    'color': '#686868',
-                                                    'margin-top': '6px',
-                                                    'margin-right': '10px'
-                                                },
+                                                name: 'noDeviceStates',
                                                 hidden: true
                                             },
                                             {
@@ -124,20 +119,15 @@ Ext.define('Dbp.processes.view.EditProcess', {
                                         xtype: 'container',
                                         width: '100%',
                                         layout: {
-                                            type: 'hbox',
-                                            align: 'stretch'
+                                            type: 'hbox'
                                         },
                                         items: [
                                             {
-                                                xtype: 'component',
-                                                html: Uni.I18n.translate('editProcess.noDeviceStates', 'DBP', 'No privileges have been added'),
+                                                xtype: 'displayfield',
+                                                margin: '0 10 0 0',
+                                                value: Uni.I18n.translate('editProcess.noDeviceStates', 'DBP', 'No privileges have been added'),
                                                 itemId: 'empty-privileges-grid',
-                                                style: {
-                                                    'font': 'italic 13px/17px Lato',
-                                                    'color': '#686868',
-                                                    'margin-top': '6px',
-                                                    'margin-right': '10px'
-                                                },
+                                                name: 'noPrivileges',
                                                 hidden: true
                                             },
                                             {

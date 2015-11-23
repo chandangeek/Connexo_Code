@@ -4,7 +4,7 @@ Ext.define('Dbp.controller.Main', {
     requires: [
         'Uni.controller.Navigation',
         'Uni.store.PortalItems',
-		'Dbp.processes.controller.Processes'
+        'Dbp.processes.controller.Processes'
     ],
 
     controllers: [
@@ -12,8 +12,8 @@ Ext.define('Dbp.controller.Main', {
         'Dbp.deviceprocesses.controller.DeviceProcesses',
         'Dbp.processes.controller.Processes'
     ],
-	
-	stores: [
+
+    stores: [
         'Dbp.processes.store.Processes'
     ],
 
@@ -29,11 +29,11 @@ Ext.define('Dbp.controller.Main', {
             historian = me.getController('Dbp.controller.History'); // Forces route registration.
 
         me.getApplication().fireEvent('cfginitialized');
-		
+
         me.addProcessManagement();
     },
-	
-	addProcessManagement: function () {
+
+    addProcessManagement: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             dataCollection = null;

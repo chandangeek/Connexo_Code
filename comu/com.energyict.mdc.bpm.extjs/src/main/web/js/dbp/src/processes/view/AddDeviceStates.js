@@ -6,7 +6,7 @@ Ext.define('Dbp.processes.view.AddDeviceStates', {
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural(
             'editProcess.nrOfDeviceStates.selected', count, 'DBP',
-            'No device state selected', '{0} device state selected', '{0} device states selected'
+            'No device states selected', '{0} device state selected', '{0} device states selected'
         );
     },
 

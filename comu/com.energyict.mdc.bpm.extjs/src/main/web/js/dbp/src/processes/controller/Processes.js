@@ -157,6 +157,7 @@ Ext.define('Dbp.processes.controller.Processes', {
                 if (operation.getResultSet().records) {
 
                     var retRecord = operation.getResultSet().records[0];
+                    retRecord.set('deploymentId', rec.get('deploymentId'));
                     processesForm.down('#frm-preview-process').loadRecord(retRecord);
                     if (retRecord.get('active') === 'INACTIVE') {
                         me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('dbp.process.deactivate', 'DBP', 'Process deactivated'));
@@ -172,6 +173,11 @@ Ext.define('Dbp.processes.controller.Processes', {
     editProcess: function (name, version, activate) {
         var me = this,
             editProcessModel;
+
+        if (me.editProcessRecord != null &&
+            (name != me.editProcessRecord.get('name') || version != me.editProcessRecord.get('version'))) {
+            me.editProcessRecord = null;
+        }
 
         if (me.editProcessRecord == null) {
             editProcessModel = me.getModel('Dbp.processes.model.EditProcess');
@@ -216,14 +222,16 @@ Ext.define('Dbp.processes.controller.Processes', {
             });
 
         if (activate) {
-            record.set('active', 'ACTIVATE');
+            record.set('name', name);
+            record.set('version', version);
+            record.set('active', 'ACTIVE');
             editProcessForm.setTitle(Uni.I18n.translate('editProcess.activate', 'DBP', "Activate '{0}'", name + ':' + version));
         }
         else {
             editProcessForm.setTitle(Uni.I18n.translate('editProcess.edit', 'DBP', "Edit '{0}'", name + ':' + version));
         }
 
-        if(record.get('associatedTo').length == 0) {
+        if (record.get('associatedTo').length == 0) {
             record.beginEdit();
             record.set('associatedTo', 'Device');
             record.endEdit();
@@ -334,7 +342,10 @@ Ext.define('Dbp.processes.controller.Processes', {
 
         allDeviceStatesView.down('#btn-cancel-add-deviceStates').href = router.arguments.activate ?
             router.getRoute('administration/managementprocesses/activate').buildUrl({name: name, version: version}) :
-            router.getRoute('administration/managementprocesses/edit').buildUrl({name: name, version: version});
+            router.getRoute('administration/managementprocesses/edit').buildUrl({
+                name: name,
+                version: version
+            });
 
         deviceStatesStore.loadData([], false);
         me.getApplication().fireEvent('changecontentevent', allDeviceStatesView);
@@ -495,12 +506,14 @@ Ext.define('Dbp.processes.controller.Processes', {
         if (router.arguments.activate) {
             router.getRoute('administration/managementprocesses/activate').forward({
                 name: router.arguments.name,
-                version: router.arguments.version});
+                version: router.arguments.version
+            });
         }
         else {
             router.getRoute('administration/managementprocesses/edit').forward({
                 name: router.arguments.name,
-                version: router.arguments.version});
+                version: router.arguments.version
+            });
         }
     },
 

@@ -5,8 +5,8 @@ Ext.define('Dbp.processes.view.AddPrivileges', {
     height: 310,
     counterTextFn: function (count) {
         return Uni.I18n.translatePlural(
-            'editProcess.nrOfDeviceStates.selected', count, 'DBP',
-            'No device state selected', '{0} device state selected', '{0} device states selected'
+            'editProcess.nrOfPrivileges.selected', count, 'DBP',
+            'No privileges selected', '{0} privilege selected', '{0} privileges selected'
         );
     },
 
