@@ -10,15 +10,13 @@
         <relativePath>../com.energyict.mdc.parent/pom.xml</relativePath>
     </parent>
 
-    <artifactId>mdc.device.config.custom</artifactId>
+    <artifactId>mdc.device.config.cps</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>[MDC] mdc.device.config.custom</name>
+    <name>[MDC] mdc.device.config.cps</name>
     <description>
-        Contains custom device configuration components.
+        Contains custom property set components.
     </description>
-
-
 
      <dependencies>
     <dependency>
@@ -62,7 +60,6 @@
          <dependency>
              <groupId>com.elster.jupiter</groupId>
              <artifactId>cps</artifactId>
-             <version>1.0.0-SNAPSHOT</version>
          </dependency>
          <dependency>
              <groupId>com.energyict</groupId>

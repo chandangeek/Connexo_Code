@@ -1,4 +1,4 @@
 -classpath: target/classes
 -dsannotations: *
 Export-Package:  \
-	com.energyict.mdc.device.config.custom
+	com.energyict.mdc.device.config.cps
