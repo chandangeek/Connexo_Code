@@ -68,7 +68,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.CustomAttributeSetVersionFo
                         itemId: 'custom-attribute-set-version-start-date-field'
                     },
                     {
-                        fieldLabel: Uni.I18n.translate('general.start', 'MDC', 'End'),
+                        fieldLabel: Uni.I18n.translate('general.end', 'MDC', 'End'),
                         groupName: 'endGroup',
                         xtype: 'custom-attributes-version-date-field',
                         itemId: 'custom-attribute-set-version-end-date-field'
