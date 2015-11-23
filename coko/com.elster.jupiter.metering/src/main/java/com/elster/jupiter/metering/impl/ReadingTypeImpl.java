@@ -106,6 +106,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 		this.mRID = mRID;
 		this.aliasName = aliasName;
 		setTransientFields();
+		setFullAliasName();
         return this;
 	}
 
