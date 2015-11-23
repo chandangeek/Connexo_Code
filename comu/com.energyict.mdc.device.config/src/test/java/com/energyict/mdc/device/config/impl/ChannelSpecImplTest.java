@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.config.impl;
 
 import com.elster.jupiter.cbo.Accumulation;
+import com.elster.jupiter.cbo.MacroPeriod;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
@@ -60,13 +61,17 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     private DeviceConfiguration deviceConfiguration;
     private LoadProfileType loadProfileType;
     private RegisterType registerType;
+    private RegisterType registerTypeWhichCanNotBeMultiplied;
     private RegisterType calculatedRegisterType;
     private Unit unit = Unit.get("kWh");
     private ChannelType channelType;
     private final String activeEnergySecondary = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.BULKQUANTITY).code();
     private final ReadingType readingTypeActiveEnergySecondaryMetered = inMemoryPersistence.getMeteringService().getReadingType(activeEnergySecondary).get();
-    private final String activeEnergyPrimary = ReadingTypeCodeBuilder.of(ELECTRICITY_PRIMARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.BULKQUANTITY).code();
-    private final ReadingType readingTypeActiveEnergyPrimaryMetered = inMemoryPersistence.getMeteringService().getReadingType(activeEnergyPrimary).get();
+    private final String activeDailyEnergyPrimary = ReadingTypeCodeBuilder.of(ELECTRICITY_PRIMARY_METERED).period(MacroPeriod.DAILY).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.BULKQUANTITY).code();
+    private final ReadingType readingTypeActiveDailyEnergyPrimaryMetered = inMemoryPersistence.getMeteringService().getReadingType(activeDailyEnergyPrimary).get();
+
+    private final String invalidActiveEnergyPrimary = ReadingTypeCodeBuilder.of(ELECTRICITY_PRIMARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.BULKQUANTITY).code();
+    private final ReadingType invalidReadingTypeActiveEnergyPrimaryMetered = inMemoryPersistence.getMeteringService().getReadingType(invalidActiveEnergyPrimary).get();
 
     @Before
     public void initializeDatabaseAndMocks() {
@@ -74,19 +79,11 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     }
 
     private void initializeDeviceTypeWithRegisterTypeAndLoadProfileTypeAndDeviceConfiguration() {
-        Optional<RegisterType> xRegisterType =
-                inMemoryPersistence.getMasterDataService()
-                    .findRegisterTypeByReadingType(readingTypeActiveEnergySecondaryMetered);
-        if (xRegisterType.isPresent()) {
-            this.registerType = xRegisterType.get();
-        }
-        else {
-            this.registerType = inMemoryPersistence.getMasterDataService().newRegisterType(readingTypeActiveEnergySecondaryMetered, channelTypeObisCode);
-            this.registerType.save();
-        }
-        createOrSetCalculatedRegisterType(readingTypeActiveEnergySecondaryMetered);
+        this.registerType = createOrSetRegisterType(readingTypeActiveEnergySecondaryMetered);
+        this.calculatedRegisterType = createOrSetRegisterType(readingTypeActiveEnergySecondaryMetered.getCalculatedReadingType().get());
+        this.registerTypeWhichCanNotBeMultiplied = createOrSetRegisterType(invalidReadingTypeActiveEnergyPrimaryMetered);
 
-        loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME, loadProfileTypeObisCode, interval, Arrays.asList(registerType, calculatedRegisterType));
+        loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME, loadProfileTypeObisCode, interval, Arrays.asList(registerType, calculatedRegisterType, registerTypeWhichCanNotBeMultiplied));
         channelType = loadProfileType.findChannelType(registerType).get();
         loadProfileType.save();
 
@@ -101,17 +98,17 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         deviceType.save();
     }
 
-    private void createOrSetCalculatedRegisterType(ReadingType readingType){
-        ReadingType calculatedReadingType = readingType.getCalculatedReadingType().get();
+    private RegisterType createOrSetRegisterType(ReadingType readingType){
         Optional<RegisterType> xRegisterType =
                 inMemoryPersistence.getMasterDataService()
-                        .findRegisterTypeByReadingType(calculatedReadingType);
+                        .findRegisterTypeByReadingType(readingType);
         if (xRegisterType.isPresent()) {
-            this.calculatedRegisterType = xRegisterType.get();
+            return xRegisterType.get();
         }
         else {
-            this.calculatedRegisterType = inMemoryPersistence.getMasterDataService().newRegisterType(calculatedReadingType, channelTypeObisCode);
-            this.calculatedRegisterType.save();
+            RegisterType registerType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType, channelTypeObisCode);
+            registerType.save();
+            return registerType;
         }
     }
 
@@ -416,7 +413,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
         ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
         channelSpecBuilder.useMultiplier(true);
-        channelSpecBuilder.calculatedReadingType(readingTypeActiveEnergyPrimaryMetered);
+        channelSpecBuilder.calculatedReadingType(readingTypeActiveDailyEnergyPrimaryMetered);
         channelSpecBuilder.add();
     }
 
@@ -429,7 +426,7 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
         ChannelSpec.ChannelSpecUpdater channelSpecUpdater = getReloadedDeviceConfiguration().getChannelSpecUpdaterFor(channelSpec);
         channelSpecUpdater.useMultiplier(true);
-        channelSpecUpdater.calculatedReadingType(readingTypeActiveEnergyPrimaryMetered);
+        channelSpecUpdater.calculatedReadingType(readingTypeActiveDailyEnergyPrimaryMetered);
         channelSpecUpdater.update();
     }
     @Test
@@ -443,6 +440,28 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         ChannelSpec.ChannelSpecUpdater channelSpecUpdater = getReloadedDeviceConfiguration().getChannelSpecUpdaterFor(channelSpec);
         channelSpecUpdater.useMultiplier(true);
         channelSpecUpdater.update();
+    }
 
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.CALCULATED_READINGTYPE_DOES_NOT_MATCH_CRITERIA +"}")
+    public void calculatedReadingTypeDoesNotMatchCriteriaTest() {
+        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
+        channelSpecBuilder.useMultiplier(true);
+        channelSpecBuilder.calculatedReadingType(invalidReadingTypeActiveEnergyPrimaryMetered);
+        channelSpecBuilder.add();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.READINGTYPE_CAN_NOT_BE_MULTIPLIED +"}")
+    public void readingTypeCanNotBeMultipliedTest() {
+        ChannelType channelType = loadProfileType.findChannelType(registerTypeWhichCanNotBeMultiplied).get();
+        LoadProfileSpec loadProfileSpec = createDefaultTestingLoadProfileSpecWithOverruledObisCode();
+        ChannelSpec.ChannelSpecBuilder channelSpecBuilder = getReloadedDeviceConfiguration().createChannelSpec(channelType, loadProfileSpec);
+        channelSpecBuilder.useMultiplier(true);
+        channelSpecBuilder.calculatedReadingType(readingTypeActiveDailyEnergyPrimaryMetered);
+        channelSpecBuilder.add();
     }
 }

@@ -27,18 +27,17 @@ public class ChannelSpecMultiplierConfigurationValidator implements ConstraintVa
             if (readingTypeCanNotBeMultiplied(constraintValidatorContext, channelSpecReadingType)){
                 return false;
             }
-            if (calculatedReadingTypeIsNotPresent(channelSpec, constraintValidatorContext)){
+            if (calculatedReadingTypeIsNotPresent(constraintValidatorContext, channelSpec)){
                 return false;
             }
-            if (invalidCalculatedReadingType(channelSpec, constraintValidatorContext, channelSpecReadingType)){
+            if (invalidCalculatedReadingType(constraintValidatorContext, channelSpecReadingType, channelSpec.getCalculatedReadingType().get())){
                 return false;
             }
         }
         return true;
     }
 
-    private boolean invalidCalculatedReadingType(ChannelSpecImpl channelSpec, ConstraintValidatorContext constraintValidatorContext, ReadingType channelSpecReadingType) {
-        ReadingType calculatedReadingType = channelSpec.getCalculatedReadingType().get();
+    private boolean invalidCalculatedReadingType(ConstraintValidatorContext constraintValidatorContext, ReadingType channelSpecReadingType, ReadingType calculatedReadingType) {
         if (readingTypeIsCount(channelSpecReadingType)) {
             if (readingTypeIsSecondaryMetered(channelSpecReadingType)) {
                 ReadingTypeMridFilter readingTypeMridFilter = ReadingTypeMridFilter.fromTemplateReadingType(channelSpecReadingType).setCommodity(Commodity.ELECTRICITY_PRIMARY_METERED).anyMultiplier().anyUnit();
@@ -63,7 +62,7 @@ public class ChannelSpecMultiplierConfigurationValidator implements ConstraintVa
         return false;
     }
 
-    private boolean calculatedReadingTypeIsNotPresent(ChannelSpecImpl channelSpec, ConstraintValidatorContext constraintValidatorContext) {
+    private boolean calculatedReadingTypeIsNotPresent(ConstraintValidatorContext constraintValidatorContext, ChannelSpecImpl channelSpec) {
         if (!channelSpec.getCalculatedReadingType().isPresent()) {
             constraintValidatorContext.disableDefaultConstraintViolation();
             constraintValidatorContext.buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.CALCULATED_READINGTYPE_CANNOT_BE_EMPTY + "}").addConstraintViolation();

@@ -44,8 +44,7 @@ import static com.elster.jupiter.util.Checks.is;
  * Date: 7/11/12
  * Time: 13:22
  */
-//TODO enable
-//@ValidChannelSpecMultiplierConfiguration(groups = {Save.Create.class, Save.Update.class})
+@ValidChannelSpecMultiplierConfiguration(groups = {Save.Create.class, Save.Update.class})
 public class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ChannelSpec {
 
     enum ChannelSpecFields {
