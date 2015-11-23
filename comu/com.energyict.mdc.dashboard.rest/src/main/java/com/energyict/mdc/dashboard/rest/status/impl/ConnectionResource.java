@@ -172,8 +172,15 @@ public class ConnectionResource {
 
         filter.latestResults = new HashSet<>();
         if (jsonQueryFilter.hasProperty(FilterOption.latestResults.name())) {
+            List <String> defaultIndicators  = jsonQueryFilter.getStringList(FilterOption.latestResults.name());
+            List <String> trimmedIndicators = new ArrayList<String>();
+            int i = 0;
+            while (i < defaultIndicators.size()) {
+                trimmedIndicators.add(defaultIndicators.get(i).substring(defaultIndicators.get(i).indexOf(".") + 1));
+                i++;
+            }
             List<ComSession.SuccessIndicator> latestResults =
-                    jsonQueryFilter.getStringList(FilterOption.latestResults.name()).stream().map(ComSession.SuccessIndicator::valueOf).collect(Collectors.toList());
+                    trimmedIndicators.stream().map(ComSession.SuccessIndicator::valueOf).collect(Collectors.toList());
             filter.latestResults.addAll(latestResults);
         }
 
