@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ChannelSpecFullInfo extends ChannelSpecInfo {
     @JsonProperty("measurementType")
-    public MeasurementTypeShortInfo measurementType;
+    public ChannelSpecShortInfo measurementType;
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
     public ObisCode overruledObisCode;
     public BigDecimal overflowValue;
@@ -47,10 +47,9 @@ public class ChannelSpecFullInfo extends ChannelSpecInfo {
         info.overruledObisCode = channelSpec.getDeviceObisCode();
         info.overflowValue = channelSpec.getOverflow();
         info.nbrOfFractionDigits = channelSpec.getNbrOfFractionDigits();
-        // TODO check that it is truth (true for isLinkedByDeviceType)
-        info.measurementType = new MeasurementTypeShortInfo(channelSpec.getChannelType(), collectedReadingType, multipliedCalculatedRegisterTypes);
+        info.measurementType = new ChannelSpecShortInfo(channelSpec.getChannelType(), collectedReadingType, multipliedCalculatedRegisterTypes);
         info.useMultiplier = channelSpec.isUseMultiplier();
-        if (info.useMultiplier) {
+        if(channelSpec.getCalculatedReadingType().isPresent()){
             info.calculatedReadingType = new ReadingTypeInfo(channelSpec.getCalculatedReadingType().get());
         }
         info.collectedReadingType = new ReadingTypeInfo(collectedReadingType);

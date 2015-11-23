@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @XmlRootElement
-public class MeasurementTypeShortInfo {
+public class ChannelSpecShortInfo {
 
     public long id;
     @XmlJavaTypeAdapter(ObisCodeAdapter.class)
@@ -26,6 +26,8 @@ public class MeasurementTypeShortInfo {
 
     /* This will be the actual readingType which is collected  */
     public ReadingTypeInfo collectedReadingType;
+    /* This will contain the delta in case of a bulk channel, otherwise it will be empty */
+    public ReadingTypeInfo calculatedReadingType;
 
     /* A list of possible readingTypes where the 'multiplied' value can be stored */
     public List<ReadingTypeInfo> possibleCalculatedReadingTypes = new ArrayList<>();
@@ -33,12 +35,12 @@ public class MeasurementTypeShortInfo {
     public VersionInfo<Long> parent;
 
     @SuppressWarnings("unused")
-    public MeasurementTypeShortInfo() {
+    public ChannelSpecShortInfo() {
     }
 
-    public MeasurementTypeShortInfo(ChannelType channelType,
-                                    ReadingType collectedReadingType,
-                                    List<ReadingType> multipliedCalculatedRegisterTypes){
+    public ChannelSpecShortInfo(ChannelType channelType,
+                                ReadingType collectedReadingType,
+                                List<ReadingType> multipliedCalculatedRegisterTypes){
         this.id = channelType.getId();
         MeasurementType measurementType = channelType.getTemplateRegister();
         this.obisCode = measurementType.getObisCode();
@@ -46,6 +48,7 @@ public class MeasurementTypeShortInfo {
         this.readingType = new ReadingTypeInfo(readingType);
         this.isCumulative = readingType.isCumulative();
         this.collectedReadingType = new ReadingTypeInfo(collectedReadingType);
+        this.calculatedReadingType = new ReadingTypeInfo(collectedReadingType.getCalculatedReadingType().orElse(null));
         multipliedCalculatedRegisterTypes.forEach(readingTypeConsumer -> possibleCalculatedReadingTypes.add(new ReadingTypeInfo(readingTypeConsumer)));
         this.version = measurementType.getVersion();
     }

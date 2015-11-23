@@ -167,11 +167,10 @@ public class LoadProfileConfigurationResource {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
         ChannelSpec channelSpec = resourceHelper.findChannelSpecOrThrowException(channelId);
 
-        ReadingType collectedReadingTypeFromChannelSpec = getCollectedReadingTypeFromChannelSpec(channelSpec);
         return Response.ok(ChannelSpecFullInfo.from(
                 channelSpec,
-                collectedReadingTypeFromChannelSpec,
-                getPossibleMultiplyReadingTypesFor(collectedReadingTypeFromChannelSpec),
+                channelSpec.getReadingType(),
+                getPossibleMultiplyReadingTypesFor(getCollectedReadingTypeFromChannelSpec(channelSpec)),
                 deviceConfiguration.isActive())).build();
     }
 
@@ -198,15 +197,16 @@ public class LoadProfileConfigurationResource {
         channelBuilder.overruledObisCode(info.overruledObisCode);
         channelBuilder.nbrOfFractionDigits(info.nbrOfFractionDigits);
         if(info.useMultiplier != null && info.useMultiplier){
-            channelBuilder.useMultiplier(info.useMultiplier);
-            channelBuilder.calculatedReadingType(findCalculatedReadingType(info).orElse(null));
+            channelBuilder.useMultiplier(true);
+        } else {
+            channelBuilder.useMultiplier(false);
         }
+        channelBuilder.calculatedReadingType(findCalculatedReadingType(info).orElse(null));
         ChannelSpec newChannelSpec = channelBuilder.add();
-        ReadingType collectedReadingTypeFromChannelSpec = getCollectedReadingTypeFromChannelSpec(newChannelSpec);
         return Response.ok(ChannelSpecFullInfo.from(
                 newChannelSpec,
-                collectedReadingTypeFromChannelSpec,
-                getPossibleMultiplyReadingTypesFor(collectedReadingTypeFromChannelSpec),
+                newChannelSpec.getReadingType(),
+                getPossibleMultiplyReadingTypesFor(getCollectedReadingTypeFromChannelSpec(newChannelSpec)),
                 deviceConfiguration.isActive())).build();
     }
 
@@ -239,20 +239,17 @@ public class LoadProfileConfigurationResource {
         specUpdater.overflow(info.overflowValue);
         specUpdater.nbrOfFractionDigits(info.nbrOfFractionDigits);
         if(info.useMultiplier != null && info.useMultiplier){
-            specUpdater.useMultiplier(info.useMultiplier);
-            specUpdater.calculatedReadingType(findCalculatedReadingType(info).orElse(null));
+            specUpdater.useMultiplier(true);
         } else {
             specUpdater.useMultiplier(false);
-            specUpdater.calculatedReadingType(null);
         }
+        specUpdater.calculatedReadingType(findCalculatedReadingType(info).orElse(null));
         specUpdater.update();
-        ReadingType collectedReadingTypeFromChannelSpec = getCollectedReadingTypeFromChannelSpec(channelSpec);
         return Response.ok(ChannelSpecFullInfo.from(
                 channelSpec,
-                collectedReadingTypeFromChannelSpec,
-                getPossibleMultiplyReadingTypesFor(collectedReadingTypeFromChannelSpec),
-                deviceConfiguration.isActive()
-        )).build();
+                channelSpec.getReadingType(),
+                getPossibleMultiplyReadingTypesFor(getCollectedReadingTypeFromChannelSpec(channelSpec)),
+                deviceConfiguration.isActive())).build();
     }
 
     @DELETE
@@ -285,17 +282,16 @@ public class LoadProfileConfigurationResource {
         for (ChannelSpec channelSpec : channelSpecs) {
             channelTypes.remove(channelSpec.getChannelType().getId());
         }
-        List<MeasurementTypeShortInfo> measurementTypeShortInfos = channelTypes.values().stream()
+        List<ChannelSpecShortInfo> channelSpecShortInfos = channelTypes.values().stream()
                 .map(channelType -> {
-                    ReadingType collectedReadingType = channelType.getReadingType().getCalculatedReadingType()
-                            .orElse(channelType.getReadingType());
-                    return new MeasurementTypeShortInfo(
+                    ReadingType readingTypeForMultiplyCalculation = channelType.getReadingType().getCalculatedReadingType().orElse(channelType.getReadingType());
+                    return new ChannelSpecShortInfo(
                             channelType,
-                            collectedReadingType,
-                            getPossibleMultiplyReadingTypesFor(collectedReadingType)
+                            channelType.getReadingType(),
+                            getPossibleMultiplyReadingTypesFor(readingTypeForMultiplyCalculation)
                     );
                 }).collect(Collectors.toList());
-        return Response.ok(PagedInfoList.fromPagedList("data", measurementTypeShortInfos, queryParameters)).build();
+        return Response.ok(PagedInfoList.fromPagedList("data", channelSpecShortInfos, queryParameters)).build();
     }
 
     private List<ReadingType> getPossibleMultiplyReadingTypesFor(ReadingType readingType) {
