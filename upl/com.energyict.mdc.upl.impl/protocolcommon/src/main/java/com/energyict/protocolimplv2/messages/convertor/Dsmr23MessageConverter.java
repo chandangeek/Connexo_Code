@@ -11,6 +11,8 @@ import com.energyict.mdw.core.UserFile;
 import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.*;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.ChangeMBusClientAttributesEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MBusClientRemoteCommissionEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.OneTagMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.LoadProfileRegisterRequestMessageEntry;
@@ -106,6 +108,8 @@ public class Dsmr23MessageConverter extends AbstractMessageConverter {
 
         //MBus setup
         registry.put(MBusSetupDeviceMessage.Commission_With_Channel, new MultipleAttributeMessageEntry(RtuMessageConstant.MBUS_INSTALL, RtuMessageConstant.MBUS_INSTALL_CHANNEL));
+        registry.put(MBusSetupDeviceMessage.MBusClientRemoteCommission, new MBusClientRemoteCommissionEntry(RtuMessageConstant.MBUS_INSTALL_CHANNEL, RtuMessageConstant.MBUS_SHORT_ID));
+        registry.put(MBusSetupDeviceMessage.ChangeMBusAttributes, new ChangeMBusClientAttributesEntry(RtuMessageConstant.MBUS_INSTALL_CHANNEL, RtuMessageConstant.MBUS_CLIENT_IDENTIFICATION_NUMBER, RtuMessageConstant.MBUS_CLIENT_MANUFACTURER_ID, RtuMessageConstant.MBUS_CLIENT_VERSION, RtuMessageConstant.MBUS_CLIENT_DEVICE_TYPE));
     }
 
     /**
