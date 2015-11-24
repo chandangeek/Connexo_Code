@@ -87,8 +87,9 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
         record.save({
             isNotEdit: true,
             success: function () {
-                form.loadRecord(model);
+                form.loadRecord(record);
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('firmware.campaigns.cancelled', 'FWC', 'Firmware campaign cancelled'));
+                me.showPreview('', record);
             },
             callback: function () {
                 store.getProxy().url = '/api/fwc/campaigns/';
