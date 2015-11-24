@@ -14,6 +14,7 @@ import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.messaging.h2.impl.InMemoryMessagingModule;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.impl.NlsModule;
+import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.orm.OrmService;
@@ -298,6 +299,26 @@ public class RecurrentTaskIT {
         }
         RecurrentTask recurrentTask = taskService.getRecurrentTask(id).get();
         assertThat(recurrentTask.getNextExecution()).isEqualTo(instant);
+    }
+
+    @Test
+    public void testLastRunNextOccurrenceUpdateNoJournal() {
+        long recurrentTaskId = createRecurrentTask(PeriodicalScheduleExpression.every(1).minutes().at(0).build());
+        RecurrentTaskImpl recurrentTask = (RecurrentTaskImpl) taskService.getRecurrentTask(recurrentTaskId).get();
+        OrmService instance = injector.getInstance(OrmService.class);
+        DataMapper<RecurrentTask> dataModel = instance.getDataModel(TaskService.COMPONENTNAME).get().mapper(RecurrentTask.class);
+        assertThat(dataModel.getJournal(recurrentTaskId)).isEmpty();
+
+        transactionService.builder().principal(() -> "RecurrentTaskIT").run(recurrentTask::launchOccurrence);
+        assertThat(dataModel.getJournal(recurrentTaskId)).isEmpty();
+        transactionService.builder().principal(() -> "RecurrentTaskIT").run(() -> {
+            recurrentTask.updateLastRun(now);
+        });
+        assertThat(dataModel.getJournal(recurrentTaskId)).isEmpty();
+        transactionService.builder().principal(() -> "RecurrentTaskIT").run(recurrentTask::suspend);
+        assertThat(dataModel.getJournal(recurrentTaskId)).hasSize(1);
+        transactionService.builder().principal(() -> "RecurrentTaskIT").run(recurrentTask::resume);
+        assertThat(dataModel.getJournal(recurrentTaskId)).hasSize(2);
     }
 
     @Test

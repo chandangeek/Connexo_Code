@@ -214,8 +214,8 @@ class RecurrentTaskImpl implements RecurrentTask {
             getDestination().message(json).send();
             if (taskOccurrence.wasScheduled()) {
                 updateNextExecution();
+                dataModel.mapper(RecurrentTask.class).update(this, "nextExecution");
             }
-            save();
             return taskOccurrence;
         } catch (RuntimeException e) {
             LOGGER.log(Level.SEVERE, "Failed to schedule task for RecurrentTask " + this.getName(), e);
@@ -266,7 +266,11 @@ class RecurrentTaskImpl implements RecurrentTask {
 
     void updateLastRun(Instant triggerTime) {
         lastRun = triggerTime;
-        save();
+        if (id == 0) {
+            save();
+        } else {
+            dataModel.mapper(RecurrentTaskImpl.class).update(this, "lastRun");
+        }
     }
 
     private String toJson(TaskOccurrenceImpl taskOccurrence) {

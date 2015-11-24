@@ -209,7 +209,7 @@ public class RecurrentTaskImplTest extends EqualsContractTest {
 
         verify(destination).message(SERIALIZED1);
         verify(builder).send();
-        verify(dataModel).update(recurrentTask);
+        verify(recurrentTaskFactory).update(recurrentTask, "nextExecution");
         assertThat(taskOccurrence).isNotNull();
 
     }
