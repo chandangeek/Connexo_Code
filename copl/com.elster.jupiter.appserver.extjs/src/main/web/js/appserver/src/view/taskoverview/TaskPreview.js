@@ -65,7 +65,8 @@ Ext.define('Apr.view.taskoverview.TaskPreview', {
                                             name: 'trigger'
                                         },
                                         {
-                                            fieldLabel: Uni.I18n.translate('general.queueStatus', 'APR', 'Queue status'),
+                                            fieldLabel: Uni.I18n.translate('general.currentrun', 'APR', 'Current run'),
+                                            itemId: 'currentRunField',
                                             name: 'queueStatusString'
                                         },
                                         {

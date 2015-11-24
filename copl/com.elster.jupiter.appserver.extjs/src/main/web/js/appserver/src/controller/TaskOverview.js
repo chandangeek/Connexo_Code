@@ -49,12 +49,12 @@ Ext.define('Apr.controller.TaskOverview', {
         Ext.suspendLayouts();
         this.getTaskPreview().setTitle(record.get('task'));
         this.getTaskPreview().down('form').loadRecord(record);
-        if(record.get('queueStatus')=== 'Busy'){
+        if(record.get('queueStatus')== 'Busy'){
             this.getTaskPreview().down('#durationField').show();
-            this.getTaskPreview().down('#nextRunField').show();
+            this.getTaskPreview().down('#currentRunField').show();
         } else {
             this.getTaskPreview().down('#durationField').hide();
-            this.getTaskPreview().down('#nextRunField').hide();
+            this.getTaskPreview().down('#currentRunField').hide();
         }
         Ext.resumeLayouts(true);
     }
