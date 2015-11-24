@@ -183,7 +183,9 @@ public enum TableSpecs {
             table.cache();
             Column mRidColumn = table.column("MRID").varChar(NAME_LENGTH).notNull().map("mRID").add();
             table.column("ALIASNAME").varChar(SHORT_DESCRIPTION_LENGTH).map("aliasName").add();
+            table.column("FULLALIASNAME").varChar(SHORT_DESCRIPTION_LENGTH).map("fullAliasName").add();
             table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
+            table.column("ACTIVE").number().conversion(ColumnConversion.NUMBER2BOOLEAN).map("active").add();
             Column equidistantColumn = table.column("EQUIDISTANT").bool().map("equidistant").add();
             table.addAuditColumns();
             table.primaryKey("MTR_PK_READINGTYPE").on(mRidColumn).add();

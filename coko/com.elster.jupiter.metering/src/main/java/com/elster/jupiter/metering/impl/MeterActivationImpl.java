@@ -361,10 +361,10 @@ public final class MeterActivationImpl implements MeterActivation {
         toResolve.endAt(cutOff);
         // copy all data since cutoff to this MeterActivation
 
-        Map<Set<ReadingType>, ChannelImpl> sourceChannels = toResolve.getChannels().stream()
+        Map<Object, ChannelImpl> sourceChannels = toResolve.getChannels().stream()
                 .map(ChannelImpl.class::cast)
                 .collect(Collectors.toMap(channel -> ImmutableSet.copyOf(channel.getReadingTypes()), Function.<ChannelImpl>identity()));
-        Map<Set<ReadingType>, ChannelImpl> targetChannels = getChannels().stream()
+        Map<Object, ChannelImpl> targetChannels = getChannels().stream()
                 .map(ChannelImpl.class::cast)
                 .collect(Collectors.toMap(channel -> ImmutableSet.copyOf(channel.getReadingTypes()), Function.<ChannelImpl>identity()));
 
