@@ -353,7 +353,7 @@ public class ImageTransfer extends AbstractCosemObject {
      * @param checkForMissingBlocks - whether or not to resend lost blocks
      * @throws java.io.IOException when something went wrong during the upgrade
      */
-    public void upgrade(ImageBlockSupplier dataSupplier, boolean additionalZeros, String imageIdentifier, boolean checkForMissingBlocks) throws IOException {
+    public final void upgrade(final ImageBlockSupplier dataSupplier, final boolean additionalZeros, final String imageIdentifier, final boolean checkForMissingBlocks) throws IOException {
 
         // Set the imageTransferEnabledState to true (otherwise the upgrade can not be performed)
         updateState(ImageTransferCallBack.ImageTransferState.ENABLE_IMAGE_TRANSFER, imageIdentifier, 0, dataSupplier.getSize(), 0);
@@ -407,7 +407,16 @@ public class ImageTransfer extends AbstractCosemObject {
         this.upgrade(new ByteArrayImageBlockSupplier(data), additionalZeros, imageIdentifier, checkForMissingBlocks);
     }
 
-    public void initializeAndTransferBlocks(final ImageBlockSupplier dataSupplier, final boolean additionalZeros, final String imageIdentifier) throws IOException {
+    /**
+     * Initialize the {@link ImageTransfer} objects and transfer the blocks to the target device.
+     * 
+     * @param 	dataSupplier			Provides the image data.
+     * @param 	additionalZeros			Indicates whether or not to pad the last block with zeroes up to block size.
+     * @param 	imageIdentifier			The image identifier.
+     * 
+     * @throws 	IOException				If an IO error occurs whilst transferring blocks.
+     */
+    public final void initializeAndTransferBlocks(final ImageBlockSupplier dataSupplier, final boolean additionalZeros, final String imageIdentifier) throws IOException {
         this.dataSupplier = dataSupplier;
         this.size = new Unsigned32(dataSupplier.getSize());
 
@@ -449,7 +458,16 @@ public class ImageTransfer extends AbstractCosemObject {
         this.protocolLink.getLogger().log(Level.INFO, "All blocks are sent at : " + new Date(System.currentTimeMillis()));
     }
     
-    public void initializeAndTransferBlocks(byte[] data, boolean additionalZeros, String imageIdentifier) throws IOException {
+    /**
+     * Initialize the {@link ImageTransfer} objects and transfer the blocks to the target device.
+     * 
+     * @param 	data					The image data already loaded in memory.
+     * @param 	additionalZeros			Indicates whether or not to pad the last block with zeroes up to block size.
+     * @param 	imageIdentifier			The image identifier.
+     * 
+     * @throws 	IOException				If an IO error occurs whilst transferring blocks.
+     */
+    public final void initializeAndTransferBlocks(final byte[] data, final boolean additionalZeros, final String imageIdentifier) throws IOException {
         this.initializeAndTransferBlocks(new ByteArrayImageBlockSupplier(data), additionalZeros, imageIdentifier);
     }
 
