@@ -7,7 +7,7 @@ Ext.define('Dlc.devicelifecycletransitions.model.DeviceLifeCycleTransition', {
         'toState',
         'privileges',
         'triggeredBy',
-        'microActions',
+        {name: 'microActions', defaultValue: null},
         {name: 'microChecks', defaultValue: null},
         {
             name: 'fromState_name',
