@@ -2,6 +2,7 @@ package com.energyict.mdc.protocol.api.security;
 
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
@@ -57,6 +58,9 @@ public abstract class CommonBaseDeviceSecurityProperties implements PersistentDo
         public abstract String databaseName();
 
     }
+    @NotNull
+    @SuppressWarnings("unused")
+    private Reference<RegisteredCustomPropertySet> registeredCustomPropertySet = Reference.empty();
     @NotNull
     private Reference<BaseDevice> device = Reference.empty();
     @NotNull

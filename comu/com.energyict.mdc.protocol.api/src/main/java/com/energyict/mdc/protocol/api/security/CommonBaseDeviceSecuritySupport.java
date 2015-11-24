@@ -33,7 +33,6 @@ public abstract class CommonBaseDeviceSecuritySupport<T extends PersistentDomain
         return Collections.singletonList(
                 table
                     .column(CommonBaseDeviceSecurityProperties.Fields.PROPERTY_SPEC_PROVIDER.databaseName())
-                    .map(CommonBaseDeviceSecurityProperties.Fields.PROPERTY_SPEC_PROVIDER.javaName())
                     .number()
                     .notNull()
                     .add());
@@ -50,7 +49,15 @@ public abstract class CommonBaseDeviceSecuritySupport<T extends PersistentDomain
                 .notNull()
                 .add();
         this.addCustomPropertyColumnsTo(table, complete, customPrimaryKeyColumns);
+        table
+            .foreignKey(this.propertySpecProviderForeignKeyName())
+            .on(customPrimaryKeyColumns.get(0))
+            .map(CommonBaseDeviceSecurityProperties.Fields.PROPERTY_SPEC_PROVIDER.javaName())
+            .references(SecurityPropertySpecProvider.class)
+            .add();
     }
+
+    protected abstract String propertySpecProviderForeignKeyName();
 
     public abstract void addCustomPropertyColumnsTo(Table table, Column completeColumn, List<Column> customPrimaryKeyColumns);
 
