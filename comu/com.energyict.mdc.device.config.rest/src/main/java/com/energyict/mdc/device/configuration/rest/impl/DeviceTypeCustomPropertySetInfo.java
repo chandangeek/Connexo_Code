@@ -28,7 +28,7 @@ public class DeviceTypeCustomPropertySetInfo {
         this.name = registeredCustomPropertySet.getCustomPropertySet().getName();
         this.viewPrivileges = registeredCustomPropertySet.getViewPrivileges();
         this.editPrivileges = registeredCustomPropertySet.getEditPrivileges();
-        this.isTimeSliced = false;
+        this.isTimeSliced = registeredCustomPropertySet.getCustomPropertySet().isVersioned();
         this.attributes = getAttributes(registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs());
     }
 
