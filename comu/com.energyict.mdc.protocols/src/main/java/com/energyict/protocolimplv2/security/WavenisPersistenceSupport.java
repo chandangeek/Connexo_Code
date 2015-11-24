@@ -42,6 +42,11 @@ public class WavenisPersistenceSupport extends CommonBaseDeviceSecuritySupport<W
     }
 
     @Override
+    protected String propertySpecProviderForeignKeyName() {
+        return DeviceProtocolService.COMPONENT_NAME + "_FK_WAVENISSEC_SECPROV";
+    }
+
+    @Override
     public Class<WavenisSecurityProperties> persistenceClass() {
         return WavenisSecurityProperties.class;
     }

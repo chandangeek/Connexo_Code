@@ -42,6 +42,11 @@ public class MTU155PersistenceSupport extends CommonBaseDeviceSecuritySupport<MT
     }
 
     @Override
+    protected String propertySpecProviderForeignKeyName() {
+        return DeviceProtocolService.COMPONENT_NAME + "_FK_MTU155SEC_SECPROV";
+    }
+
+    @Override
     public Class<MTU155SecurityProperties> persistenceClass() {
         return MTU155SecurityProperties.class;
     }

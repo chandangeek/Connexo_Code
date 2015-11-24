@@ -27,12 +27,17 @@ public class GarnetSecuritySupportPersistenceSupport extends CommonBaseDeviceSec
 
     @Override
     public String tableName() {
-        return "PR1_GARNET_SECURITY";
+        return DeviceProtocolService.COMPONENT_NAME + "_GARNET_SECURITY";
     }
 
     @Override
     public String domainForeignKeyName() {
-        return "PR1_FK_GARNETSEC_DEV";
+        return DeviceProtocolService.COMPONENT_NAME + "_FK_GARNETSEC_DEV";
+    }
+
+    @Override
+    protected String propertySpecProviderForeignKeyName() {
+        return DeviceProtocolService.COMPONENT_NAME + "_FK_GARNETSEC_SECPROV";
     }
 
     @Override

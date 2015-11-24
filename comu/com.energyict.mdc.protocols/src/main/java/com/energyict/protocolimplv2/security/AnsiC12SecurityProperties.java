@@ -80,7 +80,6 @@ public class AnsiC12SecurityProperties extends CommonBaseDeviceSecurityPropertie
                 table
                     .column(this.databaseName())
                     .number()
-                    .notNull()
                     .conversion(ColumnConversion.NUMBER2BOOLEAN)
                     .map(this.javaName())
                     .add();

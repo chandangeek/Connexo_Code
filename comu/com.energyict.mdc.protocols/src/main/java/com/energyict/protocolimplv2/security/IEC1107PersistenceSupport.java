@@ -41,6 +41,11 @@ public class IEC1107PersistenceSupport extends CommonBaseDeviceSecuritySupport<I
     }
 
     @Override
+    protected String propertySpecProviderForeignKeyName() {
+        return DeviceProtocolService.COMPONENT_NAME + "_FK_IEC1107SEC_SECPROV";
+    }
+
+    @Override
     public Class<IEC1107SecurityProperties> persistenceClass() {
         return IEC1107SecurityProperties.class;
     }

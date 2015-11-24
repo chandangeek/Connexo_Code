@@ -41,6 +41,11 @@ public class NoOrPasswordPersistenceSupport extends CommonBaseDeviceSecuritySupp
     }
 
     @Override
+    protected String propertySpecProviderForeignKeyName() {
+        return DeviceProtocolService.COMPONENT_NAME + "_FK_NOORPWDSEC_SECPROV";
+    }
+
+    @Override
     public Class<NoOrPasswordSecurityProperties> persistenceClass() {
         return NoOrPasswordSecurityProperties.class;
     }

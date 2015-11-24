@@ -42,6 +42,11 @@ public class BasicAuthenticationPersistenceSupport extends CommonBaseDeviceSecur
     }
 
     @Override
+    protected String propertySpecProviderForeignKeyName() {
+        return DeviceProtocolService.COMPONENT_NAME + "_FK_BASIC_AUTH_SECPROV";
+    }
+
+    @Override
     public Class<BasicAuthenticationSecurityProperties> persistenceClass() {
         return BasicAuthenticationSecurityProperties.class;
     }

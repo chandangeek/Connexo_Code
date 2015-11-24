@@ -42,6 +42,11 @@ public class AnsiC12PersistenceSupport extends CommonBaseDeviceSecuritySupport<A
     }
 
     @Override
+    protected String propertySpecProviderForeignKeyName() {
+        return DeviceProtocolService.COMPONENT_NAME + "_FK_ANSIC12_SECPROV";
+    }
+
+    @Override
     public Class<AnsiC12SecurityProperties> persistenceClass() {
         return AnsiC12SecurityProperties.class;
     }

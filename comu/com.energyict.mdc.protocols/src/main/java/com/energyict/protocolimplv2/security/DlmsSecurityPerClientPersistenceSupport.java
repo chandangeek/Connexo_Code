@@ -42,6 +42,11 @@ public class DlmsSecurityPerClientPersistenceSupport extends CommonBaseDeviceSec
     }
 
     @Override
+    protected String propertySpecProviderForeignKeyName() {
+        return DeviceProtocolService.COMPONENT_NAME + "_FK_DLMSSECPERCLIENT_SECPROV";
+    }
+
+    @Override
     public Class<DlmsSecurityPerClientProperties> persistenceClass() {
         return DlmsSecurityPerClientProperties.class;
     }

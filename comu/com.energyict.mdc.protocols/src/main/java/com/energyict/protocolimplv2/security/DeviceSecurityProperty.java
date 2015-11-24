@@ -122,7 +122,7 @@ public enum DeviceSecurityProperty {
 
         @Override
         public String javaName() {
-            return SecurityPropertySpecName.PASSWORD.toString();
+            return SecurityPropertySpecName.ANSI_C12_USER.toString();
         }
     },
     /**
