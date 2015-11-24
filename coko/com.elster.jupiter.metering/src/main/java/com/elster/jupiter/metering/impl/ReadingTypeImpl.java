@@ -273,7 +273,6 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
     @Override
     public void setAliasName(String aliasName) {
         this.aliasName = aliasName;
-        setFullAliasName();
     }
 
     public void persist() {
@@ -514,6 +513,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 
     @Override
     public String getFullAliasName() {
+		setFullAliasName();
         return fullAliasName;
     }
 

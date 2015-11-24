@@ -582,7 +582,8 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         resources.add(userService.createModuleResourceWithPrivileges(MeteringService.COMPONENTNAME, DefaultTranslationKey.PRIVILEGE_USAGE_POINT_NAME.getKey(), DefaultTranslationKey.PRIVILEGE_USAGE_POINT_DESCRIPTION.getKey(),
                 Arrays.asList(
                         Privileges.Constants.BROWSE_ANY, Privileges.Constants.ADMIN_ANY,
-                        Privileges.Constants.BROWSE_OWN, Privileges.Constants.ADMIN_OWN)));
+                        Privileges.Constants.BROWSE_OWN, Privileges.Constants.ADMIN_OWN,
+                        Privileges.Constants.ADMINISTRATE_READINGTYPE, Privileges.Constants.VIEW_READINGTYPE)));
 
         return resources;
     }
