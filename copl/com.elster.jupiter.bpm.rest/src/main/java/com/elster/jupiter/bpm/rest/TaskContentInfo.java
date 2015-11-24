@@ -25,7 +25,7 @@ public class TaskContentInfo {
 
     }
 
-    public TaskContentInfo(JSONObject field,JSONObject content){
+    public TaskContentInfo(JSONObject field,JSONObject content, String status){
         try {
             key = field.getString("type") + field.getString("id");
             JSONArray arr = field.getJSONArray("properties");
@@ -42,7 +42,9 @@ public class TaskContentInfo {
                             required = false;
                         }
                     }
-                    if(prop.getString("name").equals("readonly")){
+                    if(!status.equals("InProgress")){
+                        isReadOnly = true;
+                    }else if(prop.getString("name").equals("readonly")){
                         if(prop.getString("value").equals("true")){
                             isReadOnly = true;
                         }else{

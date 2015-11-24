@@ -5,6 +5,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.List;
+import java.util.Map;
+
 public class PropertyTypeInfo {
 
     public String simplePropertyType;
@@ -22,6 +25,10 @@ public class PropertyTypeInfo {
         try {
             if(field.getString("type").equals("InputText")){
                 simplePropertyType = passwordOrSimple(field);
+                checkAndCreateComboBox(field);
+            }
+            if(field.getString("type").equals("InputTextCharacter")){
+                simplePropertyType = "TEXT";
                 checkAndCreateComboBox(field);
             }
             if(field.getString("type").equals("InputTextArea")){
@@ -50,6 +57,9 @@ public class PropertyTypeInfo {
             }
             if(field.getString("type").equals("InputDate")){
                 simplePropertyType = "TIMESTAMP";
+            }
+            if(field.getString("type").equals("InputShortDate")){
+                simplePropertyType = "DATE";
             }
             if(field.getString("type").equals("CheckBox")){
                 simplePropertyType = "BOOLEAN";

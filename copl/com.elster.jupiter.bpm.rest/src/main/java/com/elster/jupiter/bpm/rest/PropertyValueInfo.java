@@ -5,6 +5,7 @@ public class PropertyValueInfo {
 
     public String defaultValue;
     public String value;
+    public String inheritedValue;
     public boolean propertyHasValue;
 
     public PropertyValueInfo(){
@@ -17,7 +18,6 @@ public class PropertyValueInfo {
             String[] keys = comboArray[i].split(",");
             if(keys[0].replace("{","").equals(comboDefault)){
                 defaultValue = keys[1].replace("}","");
-//                value = keys[1].replace("}","");
             }
         }
     }

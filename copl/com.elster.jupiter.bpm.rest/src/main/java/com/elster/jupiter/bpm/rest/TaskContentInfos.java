@@ -11,7 +11,8 @@ import java.util.List;
 public class TaskContentInfos {
 
     public String status;
-
+    public String action;
+    public String id;
     public List<TaskContentInfo> properties = new ArrayList<>();
 
     public TaskContentInfos() {
@@ -36,7 +37,7 @@ public class TaskContentInfos {
             for(int i = 0; i < contentProperties.length(); i++) {
                 try {
                     JSONObject prop = contentProperties.getJSONObject(i);
-                    TaskContentInfo result = new TaskContentInfo(prop, content);
+                    TaskContentInfo result = new TaskContentInfo(prop, content, status);
                     properties.add(result);
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
