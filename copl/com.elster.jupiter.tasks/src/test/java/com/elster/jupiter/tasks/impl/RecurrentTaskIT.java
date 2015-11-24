@@ -95,7 +95,7 @@ public class RecurrentTaskIT {
     private EventAdmin eventAdmin;
     @Mock
     private LogService logService;
-    //@Mock
+
     private Clock clock;
 
     private class MockModule extends AbstractModule {
@@ -110,7 +110,6 @@ public class RecurrentTaskIT {
 
     @Before
     public void setUp() {
-        //when(clock.instant()).thenReturn(now);
         clock = new ProgrammableClock(TimeZoneNeutral.getMcMurdo(), now);
 
         try {
