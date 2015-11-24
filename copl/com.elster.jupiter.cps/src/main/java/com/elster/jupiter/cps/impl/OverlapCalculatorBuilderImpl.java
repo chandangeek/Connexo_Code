@@ -49,10 +49,18 @@ public class OverlapCalculatorBuilderImpl implements OverlapCalculatorBuilder{
 
             if (hasOverlap(r,newRange)) {
                 if (hasEndOverlap(r,newRange)) {
-                    rangesAfterUpdate.add(Range.lessThan(newRange.lowerEndpoint()));
+                    if(!r.hasLowerBound()) {
+                        rangesAfterUpdate.add(Range.lessThan(newRange.lowerEndpoint()));
+                    }else{
+                        rangesAfterUpdate.add(Range.closedOpen(r.lowerEndpoint(),newRange.lowerEndpoint()));
+                    }
                     issues.add(getValuesRangeConflictUpdateEnd(value, getConflictingRangeOverlap(r,newRange)));
                 } else if (hasStartOverlap(r,newRange)) {
-                    rangesAfterUpdate.add(Range.atLeast(newRange.upperEndpoint()));
+                    if(!r.hasUpperBound()) {
+                        rangesAfterUpdate.add(Range.atLeast(newRange.upperEndpoint()));
+                    } else {
+                        rangesAfterUpdate.add(Range.closedOpen(newRange.upperEndpoint(),r.upperEndpoint()));
+                    }
                     issues.add(getValuesRangeConflictUpdateStart(value, getConflictingRangeOverlap(r,newRange)));
                 } else {
                     issues.add(getValuesRangeConflictDelete(value, getConflictingRangeOverlap(r,newRange)));
