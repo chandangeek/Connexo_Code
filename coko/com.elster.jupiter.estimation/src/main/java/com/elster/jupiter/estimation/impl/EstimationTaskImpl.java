@@ -170,7 +170,7 @@ public class EstimationTaskImpl implements IEstimationTask {
     @Override
     public void updateLastRun(Instant triggerTime) {
         lastRun = triggerTime;
-        save();
+        dataModel.mapper(IEstimationTask.class).update(this, "lastRun");
     }
 
     @Override

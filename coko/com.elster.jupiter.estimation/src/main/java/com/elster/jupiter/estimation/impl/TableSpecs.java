@@ -101,7 +101,7 @@ public enum TableSpecs {
             Column endDeviceGroupId = table.column("ENDDEVICEGROUP").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             Column relativePeriod = table.column("PERIOD").number().add();
 
-            table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
+            table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").notAudited().add();
             table.addAuditColumns();
 
             table.foreignKey("EST_FK_ETSK_RECURRENTTASK")
