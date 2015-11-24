@@ -8,7 +8,7 @@ Ext.define('Uni.view.search.field.internal.Operator', {
     forceSelection: true,
     editable: false,
     queryMode: 'local',
-    width: 50,
+    width: 90,
     store: [
         ["==", "="],
         ["!=", "!="],
