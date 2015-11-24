@@ -1,15 +1,20 @@
 package com.elster.insight.usagepoint.data.rest.impl;
 
 import java.time.Clock;
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
@@ -19,20 +24,28 @@ import com.elster.insight.common.rest.ExceptionFactory;
 import com.elster.insight.common.services.ListPager;
 import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
+import com.elster.insight.usagepoint.data.UsagePointValidation;
+import com.elster.insight.usagepoint.data.UsagePointValidationImpl;
+import com.elster.jupiter.cbo.QualityCodeIndex;
+import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.validation.DataValidationStatus;
 import com.elster.jupiter.validation.ValidationRuleSet;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.jupiter.validation.rest.ValidationRuleSetInfo;
 import com.elster.jupiter.validation.security.Privileges;
+import com.google.common.collect.Range;
 
 public class UsagePointValidationResource {
     private final ResourceHelper resourceHelper;
     private final ValidationService validationService;
     private final ExceptionFactory exceptionFactory;
     private final Clock clock;
+    private final Thesaurus thesaurus;
     private final ValidationInfoFactory validationInfoFactory;
     private final UsagePointConfigurationService usagePointConfigurationService;
 
@@ -40,7 +53,8 @@ public class UsagePointValidationResource {
     public UsagePointValidationResource(ResourceHelper resourceHelper, 
             ValidationService validationService, 
             ExceptionFactory exceptionFactory, 
-            Clock clock, 
+            Clock clock,
+            Thesaurus thesaurus,
             ValidationInfoFactory validationInfoFactory, 
             UsagePointConfigurationService usagePointConfigurationService) {
         this.resourceHelper = resourceHelper;
@@ -49,6 +63,7 @@ public class UsagePointValidationResource {
         this.clock = clock;
         this.validationInfoFactory = validationInfoFactory;
         this.usagePointConfigurationService = usagePointConfigurationService;
+        this.thesaurus = thesaurus;
     }
 
     @GET
@@ -106,16 +121,16 @@ public class UsagePointValidationResource {
 //      }
 //    }
 //
-//    @Path("/validationstatus")
-//    @GET
-//    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-//    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
-//    public Response getValidationFeatureStatus(@PathParam("mRID") String mRID) {
-//        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mRID);
-//
-//        DeviceValidationStatusInfo deviceValidationStatusInfo = determineStatus(device);
-//        return Response.status(Response.Status.OK).entity(deviceValidationStatusInfo).build();
-//    }
+    @Path("/validationstatus")
+    @GET
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,Privileges.Constants.VIEW_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
+    public Response getValidationFeatureStatus(@PathParam("mRID") String mRID) {
+        UsagePoint usagePoint = resourceHelper.findUsagePointByMrIdOrThrowException(mRID);
+
+        UsagePointValidationStatusInfo deviceValidationStatusInfo = determineStatus(usagePoint);
+        return Response.status(Response.Status.OK).entity(deviceValidationStatusInfo).build();
+    }
 //
 //    @Path("/validationmonitoring/configurationview")
 //    @GET
@@ -244,68 +259,93 @@ public class UsagePointValidationResource {
 //
 //        return Response.status(Response.Status.OK).entity(registerStatus).build();
 //    }
+    
+    public UsagePointValidation getUsagePointValidation(UsagePoint usagePoint) {
+        return new UsagePointValidationImpl(validationService, clock, thesaurus, usagePoint, usagePointConfigurationService);
+    }
 //
-//    private DeviceValidationStatusInfo determineStatus(Device device) {
-//        DeviceValidation deviceValidation = device.forValidation();
-//        DeviceValidationStatusInfo deviceValidationStatusInfo =
-//                new DeviceValidationStatusInfo(
-//                deviceValidation.isValidationActive(),
-//                deviceValidation.isValidationOnStorage(),
-//                deviceValidation.getLastChecked(),
-//                device.hasData());
-//
-//        ZonedDateTime end = ZonedDateTime.ofInstant(clock.instant(), clock.getZone()).truncatedTo(ChronoUnit.DAYS).plusDays(1);
-//
-//        collectRegisterData(device, deviceValidationStatusInfo, end);
-//        collectLoadProfileData(device, deviceValidationStatusInfo, end);
-//        deviceValidationStatusInfo.device = DeviceInfo.from(device);
-//
-//        return deviceValidationStatusInfo;
-//    }
-//
-//    private void collectLoadProfileData(Device device, DeviceValidationStatusInfo deviceValidationStatusInfo, ZonedDateTime end) {
-//        ZonedDateTime loadProfileStart = end.minusMonths(1);
-//        Range<Instant> loadProfileInterval = Range.openClosed(loadProfileStart.toInstant(), end.toInstant());
-//
-//        List<DataValidationStatus> statuses = device.getLoadProfiles().stream()
-//                .flatMap(l -> l.getChannels().stream())
-//                .flatMap(c -> c.getDevice().forValidation().getValidationStatus(c, Collections.emptyList(), loadProfileInterval).stream())
-//                .collect(Collectors.toList());
-//
-//        deviceValidationStatusInfo.loadProfileSuspectCount = statuses.stream()
-//                .flatMap(d -> d.getReadingQualities().stream())
-//                .filter(r -> QualityCodeIndex.SUSPECT.equals(r.getType().qualityIndex().orElse(null)))
-//                .count();
-//        if (statuses.isEmpty()) {
-//            deviceValidationStatusInfo.allDataValidated &= device.getRegisters().stream()
-//                    .allMatch(r -> r.getDevice().forValidation().allDataValidated(r, clock.instant()));
-//        } else {
-//            deviceValidationStatusInfo.allDataValidated &= statuses.stream()
-//                    .allMatch(DataValidationStatus::completelyValidated);
-//        }
-//    }
-//
-//    private void collectRegisterData(Device device, DeviceValidationStatusInfo deviceValidationStatusInfo, ZonedDateTime end) {
-//        ZonedDateTime registerStart = end.minusYears(1);
-//        Range<Instant> registerRange = Range.openClosed(registerStart.toInstant(), end.toInstant());
-//
-//        List<DataValidationStatus> statuses = device.getRegisters().stream()
-//                .flatMap(r -> device.forValidation().getValidationStatus(r, Collections.emptyList(), registerRange).stream())
-//                .collect(Collectors.toList());
-//
-//        deviceValidationStatusInfo.registerSuspectCount = statuses.stream()
-//                .flatMap(d -> d.getReadingQualities().stream())
-//                .filter(r -> QualityCodeIndex.SUSPECT.equals(r.getType().qualityIndex().orElse(null)))
-//                .count();
-//        if (statuses.isEmpty()) {
-//            deviceValidationStatusInfo.allDataValidated &= device.getLoadProfiles().stream()
+    private UsagePointValidationStatusInfo determineStatus(UsagePoint usagePoint) {
+        UsagePointValidation usagePointValidation = getUsagePointValidation(usagePoint);
+        UsagePointValidationStatusInfo usagePointValidationStatusInfo =
+                new UsagePointValidationStatusInfo(
+                usagePointValidation.isValidationActive(),
+                usagePointValidation.isValidationOnStorage(),
+                usagePointValidation.getLastChecked(),
+                usagePoint.hasData());
+
+        ZonedDateTime end = ZonedDateTime.ofInstant(clock.instant(), clock.getZone()).truncatedTo(ChronoUnit.DAYS).plusDays(1);
+
+        collectRegisterData(usagePoint, usagePointValidationStatusInfo, end);
+        collectChannelData(usagePoint, usagePointValidationStatusInfo, end);
+        usagePointValidationStatusInfo.usagePoint = new UsagePointInfo(usagePoint, clock);
+
+        return usagePointValidationStatusInfo;
+    }
+
+    private void collectChannelData(UsagePoint usagePoint, UsagePointValidationStatusInfo usagePointValidationStatusInfo, ZonedDateTime end) {
+        List<Channel> irregularChannels = new ArrayList<Channel>();
+        List<Channel> regularChannels = new ArrayList<Channel>();
+        
+        ZonedDateTime loadProfileStart = end.minusMonths(1);
+        Range<Instant> loadProfileInterval = Range.openClosed(loadProfileStart.toInstant(), end.toInstant());
+
+        MeterActivation currentActivation = usagePoint.getCurrentMeterActivation().orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_CURRENT_ACTIVATION_FOR_USAGE_POINT_FOR_MRID, usagePoint.getMRID()));
+        List<Channel> channelCandidates = currentActivation.getChannels();
+        for (Channel channel : channelCandidates) {
+            if (!channel.isRegular())
+                irregularChannels.add(channel);
+            else 
+                regularChannels.add(channel);
+        }
+        
+        List<DataValidationStatus> statuses = regularChannels.stream()
+                .flatMap(c -> getUsagePointValidation(usagePoint).getValidationStatus(c, Collections.emptyList(), loadProfileInterval).stream())
+                .collect(Collectors.toList());
+
+        usagePointValidationStatusInfo.channelSuspectCount = statuses.stream()
+                .flatMap(d -> d.getReadingQualities().stream())
+                .filter(r -> QualityCodeIndex.SUSPECT.equals(r.getType().qualityIndex().orElse(null)))
+                .count();
+        if (statuses.isEmpty()) {
+            usagePointValidationStatusInfo.allDataValidated &= irregularChannels.stream()
+                    .allMatch(r -> getUsagePointValidation(usagePoint).allDataValidated(r, clock.instant()));
+        } else {
+            usagePointValidationStatusInfo.allDataValidated &= statuses.stream()
+                    .allMatch(DataValidationStatus::completelyValidated);
+        }
+    }
+
+    private void collectRegisterData(UsagePoint usagePoint, UsagePointValidationStatusInfo usagePointValidationStatusInfo, ZonedDateTime end) {
+        ZonedDateTime registerStart = end.minusYears(1);
+        Range<Instant> registerRange = Range.openClosed(registerStart.toInstant(), end.toInstant());
+        List<Channel> irregularChannels = new ArrayList<Channel>();
+        List<Channel> regularChannels = new ArrayList<Channel>();
+        MeterActivation currentActivation = usagePoint.getCurrentMeterActivation().orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_CURRENT_ACTIVATION_FOR_USAGE_POINT_FOR_MRID, usagePoint.getMRID()));
+        List<Channel> channelCandidates = currentActivation.getChannels();
+        for (Channel channel : channelCandidates) {
+            if (!channel.isRegular())
+                irregularChannels.add(channel);
+            else 
+                regularChannels.add(channel);
+        }
+        
+        List<DataValidationStatus> statuses = irregularChannels.stream()
+                .flatMap(r -> getUsagePointValidation(usagePoint).getValidationStatus(r, Collections.emptyList(), registerRange).stream())
+                .collect(Collectors.toList());
+
+        usagePointValidationStatusInfo.registerSuspectCount = statuses.stream()
+                .flatMap(d -> d.getReadingQualities().stream())
+                .filter(r -> QualityCodeIndex.SUSPECT.equals(r.getType().qualityIndex().orElse(null)))
+                .count();
+        if (statuses.isEmpty()) {
+            usagePointValidationStatusInfo.allDataValidated &= regularChannels.stream()
 //                    .flatMap(l -> l.getChannels().stream())
-//                    .allMatch(r -> r.getDevice().forValidation().allDataValidated(r, clock.instant()));
-//        } else {
-//            deviceValidationStatusInfo.allDataValidated = statuses.stream()
-//                    .allMatch(DataValidationStatus::completelyValidated);
-//        }
-//    }
+                    .allMatch(r -> getUsagePointValidation(usagePoint).allDataValidated(r, clock.instant()));
+        } else {
+            usagePointValidationStatusInfo.allDataValidated = statuses.stream()
+                    .allMatch(DataValidationStatus::completelyValidated);
+        }
+    }
 //
 //    @Path("/validationstatus")
 //    @PUT
