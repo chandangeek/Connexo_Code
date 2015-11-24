@@ -64,8 +64,16 @@ public class DynamicSearchResource {
     @GET
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    public Response getSearchDomains(@BeanParam JsonQueryParameters jsonQueryParameters, @BeanParam UriInfo uriInfo) {
-        List<SearchDomainInfo> list = searchService.getDomains().stream()
+    public Response getSearchDomains(@BeanParam JsonQueryParameters jsonQueryParameters,
+                                     @BeanParam JsonQueryFilter filter,
+                                     @BeanParam UriInfo uriInfo) {
+        List<SearchDomain> domains;
+        if (filter.hasProperty("application")){
+            domains = searchService.getDomains(filter.getString("application"));
+        } else {
+            domains = searchService.getDomains();
+        }
+        List<SearchDomainInfo> list = domains.stream()
                 .map(sd -> new SearchDomainInfo(sd, uriInfo))
                 .sorted((a,b) -> a.displayValue.compareTo(b.displayValue)).collect(toList());
         PagedInfoList pagedInfoList = PagedInfoList.fromCompleteList("domains", list, jsonQueryParameters);
