@@ -13,6 +13,7 @@ import com.elster.jupiter.tasks.TaskFinder;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.users.User;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -22,10 +23,13 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 /**
@@ -51,7 +55,7 @@ public class TaskResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
-    public TaskInfos getDataExportTasks(@Context UriInfo uriInfo) {
+    public TaskInfos getDataExportTasks(@Context UriInfo uriInfo, @Context SecurityContext securityContext) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
 
         RecurrentTaskFilterSpecification filterSpec = new RecurrentTaskFilterSpecification();
@@ -65,7 +69,15 @@ public class TaskResource {
         TaskFinder finder = taskService.getTaskFinder(filterSpec, params.getStartInt(), params.getLimit());
 
         List<? extends RecurrentTask> list = finder.find();
-        TaskInfos infos = new TaskInfos(params.clipToLimit(list), thesaurus, timeService);
+        Principal principal = (Principal) securityContext.getUserPrincipal();
+        Locale locale = Locale.getDefault();
+        if (principal instanceof User) {
+            User user = (User) principal;
+            if (user.getLocale().isPresent()) {
+                locale = user.getLocale().get();
+            }
+        }
+        TaskInfos infos = new TaskInfos(params.clipToLimit(list), thesaurus, timeService, locale);
         return infos;
     }
 

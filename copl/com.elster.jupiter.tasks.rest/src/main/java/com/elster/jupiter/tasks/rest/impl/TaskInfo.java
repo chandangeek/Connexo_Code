@@ -15,6 +15,7 @@ import com.elster.jupiter.util.time.ScheduleExpression;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 /**
@@ -38,11 +39,11 @@ public class TaskInfo {
     static String PLANNED = "Planned";
     static String BUSY = "Busy";
 
-    public TaskInfo(RecurrentTask recurrentTask, Thesaurus thesaurus, TimeService timeService) {
+    public TaskInfo(RecurrentTask recurrentTask, Thesaurus thesaurus, TimeService timeService, Locale locale) {
         name = recurrentTask.getName();
         application = recurrentTask.getApplication();
         queue = recurrentTask.getDestination().getName();
-        trigger = thesaurus.getFormat(TranslationKeys.SCHEDULED).format() + " (" + getScheduledTriggerDescription(recurrentTask.getScheduleExpression(), thesaurus, timeService) + ")";
+        trigger = thesaurus.getFormat(TranslationKeys.SCHEDULED).format() + " (" + getScheduledTriggerDescription(recurrentTask.getScheduleExpression(), thesaurus, timeService, locale) + ")";
         Optional<TaskOccurrence> lastOccurrence = recurrentTask.getLastOccurrence();
         if (lastOccurrence.isPresent()) {
             TaskOccurrence occurrence = lastOccurrence.get();
@@ -99,7 +100,7 @@ public class TaskInfo {
         queueStatusDate = date;
     }
 
-    private String getScheduledTriggerDescription(ScheduleExpression scheduleExpression, Thesaurus thesaurus, TimeService timeService) {
+    private String getScheduledTriggerDescription(ScheduleExpression scheduleExpression, Thesaurus thesaurus, TimeService timeService, Locale locale) {
         if (Never.NEVER.equals(scheduleExpression)) {
             return null;
         }
@@ -110,7 +111,7 @@ public class TaskInfo {
             return fromTemporalExpression((TemporalExpression) scheduleExpression, thesaurus);
         }
         if (scheduleExpression instanceof CronExpression) {
-            return timeService.toLocalizedString((CronExpression) scheduleExpression);
+            return timeService.toLocalizedString((CronExpression) scheduleExpression, locale);
         }
         return scheduleExpression.toString();
     }

@@ -7,6 +7,7 @@ import com.elster.jupiter.time.TimeService;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 
 @XmlRootElement
@@ -18,10 +19,10 @@ public class TaskInfos {
     public TaskInfos() {
     }
 
-    public TaskInfos(Iterable<? extends RecurrentTask> allTasks, Thesaurus thesaurus, TimeService timeService) {
+    public TaskInfos(Iterable<? extends RecurrentTask> allTasks, Thesaurus thesaurus, TimeService timeService, Locale locale) {
         for (RecurrentTask each : allTasks) {
             if (each.getNextExecution() != null)  {
-                tasks.add(new TaskInfo(each, thesaurus, timeService));
+                tasks.add(new TaskInfo(each, thesaurus, timeService, locale));
                 total++;
             }
         }
