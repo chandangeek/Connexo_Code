@@ -53,7 +53,7 @@ public class IssueResourceHelper {
     }
 
     public List<IssueActionTypeInfo> getListOfAvailableIssueActions(Issue issue) {
-        User user = ((User)securityContext.getUserPrincipal());
+        User user = ((User) securityContext.getUserPrincipal());
         Query<IssueActionType> query = issueService.query(IssueActionType.class, IssueType.class);
         IssueReason reason = issue.getReason();
         IssueType type = reason.getIssueType();
@@ -101,11 +101,8 @@ public class IssueResourceHelper {
     }
 
     public IssueCommentInfo postComment(Issue issue, CreateCommentRequest request, SecurityContext securityContext) {
-        try (TransactionContext context = transactionService.getContext()) {
-            User author = (User) securityContext.getUserPrincipal();
-            IssueComment comment = issue.addComment(request.getComment(), author).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
-            context.commit();
-            return new IssueCommentInfo(comment);
-        }
+        User author = (User) securityContext.getUserPrincipal();
+        IssueComment comment = issue.addComment(request.getComment(), author).orElseThrow(() -> new WebApplicationException(Response.Status.BAD_REQUEST));
+        return new IssueCommentInfo(comment);
     }
 }
