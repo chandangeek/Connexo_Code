@@ -5,9 +5,11 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 /**
  * Created by dragos on 11/19/2015.
@@ -17,6 +19,9 @@ public abstract class ConnexoAbstractSSOFilter implements Filter {
     private List<String> excludedUrls = new ArrayList<>();
 
     protected final String CONNEXO_URL = System.getProperty("connexo.url");
+    protected final String CONNEXO_CONFIG = System.getProperty("connexo.configuration");
+
+    protected Properties properties = new Properties();
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -56,5 +61,18 @@ public abstract class ConnexoAbstractSSOFilter implements Filter {
         }
 
         return false;
+    }
+
+    private void loadProperties() {
+        if(CONNEXO_CONFIG != null){
+            try {
+                FileInputStream inputStream = new FileInputStream(CONNEXO_CONFIG);
+                properties.load(inputStream);
+                inputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 }

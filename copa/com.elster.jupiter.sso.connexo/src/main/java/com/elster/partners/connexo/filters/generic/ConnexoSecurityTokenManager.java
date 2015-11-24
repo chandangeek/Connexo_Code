@@ -28,28 +28,24 @@ public class ConnexoSecurityTokenManager {
     private ConnexoPrincipal principal = null;
     private boolean tokenUpdated = false;
 
-    Properties properties = new Properties();
-
     private static ConnexoSecurityTokenManager instance = null;
 
-    public static synchronized ConnexoSecurityTokenManager getInstance() {
+    public static synchronized ConnexoSecurityTokenManager getInstance(Properties properties) {
         if(instance == null) {
-            instance = new ConnexoSecurityTokenManager();
+            instance = new ConnexoSecurityTokenManager(properties);
         }
 
         return instance;
     }
 
-    private ConnexoSecurityTokenManager() {
-        loadProperties();
-
-        String maxCount = this.properties.getProperty("com.elster.jupiter.token.refresh.maxcount");
+    private ConnexoSecurityTokenManager(Properties properties) {
+        String maxCount = properties.getProperty("com.elster.jupiter.token.refresh.maxcount");
         MAX_COUNT = (maxCount != null)? Long.parseLong(maxCount) : 100;
 
-        String timeout = this.properties.getProperty("com.elster.jupiter.timeout");
+        String timeout = properties.getProperty("com.elster.jupiter.timeout");
         TIMEOUT = (timeout != null) ? Integer.parseInt(timeout) : 300;
 
-        String tokenExpTime = this.properties.getProperty("com.elster.jupiter.token.expirationtime");
+        String tokenExpTime = properties.getProperty("com.elster.jupiter.token.expirationtime");
         TOKEN_EXPTIME = (tokenExpTime != null) ? Integer.parseInt(tokenExpTime) : 300;
     }
 
@@ -153,19 +149,5 @@ public class ConnexoSecurityTokenManager {
         }
 
         return false;
-    }
-
-    private void loadProperties() {
-        String configPath = System.getProperty("connexo.configuration");
-        if(configPath != null){
-            try {
-                FileInputStream inputStream = new FileInputStream(configPath);
-                properties.load(inputStream);
-                inputStream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-        }
     }
 }

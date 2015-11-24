@@ -28,7 +28,7 @@ public class ConnexoAuthenticationSSOFilter extends ConnexoAbstractSSOFilter {
             return;
         }
 
-        ConnexoSecurityTokenManager manager = ConnexoSecurityTokenManager.getInstance();
+        ConnexoSecurityTokenManager manager = ConnexoSecurityTokenManager.getInstance(this.properties);
 
         Cookie xsrf = null;
         Cookie[] cookies = request.getCookies();
