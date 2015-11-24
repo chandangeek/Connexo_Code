@@ -49,7 +49,6 @@ import com.energyict.mdc.device.lifecycle.config.impl.DeviceLifeCycleConfigurati
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.impl.MdcDynamicModule;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-import com.energyict.mdc.dynamic.relation.RelationParticipant;
 import com.energyict.mdc.engine.config.impl.EngineModelModule;
 import com.energyict.mdc.io.impl.MdcIOModule;
 import com.energyict.mdc.issues.impl.IssuesModule;
@@ -61,7 +60,6 @@ import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.pluggable.PluggableService;
 import com.energyict.mdc.pluggable.impl.PluggableModule;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
 import com.energyict.mdc.protocol.api.impl.ProtocolApiModule;
@@ -114,9 +112,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     private Principal principal;
     private EventAdmin eventAdmin;
     private TransactionService transactionService;
-    private OrmService ormService;
     private EventService eventService;
-    private NlsService nlsService;
     private MasterDataService masterDataService;
     private DeviceConfigurationService deviceConfigurationService;
     private MeteringService meteringService;
@@ -125,9 +121,7 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
     private MdcReadingTypeUtilService readingTypeUtilService;
     private DeviceDataModelServiceImpl deviceDataModelService;
     private TopologyService topologyService;
-    private TaskService taskService;
     private SchedulingService schedulingService;
-    private ValidationService validationService;
     private DataVaultService dataVaultService;
     private InMemoryBootstrapModule bootstrapModule;
     private Thesaurus thesaurus;
@@ -219,16 +213,16 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             injector.getInstance(PluggableService.class);
             this.protocolPluggableService = injector.getInstance(ProtocolPluggableService.class);
             injector.getInstance(CustomPropertySetService.class);
-            this.ormService = injector.getInstance(OrmService.class);
+            injector.getInstance(OrmService.class);
             this.eventService = injector.getInstance(EventService.class);
-            this.nlsService = injector.getInstance(NlsService.class);
+            injector.getInstance(NlsService.class);
             injector.getInstance(FiniteStateMachineService.class);
             this.meteringService = injector.getInstance(MeteringService.class);
             injector.getInstance(MeteringGroupsService.class);
             this.readingTypeUtilService = injector.getInstance(MdcReadingTypeUtilService.class);
             this.masterDataService = injector.getInstance(MasterDataService.class);
-            this.taskService = injector.getInstance(TaskService.class);
-            this.validationService = injector.getInstance(ValidationService.class);
+            injector.getInstance(TaskService.class);
+            injector.getInstance(ValidationService.class);
             this.deviceConfigurationService = injector.getInstance(DeviceConfigurationService.class);
             this.schedulingService = injector.getInstance(SchedulingService.class);
             this.topologyService = injector.getInstance(TopologyService.class);
@@ -290,14 +284,6 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
 
     public EventService getEventService() {
         return eventService;
-    }
-
-    public SchedulingService getSchedulingService() {
-        return schedulingService;
-    }
-
-    public DataModel getDataModel() {
-        return this.deviceDataModelService.dataModel();
     }
 
     private class MockModule extends AbstractModule {
@@ -536,10 +522,6 @@ public class InMemoryPersistenceWithMockedDeviceProtocol {
             return null;
         }
 
-        @Override
-        public boolean hasSecurityRelations(RelationParticipant securityPropertySet, DeviceProtocol deviceProtocol) {
-            return false;
-        }
     }
 
 }
