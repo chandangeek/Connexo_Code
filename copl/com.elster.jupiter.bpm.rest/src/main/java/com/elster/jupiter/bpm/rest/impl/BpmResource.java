@@ -548,6 +548,61 @@ public class BpmResource {
         return PagedInfoList.fromCompleteList("privileges", proc, queryParameters);
     }
 
+    @GET
+    @Path("taskcontent/{id}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public TaskContentInfos getTaskContent(@Context UriInfo uriInfo, @PathParam("id") long id) {
+        String jsonContent;
+        JSONObject obj = null;
+        TaskContentInfos taskContentInfos = null;
+        try {
+            String rest = "/rest/tasks/" + id + "/content";
+            jsonContent = bpmService.getBpmServer().doGet(rest);
+            if (!"".equals(jsonContent)) {
+                obj = new JSONObject(jsonContent);
+            }
+
+        } catch (JSONException e) {
+        } catch (RuntimeException e) {
+        }
+        if(obj != null) {
+            taskContentInfos = new TaskContentInfos(obj);
+        }
+        return taskContentInfos;
+    }
+
+    @PUT
+    @Path("taskcontent/{id}")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response postTaskContent(TaskContentInfos taskContentInfos, @PathParam("id") long id, @Context SecurityContext securityContext) {
+        String userName = securityContext.getUserPrincipal().getName();
+        JSONObject obj = null;
+        if(taskContentInfos.action.equals("startTask")){
+            String rest = "/rest/tasks/" + id + "/contentstart/" + userName + "/";
+            bpmService.getBpmServer().doPost(rest);
+        }
+        if(taskContentInfos.action.equals("completeTask")){
+            String rest = "/rest/tasks/" + id + "/contentcomplete/" + userName + "/";
+            bpmService.getBpmServer().doPost(rest);
+        }
+        if(taskContentInfos.action.equals("saveTask")){
+            String jsonContent;
+            try {
+                String rest = "/rest/tasks/" + id + "/content";
+                jsonContent = bpmService.getBpmServer().doGet(rest);
+                if (!"".equals(jsonContent)) {
+                    obj = new JSONObject(jsonContent);
+                    obj = obj.getJSONObject("content");
+                }
+
+            } catch (JSONException e) {
+            } catch (RuntimeException e) {
+            }
+        }
+        return Response.ok().build();
+
+    }
+
     private void doUpdatePrivileges(BpmProcessDefinition bpmProcessDefinition, ProcessDefinitionInfo info){
         List<BpmProcessPrivilege> currentPrivileges = bpmProcessDefinition.getPrivileges();
         List<BpmProcessPrivilege> targetPrivileges =  info.privileges.stream()
