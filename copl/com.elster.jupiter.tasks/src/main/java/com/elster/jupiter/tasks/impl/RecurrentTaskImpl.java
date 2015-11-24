@@ -214,7 +214,7 @@ class RecurrentTaskImpl implements RecurrentTask {
             getDestination().message(json).send();
             if (taskOccurrence.wasScheduled()) {
                 updateNextExecution();
-                dataModel.mapper(RecurrentTaskImpl.class).update(this, "nextExecution");
+                dataModel.mapper(RecurrentTask.class).update(this, "nextExecution");
             }
             return taskOccurrence;
         } catch (RuntimeException e) {

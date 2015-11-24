@@ -27,10 +27,10 @@ enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column nameColumn = table.column("NAME").varChar(NAME_LENGTH).notNull().map("name").add();
             table.column("CRONSTRING").varChar(NAME_LENGTH).notNull().map("cronString").add();
-            table.column("NEXTEXECUTION").type("number").conversion(NUMBER2INSTANT).map("nextExecution").skipAuditOnFieldUpdate().add();
+            table.column("NEXTEXECUTION").type("number").conversion(NUMBER2INSTANT).map("nextExecution").notAudited().add();
             table.column("PAYLOAD").varChar(NAME_LENGTH).notNull().map("payload").add();
             table.column("DESTINATION").type("varchar2(30)").notNull().map("destination").add();
-            table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").skipAuditOnFieldUpdate().add();
+            table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").notAudited().add();
             table.addAuditColumns();
             table.primaryKey("TSK_PK_RECURRENTTASK").on(idColumn).add();
             table.unique("TSK_UK_RECURRENTTASK").on(nameColumn).add();
