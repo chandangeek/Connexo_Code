@@ -67,7 +67,8 @@ Ext.define('Fim.view.history.HistoryGrid', {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
                 itemsPerPageMsg: Uni.I18n.translate('importService.history.pagingtoolbarbottom.itemsPerPage', 'FIM', 'History lines per page'),
-                dock: 'bottom'
+                dock: 'bottom',
+                deferLoading: true
             }
         ];
 

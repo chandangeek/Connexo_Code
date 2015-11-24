@@ -87,6 +87,7 @@ Ext.define('Fim.controller.History', {
                 }
             });
         }
+        me.getStore('Fim.store.ImportServicesHistory').load();
     },
 
     updateSortingToolbar: function () {
