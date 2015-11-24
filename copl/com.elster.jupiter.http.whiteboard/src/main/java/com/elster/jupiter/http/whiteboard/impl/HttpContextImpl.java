@@ -3,7 +3,6 @@ package com.elster.jupiter.http.whiteboard.impl;
 import com.elster.jupiter.http.whiteboard.Resolver;
 
 import com.elster.jupiter.http.whiteboard.SecurityToken;
-import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -115,6 +114,8 @@ public class HttpContextImpl implements HttpContext {
             } else if (authentication.startsWith("Bearer ")){
                     //&& !authentication.equals("Bearer undefined")) {
                 String token = authentication.substring(7);
+                if(!token.equals(xsrf.get().getValue()))
+                    return deny(request, response);
                 user = SecurityToken.verifyToken(token, request, response, userService);
             }
         }
@@ -165,7 +166,7 @@ public class HttpContextImpl implements HttpContext {
     private boolean deny(HttpServletRequest request, HttpServletResponse response) {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         Optional<Cookie> xsrf = Arrays.asList(request.getCookies()).stream().filter(cookie -> cookie.getName().equals("X-CONNEXO-TOKEN")).findFirst();
-        if (!xsrf.isPresent()) {
+        if (xsrf.isPresent()) {
             SecurityToken.removeCookie(request,response);
         }
         return false;

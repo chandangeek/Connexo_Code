@@ -1,6 +1,7 @@
 package com.elster.jupiter.http.whiteboard;
 
 import com.elster.jupiter.http.whiteboard.impl.WhiteBoard;
+import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.nimbusds.jose.*;
@@ -12,10 +13,9 @@ import com.nimbusds.jwt.SignedJWT;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.text.ParseException;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Optional;
+import java.util.*;
 
 public class SecurityToken {
 
@@ -33,9 +33,18 @@ public class SecurityToken {
         // Create HMAC signer
         JWSSigner signer = new MACSigner(SHARED_SECRET.getBytes());
 
+        List<Group> userGroups = user.getGroups();
+        List<RoleClaimInfo> roles = new ArrayList<>();
+
+        for (Group group : userGroups){
+            roles.add(new RoleClaimInfo(group.getId(),group.getName()));
+        }
+        
         // Prepare JWT with claims set
         JWTClaimsSet claimsSet = new JWTClaimsSet();
         claimsSet.setSubject(Long.toString(user.getId()));
+        claimsSet.setCustomClaim("username",user.getName());
+       claimsSet.setCustomClaim("roles",roles);
         claimsSet.setIssuer("Elster Connexo");
         claimsSet.setJWTID("token" + COUNT);
         claimsSet.setIssueTime(new Date());
@@ -77,6 +86,7 @@ public class SecurityToken {
                         ++COUNT;
                         String newToken = createToken(userService.getLoggedInUser(userId).get());
                         response.setHeader("X-AUTH-TOKEN", newToken);
+                        response.setHeader("Authorization", "Bearer " + newToken);
                         createCookie("X-CONNEXO-TOKEN",newToken,"/",TOKEN_EXPTIME+TIMEOUT,true,response);
                         return userService.getLoggedInUser(userId);
                     }
@@ -96,9 +106,11 @@ public class SecurityToken {
     public static void removeCookie(HttpServletRequest request, HttpServletResponse response) {
         Optional<Cookie> tokenCookie = Arrays.asList(request.getCookies()).stream().filter(cookie -> cookie.getName().equals("X-CONNEXO-TOKEN")).findFirst();
         if (tokenCookie.isPresent()) {
+            response.setHeader("Authorization", null);
             response.setHeader("X-AUTH-TOKEN", null);
-            createCookie("X-CONNEXO-TOKEN", null, "/",0,true,response);
-           //request.getSession(false).invalidate();
+            createCookie("X-CONNEXO-TOKEN", null, "/", 0, true, response);
+            HttpSession session = request.getSession(false);
+            if (session != null) session.invalidate();
         }
     }
 
