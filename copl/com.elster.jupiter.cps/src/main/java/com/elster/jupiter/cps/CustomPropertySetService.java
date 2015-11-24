@@ -1,13 +1,11 @@
 package com.elster.jupiter.cps;
 
-import com.elster.jupiter.util.exception.MessageSeed;
-
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.cps.impl.OverlapCalculatorBuilderImpl;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -222,31 +220,8 @@ public interface CustomPropertySetService {
      */
     <D, T extends PersistentDomainExtension<D>> List<T> getAllVersionedValuesEntitiesFor(CustomPropertySet<D, T> customPropertySet, D businesObject);
 
-    <D, T extends PersistentDomainExtension<D>> Map<CustomPropertySetValues, MessageSeed> getValuesRangeOverlapFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Range<Instant> newRange, Instant effectiveTimestamp, boolean isUpdate);
-    <D, T extends PersistentDomainExtension<D>> void setValuesVersionFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values, Range<Instant> newRange, Instant effectiveTimestamp, boolean isUpdate);
+    <D, T extends PersistentDomainExtension<D>> void setValuesVersionFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values, Range<Instant> newRange);
+    <D, T extends PersistentDomainExtension<D>> void setValuesVersionFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values, Range<Instant> newRange, Instant effectiveTimestamp);
 
     <D, T extends PersistentDomainExtension<D>> OverlapCalculatorBuilder calculateOverlapsFor(CustomPropertySet<D, T> customPropertySet, D businesObject);
-
-    interface OverlapCalculatorBuilder {
-        List<ValuesRangeConflict> whenCreating(Range<Instant> newRange);
-        List<ValuesRangeConflict> whenUpdating(Range<Instant> newRange);
-    }
-
-    enum ValuesRangeConflictType {
-        RANGE_OVERLAP_UPDATE_START,
-        RANGE_OVERLAP_UPDATE_END,
-        RANGE_OVERLAP_DELETE,
-        RANGE_GAP_BEFORE,
-        RANGE_GAP_AFTER,
-        RANGE_INSERT;
-    }
-
-    @ProviderType
-    interface ValuesRangeConflict {
-        ValuesRangeConflictType getType();
-        String getMessage();
-        Range<Instant> getConflictingRange();
-        CustomPropertySetValues getValues();
-    }
-
 }
