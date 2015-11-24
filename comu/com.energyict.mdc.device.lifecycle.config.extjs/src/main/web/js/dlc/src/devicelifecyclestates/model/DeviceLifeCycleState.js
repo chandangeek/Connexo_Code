@@ -16,8 +16,8 @@ Ext.define('Dlc.devicelifecyclestates.model.DeviceLifeCycleState', {
                 return data.name;
             }
         },
-        {name: 'onEntry', type: 'auto'},
-        {name: 'onExit', type: 'auto'}
+        {name: 'onEntry', type: 'auto', defaultValue: []},
+        {name: 'onExit', type: 'auto', defaultValue: []}
     ],
     proxy: {
         type: 'rest',
