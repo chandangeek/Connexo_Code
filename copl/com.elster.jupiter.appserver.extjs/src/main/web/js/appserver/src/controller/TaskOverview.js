@@ -36,13 +36,11 @@ Ext.define('Apr.controller.TaskOverview', {
         var me = this,
             store = Ext.create('Apr.store.Tasks'),
             view;
-
             view = Ext.widget('task-overview-setup',
                 {
                     store: store
                 });
             me.getApplication().fireEvent('changecontentevent', view);
-        view.down('preview-container').updateOnChange(!store.getCount());
 
     },
 
@@ -58,6 +56,6 @@ Ext.define('Apr.controller.TaskOverview', {
             this.getTaskPreview().down('#durationField').hide();
             this.getTaskPreview().down('#nextRunField').hide();
         }
-        Ext.resumeLayouts();
+        Ext.resumeLayouts(true);
     }
 });
