@@ -37,7 +37,6 @@ public class ConnexoFactsSSOFilter extends ConnexoAbstractSSOFilter {
                 redirectToLogout(request, response);
             } else {
                 if (!isLoggedIn(request) && !isLoginRequest(request)) {
-                    // TODO : if the response is license expired, and the user is admin, redirect to the default login page
                     authenticate(principal, request, response);
                 } else {
                     filterChain.doFilter(request, response);
