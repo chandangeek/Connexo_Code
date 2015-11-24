@@ -108,7 +108,7 @@ public class ColumnImpl implements Column {
 
     @Override
     public boolean isAutoIncrement() {
-        return sequenceName != null && sequenceName.length() > 0;
+        return sequenceName != null && !sequenceName.isEmpty();
     }
 
     @Override
@@ -133,7 +133,7 @@ public class ColumnImpl implements Column {
 
     @Override
     public boolean hasInsertValue() {
-        return insertValue != null && insertValue.length() > 0;
+        return insertValue != null && !insertValue.isEmpty();
     }
 
     @Override
@@ -148,7 +148,7 @@ public class ColumnImpl implements Column {
 
     @Override
     public boolean hasUpdateValue() {
-        return updateValue != null && updateValue.length() > 0;
+        return updateValue != null && !updateValue.isEmpty();
     }
 
     private ColumnConversionImpl.JsonConverter jsonConverter() {
