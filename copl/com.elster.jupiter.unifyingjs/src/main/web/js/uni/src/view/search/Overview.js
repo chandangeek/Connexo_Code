@@ -192,9 +192,9 @@ Ext.define('Uni.view.search.Overview', {
                             xtype: 'no-items-found-panel',
                             title: Uni.I18n.translate('search.overview.noItemsFoundPanel.title', 'UNI', 'No search results found'),
                             reasons: [
-                                Uni.I18n.translate('search.overview.noItemsFoundPanel.item1', 'UNI', 'No filters have been applied.'),
+                                Uni.I18n.translate('search.overview.noItemsFoundPanel.item1', 'UNI', 'No search criteria have been specified.'),
                                 Uni.I18n.translate('search.overview.noItemsFoundPanel.item2', 'UNI', 'There are no requested items.'),
-                                Uni.I18n.translate('search.overview.noItemsFoundPanel.item3', 'UNI', 'The filter is too narrow.')
+                                Uni.I18n.translate('search.overview.noItemsFoundPanel.item3', 'UNI', 'The applied search criteria are too specific.')
                             ],
                             margins: '16 0 0 0'
                         },
