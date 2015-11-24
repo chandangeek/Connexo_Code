@@ -20,7 +20,7 @@ public class ProtocolDialectConfigurationPropertiesResourceTest extends Multisen
     @Test
     public void testAllGetProtocolDialectConfigurationPropertiesPaged() throws Exception {
         DeviceType deviceType = mockDeviceType(21, "Some type", 3333L);
-        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType, 3333L);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
         ProtocolDialectConfigurationProperties properties = mock(ProtocolDialectConfigurationProperties.class);
         when(properties.getId()).thenReturn(31L);
@@ -45,7 +45,7 @@ public class ProtocolDialectConfigurationPropertiesResourceTest extends Multisen
     @Test
     public void testGetSingleProtocolDialectConfigurationPropertiesWithFields() throws Exception {
         DeviceType deviceType = mockDeviceType(21, "Some type", 3333L);
-        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType, 3333L);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
         ProtocolDialectConfigurationProperties properties = mock(ProtocolDialectConfigurationProperties.class);
         when(properties.getId()).thenReturn(31L);

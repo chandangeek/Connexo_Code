@@ -6,6 +6,7 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -101,8 +102,18 @@ public class DeviceMessageResource {
     @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     public Response createDeviceMessage(@PathParam("mrid") String mrid, DeviceMessageInfo deviceMessageInfo, @Context UriInfo uriInfo) {
-        Device device = deviceService.findByUniqueMrid(mrid)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
+        if (deviceMessageInfo.device==null || deviceMessageInfo.device.version==null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "device.version");
+        }
+        if (deviceMessageInfo.messageSpecification==null || deviceMessageInfo.messageSpecification.id==null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.EXPECTED_MESSAGE_SPEC_ID);
+        }
+        if (deviceMessageInfo.releaseDate==null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.EXPECTED_RELEASE_DATE);
+        }
+
+        Device device = deviceService.findAndLockDeviceBymRIDAndVersion(mrid, deviceMessageInfo.device.version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
         DeviceMessageId deviceMessageId = DeviceMessageId.havingId(deviceMessageInfo.messageSpecification.id);
         Device.DeviceMessageBuilder deviceMessageBuilder = device.newDeviceMessage(deviceMessageId).setReleaseDate(deviceMessageInfo.releaseDate);
         DeviceMessageSpec deviceMessageSpec = deviceMessageSpecificationService
@@ -136,10 +147,28 @@ public class DeviceMessageResource {
     @Path("/{messageId}")
     public Response updateDeviceMessage(@PathParam("mrid") String mrid, @PathParam("messageId") long messageId,
                                         DeviceMessageInfo deviceMessageInfo, @Context UriInfo uriInfo) {
-        Device device = deviceService.findByUniqueMrid(mrid)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
-        DeviceMessage<Device> deviceMessage = device.getMessages().stream().filter(msg -> msg.getId() == messageId).findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_DEVICE_MESSAGE));
+        if (deviceMessageInfo.version==null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "version");
+        }
+        if (deviceMessageInfo.device==null || deviceMessageInfo.device.version==null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "device.version");
+        }
+        if (deviceMessageInfo.messageSpecification==null || deviceMessageInfo.messageSpecification.id==null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.EXPECTED_MESSAGE_SPEC_ID);
+        }
+        if (deviceMessageInfo.releaseDate==null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.EXPECTED_RELEASE_DATE);
+        }
+        if (deviceMessageInfo.protocolInfo==null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.EXPECTED_PROTOCOL_INFO);
+        }
+        Device device = deviceService.findAndLockDeviceBymRIDAndVersion(mrid, deviceMessageInfo.device.version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
+        DeviceMessage deviceMessage = deviceMessageService.findAndLockDeviceMessageByIdAndVersion(messageId, deviceMessageInfo.version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE_MESSAGE));
+        if (deviceMessage.getDevice().getId()!=device.getId()) {
+            throw exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_MESSAGE);
+        }
 
         deviceMessage.setProtocolInformation(deviceMessageInfo.protocolInfo);
         deviceMessage.setReleaseDate(deviceMessageInfo.releaseDate);

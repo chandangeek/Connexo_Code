@@ -39,10 +39,10 @@ public class DeviceTypeResourceTest extends MultisensePublicApiJerseyTest {
         Finder<DeviceType> deviceTypeFinder = mockFinder(Arrays.asList(water, gas, elec1, elec2, elec3, elec4, elec5));
         when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(deviceTypeFinder);
 
-        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(13L, "Default configuration", elec1);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(13L, "Default configuration", elec1, 3333L);
         Device device = mockDevice("DAV", "65749846514", deviceConfiguration, 3333L);
         Device deviceXas = mockDevice("XAS", "5544657642", deviceConfiguration, 3333L);
-        DeviceConfiguration deviceConfiguration2 = mockDeviceConfiguration(23L, "Default configuration", elec2);
+        DeviceConfiguration deviceConfiguration2 = mockDeviceConfiguration(23L, "Default configuration", elec2, 3333L);
         Device device3 = mockDevice("PIO", "54687651356", deviceConfiguration2, 3333L);
         Finder<Device> deviceFinder = mockFinder(Arrays.asList(device, deviceXas, device3));
         when(this.deviceService.findAllDevices(any(Condition.class))).thenReturn(deviceFinder);

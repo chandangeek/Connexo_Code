@@ -110,10 +110,13 @@ public class DeviceLifecycleActionResource {
                 @PathParam("actionId") long actionId,
                 @BeanParam JsonQueryParameters queryParameters,
                 LifeCycleActionInfo info){
-        Device device = deviceService.findByUniqueMrid(mrid).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         if (info==null) {
             throw exceptionFactory.newException(MessageSeeds.CONTENT_EXPECTED);
         }
+        if (info.device == null || info.device.version == null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "device");
+        }
+        Device device = deviceService.findByUniqueMrid(mrid).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         device = deviceService.findAndLockDeviceByIdAndVersion(device.getId(), info.device.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.CONFLICT_ON_DEVICE));
         ExecutableAction requestedAction = getExecutableActionByIdOrThrowException(actionId, device);

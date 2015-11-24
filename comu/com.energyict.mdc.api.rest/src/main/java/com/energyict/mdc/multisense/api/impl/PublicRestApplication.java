@@ -4,6 +4,7 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.license.License;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -11,9 +12,11 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
+import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -21,6 +24,7 @@ import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.multisense.api.impl.utils.DeviceLifeCycleActionViolationExceptionMapper;
+import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.ResourceHelper;
 import com.energyict.mdc.multisense.api.impl.utils.RestExceptionMapper;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
@@ -28,14 +32,21 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import org.glassfish.hk2.api.Factory;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.hibernate.validator.HibernateValidator;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import javax.inject.Singleton;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import javax.validation.spi.ValidationProvider;
 import javax.ws.rs.core.Application;
 import java.time.Clock;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -43,10 +54,10 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 @Component(name = "com.energyict.multisense.public.rest",
-        service = {Application.class, TranslationKeyProvider.class},
+        service = {Application.class, TranslationKeyProvider.class, MessageSeedProvider.class},
         immediate = true,
         property = {"alias=/comu", "app=MDC", "name=" + PublicRestApplication.COMPONENT_NAME, "version=v2.0"})
-public class PublicRestApplication extends Application implements TranslationKeyProvider {
+public class PublicRestApplication extends Application implements TranslationKeyProvider, MessageSeedProvider {
 
     private final Logger logger = Logger.getLogger(PublicRestApplication.class.getName());
 
@@ -71,6 +82,7 @@ public class PublicRestApplication extends Application implements TranslationKey
     private volatile Clock clock;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile DeviceMessageService deviceMessageService;
+    private volatile CommunicationTaskService communicationTaskService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -160,6 +172,11 @@ public class PublicRestApplication extends Application implements TranslationKey
     }
 
     @Reference
+    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
+        this.communicationTaskService = communicationTaskService;
+    }
+
+    @Reference
     public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
         this.deviceMessageService = deviceMessageService;
     }
@@ -182,6 +199,11 @@ public class PublicRestApplication extends Application implements TranslationKey
     @Override
     public Layer getLayer() {
         return Layer.REST;
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
     }
 
     @Override
@@ -218,6 +240,27 @@ public class PublicRestApplication extends Application implements TranslationKey
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
     }
 
+    private Factory<Validator> getValidatorFactory() {
+        return new Factory<Validator>() {
+            private final ValidatorFactory validatorFactory = Validation.byDefaultProvider()
+                    .providerResolver(() -> ImmutableList.<ValidationProvider<?>>of(new HibernateValidator()))
+                    .configure()
+//                .constraintValidatorFactory(getConstraintValidatorFactory())
+                    .messageInterpolator(thesaurus)
+                    .buildValidatorFactory();
+
+            @Override
+            public Validator provide() {
+                return validatorFactory.getValidator();
+            }
+
+            @Override
+            public void dispose(Validator validator) {
+
+            }
+        };
+    }
+
     class HK2Binder extends AbstractBinder {
 
         @Override
@@ -240,6 +283,8 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(protocolPluggableService).to(ProtocolPluggableService.class);
             bind(schedulingService).to(SchedulingService.class);
             bind(deviceMessageService).to(DeviceMessageService.class);
+            bind(communicationTaskService).to(CommunicationTaskService.class);
+            bindFactory(getValidatorFactory()).to(Validator.class);
 
             bind(MdcPropertyUtils.class).to(MdcPropertyUtils.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);

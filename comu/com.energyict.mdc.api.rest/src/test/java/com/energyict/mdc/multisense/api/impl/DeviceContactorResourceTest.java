@@ -39,7 +39,7 @@ public class DeviceContactorResourceTest extends MultisensePublicApiJerseyTest {
     @Before
     public void setup() {
         DeviceType deviceType = mockDeviceType(1L, "device type", 3333L);
-        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(2L, "Default", deviceType);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(2L, "Default", deviceType, 3333L);
         DeviceMessageSpec arm = mockDeviceMessageSpec(DeviceMessageId.CONTACTOR_ARM, "arm");
         DeviceMessageSpec connect = mockDeviceMessageSpec(DeviceMessageId.CONTACTOR_CLOSE, "close");
         DeviceMessageSpec disconnect = mockDeviceMessageSpec(DeviceMessageId.CONTACTOR_OPEN, "open");

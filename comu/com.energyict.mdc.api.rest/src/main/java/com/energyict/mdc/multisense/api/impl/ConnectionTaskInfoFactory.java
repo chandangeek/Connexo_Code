@@ -45,19 +45,21 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
     private final ExceptionFactory exceptionFactory;
     private final Provider<PartialConnectionTaskInfoFactory> partialConnectionTaskInfoFactoryProvider;
     private final Provider<ComPortPoolInfoFactory> comPortPoolInfoFactoryProvider;
+    private final Provider<DeviceInfoFactory> deviceInfoFactoryProvider;
 
     @Inject
     public ConnectionTaskInfoFactory(
             MdcPropertyUtils mdcPropertyUtils, EngineConfigurationService engineConfigurationService,
             ConnectionTaskService connectionTaskService, ExceptionFactory exceptionFactory,
             Provider<PartialConnectionTaskInfoFactory> partialConnectionTaskInfoFactoryProvider,
-            Provider<ComPortPoolInfoFactory> comPortPoolInfoFactoryProvider) {
+            Provider<ComPortPoolInfoFactory> comPortPoolInfoFactoryProvider, Provider<DeviceInfoFactory> deviceInfoFactoryProvider) {
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.engineConfigurationService = engineConfigurationService;
         this.connectionTaskService = connectionTaskService;
         this.exceptionFactory = exceptionFactory;
         this.partialConnectionTaskInfoFactoryProvider = partialConnectionTaskInfoFactoryProvider;
         this.comPortPoolInfoFactoryProvider = comPortPoolInfoFactoryProvider;
+        this.deviceInfoFactoryProvider = deviceInfoFactoryProvider;
     }
 
     public LinkInfo asLink(ConnectionTask connectionTask, Relation relation, UriInfo uriInfo) {
@@ -93,8 +95,20 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
     @Override
     protected Map<String, PropertyCopier<ConnectionTaskInfo, ConnectionTask<?, ?>>> buildFieldMap() {
         Map<String, PropertyCopier<ConnectionTaskInfo, ConnectionTask<?,?>>> map = new HashMap<>();
-        map.put("id", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.id = connectionTask.getId());
-        map.put("version", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.version = connectionTask.getVersion());
+        map.put("id", (connectionTaskInfo, connectionTask, uriInfo)-> {
+            connectionTaskInfo.id = connectionTask.getId();
+            if (connectionTaskInfo.device == null) {
+                connectionTaskInfo.device = new LinkInfo();
+                connectionTaskInfo.device.id = connectionTask.getDevice().getId();
+            }
+        });
+        map.put("version", (connectionTaskInfo, connectionTask, uriInfo)-> {
+            connectionTaskInfo.version = connectionTask.getVersion();
+            if (connectionTaskInfo.device == null) {
+                connectionTaskInfo.device = new LinkInfo();
+                connectionTaskInfo.device.version = connectionTask.getDevice().getVersion();
+            }
+        });
         map.put("connectionMethod", (connectionTaskInfo, connectionTask, uriInfo)->
             connectionTaskInfo.connectionMethod = partialConnectionTaskInfoFactoryProvider.get().asLink(connectionTask.getPartialConnectionTask(), Relation.REF_PARENT, uriInfo));
         map.put("direction", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.direction = ConnectionTaskType.from(connectionTask));
@@ -103,6 +117,8 @@ public class ConnectionTaskInfoFactory extends SelectableFieldFactory<Connection
         map.put("connectionType", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.connectionType = connectionTask.getPartialConnectionTask().getPluggableClass().getName());
         map.put("comPortPool", (connectionTaskInfo, connectionTask, uriInfo)->
             connectionTaskInfo.comPortPool = comPortPoolInfoFactoryProvider.get().asLink(connectionTask.getComPortPool(), Relation.REF_RELATION, uriInfo));
+        map.put("device", (connectionTaskInfo, connectionTask, uriInfo)->
+            connectionTaskInfo.device = deviceInfoFactoryProvider.get().asLink(connectionTask.getDevice(), Relation.REF_PARENT, uriInfo));
         map.put("isDefault", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.isDefault = connectionTask.isDefault());
         map.put("properties", (connectionTaskInfo, connectionTask, uriInfo)-> connectionTaskInfo.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(connectionTask.getConnectionType().getPropertySpecs(), connectionTask.getTypedProperties()));
         map.put("comWindow", (connectionTaskInfo, connectionTask, uriInfo) -> {

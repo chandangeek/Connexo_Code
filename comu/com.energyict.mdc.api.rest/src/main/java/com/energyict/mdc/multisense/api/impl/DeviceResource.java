@@ -148,7 +148,10 @@ public class DeviceResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public DeviceInfo updateDevice(@PathParam("mrid") String mrid, DeviceInfo info, @Context UriInfo uriInfo) {
-        Device device = deviceService.findAndLockDeviceBymRIDAndVersion(mrid, info.version == null ? 0 : info.version)
+        if (info.version==null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "version");
+        }
+        Device device = deviceService.findAndLockDeviceBymRIDAndVersion(mrid, info.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.CONFLICT_ON_DEVICE));
         if (info.masterDevice!=null && info.masterDevice.mRID != null) {
             if (device.getDeviceConfiguration().isDirectlyAddressable()) {

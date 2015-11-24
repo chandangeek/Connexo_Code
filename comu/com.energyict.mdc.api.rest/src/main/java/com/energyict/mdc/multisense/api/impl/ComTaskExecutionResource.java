@@ -4,6 +4,7 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PROPFIND;
 import com.elster.jupiter.rest.util.Transactional;
+import com.energyict.mdc.device.data.CommunicationTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
@@ -39,12 +40,14 @@ public class ComTaskExecutionResource {
     private final ComTaskExecutionInfoFactory comTaskExecutionInfoFactory;
     private final DeviceService deviceService;
     private final ExceptionFactory exceptionFactory;
+    private final CommunicationTaskService communicationTaskService;
 
     @Inject
-    public ComTaskExecutionResource(DeviceService deviceService, ComTaskExecutionInfoFactory comTaskExecutionInfoFactory, ExceptionFactory exceptionFactory) {
+    public ComTaskExecutionResource(DeviceService deviceService, ComTaskExecutionInfoFactory comTaskExecutionInfoFactory, ExceptionFactory exceptionFactory, CommunicationTaskService communicationTaskService) {
         this.deviceService = deviceService;
         this.comTaskExecutionInfoFactory = comTaskExecutionInfoFactory;
         this.exceptionFactory = exceptionFactory;
+        this.communicationTaskService = communicationTaskService;
     }
 
     @GET @Transactional
@@ -81,7 +84,11 @@ public class ComTaskExecutionResource {
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public Response createComTaskExecution(@PathParam("mrid") String mrid, ComTaskExecutionInfo comTaskExecutionInfo, @Context UriInfo uriInfo) {
-        Device device = deviceService.findByUniqueMrid(mrid)
+        if (comTaskExecutionInfo.device == null || comTaskExecutionInfo.device.version == null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "device");
+        }
+
+        Device device = deviceService.findAndLockDeviceBymRIDAndVersion(mrid, comTaskExecutionInfo.device.version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         ComTaskExecution comTaskExecution = comTaskExecutionInfo.type.createComTaskExecution(comTaskExecutionInfoFactory, comTaskExecutionInfo, device);
         URI uri = uriInfo.getBaseUriBuilder()
@@ -101,12 +108,17 @@ public class ComTaskExecutionResource {
     @Path("/{comTaskExecutionId}")
     public Response updateComTaskExecution(@PathParam("mrid") String mrid, @PathParam("comTaskExecutionId") long comTaskExecutionId,
                                            ComTaskExecutionInfo comTaskExecutionInfo, @Context UriInfo uriInfo) {
-        ComTaskExecution comTaskExecution = deviceService.findByUniqueMrid(mrid)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE))
-                .getComTaskExecutions().stream()
-                .filter(cte -> cte.getId() == comTaskExecutionId)
-                .findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_COM_TASK_EXECUTION));
+        if (comTaskExecutionInfo.device == null || comTaskExecutionInfo.device.version == null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "device");
+        }
+        deviceService.findAndLockDeviceBymRIDAndVersion(mrid, comTaskExecutionInfo.device.version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
+        ComTaskExecution comTaskExecution = communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(comTaskExecutionId, comTaskExecutionInfo.version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_COM_TASK_EXECUTION));
+
+        if (!comTaskExecution.getDevice().getmRID().equals(mrid)) {
+            throw exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_COM_TASK_EXECUTION);
+        }
 
         ComTaskExecution updatedComTaskExecution = comTaskExecutionInfo.type.updateComTaskExecution(comTaskExecutionInfoFactory, comTaskExecutionInfo, comTaskExecution);
         URI uri = uriInfo.getBaseUriBuilder()

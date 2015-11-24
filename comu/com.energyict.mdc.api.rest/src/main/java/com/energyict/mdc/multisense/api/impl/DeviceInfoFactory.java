@@ -17,6 +17,7 @@ import javax.ws.rs.core.Link;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -47,22 +48,21 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo,Device>
     }
 
     public LinkInfo asLink(Device device, Relation relation, UriInfo uriInfo) {
-        return asLink(device, relation, getUriBuilder(uriInfo));
+        DeviceInfo info = new DeviceInfo();
+        copySelectedFields(info, device, uriInfo, Arrays.asList("id", "version"));
+        info.link = link(device,relation,uriInfo);
+        return info;
     }
 
     public List<LinkInfo> asLink(Collection<Device> devices, Relation relation, UriInfo uriInfo) {
-        UriBuilder uriBuilder = getUriBuilder(uriInfo);
-        return devices.stream().map(i-> asLink(i, relation, uriBuilder)).collect(toList());
+        return devices.stream().map(i-> asLink(i, relation, uriInfo)).collect(toList());
     }
 
-    private LinkInfo asLink(Device device, Relation relation, UriBuilder uriBuilder) {
-        LinkInfo info = new LinkInfo();
-        info.id = device.getId();
-        info.link = Link.fromUriBuilder(uriBuilder)
+    private Link link(Device device, Relation relation, UriInfo uriInfo) {
+        return Link.fromUriBuilder(getUriBuilder(uriInfo))
                 .rel(relation.rel())
                 .title("Device")
                 .build(device.getmRID());
-        return info;
     }
 
     private UriBuilder getUriBuilder(UriInfo uriInfo) {
@@ -84,7 +84,7 @@ public class DeviceInfoFactory extends SelectableFieldFactory<DeviceInfo,Device>
     protected Map<String, PropertyCopier<DeviceInfo,Device>> buildFieldMap() {
         Map<String, PropertyCopier<DeviceInfo, Device>> map = new HashMap<>();
         map.put("id", (deviceInfo, device, uriInfo) -> deviceInfo.id = device.getId());
-        map.put("link", (deviceInfo, device, uriInfo) -> deviceInfo.link = Link.fromUriBuilder(getUriTemplate(uriInfo)).rel(Relation.REF_SELF.rel()).title("self reference").build(device.getmRID()));
+        map.put("link", (deviceInfo, device, uriInfo) -> deviceInfo.link = link(device, Relation.REF_SELF, uriInfo));
         map.put("name", (deviceInfo, device, uriInfo) -> deviceInfo.name = device.getName());
         map.put("mRID", (deviceInfo, device, uriInfo) -> deviceInfo.mRID = device.getmRID());
         map.put("serialNumber", (deviceInfo, device, uriInfo) -> deviceInfo.serialNumber = device.getSerialNumber());

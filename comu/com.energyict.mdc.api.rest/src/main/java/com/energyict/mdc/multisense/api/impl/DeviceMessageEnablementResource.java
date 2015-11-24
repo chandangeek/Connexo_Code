@@ -9,6 +9,7 @@ import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.DeviceMessageEnablement;
 import com.energyict.mdc.device.config.DeviceMessageEnablementBuilder;
+import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.impl.utils.PagedInfoList;
@@ -108,12 +109,21 @@ public class DeviceMessageEnablementResource {
     public Response createDeviceMessageEnablement(
             @PathParam("deviceTypeId") long deviceTypeId, @PathParam("deviceConfigId") long deviceConfigId,
             DeviceMessageEnablementInfo info, @Context UriInfo uriInfo) {
-        DeviceConfiguration deviceConfiguration = deviceConfigurationService.
-                findDeviceType(deviceTypeId)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_TYPE))
-                .getConfigurations().stream().filter(dc -> dc.getId() == deviceConfigId)
-                .findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_CONFIG));
+        if (info.deviceConfiguration==null || info.deviceConfiguration.version==null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "deviceConfiguration.version");
+        }
+        if (info.deviceConfiguration.deviceType==null || info.deviceConfiguration.deviceType.version==null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "deviceConfiguration.deviceType.version");
+        }
+        deviceConfigurationService.
+                findAndLockDeviceType(deviceTypeId, info.deviceConfiguration.deviceType.version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE_TYPE));
+
+        DeviceConfiguration deviceConfiguration = deviceConfigurationService.findAndLockDeviceConfigurationByIdAndVersion(deviceConfigId, info.deviceConfiguration.version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE_CONFIG));
+        if (deviceConfiguration.getDeviceType().getId()!=deviceTypeId) {
+            throw exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE_CONFIG);
+        }
         if (info.messageId==null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.EXPECTED_MESSAGE_ID);
         }

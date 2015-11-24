@@ -25,7 +25,7 @@ public class PartialConnectionTaskResourceTest extends MultisensePublicApiJersey
     @Before
     public void setup() {
         DeviceType deviceType = mockDeviceType(112L, "device type", 3333L);
-        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(113L, "Default configuration", deviceType);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(113L, "Default configuration", deviceType, 3333L);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
         PartialConnectionTask partialConnectionTask1 = mockPartialInboundConnectionTask(114L, "partial conn task 114", deviceConfiguration, 3333L);
         PartialConnectionTask partialConnectionTask2 = mockPartialInboundConnectionTask(124L, "partial conn task 124", deviceConfiguration, 3333L);

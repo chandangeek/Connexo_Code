@@ -25,7 +25,7 @@ public class ComTaskEnablementResourceTest extends MultisensePublicApiJerseyTest
     @Test
     public void testAllGetComTaskEnablementsPaged() throws Exception {
         DeviceType deviceType = mockDeviceType(21, "Some type", 3333L);
-        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType, 3333L);
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getId()).thenReturn(24L);
         when(securityPropertySet.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -60,7 +60,7 @@ public class ComTaskEnablementResourceTest extends MultisensePublicApiJerseyTest
     @Test
     public void testGetSingleComTaskEnablementWithFields() throws Exception {
         DeviceType deviceType = mockDeviceType(21, "Some type", 3333L);
-        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType, 3333L);
         when(deviceType.getConfigurations()).thenReturn(Arrays.asList(deviceConfiguration));
         ComTask comTask = mockComTask(23, "Com task", 3333L);
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
@@ -82,7 +82,7 @@ public class ComTaskEnablementResourceTest extends MultisensePublicApiJerseyTest
     @Test
     public void testGetSingleComTaskEnablementWithoutFields() throws Exception {
         DeviceType deviceType = mockDeviceType(21, "Some type", 3333L);
-        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(22, "Default", deviceType, 3333L);
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         ProtocolDialectConfigurationProperties properties = mock(ProtocolDialectConfigurationProperties.class);

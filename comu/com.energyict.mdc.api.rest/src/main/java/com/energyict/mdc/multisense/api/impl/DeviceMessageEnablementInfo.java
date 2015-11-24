@@ -10,5 +10,5 @@ import java.util.Set;
 public class DeviceMessageEnablementInfo extends LinkInfo {
     public Long messageId;
     public Set<DeviceMessageUserAction> userActions;
-    public LinkInfo deviceConfiguration;
+    public DeviceConfigurationInfo deviceConfiguration;
 }

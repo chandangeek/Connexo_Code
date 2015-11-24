@@ -63,10 +63,10 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         Finder<DeviceType> deviceTypeFinder = mockFinder(Arrays.asList(water, gas, elec1, elec2, elec3, elec4, elec5));
         when(this.deviceConfigurationService.findAllDeviceTypes()).thenReturn(deviceTypeFinder);
 
-        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(13L, "Default configuration", elec1);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(13L, "Default configuration", elec1, 3333L);
         Device device = mockDevice("DAV", "65749846514", deviceConfiguration, 3333L);
-        deviceXas = mockDevice("XAS", "5544657642", deviceConfiguration, 3333L);
-        DeviceConfiguration deviceConfiguration2 = mockDeviceConfiguration(23L, "Default configuration", elec2);
+        deviceXas = mockDevice("XAS", "5544657642", deviceConfiguration, 223L);
+        DeviceConfiguration deviceConfiguration2 = mockDeviceConfiguration(23L, "Default configuration", elec2, 3333L);
         Device device3 = mockDevice("PIO", "54687651356", deviceConfiguration2, 3333L);
         Finder<Device> deviceFinder = mockFinder(Arrays.asList(device, deviceXas, device3));
         when(this.deviceService.findAllDevices(any(Condition.class))).thenReturn(deviceFinder);
@@ -147,7 +147,7 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         when(deviceLifeCycleService.getExecutableActions(deviceXas)).thenReturn(Arrays.asList(executableAction1, executableAction2));
         LifeCycleActionInfo info = new LifeCycleActionInfo();
         info.device = new LinkInfo();
-        info.device.version = 333L;
+        info.device.version = 223L;
         info.name = "action.name.1";
         info.properties = new ArrayList<>();
         PropertyInfo propertyInfo = new PropertyInfo();
@@ -181,7 +181,7 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         when(deviceLifeCycleService.getExecutableActions(deviceXas)).thenReturn(Arrays.asList(executableAction1, executableAction2));
         LifeCycleActionInfo info = new LifeCycleActionInfo();
         info.device = new LinkInfo();
-        info.device.version = 333L;
+        info.device.version = 223L;
         info.name = "action.name.1";
         info.properties = new ArrayList<>();
         info.effectiveTimestamp = now;
@@ -257,7 +257,7 @@ public class DeviceResourceTest extends MultisensePublicApiJerseyTest {
         when(deviceLifeCycleService.getExecutableActions(deviceXas)).thenReturn(Collections.singletonList(executableAction1));
         LifeCycleActionInfo info = new LifeCycleActionInfo();
         info.device = new LinkInfo();
-        info.device.version = 333L;
+        info.device.version = 223L;
         info.name = "action.name.1";
         info.properties = new ArrayList<>();
         PropertyInfo propertyInfo = new PropertyInfo();

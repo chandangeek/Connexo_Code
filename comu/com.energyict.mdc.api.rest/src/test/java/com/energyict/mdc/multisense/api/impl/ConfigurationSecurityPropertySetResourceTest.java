@@ -29,7 +29,7 @@ public class ConfigurationSecurityPropertySetResourceTest extends MultisensePubl
     @Test
     public void testSingleGetSecurityPropertySet() throws IOException {
         DeviceType deviceType = mockDeviceType(123, "sampleDeviceType", 3333L);
-        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(456, "Default", deviceType);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(456, "Default", deviceType, 3333L);
         when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
         when(securityPropertySet.getDeviceConfiguration()).thenReturn(deviceConfiguration);
@@ -62,7 +62,7 @@ public class ConfigurationSecurityPropertySetResourceTest extends MultisensePubl
     @Test
     public void testGetSecurityPropertySetList() throws IOException {
         DeviceType deviceType = mockDeviceType(123, "sampleDeviceType", 3333L);
-        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(456, "Default", deviceType);
+        DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(456, "Default", deviceType, 3333L);
         when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
 
         SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);

@@ -41,7 +41,7 @@ public class DeviceConfigurationInfoFactory extends SelectableFieldFactory<Devic
         this.deviceMessageEnablementInfoFactory = deviceMessageEnablementInfoFactory;
     }
 
-    public LinkInfo asLink(DeviceConfiguration deviceConfiguration, Relation relation, UriInfo uriInfo) {
+    public DeviceConfigurationInfo asLink(DeviceConfiguration deviceConfiguration, Relation relation, UriInfo uriInfo) {
         DeviceConfigurationInfo info = new DeviceConfigurationInfo();
         copySelectedFields(info,deviceConfiguration,uriInfo, Arrays.asList("id","version"));
         info.link = link(deviceConfiguration,relation,uriInfo);

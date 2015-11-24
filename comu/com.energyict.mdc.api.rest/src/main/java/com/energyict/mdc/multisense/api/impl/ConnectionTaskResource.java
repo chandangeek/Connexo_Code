@@ -8,6 +8,7 @@ import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.PartialConnectionTask;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.engine.config.ComPortPool;
 import com.energyict.mdc.multisense.api.impl.utils.FieldSelection;
@@ -18,6 +19,7 @@ import com.energyict.mdc.multisense.api.security.Privileges;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
+import javax.validation.Validator;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -45,15 +47,19 @@ public class ConnectionTaskResource {
 
     private final ConnectionTaskInfoFactory connectionTaskInfoFactory;
     private final ConnectionTaskService connectionTaskService;
+    private final DeviceService deviceService;
     private final ResourceHelper resourceHelper;
     private final ExceptionFactory exceptionFactory;
+    private final Validator validator;
 
     @Inject
-    public ConnectionTaskResource(ConnectionTaskInfoFactory connectionTaskInfoFactory, ConnectionTaskService connectionTaskService, ResourceHelper resourceHelper, ExceptionFactory exceptionFactory) {
+    public ConnectionTaskResource(ConnectionTaskInfoFactory connectionTaskInfoFactory, ConnectionTaskService connectionTaskService, DeviceService deviceService, ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, Validator validator) {
         this.connectionTaskInfoFactory = connectionTaskInfoFactory;
         this.connectionTaskService = connectionTaskService;
+        this.deviceService = deviceService;
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
+        this.validator = validator;
     }
 
     @GET @Transactional
@@ -95,10 +101,14 @@ public class ConnectionTaskResource {
     @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public Response createConnectionTask(@PathParam("mrid") String mrid, ConnectionTaskInfo connectionTaskInfo, @Context UriInfo uriInfo) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        if (connectionTaskInfo.connectionMethod == null || connectionTaskInfo.connectionMethod.id == null) {
-            throw exceptionFactory.newException(MessageSeeds.MISSING_PARTIAL_CONNECTION_METHOD);
+        if (connectionTaskInfo.device==null || connectionTaskInfo.device.version==null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "Device");
         }
+        if (connectionTaskInfo.connectionMethod==null || connectionTaskInfo.connectionMethod.id==null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.EXPECTED_METHOD_ID);
+        }
+        Device device = deviceService.findAndLockDeviceBymRIDAndVersion(mrid, connectionTaskInfo.device.version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
         PartialConnectionTask partialConnectionTask = findPartialConnectionTaskOrThrowException(device, connectionTaskInfo.connectionMethod.id);
         if (connectionTaskInfo.direction == null) {
             throw exceptionFactory.newException(MessageSeeds.MISSING_CONNECTION_TASK_TYPE);
@@ -123,8 +133,19 @@ public class ConnectionTaskResource {
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public ConnectionTaskInfo updateConnectionTask(@PathParam("mrid") String mrid, @PathParam("connectionTaskId") long connectionTaskId,
                                                            ConnectionTaskInfo connectionTaskInfo, @Context UriInfo uriInfo) {
-        Device device = resourceHelper.findDeviceByMrIdOrThrowException(mrid);
-        ConnectionTask<? extends ComPortPool, ? extends PartialConnectionTask> connectionTask = findConnectionTaskOrThrowException(device, connectionTaskId);
+        if (connectionTaskInfo.version == null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING);
+        }
+        if (connectionTaskInfo.device==null || connectionTaskInfo.device.version==null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING, "Device");
+        }
+        Device device = deviceService.findAndLockDeviceBymRIDAndVersion(mrid, connectionTaskInfo.device.version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_DEVICE));
+        ConnectionTask<? extends ComPortPool, ? extends PartialConnectionTask> connectionTask = connectionTaskService.findAndLockConnectionTaskByIdAndVersion(connectionTaskId, connectionTaskInfo.version)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.CONFLICT, MessageSeeds.NO_SUCH_CONNECTION_TASK));
+        if (!connectionTask.getDevice().getmRID().equals(mrid)) {
+            throw exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_CONNECTION_TASK);
+        }
         if (connectionTaskInfo.direction == null) {
             throw exceptionFactory.newException(MessageSeeds.MISSING_CONNECTION_TASK_TYPE);
         }
@@ -148,14 +169,5 @@ public class ConnectionTaskResource {
                 findFirst().
                 orElseThrow(() -> exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_PARTIAL_CONNECTION_TASK));
     }
-
-    public ConnectionTask<?, ?> findConnectionTaskOrThrowException(Device device, long connectionTaskId) {
-        return device.getConnectionTasks()
-                .stream()
-                .filter(ct -> ct.getId() == connectionTaskId)
-                .findFirst()
-                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_CONNECTION_TASK));
-    }
-
 
 }

@@ -62,10 +62,32 @@ public class DeviceMessageEnablementInfoFactory extends SelectableFieldFactory<D
     @Override
     protected Map<String, PropertyCopier<DeviceMessageEnablementInfo, DeviceMessageEnablement>> buildFieldMap() {
         Map<String, PropertyCopier<DeviceMessageEnablementInfo, DeviceMessageEnablement>> map = new HashMap<>();
-        map.put("id", (deviceMessageEnablementInfo, deviceMessageEnablement, uriInfo) -> deviceMessageEnablementInfo.id = deviceMessageEnablement.getId());
+        map.put("id", (deviceMessageEnablementInfo, deviceMessageEnablement, uriInfo) -> {
+            deviceMessageEnablementInfo.id = deviceMessageEnablement.getId();
+            if (deviceMessageEnablementInfo.deviceConfiguration == null) {
+                deviceMessageEnablementInfo.deviceConfiguration = new DeviceConfigurationInfo();
+            }
+            deviceMessageEnablementInfo.deviceConfiguration.id = deviceMessageEnablement.getDeviceConfiguration().getId();
+            if (deviceMessageEnablementInfo.deviceConfiguration.deviceType == null) {
+                deviceMessageEnablementInfo.deviceConfiguration.deviceType = new LinkInfo();
+            }
+            deviceMessageEnablementInfo.deviceConfiguration.deviceType.id = deviceMessageEnablement.getDeviceConfiguration().getDeviceType().getId();
+        });
+
         map.put("link", ((deviceMessageEnablementInfo, deviceMessageEnablement, uriInfo) ->
                 deviceMessageEnablementInfo.link = link(deviceMessageEnablement, Relation.REF_SELF, uriInfo)));
         map.put("messageId", (deviceMessageEnablementInfo, deviceMessageEnablement, uriInfo) -> deviceMessageEnablementInfo.messageId = deviceMessageEnablement.getDeviceMessageId().dbValue());
+        map.put("version", (deviceMessageEnablementInfo, deviceMessageEnablement, uriInfo) -> {
+            if (deviceMessageEnablementInfo.deviceConfiguration == null) {
+                deviceMessageEnablementInfo.deviceConfiguration = new DeviceConfigurationInfo();
+            }
+            deviceMessageEnablementInfo.deviceConfiguration.version = deviceMessageEnablement.getDeviceConfiguration().getVersion();
+            if (deviceMessageEnablementInfo.deviceConfiguration.deviceType == null) {
+                deviceMessageEnablementInfo.deviceConfiguration.deviceType = new LinkInfo();
+            }
+            deviceMessageEnablementInfo.deviceConfiguration.deviceType.version = deviceMessageEnablement.getDeviceConfiguration().getDeviceType().getVersion();
+
+        });
         map.put("userActions", (deviceMessageEnablementInfo, deviceMessageEnablement, uriInfo) -> deviceMessageEnablementInfo.userActions = deviceMessageEnablement.getUserActions());
         map.put("deviceConfiguration", ((deviceMessageEnablementInfo, deviceMessageEnablement, uriInfo) ->
                 deviceMessageEnablementInfo.deviceConfiguration = deviceConfigurationInfoFactoryProvider.get().asLink(deviceMessageEnablement.getDeviceConfiguration(), Relation.REF_PARENT, uriInfo)));
