@@ -235,4 +235,20 @@ public class MeterTopology extends AbstractMeterTopology {
     private void log(Level level, String message) {
         this.protocol.getLogger().log(level, message);
     }
+
+    /**
+     * Search for the next available physicalAddress
+     *
+     * @return the next available physicalAddress or -1 if none is available.
+     */
+    public int searchNextFreePhysicalAddress(){
+        int availablePhysicalAddress = 0;
+        for (DeviceMapping dm : this.mbusMap) {
+            if(availablePhysicalAddress < dm.getPhysicalAddress()) {
+                availablePhysicalAddress = dm.getPhysicalAddress();
+            }
+        }
+        return availablePhysicalAddress + 1;
+    }
+
 }

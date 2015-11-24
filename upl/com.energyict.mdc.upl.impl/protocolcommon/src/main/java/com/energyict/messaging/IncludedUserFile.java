@@ -1,5 +1,6 @@
 package com.energyict.messaging;
 
+import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.BusinessException;
 import com.energyict.cbo.TimePeriod;
 import com.energyict.cpo.*;
@@ -9,9 +10,13 @@ import com.energyict.mdw.core.*;
 import com.energyict.mdw.relation.*;
 import com.energyict.mdw.shadow.UserFileShadow;
 import com.energyict.metadata.TypeId;
+import com.energyict.util.function.Consumer;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.*;
@@ -345,4 +350,24 @@ final class IncludedUserFile implements UserFile {
     public List<Relation> getRelations(RelationAttributeType attrib, TimePeriod period, boolean includeObsolete) {
         return Collections.EMPTY_LIST;
     }
+
+    /**
+     * {@inheritDoc}
+     */
+	@Override
+	public final void processFileAsStream(final Consumer<InputStream> consumer) throws SQLException {
+		try (final ByteArrayInputStream stream = new ByteArrayInputStream(this.contents.getBytes())) {
+			consumer.accept(stream);
+		} catch (IOException e) {
+			throw new ApplicationException("IO error while closing byte stream : [" + e.getMessage() + "]", e);
+		}
+	}
+
+    /**
+     * {@inheritDoc}
+     */
+	@Override
+	public final long getFileSize() throws SQLException {
+		return this.contents.getBytes().length;
+	}
 }

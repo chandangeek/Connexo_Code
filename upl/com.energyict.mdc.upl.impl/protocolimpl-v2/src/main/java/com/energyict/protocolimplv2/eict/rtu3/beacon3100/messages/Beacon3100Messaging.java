@@ -1,12 +1,49 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages;
 
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.apnAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateUserFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.passwordAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.usernameAttributeName;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.RandomAccessFile;
+import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import com.energyict.cbo.ApplicationException;
 import com.energyict.cbo.Password;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.BusinessObject;
 import com.energyict.cpo.PropertySpec;
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.cosem.AssociationLN;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.DataAccessResultCode;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.FirewallSetup;
+import com.energyict.dlms.cosem.GenericInvoke;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.ImageTransfer.RandomAccessFileImageBlockSupplier;
+import com.energyict.dlms.cosem.PPPSetup;
+import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.mdc.messages.DeviceMessage;
 import com.energyict.mdc.messages.DeviceMessageSpec;
 import com.energyict.mdc.messages.DeviceMessageStatus;
@@ -23,7 +60,6 @@ import com.energyict.mdw.offline.OfflineDeviceMessage;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProtocolException;
 import com.energyict.protocol.exceptions.DeviceConfigurationException;
-import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.MdcManager;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
@@ -32,20 +68,22 @@ import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobject
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSerializer;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSync;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
+import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+import com.energyict.protocolimplv2.messages.FirewallConfigurationMessage;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
+import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.SecurityMessage;
+import com.energyict.protocolimplv2.messages.UplinkConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 import com.energyict.protocolimplv2.nta.IOExceptionHandler;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.logging.Level;
-
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import com.energyict.util.function.Consumer;
 
 /**
  * Copyrights EnergyICT
@@ -145,6 +183,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private MasterDataSync masterDataSync;
     private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor = null;
+    
+    /** We lock the critical section where we write the firmware file, making sure that we don't corrupt it. */
+    private final Lock firmwareFileLock = new ReentrantLock();
 
     public Beacon3100Messaging(Beacon3100 protocol) {
         super(protocol);
@@ -177,28 +218,10 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 || propertySpec.getName().equals(DeviceMessageConstants.broadCastLogTableEntryTTLAttributeName)) {
             return String.valueOf(((TimeDuration) messageAttribute).getSeconds()); //Return value in seconds
         } else if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateUserFileAttributeName)) {
-
-            //final UserFile userFile = (UserFile) messageAttribute;
-            //final byte[] bytes = userFile.loadFileInByteArray();
-            //final String fileName = System.getProperty(TEMP_DIR) + userFile.getFileName() + "_" + userFile.getId();
-
-            //final File testFile = new File(fileName);
-            //if (testFile.exists()) {
-            //    if (testFile.length() != bytes.length) {
-            //        if (testFile.delete()) {
-            //            ProtocolTools.writeBytesToFile(fileName, bytes, false);
-            //        } else {
-            //            throw ConnectionCommunicationException.createUnExpectedProtocolError(new IOException("Could not write file '" + userFile.getFileName() + "' to temp directory, it already exists but is still in use"));
-            //        }
-            //    }   //Else: file exists and has the correct content. Ok, continue to execute message.
-            //} else {
-            //    ProtocolTools.writeBytesToFile(fileName, bytes, false);
-            //}
-            //System.gc();    //Remove the in memory byte array
-
-
-            final byte[] data = ((UserFile) messageAttribute).loadFileInByteArray();
-            return new Base64EncoderDecoder().encode(data, true);
+        	final UserFile userFile = (UserFile)messageAttribute;
+        	final File tempFile = this.writeToTempDirectory(userFile);
+        	
+        	return tempFile.getAbsolutePath();
         } else if (propertySpec.getName().equals(DeviceMessageConstants.encryptionLevelAttributeName)) {
             return String.valueOf(DlmsEncryptionLevelMessageValues.getValueFor(messageAttribute.toString()));
         } else if (propertySpec.getName().equals(DeviceMessageConstants.authenticationLevelAttributeName)) {
@@ -240,6 +263,90 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         }
     }
 
+    /**
+     * Writes the given {@link UserFile} to the temp directory.
+     * 
+     * @param 	userFile		The user file to write to the temp.
+     * 
+     * @return	The {@link File} that was written.
+     */
+    private final File writeToTempDirectory(final UserFile userFile) {
+    	final File tempDirectory = new File(System.getProperty(TEMP_DIR));
+    	final String fileName = new StringBuilder("beacon-3100-firmware-").append(userFile.getId()).toString();
+    	
+    	try {
+    		this.firmwareFileLock.lock();
+    		
+        	final File tempFile = new File(tempDirectory, fileName);
+        	
+        	if (tempFile.exists()) {
+        		if (this.getLogger().isLoggable(Level.INFO)) {
+        			this.getLogger().log(Level.INFO, "Already have a file called [" + tempFile + "], checking file size.");
+        		}
+        		
+        		if (tempFile.length() != userFile.getFileSize()) {
+	        		if (this.getLogger().isLoggable(Level.INFO)) {
+	        			this.getLogger().log(Level.INFO, "File size differs for file [" + tempFile + "], deleting.");
+	        		}
+	        		
+        			final boolean deleted = tempFile.delete();
+        			
+        			if (!deleted) {
+        				throw new IllegalStateException("Could not delete file : [" + tempFile + "] : delete() returns false !");
+        			}
+        		}
+        	}
+        	
+        	if (!tempFile.exists()) {
+        		if (this.getLogger().isLoggable(Level.INFO)) {
+        			this.getLogger().log(Level.INFO, "Copying user file to [" + tempFile + "].");
+        		}
+        		
+        		final boolean created = tempFile.createNewFile();
+        		
+        		if (!created) {
+        			throw new IllegalStateException("Could not create temporary file [" + tempFile + "] : create() returns false !");
+        		}
+        		
+        		try (final OutputStream outStream = new FileOutputStream(tempFile)){
+        			userFile.processFileAsStream(new Consumer<InputStream>() {
+						@Override
+						public final void accept(final InputStream inStream) {
+							final byte[] buffer = new byte[2048];
+							
+							try {
+								int bytesRead = inStream.read(buffer);
+								
+								while (bytesRead != -1) {
+									outStream.write(buffer, 0, bytesRead);
+									bytesRead = inStream.read(buffer);
+								}
+								
+								outStream.flush();
+							} catch (IOException e) {
+								if (getLogger().isLoggable(Level.WARNING)) {
+									getLogger().log(Level.WARNING, "IO error while writing temporary file : [" + e.getMessage() + "]", e);
+								}
+								
+								throw new IllegalStateException("IO error while writing temporary file : [" + e.getMessage() + "]", e);
+							}
+						}
+        			});
+        		}
+        	}
+        	
+        	return tempFile;
+    	} catch (SQLException | IOException e) {
+			if (getLogger().isLoggable(Level.WARNING)) {
+				getLogger().log(Level.WARNING, "Error while writing temporary file : [" + e.getMessage() + "]", e);
+			}
+			
+			throw new IllegalStateException("Error while writing temporary file : [" + e.getMessage() + "]", e);
+    	} finally {
+    		this.firmwareFileLock.unlock();
+    	}
+    }
+    
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
         CollectedMessageList result = MdcManager.getCollectedDataFactory().createCollectedMessageList(pendingMessages);
@@ -527,10 +634,8 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
-
-        String b64EncodedImage = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName).getDeviceMessageAttributeValue();
+        String filePath = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateUserFileAttributeName).getDeviceMessageAttributeValue();
         String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName).getDeviceMessageAttributeValue(); // Will return empty string if the MessageAttribute could not be found
-        byte[] image = new Base64EncoderDecoder().decode(b64EncodedImage);
 
         ImageTransfer it = getCosemObjectFactory().getImageTransfer();
 
@@ -538,9 +643,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         it.setPollingDelay(10000);
         it.setPollingRetries(30);
         it.setDelayBeforeSendingBlocks(5000);
-        it.upgrade(image, false, imageIdentifier, true);
-
-        try {
+        
+        try (final RandomAccessFile file = new RandomAccessFile(new File(filePath), "r")) {
+        	it.upgrade(new RandomAccessFileImageBlockSupplier(file), false, imageIdentifier, true);
             it.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation!
             it.imageActivation();
         } catch (DataAccessResultException e) {
@@ -549,7 +654,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             } else {
                 throw e;
             }
-        }
+        } 
     }
 
     private boolean isTemporaryFailure(DataAccessResultException e) {
@@ -728,5 +833,14 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
 
     private int getSingleIntegerAttribute(OfflineDeviceMessage pendingMessage) {
         return Integer.parseInt(pendingMessage.getDeviceMessageAttributes().get(0).getDeviceMessageAttributeValue());
+    }
+    
+    /**
+     * Returns the {@link Logger} instance to be used.
+     * 
+     * @return	The logger instance to be used.
+     */
+    private final Logger getLogger() {
+    	return this.getProtocol().getLogger();
     }
 }

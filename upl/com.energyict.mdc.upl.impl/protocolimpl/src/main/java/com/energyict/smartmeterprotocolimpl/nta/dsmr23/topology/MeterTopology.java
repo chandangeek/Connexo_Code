@@ -1,6 +1,5 @@
 package com.energyict.smartmeterprotocolimpl.nta.dsmr23.topology;
 
-import com.energyict.cbo.BusinessException;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.DLMSUtils;
@@ -11,7 +10,6 @@ import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.attributes.MbusClientAttributes;
 import com.energyict.mdw.core.Device;
-import com.energyict.mdw.core.DeviceFactoryProvider;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.common.MasterMeter;
@@ -21,7 +19,6 @@ import com.energyict.smartmeterprotocolimpl.nta.dsmr23.Dsmr23Properties;
 import com.energyict.smartmeterprotocolimpl.nta.dsmr23.composedobjects.ComposedMbusSerialNumber;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
@@ -224,4 +221,20 @@ public class MeterTopology implements MasterMeter {
     protected void log(Level level, String message) {
         this.protocol.getLogger().log(level, message);
     }
+
+    /**
+     * Search for the next available physicalAddress
+     *
+     * @return the next available physicalAddress
+     */
+    public int searchNextFreePhysicalAddress(){
+        int availablePhysicalAddress = 0;
+        for (DeviceMapping dm : this.mbusMap) {
+            if(availablePhysicalAddress < dm.getPhysicalAddress()) {
+                availablePhysicalAddress = dm.getPhysicalAddress();
+            }
+        }
+        return availablePhysicalAddress + 1;
+    }
+
 }

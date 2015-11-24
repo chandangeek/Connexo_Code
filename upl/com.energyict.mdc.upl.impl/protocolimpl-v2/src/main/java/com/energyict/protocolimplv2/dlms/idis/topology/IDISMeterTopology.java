@@ -77,6 +77,21 @@ public class IDISMeterTopology extends AbstractMeterTopology {
         return ProtocolTools.setObisCodeField(obisCode, 1, (byte) mBusChannelId);
     }
 
+    /**
+     * Search for the next available physicalAddress
+     *
+     * @return the next available physicalAddress or -1 if none is available.
+     */
+    public int searchNextFreePhysicalAddress(){
+        int availablePhysicalAddress = 0;
+        for (DeviceMapping dm : this.deviceMapping) {
+            if(availablePhysicalAddress < dm.getPhysicalAddress()) {
+                availablePhysicalAddress = dm.getPhysicalAddress();
+            }
+        }
+        return availablePhysicalAddress + 1;
+    }
+
     @Override
     public int getPhysicalAddress(String serialNumber) {
         if (serialNumber == null || serialNumber.isEmpty()) {
