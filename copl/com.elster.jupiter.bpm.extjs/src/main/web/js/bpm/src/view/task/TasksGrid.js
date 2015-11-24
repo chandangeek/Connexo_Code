@@ -63,7 +63,7 @@ Ext.define('Bpm.view.task.TasksGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                //privileges: Bpm.privileges.BpmManagement.assignAndExecute,
+                privileges: Bpm.privileges.BpmManagement.assignAndExecute,
                 width: 100,
                 menu: {
                     xtype: 'bpm-task-action-menu'
@@ -84,9 +84,7 @@ Ext.define('Bpm.view.task.TasksGrid', {
                         xtype: 'button',
                         itemId: 'btn-tasks-bulk-action',
                         text: Uni.I18n.translate('bpm.task.bulkActions', 'BPM', 'Bulk action'),
-                        privileges: Bpm.privileges.BpmManagement.commentOrAssing,
-                        action: 'tasksBulkAction',
-                        href: me.router.getRoute(me.router.currentRoute + '/bulkaction').buildUrl()
+                        privileges: Bpm.privileges.BpmManagement.assignAndExecute
                     }
                 ]
             },

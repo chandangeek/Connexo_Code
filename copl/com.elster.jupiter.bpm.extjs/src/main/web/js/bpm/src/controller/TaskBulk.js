@@ -16,6 +16,7 @@ Ext.define('Bpm.controller.TaskBulk', {
 
     stores: [
         'Bpm.store.task.Tasks',
+        'Bpm.store.task.TasksBuffered',
         'Bpm.store.task.TasksUsers'
     ],
     config: {
@@ -23,13 +24,14 @@ Ext.define('Bpm.controller.TaskBulk', {
     },
     listeners: {
         retryRequest: function (wizard, failedItems) {
-            this.setFailedBulkRecordIssues(failedItems);
-            this.onWizardFinishedEvent(wizard);
+
         }
     },
 
 
     alltasksBulk: [],
+    routerArgs: {},
+    qString: {},
 
     init: function () {
         this.control({
@@ -45,6 +47,9 @@ Ext.define('Bpm.controller.TaskBulk', {
             'tasks-bulk-browse tasks-bulk-wizard button[action=finish]': {
                 click: this.finishWizard
             },
+            'tasks-bulk-browse tasks-bulk-wizard button[action=cancel]': {
+                click: this.cancelWizard
+            },
             'tasks-bulk-browse #tasks-bulk-navigation': {
                 movetostep: this.moveTo
             }
@@ -53,19 +58,26 @@ Ext.define('Bpm.controller.TaskBulk', {
 
     showOverview: function () {
         var me = this,
-            taskTasksBuffered = me.getStore('Bpm.store.task.Tasks'),
+            taskTasksBuffered = me.getStore('Bpm.store.task.TasksBuffered'),
+            filteredTasks = me.getStore('Bpm.store.task.Tasks'),
+            router = this.getController('Uni.controller.history.Router'),
+            queryString = Uni.util.QueryString.getQueryStringValues(false),
+            tasksRoute = router.getRoute('workspace/taksmanagementtasks'),
+            sort,
             tasks = [];
 
         this.getApplication().fireEvent('changecontentevent', Ext.widget('tasks-bulk-browse', {
             router: me.getController('Uni.controller.history.Router')
         }));
 
-        Ext.Array.each(taskTasksBuffered.data.items, function (item) {
+        Ext.Array.each(filteredTasks.data.items, function (item) {
             tasks.push({
                 id: item.getId()
             });
         });
 
+        //me.routerArgs = router.arguments;
+        //me.qString = queryString;
         me.alltasksBulk = tasks;
         taskTasksBuffered.data.clear();
         taskTasksBuffered.loadPage(1);
@@ -125,18 +137,12 @@ Ext.define('Bpm.controller.TaskBulk', {
             params:operation,
 
             success: function (option) {
-                //manageTaskForm = wizard.down('#tskbw-step3').down('task-manage-form');
-                //Ext.apply(operation.params, params);
-                //assigneeCombo = manageTaskForm.down('combobox[name=assigneeCombo]');
 
-                //queryString.assign = assigneeCombo.getRawValue();
                 window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
             },
             callback: function (options, success) {
                 if (wizard.rendered) {
-                    //queryString.assign = undefined;
                     window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
-                    //
                     wizard.down('#tskbw-step5').setResultMessage(action, success);
                     wizard.setLoading(false);
                 }
@@ -298,7 +304,18 @@ Ext.define('Bpm.controller.TaskBulk', {
     },
 
     finishWizard: function () {
-        var router = this.getController('Uni.controller.history.Router');
+        var me= this,
+            router = this.getController('Uni.controller.history.Router');
+            //queryString = Uni.util.QueryString.getQueryStringValues(false);
         router.getRoute('workspace/taksmanagementtasks').forward(router.arguments);
+    },
+
+    cancelWizard: function () {
+        var me= this,
+            router = this.getController('Uni.controller.history.Router');
+            //tasksRoute = router.getRoute('workspace/taksmanagementtasks'),
+            //queryString = Uni.util.QueryString.getQueryStringValues(false);
+        router.getRoute('workspace/taksmanagementtasks').forward(null, router.arguments);
+
     }
 });

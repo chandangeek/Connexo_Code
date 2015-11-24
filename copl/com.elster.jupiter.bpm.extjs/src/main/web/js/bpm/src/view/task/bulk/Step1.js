@@ -19,7 +19,7 @@ Ext.define('Bpm.view.task.bulk.Step1', {
             {
                 xtype: 'bulk-selection-grid',
                 itemId: 'tasks-bulk-selection-grid',
-                store: 'Bpm.store.task.Tasks',
+                store: 'Bpm.store.task.TasksBuffered',
 
                 counterTextFn: function (count) {
                     return Uni.I18n.translatePlural('general.nrOfTasks.selected', count, 'BPM',

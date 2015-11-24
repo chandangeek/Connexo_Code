@@ -4,10 +4,6 @@ Ext.define('Bpm.view.task.ManageTaskForm', {
         'Ext.form.Panel',
         'Bpm.store.task.TasksUsers'
     ],
-    /*
-    stores: [
-        'Bpm.store.task.TasksUsers'
-    ],*/
     ui: 'medium',
     padding: 0,
     alias: 'widget.task-manage-form',
@@ -108,7 +104,7 @@ Ext.define('Bpm.view.task.ManageTaskForm', {
                                     if (value <= 3) {
                                         labelString = Uni.I18n.translate('bpm.task.priority.high', 'BPM', 'High');
                                     }
-                                    else if (value <= 6) {
+                                    else if (value <= 7) {
                                         labelString =  Uni.I18n.translate('bpm.task.priority.medium', 'BPM', 'Medium');
                                     }
                                     else {
@@ -138,6 +134,7 @@ Ext.define('Bpm.view.task.ManageTaskForm', {
             assigneeCombo;
 
         me.callParent(arguments);
+
         assigneeCombo = me.down('combobox[name=assigneeCombo]');
         userStore.load(function (records) {
             Ext.getBody().unmask();
@@ -145,6 +142,7 @@ Ext.define('Bpm.view.task.ManageTaskForm', {
                 assigneeCombo.bindStore(userStore);
             }
         });
+
 
         me.down('fieldcontainer[name=assign]').setVisible(false);
         me.down('fieldcontainer[name=setPriority]').setVisible(false);

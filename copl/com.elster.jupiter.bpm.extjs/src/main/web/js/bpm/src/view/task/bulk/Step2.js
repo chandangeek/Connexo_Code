@@ -23,7 +23,7 @@ Ext.define('Bpm.view.task.bulk.Step2', {
                     name: 'action',
                     boxLabel: '<b>' + Uni.I18n.translate('general.taskManagement', 'BPM', 'Task management') + '</b>',
                     afterSubTpl: '<span style="color: grey;padding: 0 0 0 19px;">'
-                    + Uni.I18n.translate('task.bulk.actionRadioGroup.taskManagementDescription', 'BPM', 'The selected tasks will be managed.')
+                    + Uni.I18n.translate('task.bulk.actionRadioGroup.taskManagementDescription', 'BPM', 'These actions allows you to manage selected tasks')
                     + '</span>',
                     inputValue: 'taskmanagement',
                     checked: true
@@ -66,7 +66,7 @@ Ext.define('Bpm.view.task.bulk.Step2', {
                     name: 'action',
                     boxLabel: '<b>' + Uni.I18n.translate('general.taskExecution', 'BPM', 'Task execution') + '</b>',
                     afterSubTpl: '<span style="color: grey;padding: 0 0 0 19px;">'
-                    + Uni.I18n.translate('task.bulk.actionRadioGroup.taskExecutionDescription', 'BPM', 'The selected tasks will be executed.')
+                    + Uni.I18n.translate('task.bulk.actionRadioGroup.taskExecutionDescription', 'BPM', 'This action allows you to execute selected tasks')
                     + '</span>',
                     inputValue: 'taskexecute'
                 },
@@ -83,7 +83,7 @@ Ext.define('Bpm.view.task.bulk.Step2', {
                     items: [
                         {
                             name: 'execute-action',
-                            boxLabel: Uni.I18n.translate('task.bulk.completeTask', 'BPM', 'Complete task'),
+                            boxLabel: Uni.I18n.translate('task.bulk.completeTask', 'BPM', 'Complete tasks'),
                             inputValue: 'complete',
                             checked: true
                         },

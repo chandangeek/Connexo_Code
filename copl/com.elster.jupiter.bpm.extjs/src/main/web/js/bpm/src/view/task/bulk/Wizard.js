@@ -85,8 +85,7 @@ Ext.define('Bpm.view.task.bulk.Wizard', {
                     text: Uni.I18n.translate('general.cancel', 'BPM', 'Cancel'),
                     ui: 'link',
                     action: 'cancel',
-                    itemId: 'tskbw-finish-cancel',
-                    href: me.router.getRoute('workspace/taksmanagementtasks').buildUrl()
+                    itemId: 'tskbw-finish-cancel'
                 }
             ]
         };

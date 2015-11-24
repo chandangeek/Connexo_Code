@@ -174,13 +174,33 @@ Ext.define('Bpm.controller.Task', {
     forwardToBulk: function () {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
+            queryString = Uni.util.QueryString.getQueryStringValues(false),
             route;
-        //var router = this.getController('Uni.controller.history.Router');
-        //router.getRoute('workspace/taksmanagementtasks/bulkaction').forward(router.arguments);
+
+        var tasksRoute = router.getRoute('workspace/taksmanagementtasks');
+        tasksRoute.params.sort = undefined;
+        tasksRoute.params.user = undefined;
+        tasksRoute.params.dueDate = undefined;
+        tasksRoute.params.status = undefined;
+        tasksRoute.params.process = undefined;
+
+        queryString.sort && (queryString.sort != '') && (tasksRoute.params.sort = queryString.sort);
+        queryString.user && (queryString.user != '') && (tasksRoute.params.user = queryString.user);
+        queryString.dueDate && (queryString.dueDate != '') && (tasksRoute.params.dueDate = queryString.dueDate);
+        queryString.status && (queryString.status != '') && (tasksRoute.params.status = queryString.status);
+        queryString.process && (queryString.process != '') && (tasksRoute.params.process = queryString.process);
+
         route ='workspace/taksmanagementtasks/bulkaction';
 
         route && (route = router.getRoute(route));
+        route.params.sort = queryString.sort;
+        route.params.user = queryString.user;
+        route.params.dueDate = queryString.dueDate;
+        route.params.status = queryString.status;
+        route.params.process = queryString.process;
+
         route && route.forward(router.arguments);
+
     }
 
 });
