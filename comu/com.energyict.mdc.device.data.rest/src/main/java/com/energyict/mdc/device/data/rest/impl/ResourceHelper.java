@@ -792,14 +792,17 @@ public class ResourceHelper {
     public CustomPropertySetInfo getRegisterCustomPropertySetInfo(Register register, Instant effectiveTimestamp) {
         Optional<RegisteredCustomPropertySet> registeredCustomPropertySet = register.getDevice().getDeviceType().getRegisterTypeTypeCustomPropertySet(register.getRegisterSpec().getRegisterType());
         if (registeredCustomPropertySet.isPresent() && registeredCustomPropertySet.get().isViewableByCurrentUser()) {
-            return new CustomPropertySetInfo(registeredCustomPropertySet.get(), mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
-                    registeredCustomPropertySet.get().getCustomPropertySet().getPropertySpecs(),
-                    !registeredCustomPropertySet.get().getCustomPropertySet().isVersioned() ?
-                            getCustomProperties(customPropertySetService.getValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), register.getRegisterSpec())) :
+            return !registeredCustomPropertySet.get().getCustomPropertySet().isVersioned() ?
+                    new CustomPropertySetInfo(registeredCustomPropertySet.get(), mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
+                            registeredCustomPropertySet.get().getCustomPropertySet().getPropertySpecs(),
+
+                            getCustomProperties(customPropertySetService.getValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), register.getRegisterSpec()))),
+                            register.getRegisterSpec().getId(), register.getRegisterSpec().getVersion()) :
+                    new CustomPropertySetInfo(registeredCustomPropertySet.get(), mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
+                            registeredCustomPropertySet.get().getCustomPropertySet().getPropertySpecs(),
                             getCustomProperties(customPropertySetService.getValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), register.getRegisterSpec(), effectiveTimestamp))),
-                    register.getRegisterSpec().getId(), register.getRegisterSpec().getVersion(),
-                    customPropertySetService.getValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), register.getRegisterSpec(), effectiveTimestamp).getEffectiveRange()
-            );
+                            register.getRegisterSpec().getId(), register.getRegisterSpec().getVersion(),
+                            customPropertySetService.getValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), register.getRegisterSpec(), effectiveTimestamp).getEffectiveRange());
         } else {
             return null;
         }
@@ -818,14 +821,17 @@ public class ResourceHelper {
     public CustomPropertySetInfo getChannelCustomPropertySetInfo(Channel channel, Instant effectiveTimestamp) {
         Optional<RegisteredCustomPropertySet> registeredCustomPropertySet = channel.getDevice().getDeviceType().getLoadProfileTypeCustomPropertySet(channel.getChannelSpec().getLoadProfileSpec().getLoadProfileType());
         if (registeredCustomPropertySet.isPresent() && registeredCustomPropertySet.get().isViewableByCurrentUser()) {
-            return new CustomPropertySetInfo(registeredCustomPropertySet.get(), mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
-                    registeredCustomPropertySet.get().getCustomPropertySet().getPropertySpecs(),
-                    !registeredCustomPropertySet.get().getCustomPropertySet().isVersioned() ?
-                            getCustomProperties(customPropertySetService.getValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), channel.getChannelSpec())) :
+            return !registeredCustomPropertySet.get().getCustomPropertySet().isVersioned() ?
+                    new CustomPropertySetInfo(registeredCustomPropertySet.get(), mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
+                            registeredCustomPropertySet.get().getCustomPropertySet().getPropertySpecs(),
+
+                            getCustomProperties(customPropertySetService.getValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), channel.getChannelSpec()))),
+                            channel.getChannelSpec().getId(), channel.getChannelSpec().getVersion()) :
+                    new CustomPropertySetInfo(registeredCustomPropertySet.get(), mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
+                            registeredCustomPropertySet.get().getCustomPropertySet().getPropertySpecs(),
                             getCustomProperties(customPropertySetService.getValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), channel.getChannelSpec(), effectiveTimestamp))),
-                    channel.getChannelSpec().getId(), channel.getChannelSpec().getVersion(),
-                    customPropertySetService.getValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), channel.getChannelSpec(), effectiveTimestamp).getEffectiveRange()
-            );
+                            channel.getChannelSpec().getId(), channel.getChannelSpec().getVersion(),
+                            customPropertySetService.getValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), channel.getChannelSpec(), effectiveTimestamp).getEffectiveRange());
         } else {
             return null;
         }
