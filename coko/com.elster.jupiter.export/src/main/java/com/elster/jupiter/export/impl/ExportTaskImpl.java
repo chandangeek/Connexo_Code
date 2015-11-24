@@ -388,7 +388,7 @@ final class ExportTaskImpl implements IExportTask {
     @Override
     public void updateLastRun(Instant triggerTime) {
         lastRun = triggerTime;
-        update();
+        dataModel.mapper(IExportTask.class).update(this, "lastRun");
     }
 
     @Override
