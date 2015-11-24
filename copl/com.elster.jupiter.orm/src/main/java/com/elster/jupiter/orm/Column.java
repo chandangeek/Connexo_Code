@@ -49,7 +49,9 @@ public interface Column {
 		Builder varChar(int length);
 		Builder varChar();
 
-		Builder skipAuditOnFieldUpdate();
+		Builder audited();
+
+		Builder notAudited();
 		VirtualBuilder as(String formula);
 		Column add();
 	}

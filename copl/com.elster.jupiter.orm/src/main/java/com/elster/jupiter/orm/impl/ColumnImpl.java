@@ -408,8 +408,14 @@ public class ColumnImpl implements Column {
         }
 
         @Override
-        public Builder skipAuditOnFieldUpdate() {
+        public Builder notAudited() {
             column.alwaysJournal = false;
+            return this;
+        }
+
+        @Override
+        public Builder audited() {
+            column.alwaysJournal = true;
             return this;
         }
 

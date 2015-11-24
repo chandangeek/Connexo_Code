@@ -202,7 +202,7 @@ public class DataMapperWriter<T> {
     }
 
     private boolean doJournal(List<ColumnImpl> columns) {
-        return columns.stream().filter(ColumnImpl::alwaysJournal).findFirst().isPresent();
+        return columns.stream().anyMatch(ColumnImpl::alwaysJournal);
     }
 
     void update(List<T> objects, List<ColumnImpl> columns) throws SQLException {
