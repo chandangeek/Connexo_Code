@@ -17,28 +17,37 @@ import java.util.Optional;
  */
 public interface SearchService {
 
-    public static String COMPONENT_NAME = "JSM";
+    String COMPONENT_NAME = "JSM";
 
     /**
      * Registers the {@link SearchDomain} with this SearchService.
      *
      * @param searchDomain The SearchDomain
      */
-    public void register(SearchDomain searchDomain);
+    void register(SearchDomain searchDomain);
 
     /**
      * Unregisters the {@link SearchDomain} with this SearchService.
      *
      * @param searchDomain The SearchDomain
      */
-    public void unregister(SearchDomain searchDomain);
+    void unregister(SearchDomain searchDomain);
 
     /**
      * Gets all the registered {@link SearchDomain}s.
      *
      * @return The List of SearchDomain
      */
-    public List<SearchDomain> getDomains();
+    List<SearchDomain> getDomains();
+
+    /**
+     * Gets all the registered {@link SearchDomain}s
+     * that are targetted to be used by the specified application.
+     *
+     * @return The List of SearchDomain
+     * @see SearchDomain#targetApplications()
+     */
+    List<SearchDomain> getDomains(String application);
 
     /**
      * Finds the registered {@link SearchDomain}
@@ -48,7 +57,7 @@ public interface SearchService {
      * @return The SearchDomain
      * @see SearchDomain#getId()
      */
-    public Optional<SearchDomain> findDomain(String id);
+    Optional<SearchDomain> findDomain(String id);
 
     /**
      * Finds the registered {@link SearchDomain}
@@ -59,7 +68,7 @@ public interface SearchService {
      * @param timeout The timeout
      * @return The SearchDomain
      */
-    Optional<SearchDomain> pollSearchDomain(String id, Duration timeout) throws InterruptedException;
+    Optional<SearchDomain> pollDomain(String id, Duration timeout) throws InterruptedException;
 
     /**
      * Starts the building process of a search for instances of the specified domain class.
@@ -90,7 +99,7 @@ public interface SearchService {
      * @throws IllegalArgumentException
      */
     @SuppressWarnings("unchecked")
-    public default <T> SearchBuilder<T> search(Class<T> domainClass) {
+    default <T> SearchBuilder<T> search(Class<T> domainClass) {
         SearchDomain domain = getDomains()
                 .stream()
                 .filter(p -> p.supports(domainClass))
@@ -107,6 +116,6 @@ public interface SearchService {
      * @param searchDomain The SearchDomain
      * @return The SearchBuilder
      */
-    public SearchBuilder<Object> search(SearchDomain searchDomain);
+    SearchBuilder<Object> search(SearchDomain searchDomain);
 
 }
