@@ -12,7 +12,8 @@ Ext.define('SystemApp.controller.Main', {
         'Tme.privileges.Period',
         'Fim.privileges.DataImport',
         'Apr.privileges.AppServer',
-        'Cps.privileges.CustomAttributeSets'
+        'Cps.privileges.CustomAttributeSets',
+        'Mtr.privileges.ReadingTypes'
     ],
 
     applicationTitle: 'Connexo Admin',
@@ -27,7 +28,8 @@ Ext.define('SystemApp.controller.Main', {
         Tme.privileges.Period.all(),
         Fim.privileges.DataImport.all(),
         Apr.privileges.AppServer.all(),
-        Cps.privileges.CustomAttributeSets.all()
+        Cps.privileges.CustomAttributeSets.all(),
+        Mtr.privileges.ReadingTypes.all()
     ),
 
     controllers: [
@@ -36,6 +38,7 @@ Ext.define('SystemApp.controller.Main', {
         'Tme.controller.Main',
 		'Apr.controller.Main',
         'Fim.controller.Main',
-        'Cps.main.controller.Main'
+        'Cps.main.controller.Main',
+        'Mtr.controller.Main'
     ]
 });

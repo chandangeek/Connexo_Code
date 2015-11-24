@@ -31,6 +31,10 @@ Ext.onReady(function () {
         {
             name: 'Cps',
             path: '../../apps/cps/src'
+        },
+        {
+            name: 'Mtr',
+            path: '../../apps/mtr/src'
         }
     ];
 

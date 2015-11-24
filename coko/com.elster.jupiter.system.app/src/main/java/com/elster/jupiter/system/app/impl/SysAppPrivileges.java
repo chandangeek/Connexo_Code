@@ -29,6 +29,9 @@ class SysAppPrivileges {
                 com.elster.jupiter.cps.Privileges.Constants.ADMINISTER_PRIVILEGES,
                 com.elster.jupiter.cps.Privileges.Constants.VIEW_PRIVILEGES,
                 //deployment information
-                com.elster.jupiter.system.security.Privileges.Constants.VIEW_DEPLOYMENT_INFORMATION);
+                com.elster.jupiter.system.security.Privileges.Constants.VIEW_DEPLOYMENT_INFORMATION,
+                //metering
+                com.elster.jupiter.metering.security.Privileges.Constants.VIEW_READINGTYPE,
+                com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTRATE_READINGTYPE);
     }
 }
