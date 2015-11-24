@@ -335,7 +335,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     @Override
     public void updateLastRun(Instant triggerTime) {
         lastRun = triggerTime;
-        save();
+        dataModel.mapper(DataValidationTask.class).update(this, "lastRun");
     }
 
     void setRecurrentTask(RecurrentTask task) {
