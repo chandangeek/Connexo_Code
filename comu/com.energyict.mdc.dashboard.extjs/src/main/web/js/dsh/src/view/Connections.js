@@ -42,41 +42,42 @@ Ext.define('Dsh.view.Connections', {
                     margins: '16 0 0 0'
                 },
                 previewComponent: {
-                    xtype: 'preview_connection',
-                    itemId: 'connectionpreview',
-                    hidden: true
-                }
-            }
-        },
-        {
-            ui: 'medium',
-            itemId: 'communicationspanel',
-            padding: 0,
-            margin: '16 0 0 0',
-            hidden: true,
-            title: '',
-            items: [
-                {
-                    xtype: 'preview-container',
-                    grid: {
-                        xtype: 'connection-communications-list',
-                        itemId: 'communicationsdetails',
-                        store: 'Dsh.store.Communications'
+                    items: {
+                        xtype: 'preview_connection',
+                        itemId: 'connectionpreview'
                     },
-                    emptyComponent: {
-                        xtype: 'no-items-found-panel',
-                        title: Uni.I18n.translate('communication.empty.title', 'DSH', 'No communications found'),
-                        reasons: [
-                            Uni.I18n.translate('communication.empty.list.item1', 'DSH', 'No communications in the system.'),
-                            Uni.I18n.translate('communication.empty.list.item2', 'DSH', 'No communications found due to applied filters.')
+                    bbar: {
+                        xtype: 'panel',
+                        ui: 'medium',
+                        itemId: 'communicationspanel',
+                        padding: 0,
+                        margin: '16 0 0 0',
+                        title: '',
+                        items: [
+                            {
+                                xtype: 'preview-container',
+                                grid: {
+                                    xtype: 'connection-communications-list',
+                                    itemId: 'communicationsdetails',
+                                    store: 'Dsh.store.Communications'
+                                },
+                                emptyComponent: {
+                                    xtype: 'no-items-found-panel',
+                                    title: Uni.I18n.translate('communication.empty.title', 'DSH', 'No communications found'),
+                                    reasons: [
+                                        Uni.I18n.translate('communication.empty.list.item1', 'DSH', 'No communications in the system.'),
+                                        Uni.I18n.translate('communication.empty.list.item2', 'DSH', 'No communications found due to applied filters.')
+                                    ]
+                                },
+                                previewComponent: {
+                                    xtype: 'preview-connection-communication',
+                                    itemId: 'communicationpreview'
+                                }
+                            }
                         ]
-                    },
-                    previewComponent: {
-                        xtype: 'preview-connection-communication',
-                        itemId: 'communicationpreview'
                     }
                 }
-            ]
+            }
         }
     ],
 

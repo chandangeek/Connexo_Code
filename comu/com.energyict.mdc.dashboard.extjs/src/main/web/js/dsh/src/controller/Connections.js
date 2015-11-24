@@ -127,20 +127,20 @@ Ext.define('Dsh.controller.Connections', {
 
     onCommunicationSelectionChange: function (grid, selected) {
         var me = this,
-            commPanel = me.getCommunicationsPanel(),
             record = selected[0],
             preview = me.getCommunicationPreview(),
             menuItems = [];
 
-        commPanel.show();
         record.data.devConfig = {
             config: record.data.deviceConfiguration,
             devType: record.data.deviceType
         };
 
         record.data.title = record.data.comTask.name + ' on ' + record.data.device.name;
-        preview.setTitle(record.data.title);
+
         preview.loadRecord(record);
+        preview.setTitle(record.data.title);
+        Ext.resumeLayouts(true);
         this.initMenu(record, menuItems);
     },
 
@@ -189,14 +189,15 @@ Ext.define('Dsh.controller.Connections', {
             var id = record.get('id'),
                 title = ' ' + record.get('title');
 
-            preview.loadRecord(record);
+            Ext.suspendLayouts();
             preview.setTitle(title);
             commPanel.setTitle(Uni.I18n.translate('connection.widget.details.communicationTasksOfX', 'DSH', 'Communication tasks of {0}',[title]));
+            preview.loadRecord(record);
+            Ext.resumeLayouts(true);
 
             if (id) {
                 commStore.setConnectionId(id);
                 commStore.load();
-                commPanel.hide()
             }
         }
     },
