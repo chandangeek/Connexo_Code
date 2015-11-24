@@ -95,7 +95,7 @@ Ext.define('Usr.controller.UserDirectories', {
             previewForm = page.down('usr-user-directory-preview-form');
 
         Ext.suspendLayouts();
-        preview.setTitle(record.get('name'));
+        preview.setTitle(Ext.htmlEncode(record.get('name')));
         previewForm = page.down('usr-user-directory-preview-form');
         previewForm.down('#ctn-user-directory-properties1').setVisible(record.get('name') != me.localDomainName);
         previewForm.down('#ctn-user-directory-properties2').setVisible(record.get('name') != me.localDomainName);
