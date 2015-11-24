@@ -91,6 +91,16 @@ public class ImageTransfer extends AbstractCosemObject {
 		 */
 		@Override
 		public final byte[] getBlock(final int blockNumber, final int blockSize, final boolean padToBlockSize) {
+			if (blockSize <= 0) {
+				throw new IllegalArgumentException("Block size should be at least [1], you specified [" + blockSize + "]");
+			}
+			
+			final int numberOfBlocks = (this.data.length / blockSize) + 1;
+			
+			if (blockNumber < 0 || blockNumber >= numberOfBlocks) {
+				throw new IllegalArgumentException("Invalid block number requested, valid blocks between [0] and [" + (numberOfBlocks - 1) + "] !");
+			}
+			
 			final int startIndex = blockNumber * blockSize;
 			int endIndex = (blockNumber + 1) * blockSize;
 			
@@ -143,6 +153,16 @@ public class ImageTransfer extends AbstractCosemObject {
 		 */
 		@Override
 		public final byte[] getBlock(final int blockNumber, final int blockSize, final boolean padToBlockSize) throws IOException {
+			if (blockSize <= 0) {
+				throw new IllegalArgumentException("Block size should be at least [1], you specified [" + blockSize + "]");
+			}
+			
+			final int numberOfBlocks = ((int)this.file.length() / blockSize) + 1;
+			
+			if (blockNumber < 0 || blockNumber >= numberOfBlocks) {
+				throw new IllegalArgumentException("Invalid block number requested, valid blocks between [0] and [" + (numberOfBlocks - 1) + "] !");
+			}
+			
 			final int startIndex = blockNumber * blockSize;
 			int endIndex = (blockNumber + 1) * blockSize;
 			
