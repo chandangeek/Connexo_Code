@@ -166,7 +166,7 @@ public class IssueResource {
         return Response.ok(issueResourceHelper.performIssueAction(issue, request)).build();
     }
 
-    @PUT @Transactional
+    @PUT
     @Path("/assign")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -222,27 +222,24 @@ public class IssueResource {
 
     private ActionInfo doBulkClose(CloseIssueRequest request, User performer, Function<ActionInfo, List<? extends Issue>> issueProvider) {
         ActionInfo response = new ActionInfo();
-        try (TransactionContext context = transactionService.getContext()) {
-            Optional<IssueStatus> status = issueService.findStatus(request.status);
-            if (status.isPresent() && status.get().isHistorical()) {
-                for (Issue issue : issueProvider.apply(response)) {
-                    if (issue.getStatus().isHistorical()) {
-                        response.addFail(thesaurus.getFormat(MessageSeeds.ISSUE_ALREADY_CLOSED).format(), issue.getId(), issue.getTitle());
+        Optional<IssueStatus> status = issueService.findStatus(request.status);
+        if (status.isPresent() && status.get().isHistorical()) {
+            for (Issue issue : issueProvider.apply(response)) {
+                if (issue.getStatus().isHistorical()) {
+                    response.addFail(thesaurus.getFormat(MessageSeeds.ISSUE_ALREADY_CLOSED).format(), issue.getId(), issue.getTitle());
+                } else {
+                    issue.addComment(request.comment, performer);
+                    if (issue instanceof OpenIssue) {
+                        ((OpenIssue) issue).close(status.get());
                     } else {
-                        issue.addComment(request.comment, performer);
-                        if (issue instanceof OpenIssue) {
-                            ((OpenIssue) issue).close(status.get());
-                        } else {
-                            // user set both open and close statuses in filter
-                            issueDataValidationService.findOpenIssue(issue.getId()).ifPresent(openIssue -> openIssue.close(status.get()));
-                        }
-                        response.addSuccess(issue.getId());
+                        // user set both open and close statuses in filter
+                        issueDataValidationService.findOpenIssue(issue.getId()).ifPresent(openIssue -> openIssue.close(status.get()));
                     }
+                    response.addSuccess(issue.getId());
                 }
-            } else {
-                throw new WebApplicationException(Response.Status.BAD_REQUEST);
             }
-            context.commit();
+        } else {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
         return response;
     }
