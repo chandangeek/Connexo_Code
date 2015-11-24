@@ -29,7 +29,9 @@ public class ChannelSpecFullInfo extends ChannelSpecInfo {
     @JsonProperty("useMultiplier")
     public Boolean useMultiplier;
     @JsonProperty("calculatedReadingType")
-    public ReadingTypeInfo calculatedReadingType;
+    public ReadingTypeInfo calculatedReadingType;           // the calculated readingType in case of a 'bulk' collectedReadingType
+    @JsonProperty("multipliedCalculatedReadingType")
+    public ReadingTypeInfo multipliedCalculatedReadingType; // the calculated readingType which is applicable after multiplying
     public List<ReadingTypeInfo> possibleCalculatedReadingTypes = new ArrayList<>();
     @JsonProperty("collectedReadingType")
     public ReadingTypeInfo collectedReadingType;
@@ -45,8 +47,11 @@ public class ChannelSpecFullInfo extends ChannelSpecInfo {
         info.nbrOfFractionDigits = channelSpec.getNbrOfFractionDigits();
         info.measurementType = new ChannelSpecShortInfo(channelSpec.getChannelType(), collectedReadingType, multipliedCalculatedRegisterTypes);
         info.useMultiplier = channelSpec.isUseMultiplier();
+        if(collectedReadingType.getCalculatedReadingType().isPresent()){
+            info.calculatedReadingType = new ReadingTypeInfo(collectedReadingType.getCalculatedReadingType().get());
+        }
         if(channelSpec.getCalculatedReadingType().isPresent()){
-            info.calculatedReadingType = new ReadingTypeInfo(channelSpec.getCalculatedReadingType().get());
+            info.multipliedCalculatedReadingType = new ReadingTypeInfo(channelSpec.getCalculatedReadingType().get());
         }
         info.collectedReadingType = new ReadingTypeInfo(collectedReadingType);
         multipliedCalculatedRegisterTypes.forEach(readingTypeConsumer -> info.possibleCalculatedReadingTypes.add(new ReadingTypeInfo(readingTypeConsumer)));

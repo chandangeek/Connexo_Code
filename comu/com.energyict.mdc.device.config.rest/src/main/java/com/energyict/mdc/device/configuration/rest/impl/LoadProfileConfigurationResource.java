@@ -201,11 +201,7 @@ public class LoadProfileConfigurationResource {
         channelBuilder.overflow(info.overflowValue);
         channelBuilder.overruledObisCode(info.overruledObisCode);
         channelBuilder.nbrOfFractionDigits(info.nbrOfFractionDigits);
-        if(info.useMultiplier != null && info.useMultiplier){
-            channelBuilder.useMultiplier(true);
-        } else {
-            channelBuilder.useMultiplier(false);
-        }
+        channelBuilder.useMultiplier(info.useMultiplier != null && info.useMultiplier);
         channelBuilder.calculatedReadingType(findCalculatedReadingType(info).orElse(null));
         ChannelSpec newChannelSpec = channelBuilder.add();
         return Response.ok(ChannelSpecFullInfo.from(
@@ -216,8 +212,8 @@ public class LoadProfileConfigurationResource {
     }
 
     private Optional<ReadingType> findCalculatedReadingType(ChannelSpecFullInfo info) {
-        if(info.calculatedReadingType != null){
-            return resourceHelper.findReadingType(info.calculatedReadingType.mRID);
+        if(info.multipliedCalculatedReadingType != null){
+            return resourceHelper.findReadingType(info.multipliedCalculatedReadingType.mRID);
         } else {
             return Optional.empty();
         }
@@ -243,11 +239,7 @@ public class LoadProfileConfigurationResource {
         specUpdater.overruledObisCode(info.overruledObisCode);
         specUpdater.overflow(info.overflowValue);
         specUpdater.nbrOfFractionDigits(info.nbrOfFractionDigits);
-        if(info.useMultiplier != null && info.useMultiplier){
-            specUpdater.useMultiplier(true);
-        } else {
-            specUpdater.useMultiplier(false);
-        }
+        specUpdater.useMultiplier(info.useMultiplier != null && info.useMultiplier);
         specUpdater.calculatedReadingType(findCalculatedReadingType(info).orElse(null));
         specUpdater.update();
         return Response.ok(ChannelSpecFullInfo.from(
