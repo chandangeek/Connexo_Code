@@ -175,6 +175,13 @@ public class SecurityPropertyServiceImplTest {
         when(someKey.getValueFactory()).thenReturn(new StringFactory());
         when(someKey.isRequired()).thenReturn(true);
         when(this.securityPropertySet2.getPropertySpecs()).thenReturn(new HashSet<>(Collections.singletonList(someKey)));
+        when(this.customPropertySetService
+                .getUniqueValuesFor(
+                        any(CustomPropertySet.class),
+                        any(),
+                        any(Instant.class),
+                        any(SecurityPropertySet.class)))
+                .thenReturn(CustomPropertySetValues.empty());
     }
 
     @Test
@@ -185,10 +192,10 @@ public class SecurityPropertyServiceImplTest {
         when(this.deviceProtocol.getCustomPropertySet()).thenReturn(Optional.of(customPropertySet));
         when(this.customPropertySetService
                 .getUniqueValuesFor(
-                        customPropertySet,
-                        this.device,
-                        effectiveStart,
-                        this.securityPropertySet1))
+                        eq(customPropertySet),
+                        eq(this.device),
+                        any(Instant.class),
+                        eq(this.securityPropertySet1)))
                 .thenReturn(CustomPropertySetValues.emptyDuring(Range.closedOpen(effectiveStart, effectiveEnd)));
         when(this.securityPropertySet1.currentUserIsAllowedToViewDeviceProperties()).thenReturn(false);
 
@@ -207,10 +214,10 @@ public class SecurityPropertyServiceImplTest {
         when(this.deviceProtocol.getCustomPropertySet()).thenReturn(Optional.of(customPropertySet));
         when(this.customPropertySetService
                 .getUniqueValuesFor(
-                        customPropertySet,
-                        this.device,
-                        effectiveStart,
-                        this.securityPropertySet1))
+                        eq(customPropertySet),
+                        eq(this.device),
+                        any(Instant.class),
+                        eq(this.securityPropertySet1)))
                 .thenReturn(CustomPropertySetValues.emptyDuring(Range.closedOpen(effectiveStart, effectiveEnd)));
         when(this.securityPropertySet1.currentUserIsAllowedToViewDeviceProperties()).thenReturn(true);
 
@@ -230,12 +237,13 @@ public class SecurityPropertyServiceImplTest {
         CustomPropertySetValues customPropertySetValues = CustomPropertySetValues.emptyDuring(Range.closedOpen(effectiveStart, effectiveEnd));
         customPropertySetValues.setProperty(USERNAME_SECURITY_PROPERTY_NAME, "user");
         customPropertySetValues.setProperty(PASSWORD_SECURITY_PROPERTY_NAME, "password");
+        customPropertySetValues.setProperty(CommonBaseDeviceSecurityProperties.Fields.COMPLETE.javaName(), true);
         when(this.customPropertySetService
                 .getUniqueValuesFor(
-                        customPropertySet,
-                        this.device,
-                        effectiveStart,
-                        this.securityPropertySet1))
+                        eq(customPropertySet),
+                        eq(this.device),
+                        any(Instant.class),
+                        eq(this.securityPropertySet1)))
                 .thenReturn(customPropertySetValues);
         when(this.securityPropertySet1.currentUserIsAllowedToViewDeviceProperties()).thenReturn(false);
 
@@ -255,6 +263,7 @@ public class SecurityPropertyServiceImplTest {
         CustomPropertySetValues customPropertySetValuesForSet1 = CustomPropertySetValues.emptyDuring(Range.closedOpen(effectiveStart, effectiveEnd));
         customPropertySetValuesForSet1.setProperty(USERNAME_SECURITY_PROPERTY_NAME, "user");
         customPropertySetValuesForSet1.setProperty(PASSWORD_SECURITY_PROPERTY_NAME, "password");
+        customPropertySetValuesForSet1.setProperty(CommonBaseDeviceSecurityProperties.Fields.COMPLETE.javaName(), true);
         when(this.customPropertySetService
                 .getUniqueValuesFor(
                         eq(customPropertySet),
@@ -392,7 +401,7 @@ public class SecurityPropertyServiceImplTest {
 
         // Asserts
         ArgumentCaptor<CustomPropertySetValues> customPropertySetValuesCaptor = ArgumentCaptor.forClass(CustomPropertySetValues.class);
-        verify(this.customPropertySetService).setValuesFor(eq(customPropertySet), eq(this.device), customPropertySetValuesCaptor.capture());
+        verify(this.customPropertySetService).setValuesFor(eq(customPropertySet), eq(this.device), customPropertySetValuesCaptor.capture(), eq(now));
         CustomPropertySetValues customPropertySetValues = customPropertySetValuesCaptor.getValue();
         assertThat(customPropertySetValues).isNotNull();
         assertThat(customPropertySetValues.getEffectiveRange()).isEqualTo(Range.atLeast(now));
@@ -430,6 +439,7 @@ public class SecurityPropertyServiceImplTest {
         CustomPropertySetValues customPropertySetValues = CustomPropertySetValues.emptyDuring(Range.closedOpen(now, Instant.ofEpochMilli(ETERNITY)));
         customPropertySetValues.setProperty(USERNAME_SECURITY_PROPERTY_NAME, "test");
         customPropertySetValues.setProperty(PASSWORD_SECURITY_PROPERTY_NAME, "pass");
+        customPropertySetValues.setProperty(CommonBaseDeviceSecurityProperties.Fields.COMPLETE.javaName(), true);
         when(this.customPropertySetService
                 .getUniqueValuesFor(
                         eq(customPropertySet),
@@ -467,6 +477,7 @@ public class SecurityPropertyServiceImplTest {
         CustomPropertySetValues customPropertySetValuesForSet1 = CustomPropertySetValues.emptyDuring(Range.closedOpen(now, Instant.ofEpochMilli(ETERNITY)));
         customPropertySetValuesForSet1.setProperty(USERNAME_SECURITY_PROPERTY_NAME, "test");
         customPropertySetValuesForSet1.setProperty(PASSWORD_SECURITY_PROPERTY_NAME, "pass");
+        customPropertySetValuesForSet1.setProperty(CommonBaseDeviceSecurityProperties.Fields.COMPLETE.javaName(), true);
         when(this.customPropertySetService
                 .getUniqueValuesFor(
                         eq(customPropertySet),
@@ -476,12 +487,13 @@ public class SecurityPropertyServiceImplTest {
                 .thenReturn(customPropertySetValuesForSet1);
         CustomPropertySetValues customPropertySetValuesForSet2 = CustomPropertySetValues.emptyDuring(Range.closedOpen(now, Instant.ofEpochMilli(ETERNITY)));
         customPropertySetValuesForSet2.setProperty(SOME_KEY_SECURITY_PROPERTY_NAME, "something");
+        customPropertySetValuesForSet2.setProperty(CommonBaseDeviceSecurityProperties.Fields.COMPLETE.javaName(), true);
         when(this.customPropertySetService
                 .getUniqueValuesFor(
                         eq(customPropertySet),
                         eq(this.device),
                         any(Instant.class),
-                        eq(this.securityPropertySet1)))
+                        eq(this.securityPropertySet2)))
                 .thenReturn(customPropertySetValuesForSet2);
         when(this.deviceProtocol.getCustomPropertySet()).thenReturn(Optional.of(customPropertySet));
         when(this.deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(this.securityPropertySet1, this.securityPropertySet2));
@@ -583,6 +595,7 @@ public class SecurityPropertyServiceImplTest {
         CustomPropertySetValues customPropertySetValuesForSet1 = CustomPropertySetValues.emptyDuring(Range.closedOpen(now, Instant.ofEpochMilli(ETERNITY)));
         customPropertySetValuesForSet1.setProperty(USERNAME_SECURITY_PROPERTY_NAME, "test");
         customPropertySetValuesForSet1.setProperty(PASSWORD_SECURITY_PROPERTY_NAME, "pass");
+        customPropertySetValuesForSet1.setProperty(CommonBaseDeviceSecurityProperties.Fields.COMPLETE.javaName(), true);
         when(this.customPropertySetService
                 .getUniqueValuesFor(
                         eq(customPropertySet),
@@ -592,12 +605,13 @@ public class SecurityPropertyServiceImplTest {
                 .thenReturn(customPropertySetValuesForSet1);
         CustomPropertySetValues customPropertySetValuesForSet2 = CustomPropertySetValues.emptyDuring(Range.closedOpen(now, Instant.ofEpochMilli(ETERNITY)));
         customPropertySetValuesForSet2.setProperty(SOME_KEY_SECURITY_PROPERTY_NAME, "something");
+        customPropertySetValuesForSet2.setProperty(CommonBaseDeviceSecurityProperties.Fields.COMPLETE.javaName(), true);
         when(this.customPropertySetService
                 .getUniqueValuesFor(
                         eq(customPropertySet),
                         eq(this.device),
                         any(Instant.class),
-                        eq(this.securityPropertySet1)))
+                        eq(this.securityPropertySet2)))
                 .thenReturn(customPropertySetValuesForSet2);
         when(this.deviceProtocol.getCustomPropertySet()).thenReturn(Optional.of(customPropertySet));
         when(this.deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(this.securityPropertySet1, this.securityPropertySet2));

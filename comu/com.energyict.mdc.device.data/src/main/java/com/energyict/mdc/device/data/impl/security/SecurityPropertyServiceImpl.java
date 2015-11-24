@@ -21,6 +21,7 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 
+import com.google.common.collect.Range;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -190,7 +191,7 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
 
     private void doSetSecurityProperties(Device device, SecurityPropertySet securityPropertySet, TypedProperties properties) {
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = device.getDeviceType().getDeviceProtocolPluggableClass();
-        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        CustomPropertySetValues values = CustomPropertySetValues.emptyDuring(Range.atLeast(this.clock.instant()));
         values.setProperty(CommonBaseDeviceSecurityProperties.Fields.PROPERTY_SPEC_PROVIDER.javaName(), securityPropertySet);
         properties.propertyNames().stream().forEach(propertyName -> values.setProperty(propertyName, properties.getLocalValue(propertyName)));
         values.setProperty(CommonBaseDeviceSecurityProperties.Fields.COMPLETE.javaName(), this.isSecurityPropertySetComplete(securityPropertySet, properties));
