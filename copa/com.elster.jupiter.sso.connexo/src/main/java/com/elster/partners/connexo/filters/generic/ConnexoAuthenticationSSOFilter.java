@@ -32,10 +32,12 @@ public class ConnexoAuthenticationSSOFilter extends ConnexoAbstractSSOFilter {
 
         Cookie xsrf = null;
         Cookie[] cookies = request.getCookies();
-        for(int i=0; i<cookies.length; i++){
-            if(cookies[i].getName().equals("X-CONNEXO-TOKEN")){
-                xsrf = cookies[i];
-                break;
+        if(cookies != null) {
+            for (int i = 0; i < cookies.length; i++) {
+                if (cookies[i].getName().equals("X-CONNEXO-TOKEN")) {
+                    xsrf = cookies[i];
+                    break;
+                }
             }
         }
 

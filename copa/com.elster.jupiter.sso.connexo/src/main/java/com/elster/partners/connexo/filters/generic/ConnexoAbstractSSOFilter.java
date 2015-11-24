@@ -16,7 +16,7 @@ public abstract class ConnexoAbstractSSOFilter implements Filter {
     private FilterConfig filterConfig;
     private List<String> excludedUrls = new ArrayList<>();
 
-    protected final String CONNEXO_URL = System.getProperty("com.elster.connexo.url");
+    protected final String CONNEXO_URL = System.getProperty("connexo.url");
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -36,11 +36,11 @@ public abstract class ConnexoAbstractSSOFilter implements Filter {
     }
 
     protected void redirectToLogin(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
-        response.sendRedirect(getConnexoUrl() + "/apps/login/index.html");
+        response.sendRedirect(getConnexoUrl() + "/apps/login/index.html?page=" + request.getRequestURL());
     }
 
     protected void redirectToLogout(final HttpServletRequest request, final HttpServletResponse response) throws IOException {
-        response.sendRedirect(getConnexoUrl() + "/apps/login/index.html?logout");
+        response.sendRedirect(getConnexoUrl() + "/apps/login/index.html");
     }
 
     protected String getConnexoUrl() {

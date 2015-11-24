@@ -5,10 +5,16 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 public class ConnexoSecurityTokenManager {
 
@@ -22,6 +28,8 @@ public class ConnexoSecurityTokenManager {
     private ConnexoPrincipal principal = null;
     private boolean tokenUpdated = false;
 
+    Properties properties = new Properties();
+
     private static ConnexoSecurityTokenManager instance = null;
 
     public static synchronized ConnexoSecurityTokenManager getInstance() {
@@ -33,13 +41,15 @@ public class ConnexoSecurityTokenManager {
     }
 
     private ConnexoSecurityTokenManager() {
-        String maxCount = System.getProperty("com.elster.jupiter.token.refresh.maxcount");
+        loadProperties();
+
+        String maxCount = this.properties.getProperty("com.elster.jupiter.token.refresh.maxcount");
         MAX_COUNT = (maxCount != null)? Long.parseLong(maxCount) : 100;
 
-        String timeout = System.getProperty("com.elster.jupiter.timeout");
+        String timeout = this.properties.getProperty("com.elster.jupiter.timeout");
         TIMEOUT = (timeout != null) ? Integer.parseInt(timeout) : 300;
 
-        String tokenExpTime = System.getProperty("com.elster.jupiter.token.expirationtime");
+        String tokenExpTime = this.properties.getProperty("com.elster.jupiter.token.expirationtime");
         TOKEN_EXPTIME = (tokenExpTime != null) ? Integer.parseInt(tokenExpTime) : 300;
     }
 
@@ -97,8 +107,19 @@ public class ConnexoSecurityTokenManager {
             this.principal = null;
 
             long userId = Long.valueOf(signedJWT.getJWTClaimsSet().getSubject());
-            String user = signedJWT.getJWTClaimsSet().getSubject();
-            List<String> groups = signedJWT.getJWTClaimsSet().getStringListClaim("Roles");
+            String user = signedJWT.getJWTClaimsSet().getStringClaim("username");
+
+            List<String> groups = new ArrayList<>();
+            JSONArray roles = (JSONArray) signedJWT.getJWTClaimsSet().getClaim("roles");
+            if(roles != null) {
+                for (int i = 0; i < roles.size(); i++) {
+                    JSONObject role = (JSONObject) roles.get(i);
+                    if(role != null) {
+                        groups.add((String) role.get("name"));
+                    }
+                }
+            }
+
             this.principal = new ConnexoPrincipal(userId, user, groups);
         } catch (ParseException e) {
             e.printStackTrace();
@@ -132,5 +153,19 @@ public class ConnexoSecurityTokenManager {
         }
 
         return false;
+    }
+
+    private void loadProperties() {
+        String configPath = System.getProperty("connexo.configuration");
+        if(configPath != null){
+            try {
+                FileInputStream inputStream = new FileInputStream(configPath);
+                properties.load(inputStream);
+                inputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 }
