@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.impl.search.enddevice;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -125,6 +126,11 @@ public class EndDeviceSearchDomain implements SearchDomain {
                     Condition.TRUE,
                     (underConstruction, builder) -> underConstruction.and(builder.build()),
                     Condition::and);
+    }
+    
+    @Override
+    public List<String> targetApplications() {
+        return Arrays.asList("COIN");
     }
 
     private class ConditionBuilder {
