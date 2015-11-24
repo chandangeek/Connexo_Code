@@ -34,6 +34,7 @@ Ext.define('Uni.view.search.Results', {
                 displayMsg: Uni.I18n.translate('search.results.paging.displayMsg', 'UNI', '{0} - {1} of {2} search results'),
                 displayMoreMsg: Uni.I18n.translate('search.results.paging.displayMoreMsg', 'UNI', '{0} - {1} of more than {2} search results'),
                 emptyMsg: Uni.I18n.translate('search.results.paging.emptyMsg', 'UNI', 'There are no search results to display'),
+                usesExactCount: true,
                 items: {
                     xtype: 'uni-search-column-picker',
                     itemId: 'column-picker',
