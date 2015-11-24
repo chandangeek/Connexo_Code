@@ -27,7 +27,6 @@ import com.energyict.mdc.common.services.WrappingFinder;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-import com.energyict.mdc.dynamic.relation.RelationParticipant;
 import com.energyict.mdc.dynamic.relation.RelationService;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.pluggable.PluggableClass;
@@ -85,7 +84,6 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterM
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.MessageAdapterMappingFactoryImpl;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactory;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactoryImpl;
-import com.energyict.mdc.protocol.pluggable.impl.relations.SecurityPropertySetRelationSupport;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -861,12 +859,6 @@ public class ProtocolPluggableServiceImpl implements ProtocolPluggableService, I
                 .map(Object::getClass)
                 .map(Class::getName)
                 .collect(Collectors.joining(", "));
-    }
-
-    @Override
-    public boolean hasSecurityRelations(RelationParticipant securityPropertySet, DeviceProtocol deviceProtocol) {
-        SecurityPropertySetRelationSupport relationSupport = new SecurityPropertySetRelationSupport(securityPropertySet, deviceProtocol, this, this.relationService, this.propertySpecService, this.clock);
-        return relationSupport.hasValues();
     }
 
     private Module getModule() {

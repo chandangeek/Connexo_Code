@@ -18,6 +18,7 @@ import com.energyict.mdc.protocol.pluggable.MessageSeeds;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.PropertiesAdapter;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SecuritySupportAdapterMappingFactoryImpl;
+import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDeviceSecurityProperties;
 import com.energyict.mdc.protocol.pluggable.impl.adapters.common.SimpleTestDeviceSecuritySupport;
 
 import java.util.List;
@@ -70,12 +71,12 @@ public class MeterProtocolSecuritySupportAdapterTest {
                 (SecondSimpleTestMeterProtocol.class.getName())).thenReturn("com.energyict.mdc.protocol.pluggable.impl.adapters.meterprotocol.NotAKnownDeviceSecuritySupportClass");
         when(securitySupportAdapterMappingFactory.getSecuritySupportJavaClassNameForDeviceProtocol
                 (ThirdSimpleTestMeterProtocol.class.getName())).thenReturn(ThirdSimpleTestMeterProtocol.class.getName());
-        when(propertySpecService.basicPropertySpec(SimpleTestDeviceSecuritySupport.FIRST_PROPERTY_NAME, false, StringFactory.class))
-                .thenReturn(new BasicPropertySpec(SimpleTestDeviceSecuritySupport.FIRST_PROPERTY_NAME, false, new StringFactory()));
-        when(propertySpecService.basicPropertySpec(SimpleTestDeviceSecuritySupport.SECOND_PROPERTY_NAME, false, StringFactory.class))
-                .thenReturn(new BasicPropertySpec(SimpleTestDeviceSecuritySupport.SECOND_PROPERTY_NAME, false, new StringFactory()));
-        when(propertySpecService.basicPropertySpec(SimpleTestDeviceSecuritySupport.THIRD_PROPERTY_NAME, false, StringFactory.class))
-                .thenReturn(new BasicPropertySpec(SimpleTestDeviceSecuritySupport.THIRD_PROPERTY_NAME, false, new StringFactory()));
+        when(propertySpecService.basicPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.FIRST.javaName(), false, StringFactory.class))
+                .thenReturn(new BasicPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.FIRST.javaName(), false, new StringFactory()));
+        when(propertySpecService.basicPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.SECOND.javaName(), false, StringFactory.class))
+                .thenReturn(new BasicPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.SECOND.javaName(), false, new StringFactory()));
+        when(propertySpecService.basicPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.THIRD.javaName(), false, StringFactory.class))
+                .thenReturn(new BasicPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.THIRD.javaName(), false, new StringFactory()));
         SimpleTestDeviceSecuritySupport securitySupport = new SimpleTestDeviceSecuritySupport(propertySpecService);
         when(this.protocolPluggableService.createDeviceProtocolSecurityFor(SimpleTestDeviceSecuritySupport.class.getName())).thenReturn(securitySupport);
         doThrow(ProtocolCreationException.class).when(this.protocolPluggableService).
@@ -156,23 +157,6 @@ public class MeterProtocolSecuritySupportAdapterTest {
     }
 
     @Test
-    public void getSecurityRelationTypeNameTest() {
-        SimpleTestMeterProtocol simpleTestMeterProtocol = new SimpleTestMeterProtocol();
-        MeterProtocolSecuritySupportAdapter meterProtocolSecuritySupportAdapter = new MeterProtocolSecuritySupportAdapter(
-                simpleTestMeterProtocol,
-                this.propertySpecService,
-                this.protocolPluggableService,
-                mock(PropertiesAdapter.class),
-                this.securitySupportAdapterMappingFactory);
-
-        // business method
-        String securityRelationTypeName = meterProtocolSecuritySupportAdapter.getSecurityRelationTypeName();
-
-        // asserts
-        assertThat(securityRelationTypeName).isEqualTo(SimpleTestDeviceSecuritySupport.DUMMY_RELATION_TYPE_NAME);
-    }
-
-    @Test
     public void getSecurityPropertySpecTest() {
         SimpleTestMeterProtocol simpleTestMeterProtocol = new SimpleTestMeterProtocol();
         MeterProtocolSecuritySupportAdapter meterProtocolSecuritySupportAdapter = new MeterProtocolSecuritySupportAdapter(
@@ -183,9 +167,9 @@ public class MeterProtocolSecuritySupportAdapterTest {
                 this.securitySupportAdapterMappingFactory);
 
         // asserts
-        assertThat(meterProtocolSecuritySupportAdapter.getSecurityPropertySpec(SimpleTestDeviceSecuritySupport.FIRST_PROPERTY_NAME)).isPresent();
-        assertThat(meterProtocolSecuritySupportAdapter.getSecurityPropertySpec(SimpleTestDeviceSecuritySupport.SECOND_PROPERTY_NAME)).isPresent();
-        assertThat(meterProtocolSecuritySupportAdapter.getSecurityPropertySpec(SimpleTestDeviceSecuritySupport.THIRD_PROPERTY_NAME)).isPresent();
+        assertThat(meterProtocolSecuritySupportAdapter.getSecurityPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.FIRST.javaName())).isPresent();
+        assertThat(meterProtocolSecuritySupportAdapter.getSecurityPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.SECOND.javaName())).isPresent();
+        assertThat(meterProtocolSecuritySupportAdapter.getSecurityPropertySpec(SimpleTestDeviceSecurityProperties.ActualFields.THIRD.javaName())).isPresent();
     }
 
     @Test

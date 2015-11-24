@@ -3,10 +3,8 @@ package com.energyict.mdc.protocol.pluggable;
 import com.elster.jupiter.domain.util.Finder;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.dynamic.relation.RelationAttributeType;
-import com.energyict.mdc.dynamic.relation.RelationParticipant;
 import com.energyict.mdc.pluggable.PluggableClass;
 import com.energyict.mdc.protocol.api.ConnectionType;
-import com.energyict.mdc.protocol.api.DeviceProtocol;
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.api.LicensedProtocol;
 import com.energyict.mdc.protocol.api.inbound.InboundDeviceProtocol;
@@ -269,16 +267,5 @@ public interface ProtocolPluggableService {
     ConnectionType createConnectionType(String javaClassName);
 
     InboundDeviceProtocol createInboundDeviceProtocolFor(PluggableClass pluggableClass);
-
-    /**
-     * Tests if the SecurityPropertySet has any {@link com.energyict.mdc.dynamic.relation.Relation}s
-     * that hold security property values for Devices that use the {@link DeviceProtocol}
-     * to communicate.
-     *
-     * @param securityPropertySet The SecurityPropertySet
-     * @param deviceProtocol The DeviceProtocol
-     * @return A flag that indicates if the SecurityPropertySet is in use on Devices
-     */
-    boolean hasSecurityRelations(RelationParticipant securityPropertySet, DeviceProtocol deviceProtocol);
 
 }
