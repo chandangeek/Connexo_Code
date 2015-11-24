@@ -117,6 +117,7 @@ public class ConnectionMethodResource {
 
         pauseOrResumeTask(info, task);
         info.writeTo(task, partialConnectionTask, engineConfigurationService, mdcPropertyUtils);
+        task.saveAllProperties();
         task.save();
         if (info.isDefault) {
             connectionTaskService.setDefaultConnectionTask(task);
