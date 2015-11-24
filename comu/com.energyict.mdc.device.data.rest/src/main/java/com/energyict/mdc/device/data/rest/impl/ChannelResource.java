@@ -153,14 +153,7 @@ public class ChannelResource {
     public PagedInfoList getOverlaps(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId, @QueryParam("startTime") long startTime, @QueryParam("endTime") long endTime, @BeanParam JsonQueryParameters queryParameters) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
         List<CustomPropertySetIntervalConflictInfo> overlapInfos = resourceHelper.getOverlapsWhenCreate(channel, cpsId, startTime, endTime);
-        if (overlapInfos.size() > 0) {
-            CustomPropertySetInfo insertedValuesStub = new CustomPropertySetInfo();
-            insertedValuesStub.startTime = startTime;
-            insertedValuesStub.versionId = startTime;
-            insertedValuesStub.endTime = endTime;
-            overlapInfos.add(new CustomPropertySetIntervalConflictInfo(MessageSeeds.CUSTOMPROPRTTYSET_TIMESLICED_INSERT, insertedValuesStub, true));
-            Collections.sort(overlapInfos, resourceHelper.getConflictInfosComparator());
-        }
+        Collections.sort(overlapInfos, resourceHelper.getConflictInfosComparator());
         return PagedInfoList.fromCompleteList("conflicts", overlapInfos, queryParameters);
     }
 
@@ -170,14 +163,7 @@ public class ChannelResource {
     public PagedInfoList getOverlaps(@PathParam("mRID") String mRID, @PathParam("channelId") long channelId, @PathParam("cpsId") long cpsId, @PathParam("timeStamp") long timeStamp, @QueryParam("startTime") long startTime, @QueryParam("endTime") long endTime, @BeanParam JsonQueryParameters queryParameters) {
         Channel channel = resourceHelper.findChannelOnDeviceOrThrowException(mRID, channelId);
         List<CustomPropertySetIntervalConflictInfo> overlapInfos = resourceHelper.getOverlapsWhenUpdate(channel, cpsId, startTime, endTime, Instant.ofEpochMilli(timeStamp));
-        if (overlapInfos.size() > 0) {
-            CustomPropertySetInfo insertedValuesStub = new CustomPropertySetInfo();
-            insertedValuesStub.startTime = startTime;
-            insertedValuesStub.versionId = startTime;
-            insertedValuesStub.endTime = endTime;
-            overlapInfos.add(new CustomPropertySetIntervalConflictInfo(MessageSeeds.CUSTOMPROPRTTYSET_TIMESLICED_INSERT, insertedValuesStub, true));
-            Collections.sort(overlapInfos, resourceHelper.getConflictInfosComparator());
-        }
+        Collections.sort(overlapInfos, resourceHelper.getConflictInfosComparator());
         return PagedInfoList.fromCompleteList("conflicts", overlapInfos, queryParameters);
     }
 

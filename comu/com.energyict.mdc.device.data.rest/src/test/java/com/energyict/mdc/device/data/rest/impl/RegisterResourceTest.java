@@ -1,8 +1,6 @@
 package com.energyict.mdc.device.data.rest.impl;
 
-import com.elster.jupiter.cps.CustomPropertySet;
-import com.elster.jupiter.cps.CustomPropertySetValues;
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.cps.*;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
 import com.elster.jupiter.rest.util.properties.PropertyValueInfo;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -90,17 +88,25 @@ public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(customPropertySetService.getValuesFor(customPropertySet, registerSpec)).thenReturn(customPropertySetValues);
         when(customPropertySetService.getValuesFor(eq(customPropertySet), eq(registerSpec), any(Instant.class))).thenReturn(customPropertySetValuesNoTimesliced);
         when(customPropertySetService.getAllVersionedValuesFor(customPropertySet, registerSpec)).thenReturn(Arrays.asList(customPropertySetValues, customPropertySetValues2));
-        MessageSeed messageUpdate = mock(MessageSeed.class);
-        when(messageUpdate.getKey()).thenReturn("edit.historical.values.overlap.can.update.end");
-        when(messageUpdate.getDefaultFormat()).thenReturn("update");
-        MessageSeed messageDelete = mock(MessageSeed.class);
-        when(messageDelete.getKey()).thenReturn("edit.historical.values.overlap.can.delete");
-        when(messageDelete.getDefaultFormat()).thenReturn("delete");
-        HashMap<CustomPropertySetValues, MessageSeed> conflicts = new HashMap<>();
-        conflicts.put(customPropertySetValues, messageUpdate);
-        conflicts.put(customPropertySetValues2, messageDelete);
-        when(customPropertySetService.getValuesRangeOverlapFor(eq(customPropertySet), anyObject(), any(Range.class), any(Instant.class), eq(false)))
-                .thenReturn(conflicts);
+        ValuesRangeConflict conflict1 = mock(ValuesRangeConflict.class);
+        when(conflict1.getConflictingRange()).thenReturn(Range.closedOpen(Instant.ofEpochMilli(startTimeFirst),Instant.ofEpochMilli(endTimeFirst)));
+        when(conflict1.getMessage()).thenReturn("testMessage");
+        when(conflict1.getType()).thenReturn(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_END);
+        when(conflict1.getValues()).thenReturn(customPropertySetValues);
+        ValuesRangeConflict conflict2 = mock(ValuesRangeConflict.class);
+        when(conflict2.getConflictingRange()).thenReturn(Range.closedOpen(Instant.ofEpochMilli(startTimeNew),Instant.ofEpochMilli(endTimeNew)));
+        when(conflict2.getMessage()).thenReturn("testMessage");
+        when(conflict2.getType()).thenReturn(ValuesRangeConflictType.RANGE_INSERTED);
+        when(conflict2.getValues()).thenReturn(CustomPropertySetValues.emptyDuring(Interval.of(Range.closedOpen(Instant.ofEpochMilli(startTimeNew), Instant.ofEpochMilli(endTimeNew)))));
+        ValuesRangeConflict conflict3 = mock(ValuesRangeConflict.class);
+        when(conflict3.getConflictingRange()).thenReturn(Range.closedOpen(Instant.ofEpochMilli(endTimeFirst),Instant.ofEpochMilli(endTimeSecond)));
+        when(conflict3.getMessage()).thenReturn("testMessage");
+        when(conflict3.getType()).thenReturn(ValuesRangeConflictType.RANGE_OVERLAP_DELETE);
+        when(conflict3.getValues()).thenReturn(customPropertySetValues2);
+        OverlapCalculatorBuilder overlapCalculatorBuilder = mock(OverlapCalculatorBuilder.class);
+        when(overlapCalculatorBuilder.whenCreating(any(Range.class))).thenReturn(Arrays.asList(conflict1,conflict2,conflict3));
+        when(overlapCalculatorBuilder.whenUpdating(any(Instant.class),any(Range.class))).thenReturn(Arrays.asList(conflict1,conflict2,conflict3));
+        when(customPropertySetService.calculateOverlapsFor(anyObject(),anyObject())).thenReturn(overlapCalculatorBuilder);
         return customPropertySet;
     }
 
@@ -157,7 +163,7 @@ public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(jsonModel.<List<?>>get("$.conflicts")).hasSize(3);
         assertThat(jsonModel.<Integer>get("$.conflicts[0].customPropertySet.id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.conflicts[0].customPropertySet.name")).isEqualTo("testCps");
-        assertThat(jsonModel.<String>get("$.conflicts[0].conflictType")).isEqualTo("edit.historical.values.overlap.can.update.end");
+        assertThat(jsonModel.<String>get("$.conflicts[0].conflictType")).isEqualTo(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_END.name());
         assertThat(jsonModel.<Boolean>get("$.conflicts[0].customPropertySet.timesliced")).isEqualTo(true);
         assertThat(jsonModel.<Boolean>get("$.conflicts[0].conflictAtStart")).isEqualTo(false);
         assertThat(jsonModel.<Boolean>get("$.conflicts[0].conflictAtEnd")).isEqualTo(true);
@@ -168,7 +174,7 @@ public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
         assertThat(jsonModel.<Long>get("$.conflicts[1].customPropertySet.endTime")).isEqualTo(endTimeNew);
         assertThat(jsonModel.<Integer>get("$.conflicts[2].customPropertySet.id")).isEqualTo(1);
         assertThat(jsonModel.<String>get("$.conflicts[2].customPropertySet.name")).isEqualTo("testCps");
-        assertThat(jsonModel.<String>get("$.conflicts[2].conflictType")).isEqualTo("edit.historical.values.overlap.can.delete");
+        assertThat(jsonModel.<String>get("$.conflicts[2].conflictType")).isEqualTo(ValuesRangeConflictType.RANGE_OVERLAP_DELETE.name());
         assertThat(jsonModel.<Boolean>get("$.conflicts[2].customPropertySet.timesliced")).isEqualTo(true);
         assertThat(jsonModel.<Long>get("$.conflicts[2].customPropertySet.versionId")).isEqualTo(endTimeFirst);
         assertThat(jsonModel.<Long>get("$.conflicts[2].customPropertySet.startTime")).isEqualTo(endTimeFirst);
