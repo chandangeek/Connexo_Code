@@ -115,6 +115,7 @@ Ext.define('Mdc.controller.Search', {
 
         me.getApplication().fireEvent('changecontentevent', widget);
 
+        searchDomains.clearFilter(true);
         searchDomains.addFilter({property: 'application', value: 'COMU'}, false);
         searchDomains.load({callback: function(records) {
             var value = router.queryParams.searchDomain,
