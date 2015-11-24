@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.elster.ctr.MTU155;
 
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
@@ -20,6 +22,7 @@ import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
 import com.energyict.mdc.protocol.api.LoadProfileReader;
 import com.energyict.mdc.protocol.api.LogBookReader;
 import com.energyict.mdc.protocol.api.ManufacturerInformation;
+import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.device.LoadProfileFactory;
 import com.energyict.mdc.protocol.api.device.LogBookFactory;
 import com.energyict.mdc.protocol.api.device.data.CollectedDataFactory;
@@ -426,13 +429,8 @@ public class MTU155 implements DeviceProtocol {
     }
 
     @Override
-    public List<PropertySpec> getSecurityPropertySpecs() {
-        return securityCapabilities.getSecurityPropertySpecs();
-    }
-
-    @Override
-    public String getSecurityRelationTypeName() {
-        return this.getClass().getSimpleName();
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
+        return this.securityCapabilities.getCustomPropertySet();
     }
 
     @Override
@@ -443,11 +441,6 @@ public class MTU155 implements DeviceProtocol {
     @Override
     public List<EncryptionDeviceAccessLevel> getEncryptionAccessLevels() {
         return securityCapabilities.getEncryptionAccessLevels();
-    }
-
-    @Override
-    public Optional<PropertySpec> getSecurityPropertySpec(String name) {
-        return securityCapabilities.getSecurityPropertySpec(name);
     }
 
     @Override

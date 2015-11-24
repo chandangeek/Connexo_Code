@@ -1,18 +1,17 @@
 package com.energyict.protocolimplv2.security;
 
-import com.elster.jupiter.cps.PersistenceSupport;
+import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.security.AuthenticationDeviceAccessLevel;
-import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
 import com.energyict.mdc.protocol.api.security.DeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
-import com.energyict.mdc.protocol.api.security.SecurityCustomPropertySet;
 import com.energyict.protocols.mdc.services.impl.TranslationKeys;
 
 import javax.inject.Inject;
@@ -38,7 +37,7 @@ public class NoSecuritySupport implements DeviceProtocolSecurityCapabilities, Le
     }
 
     @Override
-    public <P extends CommonBaseDeviceSecurityProperties, S extends PersistenceSupport<BaseDevice, P>> Optional<SecurityCustomPropertySet<P, S>> getCustomPropertySet() {
+    public Optional<CustomPropertySet<BaseDevice, ? extends PersistentDomainExtension<BaseDevice>>> getCustomPropertySet() {
         return Optional.empty();
     }
 
