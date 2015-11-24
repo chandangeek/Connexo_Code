@@ -29,12 +29,5 @@ Ext.define('Uni.view.search.field.Obis', {
                 }
             }
         };
-    },
-
-    initComponent: function () {
-        var me = this;
-        this.init();
-
-        me.callParent(arguments);
     }
 });

@@ -18,6 +18,13 @@ Ext.define('Uni.view.search.field.Simple', {
         this.setText(this.emptyText);
     },
 
+    initComponent: function () {
+        var me = this;
+        this.init();
+
+        me.callParent(arguments);
+    },
+
     init: function () {
         var me = this;
 
