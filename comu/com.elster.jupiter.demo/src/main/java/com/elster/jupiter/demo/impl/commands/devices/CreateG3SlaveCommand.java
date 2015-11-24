@@ -15,6 +15,7 @@ import com.energyict.mdc.protocol.api.device.messages.DlmsEncryptionLevelMessage
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.TimeZone;
 import java.util.function.Consumer;
@@ -68,7 +69,7 @@ public class CreateG3SlaveCommand {
                         .setProperty("HLSsecretHEX", "31323334353637383930313233343536")
                         .setProperty("HLSsecretASCII", "1234567890123456")
                         .setProperty("TimeZone", TimeZone.getTimeZone("Europe/Brussels"))
-                        .setProperty("ClientMacAddress", "1");
+                        .setProperty("ClientMacAddress", new BigDecimal(1));
             }
         },
         AS220 {
@@ -86,7 +87,7 @@ public class CreateG3SlaveCommand {
                         .setProperty("HLSsecretHEX", "31323334353637383930313233343536")
                         .setProperty("HLSsecretASCII", "1234567890123456")
                         .setProperty("TimeZone", TimeZone.getTimeZone("Europe/Brussels"))
-                        .setProperty("ClientMacAddress", 1);
+                        .setProperty("ClientMacAddress", new BigDecimal(1));
             }
         };
 

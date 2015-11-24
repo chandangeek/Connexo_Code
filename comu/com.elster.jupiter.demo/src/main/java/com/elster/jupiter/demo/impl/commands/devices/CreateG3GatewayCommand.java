@@ -170,7 +170,7 @@ public class CreateG3GatewayCommand {
         SecurityPropertySet securityPropertySet = configuration.getSecurityPropertySets().stream()
             .filter(sps -> SECURITY_PROPERTY_SET_NAME.equals(sps.getName())).findFirst().orElseThrow(() -> new UnableToCreate("No securityPropertySet with name" + SECURITY_PROPERTY_SET_NAME + "."));
         TypedProperties typedProperties = TypedProperties.empty();
-        typedProperties.setProperty("ClientMacAddress", "1");
+        typedProperties.setProperty("ClientMacAddress", new BigDecimal(1));
         securityPropertySet.getPropertySpecs().stream().filter(ps -> ps.getName().equals("AuthenticationKey")).findFirst().ifPresent(
             ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("00112233445566778899AABBCCDDEEFF")));
         securityPropertySet.getPropertySpecs().stream().filter(ps -> ps.getName().equals("EncryptionKey")).findFirst().ifPresent(
