@@ -33,7 +33,7 @@ public class BasicAuthentication implements Authentication {
         if (xsrf.isPresent()) {
          if (authentication != null && authentication.startsWith("Bearer ")) {
                 if(!(authentication.substring(7)).equals(xsrf.get().getValue()))
-                    return deny(response);
+                    return deny(request, response);
             }
             user = SecurityToken.verifyToken(xsrf.get().getValue(), request, response, userService);
         }else if (authentication != null && authentication.startsWith("Basic "))
@@ -41,7 +41,7 @@ public class BasicAuthentication implements Authentication {
         else if (authentication != null && authentication.startsWith("Bearer "))
             user = SecurityToken.verifyToken(authentication.substring(7), request, response, userService);
 
-        return user.isPresent() ? allow(request, response, user.get()) : deny(response);
+        return user.isPresent() ? allow(request, response, user.get()) : deny(request,response);
     }
 
     private boolean allow(HttpServletRequest request, HttpServletResponse response, User user) {
@@ -62,10 +62,14 @@ public class BasicAuthentication implements Authentication {
         return true;
     }
 
-    private boolean deny(HttpServletResponse response) {
+    private boolean deny(HttpServletRequest request, HttpServletResponse response) {
         String realm = userService.getRealm();
         response.addHeader("WWW-Authenticate", "Basic realm=\"" + realm + "\"");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        Optional<Cookie> xsrf = Arrays.asList(request.getCookies()).stream().filter(cookie -> cookie.getName().equals("X-CONNEXO-TOKEN")).findFirst();
+        if (!xsrf.isPresent()) {
+            SecurityToken.removeCookie(request,response);
+        }
         return false;
     }
 
