@@ -60,7 +60,7 @@ import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.Sma
 import com.energyict.mdc.protocol.pluggable.impl.adapters.smartmeterprotocol.SmartMeterProtocolSecuritySupportAdapter;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -446,9 +446,12 @@ public class SmartMeterProtocolAdapter extends DeviceProtocolAdapterImpl impleme
 
     @Override
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-        List<DeviceProtocolDialect> dialects = new ArrayList<>(1);
-        dialects.add(new AdapterDeviceProtocolDialect(this.getPropertySpecService(), this.getProtocolPluggableService(), this.meterProtocol, getSecurityPropertySpecs()));
-        return dialects;
+        return Collections.singletonList(
+                    new AdapterDeviceProtocolDialect(
+                            this.getPropertySpecService(),
+                            this.getProtocolPluggableService(),
+                            this.meterProtocol,
+                            getSecurityPropertySpecs()));
     }
 
     @Override

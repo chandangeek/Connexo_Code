@@ -583,7 +583,7 @@ public class MeterProtocolAdapterTest {
         adapter.getSecurityPropertySpec(PROPERTY_SPEC_NAME);
 
         // Asserts
-        verify(adaptedProtocol).getSecurityPropertySpec(PROPERTY_SPEC_NAME);
+        verify(adaptedProtocol).getSecurityPropertySpecs();
     }
 
     @Test

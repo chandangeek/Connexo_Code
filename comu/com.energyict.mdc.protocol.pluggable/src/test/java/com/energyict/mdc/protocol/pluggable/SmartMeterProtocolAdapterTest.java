@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.pluggable;
 
+import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
@@ -309,6 +310,7 @@ public class SmartMeterProtocolAdapterTest {
     @Test
     public void getDeviceProtocolDialect() {
         SmartMeterProtocol smartMeterProtocol = getMockedSmartMeterProtocol();
+        when(((DeviceSecuritySupport) smartMeterProtocol).getCustomPropertySet()).thenReturn(Optional.empty());
         List<com.energyict.mdc.protocol.api.legacy.dynamic.PropertySpec> optionalKeys = new ArrayList<>();
         final List<String> optionalKeyNames = Arrays.asList("o1", "o2", "o3");
         optionalKeys.add(PropertySpecFactory.stringPropertySpec("o1"));
@@ -519,13 +521,16 @@ public class SmartMeterProtocolAdapterTest {
     @Test
     public void testGetSecurityPropertiesWhenWrappedProtocolImplementsDeviceSecuritySupport() {
         MeterProtocolWithDeviceSecuritySupport adaptedProtocol = mock(MeterProtocolWithDeviceSecuritySupport.class, withSettings().extraInterfaces(DeviceMessageSupport.class));
+        CustomPropertySet customPropertySet = mock(CustomPropertySet.class);
+        when(adaptedProtocol.getCustomPropertySet()).thenReturn(Optional.of(customPropertySet));
         SmartMeterProtocolAdapter adapter = newSmartMeterProtocolAdapter(adaptedProtocol);
 
         // Business method
         adapter.getSecurityPropertySpecs();
 
         // Asserts
-        verify(adaptedProtocol).getSecurityPropertySpecs();
+        verify(adaptedProtocol).getCustomPropertySet();
+        verify(customPropertySet).getPropertySpecs();
     }
 
     @Test
@@ -680,7 +685,8 @@ public class SmartMeterProtocolAdapterTest {
                 this.protocolPluggableService,
                 this.securitySupportAdapterMappingFactory,
                 new CapabilityAdapterMappingFactoryImpl(dataModel),
-                messageAdapterMappingFactory, dataModel,
+                messageAdapterMappingFactory,
+                dataModel,
                 this.inMemoryPersistence.getIssueService(),
                 collectedDataFactory,
                 meteringService);
