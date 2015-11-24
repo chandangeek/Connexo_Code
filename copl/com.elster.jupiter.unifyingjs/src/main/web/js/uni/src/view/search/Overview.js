@@ -221,9 +221,7 @@ Ext.define('Uni.view.search.Overview', {
         });
 
         me.on('destroy', function () {
-            listeners.map(function (i) {
-                i.destroy()
-            });
+            listeners.destroy();
         });
     }
 });
