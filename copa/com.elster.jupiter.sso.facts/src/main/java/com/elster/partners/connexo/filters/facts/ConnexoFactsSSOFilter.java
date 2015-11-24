@@ -68,7 +68,7 @@ public class ConnexoFactsSSOFilter extends ConnexoAbstractSSOFilter {
 
     private void authenticate(ConnexoPrincipal principal, HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        ConnexoFactsWebServiceManager manager = new ConnexoFactsWebServiceManager(request.getServerPort(), request.getContextPath(), request.getProtocol());
+        ConnexoFactsWebServiceManager manager = new ConnexoFactsWebServiceManager(this.properties, request.getServerPort(), request.getContextPath(), request.getProtocol());
 
         Optional<String> result = manager.getUser(principal.getName());
         if (!result.isPresent() || !result.get().equals("SUCCESS")) {

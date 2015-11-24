@@ -5,6 +5,7 @@ import com.hof.mi.web.service.*;
 import javax.xml.rpc.ServiceException;
 import java.rmi.RemoteException;
 import java.util.Optional;
+import java.util.Properties;
 
 /**
  * Created by dragos on 11/17/2015.
@@ -19,13 +20,13 @@ public class ConnexoFactsWebServiceManager {
     private final String adminUser;
     private final String adminPwd;
 
-    ConnexoFactsWebServiceManager(int port, String contextPath, String protocol) {
+    ConnexoFactsWebServiceManager(Properties properties, int port, String contextPath, String protocol) {
         this.port = port;
         this.contextPath = contextPath;
         this.protocol = protocol;
 
-        String usr = System.getProperty("com.elster.yellowfin.admin.usr");
-        String pwd = System.getProperty("com.elster.yellowfin.admin.pwd");
+        String usr = properties.getProperty("com.elster.yellowfin.admin.usr");
+        String pwd = properties.getProperty("com.elster.yellowfin.admin.pwd");
 
         this.adminUser = (usr!=null)?usr:"admin";
         this.adminPwd = (pwd!=null)?pwd:"admin";
