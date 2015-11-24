@@ -173,7 +173,7 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
         Supplier<InvalidQueryDeviceGroupException> noSuchDomainException =
                 () -> new InvalidQueryDeviceGroupException(thesaurus, MessageSeeds.SEARCH_DOMAIN_NOT_FOUND, this.searchDomain);
         try {
-            return this.searchService.pollSearchDomain(this.searchDomain, Duration.ofMinutes(1)).orElseThrow(noSuchDomainException);
+            return this.searchService.pollDomain(this.searchDomain, Duration.ofMinutes(1)).orElseThrow(noSuchDomainException);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw noSuchDomainException.get();
