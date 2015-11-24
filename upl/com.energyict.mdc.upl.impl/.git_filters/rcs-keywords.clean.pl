@@ -1,4 +1,4 @@
 #!/usr/bin/perl -p
-
-$date=localtime();
-s/\$Date[^\$]*\$/\$Date: $date\$/;
+use POSIX qw(strftime);
+$datestr = strftime "%Y-%m-%d %H:%M:%S %z (%a, %d %b %Y)",localtime;
+s/\$Date[^\$]*\$/\$Date: $datestr\$/;
