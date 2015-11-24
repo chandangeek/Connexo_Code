@@ -1,4 +1,4 @@
-package com.elster.jupiter.export.extjs;
+package com.elster.jupiter.metering.extjs;
 
 import com.elster.jupiter.http.whiteboard.BundleResolver;
 import com.elster.jupiter.http.whiteboard.FileResolver;
