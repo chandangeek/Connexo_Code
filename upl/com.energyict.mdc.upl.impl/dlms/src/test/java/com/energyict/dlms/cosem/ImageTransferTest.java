@@ -79,7 +79,11 @@ public final class ImageTransferTest {
 		
 		// Now go to the last block.
 		assertThat(supplier.getBlock(numberOfBlocks - 1, blockSize, false)).isEqualTo(new byte[] { 0x42 });
+		
+		// Check that it gets padded if we ask it to.
 		assertThat(supplier.getBlock(numberOfBlocks - 1, blockSize, true)).isEqualTo(new byte[] { 0x42, 0x00 });
+		
+		// Now check that it blows up if appropriate.
 		
 		// Request a bogus block number.
 		try {
