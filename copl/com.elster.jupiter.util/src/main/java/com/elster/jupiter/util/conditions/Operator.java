@@ -16,7 +16,7 @@ public enum Operator {
 	REGEXP_LIKE ("REGEXP_LIKE") {
 		@Override
 		public String getFormat() {
-			return getSymbol() + "({0},?,?)";
+			return getSymbol() + "({0},?)";
 		}
 	},
 	ISNULL ("IS NULL") {
