@@ -3,9 +3,18 @@ package com.energyict.dlms.cosem;
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.failBecauseExceptionWasNotThrown;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.io.RandomAccessFile;
+
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import com.energyict.dlms.cosem.ImageTransfer.ByteArrayImageBlockSupplier;
+import com.energyict.dlms.cosem.ImageTransfer.ImageBlockSupplier;
+import com.energyict.dlms.cosem.ImageTransfer.RandomAccessFileImageBlockSupplier;
 
 /**
  * Tests for the {@link ImageTransfer} class.
@@ -23,13 +32,42 @@ public final class ImageTransferTest {
 		0x40, 0x41, 0x42
 	};
 
+	/** Temp folder, using this for the random access tests. */
+	@Rule
+	public TemporaryFolder tempFolder = new TemporaryFolder();
+	
 	/**
 	 * Tests the byte array image block provider.
 	 */
 	@Test
-	public final void testByteArrayImageBlockSupplier() {
+	public final void testByteArrayImageBlockSupplier() throws Exception {
 		final ByteArrayImageBlockSupplier supplier = new ByteArrayImageBlockSupplier(IMAGE_BYTES);
+		this.runTestsOn(supplier);
+	}
+	
+	/**
+	 * Tests the random access file block provider.
+	 */
+	@Test
+	public final void testRandomAccessFileBlockSupplier() throws Exception {
+		final File tempFile = this.tempFolder.newFile();
 		
+		try (final OutputStream stream = new FileOutputStream(tempFile)) {
+			stream.write(IMAGE_BYTES);
+			stream.flush();
+		}
+		
+		try (final RandomAccessFile randomAccessFile = new RandomAccessFile(tempFile, "r")) {
+			this.runTestsOn(new RandomAccessFileImageBlockSupplier(randomAccessFile));
+		}
+	}
+
+	/**
+	 * Runs the test cases on the given supplier.
+	 * 
+	 * @param 	supplier	The supplier to run the tests on.
+	 */
+	private final void runTestsOn(final ImageBlockSupplier supplier) throws Exception {
 		assertThat(supplier.getSize()).isEqualTo(IMAGE_BYTES.length);
 		
 		final int blockSize = 2;
