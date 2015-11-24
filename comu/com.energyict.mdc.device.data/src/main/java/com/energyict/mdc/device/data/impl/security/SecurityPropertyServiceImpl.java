@@ -163,7 +163,8 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
 
     @Override
     public boolean securityPropertiesAreValid(Device device) {
-        return device.getDeviceConfiguration()
+        return device
+                .getDeviceConfiguration()
                 .getComTaskEnablements()
                 .stream()
                 .noneMatch(comTaskEnablement -> isMissingOrIncomplete(device, comTaskEnablement.getSecurityPropertySet()));
