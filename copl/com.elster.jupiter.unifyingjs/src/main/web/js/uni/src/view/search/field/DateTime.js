@@ -26,7 +26,8 @@ Ext.define('Uni.view.search.field.DateTime', {
         if (clearBtn) {
             clearBtn.setDisabled(!!Ext.isEmpty(value));
         }
-        this.setValue(this, value);
+
+        this.setValue(value);
     },
 
     reset: function () {
@@ -57,17 +58,13 @@ Ext.define('Uni.view.search.field.DateTime', {
             width: '455',
             operator: '==',
             removable: false,
-            onRemove: function() {
-                me.menu.remove(this);
-                me.onInputChange();
-            },
             operatorMap: {
                 '==': 'uni-search-internal-datetimefield',
-                '!=': 'uni-search-internal-datetimefield',
-                '>': 'uni-search-internal-datetimefield',
-                '>=': 'uni-search-internal-datetimefield',
-                '<': 'uni-search-internal-datetimefield',
-                '<=': 'uni-search-internal-datetimefield',
+                //'!=': 'uni-search-internal-datetimefield',
+                //'>': 'uni-search-internal-datetimefield',
+                //'>=': 'uni-search-internal-datetimefield',
+                //'<': 'uni-search-internal-datetimefield',
+                //'<=': 'uni-search-internal-datetimefield',
                 'BETWEEN': 'uni-search-internal-daterange'
             },
             listeners: {
@@ -128,6 +125,7 @@ Ext.define('Uni.view.search.field.DateTime', {
                         {
                             xtype: 'button',
                             ui: 'action',
+                            disabled: true, //until 10.2
                             text: Uni.I18n.translate('general.addCriterion', 'UNI', 'Add criterion'),
                             action: 'addrange',
                             handler: me.addRangeHandler,

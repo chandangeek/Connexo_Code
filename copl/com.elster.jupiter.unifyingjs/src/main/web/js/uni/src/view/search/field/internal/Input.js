@@ -32,6 +32,12 @@ Ext.define('Uni.view.search.field.internal.Input', {
 
     initComponent: function () {
         var me = this;
+        me.init();
+        me.callParent(arguments);
+    },
+
+    init: function () {
+        var me = this;
 
         me.items = {
             itemId: 'filter-input',
@@ -74,7 +80,5 @@ Ext.define('Uni.view.search.field.internal.Input', {
                 }
             }
         };
-
-        me.callParent(arguments);
     }
 });

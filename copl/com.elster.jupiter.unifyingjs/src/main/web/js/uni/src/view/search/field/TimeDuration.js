@@ -13,7 +13,10 @@ Ext.define('Uni.view.search.field.TimeDuration', {
             value = this.superclass.getValue.apply(me);
 
         return value ? value.map(function (v) {
-            v.set('criteria', v.get('criteria') + ':' + me.getUnitField().getValue());
+            var criteria = v.get('criteria');
+            v.set('criteria', _.map(Ext.isArray(criteria) ? criteria : [criteria], function (item) {
+                return item + ':' + me.getUnitField().getValue()
+            }));
             return v;
         }) : null;
     },

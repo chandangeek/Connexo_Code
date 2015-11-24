@@ -48,6 +48,7 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
             add:  me.onCriteriaAdd,
             remove: me.onCriteriaRemove,
             change: me.onCriteriaChange,
+            reset: me.onReset,
             scope: me,
             destroyable: true
         }));
@@ -56,7 +57,8 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
         me.bindStore(me.store, true);
 
         listeners.push(me.store.on('beforeload', function() {
-            me.setLoading(true);
+            me.setDisabled(true);
+            me.menu.setLoading(true);
         }, me, {
             destroyable: true
         }));
@@ -72,11 +74,9 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
         });
     },
 
-    //onReset: function(filters, filter, property) {
-    //    if (!property.get('sticky')) {
-    //        this.setChecked(property, true);
-    //    }
-    //},
+    onReset: function() {
+        this.onStoreLoad(this.store);
+    },
 
     onCriteriaAdd: function(filters, filter, property) {
         if (!property.get('sticky')) {
@@ -140,6 +140,7 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
     onStoreLoad: function (store) {
         var me = this,
             groups;
+
         me.setDisabled(!store.count());
         Ext.suspendLayouts();
         me.menu.removeAll();
@@ -178,9 +179,11 @@ Ext.define('Uni.view.search.field.SearchCriteriaSelector', {
                 }
             });
         }
-        Ext.resumeLayouts(true);
 
-        me.setLoading(false);
+        me.menu.setLoading(false);
+        me.updateLayout();
+
+        Ext.resumeLayouts(true);
     },
 
     setValue: function(value, suspendEvent) {
