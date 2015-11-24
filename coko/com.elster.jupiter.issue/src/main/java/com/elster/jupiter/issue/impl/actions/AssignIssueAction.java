@@ -97,7 +97,7 @@ public class AssignIssueAction extends AbstractIssueAction {
 
     @Override
     public boolean isApplicableForUser(User user) {
-        return super.isApplicableForUser(user) && user.getPrivileges().stream().filter(p -> Privileges.ASSIGN_ISSUE.equals(p.getName())).findAny().isPresent();
+        return super.isApplicableForUser(user) && user.getPrivileges().stream().filter(p -> Privileges.Constants.ASSIGN_ISSUE.equals(p.getName())).findAny().isPresent();
     }
 
     class PossibleAssignees implements CanFindByStringKey<Assignee> {

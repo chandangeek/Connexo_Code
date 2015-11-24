@@ -65,6 +65,6 @@ public class CommentIssueAction extends AbstractIssueAction {
 
     @Override
     public boolean isApplicableForUser(User user) {
-        return user.getPrivileges().stream().filter(p -> Privileges.COMMENT_ISSUE.equals(p.getName())).findAny().isPresent();
+        return user.getPrivileges().stream().filter(p -> Privileges.Constants.COMMENT_ISSUE.equals(p.getName())).findAny().isPresent();
     }
 }
