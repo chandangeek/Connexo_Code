@@ -49,9 +49,9 @@ public class WebRTUZ3RegisterFactory implements DeviceRegisterSupport {
     public static final ObisCode ACTIVE_TARIFF_REGISTER = ObisCode.fromString("0.0.96.14.0.255");
     public static final ObisCode ACTIVITY_CALENDAR = ObisCode.fromString("0.0.13.0.0.255");
 
-    public static final ObisCode MBUS_CLIENT = ObisCode.fromString("0.0.24.1.0.255");
-    public static final ObisCode MBUS_CLIENT_STATUS = ObisCode.fromString("0.0.24.1.11.255");
-    public static final ObisCode MBUS_CLIENT_ALARM = ObisCode.fromString("0.0.24.1.12.255");
+    public static final ObisCode MBUS_CLIENT = ObisCode.fromString("0.x.24.1.0.255");
+    public static final ObisCode MBUS_CLIENT_STATUS = ObisCode.fromString("0.x.24.1.11.255");
+    public static final ObisCode MBUS_CLIENT_ALARM = ObisCode.fromString("0.x.24.1.12.255");
 
     private final WebRTUZ3 meterProtocol;
 

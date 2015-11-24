@@ -27,7 +27,7 @@ import java.util.List;
  */
 public class LogBookParser implements DeviceLogBookSupport {
 
-    private static final ObisCode EVENT_LOG_OBISCODE = ObisCode.fromString("0.0.99.98.0.255");
+    private static final ObisCode EVENT_LOG_OBISCODE = ObisCode.fromString("0.x.99.98.0.255");
 
     private AbstractDlmsProtocol protocol;
 
