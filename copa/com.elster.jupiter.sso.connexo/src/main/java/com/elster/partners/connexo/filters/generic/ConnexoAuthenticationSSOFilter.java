@@ -1,12 +1,14 @@
 package com.elster.partners.connexo.filters.generic;
 
 import javax.servlet.*;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 
 /**
@@ -14,10 +16,6 @@ import java.util.List;
  */
 
 public class ConnexoAuthenticationSSOFilter extends ConnexoAbstractSSOFilter {
-
-    // Hard-coded for now, this needs to be decoded from the token
-    String user = "TestUser";
-    List<String> roles = Arrays.asList("Process designer");
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
@@ -30,15 +28,39 @@ public class ConnexoAuthenticationSSOFilter extends ConnexoAbstractSSOFilter {
             return;
         }
 
-        // TODO - add token check
-        //if(check the token here) {
-            // TODO - Not authenticated - redirect to login page
-        //}
-        //else {
-            // TODO - get the user name, roles and other properties from the token
-            ConnexoPrincipal principal = new ConnexoPrincipal(user, roles);
+        ConnexoSecurityTokenManager manager = ConnexoSecurityTokenManager.getInstance();
 
-            filterChain.doFilter(new ConnexoAuthenticationRequestWrapper(principal, request), response);
-        //}
+        Cookie xsrf = null;
+        Cookie[] cookies = request.getCookies();
+        for(int i=0; i<cookies.length; i++){
+            if(cookies[i].getName().equals("X-CONNEXO-TOKEN")){
+                xsrf = cookies[i];
+                break;
+            }
+        }
+
+        if(xsrf == null || !manager.verifyToken(xsrf.getValue())) {
+            if(xsrf != null){
+                updateToken(response, null, 0); // clear out token
+            }
+            redirectToLogin(request, response);
+        }
+        else {
+            if(manager.needToUpdateToken()){
+                updateToken(response, manager.getUpdatedToken(), manager.getMaxAge());
+            }
+
+            filterChain.doFilter(new ConnexoAuthenticationRequestWrapper(manager.getPrincipal(), request), response);
+        }
+    }
+
+    private void updateToken(HttpServletResponse response, String newValue, int maxAge) {
+        response.setHeader("X-AUTH-TOKEN", newValue);
+
+        Cookie tokenCookie = new Cookie("X-CONNEXO-TOKEN", newValue);
+        tokenCookie.setPath("/");
+        tokenCookie.setMaxAge(maxAge); // in seconds
+        tokenCookie.setHttpOnly(true);
+        response.addCookie(tokenCookie);
     }
 }

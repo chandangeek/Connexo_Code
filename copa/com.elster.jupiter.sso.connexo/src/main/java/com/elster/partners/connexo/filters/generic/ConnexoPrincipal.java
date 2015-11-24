@@ -8,10 +8,12 @@ import java.util.List;
  */
 
 public class ConnexoPrincipal implements Principal {
+    final long userId;
     final String user;
     final List<String> roles;
 
-    public ConnexoPrincipal(String user, List<String> roles) {
+    public ConnexoPrincipal(long userId, String user, List<String> roles) {
+        this.userId = userId;
         this.user = user;
         this.roles = roles;
     }
@@ -19,6 +21,10 @@ public class ConnexoPrincipal implements Principal {
     @Override
     public String getName() {
         return user;
+    }
+
+    public long getUserId(){
+        return this.userId;
     }
 
     public List<String> getRoles() {
