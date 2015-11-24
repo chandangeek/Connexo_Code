@@ -230,28 +230,28 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
                             this.registerMap.put(register, new DLMSAttribute(MbusEncryptionStatus, DataAttributes.VALUE.getAttributeNumber(), DLMSClassId.DATA));
                             dlmsAttributes.add(this.registerMap.get(register));
                         } else if (rObisCode.equalsIgnoreBChannel(MbusDisconnectMode)) {
-                            this.registerMap.put(register, new DLMSAttribute(adjustToMbusDisconnectOC(rObisCode), DisconnectControlAttribute.CONTROL_MODE.getAttributeNumber(), DLMSClassId.DISCONNECT_CONTROL));
+                            this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), DisconnectControlAttribute.CONTROL_MODE.getAttributeNumber(), DLMSClassId.DISCONNECT_CONTROL));
                             dlmsAttributes.add(this.registerMap.get(register));
                         } else if (rObisCode.equalsIgnoreBChannel(MbusDisconnectControlState)) {
-                            this.registerMap.put(register, new DLMSAttribute(adjustToMbusDisconnectOC(rObisCode), DisconnectControlAttribute.CONTROL_STATE.getAttributeNumber(), DLMSClassId.DISCONNECT_CONTROL));
+                            this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), DisconnectControlAttribute.CONTROL_STATE.getAttributeNumber(), DLMSClassId.DISCONNECT_CONTROL));
                             dlmsAttributes.add(this.registerMap.get(register));
                         } else if (rObisCode.equalsIgnoreBChannel(MbusDisconnectOutputState)) {
-                            this.registerMap.put(register, new DLMSAttribute(adjustToMbusDisconnectOC(rObisCode), DisconnectControlAttribute.OUTPUT_STATE.getAttributeNumber(), DLMSClassId.DISCONNECT_CONTROL));
+                            this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), DisconnectControlAttribute.OUTPUT_STATE.getAttributeNumber(), DLMSClassId.DISCONNECT_CONTROL));
                             dlmsAttributes.add(this.registerMap.get(register));
                         } else if (rObisCode.equals(CORE_FIRMWARE_SIGNATURE)) {
                             this.registerMap.put(register, new DLMSAttribute(CORE_FIRMWARE_SIGNATURE, DataAttributes.VALUE.getAttributeNumber(), DLMSClassId.DATA));
                             dlmsAttributes.add(this.registerMap.get(register));
                         } else if (rObisCode.equals(MBUS_CLIENT_IDENTIFICATION_NUMBER)) {
-                            this.registerMap.put(register, new DLMSAttribute(ObisCode.fromString("0.1.24.1.0.255"), MbusClientAttributes.IDENTIFICATION_NUMBER.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+                            this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.IDENTIFICATION_NUMBER.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                             dlmsAttributes.add(this.registerMap.get(register));
                         }else if (rObisCode.equals(MBUS_CLIENT_MANUFACTURER_ID)) {
-                            this.registerMap.put(register, new DLMSAttribute(ObisCode.fromString("0.2.24.1.0.255"), MbusClientAttributes.MANUFACTURER_ID.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+                            this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.MANUFACTURER_ID.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                             dlmsAttributes.add(this.registerMap.get(register));
                         }else if (rObisCode.equals(MBUS_CLIENT_VERSION)) {
-                            this.registerMap.put(register, new DLMSAttribute(ObisCode.fromString("0.3.24.1.0.255"), MbusClientAttributes.VERSION.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+                            this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.VERSION.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                             dlmsAttributes.add(this.registerMap.get(register));
                         }else if (rObisCode.equals(MBUS_CLIENT_DEVICE_TYPE)) {
-                            this.registerMap.put(register, new DLMSAttribute(ObisCode.fromString("0.4.24.1.0.255"), MbusClientAttributes.DEVICE_TYPE.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+                            this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MbusClientAttributes.DEVICE_TYPE.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                             dlmsAttributes.add(this.registerMap.get(register));
                         } else {
                             protocol.getLogger().log(Level.INFO, "Register with ObisCode " + rObisCode + " is not supported.");
@@ -276,7 +276,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
      * @param oc -  the manipulated ObisCode of the Disconnector object
      * @return the original ObisCode of the Disconnector object
      */
-    private ObisCode adjustToMbusDisconnectOC(ObisCode oc) {
+    private ObisCode adjustToMbusOC(ObisCode oc) {
         return new ObisCode(oc.getA(), oc.getB(), oc.getC(), oc.getD(), 0, oc.getF());
     }
 
@@ -327,18 +327,18 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
             state = ((BooleanObject) abstractDataType).getState();
             Quantity quantity = new Quantity(state ? "1" : "0", Unit.getUndefined());
             return new RegisterValue(register, quantity, null, null, null, new Date(), 0, "State: " + state);
-        }else if (rObisCode.equals(MBUS_CLIENT_IDENTIFICATION_NUMBER)) {
+        } else if (rObisCode.equals(MBUS_CLIENT_IDENTIFICATION_NUMBER)) {
             Unsigned32 value = new Unsigned32(abstractDataType.longValue());
-            return new RegisterValue(register, new Quantity(value.toBigDecimal(), Unit.getUndefined()), null, null, null, new Date(), 0, value.toString());
+            return new RegisterValue(register, new Quantity(value.toBigDecimal(), Unit.getUndefined()), null, null, null, new Date(), 0, Long.toString(value.longValue()));
         } else if (rObisCode.equals(MBUS_CLIENT_MANUFACTURER_ID)) {
             Unsigned16 value = new Unsigned16(abstractDataType.intValue());
-            return new RegisterValue(register, new Quantity(value.toBigDecimal(), Unit.getUndefined()), null, null, null, new Date(), 0, value.toString());
+            return new RegisterValue(register, new Quantity(value.toBigDecimal(), Unit.getUndefined()), null, null, null, new Date(), 0, Integer.toString(value.intValue()));
         } else if (rObisCode.equals(MBUS_CLIENT_VERSION)) {
             Unsigned8 value = new Unsigned8(abstractDataType.intValue());
-            return new RegisterValue(register, new Quantity(value.toBigDecimal(), Unit.getUndefined()), null, null, null, new Date(), 0, value.toString());
+            return new RegisterValue(register, new Quantity(value.toBigDecimal(), Unit.getUndefined()), null, null, null, new Date(), 0, Integer.toString(value.intValue()));
         } else if (rObisCode.equals(MBUS_CLIENT_DEVICE_TYPE)) {
             Unsigned8 value = new Unsigned8(abstractDataType.intValue());
-            return new RegisterValue(register, new Quantity(value.toBigDecimal(), Unit.getUndefined()), null, null, null, new Date(), 0, value.toString());
+            return new RegisterValue(register, new Quantity(value.toBigDecimal(), Unit.getUndefined()), null, null, null, new Date(), 0, Integer.toString(value.intValue()));
         } else if (abstractDataType.isOctetString()) {
             String text;
             if (octetStringPrintableAsString((OctetString) abstractDataType)) {

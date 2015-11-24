@@ -347,7 +347,7 @@ public class ImageTransfer extends AbstractCosemObject {
     /**
      * Start the automatic upgrade procedure. You may choose to add additional zeros at in the last block to match the blockSize for each block.
      *
-     * @param data                  - the image to transfer
+     * @param dataSupplier          - supplier of the image to transfer
      * @param additionalZeros       - indicate whether you need to add zeros to the last block to match the blockSize
      * @param imageIdentifier       - the name of the file. Default is NewImage
      * @param checkForMissingBlocks - whether or not to resend lost blocks
