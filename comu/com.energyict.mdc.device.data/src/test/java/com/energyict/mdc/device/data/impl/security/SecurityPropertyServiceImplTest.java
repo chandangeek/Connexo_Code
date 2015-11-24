@@ -401,7 +401,7 @@ public class SecurityPropertyServiceImplTest {
 
         // Asserts
         ArgumentCaptor<CustomPropertySetValues> customPropertySetValuesCaptor = ArgumentCaptor.forClass(CustomPropertySetValues.class);
-        verify(this.customPropertySetService).setValuesFor(eq(customPropertySet), eq(this.device), customPropertySetValuesCaptor.capture(), eq(now));
+        verify(this.customPropertySetService).setValuesFor(eq(customPropertySet), eq(this.device), customPropertySetValuesCaptor.capture(), eq(now), eq(this.securityPropertySet1));
         CustomPropertySetValues customPropertySetValues = customPropertySetValuesCaptor.getValue();
         assertThat(customPropertySetValues).isNotNull();
         assertThat(customPropertySetValues.getEffectiveRange()).isEqualTo(Range.atLeast(now));

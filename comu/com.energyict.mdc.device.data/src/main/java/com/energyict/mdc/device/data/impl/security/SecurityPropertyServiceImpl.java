@@ -202,7 +202,8 @@ public class SecurityPropertyServiceImpl implements SecurityPropertyService {
                                         cps,
                                         device,
                                         values,
-                                        this.clock.instant()));
+                                        this.clock.instant(),
+                                        securityPropertySet));
     }
 
     private boolean isSecurityPropertySetComplete(SecurityPropertySet securityPropertySet, TypedProperties typedProperties) {
