@@ -67,14 +67,14 @@ Ext.define('Imt.controller.Search', {
         });
 
         me.control({
-            'uni-view-search-overview search-object-selector': {
+            'search-object-selector': {
                 change: function (field, value) {
                     Uni.util.History.setParsePath(false);
                     router.getRoute('search').forward(null, Ext.apply(router.queryParams, {searchDomain: value}));
                     me.service.setDomain(value);
                 }
             },
-            'search-criteria-selector menu menucheckitem': {
+            'uni-view-search-overview search-criteria-selector menu menucheckitem': {
                 checkchange: function(field, checked) {
                     checked
                         ? me.service.addProperty(field.criteria)
@@ -112,6 +112,8 @@ Ext.define('Imt.controller.Search', {
 
         me.getApplication().fireEvent('changecontentevent', widget);
 
+        searchDomains.clearFilter(true);
+        searchDomains.addFilter({property: 'application', value: 'COIN'});
         searchDomains.load({callback: function(records) {
             var value = router.queryParams.searchDomain,
                 selector = me.getObjectSelector(),

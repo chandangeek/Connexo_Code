@@ -120,11 +120,11 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                     width: 600
                 },
                 {
-                    xtype: 'textfield',
+                    xtype: 'textareafield',
                     name: 'description',
                     fieldLabel: Uni.I18n.translate('general.label.description', 'IMT', 'Description'),
                     allowBlank: true,
-                    maxLength: 75,
+                    grow: true,
                     required: false,
                     width: 600
                 },
