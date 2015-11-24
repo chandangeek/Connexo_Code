@@ -11,6 +11,19 @@ import java.util.Optional;
 /**
  * Provides support for adding custom properties to
  * entities that are provided by all Connexo bundles.
+ * <p>
+ * The API has two flavours. The first one will focus on generic client code,
+ * i.e. code that is not really aware of the actual properties that are defined
+ * by a {@link CustomPropertySet} and the related semantics of these properties.
+ * The Connexo UI is an example of such client code.
+ * This API is defined in terms of {@link CustomPropertySetValues}.
+ * A second API focusses on client code that is aware of the properties
+ * of a CustomPropertySet and the related semantics and will therefore
+ * be interested to execute business related code on top of these custom properties.
+ * This second API is defined in terms of the peristent entities that are
+ * associated with the CustomPropertySet as is determinded by the
+ * class returned by {@link PersistenceSupport#persistenceClass()}.
+ * </p>
  *
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-07-20 (15:37)

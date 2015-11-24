@@ -591,7 +591,7 @@ public class CustomPropertySetServiceImplIT {
             // Business method
             this.testInstance.setValuesFor(customPropertySet, testDomain, values);
 
-            CustomPropertySetValues valuesForVerifying = this.testInstance.getValuesFor(customPropertySet, testDomain);
+            CustomPropertySetValues valuesForVerifying = this.testInstance.getUniqueValuesFor(customPropertySet, testDomain);
             assertThat(valuesForVerifying.getProperty(DomainExtensionForTestingPurposes.FieldNames.BILLING_CYCLE.javaName())).isEqualToComparingFieldByField(expectedBillingCycle);
             assertThat(valuesForVerifying.getProperty(DomainExtensionForTestingPurposes.FieldNames.CONTRACT_NUMBER.javaName())).isEqualToComparingFieldByField(expectedContractNumber);
         }
@@ -711,7 +711,7 @@ public class CustomPropertySetServiceImplIT {
             this.testInstance.removeValuesFor(customPropertySet, testDomain);
 
             // Asserts
-            CustomPropertySetValues valuesAfterRemove = this.testInstance.getValuesFor(customPropertySet, testDomain);
+            CustomPropertySetValues valuesAfterRemove = this.testInstance.getUniqueValuesFor(customPropertySet, testDomain);
             assertThat(valuesAfterRemove.isEmpty()).isTrue();
         }
     }

@@ -444,7 +444,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.customPropertySet.getId()).thenReturn("getCustomPropertiesWhenSetIsNotRegisteredYet");
 
         // Business method
-        service.getValuesFor(this.customPropertySet, new TestDomain(1L));
+        service.getUniqueValuesFor(this.customPropertySet, new TestDomain(1L));
 
         // Asserts: see expected exception rule
     }
@@ -458,7 +458,7 @@ public class CustomPropertySetServiceImplTest {
         service.addCustomPropertySet(this.versionedCustomPropertySet);
 
         // Business method
-        service.getValuesFor(this.versionedCustomPropertySet, new TestDomain(1L));
+        service.getUniqueValuesFor(this.versionedCustomPropertySet, new TestDomain(1L));
 
         // Asserts: see expected exception rule
     }
@@ -475,7 +475,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.customPropertySetDataModel.mapper(DomainExtensionForTestingPurposes.class)).thenReturn(dataMapper);
 
         // Business method
-        CustomPropertySetValues properties = service.getValuesFor(this.customPropertySet, new TestDomain(1L));
+        CustomPropertySetValues properties = service.getUniqueValuesFor(this.customPropertySet, new TestDomain(1L));
 
         // Asserts
         assertThat(properties.isEmpty()).isTrue();
@@ -497,7 +497,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.customPropertySetDataModel.mapper(DomainExtensionForTestingPurposes.class)).thenReturn(dataMapper);
 
         // Business method
-        CustomPropertySetValues properties = service.getValuesFor(this.customPropertySet, new TestDomain(1L));
+        CustomPropertySetValues properties = service.getUniqueValuesFor(this.customPropertySet, new TestDomain(1L));
 
         // Asserts
         verify(extension).copyTo(properties);
@@ -514,7 +514,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.versionedCustomPropertySet.getId()).thenReturn("getVersionedCustomPropertiesWhenSetIsNotRegisteredYet");
 
         // Business method
-        service.getValuesFor(this.versionedCustomPropertySet, new TestDomain(1L), Instant.now());
+        service.getUniqueValuesFor(this.versionedCustomPropertySet, new TestDomain(1L), Instant.now());
 
         // Asserts: see expected exception rule
     }
@@ -527,7 +527,7 @@ public class CustomPropertySetServiceImplTest {
         service.addCustomPropertySet(this.customPropertySet);
 
         // Business method
-        service.getValuesFor(this.customPropertySet, new TestDomain(1L), Instant.now());
+        service.getUniqueValuesFor(this.customPropertySet, new TestDomain(1L), Instant.now());
 
         // Asserts: see expected exception rule
     }
@@ -544,7 +544,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.versionedCustomPropertySetDataModel.mapper(VersionedDomainExtensionForTestingPurposes.class)).thenReturn(dataMapper);
 
         // Business method
-        CustomPropertySetValues properties = service.getValuesFor(this.versionedCustomPropertySet, new TestDomain(1L), Instant.now());
+        CustomPropertySetValues properties = service.getUniqueValuesFor(this.versionedCustomPropertySet, new TestDomain(1L), Instant.now());
 
         // Asserts
         assertThat(properties.isEmpty()).isTrue();
@@ -568,7 +568,7 @@ public class CustomPropertySetServiceImplTest {
         when(this.versionedCustomPropertySetDataModel.mapper(VersionedDomainExtensionForTestingPurposes.class)).thenReturn(dataMapper);
 
         // Business method
-        CustomPropertySetValues properties = service.getValuesFor(this.versionedCustomPropertySet, testDomain, Instant.now());
+        CustomPropertySetValues properties = service.getUniqueValuesFor(this.versionedCustomPropertySet, testDomain, Instant.now());
 
         // Asserts
         assertThat(extension.getInterval()).isEqualTo(expectedInterval);

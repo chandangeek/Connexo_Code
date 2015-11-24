@@ -1,6 +1,7 @@
 package com.elster.jupiter.cps;
 
 import com.elster.jupiter.util.time.Interval;
+
 import com.google.common.collect.Range;
 
 import java.time.Instant;
@@ -53,6 +54,20 @@ public final class CustomPropertySetValues {
      */
     public static CustomPropertySetValues emptyDuring (Interval interval) {
         return new CustomPropertySetValues(interval.toClosedOpenRange());
+    }
+
+    /**
+     * Returns a new empty CustomAttributeSetProperties
+     * that is effective during the specified Interval.
+     *
+     * @param closedOpenRange The Interval during which the new CustomPropertySetValues are effective
+     * @return The empty CustomAttributeSetProperties
+     */
+    public static CustomPropertySetValues emptyDuring (Range<Instant> closedOpenRange) {
+        if (!closedOpenRange.hasLowerBound()) {
+            throw new IllegalArgumentException("Range must be closed-open or closed");
+        }
+        return new CustomPropertySetValues(closedOpenRange);
     }
 
     /**

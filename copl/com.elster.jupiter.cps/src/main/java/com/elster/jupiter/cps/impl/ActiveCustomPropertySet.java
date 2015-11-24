@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Interval;
 
@@ -81,11 +82,18 @@ class ActiveCustomPropertySet {
     }
 
     private Stream<? extends Column> getAdditionalPrimaryKeyColumns() {
-        return this.customPropertySetDataModel
-                .getTable(this.customPropertySet.getPersistenceSupport().tableName())
-                .getPrimaryKeyColumns()
-                .stream()
-                .filter(pkColumn -> !pkColumn.getFieldName().equals(this.customPropertySet.getPersistenceSupport().domainFieldName()));
+        Table<?> table = this.customPropertySetDataModel.getTable(this.customPropertySet.getPersistenceSupport().tableName());
+        if (table != null) {
+            return table
+                    .getPrimaryKeyColumns()
+                    .stream()
+                    .filter(pkColumn -> !HardCodedFieldNames.CUSTOM_PROPERTY_SET.databaseName().equals(pkColumn.getName()))
+                    .filter(pkColumn -> this.customPropertySet.isVersioned() && !(HardCodedFieldNames.INTERVAL.javaName() + ".start").equals(pkColumn.getFieldName()))
+                    .filter(pkColumn -> !pkColumn.getName().equals(this.customPropertySet.getPersistenceSupport().domainColumnName()));
+        }
+        else {
+            return Stream.empty();
+        }
     }
 
     private Condition addAdditionalPrimaryKeyColumnConditionsTo(Condition mainCondition, Object... additionalPrimaryKeyColumnValues) {
