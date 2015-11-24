@@ -32,6 +32,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import javax.validation.MessageInterpolator;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -39,6 +40,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Application;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
@@ -106,31 +108,38 @@ public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
 
     public void setupMocks() {
         when(nlsService.getThesaurus(anyString(), anyObject())).thenReturn(thesaurus);
-        when(thesaurus.getString(anyString(), anyString())).thenAnswer(invocationOnMock -> {
-            if (TranslationKeyProvider.class.isAssignableFrom(getApplication().getClass())) {
-                return ((TranslationKeyProvider) getApplication()).
-                        getKeys().stream().
-                        filter(key -> key.getKey().equals(invocationOnMock.getArguments()[0])).
-                        map(TranslationKey::getDefaultFormat).
-                        findFirst().
-                        orElse((String) invocationOnMock.getArguments()[1]);
-            }
-            if (MessageSeedProvider.class.isAssignableFrom(getApplication().getClass())) {
-                return ((MessageSeedProvider) getApplication()).
-                        getSeeds().stream().
-                        filter(messageSeed -> messageSeed.getKey().equals(invocationOnMock.getArguments()[0])).
-                        map(MessageSeed::getDefaultFormat).
-                        findFirst().
-                        orElse((String) invocationOnMock.getArguments()[1]);
-            }
-            return invocationOnMock.getArguments()[1];
-        });
+        when(thesaurus.getString(anyString(), anyString())).thenAnswer(invocation->this.getTranslationByKey((String)invocation.getArguments()[0], (String)invocation.getArguments()[1]));
         when(thesaurus.getFormat(any(TranslationKey.class)))
                 .thenAnswer(invocation -> new SimpleNlsMessageFormat((TranslationKey) invocation.getArguments()[0]));
         when(thesaurus.getFormat(any(MessageSeed.class)))
                 .thenAnswer(invocation -> new SimpleNlsMessageFormat((MessageSeed) invocation.getArguments()[0]));
+        when(thesaurus.interpolate(any(String.class), any(MessageInterpolator.Context.class))).thenAnswer(invocation -> getTranslationByKey(((String) invocation.getArguments()[0]).substring(1, ((String) invocation.getArguments()[0]).length()-1), "xxx"));
         when(transactionService.getContext()).thenReturn(transactionContext);
 
+    }
+
+    protected String getTranslationByKey(String translationKey, String defaultMessage) {
+        if (TranslationKeyProvider.class.isAssignableFrom(getApplication().getClass())) {
+            Optional<String> optional = ((TranslationKeyProvider) getApplication()).
+                    getKeys().stream().
+                    filter(key -> key.getKey().equals(translationKey)).
+                    map(TranslationKey::getDefaultFormat).
+                    findFirst();
+            if (optional.isPresent()) {
+                return optional.get();
+            }
+        }
+        if (MessageSeedProvider.class.isAssignableFrom(getApplication().getClass())) {
+            Optional<String> optional = ((MessageSeedProvider) getApplication()).
+                    getSeeds().stream().
+                    filter(messageSeed -> messageSeed.getKey().equals(translationKey)).
+                    map(MessageSeed::getDefaultFormat).
+                    findFirst();
+            if (optional.isPresent()) {
+                return optional.get();
+            }
+        }
+        return defaultMessage;
     }
 
     @Override
