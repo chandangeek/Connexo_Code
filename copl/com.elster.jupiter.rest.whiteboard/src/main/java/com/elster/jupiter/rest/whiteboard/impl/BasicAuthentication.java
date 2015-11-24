@@ -63,11 +63,11 @@ public class BasicAuthentication implements Authentication {
     }
 
     private boolean deny(HttpServletRequest request, HttpServletResponse response) {
-        String realm = userService.getRealm();
-        response.addHeader("WWW-Authenticate", "Basic realm=\"" + realm + "\"");
+        //String realm = userService.getRealm();
+       // response.addHeader("WWW-Authenticate", "Basic realm=\"" + realm + "\"");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         Optional<Cookie> xsrf = Arrays.asList(request.getCookies()).stream().filter(cookie -> cookie.getName().equals("X-CONNEXO-TOKEN")).findFirst();
-        if (!xsrf.isPresent()) {
+        if (xsrf.isPresent()) {
             SecurityToken.removeCookie(request,response);
         }
         return false;
