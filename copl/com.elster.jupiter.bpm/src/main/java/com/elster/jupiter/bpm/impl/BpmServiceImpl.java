@@ -1,10 +1,6 @@
 package com.elster.jupiter.bpm.impl;
 
-import com.elster.jupiter.bpm.BpmAppService;
-import com.elster.jupiter.bpm.BpmProcess;
-import com.elster.jupiter.bpm.BpmProcessDefinition;
-import com.elster.jupiter.bpm.BpmServer;
-import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.bpm.*;
 import com.elster.jupiter.bpm.security.Privileges;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
@@ -183,6 +179,10 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
         resources.add(userService.createModuleResourceWithPrivileges(BpmService.COMPONENTNAME, Privileges.RESOURCE_BPM_TASKS.getKey(), Privileges.RESOURCE_BPM_TASKS_DESCRIPTION.getKey(),
                 Arrays.asList(
                         Privileges.Constants.ASSIGN_TASK, Privileges.Constants.VIEW_TASK, Privileges.Constants.EXECUTE_TASK)));
+        resources.add(userService.createModuleResourceWithPrivileges(BpmService.COMPONENTNAME, Privileges.PROCESS_EXECUTION_LEVELS.getKey(), Privileges.PROCESS_EXECUTION_LEVELS_DESCRIPTION.getKey(),
+                Arrays.asList(
+                        Privileges.Constants.EXECUTE_PROCESSES_LVL_1, Privileges.Constants.EXECUTE_PROCESSES_LVL_2,
+                        Privileges.Constants.EXECUTE_PROCESSES_LVL_3, Privileges.Constants.EXECUTE_PROCESSES_LVL_4)));
 
         return resources;
     }
@@ -231,6 +231,33 @@ public class BpmServiceImpl implements BpmService, InstallService, PrivilegesPro
     @Override
     public List<BpmProcessDefinition> getBpmProcessDefinitions(){
         return dataModel.query(BpmProcessDefinition.class).select(Operator.NOTEQUAL.compare("status", "UNDEPLOYED"));
+    }
+
+    @Override
+    public BpmProcessPrivilege createBpmProcessPrivilege(BpmProcessDefinition bpmProcessDefinition, String privilegeName, String application){
+        return BpmProcessPrivilegeImpl.from(dataModel, bpmProcessDefinition, privilegeName, application);
+    }
+
+    @Override
+    public BpmProcessDeviceState createBpmProcessDeviceState(BpmProcessDefinition bpmProcessDefinition, long deviceStateId, long deviceLifeCycleId, String name, String deviceName){
+        return BpmProcessDeviceStateImpl.from(dataModel, bpmProcessDefinition, deviceStateId, deviceLifeCycleId, name, deviceName);
+    }
+
+    @Override
+    public Optional<BpmProcessDefinition> getBpmProcessDefinition(String processName, String version){
+        Condition nameCondition = Operator.EQUALIGNORECASE.compare("processName", processName);
+        Condition versionCondition = Operator.EQUALIGNORECASE.compare("version", version);
+        List<BpmProcessDefinition> bpmProcessesDefinitions = dataModel.query(BpmProcessDefinition.class).select(nameCondition.and(versionCondition));
+        return bpmProcessesDefinitions.isEmpty() ? Optional.empty() : Optional.of(bpmProcessesDefinitions.get(0));
+    }
+
+    @Override
+    public List<BpmProcessPrivilege> getBpmProcessPrivileges(long processId){
+        List<BpmProcessPrivilege> bpmProcessPrivileges =  dataModel.query(BpmProcessPrivilege.class).select(Operator.EQUALIGNORECASE.compare("processId", processId));
+        if(!bpmProcessPrivileges.isEmpty()){
+            return bpmProcessPrivileges;
+        }
+        return Collections.emptyList();
     }
 
     @Override

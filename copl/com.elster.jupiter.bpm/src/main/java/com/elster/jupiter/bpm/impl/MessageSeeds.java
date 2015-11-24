@@ -6,7 +6,8 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
-    NO_BPM_NAME_FOUND(1001, "bpm.name.not.found", "No BPM engine found with the name {0}.", Level.SEVERE);
+    NO_BPM_NAME_FOUND(1001, "bpm.name.not.found", "No BPM engine found with the name {0}.", Level.SEVERE),
+    FIELD_CAN_NOT_BE_EMPTY(1, Constants.FIELD_CAN_NOT_BE_EMPTY, "This field is required", Level.SEVERE);
 
     private final int number;
     private final String key;
@@ -43,5 +44,10 @@ public enum MessageSeeds implements MessageSeed {
     @Override
     public Level getLevel() {
         return level;
+    }
+
+    public enum Constants {
+        ;
+        public static final String FIELD_CAN_NOT_BE_EMPTY = "CanNotBeEmpty";
     }
 }

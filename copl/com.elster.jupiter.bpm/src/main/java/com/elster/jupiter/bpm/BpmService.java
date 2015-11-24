@@ -6,6 +6,7 @@ import com.elster.jupiter.domain.util.QueryService;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public interface BpmService {
     String COMPONENTNAME = "BPM";
@@ -26,6 +27,14 @@ public interface BpmService {
     Query<BpmProcessDefinition> getQueryBpmProcessDefinition();
 
     List<BpmProcessDefinition> getBpmProcessDefinitions();
+
+    BpmProcessPrivilege createBpmProcessPrivilege(BpmProcessDefinition bpmProcessDefinition, String privilegeName, String application);
+
+    BpmProcessDeviceState createBpmProcessDeviceState(BpmProcessDefinition bpmProcessDefinition, long deviceStateId, long deviceLifeCycleId, String name, String deviceName);
+
+    public Optional<BpmProcessDefinition> getBpmProcessDefinition(String processName, String version);
+
+    List<BpmProcessPrivilege> getBpmProcessPrivileges(long processId);
 
     QueryService getQueryService();
 }
