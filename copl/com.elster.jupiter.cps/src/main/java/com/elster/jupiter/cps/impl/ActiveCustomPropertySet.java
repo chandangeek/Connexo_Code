@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.time.Interval;
@@ -97,13 +98,31 @@ class ActiveCustomPropertySet {
     }
 
     private Condition addAdditionalPrimaryKeyColumnConditionsTo(Condition mainCondition, Object... additionalPrimaryKeyColumnValues) {
-        Iterator<Object> pkValueInterator = Iterators.forArray(additionalPrimaryKeyColumnValues);
+        Iterator<Object> pkValueIterator = Iterators.forArray(additionalPrimaryKeyColumnValues);
         return mainCondition.and(
                 this.getAdditionalPrimaryKeyColumns()
-                        .map(pkColumn -> where(pkColumn.getFieldName()).isEqualTo(pkValueInterator.next()))
+                        .map(pkColumn -> where(this.fieldNameFor(pkColumn)).isEqualTo(pkValueIterator.next()))
                         .reduce(
                                 Condition.TRUE,
                                 Condition::and));
+    }
+
+    private String fieldNameFor(Column pkColumn) {
+        String fieldName = pkColumn.getFieldName();
+        if (fieldName == null) {
+            // No field name configured on the column, maybe this column is also be part of a foreign key
+            return pkColumn
+                        .getTable()
+                        .getForeignKeyConstraints()
+                        .stream()
+                        .filter(fkc -> fkc.hasColumn(pkColumn))
+                        .findAny()
+                        .map(ForeignKeyConstraint::getFieldName)
+                        .orElseThrow(() -> new IllegalStateException("Additional primary key column " + pkColumn.getName() + " has no mapped field name and is not part of a foreign key constraint that provides a mapped field name"));
+        }
+        else {
+            return fieldName;
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -136,7 +155,9 @@ class ActiveCustomPropertySet {
                             .and(where(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName()).isEqualTo(this.registeredCustomPropertySet))
                             .and(where(HardCodedFieldNames.INTERVAL.javaName()).isEffective(effectiveTimestamp)),
                             additionalPrimaryKeyColumnValues);
-            return this.getValuesEntityFor(condition, () -> "There should only be one set of property values for custom property set " + this.customPropertySet.getId() + " at " + effectiveTimestamp + " against business object " + businessObject);
+            return this.getValuesEntityFor(
+                    condition,
+                    () -> "There should only be one set of property values for custom property set " + this.customPropertySet.getId() + " at " + effectiveTimestamp + " against business object " + businessObject);
         }
         else {
             return Optional.empty();
@@ -164,8 +185,8 @@ class ActiveCustomPropertySet {
         }
     }
 
-    <T extends PersistentDomainExtension<D>, D> void setValuesEntityFor(D businessObject, CustomPropertySetValues values) {
-        Optional<T> domainExtension = this.getNonVersionedValuesEntityFor(businessObject);
+    <T extends PersistentDomainExtension<D>, D> void setNonVersionedValuesEntityFor(D businessObject, CustomPropertySetValues values, Object... additionalPrimaryKeyColumns) {
+        Optional<T> domainExtension = this.getNonVersionedValuesEntityFor(businessObject, additionalPrimaryKeyColumns);
         if (domainExtension.isPresent()) {
             this.updateExtension(domainExtension.get(), businessObject, values);
         }
@@ -199,8 +220,8 @@ class ActiveCustomPropertySet {
         this.customPropertySetDataModel.persist(domainExtension);
     }
 
-    <T extends PersistentDomainExtension<D>, D> void setValuesEntityFor(D businessObject, CustomPropertySetValues values, Instant effectiveTimestamp) {
-        Optional<T> domainExtension = this.getVersionedValuesEntityFor(businessObject, effectiveTimestamp);
+    <T extends PersistentDomainExtension<D>, D> void setVersionedValuesEntityFor(D businessObject, CustomPropertySetValues values, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues) {
+        Optional<T> domainExtension = this.getVersionedValuesEntityFor(businessObject, effectiveTimestamp, additionalPrimaryKeyValues);
         if (domainExtension.isPresent()) {
             Interval interval = DomainExtensionAccessor.getInterval(domainExtension.get());
             Range<Instant> range = interval.toClosedOpenRange();

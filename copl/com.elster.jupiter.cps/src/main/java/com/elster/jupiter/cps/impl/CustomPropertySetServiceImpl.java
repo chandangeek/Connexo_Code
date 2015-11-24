@@ -428,19 +428,19 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     @Override
-    public <D, T extends PersistentDomainExtension<D>> void setValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values) {
+    public <D, T extends PersistentDomainExtension<D>> void setValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values, Object... additionalPrimaryKeyValues) {
         ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
         this.validateCustomPropertySetIsNotVersioned(customPropertySet, activeCustomPropertySet);
         activeCustomPropertySet.validateCurrentUserIsAllowedToEdit();
-        activeCustomPropertySet.setValuesEntityFor(businesObject, values);
+        activeCustomPropertySet.setNonVersionedValuesEntityFor(businesObject, values, additionalPrimaryKeyValues);
     }
 
     @Override
-    public <D, T extends PersistentDomainExtension<D>> void setValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values, Instant effectiveTimestamp) {
+    public <D, T extends PersistentDomainExtension<D>> void setValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues) {
         ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
         this.validateCustomPropertySetIsVersioned(customPropertySet, activeCustomPropertySet);
         activeCustomPropertySet.validateCurrentUserIsAllowedToEdit();
-        activeCustomPropertySet.setValuesEntityFor(businesObject, values, effectiveTimestamp);
+        activeCustomPropertySet.setVersionedValuesEntityFor(businesObject, values, effectiveTimestamp, additionalPrimaryKeyValues);
     }
 
     @Override

@@ -146,12 +146,13 @@ public interface CustomPropertySetService {
      * @param customPropertySet The CustomPropertySet
      * @param businesObject The businesObject object
      * @param values The CustomPropertySetValues
+     * @param additionalPrimaryKeyValues The values for the additional primary key columns as defined by the CustomPropertySet
      * @param <D> The businesObject class
      * @param <T> The class that holds persistent values for this CustomPropertySet
      * @see CustomPropertySet#isVersioned()
      * @throws UnsupportedOperationException Thrown when the CustomPropertySet is versioned
      */
-    <D, T extends PersistentDomainExtension<D>> void setValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values);
+    <D, T extends PersistentDomainExtension<D>> void setValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values, Object... additionalPrimaryKeyValues);
 
     /**
      * Gets the unique set of values for the {@link CustomPropertySet} that were saved for
@@ -189,13 +190,14 @@ public interface CustomPropertySetService {
      * @param customPropertySet The CustomPropertySet
      * @param businesObject The businesObject object
      * @param effectiveTimestamp The point in time from which the new values are effective onwards
+     * @param additionalPrimaryKeyValues The values for the additional primary key columns as defined by the CustomPropertySet
      * @param values The CustomPropertySetValues
      * @param <D> The businesObject class
      * @param <T> The class that holds persistent values for this CustomPropertySet
      * @see CustomPropertySet#isVersioned()
      * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
      */
-    <D, T extends PersistentDomainExtension<D>> void setValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values, Instant effectiveTimestamp);
+    <D, T extends PersistentDomainExtension<D>> void setValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues);
 
     /**
      * Gets the values for the {@link CustomPropertySet} that were saved for
