@@ -5,9 +5,17 @@ import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.demo.impl.builders.DeviceBuilder;
 import com.elster.jupiter.demo.impl.builders.configuration.OutboundTCPConnectionMethodsDevConfPostBuilder;
 import com.elster.jupiter.demo.impl.builders.device.SetDeviceInActiveLifeCycleStatePostBuilder;
-import com.elster.jupiter.demo.impl.templates.*;
+import com.elster.jupiter.demo.impl.templates.ComTaskTpl;
+import com.elster.jupiter.demo.impl.templates.DeviceConfigurationTpl;
+import com.elster.jupiter.demo.impl.templates.DeviceTypeTpl;
+import com.elster.jupiter.demo.impl.templates.OutboundTCPComPortPoolTpl;
 import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.device.config.*;
+import com.energyict.mdc.device.config.ComTaskEnablement;
+import com.energyict.mdc.device.config.ConnectionStrategy;
+import com.energyict.mdc.device.config.DeviceConfiguration;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.ConnectionTaskService;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
@@ -16,6 +24,8 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
+
+import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -167,14 +177,27 @@ public class CreateG3GatewayCommand {
 
     private void addSecurityPropertiesToDevice(Device device) {
         DeviceConfiguration configuration = device.getDeviceConfiguration();
-        SecurityPropertySet securityPropertySet = configuration.getSecurityPropertySets().stream()
-            .filter(sps -> SECURITY_PROPERTY_SET_NAME.equals(sps.getName())).findFirst().orElseThrow(() -> new UnableToCreate("No securityPropertySet with name" + SECURITY_PROPERTY_SET_NAME + "."));
+        SecurityPropertySet securityPropertySet =
+                configuration
+                        .getSecurityPropertySets()
+                        .stream()
+                        .filter(sps -> SECURITY_PROPERTY_SET_NAME.equals(sps.getName()))
+                        .findFirst()
+                        .orElseThrow(() -> new UnableToCreate("No securityPropertySet with name" + SECURITY_PROPERTY_SET_NAME + "."));
         TypedProperties typedProperties = TypedProperties.empty();
-        typedProperties.setProperty("ClientMacAddress", "1");
-        securityPropertySet.getPropertySpecs().stream().filter(ps -> ps.getName().equals("AuthenticationKey")).findFirst().ifPresent(
-            ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("00112233445566778899AABBCCDDEEFF")));
-        securityPropertySet.getPropertySpecs().stream().filter(ps -> ps.getName().equals("EncryptionKey")).findFirst().ifPresent(
-            ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("11223344556677889900AABBCCDDEEFF")));
+        typedProperties.setProperty(SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString(), BigDecimal.ONE);
+        securityPropertySet
+                .getPropertySpecs()
+                .stream()
+                .filter(ps -> SecurityPropertySpecName.AUTHENTICATION_KEY.toString().equals(ps.getName()))
+                .findFirst()
+                .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("00112233445566778899AABBCCDDEEFF")));
+        securityPropertySet
+                .getPropertySpecs()
+                .stream()
+                .filter(ps -> SecurityPropertySpecName.ENCRYPTION_KEY.toString().equals(ps.getName()))
+                .findFirst()
+                .ifPresent(ps -> typedProperties.setProperty(ps.getName(), ps.getValueFactory().fromStringValue("11223344556677889900AABBCCDDEEFF")));
         device.setSecurityProperties(securityPropertySet, typedProperties);
     }
 }
