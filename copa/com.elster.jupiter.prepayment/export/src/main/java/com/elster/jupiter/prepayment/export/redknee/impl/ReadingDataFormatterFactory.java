@@ -51,7 +51,7 @@ public class ReadingDataFormatterFactory implements DataFormatterFactory {
     }
 
     static final String NAME = "ReadingDataFormatterFactory";
-    static final String DISPLAY_NAME = "RedKnee prepayment reading formatter";
+    static final String DISPLAY_NAME = "Prepayment specific formatter";
     private static final String NON_PATH_INVALID = "\":*?<>|";
 
     private volatile Thesaurus thesaurus;

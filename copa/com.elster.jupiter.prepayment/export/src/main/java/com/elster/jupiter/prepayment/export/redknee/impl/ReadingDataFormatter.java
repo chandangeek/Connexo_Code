@@ -127,6 +127,8 @@ public class ReadingDataFormatter implements com.elster.jupiter.export.ReadingDa
     private String tag;
     private String updateTag;
     private StructureMarker structureMarker;
+    private StructureMarker mainStructureMarker;
+    private StructureMarker updateStructureMarker;
     private ReadingContainer readingContainer;
     private Logger logger;
     private Instant latestTimeStamp;
@@ -143,7 +145,7 @@ public class ReadingDataFormatter implements com.elster.jupiter.export.ReadingDa
         this.thesaurus = thesaurus;
         this.fieldSeparator = ReadingDataFormatterFactory.FieldSeparator.separatorForName(propertyMap.get(FormatterProperties.SEPARATOR.getKey()).toString());
         this.tag = propertyMap.get(FormatterProperties.TAG.getKey()) != null ? propertyMap.get(FormatterProperties.TAG.getKey()).toString() :  "export";
-        this.updateTag =  propertyMap.get(FormatterProperties.UPDATE_TAG.getKey()) != null ? propertyMap.get(FormatterProperties.TAG.getKey()).toString() :  "update";
+        this.updateTag =  propertyMap.get(FormatterProperties.UPDATE_TAG.getKey()) != null ? propertyMap.get(FormatterProperties.UPDATE_TAG.getKey()).toString() :  "update";
     }
 
     @Override
@@ -172,9 +174,9 @@ public class ReadingDataFormatter implements com.elster.jupiter.export.ReadingDa
     }
 
     private SimpleFormattedData format(ExportData exportData){
-        structureMarker = createStructureMarker( exportData,
-                                                 dataExportService.forRoot(tag).withPeriodOf(exportData.getStructureMarker()),
-                                                 dataExportService.forRoot(updateTag).withPeriodOf(exportData.getStructureMarker()));
+        structureMarker = exportData.getStructureMarker();
+        mainStructureMarker = dataExportService.forRoot(tag).withPeriodOf(structureMarker);
+        updateStructureMarker = dataExportService.forRoot(updateTag).withPeriodOf(structureMarker);
 
         List<IntervalBlock> intervalBlocks = ((MeterReadingData) exportData).getMeterReading().getIntervalBlocks();
 
@@ -183,12 +185,11 @@ public class ReadingDataFormatter implements com.elster.jupiter.export.ReadingDa
                 latestTimeStamp);
     }
 
-    private StructureMarker createStructureMarker(ExportData exportData, StructureMarker main, StructureMarker update) {
-        StructureMarker structureMarker = exportData.getStructureMarker();
+    private StructureMarker createStructureMarker() {
         if (structureMarker.endsWith("update")) {
-            return update.adopt(structureMarker);
+            return updateStructureMarker.adopt(structureMarker);
         }
-        return main.adopt(structureMarker);
+        return mainStructureMarker.adopt(structureMarker);
     }
 
     private class Records {
@@ -215,7 +216,7 @@ public class ReadingDataFormatter implements com.elster.jupiter.export.ReadingDa
                 logger.finest(String.format("Nothing to export for meter %s", meter == null ? "" :  meter.getMRID()));
                 return Stream.empty();
             }
-            return readings.stream().map(reading -> TextLineExportData.of(ReadingDataFormatter.this.structureMarker, payload(reading)));
+            return readings.stream().map(reading -> TextLineExportData.of(createStructureMarker(), payload(reading)));
         }
 
         private String payload(IntervalReading intervalReading){
