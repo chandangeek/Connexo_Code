@@ -14,13 +14,13 @@ import java.util.Locale;
  */
 class YearDescriptionBuilder extends AbstractDescriptionBuilder {
 
-    public YearDescriptionBuilder(Thesaurus thesaurus) {
-        super(thesaurus);
+    public YearDescriptionBuilder(Thesaurus thesaurus, Locale locale) {
+        super(thesaurus, locale);
     }
 
     @Override
     protected String getSingleItemDescription(String expression) {
-        return DateTimeFormatter.ofPattern("yyyy", Locale.getDefault()).format(
+        return DateTimeFormatter.ofPattern("yyyy", locale).format(
                 ZonedDateTime.now().withYear(Integer.parseInt(expression)));
     }
 

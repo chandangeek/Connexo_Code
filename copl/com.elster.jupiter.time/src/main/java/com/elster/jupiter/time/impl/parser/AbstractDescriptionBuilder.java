@@ -3,6 +3,7 @@ package com.elster.jupiter.time.impl.parser;
 import com.elster.jupiter.nls.Thesaurus;
 
 import java.text.MessageFormat;
+import java.util.Locale;
 
 /**
  * @author grhodes
@@ -11,9 +12,11 @@ import java.text.MessageFormat;
 abstract class AbstractDescriptionBuilder {
 
     protected Thesaurus thesaurus;
+    protected Locale locale;
 
-    public AbstractDescriptionBuilder(Thesaurus thesaurus) {
+    public AbstractDescriptionBuilder(Thesaurus thesaurus, Locale locale) {
         this.thesaurus = thesaurus;
+        this.locale = locale;
     }
 
     protected final char[] SpecialCharsMinusStar = new char[] { '/', '-', ',' };

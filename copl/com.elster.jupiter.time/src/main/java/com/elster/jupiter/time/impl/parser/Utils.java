@@ -38,7 +38,7 @@ final class Utils {
      * @return
      */
     public String formatTime(String hoursExpression, String minutesExpression, String secondsExpression) {
-        int hour = Integer.parseInt(hoursExpression);
+        /*int hour = Integer.parseInt(hoursExpression);
         String amPM = hour >= 12 ? thesaurus.getFormat(TranslationKeys.time_pm).format() : thesaurus.getFormat(TranslationKeys.time_am).format();
         if (hour > 12) {
             hour -= 12;
@@ -48,11 +48,25 @@ final class Utils {
         if (!isEmpty(secondsExpression)) {
             second = ":" + Utils.leftPad(String.valueOf(Integer.parseInt(secondsExpression)), 2, '0');
         }
-        return MessageFormat.format("{0}:{1}{2} {3}", String.valueOf(hour), Utils.leftPad(minute, 2, '0'), second, amPM);
+        return MessageFormat.format("{0}:{1}{2} {3}", String.valueOf(hour), Utils.leftPad(minute, 2, '0'), second, amPM);*/
+        if (hoursExpression.length() == 1) {
+            hoursExpression = "0" + hoursExpression;
+        }
+        if (minutesExpression.length() == 1) {
+            minutesExpression = "0" + minutesExpression;
+        }
+        if (secondsExpression.length() == 1) {
+            secondsExpression = "0" + secondsExpression;
+        }
+        String result = hoursExpression + ":" + minutesExpression;
+        if (!secondsExpression.equals("")) {
+            result = result + ":" + secondsExpression;
+        }
+        return result;
     }
 
-    public static String getDayOfWeekName(int dayOfWeek) {
-        return DayOfWeek.of(dayOfWeek).getDisplayName(TextStyle.FULL, Locale.getDefault());
+    public static String getDayOfWeekName(int dayOfWeek, Locale locale) {
+        return DayOfWeek.of(dayOfWeek).getDisplayName(TextStyle.FULL, locale);
     }
 
     /**

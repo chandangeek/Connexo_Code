@@ -2,14 +2,16 @@ package com.elster.jupiter.time.impl.parser;
 
 import com.elster.jupiter.nls.Thesaurus;
 
+import java.util.Locale;
+
 /**
  * @author grhodes
  * @since 10 Dec 2012 14:24:08
  */
 class DayOfMonthDescriptionBuilder extends AbstractDescriptionBuilder {
 
-    public DayOfMonthDescriptionBuilder(Thesaurus thesaurus) {
-        super(thesaurus);
+    public DayOfMonthDescriptionBuilder(Thesaurus thesaurus, Locale locale) {
+        super(thesaurus, locale);
     }
 
     @Override

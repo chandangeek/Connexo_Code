@@ -13,13 +13,13 @@ import java.util.Locale;
  */
 class MonthDescriptionBuilder extends AbstractDescriptionBuilder {
 
-    public MonthDescriptionBuilder(Thesaurus thesaurus) {
-        super(thesaurus);
+    public MonthDescriptionBuilder(Thesaurus thesaurus, Locale locale) {
+        super(thesaurus, locale);
     }
 
     @Override
     protected String getSingleItemDescription(String expression) {
-        return DateTimeFormatter.ofPattern("MMMM", Locale.getDefault()).format(
+        return DateTimeFormatter.ofPattern("MMMM", locale).format(
                 ZonedDateTime.now().withDayOfMonth(1).withMonth(Integer.parseInt(expression)));
     }
 

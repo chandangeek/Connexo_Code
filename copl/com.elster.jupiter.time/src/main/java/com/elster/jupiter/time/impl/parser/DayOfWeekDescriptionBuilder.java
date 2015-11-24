@@ -16,13 +16,13 @@ class DayOfWeekDescriptionBuilder extends AbstractDescriptionBuilder {
 
     private final Options options;
 
-    public DayOfWeekDescriptionBuilder(Thesaurus thesaurus) {
-        super(thesaurus);
+    public DayOfWeekDescriptionBuilder(Thesaurus thesaurus, Locale locale) {
+        super(thesaurus, locale);
         this.options = null;
     }
 
-    public DayOfWeekDescriptionBuilder(Thesaurus thesaurus, Options options) {
-        super(thesaurus);
+    public DayOfWeekDescriptionBuilder(Thesaurus thesaurus, Options options, Locale locale) {
+        super(thesaurus, locale);
         this.options = options;
     }
 
@@ -39,14 +39,14 @@ class DayOfWeekDescriptionBuilder extends AbstractDescriptionBuilder {
             boolean isZeroBasedDayOfWeek = (options == null || options.isZeroBasedDayOfWeek());
             boolean isInvalidDayOfWeekForSetting = (options != null && !options.isZeroBasedDayOfWeek() && dayOfWeekNum <= 1);
             if(isInvalidDayOfWeekForSetting || (isZeroBasedDayOfWeek && dayOfWeekNum == 0)) {
-                return Utils.getDayOfWeekName(7);
+                return Utils.getDayOfWeekName(7, locale);
             } else if(options != null && !options.isZeroBasedDayOfWeek()) {
                 dayOfWeekNum -= 1;
             }
-            return Utils.getDayOfWeekName(dayOfWeekNum);
+            return Utils.getDayOfWeekName(dayOfWeekNum, locale);
         } else {
             return DayOfWeek.from(DateTimeFormatter.ofPattern("EEE", Locale.ENGLISH).parse(
-                    Utils.capitalize(exp.toLowerCase()))).getDisplayName(TextStyle.FULL, Locale.getDefault());
+                    Utils.capitalize(exp.toLowerCase()))).getDisplayName(TextStyle.FULL, locale);
         }
     }
 

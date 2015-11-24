@@ -3,6 +3,7 @@ package com.elster.jupiter.time.impl.parser;
 import com.elster.jupiter.nls.Thesaurus;
 
 import java.text.MessageFormat;
+import java.util.Locale;
 
 /**
  * @author grhodes
@@ -10,8 +11,8 @@ import java.text.MessageFormat;
  */
 class SecondsDescriptionBuilder extends AbstractDescriptionBuilder {
 
-    public SecondsDescriptionBuilder(Thesaurus thesaurus) {
-        super(thesaurus);
+    public SecondsDescriptionBuilder(Thesaurus thesaurus, Locale locale) {
+        super(thesaurus, locale);
     }
 
     @Override

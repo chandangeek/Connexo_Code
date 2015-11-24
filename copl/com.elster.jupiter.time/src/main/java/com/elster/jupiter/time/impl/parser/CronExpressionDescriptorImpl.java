@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 
 import java.text.MessageFormat;
 import java.text.ParseException;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,53 +23,53 @@ public class CronExpressionDescriptorImpl {
         this.thesaurus = thesaurus;
     }
 
-    public String getDescription(String expression)  {
-        return getDescription(DescriptionTypeEnum.FULL, expression, new Options());
+    public String getDescription(String expression, Locale locale)  {
+        return getDescription(DescriptionTypeEnum.FULL, expression, new Options(), locale);
     }
 
-    public String getDescription(String expression, Options options)  {
-        return getDescription(DescriptionTypeEnum.FULL, expression, options);
+    public String getDescription(String expression, Options options, Locale locale)  {
+        return getDescription(DescriptionTypeEnum.FULL, expression, options, locale);
     }
 
-    public String getDescription(DescriptionTypeEnum type, String expression){
-        return getDescription(type, expression, new Options());
+    public String getDescription(DescriptionTypeEnum type, String expression, Locale locale){
+        return getDescription(type, expression, new Options(),locale);
     }
 
-    public String getDescription(DescriptionTypeEnum type, String expression, Options options)  {
+    public String getDescription(DescriptionTypeEnum type, String expression, Options options, Locale locale)  {
         String[] expressionParts;
         String description = "";
         try {
-            expressionParts = ExpressionParser.parse(expression, options);
+            expressionParts = ExpressionParser.parse(expression, options, locale);
             switch (type) {
                 case FULL:
-                    description = getFullDescription(expressionParts, options);
+                    description = getFullDescription(expressionParts, options, locale);
                     break;
                 case TIMEOFDAY:
-                    description = getTimeOfDayDescription(expressionParts);
+                    description = getTimeOfDayDescription(expressionParts, locale);
                     break;
                 case HOURS:
-                    description = getHoursDescription(expressionParts);
+                    description = getHoursDescription(expressionParts, locale);
                     break;
                 case MINUTES:
-                    description = getMinutesDescription(expressionParts);
+                    description = getMinutesDescription(expressionParts, locale);
                     break;
                 case SECONDS:
-                    description = getSecondsDescription(expressionParts);
+                    description = getSecondsDescription(expressionParts, locale);
                     break;
                 case DAYOFMONTH:
-                    description = getDayOfMonthDescription(expressionParts);
+                    description = getDayOfMonthDescription(expressionParts, locale);
                     break;
                 case MONTH:
-                    description = getMonthDescription(expressionParts);
+                    description = getMonthDescription(expressionParts, locale);
                     break;
                 case DAYOFWEEK:
-                    description = getDayOfWeekDescription(expressionParts, options);
+                    description = getDayOfWeekDescription(expressionParts, options, locale);
                     break;
                 case YEAR:
-                    description = getYearDescription(expressionParts, options);
+                    description = getYearDescription(expressionParts, options, locale);
                     break;
                 default:
-                    description = getSecondsDescription(expressionParts);
+                    description = getSecondsDescription(expressionParts, locale);
                     break;
             }
         } catch (ParseException e) {
@@ -81,16 +82,16 @@ public class CronExpressionDescriptorImpl {
      * @param expressionParts
      * @return
      */
-    private String getYearDescription(String[] expressionParts, Options options) {
-      return new YearDescriptionBuilder(thesaurus).getSegmentDescription(expressionParts[6], ", "+thesaurus.getFormat(TranslationKeys.every_year).format());
+    private String getYearDescription(String[] expressionParts, Options options, Locale locale) {
+      return new YearDescriptionBuilder(thesaurus, locale).getSegmentDescription(expressionParts[6], ", "+thesaurus.getFormat(TranslationKeys.every_year).format());
     }
 
     /**
      * @param expressionParts
      * @return
      */
-    private String getDayOfWeekDescription(String[] expressionParts, Options options) {
-        return new DayOfWeekDescriptionBuilder(thesaurus, options).getSegmentDescription(expressionParts[5], ", " +
+    private String getDayOfWeekDescription(String[] expressionParts, Options options, Locale locale) {
+        return new DayOfWeekDescriptionBuilder(thesaurus, options, locale).getSegmentDescription(expressionParts[5], ", " +
                 thesaurus.getFormat(TranslationKeys.every_day).format());
     }
 
@@ -98,15 +99,15 @@ public class CronExpressionDescriptorImpl {
      * @param expressionParts
      * @return
      */
-    private String getMonthDescription(String[] expressionParts) {
-        return new MonthDescriptionBuilder(thesaurus).getSegmentDescription(expressionParts[4], "");
+    private String getMonthDescription(String[] expressionParts, Locale locale) {
+        return new MonthDescriptionBuilder(thesaurus, locale).getSegmentDescription(expressionParts[4], "");
     }
 
     /**
      * @param expressionParts
      * @return
      */
-    private String getDayOfMonthDescription(String[] expressionParts) {
+    private String getDayOfMonthDescription(String[] expressionParts, Locale locale) {
         String description = null;
         String exp = expressionParts[3].replace("?", "*");
         if ("L".equals(exp)) {
@@ -121,7 +122,7 @@ public class CronExpressionDescriptorImpl {
                 String dayString = dayNumber == 1 ? thesaurus.getFormat(TranslationKeys.first_weekday).format() : thesaurus.getFormat(TranslationKeys.weekday_nearest_day).format(dayNumber);
                 description = thesaurus.getFormat(TranslationKeys.on_the_of_the_month).format(dayString);
             } else {
-                description = new DayOfMonthDescriptionBuilder(thesaurus).getSegmentDescription(exp, ", "+thesaurus.getFormat(TranslationKeys.every_day).format());
+                description = new DayOfMonthDescriptionBuilder(thesaurus, locale).getSegmentDescription(exp, ", "+thesaurus.getFormat(TranslationKeys.every_day).format());
             }
         }
         return description;
@@ -131,31 +132,31 @@ public class CronExpressionDescriptorImpl {
      * @param expressionParts
      * @return
      */
-    private String getSecondsDescription(String[] expressionParts) {
-        return new SecondsDescriptionBuilder(thesaurus).getSegmentDescription(expressionParts[0], thesaurus.getFormat(TranslationKeys.every_second).format());
+    private String getSecondsDescription(String[] expressionParts, Locale locale) {
+        return new SecondsDescriptionBuilder(thesaurus, locale).getSegmentDescription(expressionParts[0], thesaurus.getFormat(TranslationKeys.every_second).format());
     }
 
     /**
      * @param expressionParts
      * @return
      */
-    private String getMinutesDescription(String[] expressionParts) {
-        return new MinutesDescriptionBuilder(thesaurus).getSegmentDescription(expressionParts[1], thesaurus.getFormat(TranslationKeys.every_minute).format());
+    private String getMinutesDescription(String[] expressionParts, Locale locale) {
+        return new MinutesDescriptionBuilder(thesaurus, locale).getSegmentDescription(expressionParts[1], thesaurus.getFormat(TranslationKeys.every_minute).format());
     }
 
     /**
      * @param expressionParts
      * @return
      */
-    private String getHoursDescription(String[] expressionParts) {
-        return new HoursDescriptionBuilder(thesaurus).getSegmentDescription(expressionParts[2], thesaurus.getFormat(TranslationKeys.every_hour).format());
+    private String getHoursDescription(String[] expressionParts, Locale locale) {
+        return new HoursDescriptionBuilder(thesaurus, locale).getSegmentDescription(expressionParts[2], thesaurus.getFormat(TranslationKeys.every_hour).format());
     }
 
     /**
      * @param expressionParts
      * @return
      */
-    private String getTimeOfDayDescription(String[] expressionParts) {
+    private String getTimeOfDayDescription(String[] expressionParts, Locale locale) {
         String secondsExpression = expressionParts[0];
         String minutesExpression = expressionParts[1];
         String hoursExpression = expressionParts[2];
@@ -183,9 +184,9 @@ public class CronExpressionDescriptorImpl {
                 }
             }
         } else {
-            String secondsDescription = getSecondsDescription(expressionParts);
-            String minutesDescription = getMinutesDescription(expressionParts);
-            String hoursDescription = getHoursDescription(expressionParts);
+            String secondsDescription = getSecondsDescription(expressionParts, locale);
+            String minutesDescription = getMinutesDescription(expressionParts, locale);
+            String hoursDescription = getHoursDescription(expressionParts, locale);
             description.append(secondsDescription);
             if (description.length() > 0 && Utils.isNotEmpty(minutesDescription)) {
                 description.append(", ");
@@ -204,13 +205,13 @@ public class CronExpressionDescriptorImpl {
      * @param expressionParts
      * @return
      */
-    private String getFullDescription(String[] expressionParts, Options options) {
+    private String getFullDescription(String[] expressionParts, Options options, Locale locale) {
         String description = "";
-        String timeSegment = getTimeOfDayDescription(expressionParts);
-        String dayOfMonthDesc = getDayOfMonthDescription(expressionParts);
-        String monthDesc = getMonthDescription(expressionParts);
-        String dayOfWeekDesc = getDayOfWeekDescription(expressionParts, options);
-        String yearDesc = getYearDescription(expressionParts, options);
+        String timeSegment = getTimeOfDayDescription(expressionParts, locale);
+        String dayOfMonthDesc = getDayOfMonthDescription(expressionParts, locale);
+        String monthDesc = getMonthDescription(expressionParts, locale);
+        String dayOfWeekDesc = getDayOfWeekDescription(expressionParts, options, locale);
+        String yearDesc = getYearDescription(expressionParts, options, locale);
         description = MessageFormat.format("{0}{1}{2}{3}", timeSegment, ("*".equals(expressionParts[3]) ? dayOfWeekDesc : dayOfMonthDesc), monthDesc, yearDesc);
         description = transformVerbosity(description, options);
         description = transformCase(description, options);
@@ -248,9 +249,9 @@ public class CronExpressionDescriptorImpl {
             descTemp = descTemp.replace(thesaurus.getFormat(TranslationKeys.every_1_minute).format(), thesaurus.getFormat(TranslationKeys.every_minute).format());
             descTemp = descTemp.replace(thesaurus.getFormat(TranslationKeys.every_1_hour).format(), thesaurus.getFormat(TranslationKeys.every_hour).format());
             descTemp = descTemp.replace(thesaurus.getFormat(TranslationKeys.every_1_day).format(), thesaurus.getFormat(TranslationKeys.every_day).format());
-            descTemp = descTemp.replace(", "+thesaurus.getFormat(TranslationKeys.every_minute).format(), "");
-            descTemp = descTemp.replace(", "+thesaurus.getFormat(TranslationKeys.every_hour).format(), "");
-            descTemp = descTemp.replace(", "+thesaurus.getFormat(TranslationKeys.every_day).format(), "");
+            //descTemp = descTemp.replace(", "+thesaurus.getFormat(TranslationKeys.every_minute).format(), "");
+           //descTemp = descTemp.replace(", "+thesaurus.getFormat(TranslationKeys.every_hour).format(), "");
+            //descTemp = descTemp.replace(", "+thesaurus.getFormat(TranslationKeys.every_day).format(), "");
         }
         return descTemp;
     }

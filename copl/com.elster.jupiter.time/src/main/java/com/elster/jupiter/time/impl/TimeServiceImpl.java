@@ -39,6 +39,7 @@ import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -179,8 +180,8 @@ public class TimeServiceImpl implements TimeService, InstallService, PrivilegesP
     }
 
     @Override
-    public String toLocalizedString(CronExpression expression) {
-        return new CronExpressionDescriptorImpl(thesaurus).getDescription(expression.toString());
+    public String toLocalizedString(CronExpression expression, Locale locale) {
+        return new CronExpressionDescriptorImpl(thesaurus).getDescription(expression.toString(), locale);
     }
 
     @Override

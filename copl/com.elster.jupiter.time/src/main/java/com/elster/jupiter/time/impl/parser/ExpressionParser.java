@@ -19,11 +19,11 @@ class ExpressionParser {
      * @deprecated Use ExpressionParser.parse(String, Options) instead.
      */
     @Deprecated
-    public static String[] parse(String expression) throws ParseException {
-        return parse(expression, null);
+    public static String[] parse(String expression, Locale locale) throws ParseException {
+        return parse(expression, null, locale);
     }
 
-    public static String[] parse(String expression, Options options) throws ParseException {
+    public static String[] parse(String expression, Options options, Locale locale) throws ParseException {
         String[] parsed = new String[] {"", "", "", "", "", "", ""};
         if (Utils.isEmpty(expression)) {
             throw new IllegalArgumentException("empty expression");
@@ -49,7 +49,7 @@ class ExpressionParser {
           throw new ParseException(expression, 7);
         }
 
-        normaliseExpression(parsed, options);
+        normaliseExpression(parsed, options, locale);
 
         return parsed;
     }
@@ -57,7 +57,7 @@ class ExpressionParser {
     /**
      * @param expressionParts
      */
-    private static void normaliseExpression(String[] expressionParts, Options options) {
+    private static void normaliseExpression(String[] expressionParts, Options options, Locale locale) {
         // Convert ? to * only for day of month and day of week
         expressionParts[3] = expressionParts[3].replace('?', '*');
         expressionParts[5] = expressionParts[5].replace('?', '*');
@@ -80,7 +80,7 @@ class ExpressionParser {
         // convert SUN-SAT format to 0-6 format
         if(!Utils.isNumeric(expressionParts[5])) {
             for (int i = 0; i <= 6; i++) {
-                expressionParts[5] = expressionParts[5].replace(Utils.getDayOfWeekName(i + 1), String.valueOf(i));
+                expressionParts[5] = expressionParts[5].replace(Utils.getDayOfWeekName(i + 1, locale), String.valueOf(i));
             }
         }
 

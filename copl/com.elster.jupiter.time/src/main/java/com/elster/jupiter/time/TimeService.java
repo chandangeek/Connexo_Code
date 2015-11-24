@@ -5,6 +5,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.util.cron.CronExpression;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @ProviderType
@@ -25,7 +26,7 @@ public interface TimeService {
     Query<? extends RelativePeriod> getRelativePeriodQuery();
 
     String toLocalizedString(PeriodicalScheduleExpression expression);
-    String toLocalizedString(CronExpression expression);
+    String toLocalizedString(CronExpression expression, Locale locale);
 
     RelativePeriod getAllRelativePeriod();
 }
