@@ -407,7 +407,7 @@ public class BpmResource {
         }
         return null;
     }
-    
+
     @GET
     @Path("/allprocesses")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -509,6 +509,24 @@ public class BpmResource {
             processHistoryInfos.total = total;
         }
         return processHistoryInfos;
+    }
+
+    @POST
+    @Path("/managetasks")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response manageTasks(@Context UriInfo uriInfo, @Context SecurityContext securityContext) {
+        QueryParameters queryParameters = QueryParameters.wrap(uriInfo.getQueryParameters(false));
+        try {
+            String rest = "/rest/tasks/managetasks";
+            String req = getQueryParam(queryParameters);
+            if (!req.equals("")) {
+                rest += req+"&tasks=2&currentuser=" + securityContext.getUserPrincipal().getName() ;
+            }
+            bpmService.getBpmServer().doPost(rest);
+
+        } catch (RuntimeException e) {
+        }
+        return Response.ok().build();
     }
 
     @GET
