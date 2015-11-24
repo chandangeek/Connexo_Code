@@ -118,7 +118,7 @@ public class HttpContextImpl implements HttpContext {
                 user = SecurityToken.verifyToken(token, request, response, userService);
             }
         }
-            return user.isPresent() ? allow(request, response, user.get()) : deny(response);
+            return user.isPresent() ? allow(request, response, user.get()) : deny(request, response);
         }
 
 
@@ -162,8 +162,12 @@ public class HttpContextImpl implements HttpContext {
     }
 
 
-    private boolean deny(HttpServletResponse response) {
+    private boolean deny(HttpServletRequest request, HttpServletResponse response) {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        Optional<Cookie> xsrf = Arrays.asList(request.getCookies()).stream().filter(cookie -> cookie.getName().equals("X-CONNEXO-TOKEN")).findFirst();
+        if (!xsrf.isPresent()) {
+            SecurityToken.removeCookie(request,response);
+        }
         return false;
     }
 

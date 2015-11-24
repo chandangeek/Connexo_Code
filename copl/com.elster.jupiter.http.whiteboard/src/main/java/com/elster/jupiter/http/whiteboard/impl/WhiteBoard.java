@@ -57,9 +57,9 @@ public class WhiteBoard extends Application implements BinderProvider, InstallSe
     private final static String TIMEOUT = "com.elster.jupiter.timeout";
     private final static String TOKEN_REFRESH_MAX_COUNT = "com.elster.jupiter.token.refresh.maxcount";
     private final static String TOKEN_EXPIRATION_TIME = "com.elster.jupiter.token.expirationtime";
-    private  static int timeout = 600; // default value 10 min
+    private  static int timeout = 300; // default value 5 min
     private  static long tokenRefreshMaxCnt = 100;
-    private static int tokenExpTime = 3000;
+    private static int tokenExpTime = 300;
     private List<HttpResource> resources = new CopyOnWriteArrayList<>();
     private List<App> apps = new CopyOnWriteArrayList<>();
 
