@@ -84,7 +84,7 @@ public class CloseIssueAction extends AbstractIssueAction {
 
     @Override
     public boolean isApplicableForUser(User user) {
-        return super.isApplicableForUser(user) && user.getPrivileges().stream().filter(p -> Privileges.CLOSE_ISSUE.equals(p.getName())).findAny().isPresent();
+        return super.isApplicableForUser(user) && user.getPrivileges().stream().filter(p -> Privileges.Constants.CLOSE_ISSUE.equals(p.getName())).findAny().isPresent();
     }
 
     private Optional<IssueStatus> getStatusFromParameters(Map<String, Object> properties){
