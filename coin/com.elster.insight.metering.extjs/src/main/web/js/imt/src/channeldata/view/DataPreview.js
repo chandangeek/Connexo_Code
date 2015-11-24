@@ -32,8 +32,7 @@ Ext.define('Imt.channeldata.view.DataPreview', {
         var me = this,
             estimatedRule,
             estimatedRuleName,
-            url,
-            view = me.up('tabbedDeviceChannelsView') || me.up('deviceLoadProfilesData');
+            url;
 
         field.show();
         if (info.isConfirmed) {

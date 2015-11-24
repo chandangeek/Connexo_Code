@@ -153,7 +153,8 @@ Ext.define('Imt.channeldata.view.ChannelGraph', {
                     },
                     color: '#70BB51',
                     shadow: false,
-                    pointPlacement: 'between'
+                    pointPlacement: 'between',
+                    turboThreshold: 0
                 },
                 line: {
                     color: '#70BB51'
