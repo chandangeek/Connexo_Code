@@ -126,6 +126,7 @@ public class WhiteBoard extends Application implements BinderProvider, InstallSe
         apps.add(resource);
     }
 
+    @Activate
     public void activate(BundleContext context, Map<String, Object> props) {
         boolean generateEvents = props != null && Boolean.TRUE.equals(props.get("event"));
         if (!generateEvents) {
@@ -152,58 +153,6 @@ public class WhiteBoard extends Application implements BinderProvider, InstallSe
                     else tokenExpTime = temp;
                 }
             }
-
-        /*    if (tempTimeOut > 0) {
-                timeout = tempTimeOut;
-            }
-
-            }
-            int tempTimeOut = 0;
-            String timeoutParam = context.getProperty(TIMEOUT);
-            if (timeoutParam != null) {
-                try {
-                    tempTimeOut = Integer.parseInt(timeoutParam);
-                } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("Cannot parse '" + timeoutParam + "' as a timeout value.", e);
-                }
-            }
-
-            if (tempTimeOut > 0) {
-                timeout = tempTimeOut;
-            }
-
-            int tempTokeRefreshMaxCnt = 0;
-            String tokenRefreshMaxCntParam = context.getProperty(TOKEN_REFRESH_MAX_COUNT);
-            if (tokenRefreshMaxCntParam != null) {
-                try {
-                    tempTokeRefreshMaxCnt = Integer.parseInt(tokenRefreshMaxCntParam);
-                } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("Cannot parse '" + tokenRefreshMaxCntParam + "' as a numeric value.", e);
-                }
-            }
-
-            if (tempTokeRefreshMaxCnt > 0) {
-                tokenRefreshMaxCnt = tempTokeRefreshMaxCnt;
-            }
-
-            if (tempTimeOut > 0) {
-                timeout = tempTimeOut;
-            }
-
-            int tempTokeExpirationTime = 0;
-            String tempTokeExpirationTimeParam = context.getProperty(TOKEN_EXPIRATION_TIME);
-            if (tempTokeExpirationTimeParam != null) {
-                try {
-                    tempTokeExpirationTime = Integer.parseInt(tempTokeExpirationTimeParam);
-                } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("Cannot parse '" + tokenRefreshMaxCntParam + "' as a numeric value.", e);
-                }
-            }
-
-            if (tempTokeExpirationTime > 0) {
-                tokenExpTime = tempTokeExpirationTime;
-            } */
-
         }
     }
 
