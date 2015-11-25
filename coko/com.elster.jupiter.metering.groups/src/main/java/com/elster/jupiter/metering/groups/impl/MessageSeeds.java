@@ -10,6 +10,7 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
 
     CAN_NOT_BE_EMPTY(1, Constants.NAME_REQUIRED_KEY, "This field is required", Level.SEVERE),
     FIELD_TOO_LONG(2, Constants.FIELD_TOO_LONG, "Field length must not exceed {max} characters", Level.SEVERE),
+    DUPLICATE_END_DEVICE_GROUP(3, Constants.DUPLICATE_NAME, "Name must be unique", Level.SEVERE),
     SEARCH_DOMAIN_NOT_FOUND(1001, "searchDomainNotFound", "Search domain with id = ''{0}'' not found", Level.SEVERE),
     INVALID_SEARCH_CRITERIA(1002, "invalidSearchCriteria", "Invalid search criteria", Level.SEVERE),
     ;
@@ -55,5 +56,6 @@ public enum MessageSeeds implements MessageSeed, TranslationKey {
         ;
         public static final String NAME_REQUIRED_KEY = "CanNotBeEmpty";
         public static final String FIELD_TOO_LONG = "FieldTooLong";
+        public static final String DUPLICATE_NAME = "DuplicateEndDeviceGroupName";
     }
 }

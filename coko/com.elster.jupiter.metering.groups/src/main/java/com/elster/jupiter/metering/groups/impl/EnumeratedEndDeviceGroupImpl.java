@@ -2,6 +2,7 @@ package com.elster.jupiter.metering.groups.impl;
 
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
@@ -189,7 +190,7 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
     }
 
     void save() {
-        factory().persist(this);
+        Save.CREATE.save(getDataModel(), this);
         for (EntryImpl entry : doGetEntries()) {
             entry.setEndDeviceGroup(this);
         }
@@ -202,7 +203,7 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
 
     @Override
     public void update() {
-        factory().update(this);
+        Save.UPDATE.save(getDataModel(), this);
         List<Entry> existingEntries = entryFactory().find("endDeviceGroup", this);
         DiffList<Entry> entryDiff = ArrayDiffList.fromOriginal(existingEntries);
         entryDiff.clear();
@@ -214,10 +215,6 @@ public class EnumeratedEndDeviceGroupImpl extends AbstractEndDeviceGroup impleme
         entryFactory().remove(FluentIterable.from(entryDiff.getRemovals()).toList());
         entryFactory().update(FluentIterable.from(entryDiff.getRemaining()).toList());
         entryFactory().persist(FluentIterable.from(entryDiff.getAdditions()).toList());
-    }
-
-    private DataMapper<EnumeratedEndDeviceGroup> factory() {
-        return getDataModel().mapper(EnumeratedEndDeviceGroup.class);
     }
 
     private DataMapper<Entry> entryFactory() {

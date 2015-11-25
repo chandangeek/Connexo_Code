@@ -2,6 +2,8 @@ package com.elster.jupiter.metering.groups.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
@@ -34,7 +36,9 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -57,6 +61,9 @@ public class EnumeratedEndDeviceGroupImplIT {
     private static final String ED_MRID = " ( ";
 
     private Injector injector;
+
+    @Rule
+    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
     @Mock
     private BundleContext bundleContext;
@@ -137,6 +144,16 @@ public class EnumeratedEndDeviceGroupImplIT {
         List<EndDevice> members = group.getMembers(ZonedDateTime.of(2014, 1, 23, 14, 54, 0, 0, ZoneId.systemDefault()).toInstant());
         assertThat(members).hasSize(1);
         assertThat(members.get(0).getId()).isEqualTo(endDevice.getId());
+    }
+
+    @Test
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.DUPLICATE_NAME + "}")
+    public void testPersistenceDuplicateName() {
+        MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            meteringGroupsService.createEnumeratedEndDeviceGroup().setName("Mine").setMRID("mine").create();
+            meteringGroupsService.createEnumeratedEndDeviceGroup().setName("Mine").setMRID("mine").create();
+        }
     }
 
     @Test

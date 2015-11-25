@@ -2,6 +2,8 @@ package com.elster.jupiter.metering.groups.impl;
 
 import com.elster.jupiter.bootstrap.h2.impl.InMemoryBootstrapModule;
 import com.elster.jupiter.datavault.impl.DataVaultModule;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolation;
+import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
 import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
@@ -35,7 +37,9 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -55,6 +59,9 @@ import static org.mockito.Mockito.when;
 public class QueryEndDeviceGroupImplIT {
 
     private Injector injector;
+
+    @Rule
+    public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
     @Mock
     private BundleContext bundleContext;
@@ -154,6 +161,32 @@ public class QueryEndDeviceGroupImplIT {
             assertThat(conditions.get(1).getConditionValues()).hasSize(2);
             assertThat(conditions.get(1).getConditionValues().get(0).getValue()).isEqualTo("1000");
             assertThat(conditions.get(1).getConditionValues().get(1).getValue()).isEqualTo("2000");
+        }
+    }
+
+    @Test
+    @ExpectedConstraintViolation(property = "name", messageId = "{" + MessageSeeds.Constants.DUPLICATE_NAME + "}")
+    public void testSaveGroupWithDuplicateName() {
+        try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
+            MeteringGroupsService meteringGroupsService = injector.getInstance(MeteringGroupsService.class);
+            EndDeviceGroupBuilder.QueryEndDeviceGroupBuilder groupBuilder = meteringGroupsService.createQueryEndDeviceGroup();
+            groupBuilder.setName("group");
+            groupBuilder.setMRID("MRID");
+            groupBuilder.setQueryProviderName("DeviceQueryProvider");
+            groupBuilder.setSearchDomain(searchDomain);
+            groupBuilder.create();
+
+            assertThat(meteringGroupsService.findEndDeviceGroups()).hasSize(1);
+            Optional<EndDeviceGroup> endDeviceGroup = meteringGroupsService.findEndDeviceGroupByName("group");
+            assertThat(endDeviceGroup).isPresent();
+
+            //create the another group with the same name
+            groupBuilder = meteringGroupsService.createQueryEndDeviceGroup();
+            groupBuilder.setName("group");
+            groupBuilder.setMRID("MRID");
+            groupBuilder.setQueryProviderName("DeviceQueryProvider");
+            groupBuilder.setSearchDomain(searchDomain);
+            groupBuilder.create();
         }
     }
 
