@@ -175,7 +175,7 @@ Ext.define('Bpm.controller.Task', {
             queryString = Uni.util.QueryString.getQueryStringValues(false),
             route;
 
-        var tasksRoute = router.getRoute('workspace/taksmanagementtasks');
+        var tasksRoute = router.getRoute('workspace/tasks');
         tasksRoute.params.sort = undefined;
         tasksRoute.params.user = undefined;
         tasksRoute.params.dueDate = undefined;
@@ -188,7 +188,7 @@ Ext.define('Bpm.controller.Task', {
         queryString.status && (queryString.status != '') && (tasksRoute.params.status = queryString.status);
         queryString.process && (queryString.process != '') && (tasksRoute.params.process = queryString.process);
 
-        route ='workspace/taksmanagementtasks/bulkaction';
+        route ='workspace/tasks/bulkaction';
 
         route && (route = router.getRoute(route));
         route.params.sort = queryString.sort;

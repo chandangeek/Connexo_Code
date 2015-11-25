@@ -60,7 +60,7 @@ Ext.define('Bpm.controller.TaskBulk', {
             filteredTasks = me.getStore('Bpm.store.task.Tasks'),
             router = this.getController('Uni.controller.history.Router'),
             queryString = Uni.util.QueryString.getQueryStringValues(false),
-            tasksRoute = router.getRoute('workspace/taksmanagementtasks'),
+            tasksRoute = router.getRoute('workspace/tasks'),
             sort,
             tasks = [];
 
@@ -303,7 +303,7 @@ Ext.define('Bpm.controller.TaskBulk', {
     cancelFinishWizard: function () {
         var me= this,
             router = this.getController('Uni.controller.history.Router');
-        router.getRoute('workspace/taksmanagementtasks').forward(null, router.arguments);
+        router.getRoute('workspace/tasks').forward(null, router.arguments);
 
     }
 });

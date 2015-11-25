@@ -78,8 +78,7 @@ Ext.define('Bpm.view.task.bulk.Wizard', {
                     ui: 'action',
                     action: 'finish',
                     itemId: 'tskbw-finish',
-                    hidden: true//,
-                    //href: me.router.getRoute('workspace/taksmanagementtasks').buildUrl({}, {param: 'noFilter'})
+                    hidden: true
                 },
                 {
                     text: Uni.I18n.translate('general.cancel', 'BPM', 'Cancel'),
