@@ -157,12 +157,15 @@ public class AppServerResourceTest extends AppServerApplicationTest {
         AppServer appServer = mockAppServer();
         when(appServer.isActive()).thenReturn(false);
         AppServerInfo info = new AppServerInfo(appServer, null, null, thesaurus);
+        info.active = true;
+        info.exportDirectory = "c:\\export";
+        info.importDirectory = "c:\\import";
         Entity<AppServerInfo> json = Entity.json(info);
 
-        Response response = target("/appserver/APPSERVER/activate").request().put(Entity.json(null));
+        Response response = target("/appserver/APPSERVER").request().put(json);
 
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(appServer).activate();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        verify(appServer.forBatchUpdate()).activate();
     }
 
     @Test
@@ -170,12 +173,15 @@ public class AppServerResourceTest extends AppServerApplicationTest {
         AppServer appServer = mockAppServer();
         when(appServer.isActive()).thenReturn(true);
         AppServerInfo info = new AppServerInfo(appServer, null, null, thesaurus);
+        info.active = false;
+        info.exportDirectory = "c:\\export";
+        info.importDirectory = "c:\\import";
         Entity<AppServerInfo> json = Entity.json(info);
 
-        Response response = target("/appserver/APPSERVER/deactivate").request().put(Entity.json(null));
+        Response response = target("/appserver/APPSERVER").request().put(json);
 
-        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
-        verify(appServer).deactivate();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        verify(appServer.forBatchUpdate()).deactivate();
     }
 
     @Test
@@ -238,6 +244,8 @@ public class AppServerResourceTest extends AppServerApplicationTest {
         AppServer appServer = mock(AppServer.class);
         when(appServer.getName()).thenReturn("APPSERVER");
         when(appServer.getVersion()).thenReturn(1L);
+        AppServer.BatchUpdate batchUpdate = mock(AppServer.BatchUpdate.class);
+        when(appServer.forBatchUpdate()).thenReturn(batchUpdate);
         addServicesOnAppServer(appServer);
 
         when(appService.findAppServer("APPSERVER")).thenReturn(Optional.of(appServer));
