@@ -17,16 +17,16 @@ import java.util.List;
 import java.util.logging.Logger;
 
 @Component(name = "com.elster.jupiter.metering.extjs", service = {TranslationKeyProvider.class},
-        property = {"name=" + MeteringExtjsInstaller.COMPONENT_NAME + "-UI"}, immediate = true)
-public class MeteringExtjsInstaller implements TranslationKeyProvider {
+        property = {"name=" + MeteringExtjsUiInstaller.COMPONENT_NAME + "-UI"}, immediate = true)
+public class MeteringExtjsUiInstaller implements TranslationKeyProvider {
 
     public static final String HTTP_RESOURCE_ALIAS = "/mtr";
     public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/mtr";
-    private static final Logger LOGGER = Logger.getLogger(MeteringExtjsInstaller.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(MeteringExtjsUiInstaller.class.getName());
     public static final String COMPONENT_NAME = "MTR";
     private volatile ServiceRegistration<HttpResource> registration;
 
-    public MeteringExtjsInstaller() {
+    public MeteringExtjsUiInstaller() {
     }
 
     @Activate
