@@ -125,6 +125,7 @@ public class AppServerImpl implements AppServer {
     @Override
     public List<ImportScheduleOnAppServerImpl> getImportSchedulesOnAppServer() {
         if (importSchedulesOnAppServer == null) {
+            List<ImportScheduleOnAppServerImpl> list = getImportScheduleOnAppServerFactory().find("appServer", this);
             importSchedulesOnAppServer = getImportScheduleOnAppServerFactory().find("appServer", this)
                     .stream()
                     .filter(importService -> importService.getAppServer().getName().equals(this.getName()))
@@ -307,13 +308,18 @@ public class AppServerImpl implements AppServer {
         public ImportScheduleOnAppServerImpl addImportScheduleOnAppServer(ImportSchedule importSchedule) {
             ImportScheduleOnAppServerImpl importScheduleOnAppServer = ImportScheduleOnAppServerImpl.from(dataModel, AppServerImpl.this.fileImportService, importSchedule, AppServerImpl.this);
             getImportScheduleOnAppServerFactory().persist(importScheduleOnAppServer);
-            fileImportService.schedule(importSchedule);
+            if(active){
+                fileImportService.schedule(importSchedule);
+            }
             return importScheduleOnAppServer;
         }
 
         @Override
         public void removeImportScheduleOnAppServer(ImportScheduleOnAppServer importScheduleOnAppServer) {
             ImportScheduleOnAppServerImpl found = getImportScheduleOnAppServer(importScheduleOnAppServer);
+            if(active) {
+                found.getImportSchedule().ifPresent(s -> fileImportService.unschedule(s));
+            }
             getImportScheduleOnAppServerFactory().remove(found);
             importSchedulesOnAppServer.remove(found);
         }
@@ -335,6 +341,7 @@ public class AppServerImpl implements AppServer {
             SubscriberExecutionSpecImpl executionSpec = getSubscriberExecutionSpec(subscriberExecutionSpec);
             executionSpec.setActive(true);
             executionSpec.update();
+
         }
 
         @Override
@@ -348,13 +355,9 @@ public class AppServerImpl implements AppServer {
         public void activate() {
             if (!active) {
                 active = true;
-                Optional<ImportFolderForAppServer> path = dataModel.mapper(ImportFolderForAppServer.class).getOptional(name);
-                if (path.isPresent()) {
-                    if (path.get().getImportFolder().isPresent()) {
-                        fileImportService.setBasePath(path.get().getImportFolder().get());
-                    }
+                for(ImportScheduleOnAppServer importScheduleOnAppServer: getImportSchedulesOnAppServer()){
+                    importScheduleOnAppServer.getImportSchedule().ifPresent(s -> fileImportService.schedule(s));
                 }
-
             }
         }
 
@@ -362,6 +365,9 @@ public class AppServerImpl implements AppServer {
         public void deactivate() {
             if (active) {
                 active = false;
+                for(ImportScheduleOnAppServer importScheduleOnAppServer: getImportSchedulesOnAppServer()){
+                    importScheduleOnAppServer.getImportSchedule().ifPresent(s -> fileImportService.unschedule(s));
+                }
             }
         }
 

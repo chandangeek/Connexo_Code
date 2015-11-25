@@ -246,6 +246,16 @@ public class AppServiceImpl implements InstallService, IAppService, Subscriber, 
     }
 
     private void reconfigure() {
+        Optional<ImportFolderForAppServer> appServerImportFolder = dataModel.mapper(ImportFolderForAppServer.class).getOptional(appServer.getName());
+        if (appServerImportFolder.isPresent() && appServerImportFolder.get().getImportFolder().isPresent()) {
+            appServerImportFolder.flatMap(ImportFolderForAppServer::getImportFolder)
+                    .ifPresent(fileImportService::setBasePath);
+        } else if (!appServerImportFolder.isPresent()) {
+            LOGGER.log(Level.WARNING, "AppServer with name " + appServer.getName() + " has no import folder configured.");
+        } else if (!appServerImportFolder.get().getImportFolder().isPresent()) {
+            LOGGER.log(Level.WARNING, "AppServer with name " + appServer.getName() + " import folder is configured but cannot be resolved as path.");
+        }
+
         Set<ImportSchedule> shouldServe = importSchedulesOnCurrentAppServer().collect(Collectors.toSet());
         synchronized (reconfigureLock) {
             servedImportSchedules.stream()
