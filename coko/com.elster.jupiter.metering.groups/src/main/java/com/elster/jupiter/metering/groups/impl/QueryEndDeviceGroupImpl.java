@@ -18,6 +18,7 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.util.sql.SqlFragment;
+
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
@@ -173,7 +174,7 @@ public class QueryEndDeviceGroupImpl extends AbstractEndDeviceGroup implements Q
         Supplier<InvalidQueryDeviceGroupException> noSuchDomainException =
                 () -> new InvalidQueryDeviceGroupException(thesaurus, MessageSeeds.SEARCH_DOMAIN_NOT_FOUND, this.searchDomain);
         try {
-            return this.searchService.pollSearchDomain(this.searchDomain, Duration.ofMinutes(1)).orElseThrow(noSuchDomainException);
+            return this.searchService.pollDomain(this.searchDomain, Duration.ofMinutes(1)).orElseThrow(noSuchDomainException);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw noSuchDomainException.get();
