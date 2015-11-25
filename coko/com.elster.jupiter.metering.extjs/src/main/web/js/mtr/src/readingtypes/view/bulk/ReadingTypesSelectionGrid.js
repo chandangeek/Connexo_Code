@@ -3,7 +3,7 @@ Ext.define('Mtr.readingtypes.view.bulk.ReadingTypesSelectionGrid', {
     xtype: 'reading-types-selection-grid',
     store: 'Mtr.readingtypes.store.ReadingTypesBulk',
 
-    allLabel: Uni.I18n.translate('readingtypesmanagment.bulk.allreadingtypes', 'MTR', 'All reading types'),
+    allLabel: Uni.I18n.translate('readingtypesmanagment.bulk.allreadingtypestitle', 'MTR', 'All reading types'),
     allDescription: Uni.I18n.translate('readingtypesmanagment.bulk.allreadingtypesMsg', 'MTR', 'Select all reading types (related to filters on previous screen)'),
 
     selectedLabel: Uni.I18n.translate('readingtypesmanagment.bulk.selectedreadingtypes', 'MTR', 'Selected reading types'),
