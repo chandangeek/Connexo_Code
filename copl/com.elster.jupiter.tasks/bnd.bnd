@@ -1,4 +1,4 @@
 -classpath: target/classes
 -dsannotations: *
 Private-Package: com.elster.jupiter.tasks.impl
-Export-Package: com.elster.jupiter.tasks
+Export-Package: com.elster.jupiter.tasks,com.elster.jupiter.tasks.security

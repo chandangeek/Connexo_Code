@@ -26,6 +26,7 @@ import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.tasks.TaskServiceAlreadyLaunched;
 import com.elster.jupiter.tasks.TaskStatus;
+import com.elster.jupiter.tasks.security.Privileges;
 import com.elster.jupiter.time.PeriodicalScheduleExpressionParser;
 import com.elster.jupiter.time.TemporalExpressionParser;
 import com.elster.jupiter.transaction.TransactionService;
@@ -299,7 +300,8 @@ public class TaskServiceImpl implements TaskService, InstallService, Translation
     @Override
     public List<TranslationKey> getKeys() {
         return Stream.of(
-                Arrays.stream(TaskStatus.values()))
+                Arrays.stream(TaskStatus.values()),
+                Arrays.stream(Privileges.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }
