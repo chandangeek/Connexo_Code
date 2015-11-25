@@ -31,17 +31,11 @@ public class ConfigurationSecurityPropertySetResourceTest extends MultisensePubl
         DeviceType deviceType = mockDeviceType(123, "sampleDeviceType", 3333L);
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(456, "Default", deviceType, 3333L);
         when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
-        SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
-        when(securityPropertySet.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        PropertySpec stringPropertySpec = mockStringPropertySpec();
-        when(securityPropertySet.getId()).thenReturn(13L);
-        when(securityPropertySet.getName()).thenReturn("Zorro");
-        when(securityPropertySet.getPropertySpecs()).thenReturn(Collections.singleton(stringPropertySpec));
         EncryptionDeviceAccessLevel encryptionDeviceAccessLevel = mockEncryptionAccessLevel(1001);
-        when(securityPropertySet.getEncryptionDeviceAccessLevel()).thenReturn(encryptionDeviceAccessLevel);
         AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel = mockAuthenticationAccessLevel(1002);
-        when(securityPropertySet.getAuthenticationDeviceAccessLevel()).thenReturn(authenticationDeviceAccessLevel);
+        SecurityPropertySet securityPropertySet = mockSecurityPropertySet(13L, deviceConfiguration, "Zorro", encryptionDeviceAccessLevel, authenticationDeviceAccessLevel, 1003L);
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Collections.singletonList(securityPropertySet));
+
         Response response = target("/devicetypes/123/deviceconfigurations/456/securitypropertysets/13").request().get(Response.class);
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
@@ -65,27 +59,17 @@ public class ConfigurationSecurityPropertySetResourceTest extends MultisensePubl
         DeviceConfiguration deviceConfiguration = mockDeviceConfiguration(456, "Default", deviceType, 3333L);
         when(deviceType.getConfigurations()).thenReturn(Collections.singletonList(deviceConfiguration));
 
-        SecurityPropertySet securityPropertySet = mock(SecurityPropertySet.class);
-        when(securityPropertySet.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        PropertySpec stringPropertySpec13 = mockStringPropertySpec();
-        when(securityPropertySet.getId()).thenReturn(13L);
-        when(securityPropertySet.getName()).thenReturn("Zorro");
-        when(securityPropertySet.getPropertySpecs()).thenReturn(Collections.singleton(stringPropertySpec13));
         EncryptionDeviceAccessLevel encryptionDeviceAccessLevel = mockEncryptionAccessLevel(1001);
-        when(securityPropertySet.getEncryptionDeviceAccessLevel()).thenReturn(encryptionDeviceAccessLevel);
         AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel = mockAuthenticationAccessLevel(1002);
-        when(securityPropertySet.getAuthenticationDeviceAccessLevel()).thenReturn(authenticationDeviceAccessLevel);
+        PropertySpec stringPropertySpec13 = mockStringPropertySpec();
+        SecurityPropertySet securityPropertySet = mockSecurityPropertySet(13L, deviceConfiguration, "Zorro", encryptionDeviceAccessLevel, authenticationDeviceAccessLevel, 103L);
+        when(securityPropertySet.getPropertySpecs()).thenReturn(Collections.singleton(stringPropertySpec13));
 
-        SecurityPropertySet securityPropertySet2 = mock(SecurityPropertySet.class);
-        when(securityPropertySet2.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         PropertySpec stringPropertySpec15 = mockStringPropertySpec();
-        when(securityPropertySet2.getId()).thenReturn(15L);
-        when(securityPropertySet2.getName()).thenReturn("Alfa");
-        when(securityPropertySet2.getPropertySpecs()).thenReturn(Collections.singleton(stringPropertySpec15));
         EncryptionDeviceAccessLevel encryptionDeviceAccessLevel15 = mockEncryptionAccessLevel(1003);
-        when(securityPropertySet2.getEncryptionDeviceAccessLevel()).thenReturn(encryptionDeviceAccessLevel15);
         AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel15 = mockAuthenticationAccessLevel(1004);
-        when(securityPropertySet2.getAuthenticationDeviceAccessLevel()).thenReturn(authenticationDeviceAccessLevel15);
+        SecurityPropertySet securityPropertySet2 = mockSecurityPropertySet(15L, deviceConfiguration, "Alfa", encryptionDeviceAccessLevel15, authenticationDeviceAccessLevel15, 103L);
+        when(securityPropertySet2.getPropertySpecs()).thenReturn(Collections.singleton(stringPropertySpec15));
 
         when(deviceConfiguration.getSecurityPropertySets()).thenReturn(Arrays.asList(securityPropertySet, securityPropertySet2));
 

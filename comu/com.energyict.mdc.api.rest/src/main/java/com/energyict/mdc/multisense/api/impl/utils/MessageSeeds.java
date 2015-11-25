@@ -57,7 +57,8 @@ public enum MessageSeeds implements MessageSeed {
     NOT_NULL_VALIDATION(48, "javax.validation.constraints.NotNull.message", "Expected field to be not null"),
     EXPECTED_MESSAGE_SPEC_ID(49, "ExpectedDeviceMessageSpecId", "Device message specification id was expected in the request"),
     EXPECTED_RELEASE_DATE(50, "ReleaseDateExpected", "Release date was expected in the request"),
-    EXPECTED_PROTOCOL_INFO(51, "ExpectedProtocolInfo", "Protocol information was expected in the request");
+    EXPECTED_PROTOCOL_INFO(51, "ExpectedProtocolInfo", "Protocol information was expected in the request"),
+    EXPECTED_COM_TASK(52, "ExpectedComTask" , "Communication task was expected in the request");
 
     private final int number;
     private final String key;

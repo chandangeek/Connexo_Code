@@ -34,6 +34,7 @@ import com.energyict.mdc.device.config.DeviceMessageUserAction;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.config.PartialInboundConnectionTask;
 import com.energyict.mdc.device.config.PartialScheduledConnectionTask;
+import com.energyict.mdc.device.config.SecurityPropertySet;
 import com.energyict.mdc.device.data.Batch;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.CommunicationTaskService;
@@ -581,5 +582,18 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
         when(communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(id, version)).thenReturn(Optional.of(scheduledComTaskExecution));
 //        when(communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(id, version)).then(invocationOnMock -> invocationOnMock.getArguments()[1].equals(version)?Optional.of(scheduledComTaskExecution):Optional.empty());
         return scheduledComTaskExecution;
+    }
+
+    protected SecurityPropertySet mockSecurityPropertySet(long id, DeviceConfiguration deviceConfiguration, String name, EncryptionDeviceAccessLevel encryptionDeviceAccessLevel, AuthenticationDeviceAccessLevel authenticationDeviceAccessLevel, long version) {
+        SecurityPropertySet mock = mock(SecurityPropertySet.class);
+        when(mock.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        PropertySpec stringPropertySpec = mockStringPropertySpec();
+        when(mock.getId()).thenReturn(id);
+        when(mock.getName()).thenReturn(name);
+        when(mock.getPropertySpecs()).thenReturn(Collections.singleton(stringPropertySpec));
+        when(mock.getEncryptionDeviceAccessLevel()).thenReturn(encryptionDeviceAccessLevel);
+        when(mock.getAuthenticationDeviceAccessLevel()).thenReturn(authenticationDeviceAccessLevel);
+        when(mock.getVersion()).thenReturn(version);
+        return mock;
     }
 }

@@ -59,8 +59,6 @@ import java.util.logging.Logger;
         property = {"alias=/comu", "app=MDC", "name=" + PublicRestApplication.COMPONENT_NAME, "version=v2.0"})
 public class PublicRestApplication extends Application implements TranslationKeyProvider, MessageSeedProvider {
 
-    private final Logger logger = Logger.getLogger(PublicRestApplication.class.getName());
-
     public static final String APP_KEY = "MDC";
     public static final String COMPONENT_NAME = "MRA"; // Mdc Rest Api
 
@@ -106,6 +104,7 @@ public class PublicRestApplication extends Application implements TranslationKey
                 DeviceMessageResource.class,
                 DeviceProtocolPluggableClassResource.class,
                 DeviceResource.class,
+                DeviceSecurityPropertySetResource.class,
                 DeviceTypeResource.class,
                 EncryptionDeviceAccessLevelResource.class,
                 PartialConnectionTaskResource.class,
@@ -312,6 +311,7 @@ public class PublicRestApplication extends Application implements TranslationKey
             bind(ComScheduleInfoFactory.class).to(ComScheduleInfoFactory.class);
             bind(DeviceMessageSpecificationInfoFactory.class).to(DeviceMessageSpecificationInfoFactory.class);
             bind(DeviceMessageEnablementInfoFactory.class).to(DeviceMessageEnablementInfoFactory.class);
+            bind(DeviceSecurityPropertySetInfoFactory.class).to(DeviceSecurityPropertySetInfoFactory.class);
         }
     }
 
