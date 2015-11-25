@@ -48,10 +48,10 @@ public class OverlapCalculatorBuilderImpl implements OverlapCalculatorBuilder{
             Range<Instant> r = value.getEffectiveRange();
 
             if (hasOverlap(r,newRange)) {
-                if (hasEndOverlap(r,newRange)) {
-                    if (newRange.encloses(r)) {
-                        issues.add(getValuesRangeConflictDelete(value, getConflictingRangeOverlap(r, newRange)));
-                    } else if (!r.hasLowerBound()) {
+                if (newRange.encloses(r)) {
+                    issues.add(getValuesRangeConflictDelete(value, getConflictingRangeOverlap(r, newRange)));
+                } else if (hasEndOverlap(r, newRange)) {
+                    if (!r.hasLowerBound()) {
                         rangesAfterUpdate.add(Range.lessThan(newRange.lowerEndpoint()));
                     }else{
                         rangesAfterUpdate.add(Range.closedOpen(r.lowerEndpoint(),newRange.lowerEndpoint()));
