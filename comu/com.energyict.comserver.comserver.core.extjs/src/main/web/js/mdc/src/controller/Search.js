@@ -73,7 +73,7 @@ Ext.define('Mdc.controller.Search', {
             'search-object-selector': {
                 change: function (field, value) {
                     Uni.util.History.setParsePath(false);
-                    router.getRoute('search').forward(null, Ext.apply(router.queryParams, {searchDomain: value}));
+                    router.getRoute('search').forward(null, Ext.apply(router.queryParams, {restore: true}));
                     me.service.setDomain(value);
                 }
             },
