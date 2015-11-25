@@ -14,11 +14,14 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
+import org.osgi.service.device.Device;
 
 import com.elster.insight.common.rest.ExceptionFactory;
 import com.elster.insight.common.services.ListPager;
@@ -26,10 +29,12 @@ import com.elster.insight.usagepoint.config.MetrologyConfiguration;
 import com.elster.insight.usagepoint.config.UsagePointConfigurationService;
 import com.elster.insight.usagepoint.data.UsagePointValidation;
 import com.elster.insight.usagepoint.data.UsagePointValidationImpl;
+import com.elster.insight.usagepoint.data.exceptions.InvalidLastCheckedException;
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.MeterActivation;
 import com.elster.jupiter.metering.UsagePoint;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -346,35 +351,35 @@ public class UsagePointValidationResource {
                     .allMatch(DataValidationStatus::completelyValidated);
         }
     }
-//
-//    @Path("/validationstatus")
-//    @PUT
-//    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-//    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
+
+    @Path("/validationstatus")
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.ADMINISTRATE_VALIDATION_CONFIGURATION,com.elster.jupiter.validation.security.Privileges.Constants.FINE_TUNE_VALIDATION_CONFIGURATION_ON_DEVICE})
 //    @DeviceStatesRestricted({DefaultState.IN_STOCK, DefaultState.DECOMMISSIONED})
-//    public Response setValidationFeatureStatus(@PathParam("mRID") String mRID, DeviceValidationStatusInfo info) {
-//        info.device.mRID = mRID;
-//        Device device = resourceHelper.lockDeviceOrThrowException(info.device);
-//        try {
-//            if (info.isActive) {
-//                if (info.lastChecked == null) {
-//                    throw new LocalizedFieldValidationException(MessageSeeds.NULL_DATE, "lastChecked");
-//                }
-//                if(info.isStorage){
-//                    device.forValidation().activateValidationOnStorage(Instant.ofEpochMilli(info.lastChecked));
-//                } else{
-//                    device.forValidation().activateValidation(Instant.ofEpochMilli(info.lastChecked));
-//                }
-//            } else {
-//                device.forValidation().deactivateValidation();
-//            }
-//            device.save();
-//        } catch (InvalidLastCheckedException e) {
-//            throw new LocalizedFieldValidationException(e.getMessageSeed(), "lastChecked", device.getmRID(), e.getOldLastChecked(), e.getNewLastChecked());
-//        }
-//        return Response.status(Response.Status.OK).build();
-//    }
-//
+    public Response setValidationFeatureStatus(@PathParam("mrid") String mRID, UsagePointValidationStatusInfo info) {
+        info.usagePoint.mRID = mRID;
+        UsagePoint usagePoint = resourceHelper.lockUsagePointOrThrowException(info.usagePoint);
+        try {
+            if (info.isActive) {
+                if (info.lastChecked == null) {
+                    throw new LocalizedFieldValidationException(MessageSeeds.NULL_DATE, "lastChecked");
+                }
+                if(info.isStorage){
+                    getUsagePointValidation(usagePoint).activateValidationOnStorage(Instant.ofEpochMilli(info.lastChecked));
+                } else{
+                    getUsagePointValidation(usagePoint).activateValidation(Instant.ofEpochMilli(info.lastChecked));
+                }
+            } else {
+                getUsagePointValidation(usagePoint).deactivateValidation();
+            }
+            usagePoint.update();
+        } catch (InvalidLastCheckedException e) {
+            throw new LocalizedFieldValidationException(e.getMessageSeed(), "lastChecked", usagePoint.getMRID(), e.getOldLastChecked(), e.getNewLastChecked());
+        }
+        return Response.status(Response.Status.OK).build();
+    }
+
 //    @Path("/validate")
 //    @PUT
 //    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
