@@ -35,7 +35,7 @@ Ext.define('Imt.registerdata.view.RegisterDataList', {
             dataIndex: 'value'
         },
         {
-            header: Uni.I18n.translate('general.label.delta.value', 'IMT', 'Delta Value'),
+            header: Uni.I18n.translate('general.label.delta.value', 'IMT', 'Delta value'),
             flex: 1,
             dataIndex: 'deltaValue'
         }

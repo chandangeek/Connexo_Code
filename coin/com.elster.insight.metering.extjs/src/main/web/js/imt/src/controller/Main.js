@@ -81,7 +81,7 @@ Ext.define('Imt.controller.Main', {
     	}  
     	
         var portalItem2 = Ext.create('Uni.model.PortalItem', {
-            title: Uni.I18n.translate('general.label.metrologyconfiguration', 'INS', 'Metrology configuration'),
+            title: Uni.I18n.translate('general.label.metrologyconfiguration', 'IMT', 'Metrology configuration'),
             portal: 'administration',
             items: [
                 {

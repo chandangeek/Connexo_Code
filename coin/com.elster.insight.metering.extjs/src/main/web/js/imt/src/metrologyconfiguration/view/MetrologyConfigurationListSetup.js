@@ -43,7 +43,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationListSetup', {
                         ],
                         stepItems: [
                             {
-                                text: Uni.I18n.translate('metrologyconfiguration.general.add', 'CFG', 'Add metrology configuration'),
+                                text: Uni.I18n.translate('metrologyconfiguration.general.add', 'IMT', 'Add metrology configuration'),
 //                                privileges : Cfg.privileges.Validation.admin,
                                 href: '#/administration/metrologyconfiguration/add'
                             }

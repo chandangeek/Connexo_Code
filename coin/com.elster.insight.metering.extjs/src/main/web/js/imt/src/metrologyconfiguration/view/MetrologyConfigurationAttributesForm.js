@@ -57,7 +57,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationAttributesForm
 //                        fieldLabel: '&nbsp',
 //                        items: [
 //                            {
-//                                text: Uni.I18n.translate('general.button.cancel', 'IMT', 'Back'),
+//                                text: Uni.I18n.translate('general.button.cancel', 'IMT', 'Cancel'),
 //                                xtype: 'button',
 //                                ui: 'action',
 //                                itemId: 'backLink',
