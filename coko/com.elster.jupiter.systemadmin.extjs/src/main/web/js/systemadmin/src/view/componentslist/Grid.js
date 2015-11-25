@@ -3,11 +3,12 @@ Ext.define('Sam.view.componentslist.Grid', {
     alias: 'widget.components-list',
     requires: [
         'Ext.ux.exporter.ExporterButton',
-        'Ext.grid.plugin.BufferedRenderer'
+        'Ext.grid.plugin.BufferedRenderer',
+        'Uni.grid.plugin.ShowConditionalToolTip'
     ],
     store: 'Sam.store.SystemComponents',
     maxHeight: 450,
-    plugins: ['bufferedrenderer'],
+    plugins: ['bufferedrenderer', 'showConditionalToolTip'],
 
     initComponent: function () {
         var me = this;
