@@ -281,7 +281,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                             allowNegative: false,
                             minValue: 0,
                             labelWidth: 250,
-                            fieldLabel: Uni.I18n.translate('general.label.nominalVoltage', 'IMT', 'Nominal voltage (V)'),
+                            fieldLabel: Uni.I18n.translate('general.label.nominalVoltage.v', 'IMT', 'Nominal voltage (V)'),
                             allowBlank: true,
                             required: false
                         },
@@ -305,7 +305,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                             labelWidth: 250,
                             allowNegative: false,
                             minValue: 0,
-                            fieldLabel: Uni.I18n.translate('general.label.ratedCurrent', 'IMT', 'Rated current (A)'),
+                            fieldLabel: Uni.I18n.translate('general.label.ratedCurrent.a', 'IMT', 'Rated current (A)'),
                             allowBlank: true,
                             required: false
                         },
@@ -315,7 +315,7 @@ Ext.define('Imt.usagepointmanagement.view.UsagePointEdit', {
                             labelWidth: 250,
                             allowNegative: false,
                             minValue: 0,
-                            fieldLabel: Uni.I18n.translate('general.label.ratedPower', 'IMT', 'Rated power (kW)'),
+                            fieldLabel: Uni.I18n.translate('general.label.ratedPower.kw', 'IMT', 'Rated power (kW)'),
                             allowBlank: true,
                             required: false
                         },

@@ -86,7 +86,7 @@ Ext.define('Imt.controller.History', {
                     action: 'showDevice'
                 },
                 metrologyconfiguration: {
-	              title: Uni.I18n.translate('general.label.metrologyconfiguration.view', 'IMT', 'Metrology configuration'),
+	              title: Uni.I18n.translate('general.label.metrologyconfiguration', 'IMT', 'Metrology configuration'),
 	              route: '{mRID}',
 	              controller: 'Imt.usagepointmanagement.controller.View',
 	              action: 'showMetrologyConfiguration',

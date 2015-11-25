@@ -42,7 +42,7 @@ Ext.define('Imt.metrologyconfiguration.view.MetrologyConfigurationListPreview', 
                                 name: 'version'
                             },
                             {
-                                fieldLabel: Uni.I18n.translate('general.label.created', 'IMT', 'Created date'),
+                                fieldLabel: Uni.I18n.translate('general.label.createdDate', 'IMT', 'Created date'),
                                 name: 'created',
                                 renderer: function(value){
                                     if(!Ext.isEmpty(value)) {

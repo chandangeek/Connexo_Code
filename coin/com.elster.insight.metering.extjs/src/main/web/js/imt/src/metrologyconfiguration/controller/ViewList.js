@@ -130,7 +130,7 @@ Ext.define('Imt.metrologyconfiguration.controller.ViewList', {
                 } else {
                     me.getController('Uni.controller.history.Router').getRoute('administration/metrologyconfiguration').forward();
                 }
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyconfiguration.general.remove.confirm.msg', 'CFG', 'Metrology configuration removed'));
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('metrologyconfiguration.general.remove.confirm.msg', 'IMT', 'Metrology configuration removed'));
             },
             failure: function (record, operation) {
                 if (operation.response.status === 409) {
