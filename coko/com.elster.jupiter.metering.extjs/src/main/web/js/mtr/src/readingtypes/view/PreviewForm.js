@@ -26,7 +26,7 @@ Ext.define('Mtr.readingtypes.view.PreviewForm', {
                         items: [
                             {
                                 xtype: 'fieldcontainer',
-                                fieldLabel: Uni.I18n.translate('readingtypesmanagment.general', 'MTR', 'CIM code details'),
+                                fieldLabel: Uni.I18n.translate('readingtypesmanagment.cimCodeDetails', 'MTR', 'CIM code details'),
                                 labelAlign: 'top',
                                 layout: 'vbox',
                                 defaults: {

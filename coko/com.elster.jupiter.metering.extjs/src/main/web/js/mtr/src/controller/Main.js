@@ -44,11 +44,11 @@ Ext.define('Mtr.controller.Main', {
         if (Mtr.privileges.ReadingTypes.canView()) {
 
             var exportItem = Ext.create('Uni.model.PortalItem', {
-                title: Uni.I18n.translate('general.readingtypes.management', 'MTR', 'Reading types management'),
+                title: Uni.I18n.translate('readingtypes.management', 'MTR', 'Reading types management'),
                 portal: 'administration',
                 items: [
                     {
-                        text: Uni.I18n.translate('general.readingtypes', 'MTR', 'Reading types'),
+                        text: Uni.I18n.translate('readingtypes.readingtypes', 'MTR', 'Reading types'),
                         href: '#/administration/readingtypes',
                         route: 'readingtypes'
                     }

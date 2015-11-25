@@ -1,7 +1,6 @@
 package com.elster.jupiter.metering.extjs;
 
 import com.elster.jupiter.http.whiteboard.BundleResolver;
-import com.elster.jupiter.http.whiteboard.FileResolver;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleTranslationKey;
@@ -18,16 +17,16 @@ import java.util.List;
 import java.util.logging.Logger;
 
 @Component(name = "com.elster.jupiter.metering.extjs", service = {TranslationKeyProvider.class},
-        property = {"name=" + DataExportUIInstaller.COMPONENT_NAME + "-UI"}, immediate = true)
-public class DataExportUIInstaller implements TranslationKeyProvider {
+        property = {"name=" + MeteringExtjsUiInstaller.COMPONENT_NAME + "-UI"}, immediate = true)
+public class MeteringExtjsUiInstaller implements TranslationKeyProvider {
 
     public static final String HTTP_RESOURCE_ALIAS = "/mtr";
     public static final String HTTP_RESOURCE_LOCAL_NAME = "/js/mtr";
-    private static final Logger LOGGER = Logger.getLogger(DataExportUIInstaller.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(MeteringExtjsUiInstaller.class.getName());
     public static final String COMPONENT_NAME = "MTR";
     private volatile ServiceRegistration<HttpResource> registration;
 
-    public DataExportUIInstaller() {
+    public MeteringExtjsUiInstaller() {
     }
 
     @Activate

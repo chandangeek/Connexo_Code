@@ -108,7 +108,7 @@ Ext.define('Mtr.readingtypes.controller.ReadingTypes', {
 
         switch (item.action) {
             case 'edit':
-                me.msg = Uni.I18n.translate('readingtypesmanagment.general.deactivated', 'MTR', 'saved');
+                me.msg = Uni.I18n.translate('readingtypesmanagment.saved', 'MTR', 'saved');
                 var editWindow = Ext.create('Mtr.readingtypes.view.EditAliasWindow');
                 editWindow.setTitle(Uni.I18n.translate('readingtypesmanagment.editalias', 'MTR', 'Edit {0}', record.get('fullAliasName')));
                 editWindow.down('textfield').setValue(record.get('aliasName'));
@@ -116,12 +116,12 @@ Ext.define('Mtr.readingtypes.controller.ReadingTypes', {
                 break;
             case 'activate':
                 record.set('active', true);
-                me.msg = Uni.I18n.translate('readingtypesmanagment.general.activated', 'MTR', 'activated');
+                me.msg = Uni.I18n.translate('readingtypesmanagment.activated', 'MTR', 'activated');
                 me.changeReadingType(item.action, record);
                 break;
             case 'deactivate':
                 record.set('active', false);
-                me.msg = Uni.I18n.translate('readingtypesmanagment.general.deactivated', 'MTR', 'deactivated');
+                me.msg = Uni.I18n.translate('readingtypesmanagment.deactivated', 'MTR', 'deactivated');
                 me.changeReadingType(item.action, record);
                 break;
         }
