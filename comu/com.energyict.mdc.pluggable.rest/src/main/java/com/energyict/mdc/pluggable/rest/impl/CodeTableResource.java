@@ -1,5 +1,6 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.protocol.api.codetables.CodeFactory;
 
 import javax.inject.Inject;
@@ -25,7 +26,7 @@ public class CodeTableResource {
         this.codeFactory = codeFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public CodeTableInfos getCodeTablePropertyContext(@Context UriInfo uriInfo){
         CodeTableInfos timeZoneInUseInfos = new CodeTableInfos();

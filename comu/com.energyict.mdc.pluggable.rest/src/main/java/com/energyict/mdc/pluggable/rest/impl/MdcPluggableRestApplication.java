@@ -1,6 +1,5 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
-import com.energyict.mdc.common.rest.TransactionWrapper;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -48,7 +47,6 @@ public class MdcPluggableRestApplication extends Application implements MessageS
     @Override
     public Set<Class<?>> getClasses() {
         return ImmutableSet.of(
-                TransactionWrapper.class,
                 DeviceCommunicationProtocolsResource.class,
                 DeviceDiscoveryProtocolsResource.class,
                 LicensedProtocolResource.class,

@@ -1,5 +1,6 @@
 package com.energyict.mdc.pluggable.rest.impl;
 
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.protocol.api.UserFileFactory;
 
 import javax.inject.Inject;
@@ -20,7 +21,7 @@ public class UserFileReferenceResource {
         this.userFileFactory = userFileFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     public UserFileReferenceInfos getUserFileReferencePropertyContext(@Context UriInfo uriInfo) {
         UserFileReferenceInfos userFileReferenceInfos = new UserFileReferenceInfos();
