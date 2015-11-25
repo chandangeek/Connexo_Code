@@ -54,7 +54,7 @@ import java.util.List;
 public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     private static final int METER_HAS_JOINED = 0xC2;
-    private static final int METER_HAS_LEFT = 0xC3;  //test
+    private static final int METER_HAS_LEFT = 0xC3;
     private static final int METER_JOIN_ATTEMPT = 0xC5;
 
     protected ComChannel tcpComChannel;
@@ -307,7 +307,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: Tue Nov 24 12:05:37 2015$";
+        return "$Date: 2015-11-25 14:25:56 +0200 (Wed, 25 Nov 2015)$";
     }
 
     @Override
