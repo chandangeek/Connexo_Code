@@ -143,11 +143,11 @@ public class OverlapCalculatorBuilderImpl implements OverlapCalculatorBuilder{
     }
 
     private boolean hasStartOverlap(Range<Instant> oldRange, Range<Instant> newRange){
-        return newRange.hasUpperBound() && (oldRange.contains(newRange.upperEndpoint()) || (!oldRange.hasUpperBound() && oldRange.upperEndpoint().isAfter(newRange.upperEndpoint())));
+        return newRange.hasUpperBound() && (oldRange.contains(newRange.upperEndpoint()) || (!oldRange.hasUpperBound() && oldRange.upperEndpoint().isAfter(newRange.upperEndpoint()))) && !newRange.encloses(oldRange);
     }
 
     private boolean hasEndOverlap(Range<Instant> oldRange, Range<Instant> newRange){
-        return newRange.hasLowerBound() && (oldRange.contains(newRange.lowerEndpoint()) || (!oldRange.hasLowerBound() && oldRange.lowerEndpoint().isBefore(newRange.lowerEndpoint())));
+        return (newRange.hasLowerBound() && (oldRange.contains(newRange.lowerEndpoint())) || (!oldRange.hasLowerBound() && oldRange.lowerEndpoint().isBefore(newRange.lowerEndpoint()))) && !newRange.encloses(oldRange);
     }
 
     private Comparator<Range<Instant>> getRangeComparator(){
