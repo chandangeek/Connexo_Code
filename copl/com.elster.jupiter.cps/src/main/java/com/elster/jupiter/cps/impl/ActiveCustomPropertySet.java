@@ -165,13 +165,6 @@ class ActiveCustomPropertySet {
     }
 
     @SuppressWarnings("unchecked")
-    <T extends PersistentDomainExtension<D>, D> List<T> getAllValuesEntityFor(D businessObject) {
-        Condition condition =    where(this.customPropertySet.getPersistenceSupport().domainFieldName()).isEqualTo(businessObject)
-                            .and(where(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName()).isEqualTo(this.registeredCustomPropertySet));
-        return this.getMapper().select(condition);
-    }
-
-    @SuppressWarnings("unchecked")
     <T extends PersistentDomainExtension<D>, D> Optional<T> getValuesEntityFor(Condition condition, Supplier<String> errorMessageSupplier) {
         List<T> extensions = this.getMapper().select(condition);
         if (extensions.isEmpty()) {
@@ -186,17 +179,24 @@ class ActiveCustomPropertySet {
     }
 
     @SuppressWarnings("unchecked")
-    <T extends PersistentDomainExtension<D>, D> List<T> getValuesEntitiesFor(D businessObject) {
-        Condition condition =    where(this.customPropertySet.getPersistenceSupport().domainFieldName()).isEqualTo(businessObject)
-                .and(where(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName()).isEqualTo(this.registeredCustomPropertySet));
-        return this.getValuesEntitiesFor(condition);
+    <T extends PersistentDomainExtension<D>, D> List<T> getAllNonVersionedValuesEntitiesFor(D businessObject, Object... additionalPrimaryKeyColumnValues) {
+        if (this.registeredCustomPropertySet.isViewableByCurrentUser()) {
+            return this.getAllValuesEntityFor(businessObject, additionalPrimaryKeyColumnValues);
+        }
+        else {
+            return Collections.emptyList();
+        }
     }
 
     @SuppressWarnings("unchecked")
-    <T extends PersistentDomainExtension<D>, D> List<T> getValuesEntitiesFor(Condition condition) {
-        return this.customPropertySetDataModel
-                .mapper(this.customPropertySet.getPersistenceSupport().persistenceClass())
-                .select(condition);
+    <T extends PersistentDomainExtension<D>, D> List<T> getAllValuesEntityFor(D businessObject, Object... additionalPrimaryKeyColumnValues) {
+        this.validateAdditionalPrimaryKeyValues(additionalPrimaryKeyColumnValues);
+        Condition condition =
+                this.addAdditionalPrimaryKeyColumnConditionsTo(
+                        where(this.customPropertySet.getPersistenceSupport().domainFieldName()).isEqualTo(businessObject)
+                                .and(where(HardCodedFieldNames.CUSTOM_PROPERTY_SET.javaName()).isEqualTo(this.registeredCustomPropertySet)),
+                        additionalPrimaryKeyColumnValues);
+        return this.getMapper().select(condition);
     }
 
     <T extends PersistentDomainExtension<D>, D> void setNonVersionedValuesEntityFor(D businessObject, CustomPropertySetValues values, Object... additionalPrimaryKeyColumns) {
@@ -293,8 +293,8 @@ class ActiveCustomPropertySet {
         }
     }
 
-    <T extends PersistentDomainExtension<D>, D> void setValuesEntityFor(D businessObject, CustomPropertySetValues values, Instant effectiveTimestamp, Range<Instant> range) {
-        Optional<T> domainExtension = this.getValuesEntityFor(businessObject, effectiveTimestamp);
+    <T extends PersistentDomainExtension<D>, D> void setValuesEntityFor(D businessObject, CustomPropertySetValues values, Instant effectiveTimestamp, Range<Instant> range, Object... additionalPrimaryKeyValues) {
+        Optional<T> domainExtension = this.getVersionedValuesEntityFor(businessObject, effectiveTimestamp, additionalPrimaryKeyValues);
         if (domainExtension.isPresent()) {
             DomainExtensionAccessor.setInterval(domainExtension.get(), Interval.of(range));
             this.customPropertySetDataModel.remove(domainExtension.get());
@@ -302,14 +302,20 @@ class ActiveCustomPropertySet {
         this.createExtension(businessObject, values, range);
     }
 
-    <T extends PersistentDomainExtension<D>, D> void alignTimeSlicedValues(D businessObject, Instant effectiveTimestamp, Range<Instant> range) {
-        Optional<T> domainExtension = this.getValuesEntityFor(businessObject, effectiveTimestamp);
+    <T extends PersistentDomainExtension<D>, D> void alignTimeSlicedValues(D businessObject, Instant effectiveTimestamp, Range<Instant> range, Object... additionalPrimaryKeyValues) {
+        Optional<T> domainExtension = this.getVersionedValuesEntityFor(businessObject, effectiveTimestamp, additionalPrimaryKeyValues);
         if (domainExtension.isPresent()) {
-            Instant oldStartTime = range.hasLowerBound() ? range.lowerEndpoint() : Instant.EPOCH;
-            if(effectiveTimestamp.equals(oldStartTime)) {
+            Instant oldStartTime;
+            if (range.hasLowerBound()) {
+                oldStartTime = range.lowerEndpoint();
+            }
+            else {
+                oldStartTime = Instant.EPOCH;
+            }
+            if (effectiveTimestamp.equals(oldStartTime)) {
                 this.updateInterval(domainExtension.get(), range);
             }
-            else{
+            else {
                 this.customPropertySetDataModel.remove(domainExtension.get());
                 DomainExtensionAccessor.setInterval(domainExtension.get(), Interval.of(range));
                 this.createExtension(domainExtension.get());
@@ -317,8 +323,8 @@ class ActiveCustomPropertySet {
         }
     }
 
-    <T extends PersistentDomainExtension<D>, D> void removeTimeSlicedValues(D businessObject, Instant effectiveTimestamp) {
-        Optional<T> domainExtension = this.getValuesEntityFor(businessObject, effectiveTimestamp);
+    <T extends PersistentDomainExtension<D>, D> void removeTimeSlicedValues(D businessObject, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues) {
+        Optional<T> domainExtension = this.getVersionedValuesEntityFor(businessObject, effectiveTimestamp, additionalPrimaryKeyValues);
         if (domainExtension.isPresent()) {
             this.customPropertySetDataModel.remove(domainExtension.get());
         }

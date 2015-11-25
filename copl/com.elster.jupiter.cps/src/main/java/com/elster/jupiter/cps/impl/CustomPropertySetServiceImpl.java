@@ -289,9 +289,10 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
 
     private void registerCustomPropertySet(CustomPropertySet customPropertySet, boolean systemDefined) {
         DataModel dataModel = this.registerAndInstallOrReuseDataModel(customPropertySet);
-        Optional<RegisteredCustomPropertySet> registeredCustomPropertySet = this.dataModel
-                .mapper(RegisteredCustomPropertySet.class)
-                .getUnique(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName(), customPropertySet.getId());
+        Optional<RegisteredCustomPropertySet> registeredCustomPropertySet =
+                this.dataModel
+                    .mapper(RegisteredCustomPropertySet.class)
+                    .getUnique(RegisteredCustomPropertySetImpl.FieldNames.LOGICAL_ID.javaName(), customPropertySet.getId());
         if (registeredCustomPropertySet.isPresent()) {
             /* Pluggable Classes can be registered multiple times
              * with different properties but they will obviously
@@ -475,50 +476,79 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     @Override
-    public <D, T extends PersistentDomainExtension<D>> List<CustomPropertySetValues> getAllVersionedValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject) {
-        return this.getAllVersionedValuesEntitiesFor(customPropertySet, businesObject)
+    public <D, T extends PersistentDomainExtension<D>> List<CustomPropertySetValues> getAllVersionedValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Object... additionalPrimaryKeyValues) {
+        return this.getAllVersionedValuesEntitiesFor(customPropertySet, businesObject, additionalPrimaryKeyValues)
                 .stream()
                 .map(Optional::of)
                 .map(e -> this.toCustomPropertySetValues(customPropertySet, e))
                 .collect(Collectors.toList());
     }
 
-    private <D, T extends PersistentDomainExtension<D>> void cleanValuesIntervalFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Range<Instant> newRange, Instant effectiveTimestamp) {
-        OverlapCalculatorBuilder overlapCalculatorBuilder = calculateOverlapsFor(customPropertySet,businesObject);
-        cleanValuesIntervalFor(customPropertySet,businesObject,overlapCalculatorBuilder.whenUpdating(effectiveTimestamp, newRange));
+    @SuppressWarnings("unchecked")
+    private <D> void cleanValuesIntervalFor(ActiveCustomPropertySet activeCustomPropertySet, D businesObject, Range<Instant> newRange, Instant effectiveTimestamp, Object... additionalPrimaryKeyValues) {
+        OverlapCalculatorBuilder overlapCalculatorBuilder = this.calculateOverlapsFor(activeCustomPropertySet.getCustomPropertySet(), businesObject, additionalPrimaryKeyValues);
+        this.cleanValuesIntervalFor(activeCustomPropertySet, businesObject, overlapCalculatorBuilder.whenUpdating(effectiveTimestamp, newRange));
     }
 
-    private <D, T extends PersistentDomainExtension<D>> void cleanValuesIntervalFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Range<Instant> newRange) {
-        OverlapCalculatorBuilder overlapCalculatorBuilder = calculateOverlapsFor(customPropertySet,businesObject);
-        cleanValuesIntervalFor(customPropertySet,businesObject,overlapCalculatorBuilder.whenCreating(newRange));
+    @SuppressWarnings("unchecked")
+    private <D> void cleanValuesIntervalFor(ActiveCustomPropertySet activeCustomPropertySet, D businesObject, Range<Instant> newRange, Object... additionalPrimaryKeyValues) {
+        OverlapCalculatorBuilder overlapCalculatorBuilder = this.calculateOverlapsFor(activeCustomPropertySet.getCustomPropertySet(), businesObject, additionalPrimaryKeyValues);
+        this.cleanValuesIntervalFor(activeCustomPropertySet, businesObject, overlapCalculatorBuilder.whenCreating(newRange));
     }
 
-    private <D, T extends PersistentDomainExtension<D>> void cleanValuesIntervalFor(CustomPropertySet<D, T> customPropertySet, D businesObject, List<ValuesRangeConflict> conflicts) {
-        ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
+    private <D> void cleanValuesIntervalFor(ActiveCustomPropertySet activeCustomPropertySet, D businesObject, List<ValuesRangeConflict> conflicts) {
         for (ValuesRangeConflict conflict : conflicts) {
-            Instant currentConflictedIntervalStart = conflict.getValues().getEffectiveRange().hasLowerBound() ? conflict.getValues().getEffectiveRange().lowerEndpoint() : Instant.EPOCH;
-            switch (conflict.getType()){
-                case RANGE_OVERLAP_DELETE:
-                    activeCustomPropertySet.removeTimeSlicedValues(businesObject,currentConflictedIntervalStart);
+            Instant currentConflictedIntervalStart;
+            if (conflict.getValues().getEffectiveRange().hasLowerBound()) {
+                currentConflictedIntervalStart = conflict.getValues().getEffectiveRange().lowerEndpoint();
+            }
+            else {
+                currentConflictedIntervalStart = Instant.EPOCH;
+            }
+            switch (conflict.getType()) {
+                case RANGE_OVERLAP_DELETE: {
+                    activeCustomPropertySet.removeTimeSlicedValues(businesObject, currentConflictedIntervalStart);
                     break;
-                case RANGE_OVERLAP_UPDATE_END:
-                    activeCustomPropertySet.alignTimeSlicedValues(businesObject,currentConflictedIntervalStart,getAlignedRange(conflict));
+                }
+                case RANGE_OVERLAP_UPDATE_END: {
+                    activeCustomPropertySet.alignTimeSlicedValues(businesObject, currentConflictedIntervalStart, getAlignedRange(conflict));
                     break;
-                case RANGE_OVERLAP_UPDATE_START:
-                    activeCustomPropertySet.alignTimeSlicedValues(businesObject,currentConflictedIntervalStart,getAlignedRange(conflict));
+                }
+                case RANGE_OVERLAP_UPDATE_START: {
+                    activeCustomPropertySet.alignTimeSlicedValues(businesObject, currentConflictedIntervalStart, getAlignedRange(conflict));
                     break;
+                }
+                case RANGE_GAP_BEFORE:
+                    // Intentional fall-through
+                case RANGE_GAP_AFTER:
+                    // Intentional fall-through
+                case RANGE_INSERTED:
+                    // Intentional fall-through
+                default: {
+                    throw new IllegalStateException("Not expecting conflict type " + conflict.getType());
+                }
             }
         }
     }
 
-    private Range<Instant> getAlignedRange(ValuesRangeConflict conflict){
+    private Range<Instant> getAlignedRange(ValuesRangeConflict conflict) {
         Range <Instant> currentRange = conflict.getValues().getEffectiveRange();
         Range <Instant> conflictingRange = conflict.getConflictingRange();
-        if(conflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_END)){
-            return currentRange.hasLowerBound() ? Range.closedOpen(currentRange.lowerEndpoint(),conflictingRange.lowerEndpoint()) : Range.lessThan(conflictingRange.lowerEndpoint());
+        if (conflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_END)){
+            if (currentRange.hasLowerBound()) {
+                return Range.closedOpen(currentRange.lowerEndpoint(), conflictingRange.lowerEndpoint());
+            }
+            else {
+                return Range.lessThan(conflictingRange.lowerEndpoint());
+            }
         }
-        else if(conflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_START)){
-            return currentRange.hasUpperBound() ? Range.closedOpen(conflictingRange.upperEndpoint(),currentRange.upperEndpoint()) : Range.atLeast(conflictingRange.upperEndpoint());
+        else if (conflict.getType().equals(ValuesRangeConflictType.RANGE_OVERLAP_UPDATE_START)) {
+            if (currentRange.hasUpperBound()) {
+                return Range.closedOpen(conflictingRange.upperEndpoint(), currentRange.upperEndpoint());
+            }
+            else {
+                return Range.atLeast(conflictingRange.upperEndpoint());
+            }
         }
         else{
             return currentRange;
@@ -526,34 +556,36 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     }
 
     @Override
-    public <D, T extends PersistentDomainExtension<D>> void setValuesVersionFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values, Range<Instant> newRange, Instant effectiveTimestamp) {
+    public <D, T extends PersistentDomainExtension<D>> void setValuesVersionFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values, Range<Instant> newRange, Instant effectiveTimestamp, Object... addtionalPrimaryKeyValues) {
         ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
         this.validateCustomPropertySetIsVersioned(customPropertySet, activeCustomPropertySet);
-        cleanValuesIntervalFor(customPropertySet, businesObject, newRange, effectiveTimestamp);
+        activeCustomPropertySet.validateCurrentUserIsAllowedToEdit();
+        this.cleanValuesIntervalFor(activeCustomPropertySet, businesObject, newRange, effectiveTimestamp, addtionalPrimaryKeyValues);
         activeCustomPropertySet.removeTimeSlicedValues(businesObject,effectiveTimestamp);
         Instant startTime = newRange.hasLowerBound() ? newRange.lowerEndpoint() : Instant.EPOCH;
-        activeCustomPropertySet.setValuesEntityFor(businesObject, values, startTime, newRange);
+        activeCustomPropertySet.setValuesEntityFor(businesObject, values, startTime, newRange, addtionalPrimaryKeyValues);
     }
 
     @Override
-    public <D, T extends PersistentDomainExtension<D>> void setValuesVersionFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values, Range<Instant> newRange) {
+    public <D, T extends PersistentDomainExtension<D>> void setValuesVersionFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values, Range<Instant> newRange, Object... additionalPrimaryKeyValues) {
         ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
         this.validateCustomPropertySetIsVersioned(customPropertySet, activeCustomPropertySet);
-        cleanValuesIntervalFor(customPropertySet, businesObject, newRange);
+        activeCustomPropertySet.validateCurrentUserIsAllowedToEdit();
+        this.cleanValuesIntervalFor(activeCustomPropertySet, businesObject, newRange, additionalPrimaryKeyValues);
         Instant startTime = newRange.hasLowerBound() ? newRange.lowerEndpoint() : Instant.EPOCH;
-        activeCustomPropertySet.setValuesEntityFor(businesObject, values, startTime, newRange);
+        activeCustomPropertySet.setValuesEntityFor(businesObject, values, startTime, newRange, additionalPrimaryKeyValues);
     }
 
     @Override
-    public <D, T extends PersistentDomainExtension<D>> OverlapCalculatorBuilder calculateOverlapsFor(CustomPropertySet<D, T> customPropertySet, D businesObject) {
-        return new OverlapCalculatorBuilderImpl(getAllVersionedValuesFor(customPropertySet,businesObject),thesaurus);
+    public <D, T extends PersistentDomainExtension<D>> OverlapCalculatorBuilder calculateOverlapsFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Object... additionalPrimaryKeyValues) {
+        return new OverlapCalculatorBuilderImpl(getAllVersionedValuesFor(customPropertySet, businesObject, additionalPrimaryKeyValues), thesaurus);
     }
 
     @Override
-    public <D, T extends PersistentDomainExtension<D>> List <T> getAllVersionedValuesEntitiesFor(CustomPropertySet<D, T> customPropertySet, D businesObject) {
+    public <D, T extends PersistentDomainExtension<D>> List <T> getAllVersionedValuesEntitiesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Object... additionalPrimaryKeyValues) {
         ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
         this.validateCustomPropertySetIsVersioned(customPropertySet, activeCustomPropertySet);
-        return activeCustomPropertySet.getValuesEntitiesFor(businesObject);
+        return activeCustomPropertySet.getAllNonVersionedValuesEntitiesFor(businesObject);
     }
 
     private <D, T extends PersistentDomainExtension<D>> ActiveCustomPropertySet findActiveCustomPropertySetOrThrowException(CustomPropertySet<D, T> customPropertySet) {
@@ -581,7 +613,7 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
     public <D, T extends PersistentDomainExtension<D>> VersionedValuesEntityCustomConditionMatcher<D, T> getVersionedValuesEntitiesFor(CustomPropertySet<D, T> customPropertySet) {
         ActiveCustomPropertySet activeCustomPropertySet = this.findActiveCustomPropertySetOrThrowException(customPropertySet);
         this.validateCustomPropertySetIsVersioned(customPropertySet, activeCustomPropertySet);
-        return new VersionedValuesEntityCustomConditionMatcherImpl(activeCustomPropertySet);
+        return new VersionedValuesEntityCustomConditionMatcherImpl<>(activeCustomPropertySet);
     }
 
     private class NonVersionedValuesEntityCustomConditionMatcherImpl<DD, TT extends PersistentDomainExtension<DD>> implements NonVersionedValuesEntityCustomConditionMatcher<DD, TT> {
@@ -807,4 +839,5 @@ public class CustomPropertySetServiceImpl implements ServerCustomPropertySetServ
             primaryKeyColumns.add(this.effectivityStartColumn);
         }
     }
+
 }

@@ -186,13 +186,14 @@ public interface CustomPropertySetService {
      *
      * @param customPropertySet The CustomPropertySet
      * @param businesObject The businesObject object
+     * @param additionalPrimaryKeyValues The values for the additional primary key columns as defined by the CustomPropertySet
      * @param <D> The businesObject class
      * @param <T> The class that holds persistent values for this CustomPropertySet
      * @return The CustomPropertySetValues
      * @see CustomPropertySet#isVersioned()
      * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
      */
-    <D, T extends PersistentDomainExtension<D>> List<CustomPropertySetValues> getAllVersionedValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject);
+    <D, T extends PersistentDomainExtension<D>> List<CustomPropertySetValues> getAllVersionedValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Object... additionalPrimaryKeyValues);
 
     /**
      * Sets the values for the {@link CustomPropertySet} against
@@ -297,6 +298,30 @@ public interface CustomPropertySetService {
     <D, T extends PersistentDomainExtension<D>> VersionedValuesEntityCustomConditionMatcher<D, T> getVersionedValuesEntitiesFor(CustomPropertySet<D, T> customPropertySet);
 
     /**
+     * Gets all the values for the {@link CustomPropertySet} that were saved for
+     * the specified businesObject object.
+     * <p>
+     * Note that this will throw an UnsupportedOperationException
+     * when the CustomPropertySet is <strong>NOT</strong> versioned.
+     * </p>
+     *
+     * @param customPropertySet The CustomPropertySet
+     * @param businesObject The businesObject object
+     * @param additionalPrimaryKeyValues Values for the addition primary keys defined by the CustomPropertySet
+     * @param <D> The businesObject class
+     * @param <T> The class that holds persistent values for this CustomPropertySet
+     * @return The List of instances of the peristent class that holds the values for this CustomPropertySet
+     * @see CustomPropertySet#isVersioned()
+     * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
+     */
+    <D, T extends PersistentDomainExtension<D>> List<T> getAllVersionedValuesEntitiesFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Object... additionalPrimaryKeyValues);
+
+    <D, T extends PersistentDomainExtension<D>> void setValuesVersionFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values, Range<Instant> newRange, Object... addtionalPrimaryKeyValue);
+    <D, T extends PersistentDomainExtension<D>> void setValuesVersionFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values, Range<Instant> newRange, Instant effectiveTimestamp, Object... addtionalPrimaryKeyValue);
+
+    <D, T extends PersistentDomainExtension<D>> OverlapCalculatorBuilder calculateOverlapsFor(CustomPropertySet<D, T> customPropertySet, D businesObject, Object... additionalPrimaryKeyValues);
+
+    /**
      * Removes all the values for the {@link CustomPropertySet} that
      * were saved for the specified businesObject object before.
      *
@@ -304,8 +329,8 @@ public interface CustomPropertySetService {
      * @param businesObject The businesObject object
      * @param <D> The businesObject class
      * @param <T> The class that holds persistent values for this CustomPropertySet
-     * @see #setValuesFor(CustomPropertySet, Object, CustomPropertySetValues)
-     * @see #setValuesFor(CustomPropertySet, Object, CustomPropertySetValues, Instant)
+     * @see #setValuesFor(CustomPropertySet, Object, CustomPropertySetValues, Object...)
+     * @see #setValuesFor(CustomPropertySet, Object, CustomPropertySetValues, Instant, Object...)
      */
     <D, T extends PersistentDomainExtension<D>> void removeValuesFor(CustomPropertySet<D, T> customPropertySet, D businesObject);
 
@@ -339,26 +364,4 @@ public interface CustomPropertySetService {
         List<T> andEffectiveAt(Instant effectiveTimestamp);
     }
 
-    /**
-     * Gets all the values for the {@link CustomPropertySet} that were saved for
-     * the specified businesObject object.
-     * <p>
-     * Note that this will throw an UnsupportedOperationException
-     * when the CustomPropertySet is <strong>NOT</strong> versioned.
-     * </p>
-     *
-     * @param customPropertySet The CustomPropertySet
-     * @param businesObject The businesObject object
-     * @param <D> The businesObject class
-     * @param <T> The class that holds persistent values for this CustomPropertySet
-     * @return The List of instances of the peristent class that holds the values for this CustomPropertySet
-     * @see CustomPropertySet#isVersioned()
-     * @throws UnsupportedOperationException Thrown when the CustomPropertySet is <strong>NOT</strong> versioned
-     */
-    <D, T extends PersistentDomainExtension<D>> List<T> getAllVersionedValuesEntitiesFor(CustomPropertySet<D, T> customPropertySet, D businesObject);
-
-    <D, T extends PersistentDomainExtension<D>> void setValuesVersionFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values, Range<Instant> newRange);
-    <D, T extends PersistentDomainExtension<D>> void setValuesVersionFor(CustomPropertySet<D, T> customPropertySet, D businesObject, CustomPropertySetValues values, Range<Instant> newRange, Instant effectiveTimestamp);
-
-    <D, T extends PersistentDomainExtension<D>> OverlapCalculatorBuilder calculateOverlapsFor(CustomPropertySet<D, T> customPropertySet, D businesObject);
 }
