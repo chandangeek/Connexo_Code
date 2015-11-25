@@ -167,7 +167,7 @@ public enum TableSpecs {
             table.map(DataValidationTaskImpl.class);
             table.setJournalTableName("VAL_DATAVALIDATIONTASKJRNL");
             Column idColumn = table.addAutoIdColumn();
-            Column endDeviceGroupId = table.column("ENDDEVICEGROUP").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
+            Column endDeviceGroupId = table.column("ENDDEVICEGROUP").number().conversion(ColumnConversion.NUMBER2LONG).add();
             Column usagePointGroupId = table.column("USAGEPOINTGROUP").number().conversion(ColumnConversion.NUMBER2LONG).add();
             Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
