@@ -32,7 +32,7 @@ enum TableSpecs {
             table.column("DATASELECTOR").varChar(NAME_LENGTH).notNull().map("dataSelector").add();
             Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
 
-            table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
+            table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").notAudited().add();
             table.addAuditColumns();
 
             table.foreignKey("DES_FK_RTET_RECURRENTTASK")

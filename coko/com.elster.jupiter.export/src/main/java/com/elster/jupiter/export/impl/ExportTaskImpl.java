@@ -256,7 +256,7 @@ final class ExportTaskImpl implements IExportTask {
 
     @Override
     public Optional<ScheduleExpression> getScheduleExpression(Instant at) {
-        return recurrentTask.get().getHistory().getVersionAt(at).map(RecurrentTask::getScheduleExpression);
+        return recurrentTask.get().getVersionAt(at).map(RecurrentTask::getScheduleExpression);
     }
 
     @Override
@@ -388,7 +388,7 @@ final class ExportTaskImpl implements IExportTask {
     @Override
     public void updateLastRun(Instant triggerTime) {
         lastRun = triggerTime;
-        update();
+        dataModel.mapper(IExportTask.class).update(this, "lastRun");
     }
 
     @Override
