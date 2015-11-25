@@ -25,7 +25,7 @@ Ext.define('Mtr.controller.history.Setup', {
                             action: 'showOverview'
                         },
                         bulk: {
-                            title: Uni.I18n.translate('general.readingTypes', 'MTR', 'Bulk action'),
+                            title: Uni.I18n.translate('general.readingTypes.bulk', 'MTR', 'Bulk action'),
                             route: 'bulk',
                             controller: 'Mtr.readingtypes.controller.BulkAction',
                             privileges : Mtr.privileges.ReadingTypes.admin,
