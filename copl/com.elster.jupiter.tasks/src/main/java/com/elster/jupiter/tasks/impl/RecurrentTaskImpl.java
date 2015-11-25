@@ -6,6 +6,7 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskExecutor;
@@ -15,6 +16,7 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
+import com.google.common.collect.ImmutableMap;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -220,8 +222,8 @@ class RecurrentTaskImpl implements RecurrentTask {
             getDestination().message(json).send();
             if (taskOccurrence.wasScheduled()) {
                 updateNextExecution();
+                dataModel.mapper(RecurrentTask.class).update(this, "nextExecution");
             }
-            save();
             return taskOccurrence;
         } catch (RuntimeException e) {
             LOGGER.log(Level.SEVERE, "Failed to schedule task for RecurrentTask " + this.getName(), e);
@@ -267,9 +269,21 @@ class RecurrentTaskImpl implements RecurrentTask {
         return new History<>(dataModel.mapper(RecurrentTaskImpl.class).getJournal(this.getId()), this);
     }
 
+    @Override
+    public Optional<RecurrentTask> getVersionAt(Instant time) {
+        List<JournalEntry<RecurrentTask>> journalEntries = dataModel.mapper(RecurrentTask.class).at(time).find(ImmutableMap.of("id", this.getId()));
+        return journalEntries.stream()
+                .map(JournalEntry::get)
+                .findFirst();
+    }
+
     void updateLastRun(Instant triggerTime) {
         lastRun = triggerTime;
-        save();
+        if (id == 0) {
+            save();
+        } else {
+            dataModel.mapper(RecurrentTaskImpl.class).update(this, "lastRun");
+        }
     }
 
     private String toJson(TaskOccurrenceImpl taskOccurrence) {

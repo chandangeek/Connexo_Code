@@ -64,4 +64,9 @@ public interface RecurrentTask extends HasName, HasAuditInfo {
     String getApplication();
 
     void setName(String name);
+
+    /**
+     * @since v2.0
+     */
+    Optional<RecurrentTask> getVersionAt(Instant time);
 }
