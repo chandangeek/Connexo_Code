@@ -1,25 +1,21 @@
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.util.HasId;
-import com.energyict.mdc.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
-import com.energyict.mdc.device.data.impl.TableSpecs;
-import com.energyict.mdc.device.lifecycle.config.DefaultState;
-
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.device.config.DeviceType;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.impl.ClauseAwareSqlBuilder;
+import com.energyict.mdc.device.data.impl.TableSpecs;
 
 import java.time.Clock;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -40,7 +36,6 @@ public abstract class AbstractTaskFilterSqlBuilder {
 
     private final Clock clock;
     private ClauseAwareSqlBuilder actualBuilder;
-    private Set<String> restrictedDeviceStates = new HashSet<>(Arrays.asList(DefaultState.IN_STOCK.getKey(), DefaultState.DECOMMISSIONED.getKey()));
 
     public AbstractTaskFilterSqlBuilder(Clock clock) {
         super();
@@ -152,21 +147,18 @@ public abstract class AbstractTaskFilterSqlBuilder {
         }
     }
 
-    protected void appendDeviceInStateSql(String targetTableName, Collection<String> allowedDeviceStates) {
-        boolean excludingSelect = false;
-        if (allowedDeviceStates.isEmpty()){
-            allowedDeviceStates = this.restrictedDeviceStates;
-            excludingSelect = true;
+    protected void appendDeviceNotInStateSql(String targetTableName, Set<String> restrictedDeviceStates) {
+        if (restrictedDeviceStates.isEmpty()) {
+            return;
         }
         long currentTime = this.clock.millis();
         this.appendWhereOrAnd();
         this.append(" (");
         this.append(targetTableName);
-        this.append(".device ");
-        this.append(excludingSelect ? "not in" : "in");
+        this.append(".device not in");
         this.append(" (select ED.amrid");
         this.append(" from MTR_ENDDEVICESTATUS ES, (select FS.ID from FSM_STATE FS where FS.OBSOLETE_TIMESTAMP IS NULL and ");
-        this.appendInClause("FS.NAME", allowedDeviceStates, stateName -> "'" + stateName + "'");
+        this.appendInClause("FS.NAME", restrictedDeviceStates, stateName -> "'" + stateName + "'");
         this.append(") FS, MTR_ENDDEVICE ED where ES.STARTTIME <= ");
         this.append(String.valueOf(currentTime));
         this.append(" and ES.ENDTIME > ");

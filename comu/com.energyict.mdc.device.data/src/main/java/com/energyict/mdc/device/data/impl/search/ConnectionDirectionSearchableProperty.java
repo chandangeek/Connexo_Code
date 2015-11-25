@@ -1,6 +1,7 @@
 package com.energyict.mdc.device.data.impl.search;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.properties.CanFindByStringKey;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
@@ -11,14 +12,16 @@ import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
 import com.energyict.mdc.dynamic.PropertySpecService;
 
 import javax.inject.Inject;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ConnectionDirectionSearchableProperty extends AbstractSearchableDeviceProperty {
 
@@ -29,7 +32,6 @@ public class ConnectionDirectionSearchableProperty extends AbstractSearchableDev
     private final Thesaurus thesaurus;
     private SearchDomain searchDomain;
     private SearchablePropertyGroup group;
-    private ConnectionTaskDirection[] connectionTasksDirections = new ConnectionTaskDirection[2];
 
     @Inject
     public ConnectionDirectionSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
@@ -40,19 +42,17 @@ public class ConnectionDirectionSearchableProperty extends AbstractSearchableDev
     ConnectionDirectionSearchableProperty init(SearchDomain searchDomain, SearchablePropertyGroup parentGroup) {
         this.searchDomain = searchDomain;
         this.group = parentGroup;
-        this.connectionTasksDirections[0] = new ConnectionTaskDirection(ConnectionTask.Type.OUTBOUND);
-        this.connectionTasksDirections[1] = new ConnectionTaskDirection(ConnectionTask.Type.INBOUND);
         return this;
     }
 
     @Override
     protected boolean valueCompatibleForDisplay(Object value) {
-        return value instanceof ConnectionTaskDirection;
+        return value instanceof ConnectionTaskDirectionWrapper;
     }
 
     @Override
     protected String toDisplayAfterValidation(Object value) {
-        return ((ConnectionTaskDirection) value).getName();
+        return this.thesaurus.getFormat(((ConnectionTaskDirectionWrapper) value).getContainer().getTranslationKey()).format();
     }
 
     @Override
@@ -63,9 +63,11 @@ public class ConnectionDirectionSearchableProperty extends AbstractSearchableDev
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
         SqlBuilder sqlBuilder = new SqlBuilder();
         sqlBuilder.openBracket();
-        sqlBuilder.append("dev.ID in (" + "select device from ddc_connectiontask left join dtc_partialconnectiontask" +
-                " on dtc_partialconnectiontask.id=ddc_connectiontask.partialconnectiontask  where ddc_connectiontask.obsolete_date" +
-                " is null and ");
+        sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE + ".ID IN (" +
+                "select device " +
+                "from ddc_connectiontask " +
+                "left join dtc_partialconnectiontask on dtc_partialconnectiontask.id = ddc_connectiontask.partialconnectiontask " +
+                "where ddc_connectiontask.obsolete_date is null and ");
         sqlBuilder.add(this.toSqlFragment("ddc_connectiontask.discriminator", condition, now));
         sqlBuilder.closeBracket();
         sqlBuilder.closeBracket();
@@ -92,8 +94,11 @@ public class ConnectionDirectionSearchableProperty extends AbstractSearchableDev
         return this.propertySpecService.stringReferencePropertySpec(
                 PROPERTY_NAME,
                 false,
-                new DirectionFinder(),
-                connectionTasksDirections);
+                new ConnectionTaskDirectionFinder(),
+                Arrays.stream(ConnectionTaskDirectionContainer.values())
+                        .map(ConnectionTaskDirectionWrapper::new)
+                        .collect(Collectors.toList())
+                        .toArray(new ConnectionTaskDirectionWrapper[ConnectionTaskDirectionContainer.values().length]));
     }
 
     @Override
@@ -121,49 +126,62 @@ public class ConnectionDirectionSearchableProperty extends AbstractSearchableDev
         // no refresh
     }
 
-    public static final class DirectionFinder implements CanFindByStringKey<ConnectionTaskDirection> {
+    private enum ConnectionTaskDirectionContainer {
+        INBOUND(PropertyTranslationKeys.CONNECTION_TASK_DIRECTION_INBOUND, ConnectionTaskImpl.INBOUND_DISCRIMINATOR),
+        OUTBOUND(PropertyTranslationKeys.CONNECTION_TASK_DIRECTION_OUTBOUND, ConnectionTaskImpl.SCHEDULED_DISCRIMINATOR),
+        ;
 
+        private TranslationKey translationKey;
+        private String code;
 
-        public DirectionFinder() {
+        ConnectionTaskDirectionContainer(TranslationKey translationKey, String code) {
+            this.translationKey = translationKey;
+            this.code = code;
         }
 
-        @Override
-        public Optional<ConnectionTaskDirection> find(String key) {
-            if (key != null) {
-                int position = Integer.parseInt(key);
-                if (position >=0 && position < ConnectionTask.Type.values().length){
-                    return Optional.of(new ConnectionTaskDirection(ConnectionTask.Type.values()[position]));
-                }
-            }
-            return Optional.empty();
+        public TranslationKey getTranslationKey() {
+            return this.translationKey;
         }
 
-        @Override
-        public Class<ConnectionTaskDirection> valueDomain() {
-            return ConnectionTaskDirection.class;
+        public String getCode() {
+            return this.code;
         }
     }
 
-    static final class ConnectionTaskDirection extends HasIdAndName {
-
-        private long id;
-        private String displayValue;
-
-        public ConnectionTaskDirection(ConnectionTask.Type type) {
-            id = type.ordinal();
-            displayValue = type.name();
-
+    static final class ConnectionTaskDirectionFinder implements CanFindByStringKey<ConnectionTaskDirectionWrapper> {
+        @Override
+        public Optional<ConnectionTaskDirectionWrapper> find(String key) {
+            return Arrays.stream(ConnectionTaskDirectionContainer.values())
+                    .filter(dc -> dc.code.equals(key))
+                    .map(ConnectionTaskDirectionWrapper::new)
+                    .findFirst();
         }
 
+        @Override
+        public Class<ConnectionTaskDirectionWrapper> valueDomain() {
+            return ConnectionTaskDirectionWrapper.class;
+        }
+    }
+
+    static final class ConnectionTaskDirectionWrapper extends HasIdAndName {
+        private ConnectionTaskDirectionContainer container;
+
+        public ConnectionTaskDirectionWrapper(ConnectionTaskDirectionContainer container) {
+            this.container = container;
+        }
 
         @Override
-        public Long getId() {
-            return this.id;
+        public String getId() {
+            return this.container.getCode();
         }
 
         @Override
         public String getName() {
-            return this.displayValue;
+            return this.container.getTranslationKey().getDefaultFormat();
+        }
+
+        public ConnectionTaskDirectionContainer getContainer() {
+            return container;
         }
     }
 }

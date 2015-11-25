@@ -50,10 +50,15 @@ public abstract class AbstractReadingTypeTimeOfUseSearchableProperty<T> extends 
         return value.toString();
     }
 
+    @Override
+    public final void appendJoinClauses(JoinClauseBuilder builder) {
+        // nothing to join to device table
+    }
+
     /**
-     * @return a table alias for MDS_MEASUREMENTTYPE which was defined in {@link #appendJoinClauses(JoinClauseBuilder)}
+     * @return join clause for MDS_MEASUREMENTTYPE
      */
-    public abstract String getSpecTableAlias();
+    public abstract String getMeasurementTypeJoinSql();
 
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
@@ -62,13 +67,18 @@ public abstract class AbstractReadingTypeTimeOfUseSearchableProperty<T> extends 
         }
         Contains contains = (Contains) condition;
         SqlBuilder sqlBuilder = new SqlBuilder();
+        sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE + ".DEVICECONFIGID");
         if (contains.getOperator() == ListOperator.NOT_IN) {
-            sqlBuilder.append(" NOT ");
+            sqlBuilder.append(" NOT");
         }
-        sqlBuilder.openBracket();
+        sqlBuilder.append(" IN (");
+        sqlBuilder.append("select DEVICECONFIGID " +
+                "from ");
+        sqlBuilder.append(getMeasurementTypeJoinSql());
+        sqlBuilder.append(" where ");
         sqlBuilder.append(contains.getCollection().stream()
                 .map(Long.class::cast)
-                .map(tou -> " " + getSpecTableAlias() + ".readingtype like '%.%.%.%.%.%.%.%.%.%.%." + tou + ".%.%.%.%.%.%' ")
+                .map(tou -> "MDS_MEASUREMENTTYPE.readingtype like '%.%.%.%.%.%.%.%.%.%.%." + tou + ".%.%.%.%.%.%' ")
                 .collect(Collectors.joining(" OR ")));
         sqlBuilder.closeBracket();
         return sqlBuilder;

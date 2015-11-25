@@ -7,6 +7,7 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -48,7 +49,6 @@ public class ConnectionMethodSearchableProperty extends AbstractSearchableDevice
 
     @Override
     public void appendJoinClauses(JoinClauseBuilder builder) {
-        builder.addConnectionTask();
     }
 
     ConnectionMethodSearchableProperty init(DeviceSearchDomain domain) {
@@ -58,7 +58,14 @@ public class ConnectionMethodSearchableProperty extends AbstractSearchableDevice
 
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
-        return this.toSqlFragment("ct.CONNECTIONTYPEPLUGGABLECLASS", condition, now);
+        SqlBuilder builder = new SqlBuilder();
+        builder.append(JoinClauseBuilder.Aliases.DEVICE + ".id IN (");
+        builder.append("select device " +
+                "from DDC_CONNECTIONTASK " +
+                "where ");
+        builder.add(this.toSqlFragment("CONNECTIONTYPEPLUGGABLECLASS", condition, now));
+        builder.closeBracket();
+        return builder;
     }
 
     @Override
