@@ -24,8 +24,8 @@ import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
+import com.energyict.protocols.naming.SecurityPropertySpecName;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -144,7 +144,7 @@ public class CreateG3GatewayCommand {
             .withSerialNumber(serialNumber)
             .withDeviceConfiguration(configuration)
             .withYearOfCertification(2015)
-                .get();
+            .get();
         addConnectionTasksToDevice(device);
         addSecurityPropertiesToDevice(device);
         addComTaskToDevice(device, ComTaskTpl.TOPOLOGY_UPDATE);
@@ -162,8 +162,8 @@ public class CreateG3GatewayCommand {
             .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
             .setNextExecutionSpecsFrom(null)
             .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-            .setProperty("host", "10.0.0.135")
-            .setProperty("portNumber", new BigDecimal(4059))
+            .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.toString(), "10.0.0.135")
+            .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.toString(), new BigDecimal(4059))
             .setSimultaneousConnectionsAllowed(false)
             .add();
         connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);

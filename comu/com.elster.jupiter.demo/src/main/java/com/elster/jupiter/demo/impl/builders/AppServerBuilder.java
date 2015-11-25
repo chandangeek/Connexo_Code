@@ -17,8 +17,8 @@ import java.util.Optional;
  */
 public class AppServerBuilder extends NamedBuilder<AppServer, AppServerBuilder> {
 
-    private final static String DEFAULT_EXPORTPATH = "D:\\Data-Export";
-    private final static String DEFAULT_IMPORTPATH = "D:\\Data-Import";
+    private static final String DEFAULT_EXPORTPATH = "D:\\Data-Export";
+    private static final String DEFAULT_IMPORTPATH = "D:\\Data-Import";
 
     private final AppService appService;
     private final CronExpressionParser cronExpressionParser;

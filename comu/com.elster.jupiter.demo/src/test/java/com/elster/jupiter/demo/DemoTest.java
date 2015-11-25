@@ -167,6 +167,8 @@ import com.energyict.mdc.tasks.impl.TasksModule;
 import com.energyict.protocols.impl.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.protocols.mdc.inbound.dlms.DlmsSerialNumberDiscover;
 import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
+import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
+import com.energyict.protocols.naming.SecurityPropertySpecName;
 
 import com.energyict.protocolimpl.elster.a3.AlphaA3;
 import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
@@ -471,15 +473,15 @@ public class DemoTest {
         assertThat(scheduledConnectionTask.isSimultaneousConnectionsAllowed()).isFalse();
         assertThat(scheduledConnectionTask.getConnectionStrategy()).isEqualTo(ConnectionStrategy.AS_SOON_AS_POSSIBLE);
         try (TransactionContext ctx = injector.getInstance(TransactionService.class).getContext()) {
-            assertThat(scheduledConnectionTask.getProperty("host").getValue()).isEqualTo("10.0.0.135");
-            assertThat(scheduledConnectionTask.getProperty("portNumber").getValue()).isEqualTo(new BigDecimal(4059));
+            assertThat(scheduledConnectionTask.getProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.toString()).getValue()).isEqualTo("10.0.0.135");
+            assertThat(scheduledConnectionTask.getProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.toString()).getValue()).isEqualTo(new BigDecimal(4059));
             assertThat(gateway.getSecurityProperties(securityPropertySet)).hasSize(3);
             for (SecurityProperty securityProperty : gateway.getSecurityProperties(securityPropertySet)) {
-                if ("ClientMacAddress".equals(securityProperty.getName())) {
+                if (SecurityPropertySpecName.CLIENT_MAC_ADDRESS.toString().equals(securityProperty.getName())) {
                     assertThat(securityProperty.getValue()).isEqualTo(BigDecimal.ONE);
-                } else if ("AuthenticationKey".equals(securityProperty.getName())) {
+                } else if (SecurityPropertySpecName.AUTHENTICATION_KEY.toString().equals(securityProperty.getName())) {
                     assertThat(securityProperty.getValue().toString()).isEqualTo("00112233445566778899AABBCCDDEEFF");
-                } else if ("EncryptionKey".equals(securityProperty.getName())) {
+                } else if (SecurityPropertySpecName.ENCRYPTION_KEY.toString().equals(securityProperty.getName())) {
                     assertThat(securityProperty.getValue().toString()).isEqualTo("11223344556677889900AABBCCDDEEFF");
                 }
             }

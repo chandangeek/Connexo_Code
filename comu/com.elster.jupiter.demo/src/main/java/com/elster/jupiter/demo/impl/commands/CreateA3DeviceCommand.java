@@ -35,8 +35,8 @@ import com.energyict.mdc.masterdata.RegisterType;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.tasks.ComTask;
-
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
+import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
+import com.energyict.protocols.naming.SecurityPropertySpecName;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -231,9 +231,9 @@ public class CreateA3DeviceCommand {
                 .setConnectionStrategy(ConnectionStrategy.AS_SOON_AS_POSSIBLE)
                 .setNextExecutionSpecsFrom(null)
                 .setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)
-                .setProperty("host", "166.150.217.174")
-                .setProperty("portNumber", new BigDecimal(1153))
-                .setProperty("connectionTimeout", TimeDuration.minutes(1))
+                .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.toString(), "166.150.217.174")
+                .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.toString(), new BigDecimal(1153))
+                .setProperty(ConnectionTypePropertySpecName.OUTBOUND_IP_CONNECTION_TIMEOUT.toString(), TimeDuration.minutes(1))
                 .setSimultaneousConnectionsAllowed(false)
                 .add();
         connectionTaskService.setDefaultConnectionTask(deviceConnectionTask);
