@@ -1,16 +1,14 @@
 package com.elster.jupiter.tasks.rest.impl;
 
-import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.QueryParameters;
-import com.elster.jupiter.rest.util.RestQuery;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.RecurrentTaskFilterSpecification;
 import com.elster.jupiter.tasks.TaskFinder;
 import com.elster.jupiter.tasks.TaskService;
+import com.elster.jupiter.tasks.security.Privileges;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
@@ -55,6 +53,7 @@ public class TaskResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
     public TaskInfos getDataExportTasks(@Context UriInfo uriInfo, @Context SecurityContext securityContext) {
         QueryParameters params = QueryParameters.wrap(uriInfo.getQueryParameters());
 
@@ -84,6 +83,7 @@ public class TaskResource {
     @GET
     @Path("/applications")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
     public List<ApplicationInfo> getApplications(@Context UriInfo uriInfo) {
         List<RecurrentTask> tasks = taskService.getRecurrentTasks();
         List<String> applicationNames = new ArrayList<String>();
@@ -101,6 +101,7 @@ public class TaskResource {
 
     @GET
     @Path("/queues")
+    @RolesAllowed({Privileges.Constants.VIEW_TASK_OVERVIEW})
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public List<QueueInfo> getQueues(@Context UriInfo uriInfo) {
         List<RecurrentTask> tasks = taskService.getRecurrentTasks();
