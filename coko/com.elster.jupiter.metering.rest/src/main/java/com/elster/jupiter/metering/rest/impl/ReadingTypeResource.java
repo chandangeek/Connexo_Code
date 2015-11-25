@@ -59,7 +59,7 @@ public class ReadingTypeResource {
                 .map(ReadingTypeInfo::new)
                 .collect(Collectors.toList());
 
-        return PagedInfoList.fromCompleteList("readingTypes", readingTypeInfos, queryParameters);
+        return PagedInfoList.fromPagedList("readingTypes", readingTypeInfos, queryParameters);
     }
     
     @GET

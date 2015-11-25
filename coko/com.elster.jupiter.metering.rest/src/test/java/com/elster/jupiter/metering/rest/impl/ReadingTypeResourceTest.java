@@ -91,8 +91,8 @@ public class ReadingTypeResourceTest extends MeteringApplicationJerseyTest{
     public void testGetCodes() throws Exception{
         String response = target("/readingtypes/codes/macroPeriod").request().get(String.class);
         JsonModel jsonModel = JsonModel.model(response);
-        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(7);
-        assertThat(jsonModel.<List<?>>get("$.macroPeriodCodes")).hasSize(7);
+        assertThat(jsonModel.<Integer>get("$.total")).isEqualTo(Arrays.asList(MacroPeriod.values()).size()-1);
+        assertThat(jsonModel.<List<?>>get("$.macroPeriodCodes")).hasSize(Arrays.asList(MacroPeriod.values()).size()-1);
     }
 
     @Test
