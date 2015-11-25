@@ -82,13 +82,13 @@ public class UsagePointSearchDomain implements SearchDomain {
     }
 
     @Override
-    public List<String> targetApplications() {
-        return Arrays.asList("COKO", "COIN");
+    public boolean supports(Class aClass) {
+        return UsagePoint.class.equals(aClass);
     }
 
     @Override
-    public boolean supports(Class aClass) {
-        return UsagePoint.class.equals(aClass);
+    public List<String> targetApplications() {
+        return Arrays.asList("COKO", "COIN", "COMU");
     }
 
     @Override
