@@ -5,7 +5,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import java.util.logging.Level;
 
 public enum MessageSeeds implements MessageSeed {
-    INCOMPLETE_MAIL_CONFIG(1, "mail.incomplete.config", "Mail configuration is incomplete, these properties are missed: {0}"),
+    INCOMPLETE_MAIL_CONFIG(1, "mail.incomplete.config", "Mail configuration is incomplete, these properties are missing: {0}"),
     ;
 
     private  int errorCode;
