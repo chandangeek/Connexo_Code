@@ -125,7 +125,6 @@ public class LoadProfileTypeResourceTest extends MasterDataApplicationJerseyTest
         assertThat(model.<Number>get("$.registerTypes[0].id")).isEqualTo(1);
         assertThat(model.<String>get("$.registerTypes[0].obisCode")).isEqualTo("0.0.0.0.0.0");
         assertThat(model.<Boolean>get("$registerTypes[0].isLinkedByDeviceType")).isFalse();
-        assertThat(model.<String>get("$registerTypes[0].unitOfMeasure")).isEqualTo("kWh");
         assertThat(model.<String>get("$registerTypes[0].readingType.aliasName")).isEqualTo("Bulk A+");
     }
 

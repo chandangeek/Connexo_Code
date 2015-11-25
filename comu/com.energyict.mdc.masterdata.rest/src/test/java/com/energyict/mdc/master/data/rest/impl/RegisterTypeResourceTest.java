@@ -91,12 +91,11 @@ public class RegisterTypeResourceTest extends MasterDataApplicationJerseyTest {
         when(deviceConfigurationService.findActiveRegisterSpecsByDeviceTypeAndRegisterType(any(DeviceType.class), any(RegisterType.class))).thenReturn(registerSpecs);
 
         Map<String, Object> map = target("/registertypes/13").request().get(Map.class);
-        assertThat(map).hasSize(6)
+        assertThat(map).hasSize(5)
             .containsKey("id")
             .containsKey("obisCode")
             .containsKey("isLinkedByDeviceType")
-            .containsKey("readingType")
-            .containsKey("unitOfMeasure");
+            .containsKey("readingType");
         assertThat((Map)map.get("readingType")).hasSize(22)
             .containsKey("mRID")
             .containsKey("aliasName")
