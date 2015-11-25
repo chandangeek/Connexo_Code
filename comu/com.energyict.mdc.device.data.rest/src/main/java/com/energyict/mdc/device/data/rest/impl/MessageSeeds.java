@@ -68,7 +68,7 @@ public enum MessageSeeds implements MessageSeed {
     AT_LEAST_ONE_SEARCH_CRITERIA(249, "AtLeastOneCriteria" , "At least one search criterion has to be provided"),
     NO_SUCH_REQUIRED_PROPERTY(250, "NoSuchProperty", "No custom property required value"),
     SEARCHABLE_PROPERTY_INVALID_VALUE(251, "SearchablePropertyInvalidValue", "Invalid value"),
-    OVERLAP_CUSTOMPROPRTTYSET(252, "overlapCPSvalue", "Custom property set overlap with another sets in timeline"),
+    OVERLAP_CUSTOMPROPRTTYSET(252, "overlapCPSvalue", "Custom property set conflicting with another sets in timeline"),
     GAP_CUSTOMPROPRTTYSET(253, "gapCPSvalue", "Custom property set gap with another sets in timeline"),
     CUSTOMPROPRTTYSET_TIMESLICED_INSERT(254, "edit.historical.values.insert", "Insert"),
     INTERVAL_INVALID(255, "wrongInterval", "Invalid interval [{0},{1})"),
