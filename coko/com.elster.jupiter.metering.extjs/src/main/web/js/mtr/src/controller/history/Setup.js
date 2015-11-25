@@ -11,7 +11,7 @@ Ext.define('Mtr.controller.history.Setup', {
             disabled: true,
             items: {
                 readingtypes: {
-                    title: Uni.I18n.translate('general.readingTypes', 'MTR', 'Reading types'),
+                    title: Uni.I18n.translate('readingtypes.title', 'MTR', 'Reading types'),
                     route: 'readingtypes',
                     controller: 'Mtr.readingtypes.controller.ReadingTypes',
                     privileges : Mtr.privileges.ReadingTypes.view,
@@ -25,7 +25,7 @@ Ext.define('Mtr.controller.history.Setup', {
                             action: 'showOverview'
                         },
                         bulk: {
-                            title: Uni.I18n.translate('general.readingTypes.bulk', 'MTR', 'Bulk action'),
+                            title: Uni.I18n.translate('general.bulk', 'MTR', 'Bulk action'),
                             route: 'bulk',
                             controller: 'Mtr.readingtypes.controller.BulkAction',
                             privileges : Mtr.privileges.ReadingTypes.admin,
