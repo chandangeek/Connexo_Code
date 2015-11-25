@@ -173,7 +173,7 @@ public class EstimationTaskImpl implements IEstimationTask {
     @Override
     public void updateLastRun(Instant triggerTime) {
         lastRun = triggerTime;
-        save();
+        dataModel.mapper(IEstimationTask.class).update(this, "lastRun");
     }
 
     @Override
@@ -218,7 +218,7 @@ public class EstimationTaskImpl implements IEstimationTask {
 
     @Override
     public Optional<ScheduleExpression> getScheduleExpression(Instant at) {
-        return recurrentTask.get().getHistory().getVersionAt(at).map(RecurrentTask::getScheduleExpression);
+        return recurrentTask.get().getVersionAt(at).map(RecurrentTask::getScheduleExpression);
     }
 
     @Override
