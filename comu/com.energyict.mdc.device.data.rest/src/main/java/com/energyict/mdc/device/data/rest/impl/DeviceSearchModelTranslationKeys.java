@@ -17,7 +17,7 @@ public enum DeviceSearchModelTranslationKeys implements TranslationKey {
     NBROFDATACOLLECTIONISSUES("nbrOfDataCollectionIssues", "Number of data collection issues"),
     OPENDATAVALIDATIONISSUE("openDataValidationIssue", "Open data validation issue"),
     HASREGISTERS("hasRegisters", "Has registers"),
-    HASLOGBOOKS("hasLogBooks", "Has log books"),
+    HASLOGBOOKS("hasLogBooks", "Has logbooks"),
     HASLOADPROFILES("hasLoadProfiles", "Has load profiles"),
     ISDIRECTLYADDRESSED("isDirectlyAddressed", "Is directly addressed"),
     ISGATEWAY("isGateway", "Is gateway"),

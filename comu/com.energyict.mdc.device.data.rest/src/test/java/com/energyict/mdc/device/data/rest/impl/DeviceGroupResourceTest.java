@@ -4,6 +4,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.QueryEndDeviceGroup;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.rest.util.RestQuery;
@@ -131,6 +132,7 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
     
     @Test
     public void testGetMembersOfStaticDeviceGroup() {
+        EnumeratedEndDeviceGroup endDeviceGroup = mock(EnumeratedEndDeviceGroup.class);
         when(meteringGroupService.findEndDeviceGroup(111)).thenReturn(Optional.of(endDeviceGroup));
         EndDevice endDevice = mock(EndDevice.class);
         when(endDevice.getAmrId()).thenReturn("1");

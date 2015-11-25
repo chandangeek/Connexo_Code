@@ -61,9 +61,10 @@ public class ResourceHelper {
     private final EstimationService estimationService;
     private final MdcPropertyUtils mdcPropertyUtils;
     private final CustomPropertySetService customPropertySetService;
+    private final Clock clock;
 
     @Inject
-    public ResourceHelper(DeviceService deviceService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory, DeviceConfigurationService deviceConfigurationService, LoadProfileService loadProfileService, CommunicationTaskService communicationTaskService, MeteringGroupsService meteringGroupsService, ConnectionTaskService connectionTaskService, DeviceMessageService deviceMessageService, ProtocolPluggableService protocolPluggableService, DataCollectionKpiService dataCollectionKpiService, EstimationService estimationService, MdcPropertyUtils mdcPropertyUtils, CustomPropertySetService customPropertySetService) {
+    public ResourceHelper(DeviceService deviceService, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory, DeviceConfigurationService deviceConfigurationService, LoadProfileService loadProfileService, CommunicationTaskService communicationTaskService, MeteringGroupsService meteringGroupsService, ConnectionTaskService connectionTaskService, DeviceMessageService deviceMessageService, ProtocolPluggableService protocolPluggableService, DataCollectionKpiService dataCollectionKpiService, EstimationService estimationService, MdcPropertyUtils mdcPropertyUtils, CustomPropertySetService customPropertySetService, Clock clock) {
         super();
         this.deviceService = deviceService;
         this.exceptionFactory = exceptionFactory;
@@ -79,6 +80,7 @@ public class ResourceHelper {
         this.estimationService = estimationService;
         this.mdcPropertyUtils = mdcPropertyUtils;
         this.customPropertySetService = customPropertySetService;
+        this.clock = clock;
     }
 
     public DeviceConfiguration findDeviceConfigurationByIdOrThrowException(long id) {
@@ -515,6 +517,21 @@ public class ResourceHelper {
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
                 .collect(Collectors.toList());
         registeredCustomPropertySets.forEach(registeredCustomPropertySet -> customPropertySetInfos.add(
+                !registeredCustomPropertySet.getCustomPropertySet().isVersioned() ?
+                        new CustomPropertySetInfo(registeredCustomPropertySet, mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
+                                registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs(),
+                                getCustomProperties(customPropertySetService.getValuesFor(registeredCustomPropertySet.getCustomPropertySet(), device))
+                        ),
+                                device.getId(), device.getVersion()
+                        ) :
+                        new CustomPropertySetInfo(registeredCustomPropertySet, mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
+                                registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs(),
+                                getCustomProperties(customPropertySetService.getValuesFor(registeredCustomPropertySet.getCustomPropertySet(), device, this.clock.instant()))
+                        ),
+                                device.getId(), device.getVersion(),
+                                customPropertySetService.getValuesFor(registeredCustomPropertySet.getCustomPropertySet(), device, this.clock.instant()).getEffectiveRange()
+                        )
+        ));
                 new CustomPropertySetInfo(
                         registeredCustomPropertySet,
                         mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
@@ -528,18 +545,268 @@ public class ResourceHelper {
         return customPropertySetInfos;
     }
 
+    public List<CustomPropertySetInfo> getDeviceCustomPropertySetInfos(Device device, Instant instant) {
+        List<CustomPropertySetInfo> customPropertySetInfos = new ArrayList<>();
+        List<RegisteredCustomPropertySet> registeredCustomPropertySets = device.getDeviceType().getDeviceTypeCustomPropertySetUsage()
+                .stream()
+                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                .filter(cps -> cps.getCustomPropertySet().isVersioned())
+                .collect(Collectors.toList());
+        registeredCustomPropertySets.forEach(registeredCustomPropertySet -> customPropertySetInfos.add(
+                new CustomPropertySetInfo(registeredCustomPropertySet, mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
+                        registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs(),
+                        getCustomProperties(customPropertySetService.getValuesFor(registeredCustomPropertySet.getCustomPropertySet(), device, instant))
+                ),
+                        device.getId(), device.getVersion(),
+                        customPropertySetService.getValuesFor(registeredCustomPropertySet.getCustomPropertySet(), device, instant).getEffectiveRange()
+                )
+        ));
+        return customPropertySetInfos;
+    }
+
+    public List<CustomPropertySetInfo> getVersionedCustomPropertySetHistoryInfos(Device device, long cpsId) {
+        return getVersionedCustomPropertySetHistoryInfos(getRegisteredCustomPropertySet(device, cpsId), device, device.getId(), device.getVersion(), cpsId);
+    }
+
+    public List<CustomPropertySetInfo> getVersionedCustomPropertySetHistoryInfos(Channel channel, long cpsId) {
+        return getVersionedCustomPropertySetHistoryInfos(getRegisteredCustomPropertySet(channel, cpsId), channel.getChannelSpec(), channel.getChannelSpec().getId(), channel.getChannelSpec().getVersion(), cpsId);
+    }
+
+    public List<CustomPropertySetInfo> getVersionedCustomPropertySetHistoryInfos(Register register, long cpsId) {
+        return getVersionedCustomPropertySetHistoryInfos(getRegisteredCustomPropertySet(register, cpsId), register.getRegisterSpec(), register.getRegisterSpec().getId(), register.getRegisterSpec().getVersion(), cpsId);
+    }
+
+    public <D> List<CustomPropertySetInfo> getVersionedCustomPropertySetHistoryInfos(RegisteredCustomPropertySet registeredCustomPropertySet, D businessObject, long businessObjectId, long businessObjectVersion, long cpsId) {
+        return Stream.of(registeredCustomPropertySet)
+                .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                .filter(cps -> cps.getCustomPropertySet().isVersioned())
+                .filter(cps -> cps.getId() == cpsId)
+                .flatMap(cps -> getHistoryInfo(cps, businessObject, businessObjectId, businessObjectVersion))
+                .collect(Collectors.toList());
+    }
+
+    private <D> Stream<CustomPropertySetInfo> getHistoryInfo(RegisteredCustomPropertySet registeredCustomPropertySet, D businessObject, long businessObjectId, long businessObjectVersion) {
+        List<CustomPropertySetValues> values = customPropertySetService.getAllVersionedValuesFor(registeredCustomPropertySet.getCustomPropertySet(), businessObject);
+        return values.stream()
+                .map(v -> new CustomPropertySetInfo(
+                        registeredCustomPropertySet,
+                        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
+                                registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs(),
+                                getCustomProperties(v)),
+                        businessObjectId,
+                        businessObjectVersion,
+                        v.getEffectiveRange()));
+    }
+
+    public void addDeviceCustomPropertySetVersioned(Device device, long cpsId, CustomPropertySetInfo info, boolean dontCheckOverlaps) {
+        Range<Instant> newRange = getTimeRange(info.startTime, info.endTime);
+        Instant effectiveTimestamp = newRange.hasLowerBound() ? newRange.lowerEndpoint() : Instant.EPOCH;
+        RegisteredCustomPropertySet registeredCustomPropertySet = getRegisteredCustomPropertySet(device, cpsId);
+        if (!registeredCustomPropertySet.isEditableByCurrentUser()) {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId);
+        }
+        if (dontCheckOverlaps) {
+            checkGaps(registeredCustomPropertySet, device, device.getId(), device.getVersion(), cpsId, info);
+        } else {
+            checkOverlaps(registeredCustomPropertySet, device, device.getId(), device.getVersion(), cpsId, info);
+        }
+        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), device, getCustomPropertySetValues(info), newRange);
+        device.save();
+    }
+
     public void setDeviceCustomPropertySetInfo(Device device, long cpsId, CustomPropertySetInfo info) {
-        RegisteredCustomPropertySet registeredCustomPropertySet = device.getDeviceType().getDeviceTypeCustomPropertySetUsage().stream()
-                .filter(f -> f.getId() == cpsId && f.isEditableByCurrentUser())
-                .findFirst()
-                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId));
+        RegisteredCustomPropertySet registeredCustomPropertySet = getRegisteredCustomPropertySet(device, cpsId);
+        if (!registeredCustomPropertySet.isEditableByCurrentUser()) {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId);
+        }
         customPropertySetService.setValuesFor(registeredCustomPropertySet.getCustomPropertySet(), device, getCustomPropertySetValues(info));
         device.save();
     }
 
-    public CustomPropertySetInfo getRegisterCustomPropertySetInfo(Register register) {
+    public void setDeviceCustomPropertySetVersioned(Device device, long cpsId, CustomPropertySetInfo info, Instant effectiveTimestamp, boolean dontCheckOverlaps) {
+        RegisteredCustomPropertySet registeredCustomPropertySet = getRegisteredCustomPropertySet(device,cpsId);
+        if (!registeredCustomPropertySet.isEditableByCurrentUser()) {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId);
+        }
+        Range<Instant> newRange = getTimeRange(info.startTime, info.endTime);
+        CustomPropertySetInfo oldCustomPropertySetValue = this.getDeviceCustomPropertySetInfos(device, effectiveTimestamp)
+                .stream().findFirst().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId));
+        if (!Objects.equals(oldCustomPropertySetValue.startTime, info.startTime) || !Objects.equals(oldCustomPropertySetValue.endTime, info.endTime)) {
+            if (dontCheckOverlaps) {
+                checkGaps(registeredCustomPropertySet, device, device.getId(), device.getVersion(), cpsId, info, effectiveTimestamp);
+            } else {
+                checkOverlaps(registeredCustomPropertySet, device, device.getId(), device.getVersion(), cpsId, info, effectiveTimestamp);
+            }
+        }
+        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), device, getCustomPropertySetValues(info), newRange, effectiveTimestamp);
+        device.save();
+    }
+
+    public void addChannelCustomPropertySetVersioned(Channel channel, long cpsId, CustomPropertySetInfo info, boolean dontCheckOverlaps) {
+        RegisteredCustomPropertySet registeredCustomPropertySet = getRegisteredCustomPropertySet(channel, cpsId);
+        if (!registeredCustomPropertySet.isEditableByCurrentUser()) {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET_FOR_CHANNEL, cpsId, channel.getId());
+        }
+        Range<Instant> newRange = getTimeRange(info.startTime, info.endTime);
+        if (dontCheckOverlaps) {
+            checkGaps(registeredCustomPropertySet, channel.getChannelSpec(), channel.getChannelSpec().getId(), channel.getChannelSpec().getVersion(), cpsId, info);
+        } else {
+            checkOverlaps(registeredCustomPropertySet, channel.getChannelSpec(), channel.getChannelSpec().getId(), channel.getChannelSpec().getVersion(), cpsId, info);
+        }
+        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), channel.getChannelSpec(), getCustomPropertySetValues(info), newRange);
+        channel.getChannelSpec().save();
+    }
+
+    public void setChannelCustomPropertySetVersioned(Channel channel, long cpsId, CustomPropertySetInfo info, Instant effectiveTimestamp, boolean dontCheckOverlaps) {
+        RegisteredCustomPropertySet registeredCustomPropertySet = getRegisteredCustomPropertySet(channel, cpsId);
+        if (!registeredCustomPropertySet.isEditableByCurrentUser()) {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET_FOR_CHANNEL, cpsId, channel.getId());
+        }
+        Range<Instant> newRange = getTimeRange(info.startTime, info.endTime);
+        CustomPropertySetInfo oldCustomPropertySetValue = this.getChannelCustomPropertySetInfo(channel, effectiveTimestamp);
+        if (!Objects.equals(oldCustomPropertySetValue.startTime, info.startTime) || !Objects.equals(oldCustomPropertySetValue.endTime, info.endTime)) {
+            if (dontCheckOverlaps) {
+                checkGaps(registeredCustomPropertySet, channel.getChannelSpec(), channel.getChannelSpec().getId(), channel.getChannelSpec().getVersion(), cpsId, info, effectiveTimestamp);
+            } else {
+                checkOverlaps(registeredCustomPropertySet, channel.getChannelSpec(), channel.getChannelSpec().getId(), channel.getChannelSpec().getVersion(), cpsId, info, effectiveTimestamp);
+            }
+        }
+        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), channel.getChannelSpec(), getCustomPropertySetValues(info), newRange, effectiveTimestamp);
+        channel.getChannelSpec().save();
+    }
+
+    public void addRegisterCustomPropertySetVersioned(Register register, long cpsId, CustomPropertySetInfo info, boolean dontCheckOverlaps) {
+        RegisteredCustomPropertySet registeredCustomPropertySet = getRegisteredCustomPropertySet(register, cpsId);
+        if (!registeredCustomPropertySet.isEditableByCurrentUser()) {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET_FOR_REGISTER, cpsId, register.getRegisterSpecId());
+        }
+        Range<Instant> newRange = getTimeRange(info.startTime, info.endTime);
+        if (dontCheckOverlaps) {
+            checkGaps(registeredCustomPropertySet, register.getRegisterSpec(), register.getRegisterSpec().getId(), register.getRegisterSpec().getVersion(), cpsId, info);
+        } else {
+            checkOverlaps(registeredCustomPropertySet, register.getRegisterSpec(), register.getRegisterSpec().getId(), register.getRegisterSpec().getVersion(), cpsId, info);
+        }
+        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), register.getRegisterSpec(), getCustomPropertySetValues(info), newRange);
+        register.getRegisterSpec().save();
+    }
+
+    public void setRegisterCustomPropertySetVersioned(Register register, long cpsId, CustomPropertySetInfo info, Instant effectiveTimestamp, boolean dontCheckOverlaps) {
+        RegisteredCustomPropertySet registeredCustomPropertySet = getRegisteredCustomPropertySet(register, cpsId);
+        if (!registeredCustomPropertySet.isEditableByCurrentUser()) {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET_FOR_REGISTER, cpsId, register.getRegisterSpecId());
+        }
+        Range<Instant> newRange = getTimeRange(info.startTime, info.endTime);
+        CustomPropertySetInfo oldCustomPropertySetValue = this.getRegisterCustomPropertySetInfo(register, effectiveTimestamp);
+        if (!Objects.equals(oldCustomPropertySetValue.startTime, info.startTime) || !Objects.equals(oldCustomPropertySetValue.endTime, info.endTime)) {
+            if (dontCheckOverlaps) {
+                checkGaps(registeredCustomPropertySet, register.getRegisterSpec(), register.getRegisterSpec().getId(), register.getRegisterSpec().getVersion(), cpsId, info, effectiveTimestamp);
+            } else {
+                checkOverlaps(registeredCustomPropertySet, register.getRegisterSpec(), register.getRegisterSpec().getId(), register.getRegisterSpec().getVersion(), cpsId, info, effectiveTimestamp);
+            }
+        }
+        customPropertySetService.setValuesVersionFor(registeredCustomPropertySet.getCustomPropertySet(), register.getRegisterSpec(), getCustomPropertySetValues(info), newRange, effectiveTimestamp);
+        register.getRegisterSpec().save();
+    }
+
+    public <D> void checkOverlaps(RegisteredCustomPropertySet registeredCustomPropertySet, D businessObject, long businessObjectId, long businessObjectVersion, long cpsId, CustomPropertySetInfo info) {
+        List<CustomPropertySetIntervalConflictInfo> conflicts = getOverlaps(registeredCustomPropertySet, businessObject, businessObjectId, businessObjectVersion, cpsId, getTimeRange(info.startTime, info.endTime));
+        if (!conflicts.isEmpty()) {
+                throw exceptionFactory.newException(MessageSeeds.OVERLAP_CUSTOMPROPRTTYSET);
+        }
+    }
+
+    public <D> void checkOverlaps(RegisteredCustomPropertySet registeredCustomPropertySet, D businessObject, long businessObjectId, long businessObjectVersion, long cpsId, CustomPropertySetInfo info, Instant effectiveTimestamp) {
+        List<CustomPropertySetIntervalConflictInfo> conflicts = getOverlaps(registeredCustomPropertySet, businessObject, businessObjectId, businessObjectVersion, cpsId, getTimeRange(info.startTime, info.endTime), effectiveTimestamp);
+        if (!conflicts.isEmpty()) {
+            throw exceptionFactory.newException(MessageSeeds.OVERLAP_CUSTOMPROPRTTYSET);
+        }
+    }
+
+    public <D> void checkGaps(RegisteredCustomPropertySet registeredCustomPropertySet, D businessObject, long businessObjectId, long businessObjectVersion, long cpsId, CustomPropertySetInfo info) {
+        List<CustomPropertySetIntervalConflictInfo> conflicts = getOverlaps(registeredCustomPropertySet, businessObject, businessObjectId, businessObjectVersion, cpsId, getTimeRange(info.startTime, info.endTime));
+        if (!conflicts.isEmpty() && conflicts.stream().anyMatch(e -> e.conflictType.equals(ValuesRangeConflictType.RANGE_GAP_AFTER.name()) || e.conflictType.equals(ValuesRangeConflictType.RANGE_GAP_BEFORE.name()))) {
+            throw exceptionFactory.newException(MessageSeeds.GAP_CUSTOMPROPRTTYSET);
+        }
+    }
+
+    public <D> void checkGaps(RegisteredCustomPropertySet registeredCustomPropertySet, D businessObject, long businessObjectId, long businessObjectVersion, long cpsId, CustomPropertySetInfo info, Instant effectiveTimestamp) {
+        List<CustomPropertySetIntervalConflictInfo> conflicts = getOverlaps(registeredCustomPropertySet, businessObject, businessObjectId, businessObjectVersion, cpsId, getTimeRange(info.startTime, info.endTime), effectiveTimestamp);
+        if (!conflicts.isEmpty() && conflicts.stream().anyMatch(e -> e.conflictType.equals(ValuesRangeConflictType.RANGE_GAP_AFTER.name()) || e.conflictType.equals(ValuesRangeConflictType.RANGE_GAP_BEFORE.name()))) {            throw exceptionFactory.newException(MessageSeeds.GAP_CUSTOMPROPRTTYSET);
+        }
+    }
+
+    public List<CustomPropertySetIntervalConflictInfo> getOverlapsWhenUpdate(Device device, long cpsId, long startTime, long endTime, Instant effectiveTimestamp) {
+        Range<Instant> range = getTimeRange(startTime, endTime);
+        return getOverlaps(getRegisteredCustomPropertySet(device, cpsId), device, device.getId(), device.getVersion(), cpsId, range, effectiveTimestamp);
+    }
+
+    public List<CustomPropertySetIntervalConflictInfo> getOverlapsWhenCreate(Device device, long cpsId, long startTime, long endTime) {
+        Range<Instant> range = getTimeRange(startTime, endTime);
+        return getOverlaps(getRegisteredCustomPropertySet(device, cpsId), device, device.getId(), device.getVersion(), cpsId, range);
+    }
+
+    public List<CustomPropertySetIntervalConflictInfo> getOverlapsWhenUpdate(Channel channel, long cpsId, long startTime, long endTime, Instant effectiveTimestamp) {
+        Range<Instant> range = getTimeRange(startTime, endTime);
+        return getOverlaps(getRegisteredCustomPropertySet(channel, cpsId), channel.getChannelSpec(), channel.getChannelSpec().getId(), channel.getChannelSpec().getVersion(), cpsId, range, effectiveTimestamp);
+    }
+
+    public List<CustomPropertySetIntervalConflictInfo> getOverlapsWhenCreate(Channel channel, long cpsId, long startTime, long endTime) {
+        Range<Instant> range = getTimeRange(startTime, endTime);
+        return getOverlaps(getRegisteredCustomPropertySet(channel, cpsId), channel.getChannelSpec(), channel.getChannelSpec().getId(), channel.getChannelSpec().getVersion(), cpsId, range);
+    }
+
+    public List<CustomPropertySetIntervalConflictInfo> getOverlapsWhenUpdate(Register register, long cpsId, long startTime, long endTime, Instant effectiveTimestamp) {
+        Range<Instant> range = getTimeRange(startTime, endTime);
+        return getOverlaps(getRegisteredCustomPropertySet(register, cpsId), register.getRegisterSpec(), register.getRegisterSpec().getId(), register.getRegisterSpec().getVersion(), cpsId, range, effectiveTimestamp);
+    }
+
+    public List<CustomPropertySetIntervalConflictInfo> getOverlapsWhenCreate(Register register, long cpsId, long startTime, long endTime) {
+        Range<Instant> range = getTimeRange(startTime, endTime);
+        return getOverlaps(getRegisteredCustomPropertySet(register, cpsId), register.getRegisterSpec(), register.getRegisterSpec().getId(), register.getRegisterSpec().getVersion(), cpsId, range);
+    }
+
+    public <D> List<CustomPropertySetIntervalConflictInfo> getOverlaps(RegisteredCustomPropertySet registeredCustomPropertySet, D businessObject, long businessObjectId, long businessObjectVersion, long cpsId, Range<Instant> newRange) {
+        OverlapCalculatorBuilder overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(registeredCustomPropertySet.getCustomPropertySet(), businessObject);
+        return overlapCalculatorBuilder.whenCreating(newRange).stream().map(e -> new CustomPropertySetIntervalConflictInfo(
+                new CustomPropertySetInfo(
+                        registeredCustomPropertySet,
+                        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
+                                registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs(),
+                                getCustomProperties(e.getValues())),
+                        businessObjectId,
+                        businessObjectVersion,
+                        e.getValues().getEffectiveRange()),
+                e)).collect(Collectors.toList());
+    }
+
+    public <D> List<CustomPropertySetIntervalConflictInfo> getOverlaps(RegisteredCustomPropertySet registeredCustomPropertySet, D businessObject, long businessObjectId, long businessObjectVersion, long cpsId, Range<Instant> newRange, Instant effectiveTimestamp) {
+        OverlapCalculatorBuilder overlapCalculatorBuilder = customPropertySetService.calculateOverlapsFor(registeredCustomPropertySet.getCustomPropertySet(), businessObject);
+        return overlapCalculatorBuilder.whenUpdating(effectiveTimestamp, newRange).stream().map(e -> new CustomPropertySetIntervalConflictInfo(
+                new CustomPropertySetInfo(
+                        registeredCustomPropertySet,
+                        mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
+                                registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs(),
+                                getCustomProperties(e.getValues())),
+                        businessObjectId,
+                        businessObjectVersion,
+                        e.getValues().getEffectiveRange()),
+                e)).collect(Collectors.toList());
+    }
+
+    public CustomPropertySetInfo getRegisterCustomPropertySetInfo(Register register, Instant effectiveTimestamp) {
         Optional<RegisteredCustomPropertySet> registeredCustomPropertySet = register.getDevice().getDeviceType().getRegisterTypeTypeCustomPropertySet(register.getRegisterSpec().getRegisterType());
         if (registeredCustomPropertySet.isPresent() && registeredCustomPropertySet.get().isViewableByCurrentUser()) {
+            return !registeredCustomPropertySet.get().getCustomPropertySet().isVersioned() ?
+                    new CustomPropertySetInfo(registeredCustomPropertySet.get(), mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
+                            registeredCustomPropertySet.get().getCustomPropertySet().getPropertySpecs(),
+
+                            getCustomProperties(customPropertySetService.getValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), register.getRegisterSpec()))),
+                            register.getRegisterSpec().getId(), register.getRegisterSpec().getVersion()) :
+                    new CustomPropertySetInfo(registeredCustomPropertySet.get(), mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
+                            registeredCustomPropertySet.get().getCustomPropertySet().getPropertySpecs(),
+                            getCustomProperties(customPropertySetService.getValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), register.getRegisterSpec(), effectiveTimestamp))),
+                            register.getRegisterSpec().getId(), register.getRegisterSpec().getVersion(),
+                            customPropertySetService.getValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), register.getRegisterSpec(), effectiveTimestamp).getEffectiveRange());
             return new CustomPropertySetInfo(
                     registeredCustomPropertySet.get(),
                     mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
@@ -565,19 +832,20 @@ public class ResourceHelper {
         }
     }
 
-    public CustomPropertySetInfo getChannelCustomPropertySetInfo(Channel channel) {
+    public CustomPropertySetInfo getChannelCustomPropertySetInfo(Channel channel, Instant effectiveTimestamp) {
         Optional<RegisteredCustomPropertySet> registeredCustomPropertySet = channel.getDevice().getDeviceType().getLoadProfileTypeCustomPropertySet(channel.getChannelSpec().getLoadProfileSpec().getLoadProfileType());
         if (registeredCustomPropertySet.isPresent() && registeredCustomPropertySet.get().isViewableByCurrentUser()) {
-            return new CustomPropertySetInfo(
-                    registeredCustomPropertySet.get(),
-                    mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
+            return !registeredCustomPropertySet.get().getCustomPropertySet().isVersioned() ?
+                    new CustomPropertySetInfo(registeredCustomPropertySet.get(), mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
                             registeredCustomPropertySet.get().getCustomPropertySet().getPropertySpecs(),
-                            getCustomProperties(
-                                    customPropertySetService.getUniqueValuesFor(
-                                            registeredCustomPropertySet.get().getCustomPropertySet(),
-                                            channel.getChannelSpec()))),
-                    channel.getChannelSpec().getId(),
-                    channel.getChannelSpec().getVersion());
+
+                            getCustomProperties(customPropertySetService.getValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), channel.getChannelSpec()))),
+                            channel.getChannelSpec().getId(), channel.getChannelSpec().getVersion()) :
+                    new CustomPropertySetInfo(registeredCustomPropertySet.get(), mdcPropertyUtils.convertPropertySpecsToPropertyInfos(
+                            registeredCustomPropertySet.get().getCustomPropertySet().getPropertySpecs(),
+                            getCustomProperties(customPropertySetService.getValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), channel.getChannelSpec(), effectiveTimestamp))),
+                            channel.getChannelSpec().getId(), channel.getChannelSpec().getVersion(),
+                            customPropertySetService.getValuesFor(registeredCustomPropertySet.get().getCustomPropertySet(), channel.getChannelSpec(), effectiveTimestamp).getEffectiveRange());
         } else {
             return null;
         }
@@ -612,5 +880,96 @@ public class ResourceHelper {
             }
         });
         return customPropertySetValues;
+    }
+
+    public Range<Instant> getCurrentTimeInterval(Device device, long cpsId) {
+        return getCurrentTimeInterval(getRegisteredCustomPropertySet(device, cpsId), device, device.getId(), device.getVersion(), cpsId);
+    }
+
+    public Range<Instant> getCurrentTimeInterval(Channel channel, long cpsId) {
+        return getCurrentTimeInterval(getRegisteredCustomPropertySet(channel, cpsId), channel.getChannelSpec(), channel.getChannelSpec().getId(), channel.getChannelSpec().getVersion(), cpsId);
+    }
+
+    public Range<Instant> getCurrentTimeInterval(Register register, long cpsId) {
+        return getCurrentTimeInterval(getRegisteredCustomPropertySet(register, cpsId), register.getRegisterSpec(), register.getRegisterSpec().getId(), register.getRegisterSpec().getVersion(), cpsId);
+    }
+
+    public <D> Range<Instant> getCurrentTimeInterval(RegisteredCustomPropertySet registeredCustomPropertySet, D businessObject, long businessObjectId, long businessObjectVersion, long cpsId) {
+        List<CustomPropertySetInfo> customPropertySetInfo = this.getVersionedCustomPropertySetHistoryInfos(registeredCustomPropertySet, businessObject, businessObjectId, businessObjectVersion, cpsId)
+                .stream().filter(e -> e.id == cpsId).collect(Collectors.toList());
+        Instant now = this.clock.instant();
+        Optional<CustomPropertySetInfo> curentInterval = customPropertySetInfo.stream().filter(e -> getTimeRange(e.startTime, e.endTime).contains(this.clock.instant())).findFirst();
+        if (curentInterval.isPresent()) {
+            return getTimeRange(now.toEpochMilli(), curentInterval.get().endTime);
+        }
+        OptionalLong lastEndpoint = customPropertySetInfo.stream().map(e -> getTimeRange(e.startTime, e.endTime))
+                .mapToLong(i -> i.hasUpperBound() ? i.upperEndpoint().toEpochMilli() : Long.MAX_VALUE)
+                .max();
+        if (lastEndpoint.isPresent() && lastEndpoint.getAsLong() < Long.MAX_VALUE) {
+            return getTimeRange(lastEndpoint.getAsLong(), null);
+        } else {
+            return Range.all();
+        }
+    }
+
+    private RegisteredCustomPropertySet getRegisteredCustomPropertySet(Device device, long cpsId) {
+        return device.getDeviceType().getDeviceTypeCustomPropertySetUsage().stream()
+                .filter(cps -> cps.getId()==cpsId && cps.isViewableByCurrentUser())
+                .findFirst()
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET, cpsId));
+    }
+
+    private RegisteredCustomPropertySet getRegisteredCustomPropertySet(Channel channel, long cpsId) {
+        return channel.getDevice().getDeviceType().getLoadProfileTypeCustomPropertySet(channel.getChannelSpec().getLoadProfileSpec().getLoadProfileType())
+                .filter(f -> f.getId() == cpsId && f.isViewableByCurrentUser())
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET_FOR_CHANNEL, cpsId, channel.getId()));
+    }
+
+    private RegisteredCustomPropertySet getRegisteredCustomPropertySet(Register register, long cpsId) {
+        return register.getDevice().getDeviceType().getRegisterTypeTypeCustomPropertySet(register.getRegisterSpec().getRegisterType())
+                .filter(f -> f.getId() == cpsId && f.isViewableByCurrentUser())
+                .orElseThrow(() -> exceptionFactory.newException(MessageSeeds.NO_SUCH_CUSTOMPROPERTYSET_FOR_REGISTER, cpsId, register.getRegisterSpecId()));
+    }
+
+    public Optional<IntervalErrorInfos> verifyTimeRange(Long startTime, Long endTime) {
+        long startTimeConverted = startTime != null && startTime > 0 ? startTime.longValue() : 0;
+        long endTimeConverted = endTime != null && endTime > 0 ? endTime.longValue() : Long.MAX_VALUE;
+        return endTimeConverted <= startTimeConverted ? Optional.of(new IntervalErrorInfos()) : Optional.empty();
+    }
+
+    public Range<Instant> getTimeRange(Long startTime, Long endTime) {
+        Range<Instant> range;
+        try {
+            if (startTime == null || startTime <= 0) {
+                if (endTime == null || endTime == 0) {
+                    range = Range.all();
+                } else {
+                    range = Range.lessThan(Instant.ofEpochMilli(endTime));
+                }
+            } else if (endTime == null || endTime == 0) {
+                range = Range.atLeast(Instant.ofEpochMilli(startTime));
+            } else {
+                range = Range.closedOpen(Instant.ofEpochMilli(startTime), Instant.ofEpochMilli(endTime));
+            }
+        }catch (IllegalArgumentException e){
+            throw exceptionFactory.newException(MessageSeeds.INTERVAL_INVALID, Instant.ofEpochMilli(startTime).toString(), Instant.ofEpochMilli(endTime).toString());
+        }
+        if (range.isEmpty()) {
+            throw exceptionFactory.newException(MessageSeeds.INTERVAL_EMPTY);
+        }
+        return range;
+    }
+
+    public Comparator<CustomPropertySetIntervalConflictInfo> getConflictInfosComparator() {
+        return (first, second) -> {
+            Range<Instant> firstRange = getTimeRange(first.customPropertySet.startTime, first.customPropertySet.endTime);
+            Range<Instant> secondRange = getTimeRange(second.customPropertySet.startTime, second.customPropertySet.endTime);
+            long firstLowerEndpoint = firstRange.hasLowerBound() ? firstRange.lowerEndpoint().toEpochMilli() : 0;
+            long firstUpperEndpoint = firstRange.hasUpperBound() ? firstRange.upperEndpoint().toEpochMilli() : Long.MAX_VALUE;
+            long secondLowerEndpoint = secondRange.hasLowerBound() ? secondRange.lowerEndpoint().toEpochMilli() : 0;
+            long secondUpperEndpoint = secondRange.hasUpperBound() ? secondRange.upperEndpoint().toEpochMilli() : Long.MAX_VALUE;
+
+            return Long.compare(firstLowerEndpoint, secondLowerEndpoint) != 0 ? Long.compare(firstLowerEndpoint, secondLowerEndpoint) : Long.compare(firstUpperEndpoint, secondUpperEndpoint);
+        };
     }
 }

@@ -6,6 +6,7 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.yellowfin.groups.AdHocDeviceGroup;
 import com.elster.jupiter.yellowfin.groups.YellowfinGroupsService;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
@@ -42,7 +43,7 @@ public class AdhocGroupResource {
         this.yellowfinGroupsService = yellowfinGroupsService;
     }
 
-    @POST
+    @POST @Transactional
     @Path("/adhoc")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(com.elster.jupiter.yellowfin.security.Privileges.Constants.VIEW_REPORTS)
