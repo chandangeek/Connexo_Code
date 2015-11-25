@@ -191,7 +191,7 @@ Ext.define('Tme.controller.RelativePeriods', {
             preview = page.down('relative-periods-preview'),
             previewForm = page.down('relative-periods-preview-form');
 
-        preview.setTitle(record.get('name'));
+        preview.setTitle(Ext.String.htmlEncode(record.get('name')));
         previewForm.loadRecord(record);
         preview.down('relative-periods-action-menu').record = record;
     },
