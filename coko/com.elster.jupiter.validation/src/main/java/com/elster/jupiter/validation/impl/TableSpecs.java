@@ -170,7 +170,7 @@ public enum TableSpecs {
             Column endDeviceGroupId = table.column("ENDDEVICEGROUP").number().conversion(ColumnConversion.NUMBER2LONG).add();
             Column usagePointGroupId = table.column("USAGEPOINTGROUP").number().conversion(ColumnConversion.NUMBER2LONG).add();
             Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
-            table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
+            table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").notAudited().add();
             table.addAuditColumns();
             table.foreignKey("VAL_FK_VALTASK2DEVICEGROUP")
                     .on(endDeviceGroupId)
