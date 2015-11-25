@@ -206,6 +206,10 @@
             <artifactId>soap.whiteboard.cxf</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>system</artifactId>
+        </dependency>
+        <dependency>
             <!-- todo rename to license -->
             <groupId>com.elster.jupiter</groupId>
             <artifactId>systemadmin</artifactId>
