@@ -12,12 +12,12 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
-public class ComTaskLastCommunicationSearchableProperty extends AbstractDateSearchableProperty<ComTaskLastCommunicationSearchableProperty> {
-    static final String PROPERTY_NAME = "device.comtask.last.communication";
+public class ComTaskNextCommunicationSearchableProperty extends AbstractDateSearchableProperty<ComTaskNextCommunicationSearchableProperty> {
+    static final String PROPERTY_NAME = "device.comtask.next.communication";
 
     @Inject
-    public ComTaskLastCommunicationSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
-        super(ComTaskLastCommunicationSearchableProperty.class, propertySpecService, thesaurus);
+    public ComTaskNextCommunicationSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+        super(ComTaskNextCommunicationSearchableProperty.class, propertySpecService, thesaurus);
     }
 
     @Override
@@ -30,14 +30,14 @@ public class ComTaskLastCommunicationSearchableProperty extends AbstractDateSear
         sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE + ".ID IN ");
         sqlBuilder.openBracket();
         sqlBuilder.append("select DEVICE from DDC_COMTASKEXEC where OBSOLETE_DATE IS NULL AND ");
-        sqlBuilder.add(toSqlFragment("DDC_COMTASKEXEC.LASTEXECUTIONTIMESTAMP", condition, now));
+        sqlBuilder.add(toSqlFragment("DDC_COMTASKEXEC.NEXTEXECUTIONTIMESTAMP", condition, now));
         sqlBuilder.closeBracket();
         return sqlBuilder;
     }
 
     @Override
     public String getDisplayName() {
-        return getThesaurus().getFormat(PropertyTranslationKeys.COMTASK_LAST_COMMUNICATION).format();
+        return getThesaurus().getFormat(PropertyTranslationKeys.COMTASK_NEXT_COMMUNICATION).format();
     }
 
     @Override

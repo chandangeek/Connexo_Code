@@ -51,7 +51,7 @@ public class GeneralAttributeDynamicSearchableProperty extends AbstractDynamicSe
         builder.append(JoinClauseBuilder.Aliases.DEVICE + ".ID NOT IN (");
         builder.append("select DEVICEID from DDC_DEVICEPROTOCOLPROPERTY where DDC_DEVICEPROTOCOLPROPERTY.PROPERTYSPEC = '");
         builder.append(getPropertySpec().getName());
-        builder.append("' AND " + JoinClauseBuilder.Aliases.DEVICE + ".DEVICECONFIGID IN (");
+        builder.append("') AND " + JoinClauseBuilder.Aliases.DEVICE + ".DEVICECONFIGID IN (");
         builder.add(selectDeviceConfigurationProperties(condition, now));
         builder.closeBracket();
         builder.closeBracket();

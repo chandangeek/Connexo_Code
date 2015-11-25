@@ -7,8 +7,12 @@ import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
+import com.energyict.mdc.common.FactoryIds;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.scheduling.model.ComSchedule;
 
 import javax.inject.Inject;
 import java.sql.PreparedStatement;
@@ -18,56 +22,63 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class ValidationStatusSearchableProperty extends AbstractSearchableDeviceProperty {
-
-    static final String PROPERTY_NAME = "device.validation.status";
-
-    private DeviceSearchDomain domain;
-    private SearchablePropertyGroup group;
+public class ComTaskScheduleNameSearchableProperty extends AbstractSearchableDeviceProperty {
+    static final String PROPERTY_NAME = "device.comtask.schedule.name";
 
     private final PropertySpecService propertySpecService;
+    private final SchedulingService schedulingService;
     private final Thesaurus thesaurus;
 
+    private SearchDomain searchDomain;
+    private SearchablePropertyGroup group;
+
     @Inject
-    public ValidationStatusSearchableProperty(PropertySpecService propertySpecService, Thesaurus thesaurus) {
+    public ComTaskScheduleNameSearchableProperty(PropertySpecService propertySpecService, SchedulingService schedulingService, Thesaurus thesaurus) {
         this.propertySpecService = propertySpecService;
+        this.schedulingService = schedulingService;
         this.thesaurus = thesaurus;
     }
 
-    ValidationStatusSearchableProperty init(DeviceSearchDomain domain, SearchablePropertyGroup group) {
-        this.domain = domain;
-        this.group = group;
+    ComTaskScheduleNameSearchableProperty init(SearchDomain searchDomain, SearchablePropertyGroup parentGroup) {
+        this.searchDomain = searchDomain;
+        this.group = parentGroup;
         return this;
     }
-
     @Override
     protected boolean valueCompatibleForDisplay(Object value) {
-        return false;
+        return value instanceof ComSchedule;
     }
 
     @Override
     protected String toDisplayAfterValidation(Object value) {
-        return null;
+        return ((ComSchedule) value).getName();
     }
 
     @Override
     public void appendJoinClauses(JoinClauseBuilder builder) {
-        builder.addMeterValidation();
     }
 
     @Override
     public SqlFragment toSqlFragment(Condition condition, Instant now) {
-        return this.toSqlFragment("val.active", condition, now);
+        SqlBuilder sqlBuilder = new SqlBuilder();
+        sqlBuilder.append(JoinClauseBuilder.Aliases.DEVICE + ".ID IN ");
+        sqlBuilder.openBracket();
+        sqlBuilder.append("select DEVICE from DDC_COMTASKEXEC " +
+                "join SCH_COMSCHEDULE on DDC_COMTASKEXEC.COMSCHEDULE = SCH_COMSCHEDULE.ID " +
+                "where DDC_COMTASKEXEC.OBSOLETE_DATE IS NULL AND ");
+        sqlBuilder.add(toSqlFragment("SCH_COMSCHEDULE.NAME", condition, now));
+        sqlBuilder.closeBracket();
+        return sqlBuilder;
     }
 
     @Override
     public void bindSingleValue(PreparedStatement statement, int bindPosition, Object value) throws SQLException {
-        statement.setString(bindPosition, (Boolean) value ? "Y" : "N");
+        statement.setString(bindPosition, toDisplayAfterValidation(value));
     }
 
     @Override
     public SearchDomain getDomain() {
-        return this.domain;
+        return this.searchDomain;
     }
 
     @Override
@@ -82,11 +93,11 @@ public class ValidationStatusSearchableProperty extends AbstractSearchableDevice
 
     @Override
     public PropertySpec getSpecification() {
-        return this.propertySpecService.booleanPropertySpec(
-                PROPERTY_NAME,
+        return this.propertySpecService.referencePropertySpec(
                 PROPERTY_NAME,
                 false,
-                null
+                FactoryIds.COMSCHEDULE,
+                this.schedulingService.getAllSchedules()
         );
     }
 
@@ -97,12 +108,12 @@ public class ValidationStatusSearchableProperty extends AbstractSearchableDevice
 
     @Override
     public SelectionMode getSelectionMode() {
-        return SelectionMode.SINGLE;
+        return SelectionMode.MULTI;
     }
 
     @Override
     public String getDisplayName() {
-        return this.thesaurus.getFormat(PropertyTranslationKeys.VALIDATION_STATUS).format();
+        return this.thesaurus.getFormat(PropertyTranslationKeys.COMTASK_SCHEDULE_NAME).format();
     }
 
     @Override

@@ -53,6 +53,7 @@ import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.DeviceDataModelServiceImpl;
 import com.energyict.mdc.device.data.impl.DeviceDataModule;
+import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
@@ -356,8 +357,6 @@ public class ComSessionCrudIT {
                     .useDefaultConnectionTask(true)
                     .connectionTask(connectionTask)
                     .add();
-            device.save();
-
             ctx.commit();
         }
 
@@ -521,6 +520,9 @@ public class ComSessionCrudIT {
         assertThat(comTaskExecutionSession2.getHighestPriorityErrorDescription()).isNull();
         assertThat(comTaskExecutionSession2.getSuccessIndicator()).isEqualTo(ComTaskExecutionSession.SuccessIndicator.Success);
 
+        ServerCommunicationTaskService communicationTaskService = this.deviceDataModelService.communicationTaskService();
+
+        ComTaskExecution comTaskExecution = communicationTaskService.findComTaskExecution(this.comTaskExecution.getId()).get();
         Optional<ComTaskExecutionSession> lastSession = comTaskExecution.getLastSession();
         assertThat(lastSession.isPresent()).isTrue();
         assertThat(lastSession.get().getId()).isEqualTo(comTaskExecutionSession2.getId());
