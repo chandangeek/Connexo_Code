@@ -25,9 +25,9 @@ class FileUtilsImpl implements FileUtils {
         try {
             return Files.newInputStream(file);
         } catch (FileNotFoundException e) {
-            throw new FileIOException(e, thesaurus);
+            throw new FileIOException(file, e, thesaurus);
         } catch (IOException e) {
-            throw new FileIOException(e, thesaurus);
+            throw new FileIOException(file, e, thesaurus);
         }
     }
 
@@ -36,7 +36,7 @@ class FileUtilsImpl implements FileUtils {
         try {
             return Files.move(source, target);
         } catch (IOException e) {
-            throw new FileIOException(e, thesaurus);
+            throw new FileIOException(source, e, thesaurus);
         }
     }
 
@@ -45,7 +45,7 @@ class FileUtilsImpl implements FileUtils {
         try {
             return Files.newDirectoryStream(directory, (pathMatcher!=null && !pathMatcher.isEmpty()) ? pathMatcher : "*");
         } catch (IOException e) {
-            throw new FileIOException(e, thesaurus);
+            throw new FileIOException(directory, e, thesaurus);
         }
     }
 

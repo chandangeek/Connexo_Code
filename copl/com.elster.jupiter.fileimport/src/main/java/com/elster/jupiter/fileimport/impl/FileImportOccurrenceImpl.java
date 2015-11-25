@@ -260,7 +260,7 @@ final class FileImportOccurrenceImpl implements FileImportOccurrence {
         try {
             inputStream.close();
         } catch (IOException e) {
-            throw new FileIOException(e, thesaurus);
+            throw new FileIOException(path, e, thesaurus);
         }
     }
 

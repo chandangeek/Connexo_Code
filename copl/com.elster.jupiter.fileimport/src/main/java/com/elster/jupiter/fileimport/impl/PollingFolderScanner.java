@@ -35,7 +35,7 @@ class PollingFolderScanner implements FolderScanner {
     	try {
     		return directoryContent().filter(filter);
     	} catch (IOException e) {
-    		throw new FileIOException(e, thesaurus);
+    		throw new FileIOException(directory, e, thesaurus);
     	}
     }
 
