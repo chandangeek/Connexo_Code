@@ -121,8 +121,8 @@ public class ChannelResource {
                         }
                     });
 
-            infos.addAll(channelData.stream().map(
-                    irr -> usagePointDataInfoFactory.createChannelDataInfo(irr, validationEnabled, channel, upv)).collect(Collectors.toList()));
+//            infos.addAll(channelData.stream().map(
+//                    irr -> usagePointDataInfoFactory.createChannelDataInfo(irr, validationEnabled, channel, upv)).collect(Collectors.toList()));
 
             infos = filter(infos, filter);
             List<ChannelDataInfo> paginatedChannelData = ListPager.of(infos).from(queryParameters).find();
