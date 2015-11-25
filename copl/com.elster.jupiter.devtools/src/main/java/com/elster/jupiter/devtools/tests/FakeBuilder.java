@@ -9,6 +9,14 @@ import java.util.function.Supplier;
 
 public class FakeBuilder {
 
+    /**
+     *
+     * @param build The object built by the builder (so returned by add() or build() for example)
+     * @param builderInterface The interface the builder implements
+     * @param subInterfaces Ask Tom
+     * @param <T>
+     * @return A fully mocked builder instance
+     */
     public static <T> T initBuilderStub(final Object build, Class<T> builderInterface, Class<?>... subInterfaces) {
         final Class<?>[] allInterfaces = new Class<?>[subInterfaces.length + 1];
         allInterfaces[0] = builderInterface;
