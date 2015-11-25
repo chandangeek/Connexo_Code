@@ -20,6 +20,10 @@ Ext.define('Apr.controller.TaskOverview', {
         {
             ref: 'taskPreview',
             selector: 'task-preview'
+        },
+        {
+            ref: 'filter',
+            selector: 'taskFilter'
         }
     ],
 
@@ -41,6 +45,7 @@ Ext.define('Apr.controller.TaskOverview', {
                     store: store
                 });
             me.getApplication().fireEvent('changecontentevent', view);
+            me.getFilter().applyFilters();
 
     },
 
