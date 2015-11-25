@@ -5,7 +5,7 @@ Ext.define('Bpm.model.task.OpenTask', {
     ],
     fields: [
         'status', 'action'
-    ],    
+    ],
     associations: [
         {
             name: 'properties',

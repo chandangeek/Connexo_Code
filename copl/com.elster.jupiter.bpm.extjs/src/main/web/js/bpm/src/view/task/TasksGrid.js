@@ -6,8 +6,7 @@ Ext.define('Bpm.view.task.TasksGrid', {
         //   'Uni.grid.column.Action',
         'Uni.grid.column.Duration',
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom',
-        'Bpm.privileges.BpmManagement'
+        'Uni.view.toolbar.PagingBottom'//,
         //    'Bpm.view.task.TaskActionMenu'
     ],
 
@@ -63,8 +62,7 @@ Ext.define('Bpm.view.task.TasksGrid', {
             },
             {
                 xtype: 'uni-actioncolumn',
-                //privileges: Bpm.privileges.BpmManagement.assignAndExecute,
-                //privileges: Bpm.privileges.BpmManagement.assignOrExecute,
+                privileges: Bpm.privileges.BpmManagement.assignOrExecute,
                 width: 100,
                 menu: {
                     xtype: 'bpm-task-action-menu'
@@ -79,15 +77,7 @@ Ext.define('Bpm.view.task.TasksGrid', {
                 dock: 'top',
                 displayMsg: Uni.I18n.translate('bpm.task.pagingtoolbartop.displayMsg', 'BPM', '{0} - {1} of {2} tasks'),
                 displayMoreMsg: Uni.I18n.translate('bpm.task.pagingtoolbartop.displayMoreMsg', 'BPM', '{0} - {1} of more than {2} tasks'),
-                emptyMsg: Uni.I18n.translate('bpm.task.pagingtoolbartop.emptyMsg', 'BPM', 'There are no task to display'),
-                items: [
-                    {
-                        xtype: 'button',
-                        itemId: 'btn-tasks-bulk-action',
-                        text: Uni.I18n.translate('bpm.task.bulkActions', 'BPM', 'Bulk action'),
-                        privileges: Bpm.privileges.BpmManagement.assignAndExecute
-                    }
-                ]
+                emptyMsg: Uni.I18n.translate('bpm.task.pagingtoolbartop.emptyMsg', 'BPM', 'There are no task to display')
             },
             {
                 xtype: 'pagingtoolbarbottom',

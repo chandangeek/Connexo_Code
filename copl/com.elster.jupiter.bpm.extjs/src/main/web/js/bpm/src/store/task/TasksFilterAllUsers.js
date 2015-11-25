@@ -1,4 +1,4 @@
-Ext.define('Bpm.store.task.TasksFilterUsers', {
+Ext.define('Bpm.store.task.TasksFilterAllUsers', {
     extend: 'Ext.data.Store',
     autoLoad: false,
 
@@ -18,5 +18,12 @@ Ext.define('Bpm.store.task.TasksFilterUsers', {
     fields: [
         {name: 'id',    type: 'int'},
         {name: 'name',  type: 'string'}
-    ]
+    ],
+    listeners: {
+        load: function() {
+            this.filter(function(rec){
+                return rec.get('id') != -1;
+            });
+        }
+    }
 });
