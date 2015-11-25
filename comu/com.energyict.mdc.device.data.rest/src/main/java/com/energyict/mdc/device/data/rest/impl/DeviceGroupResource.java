@@ -129,9 +129,6 @@ public class DeviceGroupResource {
     @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_GROUP)
     public Response createDeviceGroup(DeviceGroupInfo deviceGroupInfo) {
-        if (meteringGroupsService.findEndDeviceGroupByName(deviceGroupInfo.name).isPresent()) {
-            throw exceptionFactory.newException(MessageSeeds.DEVICEGROUPNAME_ALREADY_EXISTS, deviceGroupInfo.name);
-        }
         EndDeviceGroup endDeviceGroup;
         if (deviceGroupInfo.dynamic) {
             endDeviceGroup = createQueryEndDeviceGroup(deviceGroupInfo);
