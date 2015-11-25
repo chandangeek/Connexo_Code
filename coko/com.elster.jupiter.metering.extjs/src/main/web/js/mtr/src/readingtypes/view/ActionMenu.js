@@ -12,7 +12,7 @@ Ext.define('Mtr.readingtypes.view.ActionMenu', {
         },
         {
             itemId: 'reading-types-sorting-menu-deactivate',
-            text: Uni.I18n.translate('readingtypesmanagment.activate', 'MTR', 'Deactivate'),
+            text: Uni.I18n.translate('readingtypesmanagment.deactivate', 'MTR', 'Deactivate'),
             action: 'deactivate'
         },
         {
