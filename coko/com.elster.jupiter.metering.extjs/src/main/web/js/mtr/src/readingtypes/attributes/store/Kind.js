@@ -7,7 +7,7 @@ Ext.define('Mtr.readingtypes.attributes.store.Kind',{
         url: '/api/mtr/readingtypes/codes/measurementkind',
         reader: {
             type: 'json',
-            root: 'measurementKindCodes'
+            root: 'measurementkindCodes'
         },
         limitParam: false
     }

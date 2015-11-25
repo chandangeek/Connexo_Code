@@ -353,6 +353,7 @@ layout: 'form',
     onCloseFilter: function (cmp) {
         var me = this;
         cmp.resetValue();
+        cmp.deleted = true;
         me.down('#minor-filters-container').remove(cmp);
         me.configureMenu()
     },
