@@ -6,6 +6,7 @@ import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
+import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.IssueActionResult;
@@ -18,6 +19,7 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.users.LdapUserDirectory;
+import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Order;
 import com.energyict.mdc.issue.datacollection.BaseTest;
@@ -30,8 +32,10 @@ import org.junit.Test;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -175,5 +179,23 @@ public class CloseIssueActionTest extends BaseTest {
         assertThat(action.isApplicable(issue)).isFalse();
         when(status.getKey()).thenReturn(IssueStatus.WONT_FIX);
         assertThat(action.isApplicable(issue)).isFalse();
+    }
+
+    @Test
+    public void testUserHasPrivileges() {
+        User hasPrivilege = mock(User.class);
+        Privilege assignPrivilege = mock(Privilege.class);
+        when(assignPrivilege.getName()).thenReturn(Privileges.Constants.CLOSE_ISSUE);
+        Privilege actionPrivilege = mock(Privilege.class);
+        when(actionPrivilege.getName()).thenReturn(Privileges.Constants.ACTION_ISSUE);
+        Set<Privilege> privileges = new HashSet<>();
+        privileges.add(assignPrivilege);
+        privileges.add(actionPrivilege);
+        when(hasPrivilege.getPrivileges()).thenReturn(privileges);
+
+        User hasNoPrivileges = mock(User.class);
+
+        assertThat(action.isApplicableForUser(hasPrivilege)).isTrue();
+        assertThat(action.isApplicableForUser(hasNoPrivileges)).isFalse();
     }
 }
