@@ -582,12 +582,11 @@ public class MeteringServiceImpl implements ServerMeteringService, InstallServic
         resources.add(userService.createModuleResourceWithPrivileges(MeteringService.COMPONENTNAME, DefaultTranslationKey.PRIVILEGE_USAGE_POINT_NAME.getKey(), DefaultTranslationKey.PRIVILEGE_USAGE_POINT_DESCRIPTION.getKey(),
                 Arrays.asList(
                         Privileges.Constants.BROWSE_ANY, Privileges.Constants.ADMIN_ANY,
-                        Privileges.Constants.BROWSE_OWN, Privileges.Constants.ADMIN_OWN,
-                        Privileges.Constants.ADMINISTRATE_READINGTYPE, Privileges.Constants.VIEW_READINGTYPE)));
-
+                        Privileges.Constants.BROWSE_OWN, Privileges.Constants.ADMIN_OWN)));
+        resources.add(userService.createModuleResourceWithPrivileges(MeteringService.COMPONENTNAME, DefaultTranslationKey.PRIVILEGE_READING_TYPE_NAME.getKey(), DefaultTranslationKey.PRIVILEGE_READING_TYPE_DESCRIPTION.getKey(),
+                Arrays.asList(Privileges.Constants.ADMINISTRATE_READINGTYPE, Privileges.Constants.VIEW_READINGTYPE)));
         return resources;
     }
-
 
     @Override
     public String getComponentName() {
