@@ -148,7 +148,7 @@ public class OverlapCalculatorBuilderImpl implements OverlapCalculatorBuilder{
         return newRange.hasUpperBound()
                 && ((oldRange.contains(newRange.upperEndpoint()) && !oldRange.encloses(newRange))
                 || (oldRange.hasUpperBound() && newRange.upperEndpoint().isBefore(oldRange.upperEndpoint()) && oldRange.encloses(newRange))
-                || (!oldRange.hasUpperBound() && oldRange.hasLowerBound() && oldRange.lowerEndpoint().isBefore(newRange.upperEndpoint())));
+                || (!oldRange.hasUpperBound() && (!oldRange.hasLowerBound() || (oldRange.hasLowerBound() && oldRange.lowerEndpoint().isBefore(newRange.upperEndpoint())))));
     }
 
     private boolean hasEndOverlap(Range<Instant> oldRange, Range<Instant> newRange) {
