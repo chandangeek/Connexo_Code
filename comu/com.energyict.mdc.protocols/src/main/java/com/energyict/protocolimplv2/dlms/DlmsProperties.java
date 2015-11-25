@@ -1,6 +1,11 @@
 package com.energyict.protocolimplv2.dlms;
 
 import com.elster.jupiter.properties.PropertySpec;
+import com.energyict.mdc.common.TypedProperties;
+import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.protocols.naming.SecurityPropertySpecName;
+
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSReference;
 import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
@@ -9,12 +14,8 @@ import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
-import com.energyict.mdc.common.TypedProperties;
-import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.protocolimplv2.common.BasicDynamicPropertySupport;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

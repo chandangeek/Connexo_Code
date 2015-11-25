@@ -87,7 +87,7 @@ public class CTRInboundDialHomeIdCustomPropertySet implements CustomPropertySet<
     private PropertySpec dialHomeIdPropertySpec() {
         return this.getPropertySpecService()
                 .basicPropertySpec(
-                        CTRInboundDialHomeIdConnectionProperties.Fields.DIAL_HOME_ID.javaName(),
+                        CTRInboundDialHomeIdConnectionProperties.Fields.DIAL_HOME_ID.propertySpecName(),
                         true,
                         new StringFactory());
     }

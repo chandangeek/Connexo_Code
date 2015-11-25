@@ -88,7 +88,7 @@ public class EIWebCustomPropertySet implements CustomPropertySet<ConnectionProvi
     private PropertySpec ipAddressPropertySpec() {
         return this.getPropertySpecService()
                 .basicPropertySpec(
-                        EIWebConnectionProperties.Fields.IP_ADDRESS.javaName(),
+                        EIWebConnectionProperties.Fields.IP_ADDRESS.propertySpecName(),
                         false,
                         new StringFactory());
     }
@@ -96,7 +96,7 @@ public class EIWebCustomPropertySet implements CustomPropertySet<ConnectionProvi
     private PropertySpec macAddressPropertySpec() {
         return this.getPropertySpecService()
                 .basicPropertySpec(
-                        EIWebConnectionProperties.Fields.MAC_ADDRESS.javaName(),
+                        EIWebConnectionProperties.Fields.MAC_ADDRESS.propertySpecName(),
                         false,
                         new StringFactory());
     }

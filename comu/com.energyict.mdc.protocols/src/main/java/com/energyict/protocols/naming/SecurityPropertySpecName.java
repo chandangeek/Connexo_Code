@@ -1,9 +1,9 @@
-package com.energyict.protocolimplv2.security;
+package com.energyict.protocols.naming;
 
 /**
  * Summarizes all the used SecurityProperty names for our protocol packages.
- * This allows proper visible reuse of security property names
- * <p/>
+ * This allows proper visible reuse of security property names.
+ *
  * Copyrights EnergyICT
  * Date: 10/01/13
  * Time: 16:43
@@ -54,7 +54,7 @@ public enum SecurityPropertySpecName {
 
     private final String name;
 
-    private SecurityPropertySpecName(String name) {
+    SecurityPropertySpecName(String name) {
         this.name = name;
     }
 
@@ -62,4 +62,5 @@ public enum SecurityPropertySpecName {
     public String toString() {
         return name;
     }
+
 }

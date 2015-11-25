@@ -16,6 +16,7 @@ import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.protocol.api.security.LegacySecurityPropertyConverter;
 import com.energyict.mdc.protocol.api.security.SecurityProperty;
 import com.energyict.protocols.mdc.services.impl.TranslationKeys;
+import com.energyict.protocols.naming.SecurityPropertySpecName;
 
 import javax.inject.Inject;
 import java.util.Arrays;

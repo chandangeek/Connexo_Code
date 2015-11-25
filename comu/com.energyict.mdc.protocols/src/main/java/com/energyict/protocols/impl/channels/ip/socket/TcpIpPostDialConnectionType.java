@@ -74,7 +74,7 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
     }
 
     protected int getPostDialDelayPropertyValue() throws InvalidValueException {
-        BigDecimal postDialDelay = (BigDecimal) this.getProperty(OutboundIpConnectionProperties.Fields.POST_DIAL_DELAY_MILLIS.javaName());
+        BigDecimal postDialDelay = (BigDecimal) this.getProperty(OutboundIpConnectionProperties.Fields.POST_DIAL_DELAY_MILLIS.propertySpecName());
         int delay;
         if (postDialDelay == null) {
             delay = DEFAULT_POST_DIAL_DELAY;
@@ -87,7 +87,7 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
     }
 
     protected int getPostDialTriesPropertyValue() throws InvalidValueException {
-        BigDecimal postDialTries = (BigDecimal) this.getProperty(OutboundIpConnectionProperties.Fields.POST_DIAL_COMMAND_ATTEMPTS.javaName());
+        BigDecimal postDialTries = (BigDecimal) this.getProperty(OutboundIpConnectionProperties.Fields.POST_DIAL_COMMAND_ATTEMPTS.propertySpecName());
         int tries;
         if (postDialTries == null) {
             tries = DEFAULT_POST_DIAL_TRIES;
@@ -100,19 +100,19 @@ public class TcpIpPostDialConnectionType extends OutboundTcpIpConnectionType {
     }
 
     protected String getPostDialCommandPropertyValue() {
-        return (String) this.getProperty(OutboundIpConnectionProperties.Fields.POST_DIAL_COMMAND.javaName());
+        return (String) this.getProperty(OutboundIpConnectionProperties.Fields.POST_DIAL_COMMAND.propertySpecName());
     }
 
     private PropertySpec postDialDelayPropertySpec() {
-        return this.getPropertySpecService().basicPropertySpec(OutboundIpConnectionProperties.Fields.POST_DIAL_DELAY_MILLIS.javaName(), false, new BigDecimalFactory());
+        return this.getPropertySpecService().basicPropertySpec(OutboundIpConnectionProperties.Fields.POST_DIAL_DELAY_MILLIS.propertySpecName(), false, new BigDecimalFactory());
     }
 
     private PropertySpec postDialRetriesPropertySpec() {
-        return this.getPropertySpecService().basicPropertySpec(OutboundIpConnectionProperties.Fields.POST_DIAL_COMMAND_ATTEMPTS.javaName(), false, new BigDecimalFactory());
+        return this.getPropertySpecService().basicPropertySpec(OutboundIpConnectionProperties.Fields.POST_DIAL_COMMAND_ATTEMPTS.propertySpecName(), false, new BigDecimalFactory());
     }
 
     private PropertySpec postDialCommandPropertySpec() {
-        return this.getPropertySpecService().basicPropertySpec(OutboundIpConnectionProperties.Fields.POST_DIAL_COMMAND.javaName(), false, new StringFactory());
+        return this.getPropertySpecService().basicPropertySpec(OutboundIpConnectionProperties.Fields.POST_DIAL_COMMAND.propertySpecName(), false, new StringFactory());
     }
 
     @Override

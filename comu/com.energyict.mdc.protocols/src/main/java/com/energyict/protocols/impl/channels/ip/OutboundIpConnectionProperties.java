@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
+import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotNull;
@@ -33,14 +34,19 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
             }
 
             @Override
+            public String propertySpecName() {
+                throw new UnsupportedOperationException("ConnectionProvider should not be exposed as a PropertySpec");
+            }
+
+            @Override
             public String databaseName() {
                 return "CONNECTIONPROVIDER";
             }
         },
         HOST {
             @Override
-            public String javaName() {
-                return "host";
+            public String propertySpecName() {
+                return ConnectionTypePropertySpecName.OUTBOUND_IP_HOST.toString();
             }
 
             @Override
@@ -50,8 +56,8 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
         },
         PORT_NUMBER {
             @Override
-            public String javaName() {
-                return "portNumber";
+            public String propertySpecName() {
+                return ConnectionTypePropertySpecName.OUTBOUND_IP_PORT_NUMBER.toString();
             }
 
             @Override
@@ -61,8 +67,8 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
         },
         CONNECTION_TIMEOUT {
             @Override
-            public String javaName() {
-                return "connectionTimeout";
+            public String propertySpecName() {
+                return ConnectionTypePropertySpecName.OUTBOUND_IP_CONNECTION_TIMEOUT.toString();
             }
 
             @Override
@@ -72,8 +78,8 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
         },
         BUFFER_SIZE {
             @Override
-            public String javaName() {
-                return "bufferSize";
+            public String propertySpecName() {
+                return ConnectionTypePropertySpecName.OUTBOUND_IP_BUFFER_SIZE.toString();
             }
 
             @Override
@@ -86,8 +92,8 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
          */
         POST_DIAL_DELAY_MILLIS {
             @Override
-            public String javaName() {
-                return "postDialDelayMillis";
+            public String propertySpecName() {
+                return ConnectionTypePropertySpecName.OUTBOUND_IP_POST_DIAL_DELAY_MILLIS.toString();
             }
 
             @Override
@@ -102,8 +108,8 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
          */
         POST_DIAL_COMMAND_ATTEMPTS {
             @Override
-            public String javaName() {
-                return "postDialCommandAttempts";
+            public String propertySpecName() {
+                return ConnectionTypePropertySpecName.OUTBOUND_IP_POST_DIAL_COMMAND_ATTEMPTS.toString();
             }
 
             @Override
@@ -116,8 +122,8 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
          */
         POST_DIAL_COMMAND {
             @Override
-            public String javaName() {
-                return "postDialCommand";
+            public String propertySpecName() {
+                return ConnectionTypePropertySpecName.OUTBOUND_IP_POST_DIAL_COMMAND.toString();
             }
 
             @Override
@@ -126,7 +132,11 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
             }
         };
 
-        public abstract String javaName();
+        public String javaName() {
+            return this.propertySpecName();
+        }
+
+        public abstract String propertySpecName();
 
         public abstract String databaseName();
 
@@ -163,31 +173,31 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
     }
 
     protected void copyHost(CustomPropertySetValues propertyValues) {
-        this.host = (String) propertyValues.getProperty(Fields.HOST.javaName());
+        this.host = (String) propertyValues.getProperty(Fields.HOST.propertySpecName());
     }
 
     protected void copyPort(CustomPropertySetValues propertyValues) {
-        this.portNumber = (BigDecimal) propertyValues.getProperty(Fields.PORT_NUMBER.javaName());
+        this.portNumber = (BigDecimal) propertyValues.getProperty(Fields.PORT_NUMBER.propertySpecName());
     }
 
     protected void copyConnectionTimeout(CustomPropertySetValues propertyValues) {
-        this.connectionTimeout = (TimeDuration) propertyValues.getProperty(Fields.CONNECTION_TIMEOUT.javaName());
+        this.connectionTimeout = (TimeDuration) propertyValues.getProperty(Fields.CONNECTION_TIMEOUT.propertySpecName());
     }
 
     protected void copyBufferSize(CustomPropertySetValues propertyValues) {
-        this.bufferSize = (BigDecimal) propertyValues.getProperty(Fields.BUFFER_SIZE.javaName());
+        this.bufferSize = (BigDecimal) propertyValues.getProperty(Fields.BUFFER_SIZE.propertySpecName());
     }
 
     protected void copyPostDialProperties(CustomPropertySetValues propertyValues) {
-        this.postDialDelayMillis = (BigDecimal) propertyValues.getProperty(Fields.POST_DIAL_DELAY_MILLIS.javaName());
-        this.postDialCommandAttempts = (BigDecimal) propertyValues.getProperty(Fields.POST_DIAL_COMMAND_ATTEMPTS.javaName());
-        this.postDialCommand = (String) propertyValues.getProperty(Fields.POST_DIAL_COMMAND.javaName());
+        this.postDialDelayMillis = (BigDecimal) propertyValues.getProperty(Fields.POST_DIAL_DELAY_MILLIS.propertySpecName());
+        this.postDialCommandAttempts = (BigDecimal) propertyValues.getProperty(Fields.POST_DIAL_COMMAND_ATTEMPTS.propertySpecName());
+        this.postDialCommand = (String) propertyValues.getProperty(Fields.POST_DIAL_COMMAND.propertySpecName());
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues) {
-        propertySetValues.setProperty(Fields.HOST.javaName(), this.host);
-        propertySetValues.setProperty(Fields.PORT_NUMBER.javaName(), this.portNumber);
+        propertySetValues.setProperty(Fields.HOST.propertySpecName(), this.host);
+        propertySetValues.setProperty(Fields.PORT_NUMBER.propertySpecName(), this.portNumber);
         this.copyNullablePropertyTo(propertySetValues, Fields.CONNECTION_TIMEOUT, this.connectionTimeout);
         this.copyNullablePropertyTo(propertySetValues, Fields.BUFFER_SIZE, this.bufferSize);
         this.copyPostDialPropertiesTo(propertySetValues);
@@ -195,7 +205,7 @@ public class OutboundIpConnectionProperties implements PersistentDomainExtension
 
     private void copyNullablePropertyTo(CustomPropertySetValues propertySetValues, Fields field, Object value) {
         if (value != null) {
-            propertySetValues.setProperty(field.javaName(), value);
+            propertySetValues.setProperty(field.propertySpecName(), value);
         }
     }
 

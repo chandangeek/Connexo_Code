@@ -7,6 +7,7 @@ import com.elster.jupiter.properties.StringFactory;
 import com.energyict.mdc.dynamic.EncryptedStringFactory;
 import com.energyict.mdc.dynamic.PasswordFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
+import com.energyict.protocols.naming.SecurityPropertySpecName;
 
 /**
  * Summarizes all used DeviceSecurityProperty

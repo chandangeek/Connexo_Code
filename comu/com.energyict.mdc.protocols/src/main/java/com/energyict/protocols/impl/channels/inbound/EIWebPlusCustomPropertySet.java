@@ -86,7 +86,7 @@ public class EIWebPlusCustomPropertySet implements CustomPropertySet<ConnectionP
     private PropertySpec ipAddressPropertySpec() {
         return this.getPropertySpecService()
                 .basicPropertySpec(
-                        EIWebConnectionProperties.Fields.IP_ADDRESS.javaName(),
+                        EIWebConnectionProperties.Fields.IP_ADDRESS.propertySpecName(),
                         true,
                         new StringFactory());
     }

@@ -10,6 +10,7 @@ import com.energyict.mdc.protocol.api.device.BaseDevice;
 import com.energyict.mdc.protocol.api.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.protocol.api.security.EncryptionDeviceAccessLevel;
 import com.energyict.protocols.mdc.services.impl.TranslationKeys;
+import com.energyict.protocols.naming.SecurityPropertySpecName;
 
 import javax.inject.Inject;
 import java.util.Arrays;

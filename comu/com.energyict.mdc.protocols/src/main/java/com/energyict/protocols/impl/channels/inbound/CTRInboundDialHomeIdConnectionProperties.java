@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
+import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
 import javax.validation.constraints.Size;
 
@@ -28,14 +29,19 @@ public class CTRInboundDialHomeIdConnectionProperties implements PersistentDomai
             }
 
             @Override
+            public String propertySpecName() {
+                throw new UnsupportedOperationException("ConnectionProvider should not be exposed as a PropertySpec");
+            }
+
+            @Override
             public String databaseName() {
                 return "CONNECTIONPROVIDER";
             }
         },
         DIAL_HOME_ID {
             @Override
-            public String javaName() {
-                return "dialHomeId";
+            public String propertySpecName() {
+                return ConnectionTypePropertySpecName.CTR_INBOUND_DIAL_HOME_ID.toString();
             }
 
             @Override
@@ -44,7 +50,11 @@ public class CTRInboundDialHomeIdConnectionProperties implements PersistentDomai
             }
         };
 
-        public abstract String javaName();
+        public String javaName() {
+            return this.propertySpecName();
+        }
+
+        public abstract String propertySpecName();
 
         public abstract String databaseName();
 
@@ -67,12 +77,12 @@ public class CTRInboundDialHomeIdConnectionProperties implements PersistentDomai
     }
 
     private void copyDialHomeId(CustomPropertySetValues propertyValues) {
-        this.dialHomeId = (String) propertyValues.getProperty(Fields.DIAL_HOME_ID.javaName());
+        this.dialHomeId = (String) propertyValues.getProperty(Fields.DIAL_HOME_ID.propertySpecName());
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues) {
-        propertySetValues.setProperty(Fields.DIAL_HOME_ID.javaName(), this.dialHomeId);
+        propertySetValues.setProperty(Fields.DIAL_HOME_ID.propertySpecName(), this.dialHomeId);
     }
 
     @Override

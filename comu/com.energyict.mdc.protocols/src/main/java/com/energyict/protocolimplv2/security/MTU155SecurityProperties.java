@@ -7,6 +7,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.EncryptedStringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
+import com.energyict.protocols.naming.SecurityPropertySpecName;
 
 import javax.validation.constraints.Size;
 import java.util.stream.Stream;

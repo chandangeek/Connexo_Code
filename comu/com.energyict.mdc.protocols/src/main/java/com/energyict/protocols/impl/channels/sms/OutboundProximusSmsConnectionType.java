@@ -38,23 +38,23 @@ public class OutboundProximusSmsConnectionType extends ConnectionTypeImpl {
     }
 
     private String phoneNumberPropertyValue() {
-        return (String) this.getProperty(OutboundProximusConnectionProperties.Fields.PHONE_NUMBER.javaName());
+        return (String) this.getProperty(OutboundProximusConnectionProperties.Fields.PHONE_NUMBER.propertySpecName());
     }
 
     private String connectionURLPropertyValue() {
-        return (String) this.getProperty(OutboundProximusConnectionProperties.Fields.CONNECTION_URL.javaName());
+        return (String) this.getProperty(OutboundProximusConnectionProperties.Fields.CONNECTION_URL.propertySpecName());
     }
 
     private String sourcePropertyValue() {
-        return (String) this.getProperty(OutboundProximusConnectionProperties.Fields.SOURCE.javaName());
+        return (String) this.getProperty(OutboundProximusConnectionProperties.Fields.SOURCE.propertySpecName());
     }
 
     private String authenticationPropertyValue() {
-        return (String) this.getProperty(OutboundProximusConnectionProperties.Fields.AUTHENTICATION.javaName());
+        return (String) this.getProperty(OutboundProximusConnectionProperties.Fields.AUTHENTICATION.propertySpecName());
     }
 
     private String serviceCodePropertyValue() {
-        return (String) this.getProperty(OutboundProximusConnectionProperties.Fields.SERVICE_CODE.javaName());
+        return (String) this.getProperty(OutboundProximusConnectionProperties.Fields.SERVICE_CODE.propertySpecName());
     }
 
     @Override

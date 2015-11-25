@@ -1,7 +1,7 @@
 -classpath: target/classes
 -dsannotations: *
 
-Export-Package:
+Export-Package: com.energyict.protocols.naming
 Private-Package:  \
     com.energyict.assembly,\
     com.energyict.dialer.*,\
@@ -9,11 +9,13 @@ Private-Package:  \
     com.energyict.encryption.*,\
     com.energyict.genericprotocolimpl.*,\
     com.energyict.license.*,\
-    com.energyict.mdw.cpo.*,\
-    com.energyict.mdw.dynamicattributes.*,\
     com.energyict.protocolimpl.*,\
     com.energyict.protocolimplv2.*,\
-    com.energyict.protocols.*,\
-    com.energyict.protocols.*,\
+    com.energyict.protocols.exception,\
+    com.energyict.protocols.impl.*,\
+    com.energyict.protocols.mdc.*,\
+    com.energyict.protocols.messaging.*,\
+    com.energyict.protocols.sms.*,\
+    com.energyict.protocols.util.*,\
     com.energyict.smartmeterprotocolimpl.*,\
     com.energyict.xml.*

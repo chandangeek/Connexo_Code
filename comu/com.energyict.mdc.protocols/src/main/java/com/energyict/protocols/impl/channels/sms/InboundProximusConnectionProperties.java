@@ -12,6 +12,7 @@ import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
+import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
 import javax.validation.constraints.Size;
 
@@ -32,6 +33,11 @@ public class InboundProximusConnectionProperties implements PersistentDomainExte
             }
 
             @Override
+            public String propertySpecName() {
+                throw new UnsupportedOperationException("ConnectionProvider should not be exposed as a PropertySpec");
+            }
+
+            @Override
             public String databaseName() {
                 return "CONNECTIONPROVIDER";
             }
@@ -43,8 +49,8 @@ public class InboundProximusConnectionProperties implements PersistentDomainExte
         },
         PHONE_NUMBER {
             @Override
-            public String javaName() {
-                return "phoneNumber";
+            public String propertySpecName() {
+                return ConnectionTypePropertySpecName.INBOUND_PROXIMUS_PHONE_NUMBER.toString();
             }
 
             @Override
@@ -54,8 +60,8 @@ public class InboundProximusConnectionProperties implements PersistentDomainExte
         },
         CALL_HOME_ID {
             @Override
-            public String javaName() {
-                return "callHomeId";
+            public String propertySpecName() {
+                return ConnectionTypePropertySpecName.INBOUND_PROXIMUS_CALL_HOME_ID.toString();
             }
 
             @Override
@@ -64,7 +70,11 @@ public class InboundProximusConnectionProperties implements PersistentDomainExte
             }
         };
 
-        public abstract String javaName();
+        public String javaName() {
+            return this.propertySpecName();
+        }
+
+        public abstract String propertySpecName();
 
         public abstract String databaseName();
 
@@ -78,7 +88,7 @@ public class InboundProximusConnectionProperties implements PersistentDomainExte
         }
 
         public PropertySpec propertySpec(PropertySpecService propertySpecService) {
-            return propertySpecService.basicPropertySpec(this.javaName(), true, new StringFactory());
+            return propertySpecService.basicPropertySpec(this.propertySpecName(), true, new StringFactory());
         }
 
     }

@@ -73,7 +73,7 @@ public class OutboundUdpConnectionType extends OutboundIpConnectionType {
     }
 
     private int getBufferSizePropertyValue() {
-        BigDecimal value = (BigDecimal) this.getProperty(OutboundIpConnectionProperties.Fields.BUFFER_SIZE.javaName());
+        BigDecimal value = (BigDecimal) this.getProperty(OutboundIpConnectionProperties.Fields.BUFFER_SIZE.propertySpecName());
         return this.intProperty(value);
     }
 

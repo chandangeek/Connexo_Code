@@ -12,6 +12,7 @@ import com.elster.jupiter.properties.StringFactory;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
 import com.energyict.mdc.protocol.api.DeviceProtocolProperty;
+import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
 import javax.validation.constraints.Size;
 
@@ -32,6 +33,11 @@ public class OutboundProximusConnectionProperties implements PersistentDomainExt
             }
 
             @Override
+            public String propertySpecName() {
+                throw new UnsupportedOperationException("ConnectionProvider should not be exposed as a PropertySpec");
+            }
+
+            @Override
             public String databaseName() {
                 return "CONNECTIONPROVIDER";
             }
@@ -43,8 +49,8 @@ public class OutboundProximusConnectionProperties implements PersistentDomainExt
         },
         PHONE_NUMBER {
             @Override
-            public String javaName() {
-                return "phoneNumber";
+            public String propertySpecName() {
+                return ConnectionTypePropertySpecName.OUTBOUND_PROXIMUS_PHONE_NUMBER.toString();
             }
 
             @Override
@@ -54,8 +60,8 @@ public class OutboundProximusConnectionProperties implements PersistentDomainExt
         },
         SOURCE {
             @Override
-            public String javaName() {
-                return "source";
+            public String propertySpecName() {
+                return ConnectionTypePropertySpecName.OUTBOUND_PROXIMUS_SOURCE.toString();
             }
 
             @Override
@@ -65,8 +71,8 @@ public class OutboundProximusConnectionProperties implements PersistentDomainExt
         },
         AUTHENTICATION {
             @Override
-            public String javaName() {
-                return "authentication";
+            public String propertySpecName() {
+                return ConnectionTypePropertySpecName.OUTBOUND_PROXIMUS_AUTHENTICATION.toString();
             }
 
             @Override
@@ -76,8 +82,8 @@ public class OutboundProximusConnectionProperties implements PersistentDomainExt
         },
         SERVICE_CODE {
             @Override
-            public String javaName() {
-                return "serviceCode";
+            public String propertySpecName() {
+                return ConnectionTypePropertySpecName.OUTBOUND_PROXIMUS_SERVICE_CODE.toString();
             }
 
             @Override
@@ -87,8 +93,8 @@ public class OutboundProximusConnectionProperties implements PersistentDomainExt
         },
         CONNECTION_URL {
             @Override
-            public String javaName() {
-                return "connectionUrl";
+            public String propertySpecName() {
+                return ConnectionTypePropertySpecName.OUTBOUND_PROXIMUS_CONNECTION_URL.toString();
             }
 
             @Override
@@ -97,7 +103,11 @@ public class OutboundProximusConnectionProperties implements PersistentDomainExt
             }
         };
 
-        public abstract String javaName();
+        public String javaName() {
+            return this.propertySpecName();
+        }
+
+        public abstract String propertySpecName();
 
         public abstract String databaseName();
 
@@ -111,7 +121,7 @@ public class OutboundProximusConnectionProperties implements PersistentDomainExt
         }
 
         public PropertySpec propertySpec(PropertySpecService propertySpecService) {
-            return propertySpecService.basicPropertySpec(this.javaName(), true, new StringFactory());
+            return propertySpecService.basicPropertySpec(this.propertySpecName(), true, new StringFactory());
         }
 
     }
@@ -142,19 +152,19 @@ public class OutboundProximusConnectionProperties implements PersistentDomainExt
     public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues) {
         this.connectionProvider.set(connectionProvider);
         this.phoneNumber = (String) propertyValues.getProperty(DeviceProtocolProperty.PHONE_NUMBER.javaFieldName());
-        this.connectionUrl = (String) propertyValues.getProperty(Fields.CONNECTION_URL.javaName());
-        this.source = (String) propertyValues.getProperty(Fields.SOURCE.javaName());
-        this.authentication = (String) propertyValues.getProperty(Fields.AUTHENTICATION.javaName());
-        this.serviceCode = (String) propertyValues.getProperty(Fields.SERVICE_CODE.javaName());
+        this.connectionUrl = (String) propertyValues.getProperty(Fields.CONNECTION_URL.propertySpecName());
+        this.source = (String) propertyValues.getProperty(Fields.SOURCE.propertySpecName());
+        this.authentication = (String) propertyValues.getProperty(Fields.AUTHENTICATION.propertySpecName());
+        this.serviceCode = (String) propertyValues.getProperty(Fields.SERVICE_CODE.propertySpecName());
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues) {
         propertySetValues.setProperty(DeviceProtocolProperty.PHONE_NUMBER.javaFieldName(), this.phoneNumber);
-        propertySetValues.setProperty(Fields.CONNECTION_URL.javaName(), this.connectionUrl);
-        propertySetValues.setProperty(Fields.SOURCE.javaName(), this.source);
-        propertySetValues.setProperty(Fields.AUTHENTICATION.javaName(), this.authentication);
-        propertySetValues.setProperty(Fields.SERVICE_CODE.javaName(), this.serviceCode);
+        propertySetValues.setProperty(Fields.CONNECTION_URL.propertySpecName(), this.connectionUrl);
+        propertySetValues.setProperty(Fields.SOURCE.propertySpecName(), this.source);
+        propertySetValues.setProperty(Fields.AUTHENTICATION.propertySpecName(), this.authentication);
+        propertySetValues.setProperty(Fields.SERVICE_CODE.propertySpecName(), this.serviceCode);
     }
 
     @Override

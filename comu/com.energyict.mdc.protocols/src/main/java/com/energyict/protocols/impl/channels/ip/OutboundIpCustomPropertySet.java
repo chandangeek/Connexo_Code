@@ -77,7 +77,7 @@ public abstract class OutboundIpCustomPropertySet implements CustomPropertySet<C
     protected PropertySpec hostPropertySpec() {
         return this.getPropertySpecService()
                 .basicPropertySpec(
-                        OutboundIpConnectionProperties.Fields.HOST.javaName(),
+                        OutboundIpConnectionProperties.Fields.HOST.propertySpecName(),
                         true,
                         new StringFactory());
     }
@@ -85,7 +85,7 @@ public abstract class OutboundIpCustomPropertySet implements CustomPropertySet<C
     protected PropertySpec portPropertySpec() {
         return this.getPropertySpecService()
                 .basicPropertySpec(
-                        OutboundIpConnectionProperties.Fields.PORT_NUMBER.javaName(),
+                        OutboundIpConnectionProperties.Fields.PORT_NUMBER.propertySpecName(),
                         true,
                         new BigDecimalFactory());
     }
@@ -93,7 +93,7 @@ public abstract class OutboundIpCustomPropertySet implements CustomPropertySet<C
     protected PropertySpec connectionTimeoutPropertySpec() {
         return this.getPropertySpecService()
                 .basicPropertySpec(
-                        OutboundIpConnectionProperties.Fields.CONNECTION_TIMEOUT.javaName(),
+                        OutboundIpConnectionProperties.Fields.CONNECTION_TIMEOUT.propertySpecName(),
                         false,
                         new TimeDurationValueFactory());
     }
@@ -101,7 +101,7 @@ public abstract class OutboundIpCustomPropertySet implements CustomPropertySet<C
     protected PropertySpec bufferSizePropertySpec() {
         return this.getPropertySpecService()
                 .basicPropertySpec(
-                        OutboundIpConnectionProperties.Fields.CONNECTION_TIMEOUT.javaName(),
+                        OutboundIpConnectionProperties.Fields.CONNECTION_TIMEOUT.propertySpecName(),
                         true,
                         new BigDecimalFactory());
     }
@@ -109,7 +109,7 @@ public abstract class OutboundIpCustomPropertySet implements CustomPropertySet<C
     protected PropertySpec postDialMillisPropertySpec() {
         return this.getPropertySpecService()
                 .basicPropertySpec(
-                        OutboundIpConnectionProperties.Fields.POST_DIAL_DELAY_MILLIS.javaName(),
+                        OutboundIpConnectionProperties.Fields.POST_DIAL_DELAY_MILLIS.propertySpecName(),
                         false,
                         new BigDecimalFactory());
     }
@@ -117,7 +117,7 @@ public abstract class OutboundIpCustomPropertySet implements CustomPropertySet<C
     protected PropertySpec postDialCommandAttempsPropertySpec() {
         return this.getPropertySpecService()
                 .basicPropertySpec(
-                        OutboundIpConnectionProperties.Fields.POST_DIAL_COMMAND_ATTEMPTS.javaName(),
+                        OutboundIpConnectionProperties.Fields.POST_DIAL_COMMAND_ATTEMPTS.propertySpecName(),
                         false,
                         new BigDecimalFactory());
     }
@@ -125,7 +125,7 @@ public abstract class OutboundIpCustomPropertySet implements CustomPropertySet<C
     protected PropertySpec postDialCommandPropertySpec() {
         return this.getPropertySpecService()
                 .basicPropertySpec(
-                        OutboundIpConnectionProperties.Fields.POST_DIAL_COMMAND.javaName(),
+                        OutboundIpConnectionProperties.Fields.POST_DIAL_COMMAND.propertySpecName(),
                         false,
                         new StringFactory());
     }

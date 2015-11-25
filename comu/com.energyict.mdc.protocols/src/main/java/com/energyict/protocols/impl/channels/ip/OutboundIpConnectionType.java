@@ -36,15 +36,15 @@ public abstract class OutboundIpConnectionType extends ConnectionTypeImpl {
     }
 
     protected String hostPropertyValue() {
-        return (String) this.getProperty(OutboundIpConnectionProperties.Fields.HOST.javaName());
+        return (String) this.getProperty(OutboundIpConnectionProperties.Fields.HOST.propertySpecName());
     }
 
     protected int portNumberPropertyValue() {
-        return intProperty((BigDecimal) getProperty(OutboundIpConnectionProperties.Fields.PORT_NUMBER.javaName()));
+        return intProperty((BigDecimal) getProperty(OutboundIpConnectionProperties.Fields.PORT_NUMBER.propertySpecName()));
     }
 
     protected int connectionTimeOutPropertyValue() {
-        TimeDuration value = (TimeDuration) this.getProperty(OutboundIpConnectionProperties.Fields.CONNECTION_TIMEOUT.javaName(), DEFAULT_CONNECTION_TIMEOUT);
+        TimeDuration value = (TimeDuration) this.getProperty(OutboundIpConnectionProperties.Fields.CONNECTION_TIMEOUT.propertySpecName(), DEFAULT_CONNECTION_TIMEOUT);
         return this.intProperty(value);
     }
 

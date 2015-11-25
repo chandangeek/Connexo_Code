@@ -6,13 +6,12 @@ import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.HexString;
 import com.energyict.mdc.dynamic.HexStringFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-import com.energyict.mdc.protocol.api.DeviceProtocolDialect;
-import com.energyict.mdc.protocol.api.legacy.MeterProtocol;
 import com.energyict.mdc.protocol.pluggable.DeviceProtocolDialectPropertyRelationAttributeTypeNames;
+import com.energyict.protocols.naming.SecurityPropertySpecName;
+
 import com.energyict.protocolimplv2.DeviceProtocolDialectNameEnum;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.g3.common.G3Properties;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecName;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.protocol.api.ConnectionProvider;
+import com.energyict.protocols.naming.ConnectionTypePropertySpecName;
 
 import javax.validation.constraints.Size;
 
@@ -30,14 +31,19 @@ public class EIWebConnectionProperties implements PersistentDomainExtension<Conn
             }
 
             @Override
+            public String propertySpecName() {
+                throw new UnsupportedOperationException("ConnectionProvider should not be exposed as a PropertySpec");
+            }
+
+            @Override
             public String databaseName() {
                 return "CONNECTIONPROVIDER";
             }
         },
         IP_ADDRESS {
             @Override
-            public String javaName() {
-                return "ipAddress";
+            public String propertySpecName() {
+                return ConnectionTypePropertySpecName.EIWEB_IP_ADDRESS.toString();
             }
 
             @Override
@@ -47,8 +53,8 @@ public class EIWebConnectionProperties implements PersistentDomainExtension<Conn
         },
         MAC_ADDRESS {
             @Override
-            public String javaName() {
-                return "macAddress";
+            public String propertySpecName() {
+                return ConnectionTypePropertySpecName.EIWEB_MAC_ADDRESS.toString();
             }
 
             @Override
@@ -57,7 +63,11 @@ public class EIWebConnectionProperties implements PersistentDomainExtension<Conn
             }
         };
 
-        public abstract String javaName();
+        public String javaName() {
+            return this.propertySpecName();
+        }
+
+        public abstract String propertySpecName();
 
         public abstract String databaseName();
 
@@ -79,17 +89,17 @@ public class EIWebConnectionProperties implements PersistentDomainExtension<Conn
     @Override
     public void copyFrom(ConnectionProvider connectionProvider, CustomPropertySetValues propertyValues) {
         this.connectionProvider.set(connectionProvider);
-        this.ipAddress = (String) propertyValues.getProperty(Fields.IP_ADDRESS.javaName());
-        this.macAddress = (String) propertyValues.getProperty(Fields.MAC_ADDRESS.javaName());
+        this.ipAddress = (String) propertyValues.getProperty(Fields.IP_ADDRESS.propertySpecName());
+        this.macAddress = (String) propertyValues.getProperty(Fields.MAC_ADDRESS.propertySpecName());
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues) {
         if (!is(this.ipAddress).empty()) {
-            propertySetValues.setProperty(Fields.IP_ADDRESS.javaName(), this.ipAddress);
+            propertySetValues.setProperty(Fields.IP_ADDRESS.propertySpecName(), this.ipAddress);
         }
         if (!is(this.macAddress).empty()) {
-            propertySetValues.setProperty(Fields.MAC_ADDRESS.javaName(), this.macAddress);
+            propertySetValues.setProperty(Fields.MAC_ADDRESS.propertySpecName(), this.macAddress);
         }
     }
 
