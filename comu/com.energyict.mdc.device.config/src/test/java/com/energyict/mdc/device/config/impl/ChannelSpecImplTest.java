@@ -79,9 +79,9 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     }
 
     private void initializeDeviceTypeWithRegisterTypeAndLoadProfileTypeAndDeviceConfiguration() {
-        this.registerType = createOrSetRegisterType(readingTypeActiveEnergySecondaryMetered);
-        this.calculatedRegisterType = createOrSetRegisterType(readingTypeActiveEnergySecondaryMetered.getCalculatedReadingType().get());
-        this.registerTypeWhichCanNotBeMultiplied = createOrSetRegisterType(invalidReadingTypeActiveEnergyPrimaryMetered);
+        this.registerType = createOrSetRegisterType(readingTypeActiveEnergySecondaryMetered, channelTypeObisCode);
+        this.calculatedRegisterType = createOrSetRegisterType(readingTypeActiveEnergySecondaryMetered.getCalculatedReadingType().get(), channelTypeObisCode);
+        this.registerTypeWhichCanNotBeMultiplied = createOrSetRegisterType(invalidReadingTypeActiveEnergyPrimaryMetered, channelTypeObisCode);
 
         loadProfileType = inMemoryPersistence.getMasterDataService().newLoadProfileType(LOAD_PROFILE_TYPE_NAME, loadProfileTypeObisCode, interval, Arrays.asList(registerType, calculatedRegisterType, registerTypeWhichCanNotBeMultiplied));
         channelType = loadProfileType.findChannelType(registerType).get();
@@ -96,20 +96,6 @@ public class ChannelSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         DeviceType.DeviceConfigurationBuilder deviceConfigurationBuilder = deviceType.newConfiguration(DEVICE_CONFIGURATION_NAME);
         deviceConfiguration = deviceConfigurationBuilder.add();
         deviceType.save();
-    }
-
-    private RegisterType createOrSetRegisterType(ReadingType readingType){
-        Optional<RegisterType> xRegisterType =
-                inMemoryPersistence.getMasterDataService()
-                        .findRegisterTypeByReadingType(readingType);
-        if (xRegisterType.isPresent()) {
-            return xRegisterType.get();
-        }
-        else {
-            RegisterType registerType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType, channelTypeObisCode);
-            registerType.save();
-            return registerType;
-        }
     }
 
     private LoadProfileSpec createDefaultTestingLoadProfileSpecWithOverruledObisCode() {

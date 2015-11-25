@@ -23,6 +23,7 @@ import java.util.Optional;
 
 import org.junit.*;
 
+import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_PRIMARY_METERED;
 import static com.elster.jupiter.cbo.Commodity.ELECTRICITY_SECONDARY_METERED;
 import static com.elster.jupiter.cbo.FlowDirection.FORWARD;
 import static com.elster.jupiter.cbo.FlowDirection.REVERSE;
@@ -52,6 +53,10 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
     private RegisterType registerType;
     private ReadingType readingType1;
     private ReadingType readingType2;
+    private ReadingType readingType3;
+    private final String invalidActiveEnergyPrimary = ReadingTypeCodeBuilder.of(ELECTRICITY_PRIMARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.BULKQUANTITY).code();
+    private final ReadingType invalidReadingTypeActiveEnergyPrimaryMetered = inMemoryPersistence.getMeteringService().getReadingType(invalidActiveEnergyPrimary).get();
+
     private Unit unit1 = Unit.get("kWh");
     private Unit unit2 = Unit.get("MWh");
 
@@ -66,15 +71,9 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         this.readingType2 = inMemoryPersistence.getMeteringService().getReadingType(code2).get();
         String code1 = ReadingTypeCodeBuilder.of(ELECTRICITY_SECONDARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.DELTADELTA).code();
         this.readingType1 = inMemoryPersistence.getMeteringService().getReadingType(code1).get();
-        Optional<RegisterType> registerTypeByObisCodeAndUnitAndTimeOfUse =
-                inMemoryPersistence.getMasterDataService().findRegisterTypeByReadingType(readingType1);
-        if (!registerTypeByObisCodeAndUnitAndTimeOfUse.isPresent()) {
-            this.registerType = inMemoryPersistence.getMasterDataService().newRegisterType(readingType1, registerTypeObisCode);
-            this.registerType.save();
-        }
-        else {
-            this.registerType = registerTypeByObisCodeAndUnitAndTimeOfUse.get();
-        }
+        String code3 = ReadingTypeCodeBuilder.of(ELECTRICITY_PRIMARY_METERED).flow(FORWARD).measure(ENERGY).in(KILO, WATTHOUR).accumulate(Accumulation.DELTADELTA).code();
+        this.readingType3 = inMemoryPersistence.getMeteringService().getReadingType(code3).get();
+        this.registerType = createOrSetRegisterType(readingType1, registerTypeObisCode);
 
         // Business method
         this.deviceType.setDescription("For registerSpec Test purposes only");
@@ -447,7 +446,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         NumericalRegisterSpec.Builder registerSpecBuilder = this.deviceConfiguration.createNumericalRegisterSpec(registerType);
         setRegisterSpecDefaultFields(registerSpecBuilder);
         registerSpecBuilder.useMultiplier(true);
-        registerSpecBuilder.calculatedReadingType(readingType2);
+        registerSpecBuilder.calculatedReadingType(readingType3);
         registerSpecBuilder.add();
     }
 
@@ -460,7 +459,7 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
 
         NumericalRegisterSpec.Updater registerSpecUpdater = numericalRegisterSpec.getDeviceConfiguration().getRegisterSpecUpdaterFor(numericalRegisterSpec);
         registerSpecUpdater.useMultiplier(true);
-        registerSpecUpdater.calculatedReadingType(readingType2);
+        registerSpecUpdater.calculatedReadingType(readingType3);
         registerSpecUpdater.update();
     }
     @Test
@@ -474,5 +473,31 @@ public class RegisterSpecImplTest extends DeviceTypeProvidingPersistenceTest {
         NumericalRegisterSpec.Updater registerSpecUpdater = numericalRegisterSpec.getDeviceConfiguration().getRegisterSpecUpdaterFor(numericalRegisterSpec);
         registerSpecUpdater.useMultiplier(true);
         registerSpecUpdater.update();
+    }
+
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.CALCULATED_READINGTYPE_DOES_NOT_MATCH_CRITERIA +"}")
+    public void calculatedReadingTypeDoesNotMatchCriteriaTest() {
+        NumericalRegisterSpec.Builder registerSpecBuilder = this.deviceConfiguration.createNumericalRegisterSpec(registerType);
+        setRegisterSpecDefaultFields(registerSpecBuilder);
+        registerSpecBuilder.useMultiplier(true);
+        registerSpecBuilder.calculatedReadingType(invalidReadingTypeActiveEnergyPrimaryMetered);
+        registerSpecBuilder.add();
+    }
+
+    @Test
+    @Transactional
+    @ExpectedConstraintViolation(messageId = "{"+ MessageSeeds.Keys.READINGTYPE_CAN_NOT_BE_MULTIPLIED +"}")
+    public void readingTypeCanNotBeMultipliedTest() {
+
+        RegisterType registerTypeWhichCanNotBeMultiplied = createOrSetRegisterType(readingType3, registerTypeObisCode);
+
+        NumericalRegisterSpec.Builder registerSpecBuilder = this.deviceConfiguration.createNumericalRegisterSpec(registerTypeWhichCanNotBeMultiplied);
+        setRegisterSpecDefaultFields(registerSpecBuilder);
+        registerSpecBuilder.useMultiplier(true);
+        registerSpecBuilder.calculatedReadingType(readingType1);
+        registerSpecBuilder.add();
     }
 }
