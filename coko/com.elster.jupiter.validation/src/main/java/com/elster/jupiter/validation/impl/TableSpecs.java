@@ -84,7 +84,7 @@ public enum TableSpecs {
                     .map("ruleSetVersion").reverseMap("rules").composition().reverseMapOrder("position").add();
             table.foreignKey("VAL_FK_RULESET").references("VAL_VALIDATIONRULESET").on(ruleSetIdColumn).onDelete(RESTRICT)
                     .map("ruleSet").reverseMap("rules").composition().add();
-            table.unique("VAL_UQ_RULE_NAME").on(nameColumn, obsoleteColumn).add();
+            table.unique("VAL_UQ_RULE_NAME").on(ruleSetVersionIdColumn, nameColumn, obsoleteColumn).add();
         }
     },
     VAL_VALIDATIONRULEPROPS {
@@ -171,7 +171,7 @@ public enum TableSpecs {
             Column endDeviceGroupId = table.column("ENDDEVICEGROUP").number().conversion(ColumnConversion.NUMBER2LONG).add();
             Column usagePointGroupId = table.column("USAGEPOINTGROUP").number().conversion(ColumnConversion.NUMBER2LONG).add();
             Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
-            table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").add();
+            table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").notAudited().add();
             table.addAuditColumns();
             table.foreignKey("VAL_FK_VALTASK2DEVICEGROUP")
                     .on(endDeviceGroupId)

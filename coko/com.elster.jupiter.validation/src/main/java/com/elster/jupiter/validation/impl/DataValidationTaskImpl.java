@@ -1,16 +1,5 @@
 package com.elster.jupiter.validation.impl;
 
-import static com.elster.jupiter.util.conditions.Where.where;
-
-import java.time.Instant;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-
-import javax.inject.Inject;
-import javax.validation.constraints.Size;
-
 import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
@@ -20,7 +9,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.orm.JournalEntry;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.tasks.RecurrentTask;
@@ -36,6 +24,16 @@ import com.elster.jupiter.validation.DataValidationOccurrenceFinder;
 import com.elster.jupiter.validation.DataValidationTask;
 import com.elster.jupiter.validation.DataValidationTaskStatus;
 import com.elster.jupiter.validation.ValidationService;
+
+import javax.inject.Inject;
+import javax.validation.constraints.Size;
+import java.time.Instant;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+
+import static com.elster.jupiter.util.conditions.Where.where;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.DUPLICATE_VALIDATION_TASK + "}")
 @HasValidGroup(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Constants.REQUIRES_EXACTLY_ONE_GROUP + "}")
@@ -250,7 +248,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
 
     @Override
     public Optional<ScheduleExpression> getScheduleExpression(Instant at) {
-        return recurrentTask.get().getHistory().getVersionAt(at).map(RecurrentTask::getScheduleExpression);
+        return recurrentTask.get().getVersionAt(at).map(RecurrentTask::getScheduleExpression);
     }
 
     @Override
@@ -337,7 +335,7 @@ public final class DataValidationTaskImpl implements DataValidationTask {
     @Override
     public void updateLastRun(Instant triggerTime) {
         lastRun = triggerTime;
-        save();
+        dataModel.mapper(DataValidationTask.class).update(this, "lastRun");
     }
 
     void setRecurrentTask(RecurrentTask task) {

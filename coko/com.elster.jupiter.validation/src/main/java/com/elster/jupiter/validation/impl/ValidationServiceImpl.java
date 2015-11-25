@@ -725,6 +725,4 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
     private Optional<DataValidationTask> getDataValidationTaskForRecurrentTask(RecurrentTask recurrentTask) {
         return dataModel.mapper(DataValidationTask.class).getUnique("recurrentTask", recurrentTask);
     }
-
-
 }
