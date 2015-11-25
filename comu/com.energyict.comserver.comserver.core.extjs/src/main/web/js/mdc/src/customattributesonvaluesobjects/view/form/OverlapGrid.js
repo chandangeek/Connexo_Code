@@ -130,7 +130,7 @@ Ext.define('Mdc.customattributesonvaluesobjects.view.form.OverlapGrid', {
                         xtype: 'container',
                         margin: '10 0 0 20',
                         flex: 1,
-                        html: '<span style="font-style:normal; font-family: Lato, helvetica, arial, verdana, sans-serif; color: #eb5642;">' + Uni.I18n.translate('customattributesetsversions.overlappaneltoptext', 'MDC', 'There are overlapping versions') + '</span>'
+                        html: '<span style="font-style:normal; font-family: Lato, helvetica, arial, verdana, sans-serif; color: #eb5642;">' + Uni.I18n.translate('customattributesetsversions.conflictedtoptext', 'MDC', 'There are conflicting versions') + '</span>'
                     },
                     {
                         text: Uni.I18n.translate('general.undo', 'MDC', 'Undo'),
