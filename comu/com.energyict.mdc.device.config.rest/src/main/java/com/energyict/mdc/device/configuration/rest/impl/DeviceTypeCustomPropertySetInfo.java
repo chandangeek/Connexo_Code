@@ -15,7 +15,7 @@ public class DeviceTypeCustomPropertySetInfo {
 
     public long id;
     public String name;
-    public boolean isTimeSliced;
+    public boolean isVersioned;
     public Set<ViewPrivilege> viewPrivileges;
     public Set<EditPrivilege> editPrivileges;
     public List<DeviceTypeCustomPropertySetAttributeInfo> attributes;
@@ -28,7 +28,7 @@ public class DeviceTypeCustomPropertySetInfo {
         this.name = registeredCustomPropertySet.getCustomPropertySet().getName();
         this.viewPrivileges = registeredCustomPropertySet.getViewPrivileges();
         this.editPrivileges = registeredCustomPropertySet.getEditPrivileges();
-        this.isTimeSliced = false;
+        this.isVersioned = registeredCustomPropertySet.getCustomPropertySet().isVersioned();
         this.attributes = getAttributes(registeredCustomPropertySet.getCustomPropertySet().getPropertySpecs());
     }
 

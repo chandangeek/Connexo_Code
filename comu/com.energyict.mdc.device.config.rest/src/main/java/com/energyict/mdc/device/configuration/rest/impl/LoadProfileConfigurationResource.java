@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.energyict.mdc.common.TranslatableApplicationException;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -54,7 +55,7 @@ public class LoadProfileConfigurationResource {
         this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public Response getLoadProfileSpecsForDeviceConfiguration(
@@ -70,7 +71,7 @@ public class LoadProfileConfigurationResource {
         return Response.ok(PagedInfoList.fromPagedList("data", loadProfileSpecInfos, queryParameters)).build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/available")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
@@ -84,7 +85,7 @@ public class LoadProfileConfigurationResource {
         return Response.ok(PagedInfoList.fromPagedList("data", LoadProfileTypeInfo.from(loadProfileTypes), queryParameters)).build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{loadProfileSpecId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
@@ -97,7 +98,7 @@ public class LoadProfileConfigurationResource {
         return Response.ok(LoadProfileSpecInfo.from(loadProfileSpec, loadProfileSpec.getChannelSpecs(), mdcReadingTypeUtilService)).build();
     }
 
-    @POST
+    @POST @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
@@ -119,7 +120,7 @@ public class LoadProfileConfigurationResource {
         return Response.ok(LoadProfileSpecInfo.from(newLoadProfileSpec, null, mdcReadingTypeUtilService)).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{loadProfileSpecId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -132,7 +133,7 @@ public class LoadProfileConfigurationResource {
         return Response.ok(LoadProfileSpecInfo.from(loadProfileSpec, null, mdcReadingTypeUtilService)).build();
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Path("/{loadProfileSpecId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
@@ -145,7 +146,7 @@ public class LoadProfileConfigurationResource {
         return Response.ok().build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("{loadProfileSpecId}/channels")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
@@ -159,7 +160,7 @@ public class LoadProfileConfigurationResource {
         return Response.ok(PagedInfoList.fromPagedList("data", ChannelSpecFullInfo.from(channelSpecs), queryParameters)).build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("{loadProfileSpecId}/channels/{channelId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
@@ -174,7 +175,7 @@ public class LoadProfileConfigurationResource {
         return Response.ok(ChannelSpecFullInfo.from(channelSpec, deviceConfiguration.isActive())).build();
     }
 
-    @POST
+    @POST @Transactional
     @Path("{loadProfileSpecId}/channels")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -198,7 +199,7 @@ public class LoadProfileConfigurationResource {
         return Response.ok(ChannelSpecFullInfo.from(newChannelSpec, deviceConfiguration.isActive())).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("{loadProfileSpecId}/channels/{channelId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -222,7 +223,7 @@ public class LoadProfileConfigurationResource {
         return Response.ok(ChannelSpecFullInfo.from(channelSpec, deviceConfiguration.isActive())).build();
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Path("{loadProfileSpecId}/channels/{channelId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
@@ -236,7 +237,7 @@ public class LoadProfileConfigurationResource {
         return Response.ok().build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("{loadProfileSpecId}/measurementTypes")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE,Privileges.Constants.VIEW_DEVICE_TYPE})

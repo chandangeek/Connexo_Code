@@ -5,6 +5,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -69,7 +70,7 @@ public class ConnectionMethodResource {
         this.exceptionFactory = exceptionFactory;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getConnectionMethods(@PathParam("deviceTypeId") long deviceTypeId,
@@ -103,7 +104,7 @@ public class ConnectionMethodResource {
         return PagedInfoList.fromPagedList("data", pagedConnectionMethodInfos, queryParameters);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{connectionMethodId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
@@ -113,7 +114,7 @@ public class ConnectionMethodResource {
         return connectionMethodInfoFactory.asInfo(partialConnectionTask, uriInfo);
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Path("/{connectionMethodId}")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
@@ -127,7 +128,7 @@ public class ConnectionMethodResource {
         return Response.ok().build();
     }
 
-    @POST
+    @POST @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
@@ -140,7 +141,7 @@ public class ConnectionMethodResource {
         return Response.status(Response.Status.CREATED).entity(connectionMethodInfoFactory.asInfo(created, uriInfo)).build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{connectionMethodId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)

@@ -3,6 +3,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.NumericalRegisterSpec;
@@ -41,7 +42,7 @@ public class RegisterConfigurationResource {
         this.masterDataService = masterDataService;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public PagedInfoList getRegisterConfigs(@PathParam("deviceConfigurationId") long deviceConfigurationId, @BeanParam JsonQueryParameters queryParameters) {
@@ -51,7 +52,7 @@ public class RegisterConfigurationResource {
         return PagedInfoList.fromPagedList("registerConfigurations", registerConfigInfos, queryParameters);
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{registerId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
@@ -59,7 +60,7 @@ public class RegisterConfigurationResource {
         return RegisterConfigInfo.from(resourceHelper.findRegisterSpecByIdOrThrowException(registerId));
     }
 
-    @POST
+    @POST @Transactional
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response createRegisterConfig(@PathParam("deviceConfigurationId") long deviceConfigurationId, RegisterConfigInfo registerConfigInfo) {
@@ -86,7 +87,7 @@ public class RegisterConfigurationResource {
         return registerSpec;
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{registerConfigId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
@@ -109,7 +110,7 @@ public class RegisterConfigurationResource {
         return RegisterConfigInfo.from(resourceHelper.findRegisterSpecByIdOrThrowException(registerConfigId));
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Path("/{registerConfigId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)

@@ -4,6 +4,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.energyict.mdc.common.TranslatableApplicationException;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.common.services.ListPager;
 import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceType;
@@ -43,7 +44,7 @@ public class LoadProfileTypeResource {
         this.thesaurus = thesaurus;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
     public Response getLoadProfilesForDeviceType(@PathParam("id") long id, @BeanParam JsonQueryParameters queryParameters, @QueryParam("available") String available) {
@@ -60,7 +61,7 @@ public class LoadProfileTypeResource {
         return Response.ok(PagedInfoList.fromPagedList("data", loadProfileTypeOnDeviceTypeInfos, queryParameters)).build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{loadProfileTypeId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
@@ -71,7 +72,7 @@ public class LoadProfileTypeResource {
         return new LoadProfileTypeOnDeviceTypeInfo(loadProfileType, deviceType);
     }
 
-    @PUT
+    @PUT @Transactional
     @Path("/{loadProfileTypeId}")
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -86,7 +87,7 @@ public class LoadProfileTypeResource {
         return Response.ok().build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/custompropertysets")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_DEVICE_TYPE, Privileges.Constants.VIEW_DEVICE_TYPE})
@@ -105,7 +106,7 @@ public class LoadProfileTypeResource {
                 .collect(Collectors.toList());
     }
 
-    @POST
+    @POST @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)
     public Response addLoadProfileTypesForDeviceType(@PathParam("id") long id, List<Long> ids, @QueryParam("all") boolean all) {
@@ -130,7 +131,7 @@ public class LoadProfileTypeResource {
                 .collect(Collectors.toList());
     }
 
-    @DELETE
+    @DELETE @Transactional
     @Path("/{loadProfileTypeId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ADMINISTRATE_DEVICE_TYPE)

@@ -2,6 +2,7 @@ package com.energyict.mdc.device.configuration.rest.impl;
 
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.rest.util.properties.PropertyInfo;
+import com.elster.jupiter.rest.util.Transactional;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.DeviceProtocolConfigurationProperties;
 import com.energyict.mdc.device.configuration.rest.ProtocolInfo;
@@ -32,7 +33,7 @@ public class ProtocolPropertiesResource {
         this.resourceHelper = resourceHelper;
     }
 
-    @GET
+    @GET @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response getDeviceProperties(@PathParam("deviceConfigurationId") long deviceConfigurationId) {
         DeviceConfiguration deviceConfiguration = resourceHelper.findDeviceConfigurationByIdOrThrowException(deviceConfigurationId);
@@ -48,14 +49,14 @@ public class ProtocolPropertiesResource {
         return Response.ok(protocolInfo).build();
     }
 
-    @GET
+    @GET @Transactional
     @Path("/{protocolId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public Response getDeviceProperties(@PathParam("deviceConfigurationId") long deviceConfigurationId, @PathParam("protocolId") Long protocolId) {
         return this.getDeviceProperties(deviceConfigurationId);
     }
 
-    @PUT
+    @PUT @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response updateDeviceProperties(@PathParam("deviceConfigurationId") long deviceConfigurationId, ProtocolInfo protocolInfo) {
@@ -74,7 +75,7 @@ public class ProtocolPropertiesResource {
         return Response.ok().build();
     }
 
-    @PUT
+    @PUT @Transactional
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @Path("/{protocolId}")
