@@ -10,7 +10,8 @@ Ext.define('Apr.privileges.AppServer', {
     ],
     singleton: true,
     view: ['privilege.administrate.appServer',
-        'privilege.view.appServer'],
+        'privilege.view.appServer',
+        'privilege.view.ViewTaskOverview'],
 
     admin: ['privilege.administrate.appServer'],
 
