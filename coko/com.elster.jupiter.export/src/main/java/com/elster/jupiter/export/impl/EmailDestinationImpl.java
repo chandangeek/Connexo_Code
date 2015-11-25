@@ -13,6 +13,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.Checks;
 
 import javax.inject.Inject;
 import java.nio.file.FileSystem;
@@ -82,8 +83,12 @@ class EmailDestinationImpl extends AbstractDataExportDestination implements Emai
 
                 mailBuilder.build().send();
             } catch (Exception e) {
+                String errorMessage = e.getLocalizedMessage();
+                if (Checks.is(errorMessage).emptyOrOnlyWhiteSpace()){
+                    errorMessage = e.toString();
+                }
                 throw new DestinationFailedException(
-                        thesaurus, MessageSeeds.MAIL_DESTINATION_FAILED, e, EmailDestinationImpl.this.recipients, e.toString() + " " + e.getMessage());
+                        thesaurus, MessageSeeds.MAIL_DESTINATION_FAILED, e, EmailDestinationImpl.this.recipients, errorMessage);
             }
             try (TransactionContext context = getTransactionService().getContext()) {
                 MessageSeeds.DATA_MAILED_TO.log(logger, thesaurus, EmailDestinationImpl.this.recipients, fileNames);
