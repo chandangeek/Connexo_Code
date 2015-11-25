@@ -2,6 +2,10 @@ Ext.define('Bpm.model.task.Task', {
     extend: 'Ext.data.Model',
     fields: [
         {
+            name: 'id',
+            type: 'number'
+        },
+        {
             name: 'name',
             type: 'string'
         },
@@ -18,6 +22,13 @@ Ext.define('Bpm.model.task.Task', {
             type: 'number'
         },
         {
+            name: 'dueDateParsed',
+            type: 'number',
+            convert: function (value, record) {
+                return record.get('dueDate') == 0 ? null : record.get('dueDate');
+            }
+        },
+        {
             name: 'dueDateDisplay',
             type: 'string',
             convert: function (value, record) {
@@ -27,6 +38,13 @@ Ext.define('Bpm.model.task.Task', {
         {
             name: 'createdOn',
             type: 'number'
+        },
+        {
+            name: 'createdOnDisplay',
+            type: 'string',
+            convert: function (value, record) {
+                return record.get('createdOn') ? Uni.DateTime.formatDateTimeShort(new Date(record.get('createdOn'))) : Uni.I18n.translate('bpm.task.noDate', 'BPM', '-');
+            }
         },
         {
             name: 'createdOnDisplay',
@@ -47,7 +65,7 @@ Ext.define('Bpm.model.task.Task', {
                 if (priority <= 3) {
                     return Uni.I18n.translate('bpm.task.priority.high', 'BPM', 'High');
                 }
-                else if (priority <= 6) {
+                else if (priority <= 7) {
                     return Uni.I18n.translate('bpm.task.priority.medium', 'BPM', 'Medium');
                 }
                 else {
@@ -64,7 +82,7 @@ Ext.define('Bpm.model.task.Task', {
             name: 'statusDisplay',
             type: 'string',
             convert: function (value, record) {
-                switch (record.get('status')){
+                switch (record.get('status')) {
                     case 'Created':
                     case 'Ready':
                     case 'Reserved':

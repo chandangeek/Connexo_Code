@@ -41,7 +41,9 @@ Ext.define('Bpm.store.task.Tasks', {
                     result.push(filter);
                 }
             }
-            params.filter = Ext.encode(result);
+            if (result.length > 0) {
+                params.filter = Ext.encode(result);
+            }
             Ext.apply(options.params, params);
         }
     }

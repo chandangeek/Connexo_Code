@@ -1,6 +1,12 @@
 Ext.define('Bpm.controller.OpenTask', {
     extend: 'Ext.app.Controller',
+    stores: [],
 
+    models: [
+        'Bpm.model.task.TaskEdit',
+        'Bpm.model.task.Assign',
+        'Bpm.model.task.OpenTask'
+    ],
     views: [
         'Bpm.view.task.OpenTask'
     ],
@@ -14,16 +20,37 @@ Ext.define('Bpm.controller.OpenTask', {
             selector: 'bpm-task-open-task #formContent'
         },
         {
-            ref: 'formContent2',
-            selector: 'bpm-task-open-task #formContent2'
+            ref: 'assigneeUserForm',
+            selector: 'bpm-task-open-task #frm-assignee-user'
         },
         {
-            ref: 'btnClaim',
-            selector: 'bpm-task-open-task #btn-claim'
+            ref: 'editTaskForm',
+            selector: 'bpm-task-open-task #frm-edit-task'
         },
         {
-            ref: 'btnRelease',
-            selector: 'bpm-task-open-task #btn-release'
+            ref: 'numPriority',
+            selector: 'bpm-task-open-task #num-priority'
+        },
+        {
+            ref: 'priorityDisplay',
+            selector: 'bpm-task-open-task #priority-display'
+        },
+
+        {
+            ref: 'aboutTaskForm',
+            selector: 'bpm-task-open-task #frm-about-task'
+        },
+        {
+            ref: 'formContainer',
+            selector: 'bpm-task-open-task #frm-form-container'
+        },
+        {
+            ref: 'taskExecutionContent',
+            selector: 'bpm-task-open-task #task-execution-content'
+        },
+        {
+            ref: 'taskExecutionForm',
+            selector: 'bpm-task-open-task #task-execution-form'
         },
         {
             ref: 'btnStart',
@@ -36,198 +63,276 @@ Ext.define('Bpm.controller.OpenTask', {
         {
             ref: 'btnComplete',
             selector: 'bpm-task-open-task #btn-complete'
-        },
-        {
-            ref: 'btnTaskActions',
-            selector: 'bpm-task-open-task #btn-taskactions'
         }
-
-
     ],
-    listener: null,
-    loadingObject: null,
 
     init: function () {
         this.control({
-            'bpm-task-open-task #btn-claim':{
+            'bpm-task-open-task #btn-assignee-user-save': {
+                click: this.saveAssigneeUser
+            },
+            'bpm-task-open-task #btn-task-save': {
+                click: this.saveTask
+            },
+            'bpm-task-open-task #btn-start': {
                 click: this.chooseAction
             },
-            'bpm-task-open-task #btn-release':{
+            'bpm-task-open-task #btn-save': {
                 click: this.chooseAction
             },
-            'bpm-task-open-task #btn-start':{
+            'bpm-task-open-task #btn-complete': {
                 click: this.chooseAction
             },
-            'bpm-task-open-task #btn-save':{
-                click: this.chooseAction
-            },
-            'bpm-task-open-task #btn-complete':{
-                click: this.chooseAction
+            'bpm-task-open-task #num-priority': {
+                change: this.updatePriority
             }
-
         });
 
-        listener = function dolisten(event){
-            var me = this;
-
-           
-        };
-        if (window.addEventListener){
-            addEventListener("message", listener, false)
-        } else {
-            attachEvent("onmessage", listener)
-        }
     },
 
-
-    showOpenTask : function(taskId){
+    showOpenTask: function (taskId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             queryString = Uni.util.QueryString.getQueryStringValues(false),
-            tasksRoute = router.getRoute('workspace/taksmanagementtasks'),
-            openTaskView, openTaskForm, taskRecord,
-            flowUrl;
-
-        queryParams = {};
+            tasksRoute = router.getRoute('workspace/tasks'),
+            openTaskView, topTitle, taskRecord, queryParams = {};
 
         sort = router.arguments.sort;
         user = router.arguments.user;
         dueDate = router.arguments.dueDate;
-        status = router.arguments.status;
+        taskStatus = router.arguments.status;
         process = router.arguments.process;
 
-        sort && (sort != '') && (queryParams.sort = sort);
-        user && (user != '') && (queryParams.user = user);
-        dueDate && (dueDate != '') && (queryParams.dueDate = dueDate);
-        status && (status != '') && (queryParams.status = status);
-        process && (process != '') && (queryParams.process = process);
+        var tasksRoute = router.getRoute('workspace/tasks');
+        tasksRoute.params.sort = tasksRoute.params.user = tasksRoute.params.dueDate = tasksRoute.params.status =
+            tasksRoute.params.process = undefined;
         tasksRoute.params.use = true;
+
+        sort && (sort != '') && (queryParams.sort = tasksRoute.params.sort = sort);
+        user && (user != '') && (queryParams.user = tasksRoute.params.user = user);
+        dueDate && (dueDate != '') && (queryParams.dueDate = tasksRoute.params.dueDate = dueDate);
+        taskStatus && (taskStatus != '') && (queryParams.status = tasksRoute.params.status = taskStatus);
+        process && (process != '') && (queryParams.process = tasksRoute.params.process = process);
 
         var task = me.getModel('Bpm.model.task.Task');
         task.load(taskId, {
             success: function (taskRecord) {
 
                 openTaskView = Ext.create('Bpm.view.task.OpenTask', {
-                //    returnLink: router.getRoute('workspace/taksmanagementtasks').buildUrl({}, queryParams),
-                    taskRecord: taskRecord});
+                    itemNameLink: '<a href="' + tasksRoute.buildUrl({}, queryParams) + '">' + Uni.I18n.translate('bpm.task.tasksName', 'BPM', 'tasks') + '</a>',
+                    router: me.getController('Uni.controller.history.Router'),
+                    taskRecord: taskRecord,
+                    showNavigation: queryString.showNavigation
+                });
 
-                //openTaskView.setLoading();
-                //openTaskView.taskRecord = taskRecord;
+                openTaskView.taskRecord = taskRecord;
                 me.getApplication().fireEvent('openTask', taskRecord);
 
-                openTaskForm = openTaskView.down('#frm-open-task');
-                openTaskForm.setTitle(Ext.String.format(Uni.I18n.translate('bpm.task.openTaskTitle', 'BPM', "'{0}' task"), taskRecord.get('name')));
+                topTitle = openTaskView.down('#detail-top-title');
+                topTitle.setTitle(Ext.String.format(Uni.I18n.translate('bpm.task.openTaskTitle', 'BPM', "'{0}' task"), taskRecord.get('name')));
 
-                //openTaskForm.loadRecord(taskRecord);
                 me.getApplication().fireEvent('changecontentevent', openTaskView);
-                openTaskView.setLoading();
-                var rowIndex = Uni.store.Apps.findExact('name', 'Flow');
-                if (rowIndex != -1){
-                    flowUrl = Uni.store.Apps.getAt(rowIndex).get('url');
-                    Ext.Ajax.request({
-                        url: flowUrl + '/rest/task/' + taskId +'/showTaskForm',
-                        method: 'GET',
-                        success: function (operation) {
-                            try {
-                                var xmlDoc = me.getXMLDoc(operation.responseText);
-
-                                if (!xmlDoc) {
-                                    return;
-                                }
-                                var status = xmlDoc.getElementsByTagName("status");
-
-                                if (status && status.length > 0 && status[0].childNodes.length > 0) {
-                                    status = status[0].childNodes[0].nodeValue;
-
-                                    if (status == 'SUCCESS') {
-                                        var formURL = xmlDoc.getElementsByTagName("formUrl");
-                                        if (formURL && formURL.length > 0 && formURL[0].childNodes.length > 0) {
-                                            openTaskView.formURL = formURL[0].childNodes[0].nodeValue;
-                                            var html = "<iframe id='iframeId' src='" + openTaskView.formURL + "' frameborder='0' style='width:100%; height:100%'></iframe>";
-
-                                            var formContent = me.getFormContent();
-                                            formContent.getEl().dom.innerHTML = html;
-
-                                            document.getElementById("iframeId").addEventListener('load', function() {
-                                                openTaskView.setLoading(false);
-                                            });
-                                            //me.resizeReportPanel(formContent);
-                                            me.refreshButtons(taskRecord);
-
-                                        }
-                                    }
-
-                                }
-
-                            } catch (err) {
-                                openTaskView.setLoading(false);
-                            }
-                        }
-                    })
-
-                }
-
+                me.loadAssigneeForm(taskRecord);
+                me.loadEditTaskForm(taskRecord);
+                me.loadAboutTaskForm(taskRecord);
+                me.loadJbpmForm(taskRecord);
             },
             failure: function (record, operation) {
             }
         });
     },
 
-     getXMLDoc: function(xml) {
-        if (!xml) return;
+    loadAssigneeForm: function (taskRecord) {
+        var me = this,
+            assigneeForm = me.getAssigneeUserForm();
 
-        var xmlDoc;
-        if (window.DOMParser) {
-            var parser = new DOMParser();
-            xmlDoc = parser.parseFromString(xml, "text/xml");
-        } else { // Internet Explorer
-            xmlDoc = new ActiveXObject("Microsoft.XMLDOM");
-            xmlDoc.async = false;
-            xmlDoc.loadXML(xml);
+        var assigneeCombo = assigneeForm.down('#cbo-assignee-user');
+        assigneeCombo.store.load({
+            callback: function (records, operation, success) {
+                assigneeForm.loadRecord(taskRecord);
+            }
+        });
+    },
+
+    loadEditTaskForm: function (taskRecord) {
+        var me = this,
+            editTaskForm = me.getEditTaskForm(),
+            numPriority = me.getNumPriority();
+
+        editTaskForm && editTaskForm.loadRecord(taskRecord);
+    },
+
+    saveTask: function (button) {
+        var me = this;
+
+        me.saveAssigneeUser(button);
+        me.saveEditTask(button);
+    },
+
+    saveAssigneeUser: function (button) {
+        var me = this,
+            taskRecord = button.taskRecord,
+            assignUser = Ext.create('Bpm.model.task.Assign'),
+            assigneeForm = me.getAssigneeUserForm();
+
+        assignUser.getProxy().extraParams = {username: assigneeForm.down('#cbo-assignee-user').getValue()};
+        assignUser.getProxy().setUrl(taskRecord.get('id'));
+        assigneeForm.setLoading();
+        assignUser.save({
+            success: function () {
+                assigneeForm.setLoading(false);
+            },
+            failure: function (record, operation) {
+                var json = Ext.decode(operation.response.responseText, true);
+                if (json && json.errors) {
+                    assigneeForm.getForm().markInvalid(json.errors);
+                }
+
+                assigneeForm.setLoading(false);
+            }
+        })
+    },
+
+    saveEditTask: function (button) {
+        var me = this,
+            taskRecord = button.taskRecord,
+            taskEdit = Ext.create('Bpm.model.task.TaskEdit'),
+            editTaskForm = me.getEditTaskForm();
+
+        me.loadJbpmForm(taskRecord);
+
+        editTaskForm.setLoading();
+        editTaskForm.updateRecord(taskRecord);
+        taskEdit.getProxy().extraParams = {
+            priority: editTaskForm.down('#num-priority').getValue(),
+            duedate: editTaskForm.down('#due-date').getValue() ? moment(editTaskForm.down('#due-date').getValue()).valueOf() : ''
+        };
+
+        taskEdit.getProxy().setUrl(taskRecord.get('id'));
+        taskEdit.save({
+            success: function () {
+                editTaskForm.setLoading(false);
+
+                me.loadJbpmForm(taskRecord);
+            },
+            failure: function (record, operation) {
+                editTaskForm.setLoading(false);
+            }
+        })
+    },
+
+    loadAboutTaskForm: function (taskRecord) {
+        var me = this,
+            aboutTaskForm = me.getAboutTaskForm();
+
+        aboutTaskForm.setLoading();
+        aboutTaskForm && aboutTaskForm.loadRecord(taskRecord);
+        aboutTaskForm.setLoading(false);
+    },
+
+    updatePriority: function (control, newValue, oldValue) {
+        var me = this,
+            label = '';
+
+        if (newValue <= 3) {
+            label = Uni.I18n.translate('bpm.task.priority.high', 'BPM', 'High');
         }
-        return xmlDoc;
+        else if (newValue <= 7) {
+            label = Uni.I18n.translate('bpm.task.priority.medium', 'BPM', 'Medium');
+        }
+        else {
+            label = Uni.I18n.translate('bpm.task.priority.low', 'BPM', 'Low');
+        }
+
+        me.getPriorityDisplay().setText(label);
     },
 
-    resizeReportPanel: function(component) {
+    loadJbpmForm: function (taskRecord) {
+        var me = this,
+            taskExecutionContent = me.getTaskExecutionContent(),
+            openTask = me.getModel('Bpm.model.task.OpenTask'),
+            propertyForm = taskExecutionContent.down('grouped-property-form');
 
-        if (!component)
-            return;
 
-        var options = {};
-        options.element = component.getEl().dom;
-        options.height = component.getHeight() - 38;
-        options.width = component.getWidth() - 3;
-        options.showTitle = false;
-        if (options.showTitle)
-            options.height -= 30;
+        taskExecutionContent.setLoading();
+
+        openTask.load(taskRecord.get('id'), {
+            success: function (openTaskRecord) {
+
+                taskExecutionContent.openTaskRecord = openTaskRecord;
+                if (openTaskRecord && openTaskRecord.properties() && openTaskRecord.properties().count()) {
+                    propertyForm.loadRecord(openTaskRecord);
+                    propertyForm.show();
+                } else {
+                    propertyForm.hide();
+                }
+                propertyForm.up('#frm-open-task').doLayout();
+                me.refreshButtons(openTaskRecord);
+                taskExecutionContent.setLoading(false);
+            },
+            failure: function (record, operation) {
+            }
+        });
+
     },
 
-    refreshButtons: function(taskRecord){
+    refreshButtons: function (taskRecord) {
         var me = this,
             status = taskRecord.get('status');
 
-        me.getBtnClaim().setVisible(status == "Ready");
-        me.getBtnRelease().setVisible((status == "Reserved") || (status == "InProgress"));
         me.getBtnStart().setVisible((status == "Reserved"));
         me.getBtnSave().setVisible(status == "InProgress");
         me.getBtnComplete().setVisible(status == "InProgress");
-        me.getBtnTaskActions().setVisible(false);
     },
 
     chooseAction: function (button, item) {
         var me = this,
             action = button.action,
-            taskRecord = button.taskRecord;
+            taskExecutionForm = me.getTaskExecutionForm(),
+            taskExecutionContent = me.getTaskExecutionContent(),
+            openTaskRecord = taskExecutionContent.openTaskRecord,
+            propertyForm = taskExecutionContent.down('grouped-property-form');
 
-        var rowIndex = Uni.store.Apps.findExact('name', 'Flow');
-        if (rowIndex != -1) {
-            flowUrl = Uni.store.Apps.getAt(rowIndex).get('url');
-            var frame = document.getElementById('iframeId').contentWindow;
+        propertyForm.updateRecord();
 
-            openTaskForm = me.getOpenTaskPage().down('#frm-open-task-container').setLoading();
-            var request = '{"action":"'+ action + '","taskId":"' + taskRecord.get('id') + '"}';
-            frame.postMessage(request, me.getOpenTaskPage().formURL);
+        openTaskRecord.beginEdit();
+        if (propertyForm.getRecord()) {
+            openTaskRecord.propertiesStore = propertyForm.getRecord().properties();
         }
+        openTaskRecord.set('action', action);
+        openTaskRecord.endEdit();
+
+        openTaskRecord.save({
+            success: function () {
+
+                if (button.action === 'saveTask') {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.task.openTask.saved', 'BPM', 'Task saved.'));
+               } else if (button.action === 'startTask') {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.task.openTask.started', 'BPM', 'Task started.'));
+                } else if (button.action === 'completeTask') {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.task.openTask.completed', 'BPM', 'Task completed.'));
+                }
+
+                var task = me.getModel('Bpm.model.task.Task');
+                task.load(openTaskRecord.get('id'), {
+                    success: function (taskRecord) {
+                        me.loadAssigneeForm(taskRecord);
+                        me.loadEditTaskForm(taskRecord);
+                        me.loadAboutTaskForm(taskRecord);
+                        me.loadJbpmForm(taskRecord);
+                    }
+                });
+
+            },
+            failure: function (record, operation) {
+                if (operation.response.status == 400) {
+                    var json = Ext.decode(operation.response.responseText, true);
+                    if (json && json.errors) {
+                        taskExecutionForm.getForm().markInvalid(json.errors);
+                    }
+                }
+            }
+        })
     }
 
 });
