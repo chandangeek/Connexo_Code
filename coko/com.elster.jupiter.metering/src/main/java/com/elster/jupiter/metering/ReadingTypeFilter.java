@@ -72,7 +72,7 @@ public class ReadingTypeFilter {
         public Condition getRegexpCondition(List<String> values){
             Condition condition = Condition.TRUE;
             if(!values.isEmpty()) {
-                condition.and(Operator.REGEXP_LIKE.compare("mRID", Pattern.quote("^(\\d+\\.){" + offset + "}(" + String.join("|", values) + ")\\.")));
+                condition = condition.and(Operator.REGEXP_LIKE.compare("mRID", "^(\\d+\\.){" + offset + "}(" + String.join("|", values) + ")\\."));
             }
             return condition;
         }
