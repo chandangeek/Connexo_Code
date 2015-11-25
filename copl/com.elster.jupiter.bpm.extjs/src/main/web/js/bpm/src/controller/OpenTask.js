@@ -1,7 +1,8 @@
 Ext.define('Bpm.controller.OpenTask', {
     extend: 'Ext.app.Controller',
-    stores: [],
-
+    stores: [
+        'Bpm.store.task.TasksFilterAllUsers'
+    ],
     models: [
         'Bpm.model.task.TaskEdit',
         'Bpm.model.task.Assign',
@@ -146,6 +147,10 @@ Ext.define('Bpm.controller.OpenTask', {
         var me = this,
             assigneeForm = me.getAssigneeUserForm();
 
+        if (assigneeForm == undefined){
+            return;
+        }
+
         var assigneeCombo = assigneeForm.down('#cbo-assignee-user');
         assigneeCombo.store.load({
             callback: function (records, operation, success) {
@@ -213,6 +218,15 @@ Ext.define('Bpm.controller.OpenTask', {
             success: function () {
                 editTaskForm.setLoading(false);
 
+                var task = me.getModel('Bpm.model.task.Task');
+                task.load(taskRecord.get('id'), {
+                        success: function (taskRec) {
+                            button.taskRecord = taskRec;
+                            me.loadAboutTaskForm(taskRecord);
+                        }
+                    }
+                );
+
                 me.loadJbpmForm(taskRecord);
             },
             failure: function (record, operation) {
@@ -224,6 +238,10 @@ Ext.define('Bpm.controller.OpenTask', {
     loadAboutTaskForm: function (taskRecord) {
         var me = this,
             aboutTaskForm = me.getAboutTaskForm();
+
+        if (aboutTaskForm == undefined){
+            return;
+        }
 
         aboutTaskForm.setLoading();
         aboutTaskForm && aboutTaskForm.loadRecord(taskRecord);

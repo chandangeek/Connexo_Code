@@ -3,6 +3,7 @@ Ext.define('Bpm.view.task.OpenTask', {
     alias: 'widget.bpm-task-open-task',
     requires: [
         'Bpm.store.task.Tasks',
+        'Bpm.store.task.TasksFilterAllUsers',
         'Uni.view.toolbar.PreviousNextNavigation',
         'Uni.property.form.Property',
         'Uni.property.form.GroupedPropertyForm'
@@ -79,7 +80,7 @@ Ext.define('Bpm.view.task.OpenTask', {
                                                 displayField: 'name',
                                                 valueField: 'name',
                                                 itemId: 'cbo-assignee-user',
-                                                store: 'Bpm.store.task.TasksFilterUsers',
+                                                store: 'Bpm.store.task.TasksFilterAllUsers',
                                                 width: 500,
                                                 labelWidth: 250,
                                                 editable: false,
