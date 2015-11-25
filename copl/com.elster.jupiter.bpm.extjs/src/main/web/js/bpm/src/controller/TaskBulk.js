@@ -30,8 +30,6 @@ Ext.define('Bpm.controller.TaskBulk', {
 
 
     alltasksBulk: [],
-    routerArgs: {},
-    qString: {},
 
     init: function () {
         this.control({
@@ -45,10 +43,10 @@ Ext.define('Bpm.controller.TaskBulk', {
                 click: this.moveTo
             },
             'tasks-bulk-browse tasks-bulk-wizard button[action=finish]': {
-                click: this.finishWizard
+                click: this.cancelFinishWizard
             },
             'tasks-bulk-browse tasks-bulk-wizard button[action=cancel]': {
-                click: this.cancelWizard
+                click: this.cancelFinishWizard
             },
             'tasks-bulk-browse #tasks-bulk-navigation': {
                 movetostep: this.moveTo
@@ -76,8 +74,6 @@ Ext.define('Bpm.controller.TaskBulk', {
             });
         });
 
-        //me.routerArgs = router.arguments;
-        //me.qString = queryString;
         me.alltasksBulk = tasks;
         taskTasksBuffered.data.clear();
         taskTasksBuffered.loadPage(1);
@@ -129,6 +125,8 @@ Ext.define('Bpm.controller.TaskBulk', {
         url = '/api/bpm/runtime/managetasks';
 
         wizard.setLoading(true);
+
+        wizard.down('#tskbw-step5').showProgressBar(action);
 
         Ext.Ajax.request({
             url: url,
@@ -302,19 +300,9 @@ Ext.define('Bpm.controller.TaskBulk', {
                 break;
         }
     },
-
-    finishWizard: function () {
+    cancelFinishWizard: function () {
         var me= this,
             router = this.getController('Uni.controller.history.Router');
-            //queryString = Uni.util.QueryString.getQueryStringValues(false);
-        router.getRoute('workspace/taksmanagementtasks').forward(router.arguments);
-    },
-
-    cancelWizard: function () {
-        var me= this,
-            router = this.getController('Uni.controller.history.Router');
-            //tasksRoute = router.getRoute('workspace/taksmanagementtasks'),
-            //queryString = Uni.util.QueryString.getQueryStringValues(false);
         router.getRoute('workspace/taksmanagementtasks').forward(null, router.arguments);
 
     }

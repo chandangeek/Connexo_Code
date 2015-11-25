@@ -4,9 +4,26 @@ Ext.define('Bpm.view.task.bulk.Step5', {
     html: '',
     margin: '0 0 15 0',
     router: null,
+    showProgressBar: function (action) {
+
+        var me = this,
+            pb = Ext.create('Ext.ProgressBar', {width: '50%'});
+
+        Ext.suspendLayouts();
+        me.removeAll(true);
+        me.add(
+            pb.wait({
+                interval: 50,
+                increment: 20,
+                text: Uni.I18n.translate('bpm.task.bulk.progressbar', 'BPM', 'Update tasks. Please wait...')
+            })
+        );
+        Ext.resumeLayouts(true);
+    },
     setResultMessage: function (action, success) {
         var me = this,
             text = '';
+        me.removeAll(true);
 
         switch (action) {
             case 'taskmanagement':

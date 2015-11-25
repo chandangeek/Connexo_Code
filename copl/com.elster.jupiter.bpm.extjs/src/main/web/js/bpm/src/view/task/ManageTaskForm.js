@@ -64,7 +64,7 @@ Ext.define('Bpm.view.task.ManageTaskForm', {
                                 format: Uni.util.Preferences.lookup(Uni.DateTime.dateShortKey, Uni.DateTime.dateShortDefault)
                             },
                             hoursConfig: {
-                                fieldLabel: Uni.I18n.translate('general.at', 'DES', 'at'),
+                                fieldLabel: Uni.I18n.translate('general.at', 'BPM', 'at'),
                                 labelWidth: 10,
                                 margin: '0 0 0 10',
                                 value: new Date().getHours()
