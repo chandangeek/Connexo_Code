@@ -105,6 +105,7 @@ public final class ReadingTypeImpl implements ReadingType , PersistenceAware {
 	ReadingTypeImpl init(String mRID, String aliasName) {
 		this.mRID = mRID;
 		this.aliasName = aliasName;
+		this.active = true;
 		setTransientFields();
 		setFullAliasName();
         return this;
