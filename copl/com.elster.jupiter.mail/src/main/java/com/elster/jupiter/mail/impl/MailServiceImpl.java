@@ -166,7 +166,7 @@ public class MailServiceImpl implements IMailService, MessageSeedProvider {
     }
 
     private void validateMailProperty(String propertyName, String value, List<String> badPropertiesCollector){
-        if (Checks.is(value).emptyOrOnlyWhiteSpace()){
+        if (value == null){
             badPropertiesCollector.add(propertyName);
         }
     }
