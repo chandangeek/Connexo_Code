@@ -16,6 +16,7 @@ import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.util.conditions.Condition;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -76,8 +77,18 @@ public class UsagePointSearchDomain implements SearchDomain {
     }
 
     @Override
+    public String displayName() {
+        return thesaurus.getFormat(PropertyTranslationKeys.USAGEPOINT_DOMAIN).format();
+    }
+
+    @Override
     public boolean supports(Class aClass) {
         return UsagePoint.class.equals(aClass);
+    }
+
+    @Override
+    public List<String> targetApplications() {
+        return Arrays.asList("COKO", "COIN", "COMU");
     }
 
     @Override
@@ -113,11 +124,6 @@ public class UsagePointSearchDomain implements SearchDomain {
     public Finder<?> finderFor(List<SearchablePropertyCondition> conditions) {
         return DefaultFinder.of(UsagePoint.class, this.toCondition(conditions), this.meteringService.getDataModel(), UsagePointDetail.class)
                 .defaultSortColumn("mRID");
-    }
-
-    @Override
-    public String displayName() {
-        return thesaurus.getFormat(PropertyTranslationKeys.USAGEPOINT_DOMAIN).format();
     }
 
     private Condition toCondition(List<SearchablePropertyCondition> conditions) {
