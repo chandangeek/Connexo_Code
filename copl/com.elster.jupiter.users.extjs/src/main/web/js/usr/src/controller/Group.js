@@ -50,7 +50,7 @@ Ext.define('Usr.controller.Group', {
             page = me.getGroupBrowse(),
             form = page.down('#groupDetailsForm');
 
-        page.down('groupDetails').setTitle(record.get('name'));
+        page.down('groupDetails').setTitle(Ext.String.htmlEncode(record.get('name')));
         form.loadRecord(record);
     }
 });
