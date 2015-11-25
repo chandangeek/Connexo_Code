@@ -9,6 +9,7 @@ import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyGroup;
 import com.elster.jupiter.search.SearchablePropertyValue;
+import com.energyict.mdc.common.search.SearchDomains;
 import com.energyict.mdc.device.config.DeviceType;
 import com.energyict.mdc.device.data.Device;
 import com.energyict.mdc.device.data.impl.DeviceDataModelService;
@@ -16,6 +17,7 @@ import com.energyict.mdc.device.data.impl.search.sqlbuilder.DeviceSearchSqlBuild
 import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
 import com.energyict.mdc.protocol.pluggable.ConnectionTypePluggableClass;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -81,6 +83,16 @@ public class DeviceSearchDomain implements SearchDomain {
     @Override
     public String getId() {
         return Device.class.getName();
+    }
+
+    @Override
+    public String displayName() {
+        return deviceDataModelService.thesaurus().getFormat(PropertyTranslationKeys.DEVICE_DOMAIN).format();
+    }
+
+    @Override
+    public List<String> targetApplications() {
+        return Collections.singletonList(SearchDomains.SEARCH_DOMAIN_APPLICATION_KEY);
     }
 
     @Override
@@ -295,8 +307,4 @@ public class DeviceSearchDomain implements SearchDomain {
                 this.deviceDataModelService.dataModel());
     }
 
-    @Override
-    public String displayName() {
-        return deviceDataModelService.thesaurus().getFormat(PropertyTranslationKeys.DEVICE_DOMAIN).format();
-    }
 }
