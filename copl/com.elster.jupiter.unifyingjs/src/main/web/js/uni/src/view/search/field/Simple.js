@@ -20,6 +20,13 @@ Ext.define('Uni.view.search.field.Simple', {
 
     initComponent: function () {
         var me = this;
+        this.init();
+
+        me.callParent(arguments);
+    },
+
+    init: function () {
+        var me = this;
 
         me.items = {
             xtype: 'uni-search-internal-criterialine',
@@ -41,7 +48,5 @@ Ext.define('Uni.view.search.field.Simple', {
                 }
             }
         };
-
-        me.callParent(arguments);
     }
 });

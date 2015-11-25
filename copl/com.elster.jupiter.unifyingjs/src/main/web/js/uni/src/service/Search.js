@@ -70,9 +70,9 @@ Ext.define('Uni.service.Search', {
         'Long:com.elster.jupiter.properties.LongFactory':                    'uni-search-criteria-numeric',
         'Date:com.energyict.mdc.dynamic.DateFactory':                        'uni-search-criteria-date',
         'Date:com.energyict.mdc.dynamic.DateAndTimeFactory':                 'uni-search-criteria-clock',
-        'TimeOfDay:com.energyict.mdc.dynamic.TimeOfDayFactory':              'uni-search-criteria-timeofday'
+        'TimeOfDay:com.energyict.mdc.dynamic.TimeOfDayFactory':              'uni-search-criteria-timeofday',
+        'ObisCode:com.energyict.mdc.dynamic.ObisCodeValueFactory':           'uni-search-criteria-obis'
     },
-
     fieldMap: {
         'Boolean': 'boolean',
         'Long': 'int',
@@ -245,11 +245,17 @@ Ext.define('Uni.service.Search', {
 
     applyFilters: function () {
         var me = this,
-            searchResults = me.getSearchResultsStore();
+            searchResults = me.getSearchResultsStore(),
+            filters = me.getFilters();
 
         searchResults.clearFilter(true);
-        searchResults.addFilter(me.getFilters(), false);
-        searchResults.load();
+        if (filters && filters.length) {
+            searchResults.addFilter(me.getFilters(), false);
+            searchResults.load();
+        } else {
+            searchResults.removeAll();
+        }
+
     },
 
     clearFilters: function () {
