@@ -31,7 +31,7 @@ Ext.define('Bpm.view.task.bulk.Step5', {
                     text = '<h3>'
                     + Uni.I18n.translate('task.bulk.result.success.taskmanagementTitle', 'BPM', 'Successfully saved the selected tasks.')
                     + '</h3><br>'
-                    + Uni.I18n.translate('task.bulk.result.success.taskmanagementDescription', 'BPM', 'The selected tasks have been modified. Check modfifications in tasks overview');
+                    + Uni.I18n.translate('task.bulk.result.success.taskmanagementDescription', 'BPM', 'The selected tasks have been modified. Check modfications in tasks overview.');
                 } else {
                     text = '<h3>' + Uni.I18n.translate('task.bulk.result.failure.taskmanagementTitle', 'BPM', 'Failed to save the selected tasks.') + '</h3>';
                 }
@@ -41,7 +41,7 @@ Ext.define('Bpm.view.task.bulk.Step5', {
                     text = '<h3>'
                     + Uni.I18n.translate('task.bulk.result.success.taskexecuteTitle', 'BPM', 'Successfully queued the selected tasks.')
                     + '</h3><br>'
-                    + Uni.I18n.translate('task.bulk.result.success.taskexecuteDescription', 'BPM', 'The selected tasks have been queued for an immediate run. Check status in in tasks overview');
+                    + Uni.I18n.translate('task.bulk.result.success.taskexecuteDescription', 'BPM', 'The selected tasks have been queued for an immediate run. Check status in in tasks overview.');
                 } else {
                     text = '<h3>' + Uni.I18n.translate('task.bulk.result.failure.taskexecuteTitle', 'BPM', 'Failed to queue the selected tasks.') + '</h3>';
                 }

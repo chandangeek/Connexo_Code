@@ -23,7 +23,7 @@ Ext.define('Bpm.view.task.bulk.Step2', {
                     name: 'action',
                     boxLabel: '<b>' + Uni.I18n.translate('general.taskManagement', 'BPM', 'Task management') + '</b>',
                     afterSubTpl: '<span style="color: grey;padding: 0 0 0 19px;">'
-                    + Uni.I18n.translate('task.bulk.actionRadioGroup.taskManagementDescription', 'BPM', 'These actions allows you to manage selected tasks')
+                    + Uni.I18n.translate('task.bulk.actionRadioGroup.taskManagementDescription', 'BPM', 'These actions allow you to manage selected tasks')
                     + '</span>',
                     inputValue: 'taskmanagement',
                     checked: true

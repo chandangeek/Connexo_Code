@@ -70,7 +70,7 @@ Ext.define('Bpm.controller.TaskBulk', {
 
         Ext.Array.each(filteredTasks.data.items, function (item) {
             tasks.push({
-                id: item.getId()
+                id: item.getId().toString()
             });
         });
 
@@ -97,7 +97,7 @@ Ext.define('Bpm.controller.TaskBulk', {
         else {
             Ext.Array.each(selectionGrid.getSelectionModel().getSelection(), function (item) {
                 tasks.push({
-                    id: item.getId()
+                    id: item.getId().toString()
                 });
             });
 
@@ -126,14 +126,13 @@ Ext.define('Bpm.controller.TaskBulk', {
 
         wizard.setLoading(true);
 
-        wizard.down('#tskbw-step5').showProgressBar(action);
+        //wizard.down('#tskbw-step5').showProgressBar(action);
 
         Ext.Ajax.request({
             url: url,
             method: 'POST',
             jsonData: operation,
-            params:operation,
-
+            params: operation,
             success: function (option) {
 
                 window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));

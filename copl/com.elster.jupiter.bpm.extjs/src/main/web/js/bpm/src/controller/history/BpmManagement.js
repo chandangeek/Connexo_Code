@@ -54,7 +54,7 @@ Ext.define('Bpm.controller.history.BpmManagement', {
                             title: Uni.I18n.translate('bpm.task.bulkAction', 'BPM', 'Bulk action'),
                             route: 'bulkaction',
                             controller: 'Bpm.controller.TaskBulk',
-                            privileges: Bpm.privileges.BpmManagement.assignAndExecute,
+                            privileges: Bpm.privileges.BpmManagement.assignOrExecute,
                             action: 'showOverview',
                             params: {
                                 sort: '',
