@@ -267,7 +267,6 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         if (grid && search.service.searchDomain) {
             var store = grid.getStore();
             queryParams = {
-                searchDomain: search.service.searchDomain.getId(),
                 restore: true
             };
         }
