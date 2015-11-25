@@ -269,9 +269,12 @@ Ext.define('Bpm.controller.OpenTask', {
         var me = this,
             taskExecutionContent = me.getTaskExecutionContent(),
             openTask = me.getModel('Bpm.model.task.OpenTask'),
-            propertyForm = taskExecutionContent.down('grouped-property-form');
+            propertyForm;
 
-
+        if (taskExecutionContent == undefined){
+            return;
+        }
+        propertyForm = taskExecutionContent.down('grouped-property-form');
         taskExecutionContent.setLoading();
 
         openTask.load(taskRecord.get('id'), {
