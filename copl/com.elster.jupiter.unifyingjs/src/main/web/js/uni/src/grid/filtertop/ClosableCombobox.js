@@ -62,8 +62,9 @@ Ext.define('Uni.grid.filtertop.ClosableCombobox', {
     },
 
     resetValue: function () {
-        if (this.combobox.reset) {
-            this.combobox.reset();
+        var me = this;
+        if (me.combobox.reset && !me.deleted) {
+            me.combobox.reset();
         }
     },
 
