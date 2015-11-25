@@ -98,7 +98,7 @@ public class RegisterTypeResourceTest extends MasterDataApplicationJerseyTest {
             .containsKey("isLinkedByDeviceType")
             .containsKey("readingType")
             .containsKey("unitOfMeasure");
-        assertThat((Map)map.get("readingType")).hasSize(22)
+        assertThat((Map)map.get("readingType"))
             .containsKey("mRID")
             .containsKey("aliasName")
             .containsKey("macroPeriod")
