@@ -3,11 +3,17 @@ package com.elster.jupiter.mail.impl;
 import com.elster.jupiter.mail.MailAddress;
 import com.elster.jupiter.mail.MailMessageBuilder;
 import com.elster.jupiter.mail.MailService;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.exception.MessageSeed;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
+import org.osgi.service.component.annotations.Reference;
 
 import javax.activation.CommandMap;
 import javax.activation.MailcapCommandMap;
@@ -19,6 +25,7 @@ import javax.mail.Transport;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -28,12 +35,18 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-@Component(name = "com.elster.jupiter.mail", service = {MailService.class}, property = "name=" + MailService.COMPONENT_NAME, immediate = true)
-public class MailServiceImpl implements IMailService {
+@Component(name = "com.elster.jupiter.mail", service = {MailService.class, MessageSeedProvider.class}, property = "name=" + MailService.COMPONENT_NAME, immediate = true)
+public class MailServiceImpl implements IMailService, MessageSeedProvider {
 
     private static final String MAIL_SMTP_HOST_PROPERTY = "mail.smtp.host";
     private static final String MAIL_SMTP_PORT_PROPERTY = "mail.smtp.port";
+    private static final String MAIL_USER_PROPERTY = "mail.user";
+    private static final String MAIL_PASSWORD_PROPERTY = "mail.password";
+    private static final String MAIL_FROM_PROPERTY = "mail.from";
+
     private static final Logger LOGGER = Logger.getLogger(MailServiceImpl.class.getName());
+
+    private volatile Thesaurus thesaurus;
 
     private String smtpHost;
     private int port = 25;
@@ -73,18 +86,14 @@ public class MailServiceImpl implements IMailService {
         smtpHost = bundleContext.getProperty(MAIL_SMTP_HOST_PROPERTY);
         smtpPort = bundleContext.getProperty(MAIL_SMTP_PORT_PROPERTY);
 
-        String fromAddress = bundleContext.getProperty("mail.from");
+        String fromAddress = bundleContext.getProperty(MAIL_FROM_PROPERTY);
         try {
             from = Checks.is(fromAddress).emptyOrOnlyWhiteSpace() ? null : new InternetAddress(fromAddress);
         } catch (AddressException e) {
             LOGGER.log(Level.SEVERE, e.getMessage() == null ? e.toString() : e.getMessage(), e);
         }
-        user = bundleContext.getProperty("mail.user");
-        password = bundleContext.getProperty("mail.password");
-    }
-
-    @Deactivate
-    public final void deactivate() {
+        user = bundleContext.getProperty(MAIL_USER_PROPERTY);
+        password = bundleContext.getProperty(MAIL_PASSWORD_PROPERTY);
     }
 
     private String getSmtpHost() {
@@ -98,6 +107,7 @@ public class MailServiceImpl implements IMailService {
 
     @Override
     public MailSession getSession() {
+        validateMailProperties();
         Properties properties = new Properties();
         properties.setProperty(MAIL_SMTP_HOST_PROPERTY, getSmtpHost());
         properties.setProperty(MAIL_SMTP_PORT_PROPERTY, getSmtpPort());
@@ -140,8 +150,39 @@ public class MailServiceImpl implements IMailService {
         };
     }
 
-
     public String getSmtpPort() {
         return smtpPort;
+    }
+
+    private void validateMailProperties(){
+        List<String> badProperties = new ArrayList<>();
+        validateMailProperty(MAIL_SMTP_HOST_PROPERTY, getSmtpHost(), badProperties);
+        validateMailProperty(MAIL_SMTP_PORT_PROPERTY, getSmtpPort(), badProperties);
+        validateMailProperty(MAIL_USER_PROPERTY, this.user, badProperties);
+        validateMailProperty(MAIL_PASSWORD_PROPERTY, this.password, badProperties);
+        if (!badProperties.isEmpty()){
+            throw new IncompleteMailConfigException(this.thesaurus, badProperties.toArray(new String[badProperties.size()]));
+        }
+    }
+
+    private void validateMailProperty(String propertyName, String value, List<String> badPropertiesCollector){
+        if (Checks.is(value).emptyOrOnlyWhiteSpace()){
+            badPropertiesCollector.add(propertyName);
+        }
+    }
+
+    @Override
+    public Layer getLayer() {
+        return Layer.DOMAIN;
+    }
+
+    @Override
+    public List<MessageSeed> getSeeds() {
+        return Arrays.asList(MessageSeeds.values());
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService){
+        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, getLayer());
     }
 }
