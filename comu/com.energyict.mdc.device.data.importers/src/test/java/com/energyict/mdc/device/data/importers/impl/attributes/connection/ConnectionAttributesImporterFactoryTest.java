@@ -1,5 +1,16 @@
 package com.energyict.mdc.device.data.importers.impl.attributes.connection;
 
+import com.elster.jupiter.fileimport.FileImportOccurrence;
+import com.elster.jupiter.fileimport.FileImporter;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.properties.BigDecimalFactory;
+import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.InvalidValueException;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.StringFactory;
+import com.elster.jupiter.properties.ValueFactory;
+import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.TypedProperties;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.PartialConnectionTask;
@@ -16,18 +27,11 @@ import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
 import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
 import com.energyict.mdc.protocol.api.ConnectionType;
-
-import com.elster.jupiter.fileimport.FileImportOccurrence;
-import com.elster.jupiter.fileimport.FileImporter;
-import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.properties.BigDecimalFactory;
-import com.elster.jupiter.properties.BooleanFactory;
-import com.elster.jupiter.properties.InvalidValueException;
-import com.elster.jupiter.properties.PropertySpec;
-import com.elster.jupiter.properties.StringFactory;
-import com.elster.jupiter.properties.ValueFactory;
-import com.elster.jupiter.util.exception.MessageSeed;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
@@ -42,26 +46,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import org.junit.*;
-import org.junit.runner.*;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.DELIMITER;
 import static com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty.NUMBER_FORMAT;
 import static com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat.FORMAT3;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.contains;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ConnectionAttributesImporterFactoryTest {
@@ -468,6 +458,37 @@ public class ConnectionAttributesImporterFactoryTest {
         verify(importOccurrence).markSuccessWithFailures(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_ERRORS).format(0, 1));
     }
 
+    @Test
+    public void testUnknownConnectionMethodAttribute() {
+        String csv = "Device MRID;Connection method name;attr1;attr2;typo\n" +
+                "VPB0001;Outbound TCP;string;100.25;1\n" +
+                "VPB0002;Outbound TCP;string;100.25;1\n";
+
+        FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
+        Device device1 = mockDevice("VPB0001");
+        Device device2 = mockDevice("VPB0002");
+        DeviceConfiguration deviceConfiguration = mock(DeviceConfiguration.class);
+        when(device1.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        when(device2.getDeviceConfiguration()).thenReturn(deviceConfiguration);
+        List<PropertySpec> propertySpecs = Arrays.asList(
+                mockPropertySpec("attr1", new StringFactory(), true),
+                mockPropertySpec("attr2", new BigDecimalFactory(), true),
+                mockPropertySpec("attr3", new BooleanFactory(), false));
+        PartialInboundConnectionTask partialConnectionTask = (PartialInboundConnectionTask) mockPartialConnectionTaskWithProperties(true, "Outbound TCP", propertySpecs);
+        when(deviceConfiguration.getPartialConnectionTasks()).thenReturn(Arrays.asList(partialConnectionTask));
+        Device.InboundConnectionTaskBuilder builder = mock(Device.InboundConnectionTaskBuilder.class);
+        when(device1.getInboundConnectionTaskBuilder(partialConnectionTask)).thenReturn(builder);
+        when(device2.getInboundConnectionTaskBuilder(partialConnectionTask)).thenReturn(builder);
+        when(builder.setConnectionTaskLifecycleStatus(ConnectionTask.ConnectionTaskLifecycleStatus.ACTIVE)).thenReturn(builder);
+
+        createConnectionAttributesImporter().process(importOccurrence);
+
+        verify(logger).info(contains(thesaurus.getFormat(MessageSeeds.UNKNOWN_CONNECTION_ATTRIBUTE).format("Outbound TCP", "typo")));
+        verify(logger, never()).warning(anyString());
+        verify(logger, never()).severe(anyString());
+        verify(importOccurrence).markSuccess(thesaurus.getFormat(TranslationKeys.IMPORT_RESULT_SUCCESS_WITH_WARN).format(2, 2));
+    }
+
     private ConstraintViolationException mockConstraintViolationException() {
         ConstraintViolationException constraintViolationException = mock(ConstraintViolationException.class);
         Set<ConstraintViolation> violations = new HashSet<>();
@@ -522,5 +543,4 @@ public class ConnectionAttributesImporterFactoryTest {
         doReturn(valueFactory).when(propertySpec).getValueFactory();
         return propertySpec;
     }
-
 }

@@ -45,6 +45,7 @@ public enum MessageSeeds implements MessageSeed {
     REQUIRED_CONNECTION_ATTRIBUTES_MISSED(303, "RequiredConnectionAttributesMissed", "Note for line {0}: Next required attribute(s) is(are) missed: {1}. The state of the connection method is \"Incomplete\".", Level.INFO),
     CONNECTION_METHOD_NOT_CREATED(304, "ConnectionMethodNotCreated", "Can''t process line {0}: Connection method {1} could not be created on the device {2}. Reasons: {3}", Level.WARNING),
     CONNECTION_ATTRIBUTE_INVALID_VALUE(305, "ConnectionAttributeInvalidValue", "Can''t process line {0}: Connection attribute value ''{1}'' is invalid for attribute ''{2}''", Level.WARNING),
+    UNKNOWN_CONNECTION_ATTRIBUTE(306, "UnknownConnectionAttribute", "Note for file: Connection method {0} doesn''t have next connection attribute(s): {1}", Level.INFO),
 
     NO_SECURITY_SETTINGS_ON_DEVICE(401, "NoSuchSecuritySettingsOnDevice", "Can''t process line {0}: Security settings with name {1} is not available on the device.", Level.WARNING),
     SECURITY_ATTRIBUTES_NOT_SET(402, "SecurityAttributesNotCreated", "Can''t process line {0}: Security attributes are not set on the device {1}.", Level.WARNING),
