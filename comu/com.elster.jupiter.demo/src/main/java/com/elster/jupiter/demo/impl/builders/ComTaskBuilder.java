@@ -23,6 +23,7 @@ public class ComTaskBuilder extends NamedBuilder<ComTask, ComTaskBuilder> {
     private List<TopologyAction> topologyActions;
     private List<Clock> clocks;
     private boolean statusInformationTask = false;
+    private boolean firmwareManagementTask = false;
 
     @Inject
     public ComTaskBuilder(TaskService taskService) {
@@ -55,8 +56,13 @@ public class ComTaskBuilder extends NamedBuilder<ComTask, ComTaskBuilder> {
         return this;
     }
 
-    public ComTaskBuilder withStatusInformationTask(boolean statusInformationTaskFlag){
+    public ComTaskBuilder forStatusInformationTask(boolean statusInformationTaskFlag){
         this.statusInformationTask = statusInformationTaskFlag;
+        return this;
+    }
+
+    public ComTaskBuilder forFirmwareManagementTask(boolean firmwareManagementFlag){
+        this.firmwareManagementTask = firmwareManagementFlag;
         return this;
     }
 
@@ -90,6 +96,9 @@ public class ComTaskBuilder extends NamedBuilder<ComTask, ComTaskBuilder> {
         }
         if (statusInformationTask) {
             comTask.createStatusInformationTask();
+        }
+        if (firmwareManagementTask) {
+            comTask.createFirmwareManagementTask();
         }
         comTask.save();
         return comTask;

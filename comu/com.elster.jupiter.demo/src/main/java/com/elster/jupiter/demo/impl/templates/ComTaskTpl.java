@@ -60,7 +60,19 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
         protected boolean isVerifyStatusInformationTask() {
             return true;
         }
+    },
+    FIRMWARE_MANAGEMENT("Firmware Management",
+            null,
+            null,
+            null,
+            null,
+            null){
+        @Override
+        protected boolean isFirmwareManagementTask() {
+            return true;
+        }
     }
+    ,
     ;
     private String name;
     private List<LoadProfileTypeTpl> loadProfileTypes;
@@ -97,7 +109,8 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
         }
         builder.withTopologyActions(topologyActions);
         builder.withClocks(clocks);
-        builder.withStatusInformationTask(isVerifyStatusInformationTask());
+        builder.forStatusInformationTask(isVerifyStatusInformationTask());
+        builder.forFirmwareManagementTask(isFirmwareManagementTask());
         return builder;
     }
 
@@ -108,9 +121,12 @@ public enum ComTaskTpl implements Template<ComTask, ComTaskBuilder> {
     protected boolean isVerifyStatusInformationTask(){
         return false;
     }
+    protected boolean isFirmwareManagementTask(){
+        return false;
+    }
 
     static ComTaskTpl[] excludeTopologyTpls(){
-        return  EnumSet.of(READ_ALL, READ_REGISTER_DATA, READ_LOAD_PROFILE_DATA, READ_LOG_BOOK_DATA, VERIFY_STATUS_INFO).toArray(new ComTaskTpl[5]);
+        return  EnumSet.of(READ_REGISTER_DATA, READ_LOAD_PROFILE_DATA, READ_LOG_BOOK_DATA, VERIFY_STATUS_INFO, FIRMWARE_MANAGEMENT ).toArray(new ComTaskTpl[5]);
     }
 
     static ComTaskTpl[] TopologyTpls(){

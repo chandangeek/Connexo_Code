@@ -119,7 +119,7 @@ public class CreateA3DeviceCommand {
 
     private void findComTasks() {
         comTasks = new HashMap<>();
-        findComTask(ComTaskTpl.READ_ALL);
+        // findComTask(ComTaskTpl.READ_ALL);
         findComTask(ComTaskTpl.READ_LOAD_PROFILE_DATA);
         findComTask(ComTaskTpl.READ_LOG_BOOK_DATA);
         findComTask(ComTaskTpl.READ_REGISTER_DATA);

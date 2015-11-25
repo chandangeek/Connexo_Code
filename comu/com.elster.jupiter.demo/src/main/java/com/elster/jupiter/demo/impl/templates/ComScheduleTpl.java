@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public enum ComScheduleTpl implements Template<ComSchedule, ComScheduleBuilder> {
-    DAILY_READ_ALL("Daily read all", Arrays.asList(ComTaskTpl.READ_REGISTER_DATA, ComTaskTpl.READ_LOAD_PROFILE_DATA, ComTaskTpl.READ_LOG_BOOK_DATA), TimeDuration.days(1)),
+    DAILY_READ_ALL("Daily read all", Arrays.asList(ComTaskTpl.READ_REGISTER_DATA, ComTaskTpl.READ_LOAD_PROFILE_DATA, ComTaskTpl.READ_LOG_BOOK_DATA, ComTaskTpl.VERIFY_STATUS_INFO), TimeDuration.days(1)),
     ;
 
     private String name;

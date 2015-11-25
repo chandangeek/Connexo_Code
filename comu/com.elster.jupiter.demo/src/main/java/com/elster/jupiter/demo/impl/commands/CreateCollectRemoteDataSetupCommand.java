@@ -155,11 +155,11 @@ public class CreateCollectRemoteDataSetupCommand {
     }
 
     private void createComTasks(){
-        Builders.from(ComTaskTpl.READ_ALL).get();
         Builders.from(ComTaskTpl.READ_LOAD_PROFILE_DATA).get();
         Builders.from(ComTaskTpl.READ_REGISTER_DATA).get();
         Builders.from(ComTaskTpl.READ_LOG_BOOK_DATA).get();
         Builders.from(ComTaskTpl.TOPOLOGY).get();
+        Builders.from(ComTaskTpl.FIRMWARE_MANAGEMENT).get();
     }
 
     private void createComSchedules(){

@@ -89,7 +89,7 @@ public class AppServerBuilder extends NamedBuilder<AppServer, AppServerBuilder> 
         Path importDirectory = Paths.get(importPath);
         appServer.setImportDirectory(importDirectory);
 
-        messageService.getSubscribers().stream().forEach(subscriber -> appServer.createSubscriberExecutionSpec(subscriber, threadCount));
+        messageService.getNonSystemManagedSubscribers().stream().forEach(subscriber -> appServer.createSubscriberExecutionSpec(subscriber, threadCount));
         dataExportService.setExportDirectory(appServer, Paths.get(exportPath));
         appServer.activate();
         return appServer;
