@@ -46,9 +46,8 @@ public abstract class AbstractValueFactory<T> implements ValueFactory<T> {
     @Override
     public void bind(SqlBuilder builder, T value) {
         if (value != null) {
-            builder.addObject(value);
-        }
-        else {
+            builder.addObject(valueToDatabase(value));
+        } else {
             builder.addNull(this.getJdbcType());
         }
     }
@@ -56,9 +55,8 @@ public abstract class AbstractValueFactory<T> implements ValueFactory<T> {
     @Override
     public void bind(PreparedStatement statement, int offset, T value) throws SQLException {
         if (value != null) {
-            statement.setObject(offset, value);
-        }
-        else {
+            statement.setObject(offset, valueToDatabase(value));
+        } else {
             statement.setNull(offset, this.getJdbcType());
         }
     }
