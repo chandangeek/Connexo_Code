@@ -34,7 +34,7 @@ Ext.define('Mtr.readingtypes.view.bulk.Step2', {
             {
                 itemId: 'reading-types-deactivate',
                 boxLabel: '<b>' + Uni.I18n.translate('readingtypesmanagment.bulk.deactivate', 'MTR', 'Deactivate') + '</b>',
-                afterSubTpl: '<span class="x-form-cb-label" style="color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('readingtypesmanagment.bulk.activateMsg', 'MTR', 'This action makes the selected reading types unavailable') + '</span>',
+                afterSubTpl: '<span class="x-form-cb-label" style="color: grey;padding: 0 0 0 19px;">' + Uni.I18n.translate('readingtypesmanagment.bulk.deactivateMsg', 'MTR', 'This action makes the selected reading types unavailable') + '</span>',
                 name: 'operation',
                 inputValue: 'deactivate'
             }
