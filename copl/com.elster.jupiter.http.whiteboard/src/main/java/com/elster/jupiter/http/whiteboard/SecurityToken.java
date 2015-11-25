@@ -42,11 +42,11 @@ public class SecurityToken {
         
         // Prepare JWT with claims set
         JWTClaimsSet claimsSet = new JWTClaimsSet();
-        claimsSet.setSubject(Long.toString(user.getId()));
         claimsSet.setCustomClaim("username",user.getName());
-       claimsSet.setCustomClaim("roles",roles);
+        claimsSet.setSubject(Long.toString(user.getId()));
+        claimsSet.setCustomClaim("roles",roles);
         claimsSet.setIssuer("Elster Connexo");
-        claimsSet.setJWTID("token" + COUNT);
+        claimsSet.setJWTID("token" + (++COUNT));
         claimsSet.setIssueTime(new Date());
         claimsSet.setExpirationTime(new Date(System.currentTimeMillis() + TOKEN_EXPTIME*1000));
         claimsSet.setCustomClaim("cnt", COUNT);
@@ -83,7 +83,6 @@ public class SecurityToken {
                     if (new Date().before(new Date(expirationTime.getTime()))) {
                         return userService.getLoggedInUser(userId);
                     } else if (new Date().before(new Date(expirationTime.getTime() + TIMEOUT*1000))) {
-                        ++COUNT;
                         String newToken = createToken(userService.getLoggedInUser(userId).get());
                         response.setHeader("X-AUTH-TOKEN", newToken);
                         response.setHeader("Authorization", "Bearer " + newToken);
@@ -111,6 +110,7 @@ public class SecurityToken {
             createCookie("X-CONNEXO-TOKEN", null, "/", 0, true, response);
             HttpSession session = request.getSession(false);
             if (session != null) session.invalidate();
+            resetCount();
         }
     }
 
@@ -120,5 +120,9 @@ public class SecurityToken {
         tokenCookie.setMaxAge(maxAge); //seconds
         tokenCookie.setHttpOnly(isHTTPOnly);
         response.addCookie(tokenCookie);
+    }
+
+    private static void resetCount(){
+        COUNT=0;
     }
 }
