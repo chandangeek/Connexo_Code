@@ -100,7 +100,9 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
     public void logOn() {
         connectWithRetries(getDlmsSession());
         checkCacheObjects();
-        getMeterTopology().searchForSlaveDevices();
+        if (!getOfflineDevice().getAllSlaveDevices().isEmpty()) {
+            getMeterTopology().searchForSlaveDevices();
+        }
     }
 
     /**
@@ -303,11 +305,12 @@ public class AM500 extends AbstractDlmsProtocol implements SerialNumberSupport{
         if (meterTopology == null) {
             meterTopology = new IDISMeterTopology(this);
         }
+        meterTopology.searchForSlaveDevices();
         return meterTopology;
     }
 
     @Override
     public String getVersion() {
-        return "$Date: Thu Nov 26 15:23:57 2015 +0200 $";
+        return "$Date: 2015-11-26 15:25:58 +0200 (Thu, 26 Nov 2015)$";
     }
 }
