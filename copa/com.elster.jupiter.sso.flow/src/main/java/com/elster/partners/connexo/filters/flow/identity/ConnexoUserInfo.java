@@ -15,7 +15,7 @@ import org.kie.internal.task.api.model.InternalOrganizationalEntity;
 @Veto
 public class ConnexoUserInfo implements UserInfo {
 
-	ConnexoRestProxyManager manager = ConnexoRestProxyManager.getInstance();
+	ConnexoFlowRestProxyManager manager = ConnexoFlowRestProxyManager.getInstance();
 
     ConnexoUserInfo() {}
 

@@ -8,7 +8,7 @@ import org.kie.api.task.UserGroupCallback;
 @Veto
 public class ConnexoUserGroupCallBack implements UserGroupCallback {
 
-	ConnexoRestProxyManager manager = ConnexoRestProxyManager.getInstance();
+	ConnexoFlowRestProxyManager manager = ConnexoFlowRestProxyManager.getInstance();
 
     ConnexoUserGroupCallBack() {}
 

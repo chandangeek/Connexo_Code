@@ -18,26 +18,26 @@ import java.util.List;
 /**
  * Created by dragos on 11/17/2015.
  */
-public class ConnexoRestProxyManager {
+public class ConnexoFlowRestProxyManager {
 
     private final String url;
     private final String token;
 
-    private static ConnexoRestProxyManager instance = null;
+    private static ConnexoFlowRestProxyManager instance = null;
 
-    public static synchronized ConnexoRestProxyManager getInstance(String url, String token) {
+    public static synchronized ConnexoFlowRestProxyManager getInstance(String url, String token) {
         if(instance == null) {
-            instance = new ConnexoRestProxyManager(url, token);
+            instance = new ConnexoFlowRestProxyManager(url, token);
         }
 
         return instance;
     }
 
-    static ConnexoRestProxyManager getInstance() {
+    static ConnexoFlowRestProxyManager getInstance() {
         return instance;
     }
 
-    private ConnexoRestProxyManager(String url, String token) {
+    private ConnexoFlowRestProxyManager(String url, String token) {
         this.url = url;
         this.token = token;
     }

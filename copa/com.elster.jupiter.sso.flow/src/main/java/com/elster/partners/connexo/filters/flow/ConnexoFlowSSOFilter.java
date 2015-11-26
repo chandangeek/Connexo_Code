@@ -1,7 +1,7 @@
 package com.elster.partners.connexo.filters.flow;
 
 import com.elster.partners.connexo.filters.flow.authorization.ConnexoAuthorizationManager;
-import com.elster.partners.connexo.filters.flow.identity.ConnexoRestProxyManager;
+import com.elster.partners.connexo.filters.flow.identity.ConnexoFlowRestProxyManager;
 import com.elster.partners.connexo.filters.generic.ConnexoAbstractSSOFilter;
 import com.elster.partners.connexo.filters.generic.ConnexoPrincipal;
 import org.jboss.solder.core.Veto;
@@ -55,7 +55,7 @@ public class ConnexoFlowSSOFilter extends ConnexoAbstractSSOFilter {
                 redirectToLogout(request, response);
             }
             else {
-                ConnexoRestProxyManager manager = ConnexoRestProxyManager.getInstance(getConnexoUrl(), token);
+                ConnexoFlowRestProxyManager manager = ConnexoFlowRestProxyManager.getInstance(getConnexoUrl(), token);
 
                 List<Role> roles = new ArrayList<>();
                 for(String role : principal.getRoles()) {
