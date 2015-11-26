@@ -20,10 +20,7 @@ import com.energyict.smartmeterprotocolimpl.common.topology.DeviceMapping;
 import com.energyict.smartmeterprotocolimpl.eict.webrtuz3.topology.DeviceMappingRange;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Copyrights EnergyICT
@@ -232,12 +229,10 @@ public class WebRTUZ3MeterTopology extends AbstractMeterTopology {
      * @return the next available physicalAddress or -1 if none is available.
      */
     public int searchNextFreePhysicalAddress(){
-        int availablePhysicalAddress = 0;
+        List<Integer> availablePhysicalAddresses = new ArrayList<Integer>(Arrays.asList(1, 2, 3, 4));
         for (DeviceMapping dm : this.mbusMap) {
-            if(availablePhysicalAddress < dm.getPhysicalAddress()) {
-                availablePhysicalAddress = dm.getPhysicalAddress();
-            }
+            availablePhysicalAddresses.remove((Integer) dm.getPhysicalAddress());    // Remove the specified object from the list
         }
-        return availablePhysicalAddress + 1;
+        return availablePhysicalAddresses.isEmpty() ? 0 : availablePhysicalAddresses.get(0);
     }
 }
