@@ -36,7 +36,7 @@ public abstract class AbstractPrimeMeter extends AbstractDlmsSessionProtocol {
     private ProfileCacheImpl cache = new ProfileCacheImpl();
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-06-12 10:49:37 +0200 (Fri, 12 Jun 2015) $";
     }
 
     @Override

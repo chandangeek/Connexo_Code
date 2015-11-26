@@ -1341,7 +1341,7 @@ public class ACE6000 extends PluggableMeterProtocol implements HHUEnabler, Proto
      * Protocol Version *
      */
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2014-10-30 17:01:03 +0100 (Thu, 30 Oct 2014) $";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {

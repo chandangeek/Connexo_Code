@@ -90,7 +90,7 @@ public class A40 extends Modbus {
      * The protocol version
      */
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-18 10:00:12 +0100 (Wed, 18 Nov 2015) $";
     }
     
     protected void initRegisterFactory() {

@@ -254,7 +254,7 @@ public class IDIS extends AbstractDLMSProtocol implements MessageProtocol, Cache
      */
     @Override
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-02-24 09:47:18 +0100 (Tue, 24 Feb 2015) $";
     }
 
     @Override

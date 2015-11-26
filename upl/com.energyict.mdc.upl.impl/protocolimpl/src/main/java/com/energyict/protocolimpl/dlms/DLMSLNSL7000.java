@@ -1302,7 +1302,7 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
     } // public String getSerialNumber() throws IOException
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-07-30 11:19:34 +0200 (Thu, 30 Jul 2015) $";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {

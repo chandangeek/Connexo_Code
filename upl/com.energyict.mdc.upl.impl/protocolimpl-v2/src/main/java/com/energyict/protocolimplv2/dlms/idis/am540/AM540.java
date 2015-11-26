@@ -51,7 +51,7 @@ public class AM540 extends AM130 {
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-17 16:28:58 +0100 (Tue, 17 Nov 2015) $";
     }
 
     /**

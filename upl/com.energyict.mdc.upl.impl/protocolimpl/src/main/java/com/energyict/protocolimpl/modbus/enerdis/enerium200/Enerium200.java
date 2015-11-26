@@ -117,7 +117,7 @@ public class Enerium200 extends Modbus {
 	}
 
     public String getProtocolVersion() {
-		return "$Date$";
+		return "$Date: 2015-04-09 09:16:13 +0200 (Thu, 09 Apr 2015) $";
 	}
 	
 	/*

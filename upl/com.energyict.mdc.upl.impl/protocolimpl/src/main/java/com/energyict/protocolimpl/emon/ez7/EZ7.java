@@ -62,7 +62,7 @@ public class EZ7 extends AbstractProtocol {
      * The protocol version
      */
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2014-12-09 17:37:01 +0100 (Tue, 09 Dec 2014) $";
     }
     
     public String getFirmwareVersion() throws IOException, UnsupportedException {

@@ -507,7 +507,7 @@ public class MaxSys extends PluggableMeterProtocol implements RegisterProtocol {
     }
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-04-20 14:28:21 +0200 (Mon, 20 Apr 2015) $";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {

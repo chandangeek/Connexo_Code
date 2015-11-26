@@ -177,7 +177,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism {
      */
     @Override
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-06-04 15:22:35 +0200 (Thu, 04 Jun 2015) $";
     }
 
     /**

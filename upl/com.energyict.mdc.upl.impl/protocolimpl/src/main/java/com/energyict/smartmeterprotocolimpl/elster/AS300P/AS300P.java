@@ -180,7 +180,7 @@ public class AS300P extends AbstractSmartDlmsProtocol implements MessageProtocol
     //---------- END OF MESSAGING ----------//
 
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-08-26 14:01:32 +0200 (Wed, 26 Aug 2015) $";
     }
 
     public AS300PObjectFactory getObjectFactory() {

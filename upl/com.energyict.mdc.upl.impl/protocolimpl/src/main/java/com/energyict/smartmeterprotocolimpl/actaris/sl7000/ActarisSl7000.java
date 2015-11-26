@@ -192,7 +192,7 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
      * Returns the protocol version
      */
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2014-11-28 15:19:52 +0100 (Fri, 28 Nov 2014) $";
     }
 
     /**

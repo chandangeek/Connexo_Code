@@ -253,7 +253,7 @@ public class ProximusSmsSender {
      * @return a version string
      */
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2013-06-26 15:21:25 +0200 (Wed, 26 Jun 2013) $";
     }
 
     public String getConnectionURL() {

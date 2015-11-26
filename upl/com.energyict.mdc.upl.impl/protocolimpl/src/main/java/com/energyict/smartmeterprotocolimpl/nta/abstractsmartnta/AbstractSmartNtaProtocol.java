@@ -261,7 +261,7 @@ public abstract class AbstractSmartNtaProtocol extends AbstractSmartDlmsProtocol
      * @return a version string
      */
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-03-16 09:51:57 +0100 (Mon, 16 Mar 2015) $";
     }
 
     public BulkRegisterProtocol getRegisterFactory() {
