@@ -274,7 +274,7 @@ Ext.define('Bpm.controller.OpenTask', {
         if (taskExecutionContent == undefined){
             return;
         }
-        propertyForm = taskExecutionContent.down('grouped-property-form');
+        propertyForm = taskExecutionContent.down('property-form');
         taskExecutionContent.setLoading();
 
         openTask.load(taskRecord.get('id'), {
@@ -312,7 +312,7 @@ Ext.define('Bpm.controller.OpenTask', {
             taskExecutionForm = me.getTaskExecutionForm(),
             taskExecutionContent = me.getTaskExecutionContent(),
             openTaskRecord = taskExecutionContent.openTaskRecord,
-            propertyForm = taskExecutionContent.down('grouped-property-form');
+            propertyForm = taskExecutionContent.down('property-form');
 
         propertyForm.updateRecord();
 
