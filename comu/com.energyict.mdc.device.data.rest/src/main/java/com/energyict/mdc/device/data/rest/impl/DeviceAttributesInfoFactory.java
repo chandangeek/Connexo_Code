@@ -15,6 +15,7 @@ import com.energyict.mdc.device.data.rest.impl.DeviceAttributesInfo.DeviceAttrib
 import com.energyict.mdc.device.lifecycle.config.DefaultState;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -52,6 +53,14 @@ public class DeviceAttributesInfoFactory {
         info.serialNumber = new DeviceAttributeInfo();
         info.serialNumber.displayValue = device.getSerialNumber();
         fillAvailableAndEditable(info.serialNumber, DeviceAttribute.SERIAL_NUMBER, state);
+
+        info.multiplier = new DeviceAttributeInfo<>();
+        info.multiplier.displayValue = device.getMultiplier().intValue();
+        fillAvailableAndEditable(info.multiplier, DeviceAttribute.MULTIPLIER, state);
+
+        info.multiplierEffectiveDate = new DeviceAttributeInfo<>();
+        info.multiplierEffectiveDate.displayValue = device.getMultiplierEffectiveTimeStamp();
+        fillAvailableAndEditable(info.multiplierEffectiveDate, DeviceAttribute.MULTIPLIER_EFFECTIVE_DATE, state);
 
         info.yearOfCertification = new DeviceAttributeInfo();
         info.yearOfCertification.displayValue = device.getYearOfCertification();
@@ -157,6 +166,9 @@ public class DeviceAttributesInfoFactory {
             } else {
                 batchService.findOrCreateBatch(info.batch.displayValue).addDevice(device);
             }
+        }
+        if(DeviceAttribute.MULTIPLIER.isEditableForState(state) && info.multiplier != null){
+            device.setMultiplier(BigDecimal.valueOf(info.multiplier.displayValue), info.multiplierEffectiveDate.displayValue);
         }
         Optional<UsagePoint> currentUsagePoint = device.getUsagePoint();
         if (DeviceAttribute.USAGE_POINT.isEditableForState(state)) {

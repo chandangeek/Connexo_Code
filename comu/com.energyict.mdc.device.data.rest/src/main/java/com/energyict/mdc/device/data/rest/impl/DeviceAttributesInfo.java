@@ -20,6 +20,18 @@ public class DeviceAttributesInfo {
                 return Collections.emptyList();
             }
         },
+        MULTIPLIER {
+            @Override
+            public List<DefaultState> attributeIsEditableForStates() {
+                return Collections.emptyList();
+            }
+        },
+        MULTIPLIER_EFFECTIVE_DATE {
+            @Override
+            public List<DefaultState> attributeIsEditableForStates() {
+                return Collections.emptyList();
+            }
+        },
         DEVICE_TYPE {
             @Override
             public List<DefaultState> attributeIsEditableForStates() {
@@ -138,6 +150,8 @@ public class DeviceAttributesInfo {
     public DeviceAttributeInfo<String> deviceType;
     public DeviceAttributeInfo<String> deviceConfiguration;
     public DeviceAttributeInfo<String> serialNumber;
+    public DeviceAttributeInfo<Integer> multiplier;
+    public DeviceAttributeInfo<Instant> multiplierEffectiveDate;
     public DeviceAttributeInfo<Integer> yearOfCertification;
     public DeviceAttributeInfo<String> lifeCycleState;
     public DeviceAttributeInfo<String> batch;
