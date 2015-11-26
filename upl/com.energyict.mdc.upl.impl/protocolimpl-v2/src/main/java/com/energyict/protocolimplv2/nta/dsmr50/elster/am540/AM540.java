@@ -111,9 +111,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
     public void logOn() {
         connectWithRetries();
         checkCacheObjects();
-        if (!getOfflineDevice().getAllSlaveDevices().isEmpty()) {
-            getMeterTopology().searchForSlaveDevices();
-        }
+        getMeterTopology().searchForSlaveDevices();
     }
 
     @Override
@@ -368,7 +366,7 @@ public class AM540 extends AbstractDlmsProtocol implements MigrateFromV1Protocol
 
     @Override
     public String getVersion() {
-        return "$Date: 2015-11-26 15:25:12 +0200 (Thu, 26 Nov 2015)$";
+        return "$Date: Thu Nov 26 15:23:57 2015 +0200 $";
     }
 
     @Override
