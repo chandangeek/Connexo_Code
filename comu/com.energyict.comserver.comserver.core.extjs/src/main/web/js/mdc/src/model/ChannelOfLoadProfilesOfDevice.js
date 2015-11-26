@@ -40,7 +40,7 @@ Ext.define('Mdc.model.ChannelOfLoadProfilesOfDevice', {
             mapping: function (data) {
                 return (data.validationInfo && data.validationInfo.lastChecked)
                     ? Uni.DateTime.formatDateTimeLong(new Date(data.validationInfo.lastChecked))
-                    : '';
+                    : Uni.I18n.translate('general.never', 'MDC', 'Never');
             }
         },
         {
