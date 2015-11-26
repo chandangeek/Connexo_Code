@@ -9,7 +9,7 @@ Ext.define('Apr.controller.Main', {
     controllers: [
         'Apr.controller.history.AppServer',
         'Apr.controller.AppServers',
-        'Apr.controller.TaskOverview'
+        'Apr.controller.TaskOverview',
         'Apr.controller.MessageQueues'
     ],
 
