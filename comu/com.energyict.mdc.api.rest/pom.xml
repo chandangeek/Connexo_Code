@@ -264,41 +264,33 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <!--<plugin>-->
-              <!--<groupId>org.codehaus.mojo</groupId>-->
-              <!--<artifactId>templating-maven-plugin</artifactId>-->
-              <!--<version>1.0.5</version>-->
-              <!--<executions>-->
-                  <!--<execution>-->
-                      <!--<id>filter-src</id>-->
-                      <!--<goals>-->
-                          <!--<goal>filter-sources</goal>-->
-                      <!--</goals>-->
-                  <!--</execution>-->
-              <!--</executions>-->
-            <!--</plugin>-->
-            <plugin>
-                <groupId>com.qmino</groupId>
-                <artifactId>miredot-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>restdoc</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <output>
-                        <title>Multisense API v${api.version}</title>
-                        <html>
-                            <baseUrl>http://localhost:8080/public/api/comu/v${api.version}</baseUrl>
-                        </html>
-                    </output>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+    <profiles>
+        <profile>
+            <id>restdoc</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.qmino</groupId>
+                        <artifactId>miredot-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>restdoc</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <output>
+                                <title>Multisense API v${api.version}</title>
+                                <html>
+                                    <baseUrl>http://localhost:8080/public/api/comu/v${api.version}</baseUrl>
+                                </html>
+                            </output>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
