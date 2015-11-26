@@ -68,7 +68,6 @@ public class HttpContextImpl implements HttpContext {
     }
 
 
-
     // TODO: this is handleSecurity based on JWT encrypted cookie - not secure
     // either session tracking on the server side, or double sumbit is required to secure this
     // both options are not feasible at this point
@@ -91,9 +90,16 @@ public class HttpContextImpl implements HttpContext {
         String authentication = request.getHeader("Authorization");
         Optional<Cookie> xsrf = Arrays.asList(request.getCookies()).stream().filter(cookie -> cookie.getName().equals("X-CONNEXO-TOKEN")).findFirst();
 
+        boolean refreshCookie = false;
         if (authentication == null) {
-            if (xsrf.isPresent()) {
+            refreshCookie = false;
+            if (xsrf.isPresent())
                 user = SecurityToken.verifyToken(xsrf.get().getValue(), request, response, userService);
+
+            if (isCachedResource(request.getRequestURL().toString()) && user.isPresent()) {
+                response.setHeader("Cache-Control", "max-age=86400");
+            } else {
+                response.setHeader("Cache-Control", "no-cache");
             }
 
             if (!xsrf.isPresent() || !user.isPresent()) {
@@ -101,26 +107,25 @@ public class HttpContextImpl implements HttpContext {
                     return false;
                 }
 
-                if (isCachedResource(request.getRequestURL().toString()) && user.isPresent()) {
-                    response.setHeader("Cache-Control", "max-age=86400");
-                } else {
-                    response.setHeader("Cache-Control", "no-cache");
-                }
+
                 return true;
             }
-        } else {
-            if (authentication.startsWith("Basic ")) {
-                user = userService.authenticateBase64(authentication.split(" ")[1]);
-            } else if (authentication.startsWith("Bearer ")){
-                    //&& !authentication.equals("Bearer undefined")) {
-                String token = authentication.substring(7);
-                if(!token.equals(xsrf.get().getValue()))
+        } else if (authentication.startsWith("Bearer ") && !authentication.startsWith("Bearer undefined")) {
+            refreshCookie = false;
+            String token = authentication.split(" ")[1];
+            if (xsrf.isPresent()) {
+                if (!token.equals(xsrf.get().getValue()))
                     return deny(request, response);
-                user = SecurityToken.verifyToken(token, request, response, userService);
             }
+            user = SecurityToken.verifyToken(token, request, response, userService);
+        } else if (authentication.startsWith("Basic ")) {
+            SecurityToken.removeCookie(request, response);
+            refreshCookie = true;
+            user = userService.authenticateBase64(authentication.split(" ")[1]);
         }
-            return user.isPresent() ? allow(request, response, user.get()) : deny(request, response);
-        }
+
+        return user.isPresent() ? allow(request, response, user.get(), refreshCookie) : deny(request, response);
+    }
 
 
     private boolean login(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -136,7 +141,7 @@ public class HttpContextImpl implements HttpContext {
         }
     }
 
-    private boolean allow(HttpServletRequest request, HttpServletResponse response, User user) {
+    private boolean allow(HttpServletRequest request, HttpServletResponse response, User user, boolean refreshCookie) {
 
         request.setAttribute(HttpContext.AUTHENTICATION_TYPE, HttpServletRequest.BASIC_AUTH);
         request.setAttribute(USERPRINCIPAL, user);
@@ -149,16 +154,20 @@ public class HttpContextImpl implements HttpContext {
 
 
         Optional<Cookie> xsrf = Arrays.asList(request.getCookies()).stream().filter(cookie -> cookie.getName().equals("X-CONNEXO-TOKEN")).findFirst();
-        if (!xsrf.isPresent()) {
+        if (!xsrf.isPresent() || refreshCookie) {
             String token = SecurityToken.createToken(user);
             response.setHeader("X-AUTH-TOKEN", token);
             response.setHeader("Authorization", "Bearer " + token);
-            SecurityToken.createCookie("X-CONNEXO-TOKEN", token, "/", WhiteBoard.getTokenExpTime()+WhiteBoard.getTimeout(), true, response);
-            userService.addLoggedInUser(user);
-        } else{
+            SecurityToken.createCookie("X-CONNEXO-TOKEN", token, "/", WhiteBoard.getTokenExpTime() + WhiteBoard.getTimeout(), true, response);
+
+        }else if(xsrf.isPresent() && response.getHeader("Authorization")!=null){
+            response.setHeader("X-AUTH-TOKEN",response.getHeader("Authorization"));
+            response.setHeader("Authorization", "Bearer " + response.getHeader("Authorization"));
+        }else if(xsrf.isPresent()){
             response.setHeader("X-AUTH-TOKEN",xsrf.get().getValue());
             response.setHeader("Authorization", "Bearer " + xsrf.get().getValue());
         }
+            userService.addLoggedInUser(user);
         return true;
     }
 
@@ -167,7 +176,7 @@ public class HttpContextImpl implements HttpContext {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         Optional<Cookie> xsrf = Arrays.asList(request.getCookies()).stream().filter(cookie -> cookie.getName().equals("X-CONNEXO-TOKEN")).findFirst();
         if (xsrf.isPresent()) {
-            SecurityToken.removeCookie(request,response);
+            SecurityToken.removeCookie(request, response);
         }
         return false;
     }

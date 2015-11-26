@@ -75,7 +75,6 @@ public class SecurityToken {
             long count = (Long)signedJWT.getJWTClaimsSet().getCustomClaim("cnt");
             long tokenNumericTermination = Long.parseLong(signedJWT.getJWTClaimsSet().getJWTID().split("[a-z]")[5]);
 
-
             if (signedJWT.verify(verifier) && issuer.equals("Elster Connexo") &&
                     issueTime.before(expirationTime) && count == tokenNumericTermination) {
                 if (count < MAX_COUNT) {
@@ -92,6 +91,7 @@ public class SecurityToken {
                 }
             }
             removeCookie(request, response);
+            invalidateSession(request);
         } catch (ParseException e) {
             e.printStackTrace();
         } catch (JOSEException e) {
@@ -108,10 +108,12 @@ public class SecurityToken {
             response.setHeader("Authorization", null);
             response.setHeader("X-AUTH-TOKEN", null);
             createCookie("X-CONNEXO-TOKEN", null, "/", 0, true, response);
-            HttpSession session = request.getSession(false);
-            if (session != null) session.invalidate();
-            resetCount();
         }
+    }
+    public static void invalidateSession(HttpServletRequest request){
+        HttpSession session = request.getSession(false);
+        if (session != null) session.invalidate();
+        resetCount();
     }
 
     public static void createCookie(String cookieName, String cookieValue, String cookiePath, int maxAge, boolean isHTTPOnly, HttpServletResponse response ){
