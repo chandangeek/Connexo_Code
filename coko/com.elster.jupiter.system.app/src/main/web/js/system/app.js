@@ -42,7 +42,7 @@ Ext.onReady(function () {
 
     Ext.Ajax.on("beforerequest", function(conn){
         var xAuthToken = localStorage.getItem('X-AUTH-TOKEN');
-        conn.defaultHeaders.Authorization =  xAuthToken == null ? 'Bearer '.concat(xAuthToken) : 'Bearer '.concat(xAuthToken.substr(xAuthToken.lastIndexOf(" ")+1));
+        conn.defaultHeaders.Authorization =  xAuthToken != null ? 'Bearer '.concat(xAuthToken.substr(xAuthToken.lastIndexOf(" ")+1)) : 'Bearer '.concat(xAuthToken);
 
     });
     Ext.Ajax.on("requestcomplete", function(conn, response){
