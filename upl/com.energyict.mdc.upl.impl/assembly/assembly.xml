@@ -22,7 +22,6 @@
             <includes>
                 <include>com.energyict:dlms</include>
                 <include>com.energyict:connectiontypes</include>
-                <include>com.energyict:protocol-api</include>
                 <include>com.energyict:protocolimpl</include>
                 <include>com.energyict:protocolimpl-v2</include>
                 <include>com.energyict:protocolcommon</include>
@@ -33,6 +32,13 @@
                 <unpack>false</unpack>
                 <outputDirectory>lib/protocol</outputDirectory>
                 <dependencySets>
+                    <dependencySet>
+                        <includes>
+                            <include>com.energyict:protocol-api</include>
+                        </includes>
+                        <useTransitiveDependencies>true</useTransitiveDependencies>
+                        <useTransitiveFiltering>true</useTransitiveFiltering>
+                    </dependencySet>
                     <dependencySet>
                         <excludes>
                             <exclude>com.energyict:*</exclude>

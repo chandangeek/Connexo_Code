@@ -29,9 +29,9 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.conta
  */
 public class WebRTUZ3EMeterMessageExecutor extends AbstractMessageExecutor {
 
-    public static final ObisCode DISCONNECTOR_OBIS = ObisCode.fromString("0.0.96.3.10.255");
-    public static final ObisCode DISCONNECTOR_SCRIPT_TABLE_OBIS = ObisCode.fromString("0.0.10.0.106.255");
-    public static final ObisCode DISCONNECTOR_CTR_SCHEDULE_OBIS = ObisCode.fromString("0.0.15.0.1.255");
+    public static final ObisCode DISCONNECTOR_OBIS = ObisCode.fromString("0.x.96.3.10.255");
+    public static final ObisCode DISCONNECTOR_SCRIPT_TABLE_OBIS = ObisCode.fromString("0.x.10.0.106.255");
+    public static final ObisCode DISCONNECTOR_CTR_SCHEDULE_OBIS = ObisCode.fromString("0.x.15.0.1.255");
 
     public WebRTUZ3EMeterMessageExecutor(AbstractDlmsProtocol protocol) {
         super(protocol);

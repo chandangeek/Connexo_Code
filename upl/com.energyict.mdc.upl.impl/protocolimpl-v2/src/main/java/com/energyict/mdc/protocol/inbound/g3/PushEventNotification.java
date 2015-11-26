@@ -307,7 +307,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-25 14:25:56 +0200 (Wed, 25 Nov 2015)$";
     }
 
     @Override

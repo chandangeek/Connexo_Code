@@ -458,7 +458,7 @@ public class Ion extends PluggableMeterProtocol implements RegisterProtocol, Pro
      * The protocol version date
      */
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-01-22 14:04:02 +0100 (Thu, 22 Jan 2015) $";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {

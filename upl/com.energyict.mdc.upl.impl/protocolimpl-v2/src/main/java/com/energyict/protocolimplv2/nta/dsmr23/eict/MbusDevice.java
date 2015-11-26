@@ -40,7 +40,7 @@ public class MbusDevice extends AbstractNtaMbusDevice {
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-03-30 15:24:34 +0200 (Mon, 30 Mar 2015) $";
     }
 
     @Override

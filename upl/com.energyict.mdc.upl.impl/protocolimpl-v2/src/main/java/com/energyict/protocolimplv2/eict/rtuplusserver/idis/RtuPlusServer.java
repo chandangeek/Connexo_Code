@@ -360,6 +360,6 @@ public class RtuPlusServer implements DeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-06 14:27:09 +0100 (Fri, 06 Nov 2015) $";
     }
 }

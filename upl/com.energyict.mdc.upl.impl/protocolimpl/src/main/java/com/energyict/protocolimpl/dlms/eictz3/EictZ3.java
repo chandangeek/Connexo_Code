@@ -1323,7 +1323,7 @@ public final class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, 
     }
 
     public final String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-05-05 15:18:27 +0200 (Tue, 05 May 2015) $";
     }
 
     public final String getFirmwareVersion() throws IOException {

@@ -206,11 +206,10 @@ public class WebRTUZ3MeterTopology extends AbstractMeterTopology {
     @Override
     public ObisCode getPhysicalAddressCorrectedObisCode(ObisCode obisCode, String serialNumber) {
         int physicalAddress = getPhysicalAddress(serialNumber);
-        if (physicalAddress == 0) {
+        if ((physicalAddress == 0 && !obisCode.anyChannel() && obisCode.getB() != 128)) { // then don't correct the obisCode
             return obisCode;
-        } else {
-            return ProtocolTools.setObisCodeField(obisCode, 1, (byte) physicalAddress);
         }
+        return ProtocolTools.setObisCodeField(obisCode, 1, (byte) physicalAddress);
     }
 
     @Override

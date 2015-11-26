@@ -104,6 +104,6 @@ public class CtrInboundDeviceProtocol extends AbstractDiscover {
 
     @Override
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
     }
 }

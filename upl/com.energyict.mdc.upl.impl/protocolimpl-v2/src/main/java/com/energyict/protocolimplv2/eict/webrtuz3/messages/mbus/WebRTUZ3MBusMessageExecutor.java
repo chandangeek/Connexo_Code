@@ -32,10 +32,10 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
  */
 public class WebRTUZ3MBusMessageExecutor extends AbstractMessageExecutor {
 
-    public static final ObisCode MBUS_CLIENT_OBIS = ObisCode.fromString("0.0.24.1.0.255");
-    public static final ObisCode MBUS_DISCONNECT_CONTROL_OBIS = ObisCode.fromString("0.0.24.4.0.255");
-    public static final ObisCode MBUS_DISCONNECT_CONTROL_SCHEDULE_OBIS = ObisCode.fromString("0.0.24.6.0.255");
-    public static final ObisCode MBUS_DISCONNECT_SCRIPT_TABLE_OBIS = ObisCode.fromString("0.0.24.7.0.255");
+    public static final ObisCode MBUS_CLIENT_OBIS = ObisCode.fromString("0.x.24.1.0.255");
+    public static final ObisCode MBUS_DISCONNECT_CONTROL_OBIS = ObisCode.fromString("0.x.24.4.0.255");
+    public static final ObisCode MBUS_DISCONNECT_CONTROL_SCHEDULE_OBIS = ObisCode.fromString("0.x.24.6.0.255");
+    public static final ObisCode MBUS_DISCONNECT_SCRIPT_TABLE_OBIS = ObisCode.fromString("0.x.24.7.0.255");
 
     public WebRTUZ3MBusMessageExecutor(AbstractDlmsProtocol protocol) {
         super(protocol);

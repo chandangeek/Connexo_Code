@@ -71,11 +71,10 @@ public class IDISMeterTopology extends AbstractMeterTopology {
     @Override
     public ObisCode getPhysicalAddressCorrectedObisCode(ObisCode obisCode, String serialNumber) {
         int mBusChannelId = getPhysicalAddress(serialNumber);
-        if (mBusChannelId == 0) {
+        if ((mBusChannelId  == 0 && !obisCode.anyChannel() && obisCode.getB() != 128)) { // then don't correct the obisCode
             return obisCode;
-        } else {
-            return ProtocolTools.setObisCodeField(obisCode, 1, (byte) mBusChannelId);
         }
+        return ProtocolTools.setObisCodeField(obisCode, 1, (byte) mBusChannelId);
     }
 
     /**

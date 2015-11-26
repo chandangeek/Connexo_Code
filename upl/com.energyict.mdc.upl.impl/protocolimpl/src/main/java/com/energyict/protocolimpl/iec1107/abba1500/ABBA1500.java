@@ -353,7 +353,7 @@ public class ABBA1500 extends PluggableMeterProtocol implements HHUEnabler, Prot
      * The protocol version date
      */
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2015-11-13 15:14:02 +0100 (Fri, 13 Nov 2015) $";
     }
 
     public String getFirmwareVersion() throws IOException, UnsupportedException {

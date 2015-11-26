@@ -61,7 +61,7 @@ public class PQM2 extends Modbus  {
     }
 
     public String getProtocolVersion() {
-        return "$Date$";
+        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
     }
     
     protected void initRegisterFactory() {

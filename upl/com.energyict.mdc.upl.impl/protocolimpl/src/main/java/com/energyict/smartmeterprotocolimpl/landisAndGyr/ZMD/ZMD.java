@@ -256,7 +256,7 @@ public class ZMD extends AbstractSmartDlmsProtocol implements DemandResetProtoco
      * Returns the protocol version date
      */
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-05-08 14:23:33 +0200 (Fri, 08 May 2015) $";
     }
 
     public void resetDemand() throws IOException {

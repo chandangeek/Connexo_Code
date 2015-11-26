@@ -59,18 +59,18 @@ public class LoadProfileBuilder implements DeviceLoadProfileSupport {
     /**
      * Hardcoded ObisCode for the status of the 15min profile
      */
-    protected static final ObisCode QuarterlyHourStatusObisCode = ObisCode.fromString("0.0.96.10.1.255");
+    protected static final ObisCode QuarterlyHourStatusObisCode = ObisCode.fromString("0.x.96.10.1.255");
 
-    protected static final ObisCode EdpQuarterlyHourStatusObisCode = ObisCode.fromString("0.0.96.10.7.255");
+    protected static final ObisCode EdpQuarterlyHourStatusObisCode = ObisCode.fromString("0.x.96.10.7.255");
 
     /**
      * Hardcoded ObisCode for the status of the daily profile
      */
-    protected static final ObisCode DailyStatusObisCode = ObisCode.fromString("0.0.96.10.2.255");
+    protected static final ObisCode DailyStatusObisCode = ObisCode.fromString("0.x.96.10.2.255");
     /**
      * Hardcoded ObisCode for the status of the hourly profile
      */
-    protected static final ObisCode HourlyStatusObiscode = ObisCode.fromString("0.0.96.10.3.255");
+    protected static final ObisCode HourlyStatusObiscode = ObisCode.fromString("0.x.96.10.3.255");
 
     /**
      * The used meterProtocol

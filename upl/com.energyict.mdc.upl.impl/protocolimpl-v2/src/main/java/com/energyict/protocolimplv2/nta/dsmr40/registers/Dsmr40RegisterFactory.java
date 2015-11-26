@@ -39,6 +39,7 @@ import java.util.List;
  */
 public class Dsmr40RegisterFactory extends Dsmr23RegisterFactory {
 
+    public static final ObisCode MbusClientObisCode = ObisCode.fromString("0.x.24.1.0.255");
     public static final ObisCode MbusEncryptionStatus_New = ObisCode.fromString("0.x.24.1.0.13");   // ObisCode from MbusSetup object with AttributeNr. as F-field
     public static final ObisCode MbusKeyStatusObisCode = ObisCode.fromString("0.x.24.1.0.14"); // ObisCode from MbusSetup object with AttributNr. as F-field
 
@@ -85,34 +86,30 @@ public class Dsmr40RegisterFactory extends Dsmr23RegisterFactory {
         if (registers != null) {
             List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
             for (OfflineRegister register : registers) {
-                try {
-                    ObisCode rObisCode = getCorrectedRegisterObisCode(register);
-                    if (rObisCode.equalsIgnoreBChannel(MbusEncryptionStatus_New) || rObisCode.equalsIgnoreBChannel(MbusEncryptionStatus)) {     // if they still use the old obiscode, then read the new object
-                        ObisCode mbusClientObisCode = this.protocol.getPhysicalAddressCorrectedObisCode(this.protocol.getDlmsSession().getMeterConfig().getMbusClient(0).getObisCode(), register.getSerialNumber());
-                        this.registerMap.put(register, new DLMSAttribute(mbusClientObisCode, DSMR4_MbusClientAttributes.ENCRYPTION_STATUS.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
-                        dlmsAttributes.add(this.registerMap.get(register));
-                    } else if (rObisCode.equalsIgnoreBChannel(MbusKeyStatusObisCode)) {
-                        ObisCode mbusClientObisCode = this.protocol.getPhysicalAddressCorrectedObisCode(this.protocol.getDlmsSession().getMeterConfig().getMbusClient(0).getObisCode(), register.getSerialNumber());
-                        this.registerMap.put(register, new DLMSAttribute(mbusClientObisCode, DSMR4_MbusClientAttributes.KEY_STATUS.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
-                        dlmsAttributes.add(this.registerMap.get(register));
-                    } else if (rObisCode.equals(SecurityPolicyObisCode)) {
-                        this.registerMap.put(register, new DLMSAttribute(SecuritySetup.getDefaultObisCode(), 2, DLMSClassId.SECURITY_SETUP.getClassId()));
-                        dlmsAttributes.add(this.registerMap.get(register));
-                    } else if (rObisCode.equals(HighLevelSecurityObisCode)) {
-                        this.registerMap.put(register, new DLMSAttribute(AssociationLN.getDefaultObisCode(), AssociationLNAttributes.AUTHENTICATION_MECHANISM_NAME.getAttributeNumber(), DLMSClassId.ASSOCIATION_LN.getClassId()));
-                        dlmsAttributes.add(this.registerMap.get(register));
-                    } else if (rObisCode.equals(AdministrativeStatusObisCode)) {
-                        this.registerMap.put(register, new DLMSAttribute(AdministrativeStatusObisCode, DataAttributes.VALUE.getAttributeNumber(), DLMSClassId.DATA));
-                        dlmsAttributes.add(this.registerMap.get(register));
-                    } else if (rObisCode.equals(GPRSNetworkInformation)) {
-                        this.registerMap.put(register, new DLMSAttribute(GPRSNetworkInformation, DataAttributes.VALUE.getAttributeNumber(), DLMSClassId.DATA));
-                        dlmsAttributes.add(this.registerMap.get(register));
-                    } else if (rObisCode.equals(ConfigurationObject)) {
-                        this.registerMap.put(register, new DLMSAttribute(ConfigurationObject, DataAttributes.VALUE.getAttributeNumber(), DLMSClassId.DATA));
-                        dlmsAttributes.add(this.registerMap.get(register));
-                    }
-                } catch (IOException e) {
-                    this.protocol.getLogger().warning("Could not process register: " + register);
+                ObisCode rObisCode = getCorrectedRegisterObisCode(register);
+                if (rObisCode.equalsIgnoreBChannel(MbusEncryptionStatus_New) || rObisCode.equalsIgnoreBChannel(MbusEncryptionStatus)) {     // if they still use the old obiscode, then read the new object
+                    ObisCode mbusClientObisCode = this.protocol.getPhysicalAddressCorrectedObisCode(MbusClientObisCode, register.getSerialNumber());
+                    this.registerMap.put(register, new DLMSAttribute(mbusClientObisCode, DSMR4_MbusClientAttributes.ENCRYPTION_STATUS.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+                    dlmsAttributes.add(this.registerMap.get(register));
+                } else if (rObisCode.equalsIgnoreBChannel(MbusKeyStatusObisCode)) {
+                    ObisCode mbusClientObisCode = this.protocol.getPhysicalAddressCorrectedObisCode(MbusClientObisCode, register.getSerialNumber());
+                    this.registerMap.put(register, new DLMSAttribute(mbusClientObisCode, DSMR4_MbusClientAttributes.KEY_STATUS.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+                    dlmsAttributes.add(this.registerMap.get(register));
+                } else if (rObisCode.equals(SecurityPolicyObisCode)) {
+                    this.registerMap.put(register, new DLMSAttribute(SecuritySetup.getDefaultObisCode(), 2, DLMSClassId.SECURITY_SETUP.getClassId()));
+                    dlmsAttributes.add(this.registerMap.get(register));
+                } else if (rObisCode.equals(HighLevelSecurityObisCode)) {
+                    this.registerMap.put(register, new DLMSAttribute(AssociationLN.getDefaultObisCode(), AssociationLNAttributes.AUTHENTICATION_MECHANISM_NAME.getAttributeNumber(), DLMSClassId.ASSOCIATION_LN.getClassId()));
+                    dlmsAttributes.add(this.registerMap.get(register));
+                } else if (rObisCode.equals(AdministrativeStatusObisCode)) {
+                    this.registerMap.put(register, new DLMSAttribute(AdministrativeStatusObisCode, DataAttributes.VALUE.getAttributeNumber(), DLMSClassId.DATA));
+                    dlmsAttributes.add(this.registerMap.get(register));
+                } else if (rObisCode.equals(GPRSNetworkInformation)) {
+                    this.registerMap.put(register, new DLMSAttribute(GPRSNetworkInformation, DataAttributes.VALUE.getAttributeNumber(), DLMSClassId.DATA));
+                    dlmsAttributes.add(this.registerMap.get(register));
+                } else if (rObisCode.equals(ConfigurationObject)) {
+                    this.registerMap.put(register, new DLMSAttribute(ConfigurationObject, DataAttributes.VALUE.getAttributeNumber(), DLMSClassId.DATA));
+                    dlmsAttributes.add(this.registerMap.get(register));
                 }
             }
             ComposedCosemObject sRegisterList = super.constructComposedObjectFromRegisterList(registers, supportsBulkRequest);

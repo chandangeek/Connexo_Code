@@ -137,7 +137,7 @@ public class WebRTUZ3 extends AbstractSmartDlmsProtocol implements MasterMeter, 
      * @return the version of this protocol (file)
      */
     public String getVersion() {
-        return "$Date$";
+        return "$Date: 2015-04-29 16:11:31 +0200 (Wed, 29 Apr 2015) $";
     }
 
     /**
