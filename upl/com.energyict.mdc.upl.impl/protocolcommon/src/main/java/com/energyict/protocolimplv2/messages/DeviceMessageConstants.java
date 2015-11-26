@@ -638,6 +638,7 @@ public class DeviceMessageConstants {
     public static final String sslCertificateUserFile = "sslCertificateUserFile";
     public static final String servletURL = "servletURL";
     public static final String logLevel = "logLevel";
+    public static final String protocolName = "protocolName";
 
     public static final String MBusSetupDeviceMessage_ChangeMBusClientIdentificationNumber = "MBusSetupDeviceMessage.ChangeMBusClientIdentificationNumber";
     public static final String MBusSetupDeviceMessage_ChangeMBusClientManufacturerId = "MBusSetupDeviceMessage.ChangeMBusClientManufacturerId";

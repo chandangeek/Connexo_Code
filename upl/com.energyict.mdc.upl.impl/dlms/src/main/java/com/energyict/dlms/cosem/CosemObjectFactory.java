@@ -681,4 +681,13 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     public final MasterboardSetup getMasterboardSetup() throws NotInObjectListException {
         return new MasterboardSetup(this.protocolLink, this.getObjectReference(MasterboardSetup.getDefaultObisCode()));
     }
+    
+    /**
+     * Returns the Beacon 3100 ConcentratorSetupIC object.
+     * 
+     * @return	The {@link ConcentratorSetup} object.
+     */
+    public final ConcentratorSetup getConcentratorSetup() {
+    	return new ConcentratorSetup(this.protocolLink, ConcentratorSetup.DEFAULT_OBIS_CODE);
+    }
 }

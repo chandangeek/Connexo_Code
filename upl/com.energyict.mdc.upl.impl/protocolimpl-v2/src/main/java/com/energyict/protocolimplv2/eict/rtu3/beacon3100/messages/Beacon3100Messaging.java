@@ -26,6 +26,7 @@ import com.energyict.cbo.Password;
 import com.energyict.cbo.TimeDuration;
 import com.energyict.cpo.BusinessObject;
 import com.energyict.cpo.PropertySpec;
+import com.energyict.dlms.ParseUtils;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.BooleanObject;
@@ -34,6 +35,7 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.AssociationLN;
+import com.energyict.dlms.cosem.ConcentratorSetup;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.DataAccessResultCode;
@@ -109,6 +111,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         supportedMessages.add(DeviceActionMessage.PauseDCScheduler);
         supportedMessages.add(DeviceActionMessage.ResumeDCScheduler);
         supportedMessages.add(DeviceActionMessage.SyncOneConfigurationForDC);
+        supportedMessages.add(DeviceActionMessage.TRIGGER_PRELIMINARY_PROTOCOL);
 
         supportedMessages.add(PLCConfigurationDeviceMessage.PingMeter);
 
@@ -433,6 +436,22 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                         configureFWLAN(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(FirewallConfigurationMessage.ConfigureFWWAN)) {
                         configureFWWAN(pendingMessage);
+                    } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.TRIGGER_PRELIMINARY_PROTOCOL)) {
+                    	if (pendingMessage.getDeviceMessageAttributes().size() == 2) {
+                    		final String macAddressHex = pendingMessage.getDeviceMessageAttributes()
+                    												   .get(0)
+                    												   .getDeviceMessageAttributeValue();
+                    		
+                    		final String protocolName = pendingMessage.getDeviceMessageAttributes()
+                    												  .get(1)
+                    												  .getDeviceMessageAttributeValue();
+                    		
+                    		this.triggerPreliminaryProtocol(macAddressHex, protocolName);
+                    	} else {
+                    		collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+                    		collectedMessage.setDeviceProtocolInformation("Expected message with 2 attributes, instead got [" + pendingMessage.getDeviceMessageAttributes().size() + "] attributes");
+                    		collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
+                    	}
                     } else {   //Unsupported message
                         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                         collectedMessage.setDeviceProtocolInformation("Message currently not supported by the protocol");
@@ -455,6 +474,29 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         }
 
         return result;
+    }
+    
+    /**
+     * Trigger the preliminary protocol for a particular meter.
+     * 
+     * @param 	macAddress			MAC address of the meter (hex).
+     * @param 	protocolName		The name of the protocol to run.
+     * 
+     * @throws 	IOException			If an IO error occurs during the execution.
+     */	
+    private final void triggerPreliminaryProtocol(final String macAddress, final String protocolName) throws IOException  {
+    	if (getLogger().isLoggable(Level.INFO)) {
+			getLogger().log(Level.INFO, "Triggering preliminary protocol for meter [" + macAddress + "], using protocol [" + protocolName + "]");
+		}
+    	
+    	final byte[] mac = ParseUtils.hexStringToByteArray(macAddress);
+    	
+    	final ConcentratorSetup concentratorSetup = this.getCosemObjectFactory().getConcentratorSetup();
+    	concentratorSetup.triggerPreliminaryProtocol(mac, protocolName);
+
+    	if (getLogger().isLoggable(Level.INFO)) {
+			getLogger().log(Level.INFO, "Triggered preliminary protocol for meter [" + macAddress + "], using protocol [" + protocolName + "]");
+		}
     }
 
     private PLCConfigurationDeviceMessageExecutor getPLCConfigurationDeviceMessageExecutor() {
