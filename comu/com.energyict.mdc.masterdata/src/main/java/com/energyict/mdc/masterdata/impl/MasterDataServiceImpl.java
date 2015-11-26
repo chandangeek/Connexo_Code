@@ -1,37 +1,32 @@
 package com.energyict.mdc.masterdata.impl;
 
-import com.elster.jupiter.cbo.Accumulation;
 import com.elster.jupiter.cbo.Commodity;
 import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.cbo.ReadingTypeUnit;
-import com.elster.jupiter.metering.ReadingTypeMridFilter;
-import com.elster.jupiter.nls.*;
-import com.energyict.mdc.common.CanFindByLongPrimaryKey;
-import com.elster.jupiter.util.HasId;
-import com.energyict.mdc.common.ObisCode;
-import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
-import com.energyict.mdc.masterdata.ChannelType;
-import com.energyict.mdc.masterdata.LoadProfileType;
-import com.energyict.mdc.masterdata.LogBookType;
-import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.masterdata.MeasurementType;
-import com.energyict.mdc.masterdata.RegisterGroup;
-import com.energyict.mdc.masterdata.RegisterType;
-import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
-import com.energyict.mdc.masterdata.impl.finders.LoadProfileTypeFinder;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
-
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.ReadingTypeMridFilter;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.MessageSeedProvider;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.callback.InstallService;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.energyict.mdc.common.CanFindByLongPrimaryKey;
+import com.energyict.mdc.common.ObisCode;
+import com.energyict.mdc.dynamic.ReferencePropertySpecFinderProvider;
+import com.energyict.mdc.masterdata.*;
+import com.energyict.mdc.masterdata.exceptions.MessageSeeds;
+import com.energyict.mdc.masterdata.impl.finders.LoadProfileTypeFinder;
+import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -40,12 +35,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Predicates.not;
@@ -334,18 +324,13 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
 
     @Override
     public List<ReadingType> getOrCreatePossibleMultiplyReadingTypesFor(ReadingType readingType) {
-        if (readingType.getUnit().equals(ReadingTypeUnit.COUNT)) {
+        if (readingType.getUnit().equals(ReadingTypeUnit.COUNT) && !readingType.getCommodity().equals(Commodity.ELECTRICITY_PRIMARY_METERED)) {
             return meteringService.getReadingTypesByMridFilter(createReadingTypeFilterForUnitAndMultiplier(readingType)).find()
                     .stream().filter(not(rt -> rt.getMRID().equals(readingType.getMRID()))).collect(Collectors.toList());
         } else if (readingType.getCommodity().equals(Commodity.ELECTRICITY_SECONDARY_METERED)) {
-            ReadingTypeCodeBuilder readingTypeCodeBuilder = createReadingTypeCodeBuilderFrom(readingType);
+            ReadingTypeCodeBuilder readingTypeCodeBuilder = mdcReadingTypeUtilService.createReadingTypeCodeBuilderFrom(readingType);
             readingTypeCodeBuilder.commodity(Commodity.ELECTRICITY_PRIMARY_METERED);
-            Optional<ReadingType> primaryReadingType = meteringService.getReadingType(readingTypeCodeBuilder.code());
-            if(primaryReadingType.isPresent()){
-                return Collections.singletonList(primaryReadingType.get());
-            } else {
-                return Collections.singletonList(meteringService.createReadingType(readingTypeCodeBuilder.code(), readingType.getAliasName()));
-            }
+            return Collections.singletonList(mdcReadingTypeUtilService.findOrCreateReadingType(readingTypeCodeBuilder.code(), readingType.getAliasName()));
         } else {
             return Collections.emptyList();
         }
@@ -359,21 +344,4 @@ public class MasterDataServiceImpl implements MasterDataService, ReferenceProper
         return readingTypeMridFilter;
     }
 
-    private ReadingTypeCodeBuilder createReadingTypeCodeBuilderFrom(ReadingType readingType) {
-        return ReadingTypeCodeBuilder.of(readingType.getCommodity())
-                .period(readingType.getMacroPeriod())
-                .period(readingType.getMeasuringPeriod())
-                .accumulate(readingType.getAccumulation())
-                .aggregate(readingType.getAggregate())
-                .argument(((int) readingType.getArgument().getNumerator()), (int) readingType.getArgument().getDenominator())
-                .cpp(readingType.getCpp())
-                .currency(readingType.getCurrency())
-                .flow(readingType.getFlowDirection())
-                .harmonic(((int) readingType.getInterharmonic().getNumerator()), (int) readingType.getInterharmonic().getDenominator())
-                .in(readingType.getMultiplier(), readingType.getUnit())
-                .measure(readingType.getMeasurementKind())
-                .phase(readingType.getPhases())
-                .tier(readingType.getConsumptionTier())
-                .tou(readingType.getTou());
-    }
 }
