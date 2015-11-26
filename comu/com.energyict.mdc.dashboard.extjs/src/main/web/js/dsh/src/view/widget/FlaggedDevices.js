@@ -108,7 +108,7 @@ Ext.define('Dsh.view.widget.FlaggedDevices', {
                 item.set('tooltip', me.tooltipTpl.apply(item.getData(true)));
             });
 
-            elm.bindStore(store);
+            elm.refresh();
         });
     }
 });
