@@ -1,6 +1,7 @@
 package com.energyict.mdc.metering;
 
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.cbo.ReadingTypeCodeBuilder;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.ObisCode;
@@ -79,6 +80,15 @@ public interface MdcReadingTypeUtilService {
     public ReadingType getOrCreateIntervalAppliedReadingType(ReadingType readingType, Optional<TimeDuration> interval, ObisCode registerObisCode);
 
     /**
+     * Finds the ReadingType which is
+     *
+     * @param mrid  of the ReadingType to find or create
+     * @param alias the alias to give to the readingType in case you have to create one
+     * @return the requested ReadingType
+     */
+    public ReadingType findOrCreateReadingType(String mrid, String alias);
+
+    /**
      * Gets the MDC unit according to the CIM ReadingType.
      * If no proper ReadingType is provided or nor proper unit matching can be done, the unit "UNDEFINED" will be returned
      *
@@ -88,11 +98,11 @@ public interface MdcReadingTypeUtilService {
     public Unit getMdcUnitFor(String readingType);
 
     /**
-     * Creates a readingType from the given ReadingType with the commodity set the PrimaryMetered
+     * Creates a ReadingTypeCodeBuilder from a given readingType
      *
-     * @param readingType the ReadingType to start from
-     *
-     * @return primary metered applied ReadingType
+     * @param readingType the readingType which will serve as template for the ReadingTypeCodeBuilder
+     * @return the readingTypeCodeBuilder
      */
-    ReadingType getOrCreatePrimaryMeteredReadingType(ReadingType readingType);
-}
+    public ReadingTypeCodeBuilder createReadingTypeCodeBuilderFrom(ReadingType readingType);
+
+    }

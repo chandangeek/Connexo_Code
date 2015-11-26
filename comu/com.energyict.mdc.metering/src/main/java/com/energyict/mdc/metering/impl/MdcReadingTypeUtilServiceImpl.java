@@ -1,6 +1,6 @@
 package com.energyict.mdc.metering.impl;
 
-import com.elster.jupiter.cbo.Commodity;
+import com.elster.jupiter.cbo.TimeAttribute;
 import com.energyict.mdc.common.ObisCode;
 import com.energyict.mdc.common.Unit;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -113,12 +113,14 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
     }
 
     private ReadingTypeCodeBuilder getReadingTypeCodeBuilderWithInterval(ReadingType readingType, Optional<TimeDuration> interval, ObisCode registerObisCode) {
-        ReadingTypeCodeBuilder readingTypeCodeBuilder = copyReadingTypeFields(readingType);
+        ReadingTypeCodeBuilder readingTypeCodeBuilder = createReadingTypeCodeBuilderFrom(readingType);
 
         if (interval.isPresent() && interval.get().equals(TimeDuration.days(1))) {
             readingTypeCodeBuilder.period(MacroPeriod.DAILY);
+            readingTypeCodeBuilder.period(TimeAttribute.NOTAPPLICABLE);
         } else if (interval.isPresent() && interval.get().equals(TimeDuration.months(1))) {
             readingTypeCodeBuilder.period(MacroPeriod.MONTHLY);
+            readingTypeCodeBuilder.period(TimeAttribute.NOTAPPLICABLE);
         } else {
             readingTypeCodeBuilder.period(MeasuringPeriodMapping.getMeasuringPeriodFor(registerObisCode, interval.orElse(null)));
         }
@@ -136,20 +138,14 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
         }
     }
 
-    private ReadingTypeCodeBuilder copyReadingTypeFields(ReadingType readingType) {
-        return ReadingTypeCodeBuilder.of(readingType.getCommodity())
-                .accumulate(readingType.getAccumulation())
-                .aggregate(readingType.getAggregate())
-                .argument(((int) readingType.getArgument().getNumerator()), (int) readingType.getArgument().getDenominator())
-                .cpp(readingType.getCpp())
-                .currency(readingType.getCurrency())
-                .flow(readingType.getFlowDirection())
-                .harmonic(((int) readingType.getInterharmonic().getNumerator()), (int) readingType.getInterharmonic().getDenominator())
-                .in(readingType.getMultiplier(), readingType.getUnit())
-                .measure(readingType.getMeasurementKind())
-                .phase(readingType.getPhases())
-                .tier(readingType.getConsumptionTier())
-                .tou(readingType.getTou());
+    @Override
+    public ReadingType findOrCreateReadingType(String mrid, String alias) {
+        Optional<ReadingType> primaryReadingType = meteringService.getReadingType(mrid);
+        if(primaryReadingType.isPresent()){
+            return primaryReadingType.get();
+        } else {
+            return meteringService.createReadingType(mrid, alias);
+        }
     }
 
     @Override
@@ -163,15 +159,21 @@ public class MdcReadingTypeUtilServiceImpl implements MdcReadingTypeUtilService 
     }
 
     @Override
-    public ReadingType getOrCreatePrimaryMeteredReadingType(ReadingType readingType) {
-        ReadingTypeCodeBuilder readingTypeCodeBuilder = copyReadingTypeFields(readingType);
-        readingTypeCodeBuilder.commodity(Commodity.ELECTRICITY_PRIMARY_METERED);
-        String mrid = readingTypeCodeBuilder.code();
-        Optional<ReadingType> primaryMeteredReadingType = this.meteringService.getReadingType(mrid);
-        if(primaryMeteredReadingType.isPresent()){
-            return primaryMeteredReadingType.get();
-        } else {
-            return this.meteringService.createReadingType(mrid, readingType.getAliasName());
-        }
+    public ReadingTypeCodeBuilder createReadingTypeCodeBuilderFrom(ReadingType readingType) {
+        return ReadingTypeCodeBuilder.of(readingType.getCommodity())
+                .period(readingType.getMacroPeriod())
+                .period(readingType.getMeasuringPeriod())
+                .accumulate(readingType.getAccumulation())
+                .aggregate(readingType.getAggregate())
+                .argument(((int) readingType.getArgument().getNumerator()), (int) readingType.getArgument().getDenominator())
+                .cpp(readingType.getCpp())
+                .currency(readingType.getCurrency())
+                .flow(readingType.getFlowDirection())
+                .harmonic(((int) readingType.getInterharmonic().getNumerator()), (int) readingType.getInterharmonic().getDenominator())
+                .in(readingType.getMultiplier(), readingType.getUnit())
+                .measure(readingType.getMeasurementKind())
+                .phase(readingType.getPhases())
+                .tier(readingType.getConsumptionTier())
+                .tou(readingType.getTou());
     }
 }
