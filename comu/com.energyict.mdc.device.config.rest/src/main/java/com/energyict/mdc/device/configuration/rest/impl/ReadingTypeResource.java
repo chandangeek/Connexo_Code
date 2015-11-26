@@ -42,23 +42,17 @@ public class ReadingTypeResource {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     public PagedInfoList getReadingType(@BeanParam JsonQueryFilter queryFilter, @BeanParam JsonQueryParameters queryParameters) throws Exception {
         List<ReadingTypeInfo> readingTypeInfos = new ArrayList<>();
         if (queryFilter.hasFilters()) {
             ObisCode obisCode = queryFilter.getProperty("obisCode", new ObisCodeAdapter());
 
-            //TODO see where this rest call is made, we don't persist the unit anymore
-            //Unit unit = queryFilter.getProperty("unit", new UnitAdapter());
-//            Optional<Phenomenon> phenomenon = masterDataService.findPhenomenon(phenomenonId);
-//            if (phenomenon.isPresent()) {
-                String mrid = readingTypeUtilService.getReadingTypeMridFrom(obisCode, Unit.getUndefined());
-                Optional<ReadingType> readingType = meteringService.getReadingType(mrid);
-                if (readingType.isPresent()) {
-                    //    throw new WebApplicationException("No such reading type", Response.status(Response.Status.NOT_FOUND).entity("No reading type for ObisCode "+obisCode+" and unit "+unitString).build());
-                    readingTypeInfos.add(new ReadingTypeInfo(readingType.get()));
-                }
-//            }
+            String mrid = readingTypeUtilService.getReadingTypeMridFrom(obisCode, Unit.getUndefined());
+            Optional<ReadingType> readingType = meteringService.getReadingType(mrid);
+            if (readingType.isPresent()) {
+                readingTypeInfos.add(new ReadingTypeInfo(readingType.get()));
+            }
         } else {
             List<ReadingType> readingTypes = ListPager.of(meteringService.getAvailableReadingTypes(), new ReadingTypeComparator()).from(queryParameters).find();
             for (ReadingType readingType : readingTypes) {

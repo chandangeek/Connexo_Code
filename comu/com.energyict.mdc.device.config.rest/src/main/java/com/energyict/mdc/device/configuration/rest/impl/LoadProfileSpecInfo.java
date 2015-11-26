@@ -8,7 +8,6 @@ import com.energyict.mdc.device.config.ChannelSpec;
 import com.energyict.mdc.device.config.DeviceConfiguration;
 import com.energyict.mdc.device.config.LoadProfileSpec;
 import com.energyict.mdc.masterdata.rest.LocalizedTimeDuration;
-import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -35,15 +34,15 @@ public class LoadProfileSpecInfo {
     public LoadProfileSpecInfo() {
     }
 
-    public static List<LoadProfileSpecInfo> from(List<LoadProfileSpec> loadProfileSpecs, MdcReadingTypeUtilService mdcReadingTypeUtilService) {
+    public static List<LoadProfileSpecInfo> from(List<LoadProfileSpec> loadProfileSpecs) {
         List<LoadProfileSpecInfo> loadProfileTypeInfos = new ArrayList<>(loadProfileSpecs.size());
         for (LoadProfileSpec loadProfileSpec : loadProfileSpecs) {
-            loadProfileTypeInfos.add(LoadProfileSpecInfo.from(loadProfileSpec, null, mdcReadingTypeUtilService));
+            loadProfileTypeInfos.add(LoadProfileSpecInfo.from(loadProfileSpec, null));
         }
         return loadProfileTypeInfos;
     }
 
-    public static LoadProfileSpecInfo from(LoadProfileSpec loadProfileSpec, List<ChannelSpec> channelSpecs, MdcReadingTypeUtilService mdcReadingTypeUtilService) {
+    public static LoadProfileSpecInfo from(LoadProfileSpec loadProfileSpec, List<ChannelSpec> channelSpecs) {
         LoadProfileSpecInfo info = new LoadProfileSpecInfo();
         info.id = loadProfileSpec.getId();
         info.name = loadProfileSpec.getLoadProfileType().getName();

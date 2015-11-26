@@ -39,15 +39,13 @@ public class LoadProfileConfigurationResource {
     private final DeviceConfigurationService deviceConfigurationService;
     private final MasterDataService masterDataService;
     private final Thesaurus thesaurus;
-    private final MdcReadingTypeUtilService mdcReadingTypeUtilService;
 
     @Inject
-    public LoadProfileConfigurationResource(ResourceHelper resourceHelper, DeviceConfigurationService deviceConfigurationService, MasterDataService masterDataService, Thesaurus thesaurus, MdcReadingTypeUtilService mdcReadingTypeUtilService) {
+    public LoadProfileConfigurationResource(ResourceHelper resourceHelper, DeviceConfigurationService deviceConfigurationService, MasterDataService masterDataService, Thesaurus thesaurus) {
         this.resourceHelper = resourceHelper;
         this.deviceConfigurationService = deviceConfigurationService;
         this.masterDataService = masterDataService;
         this.thesaurus = thesaurus;
-        this.mdcReadingTypeUtilService = mdcReadingTypeUtilService;
     }
 
     @GET
@@ -61,7 +59,7 @@ public class LoadProfileConfigurationResource {
         Collections.sort(loadProfileSpecs, new LoadProfileSpecComparator());
         List<LoadProfileSpecInfo> loadProfileSpecInfos = new ArrayList<>(loadProfileSpecs.size());
         for (LoadProfileSpec spec : loadProfileSpecs) {
-            loadProfileSpecInfos.add(LoadProfileSpecInfo.from(spec, spec.getChannelSpecs(), mdcReadingTypeUtilService));
+            loadProfileSpecInfos.add(LoadProfileSpecInfo.from(spec, spec.getChannelSpecs()));
         }
         return Response.ok(PagedInfoList.fromPagedList("data", loadProfileSpecInfos, queryParameters)).build();
     }
@@ -90,7 +88,7 @@ public class LoadProfileConfigurationResource {
             @PathParam("loadProfileSpecId") long loadProfileSpecId,
             @BeanParam JsonQueryParameters queryParameters) {
         LoadProfileSpec loadProfileSpec = resourceHelper.findLoadProfileSpecOrThrowException(loadProfileSpecId);
-        return Response.ok(LoadProfileSpecInfo.from(loadProfileSpec, loadProfileSpec.getChannelSpecs(), mdcReadingTypeUtilService)).build();
+        return Response.ok(LoadProfileSpecInfo.from(loadProfileSpec, loadProfileSpec.getChannelSpecs())).build();
     }
 
     @POST
@@ -112,7 +110,7 @@ public class LoadProfileConfigurationResource {
             specBuilder.setOverruledObisCode(request.overruledObisCode);
         }
         LoadProfileSpec newLoadProfileSpec = specBuilder.add();
-        return Response.ok(LoadProfileSpecInfo.from(newLoadProfileSpec, null, mdcReadingTypeUtilService)).build();
+        return Response.ok(LoadProfileSpecInfo.from(newLoadProfileSpec, null)).build();
     }
 
     @PUT
@@ -125,7 +123,7 @@ public class LoadProfileConfigurationResource {
         LoadProfileSpec loadProfileSpec = resourceHelper.lockLoadProfileSpecOrThrowException(info);
         LoadProfileSpec.LoadProfileSpecUpdater specUpdater = loadProfileSpec.getDeviceConfiguration().getLoadProfileSpecUpdaterFor(loadProfileSpec);
         specUpdater.setOverruledObisCode(info.overruledObisCode).update();
-        return Response.ok(LoadProfileSpecInfo.from(loadProfileSpec, null, mdcReadingTypeUtilService)).build();
+        return Response.ok(LoadProfileSpecInfo.from(loadProfileSpec, null)).build();
     }
 
     @DELETE
