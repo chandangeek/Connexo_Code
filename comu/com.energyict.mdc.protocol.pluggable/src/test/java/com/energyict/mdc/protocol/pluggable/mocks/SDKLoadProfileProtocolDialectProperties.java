@@ -1,16 +1,15 @@
 package com.energyict.mdc.protocol.pluggable.mocks;
 
+import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.dynamic.ObisCodeValueFactory;
 import com.energyict.mdc.dynamic.PropertySpecService;
-
-import com.elster.jupiter.properties.PropertySpec;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * A <i>set</i> of properties related to LoadProfiles.
- * <p/>
+ *
  * Copyrights EnergyICT
  * Date: 5/02/13
  * Time: 15:46
