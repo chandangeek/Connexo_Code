@@ -595,15 +595,15 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                         channelConfiguration.getMeasurementType().name = measurementTypeName;
                                         widget.down('form').loadRecord(channelConfiguration);
 
-                                        if (channelConfiguration.get('useMultiplier') === false) {
-                                            me.onMultiplierChange(multiplierRadioGroup);
-                                        }
                                         registerTypesStore.add(channelConfiguration.getMeasurementType());
                                         registerTypeCombo.bindStore(registerTypesStore, true);
                                         registerTypeCombo.setValue(measurementTypeId);
                                         registerTypeCombo.setDisabled(true);
 
-                                        multiplierRadioGroup.setDisabled(deviceConfig.get('active'));
+                                        me.onMultiplierChange(multiplierRadioGroup); // (1) Keep this order
+                                        if (deviceConfig.get('active')) {
+                                            multiplierRadioGroup.setDisabled(true); // (2) Keep this order
+                                        }
 
                                         me.registerTypesObisCode = channelConfiguration.getMeasurementType().get('obisCode');
                                         me.onOverruledObisCodeChange(me.getOverruledObisCodeField(), me.getOverruledObisCodeField().getValue());
