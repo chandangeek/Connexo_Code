@@ -1,23 +1,19 @@
 package com.elster.jupiter.validation.impl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
-import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsKey;
 import com.elster.jupiter.nls.SimpleNlsKey;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.Translation;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.users.UserService;
-import com.elster.jupiter.validation.ValidationService;
+import com.elster.jupiter.util.exception.ExceptionCatcher;
+
+import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class InstallerImpl {
     public static final String DESTINATION_NAME = ValidationServiceImpl.DESTINATION_NAME;
@@ -28,11 +24,13 @@ public class InstallerImpl {
     private final EventService eventService;
     private final MessageService messageService;
     private DestinationSpec destinationSpec;
+    private final UserService userService;
 
-    public InstallerImpl(DataModel dataModel, EventService eventService, MessageService messageService) {
+    public InstallerImpl(DataModel dataModel, EventService eventService, MessageService messageService, UserService userService) {
         this.dataModel = dataModel;
         this.messageService = messageService;
         this.eventService = eventService;
+        this.userService = userService;
     }
 
     public DestinationSpec getDestinationSpec() {
@@ -45,8 +43,16 @@ public class InstallerImpl {
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Could not install datamodel : " + ex.getMessage(), ex);
         }
-        createEventTypes();
-        createDestinationAndSubscriber();
+        ExceptionCatcher.executing(
+                this::createEventTypes,
+                this::createDestinationAndSubscriber,
+                this::createValidationUser
+        ).andHandleExceptionsWith(exception -> LOGGER.log(Level.SEVERE, exception.getMessage(), exception))
+                .execute();
+    }
+
+    private void createValidationUser() {
+        userService.createUser(ValidationServiceImpl.VALIDATION_USER, ValidationServiceImpl.VALIDATION_USER);
     }
 
 

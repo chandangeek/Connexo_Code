@@ -81,6 +81,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
 
     public static final String DESTINATION_NAME = "DataValidation";
     public static final String SUBSCRIBER_NAME = "DataValidation";
+    public static final String VALIDATION_USER = "validation";
     private volatile EventService eventService;
     private volatile MeteringService meteringService;
     private volatile MeteringGroupsService meteringGroupsService;
@@ -149,7 +150,7 @@ public class ValidationServiceImpl implements ValidationService, InstallService,
 
     @Override
     public void install() {
-        new InstallerImpl(dataModel, eventService, messageService).install(true, true);
+        new InstallerImpl(dataModel, eventService, messageService, userService).install(true, true);
     }
 
     @Override
